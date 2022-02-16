@@ -47,20 +47,42 @@ class SendQueuedMessages extends Command
                             ->join("customers as c", "c.id", "chat_messages.customer_id")
                             ->where("chat_messages.message_application_id", 3)
                            ->where(function ($q) {
-								$q->whereNull("chat_messages.scheduled_at")->orWhere("chat_messages.scheduled_at", '<=', Carbon::now()->format('Y-m-d H:i:s'));
+								$q->whereNull("chat_messages.scheduled_at")
+								->orWhere("chat_messages.scheduled_at", 'like', Carbon::now()->format('Y-m-d').'%');
 							})
-                            ->select("chat_messages.*", 'c.store_website_id')
-                            ->get();
+                            ->select("chat_messages.*", 'c.store_website_id', 'c.phone')
+                            ->get(); 
 							
 			if (!$chatMessage->isEmpty()) {
-                foreach ($chatMessage as $value) {
-					$twilio_cred = \App\StoreWebsiteTwilioNumber::select('twilio_active_numbers.account_sid as a_sid', 'twilio_active_numbers.phone_number as phone_number', 'twilio_credentials.auth_token as auth_token')
-						->join('twilio_active_numbers', 'twilio_active_numbers.id', '=', 'store_website_twilio_numbers.twilio_active_number_id')
-						->join('twilio_credentials', 'twilio_credentials.id', '=', 'twilio_active_numbers.twilio_credential_id')
-						->where('store_website_twilio_numbers.store_website_id', $value->store_website_id)
-						->first();
+                $this->sendMessages($chatMessage);
+			}
+			
+			 $chatMessage1 = ChatMessage::where('is_queue', 1)
+                            ->join("users as c", "c.id", "chat_messages.user_id")
+                            ->where("chat_messages.message_application_id", 3)
+                           ->where(function ($q) {
+								$q->whereNull("chat_messages.scheduled_at")
+								->orWhere("chat_messages.scheduled_at", 'like', Carbon::now()->format('Y-m-d').'%');
+							})
+                            ->select("chat_messages.*", 'c.phone')
+                            ->get(); 
+			if (!$chatMessage1->isEmpty()) {
+                $this->sendMessages($chatMessage1);
+			}
+    }
+	
+	public function sendMessages($chatMessage) {
+		 foreach ($chatMessage as $value) { 
+				$twilio_cred = null;
+					if(isset($value['store_website_id'])) {
+						$twilio_cred = \App\StoreWebsiteTwilioNumber::select('twilio_active_numbers.account_sid as a_sid', 'twilio_active_numbers.phone_number as phone_number', 'twilio_credentials.auth_token as auth_token')
+							->join('twilio_active_numbers', 'twilio_active_numbers.id', '=', 'store_website_twilio_numbers.twilio_active_number_id')
+							->join('twilio_credentials', 'twilio_credentials.id', '=', 'twilio_active_numbers.twilio_credential_id')
+							->where('store_website_twilio_numbers.store_website_id', $value->store_website_id)
+							->first();
+					}
 
-					if(isset($twilio_cred)){
+					if(isset($twilio_cred) and $twilio_cred != null){
 						$account_sid = $twilio_cred->a_sid;
 						$auth_token = $twilio_cred->auth_token;
 						$twilio_number = $twilio_cred->phone_number;
@@ -71,6 +93,7 @@ class SendQueuedMessages extends Command
 					}
 					try{
 						$receiverNumber = '+'.$value['phone'];
+						
 						$message = $value['message'];
 						$client = new Client($account_sid, $auth_token);
 						$client->messages->create($receiverNumber, [
@@ -86,8 +109,7 @@ class SendQueuedMessages extends Command
 						]);
 					}catch (Exception $e) {
 						\Log::info("Sending SMS issue #2215 ->" . $e->getMessage());
-					}
+					} 
 				}
-			}
-    }
+	}
 }
