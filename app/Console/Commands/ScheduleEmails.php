@@ -14,6 +14,7 @@ use App\ScrapLog;
 use App\TaskCategory;
 use App\Task;
 use App\ErpLeads;
+use App\FlowCondition;
 use Carbon\Carbon;
 use App\Mail\ScheduledEmail;
 use DB;
@@ -58,6 +59,9 @@ class ScheduleEmails extends Command
 		$created_date = Carbon::now();
 		$modalType = "";
 		$leads = [];
+
+		$flowcondition = FlowCondition::get();
+
 
 		//$flows = Flow::select('id', 'flow_name as name')->get();
 		$flows = Flow::whereIn('flow_name', ['task_pr'])->select('id', 'flow_name as name')->get();  
@@ -110,42 +114,99 @@ class ScheduleEmails extends Command
 						$i = 1;
 						$modalType =  ErpLeads::class;
 					} else if ($key == 0 and $flow['name'] == 'wishlist') {
-						$leads = \App\CustomerBasketProduct::join("customer_baskets as cb", "cb.id", "customer_basket_products.customer_basket_id")
-							->where("cb.store_website_id", $flow['store_website_id'])
-							->where('customer_basket_products.created_at', 'like', Carbon::now()->format('Y-m-d') . '%')
-							->select('customer_basket_products.id', 'cb.customer_name', 'cb.customer_email', 'cb.customer_id')
+						$leads = \App\CustomerBasketProduct::join("customer_baskets as cb", "cb.id", "customer_basket_products.customer_basket_id");
+							if(($flowcondition[0]->condition_name =='wishlist_store_website_id')&&($flowcondition[0]->status==1))
+							{
+								$leads = $leads->where("cb.store_website_id", $flow['store_website_id']);
+							}
+							if(($flowcondition[1]->condition_name=='wishlist_customer_basket_products_created_at')&&($flowcondition[1]->status==1))
+							{
+								$leads = $leads->where('customer_basket_products.created_at', 'like', Carbon::now()->format('Y-m-d') . '%');
+							}
+							
+							$leads = $leads->select('customer_basket_products.id', 'cb.customer_name', 'cb.customer_email', 'cb.customer_id')
 							->get();
 						$modalType =  CustomerBasketProduct::class;
 					} else if ($key == 0 and $flow['name'] == 'delivered_order') {
-						$leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
-							->where("customers.store_website_id", $flow['store_website_id'])
-							->whereIn('orders.order_status', ['delivered', 'Delivered'])
-							->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%')
-							->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')
+						$leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id');
+							if(($flowcondition[2]->condition_name =='delivered_order_customers_store_website_id')&&($flowcondition[2]->status==1))
+							{
+								$leads = $leads->where("customers.store_website_id", $flow['store_website_id']);
+							}
+							if(($flowcondition[3]->condition_name =='delivered_order_orders_order_status')&&($flowcondition[3]->status==1))
+							{
+								$leads = $leads->whereIn('orders.order_status', ['delivered', 'Delivered']);
+							}
+							if(($flowcondition[4]->condition_name =='delivered_order_orders_date_of_delivery')&&($flowcondition[4]->status==1))
+							{
+								$leads = $leads->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%');
+							}
+							
+							$leads = $leads->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')
 							->get();
 						$modalType =  Orders::class;
 					} else if ($key == 0 and $flow['name'] == 'newsletters') {
 						$leads = \App\Mailinglist::leftJoin('list_contacts', 'list_contacts.list_id', '=', 'mailinglists.id')
-							->leftJoin('customers', 'customers.id', '=', 'list_contacts.customer_id')
-							->where('mailinglists.website_id', $flow['store_website_id'])
-							->where('list_contacts.created_at', 'like', Carbon::now()->format('Y-m-d') . '%')
-							->where('customers.newsletter', 1)
-							->select('mailinglists.id', 'customers.email as customer_email', 'customers.id as customer_id')->get();
+							->leftJoin('customers', 'customers.id', '=', 'list_contacts.customer_id');
+							if(($flowcondition[5]->condition_name =='newsletters_mailinglists_website_id')&&($flowcondition[5]->status==1))
+							{
+								$leads = $leads->where('mailinglists.website_id', $flow['store_website_id']);
+							
+							}
+							if(($flowcondition[6]->condition_name =='newsletters_list_contacts_created_at')&&($flowcondition[6]->status==1))
+							{
+								$leads = $leads->$leads->where('list_contacts.created_at', 'like', Carbon::now()->format('Y-m-d') . '%');
+							
+							}
+							if(($flowcondition[7]->condition_name =='newsletters_customers_newsletter')&&($flowcondition[7]->status==1))
+							{
+								$leads = $leads->where('customers.newsletter', 1);
+							
+							}
+							
+							$leads = $leads->select('mailinglists.id', 'customers.email as customer_email', 'customers.id as customer_id')->get();
 						$modalType =  Mailinglist::class;
 					} else if ($key == 0 and $flow['name'] == 'customer_win_back') {
-						$leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
-							->where("customers.store_website_id", $flow['store_website_id'])
-							->whereIn(\DB::raw('lower(orders.order_status)'), ['Follow up for advance', 'Prepaid'])
-							->where('orders.created_at', 'like', Carbon::now()->format('Y-m-d') . '%')
-							->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')
+						$leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id');
+							if(($flowcondition[8]->condition_name =='customer_win_back_customers_newsletter')&&($flowcondition[8]->status==1))
+							{
+								$leads = $leads->where("customers.store_website_id", $flow['store_website_id']);
+							
+							}
+							if(($flowcondition[9]->condition_name =='customer_win_back_orders_order_status')&&($flowcondition[9]->status==1))
+							{
+								$leads = $leads->whereIn(\DB::raw('lower(orders.order_status)'), ['Follow up for advance', 'Prepaid']);
+							
+							}
+							if(($flowcondition[10]->condition_name =='customer_win_back_orders_created_at')&&($flowcondition[10]->status==1))
+							{
+								$leads = $leads->where('orders.created_at', 'like', Carbon::now()->format('Y-m-d') . '%');
+							
+							}
+							
+							$leads = $leads->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')
 							->get();
 						$modalType =  Orders::class;
 					} else if ($key == 0 and $flow['name'] == 'order_reviews') {
-						$leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
-							->where("customers.store_website_id", $flow['store_website_id'])
-							->whereIn('orders.order_status', ['delivered', 'Delivered'])
-							->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%')
-							->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')->get();
+						$leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id');
+							if(($flowcondition[11]->condition_name =='order_reviews_customers_store_website_id')&&($flowcondition[11]->status==1))
+							{
+								$leads = $leads->where("customers.store_website_id", $flow['store_website_id']);
+								
+							}
+							if(($flowcondition[12]->condition_name =='order_reviews_orders_order_status')&&($flowcondition[12]->status==1))
+							{
+								$leads = $leads->whereIn('orders.order_status', ['delivered', 'Delivered']);
+								
+							}
+							if(($flowcondition[13]->condition_name =='order_reviews_orders_date_of_delivery')&&($flowcondition[13]->status==1))
+							{
+								$leads = $leads->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%');
+								
+							}
+							
+							
+							$leads = $leads->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')->get();
 						$modalType =  Orders::class;
 					} else if ($key == 0 and $flow['name'] == 'customer_post_purchase') { //
 						$leads = [];
@@ -166,6 +227,7 @@ class ScheduleEmails extends Command
 	public function doProcess($flowAction, $modalType, $leads, $store_website_id, $created_date, $flow_log_id, $leadType = 'customer')
 	{
 		$scraper_id = 0;
+		$flowcondition = FlowCondition::get();
 		/*FlowLogMessages::log([
 			"flow_action" => ($flowAction['type'] == 'Condition') ? $flowAction['type'] . "-" . $flowAction['condition'] : $flowAction['type'],
 			"modalType" => $modalType,
@@ -348,23 +410,56 @@ class ScheduleEmails extends Command
 				$flowPathsNew = FlowAction::join('flow_paths', 'flow_actions.path_id', '=', 'flow_paths.id')
 					->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
 					->join('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
-					->select('flows.store_website_id', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_types.type', 'flow_actions.time_delay_type', 'flows.flow_name')
-					->where('flow_paths.parent_action_id', '=', $flowAction['action_id'])->orderBy('flow_actions.rank', 'asc')
-					->get()->groupBy('path_for');
+					->select('flows.store_website_id', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_types.type', 'flow_actions.time_delay_type', 'flows.flow_name');
+					if(($flowcondition[14]->condition_name =='customer_has_ordered_before_flow_paths_parent_action_id')&&($flowcondition[14]->status==1))
+					{
+						$flowPathsNew = $flowPathsNew->where('flow_paths.parent_action_id', '=', $flowAction['action_id'])->orderBy('flow_actions.rank', 'asc');
+								
+					}
+					
+					$flowPathsNew = $flowPathsNew->get()->groupBy('path_for');
 				foreach ($flowPathsNew as $path_for => $flowActiosnNew) {
 					if ($path_for == 'yes') {
-						$leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
-							->where("customers.store_website_id", $store_website_id)
-							->whereIn('orders.order_status', ['delivered', 'Delivered'])
-							->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%')
-							->select('orders.id', 'orders.customer_id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id', \DB::raw('count(*) as duplicate'))
+						$leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id');
+						if(($flowcondition[15]->condition_name =='customer_has_ordered_before_customers_store_website_id')&&($flowcondition[15]->status==1))
+						{
+							$leads = $leads->where("customers.store_website_id", $store_website_id);
+									
+						}
+						if(($flowcondition[16]->condition_name =='customer_has_ordered_before_orders_order_status')&&($flowcondition[16]->status==1))
+						{
+							$leads = $leads->whereIn('orders.order_status', ['delivered', 'Delivered']);
+									
+						}
+						if(($flowcondition[17]->condition_name =='customer_has_ordered_before_orders_date_of_delivery')&&($flowcondition[17]->status==1))
+						{
+							$leads = $leads->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%');
+									
+						}
+							
+							
+							
+						$leads = $leads->select('orders.id', 'orders.customer_id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id', \DB::raw('count(*) as duplicate'))
 							->groupBy('orders.customer_id')->having(DB::raw('count(*)'), '>', 1)->get();
 					} else {
-						$leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
-							->where("customers.store_website_id", $store_website_id)
-							->whereIn('orders.order_status', ['delivered', 'Delivered'])
-							->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%')
-							->select('orders.id', 'orders.customer_id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id', \DB::raw('count(*) as duplicate'))
+						$leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id');
+						if(($flowcondition[18]->condition_name =='customer_has_ordered_before_no_customers_store_website_id')&&($flowcondition[18]->status==1))
+						{
+							$leads = $leads->where("customers.store_website_id", $store_website_id);
+									
+						}
+						if(($flowcondition[19]->condition_name =='customer_has_ordered_before_no_orders_order_status')&&($flowcondition[19]->status==1))
+						{
+							$leads = $leads->whereIn('orders.order_status', ['delivered', 'Delivered']);
+									
+						}
+						if(($flowcondition[20]->condition_name =='customer_has_ordered_before_no_orders_date_of_delivery')&&($flowcondition[20]->status==1))
+						{
+							$leads = $leads->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%');
+									
+						}
+								
+						$leads = $leads->select('orders.id', 'orders.customer_id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id', \DB::raw('count(*) as duplicate'))
 							->groupBy('orders.customer_id')->having(DB::raw('count(*)'), 1)->get();
 					}
 					foreach ($flowActiosnNew as $flowActionNew) {
@@ -375,22 +470,53 @@ class ScheduleEmails extends Command
 				$flowPathsNew = FlowAction::join('flow_paths', 'flow_actions.path_id', '=', 'flow_paths.id')
 					->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
 					->join('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
-					->select('flows.store_website_id', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_types.type', 'flow_actions.condition', 'flow_actions.time_delay_type', 'flows.flow_name', 'flow_paths.path_for')
-					->where('flow_paths.parent_action_id', '=', $flowAction['action_id'])->orderBy('flow_actions.rank', 'asc')
-					->get()->groupBy('path_for'); 
+					->select('flows.store_website_id', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_types.type', 'flow_actions.condition', 'flow_actions.time_delay_type', 'flows.flow_name', 'flow_paths.path_for');
+					if(($flowcondition[21]->condition_name =='check_if_pr_merged_flow_paths_parent_action_id')&&($flowcondition[21]->status==1))
+						{
+							$flowPathsNew = $flowPathsNew->where('flow_paths.parent_action_id', '=', $flowAction['action_id']);
+									
+						}
+					
+					$flowPathsNew = $flowPathsNew->orderBy('flow_actions.rank', 'asc')->get()->groupBy('path_for'); 
 				foreach ($flowPathsNew as $path_for => $flowActiosnNew) { 
 					if ($path_for == 'yes') { 
-						$leads = DeveloperTask::leftJoin('users', 'users.id', '=', 'developer_tasks.assigned_to')
-							->whereDate('developer_tasks.created_at', '<=', $created_date)
-							->where('scraper_id', '<>', 0)->whereNotNull('scraper_id')
-							->where('is_pr_merged', 1)
-							->select('developer_tasks.id', 'developer_tasks.scraper_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+						$leads = DeveloperTask::leftJoin('users', 'users.id', '=', 'developer_tasks.assigned_to');
+						if(($flowcondition[22]->condition_name =='check_if_pr_merged_yes_path_for_developer_tasks_created_at')&&($flowcondition[21]->status==1))
+						{
+							$leads = $leads->whereDate('developer_tasks.created_at', '<=', $created_date);
+									
+						}
+						if(($flowcondition[23]->condition_name =='check_if_pr_merged_yes_path_for_scraper_id')&&($flowcondition[23]->status==1))
+						{
+							$leads = $leads->where('scraper_id', '<>', 0)->whereNotNull('scraper_id');
+									
+						}
+						if(($flowcondition[24]->condition_name =='check_if_pr_merged_yes_path_for_is_pr_merged')&&($flowcondition[24]->status==1))
+						{
+							$leads = $leads->where('is_pr_merged', 1);
+									
+						}
+							
+						$leads = $leads->select('developer_tasks.id', 'developer_tasks.scraper_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
 					} else { 
-						$leads = DeveloperTask::leftJoin('users', 'users.id', '=', 'developer_tasks.assigned_to')
-							->whereDate('developer_tasks.created_at', '<=', $created_date)
-							->where('scraper_id', '<>', 0)->whereNotNull('scraper_id')
-							->where('is_pr_merged', 0)
-							->select('developer_tasks.id', 'developer_tasks.scraper_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+						$leads = DeveloperTask::leftJoin('users', 'users.id', '=', 'developer_tasks.assigned_to');
+						if(($flowcondition[25]->condition_name =='check_if_pr_merged_no_path_for_parent_action_id')&&($flowcondition[25]->status==1))
+						{
+							$leads = $leads->whereDate('developer_tasks.created_at', '<=', $created_date);
+									
+						}
+						if(($flowcondition[26]->condition_name =='check_if_pr_merged_no_path_for_scraper_id')&&($flowcondition[26]->status==1))
+						{
+							$leads = $leads->where('scraper_id', '<>', 0)->whereNotNull('scraper_id');
+									
+						}
+						if(($flowcondition[27]->condition_name =='check_if_pr_merged_no_path_for_is_pr_merged')&&($flowcondition[27]->status==1))
+						{
+							$leads = $leads->where('is_pr_merged', 0);
+									
+						}
+						
+						$leads = $leads->select('developer_tasks.id', 'developer_tasks.scraper_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
 						//dd($leads[0]);
 					}  
 					
@@ -403,13 +529,35 @@ class ScheduleEmails extends Command
 				$flowPathsNew = FlowAction::join('flow_paths', 'flow_actions.path_id', '=', 'flow_paths.id')
 					->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
 					->join('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
-					->select('flows.store_website_id', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_types.type', 'flow_actions.time_delay_type', 'flows.flow_name')
-					->where('flow_paths.parent_action_id', '=', $flowAction['action_id'])->orderBy('flow_actions.rank', 'asc')
-					->where('path_for', 'yes')->get()->groupBy('path_for'); 
+					->select('flows.store_website_id', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_types.type', 'flow_actions.time_delay_type', 'flows.flow_name');
+					if(($flowcondition[28]->condition_name =='check_scrapper_error_logs_flow_paths_parent_action_id')&&($flowcondition[28]->status==1))
+					{
+							$flowPathsNew = $flowPathsNew->where('flow_paths.parent_action_id', '=', $flowAction['action_id'])->orderBy('flow_actions.rank', 'asc');
+									
+					}
+						
+					
+					$flowPathsNew = $flowPathsNew->where('path_for', 'yes')->get()->groupBy('path_for'); 
 				foreach ($flowPathsNew as $path_for => $flowActiosnNew) {
-					$leads = DeveloperTask::leftJoin('users', 'users.id', '=', 'developer_tasks.assigned_to')
-						->whereDate('developer_tasks.created_at', '<=', $created_date)->where('developer_tasks.status', '<>', 'Done')->where('scraper_id', '<>', 0)->whereNotNull('scraper_id')->where('is_pr_merged', 1)
-						->select('developer_tasks.id','developer_tasks.scraper_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+					$leads = DeveloperTask::leftJoin('users', 'users.id', '=', 'developer_tasks.assigned_to');
+					if(($flowcondition[29]->condition_name =='check_scrapper_error_logs_path_for_yes_developer_tasks_created_at')&&($flowcondition[29]->status==1))
+					{
+							$leads = $leads->whereDate('developer_tasks.created_at', '<=', $created_date);
+									
+					}
+					if(($flowcondition[30]->condition_name =='check_scrapper_error_logs_path_for_yes_developer_tasks_status')&&($flowcondition[30]->status==1))
+					{
+							$leads = $leads->where('developer_tasks.status', '<>', 'Done')->where('scraper_id', '<>', 0);
+									
+					}
+					if(($flowcondition[31]->condition_name =='check_scrapper_error_logs_path_for_yes_developer_tasks_created_at')&&($flowcondition[31]->status==1))
+					{
+						$leads = $leads->whereNotNull('scraper_id')->where('is_pr_merged', 1);
+									
+					}
+						
+						
+					$leads = $leads->select('developer_tasks.id','developer_tasks.scraper_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
 
 					foreach ($leads as $key => $scrapperTask) {
 						$log = ScrapLog::where('scraper_id', $scrapperTask['scraper_id'])->orderBy('id', 'desc')->first();
@@ -427,17 +575,36 @@ class ScheduleEmails extends Command
 				$flowPathsNew = FlowAction::join('flow_paths', 'flow_actions.path_id', '=', 'flow_paths.id')
 					->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
 					->join('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
-					->select('flows.store_website_id', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_types.type', 'flow_actions.condition', 'flow_actions.time_delay_type', 'flows.flow_name', 'flow_paths.path_for')
-					->where('flow_paths.parent_action_id', '=', $flowAction['action_id'])->orderBy('flow_actions.rank', 'asc')
-					->get()->groupBy('path_for');
+					->select('flows.store_website_id', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_types.type', 'flow_actions.condition', 'flow_actions.time_delay_type', 'flows.flow_name', 'flow_paths.path_for');
+					if(($flowcondition[32]->condition_name =='check_if_design_task_done_flow_paths_parent_action_id')&&($flowcondition[32]->status==1))
+					{
+						$flowPathsNew = $flowPathsNew->where('flow_paths.parent_action_id', '=', $flowAction['action_id'])->orderBy('flow_actions.rank', 'asc');
+									
+					}
+					
+					$flowPathsNew = $flowPathsNew->get()->groupBy('path_for');
 				foreach ($flowPathsNew as $path_for => $flowActiosnNew) { 
 					$designCategoryId = TaskCategory::where('title', 'like', 'Design%')->pluck('id')->first();
 					if ($path_for == 'yes') { 
-						$tasks = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')
-							    ->whereDate('tasks.created_at', '<=', $created_date)
-								->where('category', $designCategoryId)
-								->whereNotNull('is_completed')
-							    ->select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.site_developement_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+						$tasks = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to');
+
+						if(($flowcondition[33]->condition_name =='check_if_design_task_done_path_for_yes_tasks_created_at')&&($flowcondition[33]->status==1))
+						{
+							$tasks = $tasks->whereDate('tasks.created_at', '<=', $created_date);
+										
+						}
+						if(($flowcondition[34]->condition_name =='check_if_design_task_done_path_for_yes_category')&&($flowcondition[34]->status==1))
+						{
+							$tasks = $tasks->where('category', $designCategoryId);
+										
+						}
+						if(($flowcondition[35]->condition_name =='check_if_design_task_done_path_for_yes_is_completed')&&($flowcondition[35]->status==1))
+						{
+							$tasks = $tasks->whereNotNull('is_completed');
+										
+						}	
+								
+						$tasks = $tasks->select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.site_developement_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
 						$devCategoryId = TaskCategory::where('title', 'like', 'Site Devel%')->pluck('id')->first();
 						foreach($tasks as $task) { 
 							$ifAlreadyCreated = Task::where('parent_task_id', $task['id'])->first();
@@ -461,9 +628,19 @@ class ScheduleEmails extends Command
 							}
 						} 
 					} else {
-						$leads = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')->where('category', $designCategoryId)
-							    ->whereDate('tasks.created_at', '<=', $created_date)->whereNull('is_completed')
-							    ->select('tasks.id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+						$leads = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')->where('category', $designCategoryId);
+						if(($flowcondition[36]->condition_name =='check_if_design_task_done_path_for_no_tasks_created_at')&&($flowcondition[36]->status==1))
+						{
+							$leads = $leads->whereDate('tasks.created_at', '<=', $created_date);
+										
+						}
+						if(($flowcondition[37]->condition_name =='check_if_design_task_done_path_for_no_is_completed')&&($flowcondition[37]->status==1))
+						{
+							$leads = $leads->whereNull('is_completed');
+										
+						}
+							    
+						$leads = $leads->select('tasks.id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
 					}   
 					foreach ($flowActiosnNew as $flowActionNew) {
 						$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date, $flow_log_id);
@@ -474,15 +651,25 @@ class ScheduleEmails extends Command
 				$flowPathsNew = FlowAction::join('flow_paths', 'flow_actions.path_id', '=', 'flow_paths.id')
 					->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
 					->join('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
-					->select('flows.store_website_id', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_types.type', 'flow_actions.condition', 'flow_actions.time_delay_type', 'flows.flow_name', 'flow_paths.path_for')
-					->where('flow_paths.parent_action_id', '=', $flowAction['action_id'])->orderBy('flow_actions.rank', 'asc')
-					->get()->groupBy('path_for');
+					->select('flows.store_website_id', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_types.type', 'flow_actions.condition', 'flow_actions.time_delay_type', 'flows.flow_name', 'flow_paths.path_for');
+					if(($flowcondition[38]->condition_name =='check_if_development_task_done_flow_paths_parent_action_id')&&($flowcondition[38]->status==1))
+						{
+							$flowPathsNew = $flowPathsNew->where('flow_paths.parent_action_id', '=', $flowAction['action_id'])->orderBy('flow_actions.rank', 'asc');
+										
+						}
+					
+					$flowPathsNew = $flowPathsNew->get()->groupBy('path_for');
 				foreach ($flowPathsNew as $path_for => $flowActiosnNew) { 
 					$devCategoryId = TaskCategory::where('title', 'like', 'Site Devel%')->pluck('id')->first();
 					if ($path_for == 'yes') { 
-						$tasks = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')
-							    ->whereDate('tasks.created_at', '<', $created_date)->where('category', $devCategoryId)->whereNotNull('is_completed')
-							    ->select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.site_developement_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+						$tasks = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to');
+						if(($flowcondition[39]->condition_name =='check_if_development_task_done_flow_path_for_yes_tasks_created_at')&&($flowcondition[39]->status==1))
+						{
+							$tasks = $tasks->whereDate('tasks.created_at', '<', $created_date)->where('category', $devCategoryId)->whereNotNull('is_completed');
+										
+						}
+							    
+						$tasks = $tasks->select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.site_developement_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
 						$qaCatId = TaskCategory::where('title', 'like', 'qa%')->orWhere('title', 'like', '%testing%')->pluck('id')->first();
 						if($qaCatId != null) {
 							foreach($tasks as $task) { 
@@ -507,9 +694,14 @@ class ScheduleEmails extends Command
 							} 
 						}
 					} else {
-						$leads = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')->where('category', $devCategoryId)
-							    ->whereDate('tasks.created_at', '<', $created_date)->whereNull('is_completed')
-							    ->select('tasks.id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+						$leads = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')->where('category', $devCategoryId);
+						if(($flowcondition[40]->condition_name =='check_if_development_task_done_flow_path_for_no_tasks_created_at')&&($flowcondition[40]->status==1))
+						{
+							$leads = $leads->whereDate('tasks.created_at', '<', $created_date)->whereNull('is_completed');
+										
+						}
+							   
+						$leads = $leads->select('tasks.id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
 					}   
 					foreach ($flowActiosnNew as $flowActionNew) {
 						$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date, $flow_log_id);
