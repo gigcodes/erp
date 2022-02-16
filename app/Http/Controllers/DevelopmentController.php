@@ -9,6 +9,7 @@ use App\TaskAttachment;
 use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redirect;
@@ -48,6 +49,7 @@ use App\ChatMessage;
 use App\Helpers\MessageHelper;
 use App\HubstaffHistory;
 use App\UserRate;
+use App\TaskMessage;
 
 class DevelopmentController extends Controller
 {
@@ -860,14 +862,17 @@ class DevelopmentController extends Controller
         // if ($request->get('language') != '') {
         //     $issues = $issues->where('language', 'LIKE', "%" . $request->get('language') . "%");
         // }
-        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message  FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message   FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
 
         if ($request->get('last_communicated', "off") == "on") {
             $issues = $issues->orderBy('chat_messages.id', "desc");
         }
+        if ($request->get('unread_messages', "off") == "unread") {
+            $issues = $issues->where('chat_messages.sent_to_user_id', Auth::user()->id);
+        }
 
-        $issues = $issues->select("developer_tasks.*", "chat_messages.message");
+        $issues = $issues->select("developer_tasks.*", "chat_messages.message","chat_messages.sent_to_user_id");
 
         // Set variables with modules and users
         $modules = DeveloperModule::orderBy('name')->get();
@@ -973,7 +978,19 @@ class DevelopmentController extends Controller
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
         if (request()->ajax()) {
-            //return view("development.partials.summary-load-more", compact('issues', 'users', 'modules', 'request','title','type','countPlanned','countInProgress','statusList','priority'));
+            return view("development.partials.summarydatas",[
+                'issues' => $issues,
+                'users' => $users,
+                'modules' => $modules,
+                'request' => $request,
+                'title' => $title,
+                'type' => $type,
+                'priority' => $priority,
+                'countPlanned' => $countPlanned,
+                'countInProgress' => $countInProgress,
+                'statusList' => $statusList
+                // 'languages' => $languages
+            ]);
         }
 
         return view('development.summarylist', [
@@ -990,6 +1007,252 @@ class DevelopmentController extends Controller
             // 'languages' => $languages
         ]);
     }
+
+	public function automaticTasks(Request $request)
+    {
+        $users = Helpers::getUserArray(User::orderBy('name')->get());
+        $title = 'Automatic Task List';
+        $task =  Task::leftJoin('site_developments', 'site_developments.id', 'tasks.site_developement_id')
+		->leftJoin('store_websites', 'store_websites.id', 'site_developments.website_id')
+		->with('timeSpent')->where('is_flow_task', '1'); 
+      
+        if ((int) $request->get('assigned_to') > 0) {
+            $task = $task->where('tasks.assign_to', $request->get('assigned_to'));
+        }    
+        $whereTaskCondition = "";
+        if ($request->get('subject') != '') {
+            $whereTaskCondition = ' and message like  "%' . $request->get('subject') . '%"';
+            $task = $task->where(function ($query) use ($request) {
+                $subject = $request->get('subject');
+                $query->where('tasks.id', 'LIKE', "%$subject%")->orWhere('task_subject', 'LIKE', "%$subject%")->orWhere("task_details", "LIKE", "%$subject%")
+                    ->orwhere("chat_messages.message", 'LIKE', "%$subject%");
+            });
+        }
+    
+        $task = $task->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, task_id, message  FROM `chat_messages` where task_id > 0 ' . $whereTaskCondition . ' GROUP BY task_id ) m_max'), 'm_max.task_id', '=', 'tasks.id');
+        $task = $task->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
+        $task = $task->select("tasks.*", "chat_messages.message", "store_websites.title as website_title");
+        
+        if (!auth()->user()->isReviwerLikeAdmin()) {
+          $task = $task->where(function ($query) use ($request) {
+                $query->where("tasks.assign_to", auth()->user()->id)
+                ->orWhere("tasks.master_user_id", auth()->user()->id);
+            });
+        }
+        $task_statuses=TaskStatus::all();
+        $tasks = $task->paginate(Setting::get('pagination'));//dd($statusList);
+       return view('task-module.automatictask', [
+            'users' => $users,
+            'request' => $request,
+            'title' => $title,
+            'task_statuses' => $task_statuses,
+            'tasks'=>$tasks
+        ]);
+    }
+
+
+
+     public function flagtask(Request $request)
+    {
+        $users = Helpers::getUserArray(User::orderBy('name')->get());
+        $statusList = \DB::table("task_statuses")->select("name")->orderBy('name')->pluck("name", "name")->toArray();
+        $inprocessStatusID = \DB::table("task_statuses")->select("id")->where('name',"In Progress")->first();
+     
+
+        $statusList = array_merge([
+            "" => "Select Status",
+        ], $statusList);
+
+        $task_statuses=TaskStatus::all();
+        
+        $modules = DeveloperModule::orderBy('name')->get();
+
+
+        $type = $request->tasktype ? $request->tasktype : 'all';
+
+        $title = 'Flag Task List';
+
+        $issues = DeveloperTask::with('timeSpent')->where('is_flagged', '1');
+        $task =  Task::with('timeSpent')->where('is_flagged', '1'); 
+       
+       if ($type == 'issue') {
+            $issues = $issues->where('developer_tasks.task_type_id', '3');
+        }
+        if ($type == 'devtask') {
+            $issues = $issues->where('developer_tasks.task_type_id', '1');
+        }
+        if ((int) $request->get('submitted_by') > 0) {
+            $issues = $issues->where('developer_tasks.created_by', $request->get('submitted_by'));
+            
+        }
+        if ((int) $request->get('responsible_user') > 0) {
+            $issues = $issues->where('developer_tasks.responsible_user_id', $request->get('responsible_user'));
+        }
+
+        if ((int) $request->get('corrected_by') > 0) {
+            $issues = $issues->where('developer_tasks.user_id', $request->get('corrected_by'));
+            $task = $task->where('tasks.assign_from', $request->get('corrected_by'));
+        }
+
+        if ((int) $request->get('assigned_to') > 0) {
+            $issues = $issues->where('developer_tasks.assigned_to', $request->get('assigned_to'));
+            $task = $task->where('tasks.assign_to', $request->get('assigned_to'));
+        }
+        if ($request->get('module')) {
+            $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
+        }
+        if (!empty($request->get('task_status', []))) {
+            $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
+        } 
+        //$task = $task->where('tasks.status', $inprocessStatusID->id);
+        $whereCondition =   $whereTaskCondition = "";
+        if ($request->get('subject') != '') {
+            $whereCondition = ' and message like  "%' . $request->get('subject') . '%"';
+            $issues = $issues->where(function ($query) use ($request) {
+                $subject = $request->get('subject');
+                $query->where('developer_tasks.id', 'LIKE', "%$subject%")->orWhere('subject', 'LIKE', "%$subject%")->orWhere("task", "LIKE", "%$subject%")
+                    ->orwhere("chat_messages.message", 'LIKE', "%$subject%");
+            });
+
+            $whereTaskCondition = ' and message like  "%' . $request->get('subject') . '%"';
+            $task = $task->where(function ($query) use ($request) {
+                $subject = $request->get('subject');
+                $query->where('tasks.id', 'LIKE', "%$subject%")->orWhere('task_subject', 'LIKE', "%$subject%")->orWhere("task_details", "LIKE", "%$subject%")
+                    ->orwhere("chat_messages.message", 'LIKE', "%$subject%");
+            });
+        }
+        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message  FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
+
+        if ($request->get('last_communicated', "off") == "on") {
+            $issues = $issues->orderBy('chat_messages.id', "desc");
+        }
+
+        $issues = $issues->select("developer_tasks.*", "chat_messages.message");
+
+        $task = $task->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, task_id, message  FROM `chat_messages` where task_id > 0 ' . $whereTaskCondition . ' GROUP BY task_id ) m_max'), 'm_max.task_id', '=', 'tasks.id');
+        $task = $task->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
+        $task = $task->select("tasks.*", "chat_messages.message");
+        
+        
+        if (!auth()->user()->isReviwerLikeAdmin()) {
+            $issues = $issues->where(function ($query) use ($request) {
+                $query->where("developer_tasks.assigned_to", auth()->user()->id)
+                ->orWhere("developer_tasks.master_user_id", auth()->user()->id);
+            });
+            $task = $task->where(function ($query) use ($request) {
+                $query->where("tasks.assign_to", auth()->user()->id)
+                ->orWhere("tasks.master_user_id", auth()->user()->id);
+            });
+        }
+        
+        if($request->delivery_date && $request->delivery_date != '') {
+            $task->where('due_date',$request->delivery_date);
+        }
+
+        // Sort
+        if ($request->order == 'priority') {
+            $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC');
+        } elseif ($request->order == 'latest_task_first') {
+            $issues = $issues->orderBy('developer_tasks.id', 'DESC');
+        } else {
+            $issues = $issues->orderBy('chat_messages.id', "desc");
+        }
+     //   dd($task->get());
+        // return $issues = $issues->limit(20)->get();
+        $issues = $issues->paginate(Setting::get('pagination'));//
+        $tasks = $task->paginate(Setting::get('pagination'));
+     
+        $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
+
+		
+		if($request->ajax()) {
+			$data = '';
+			$isReviwerLikeAdmin = auth()->user()->isReviwerLikeAdmin();
+            $userID = Auth::user()->id;
+            foreach ($issues as $key => $issue){
+                if ($isReviwerLikeAdmin) {
+                    $data .= view("development.partials.flagsummarydata", compact('issue', 'users', 'statusList', 'task_statuses'));
+				}elseif($issue->created_by == $userID || $issue->master_user_id == $userID ||$issue->assigned_to == $userID) {
+                    $data .= view("development.partials.flagdeveloper-row-view", compact('issue', 'users', 'statusList', 'task_statuses'));
+                }
+            }
+            foreach ($tasks as $key => $issue) {
+                if ($isReviwerLikeAdmin) {
+                    $data .= view("task-module.partials.flagsummarydata", compact('issue', 'users', 'statusList', 'task_statuses'));
+				} elseif($issue->created_by == $userID || $issue->master_user_id == $userID || $issue->assigned_to == $userID) {
+                    $data .= view("task-module.partials.flagdeveloper-row-view", compact('issue', 'users', 'statusList', 'task_statuses'));
+                }
+            }
+			return $data;
+		}
+
+		$taskMessage = TaskMessage::where('message_type', 'date_time_reminder_message')->first();
+        return view('development.flagtask', [
+            'issues' => $issues,
+            'users' => $users,
+            'modules' => $modules,
+            'request' => $request,
+            'title' => $title,
+            'type' => $type,
+            'priority' => $priority,
+            'tasks'=>$tasks,
+            'taskMessage'=>$taskMessage,
+           // 'countPlanned' => $countPlanned,
+            //'countInProgress' => $countInProgress,
+            'statusList' => $statusList,
+            // 'languages' => $languages,
+            "task_statuses"=>$task_statuses
+        ]);
+    }
+    public function gettasktimemessage(request $request)
+    {
+        $id = $request->input('id');
+        $html = '';
+        $chatmessages = ChatMessage::where('task_id', $id)->orwhere('developer_task_id', $id)->get();
+        $i = 1;
+        if (count($chatmessages) > 0) {
+            foreach ($chatmessages as $history) {
+                $html .= '<tr>';
+                $html .= '<td>' . $i . '</td>';
+                $html .= '<td>' . $history->message . '</td>';
+                $html .= '<td>' . $history->created_at . '</td>';
+                $html .= '</tr>';
+
+                $i++;
+            }
+            return response()->json(['html' => $html, 'success' => true], 200);
+        }
+         else {
+            $html .= '<tr>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '</tr>';
+        }
+        return response()->json(['html' => $html, 'success' => true], 200);
+
+    }
+
+	public function saveTaskMessage(Request $request) 
+    {
+		$input = $request->input();
+        TaskMessage::updateOrCreate(['id'=>$input['id']], $input);
+        return response()->json([
+          'success'
+        ]);
+	}
+    public function saveTaskTimeMessage(Request $request) {
+        $est_time_date_message['message'] = $request->est_time_date_message;
+        $overdue_time_date_message['message'] = $request->overdue_time_date_message;
+
+        TaskMessage::updateOrCreate(['message_type'=>'est_time_date_message'], $est_time_date_message);
+        TaskMessage::updateOrCreate(['message_type'=>'overdue_time_date_message'], $overdue_time_date_message);
+        return response()->json([
+          'success'
+        ]);
+    }
+
 
     public function summaryList1(Request $request)
     {
@@ -1431,7 +1694,7 @@ class DevelopmentController extends Controller
             $taskSummery = '#TASK-' . $task->id . ' => ' . $summary;
         }
 
-
+        $hubstaffTaskId ='';
         $hubstaffTaskId = $this->createHubstaffTask(
             $taskSummery,
             $hubstaffUserId,
@@ -2258,7 +2521,7 @@ class DevelopmentController extends Controller
         $issue = DeveloperTask::find($request->get('issue_id'));
         if ($issue->is_resolved == 1) {
             return response()->json([
-                'message'	=> 'DONE Status can not change further.'
+                'message'   => 'DONE Status can not change further.'
             ], 500);
         }
         if (strtolower($request->get('is_resolved')) == "done") {
@@ -2269,7 +2532,7 @@ class DevelopmentController extends Controller
                 $assigned_to = User::find($issue->assigned_to);
                 if (!$assigned_to) {
                     return response()->json([
-                        'message'	=> 'Please assign the task.'
+                        'message'   => 'Please assign the task.'
                     ], 500);
                 }
                 $team_user = \DB::table('team_user')->where('user_id', $issue->assigned_to)->first();
@@ -2285,8 +2548,8 @@ class DevelopmentController extends Controller
                 }
                 if ($dev_task_user && $dev_task_user->fixed_price_user_or_job == 0) {
                     return response()->json([
-                        // 'message'	=> 'Please provide salary payment method for user. '
-                        'message'	=> 'Please provide salary payment method for '.$dev_task_user->name.' .'
+                        // 'message'    => 'Please provide salary payment method for user. '
+                        'message'   => 'Please provide salary payment method for '.$dev_task_user->name.' .'
                     ], 500);
                 }
                 // dd($dev_task_user);
@@ -2295,7 +2558,7 @@ class DevelopmentController extends Controller
                     // Fixed price task.
                     if ($issue->cost == null) {
                         return response()->json([
-                            'message'	=> 'Please provide cost for fixed price task.'
+                            'message'   => 'Please provide cost for fixed price task.'
                         ], 500);
                     }
 
@@ -2359,7 +2622,7 @@ class DevelopmentController extends Controller
                 ]);
             } else {
                 return response()->json([
-                    'message'	=> 'Only admin can change status to DONE.'
+                    'message'   => 'Only admin can change status to DONE.'
                 ], 500);
             }
         } else {
@@ -2686,8 +2949,9 @@ class DevelopmentController extends Controller
     public function saveEstimateDate(Request $request)
     {
         $issue = DeveloperTask::find($request->get('issue_id'));
+       
         //$issue = Issue::find($request->get('issue_id'));
-        $estimate_date = date("Y-m-d", strtotime($request->estimate_date));
+        $estimate_date = date("Y-m-d H:i:s", strtotime($request->estimate_date));
         if ($issue && $request->estimate_date) {
             DeveloperTaskHistory::create([
                 'developer_task_id' => $issue->id,
@@ -2698,7 +2962,7 @@ class DevelopmentController extends Controller
                 'user_id' => Auth::id(),
             ]);
         }
-
+      //  dd($estimate_date);
         $issue->estimate_date = $estimate_date;
         $issue->save();
 
@@ -3082,7 +3346,11 @@ class DevelopmentController extends Controller
     public function getDateHistory(Request $request)
     {
         $id = $request->id;
-        $task_module = DeveloperTaskHistory::join('users', 'users.id', 'developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model', 'App\DeveloperTask')->where('attribute', 'estimate_date')->select('developer_tasks_history.*', 'users.name')->get();
+        $type = "App\DeveloperTask";
+        if(isset($request->type) && $request->type == "task" ){
+            $type = "App\Task";
+        }
+        $task_module = DeveloperTaskHistory::join('users', 'users.id', 'developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model', $type )->where('attribute', 'estimate_date')->select('developer_tasks_history.*', 'users.name')->get();
         if ($task_module) {
             return $task_module;
         }
@@ -3093,7 +3361,11 @@ class DevelopmentController extends Controller
     public function getStatusHistory(Request $request)
     {
         $id = $request->id;
-        $task_module = DeveloperTaskHistory::join('users', 'users.id', 'developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model', 'App\DeveloperTask')->where('attribute', 'task_status')->select('developer_tasks_history.*', 'users.name')->get();
+        $type = "App\DeveloperTask";
+        if(isset($request->type) && $request->type == "task" ){
+            $type = "App\Task";
+        }
+        $task_module = DeveloperTaskHistory::join('users', 'users.id', 'developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model', $type)->where('attribute', 'task_status')->select('developer_tasks_history.*', 'users.name')->get();
         if ($task_module) {
             return $task_module;
         }

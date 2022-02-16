@@ -8,7 +8,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Add New Task</h4>
             </div>
-            <form action="{{ route('development.store') }}" method="POST" enctype="multipart/form-data">
+            <form id="frmaddnewtask" action="{{ route('development.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
                     @if(auth()->user()->checkPermission('development-list'))

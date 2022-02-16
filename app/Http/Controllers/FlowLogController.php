@@ -66,6 +66,9 @@ class FlowLogController extends Controller
 				->select('flow_log_messages.*','sw.website as website', 'users.name as lead_name')->get();
 			}else if(isset($request->scraper_id) and $request->scraper_id != 0){
 				$messageLogs = FlowLogMessages::where('scraper_id', $request->scraper_id);
+                if($request->assigned){
+                    $messageLogs = $messageLogs->where('flow_log_messages.leads',$request->assigned);
+                }
 				$messageLogs = $messageLogs->leftJoin('store_websites as sw', 'sw.id', '=', 'flow_log_messages.store_website_id')->leftJoin('users', 'users.id', '=', 'flow_log_messages.leads')
 				->select('flow_log_messages.*','sw.website as website', 'users.name as lead_name')->get();
         	}

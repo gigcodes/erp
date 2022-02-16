@@ -346,9 +346,26 @@
 
             $(".estimate-date").each(function() {
                 // ...
-                $(this).datepicker({
-                    dateformat: 'yyyy-mm-dd'
-                });
+                $(this).datetimepicker({
+                    format: 'YYYY-MM-DD HH:mm'
+                }).on('dp.change', function(e){
+                   // alert("dddd");
+                    var formatedValue = e.date.format(e.date._f);
+                   // alert(formatedValue);
+                     let issueId = $(this).data('id');
+                //     alert(issueId);
+                        let estimate_date_ = $("#estimate_date_" + issueId).val();
+                        $.ajax({
+                            url: "{{action('DevelopmentController@saveEstimateDate')}}",
+                            data: {
+                                estimate_date : formatedValue,
+                                issue_id: issueId
+                            },
+                            success: function () {
+                                toastr["success"]("Estimate Date updated successfully!", "Message");
+                            }
+                        });
+                    });
             });
       
             $('#estimate_date_picker').datepicker({
@@ -735,12 +752,12 @@
 
         });
 
-        $(document).on('keyup', '.estimate-date-update', function () {
+       /* $(document).on('keyup', '.estimate-date-update', function () {
             if (event.keyCode != 13) {
                 return;
             }
             let issueId = $(this).data('id');
-            alert(issueId);
+       //     alert(issueId);
             let estimate_date_ = $("#estimate_date_" + issueId).val();
             $.ajax({
                 url: "{{action('DevelopmentController@saveEstimateDate')}}",
@@ -753,7 +770,7 @@
                 }
             });
 
-        });
+        });*/
 
         $(document).on('click', '.show-time-history', function() {
             var data = $(this).data('history');
@@ -1531,39 +1548,6 @@
                 }
             });
             $('#user_history_modal').modal('show');
-        });
-        $(document).on('click', '.approved_history', function() {
-            var data = $(this).data('history');
-        //var issueId = $(this).data('id');
-        var issueId = $('#developer_task_id').val();
-
-            $('#approve_history_form table tbody').html('');
-            $.ajax({
-                url: "{{ route('development/time/history/approved') }}",
-                data: {id: issueId},
-                success: function (data) {
-                    if(data != 'error') {
-                        $('input[name="developer_task_id"]').val(issueId);
-                        $.each(data, function(i, item) {
-                            if(item['is_approved'] == 1) {
-                                var checked = 'checked';
-                            }
-                            else {
-                                var checked = ''; 
-                            }
-                            $('#approve_history_form table tbody').append(
-                                '<tr>\
-                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
-                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td>\
-                                </tr>'
-                            );
-                        });
-                    }
-                }
-            });
-
-            $('#ApprovedHistory').modal('show');
         });
     </script>
 @endsection

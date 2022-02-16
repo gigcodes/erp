@@ -42,25 +42,32 @@
         <div class="row" style="margin:10px;"> 
             <div class="col-12">
                 <div class="table-responsive">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered" style="table-layout: fixed;" id="quick-reply-list">
                         <tr>
                             <th width="2%">ID</th>
-                            <th width="10%">Store website</th>
-                            <th width="19%">Category</th>
-                            <th width="10%">Reply</th>
+                            <th width="8%">Store website</th>
+                            <th width="10%">Category</th>
+                            <th width="15%">Reply</th>
                             <th width="7%">Model</th>
-                            <th width="15%">Updated On</th>
-                            <th width="5%">Action</th>
+                            <th width="7%">Updated On</th>
+                            <th width="10%">Is Pushed To Watson</th>
+                            <th width="4%">Action</th>
                         </tr>
                         @foreach ($replies as $key => $reply)
                             <tr>
                                 <td id="reply_id">{{ $reply->id }}</td>
-                                <td id="reply-store-website">{{ $reply->website }}</td>
-                                <td id="reply_category_name">{{ $reply->parentList() }} > {{ $reply->category_name }}</td>
-                                <td style="cursor:pointer;" id="reply_text" class="change-reply-text" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}">{{ $reply->reply }}</td>
-                                <td id="reply_model">{{ $reply->model }}</td>
+                                <td class="Website-task" id="reply-store-website">{{ $reply->website }}</td>
+                                <td class="Website-task" id="reply_category_name">{{ $reply->parentList() }} > {{ $reply->category_name }}</td>
+                                <td style="cursor:pointer;" id="reply_text" class="change-reply-text Website-task" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}">{{ $reply->reply }}</td>
+                                <td class="Website-task" id="reply_model">{{ $reply->model }}</td>
                                 <td id="reply_model">{{ $reply->created_at }}</td>
-                                <td id="reply_action"><i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}"></i></td>
+                                <td id="">@if($reply['pushed_to_watson'] == 0) No @else Yes @endif</td>
+                                <td id="reply_action">
+                                    <i class="fa fa-eye show_logs" data-id="{{ $reply->id }}" style="color: #808080;"></i>
+                                  @if($reply['pushed_to_watson'] == 0)  <i  class="fa fa-upload push_to_watson" data-id="{{ $reply->id }}" style="color: #808080;"></i> @endif
+                                    <i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}" style="color: #808080;"></i>
+                                    <button type="button" class="btn btn-xs show-reply-history" title="Show Reply Update History" data-id="{{$reply->id}}" data-type="developer"><i class="fa fa-info-circle" style="color: #808080;"></i></button>
+                                </td>
                             </tr>
                         @endforeach
                     </table>
@@ -97,6 +104,70 @@
         </div>
     </div>
 </div>
+<div class="modal" tabindex="-1" role="dialog" id="reply_history_modal">
+    <div class="modal-dialog" role="document"style="width: 60%; max-width: 100%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Tracked time history</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="reply_history_div">
+                        <table class="table" style="table-layout:fixed;">
+                            <thead>
+                                <tr>
+                                    <th width="11%">User Name</th>
+                                    <th width="60%">Last Message</th>
+                                    <th width="17%">Updated Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="reply_logs_modal">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Watson push Logs</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="reply_logs_div">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Request</th>
+                                    <th>Response</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
 
 $(document).on("click",".fa-trash-bin-record",function() {
@@ -124,6 +195,31 @@ $(document).on("click",".fa-trash-bin-record",function() {
       });
 });
 
+$(document).on("click",".push_to_watson",function() {
+    var $this = $(this);
+    $.ajax({
+        url: "{{ url('push-reply-to-watson') }}",
+        type: 'POST',
+        data: {
+          _token: "{{ csrf_token() }}",
+          id: $this.data("id")
+        },
+        beforeSend: function() {
+            $("#loading-image").show();
+        }
+      }).done( function(response) {
+            $("#loading-image").hide();
+            if(response.code == 200) {
+                toastr["success"](response.message);
+                //location.reload();
+            }else{
+               toastr["error"]('Unable to push!');
+            }
+      }).fail(function(errObj) {
+            $("#loading-image").hide();
+      });
+});
+
 $(document).on("click",".change-reply-text",function(e) {
     e.preventDefault();
     var $this = $(this);
@@ -132,6 +228,50 @@ $(document).on("click",".change-reply-text",function(e) {
     $("#reply-update-form-modal").modal("show");
 });
 
+$(document).on('click', '.show-reply-history', function() {
+    var issueId = $(this).data('id');
+    $('#reply_history_div table tbody').html('');
+    $.ajax({
+        url: "{{ route('reply.replyhistory') }}",
+        data: {id: issueId},
+        success: function (data) {
+            if(data != 'error') {
+                $.each(data.histories, function(i, item) {
+                    $('#reply_history_div table tbody').append(
+                        '<tr>\
+                        <td class="Website-task">'+ ((item['name'] != null) ? item['name'] : '') +'</td>\
+                        <td class="Website-task">'+ ((item['last_message'] != null) ? item['last_message'] : '') +'</td>\
+                        <td>'+ ((item['created_at'] != null) ? item['created_at'] : '') +'</td>\
+                        </tr>'
+                        );
+                });
+            }
+        }
+    });
+    $('#reply_history_modal').modal('show');
+});
 
+$(document).on('click', '.show_logs', function() {
+    var issueId = $(this).data('id');
+    $('#reply_logs_div table tbody').html('');
+    $.ajax({
+        url: "{{ route('reply.replylogs') }}",
+        data: {id: issueId},
+        success: function (data) {
+            if(data != 'error') {
+                $.each(data.logs, function(i, item) {
+                    $('#reply_logs_div table tbody').append(
+                        '<tr>\
+                        <td>'+ ((item['created_at'] != null) ? item['created_at'] : '') +'</td>\
+                        <td>'+ ((item['request'] != null) ? item['request'] : '') +'</td>\
+                        <td>'+ ((item['response'] != null) ? item['response'] : '') +'</td>\
+                        </tr>'
+                        );
+                });
+            }
+        }
+    });
+    $('#reply_logs_modal').modal('show');
+});
 </script>
 @endsection

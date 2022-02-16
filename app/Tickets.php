@@ -66,7 +66,12 @@ class Tickets extends Model {
             return $this->hasMany('App\ChatMessage', 'ticket_id')->latest();
         }
     }
-
+    public function sendMessageToSite()
+    {
+      
+        return $this->hasMany('App\ChatMessage', 'ticket_id')->where("send_to_tickets",1)->select(['id','message','created_at'])->latest();
+        
+    }
     public function customer()
     {
       return $this->hasOne(\App\Customer::class,'id','customer_id');

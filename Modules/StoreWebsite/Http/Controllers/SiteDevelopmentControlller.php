@@ -12,12 +12,19 @@ use App\SiteDevelopmentMasterCategory;
 use App\StoreWebsite;
 use App\Task;
 use App\User;
+use App\ChatMessage;
+use App\ChatMessagesQuickData;
+use App\Hubstaff\HubstaffMember;
 use Auth;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\TaskCategory;
+
+use App\Http\Controllers\TaskModuleController;
+
 
 class SiteDevelopmentController extends Controller
 {
@@ -27,6 +34,7 @@ class SiteDevelopmentController extends Controller
 
         $input = $request->input();
         $masterCategories = SiteDevelopmentMasterCategory::pluck('title', 'id')->toArray();
+        $designDevCategories = SiteDevelopmentMasterCategory::where('title', 'Design')->orWhere('title', 'Functionality')->pluck('title', 'id')->toArray();
         //Getting Website Details
         $website = StoreWebsite::find($id);
 
@@ -128,7 +136,8 @@ class SiteDevelopmentController extends Controller
 
         $users = User::select('id', 'name')->whereIn('id', $userIDs)->get();
         $store_websites = StoreWebsite::pluck("title","id")->toArray();
-        
+    
+
 
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
@@ -137,7 +146,7 @@ class SiteDevelopmentController extends Controller
             ], 200);
         }
 
-        return view('storewebsite::site-development.index', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites'));
+        return view('storewebsite::site-development.index', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites', 'designDevCategories'));
     }
 
     public function SendTask(Request $request)
@@ -251,6 +260,8 @@ class SiteDevelopmentController extends Controller
 
             //Cross Check if title is present
             $categoryCheck = SiteDevelopmentCategory::where('title', $request->text)->first();
+            $websiteId = $request->websiteId;
+
 
             if (empty($categoryCheck)) {
                 //Save the Category
@@ -261,18 +272,44 @@ class SiteDevelopmentController extends Controller
 
                 $all_website = StoreWebsite::get();
 
+                $site_id = 0;
+
                 foreach ($all_website as $key => $value) {
                     $site = new SiteDevelopment;
                     $site->site_development_category_id = $develop->id;
                     $site->site_development_master_category_id = $develop->master_category_id;
                     $site->website_id = $value->id;
                     $site->save();
+
+                    if($websiteId == $value->id){
+                        $site_id = $site->id;
+                    }
+
                 }
+                $requests = array(
+                    '_token' => $request->_token,
+                    'task_subject' => $request->text,
+                    'task_detail' => "TEST".$request->websiteId.' '.$request->text.' '.$request->master_category_id,
+                    'task_asssigned_to' => 6,
+                   // 'task_asssigned_from' => 10410,
+                    'category_id'=>49,
+                    'site_id'=>$site_id,
+                    'task_type'=>0,
+                    'repository_id'=>null,
+                    'cost'=>null,
+                    'task_id'=>null,
+                    'customer_id'=>null,
+                );
+                $check = (new Task)->createTaskFromSortcuts($requests);
+
                 return response()->json(["code" => 200, "messages" => 'Category Saved Sucessfully']);
             } else {
 				
 				$all_website = StoreWebsite::get();
 				$i=1;
+
+                $site_id = 0;
+
 				foreach ($all_website as $key => $value) {
 					$develop = SiteDevelopment::where('site_development_category_id',$categoryCheck->id )->where('website_id', $value->id)->first();
 					if(empty($develop)) {
@@ -282,21 +319,147 @@ class SiteDevelopmentController extends Controller
 						$site->site_development_master_category_id = $categoryCheck->master_category_id;
 						$site->website_id = $value->id;
 						$site->save();
+
+                        if($websiteId == $value->id){
+                            $site_id = $site->id;
+                        }
 					}
 						
 				}
+				$designCategoryId = TaskCategory::where('title', 'like', 'Design%')->pluck('id')->first();
+					
+                $requests = array(
+                    '_token' => $request->_token,
+                    'task_subject' => $request->text,
+                    'task_detail' => "TEST".$request->websiteId.' '.$request->text.' '.$request->master_category_id,
+                    'task_asssigned_to' => 6,
+                    'category_id'=>$designCategoryId,
+                    'site_id'=>$site_id,
+                    'task_type'=>0,
+                    'repository_id'=>null,
+                    'cost'=>null,
+                    'task_id'=>null,
+                    'customer_id'=>null,
+                );
+                $check = (new Task)->createTaskFromSortcuts($requests);
+
 				if($i ==1){
 					return response()->json(["code" => 500, "messages" => 'Category Already Exist']);
 				} else{
-					return response()->json(["code" => 200, "messages" => 'Category Saved Sucessfully']);
+
+					return response()->json(["code" => 200, "messages" => 'Category Saved Sucessfully',]);
 				}
             }
+
+
 
         } else {
             return response()->json(["code" => 500, "messages" => 'Please Enter Text']);
         }
     }
 
+	public function createTask(Request $request) {
+		if($request->task_category == 'Design') { 
+			$masterCategoryId = SiteDevelopmentMasterCategory::where('title', 'Design')->pluck('id')->first();
+		} else{  
+			$masterCategoryId = SiteDevelopmentMasterCategory::where('title', 'Design')->pluck('id')->first();
+		}
+		$website = StoreWebsite::where('id', $request->websiteId)->pluck('title')->first();
+		
+		$categories = SiteDevelopmentCategory::leftJoin('site_developments', 'site_developments.site_development_category_id', '=','site_development_categories.id')
+		->select('site_development_categories.title', 'site_development_categories.id', 'site_developments.id as site_development_id')->where('site_development_master_category_id', $masterCategoryId)
+		->where('website_id', $request->websiteId)->orderBy('site_development_categories.title', 'asc')->get();
+		
+		foreach($categories as $category) {
+			$requests = array(
+                    '_token' => $request->_token,
+                    'task_subject' => $category['title'],
+                    'task_detail' => $website.' '.$category['title'].$request->task_category,
+                    'task_asssigned_to' => 6,
+                    'category_id'=>49,
+                    'site_id'=>$category->site_development_id,
+                    'task_type'=>0,
+                    'repository_id'=>null,
+                    'cost'=>null,
+                    'task_id'=>null,
+                    'customer_id'=>null,
+					'is_flow_task'=>0
+                );
+				$task = Task::where(['category'=>49,'site_developement_id'=>$category->site_development_id])->first();
+				if($task == null) {
+					$check = (new Task)->createTaskFromSortcuts($requests);
+				}
+                
+		}
+		return response()->json(["code" => 200, "messages" => 'Task created Sucessfully']);
+	}
+	
+	public function copyTasksFromWebsite(Request $request) {
+		/*$siteDevelopmentCategoryIds = SiteDevelopment::where('website_id', $request->copy_to_website)->pluck('site_development_category_id')->toArray();
+		$siteDevelopment = SiteDevelopment::where('website_id', $request->copy_to_website)->select('id as site_developement_id','site_development_category_id')->get();
+		*/
+		$tasks = Task::leftJoin('site_developments', 'site_developments.id', '=', 'tasks.site_developement_id')
+		->where('site_developments.website_id', $request->copy_from_website)->select('tasks.*')->get(); //dd($tasks);
+		foreach($tasks as $task){
+			$attachment = ChatMessage::whereNotNull('task_id')->where('task_id', $task->id)->where('message', 'like', '%.zip%')->orderBy('id', 'desc')->first();
+			$siteDev = SiteDevelopment::where('id', $task['site_developement_id'])->first(); ///dd($siteDev);
+			if($siteDev != null) {
+				$site_development_id = SiteDevelopment::where(['site_development_category_id'=>$siteDev['site_development_category_id'], 'website_id'=>$request->copy_to_website])->pluck('id')->first();
+				if($site_development_id != null){
+					$requests = array(
+						'_token' => $request->_token,
+						'task_subject' => $task['task_subject'],
+						'task_detail' => $task['task_details'],
+						'task_asssigned_to' => $request->task_asssigned_to,
+						'category_id'=>$task['category'],
+						'site_id'=>$site_development_id,
+						'task_type'=>0,
+						'repository_id'=>null,
+						'cost'=>null,
+						'task_id'=>null,
+						'customer_id'=>null,
+						'is_flow_task'=>0
+					);
+					$taskNew = Task::where(['category'=>$task['category'],'site_developement_id'=>$site_development_id])->first(); 
+					if($taskNew == null) {
+						$createdTask = (new Task)->createTaskFromSortcuts($requests); 
+						if(isset( $attachment['message'])) {
+							$params = \App\ChatMessage::create([
+								'user_id' => \Auth::user()->id,
+								'task_id' => $createdTask['id'],
+
+								'sent_to_user_id' => $request->task_asssigned_to,
+
+								'erp_user' => \Auth::user()->id,
+								'contact_id' => \Auth::user()->id,
+								'message' => $attachment['message'],
+
+							]);
+						}	
+						if ($task->hasMedia(config('constants.attach_image_tag'))) {
+							foreach ($task->getMedia(config('constants.attach_image_tag')) as $media) {
+								$imageExtensions = ['zip'];
+								$explodeImage = explode('.', $media->getUrl());
+								$extension = end($explodeImage);
+
+								if (in_array($extension, $imageExtensions)) {
+									$createdTask->attachMedia($media, config('constants.media_tags'));
+
+									if(!empty($media->filename)){
+										DB::table('media')->where('filename', $media->filename)->update(['user_id' => Auth::id() ]);
+									}
+								} 
+							}
+						}   
+
+						
+					}
+				}
+			}
+		}
+		return response()->json(["code" => 200, "messages" => 'Task copied Sucessfully']);
+	}
+	
     public function addSiteDevelopment(Request $request)
     {
 
@@ -416,7 +579,6 @@ class SiteDevelopmentController extends Controller
 
     public function editCategory(Request $request)
     {
-
         $category = SiteDevelopmentCategory::find($request->categoryId);
         if ($category) {
             $category->title = $request->category;
@@ -853,4 +1015,6 @@ class SiteDevelopmentController extends Controller
         $site->save();
         return response()->json(['message' => "Status updated successfully", 'status' => $allStatus, 'site' => $site]);
     }
+
+    
 }

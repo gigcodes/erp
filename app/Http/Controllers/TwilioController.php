@@ -67,6 +67,7 @@ use App\TwilioWorkflow;
 use App\TwilioTaskQueue;
 use App\TwilioLog;
 use App\ChatbotQuestion;
+use App\TwilioAccountLog;
 use Validator;
 
 /**
@@ -2537,10 +2538,11 @@ class TwilioController extends FindByNumberController
                     // $result = json_decode($result);
 
                 //Get Phone Number - END
-
+                TwilioAccountLog::log($request->email, $request->account_id, 'New twilio account added successfully');
                 return redirect()->back()->with('success','New twilio account added successfully');
             }
         } catch (\Exception $e) {
+            TwilioAccountLog::log($request->email, $request->account_id, $e->getMessage());
             return redirect()->back()->with('error',$e->getMessage());
         }
     }
@@ -3576,4 +3578,11 @@ class TwilioController extends FindByNumberController
 		$twilioLogs = $twilioLogs->paginate(20);		
 	    return view('twilio.speech_to_text_logs', compact('twilioLogs','input'));
 	}
+
+    public function twilioAccountLogs()
+    {
+        $accountLogs = TwilioAccountLog::paginate(50);
+        
+        return view('twilio.account_logs', compact('accountLogs'));
+    }
 } 

@@ -952,7 +952,7 @@ class ProductInventoryController extends Controller
     	ini_set("memory_limit", -1);
     	$filter_data = $request->input();
 		$inventory_data = \App\Product::getProducts($filter_data);
-
+		
 		// started to update status request
 		if($request->get("update_status",false) ==  true) {
 			foreach($inventory_data as $upd) {
@@ -1445,89 +1445,39 @@ class ProductInventoryController extends Controller
 
     public function supplierProductHistory(Request $request)
 	{ 
-		/*$suppliers = \Cache::rememberForever('supplier', function() {
-			return \App\Supplier::pluck('supplier','id')->toArray();
-		});*/
-		$suppliers = \App\Supplier::pluck('supplier','id')->toArray();// 
-		
-	    $selectedDate = Carbon::now()->subDays(7);
-		$dataToInsert = []; 
-		
-		$date = date('Y-m-d', strtotime(date("Y-m-d") . ' -6 day'));
-		$extraDates = $date;
-		$columnData = [];
-		for ($i=1; $i < 8 ; $i++) { 
-			$columnData[] = $extraDates;
-			$extraDates   = date('Y-m-d', strtotime($extraDates . ' +1 day'));
+		$total_rows =25;
+		$supplier_droupdown = Supplier::select("id","supplier")->get();
+		$suppliers = Supplier::query();
+		if($request->supplier){
+			$suppliers = $suppliers->where("id",$request->supplier);
 		}
-			$total_rows = 5;
-			$limit = 25;
-		
-		$page = $request->has('page') ? $request->query('page') : 1;
-		
-			
-		$inventory= \App\InventoryStatusHistory::leftjoin('scrapers', 'scrapers.supplier_id', '=', 'inventory_status_histories.supplier_id')->select('inventory_status_histories.created_at','inventory_status_histories.supplier_id', 'scrapers.last_completed_at', DB::raw('count(distinct inventory_status_histories.product_id) as product_count_count'))
-				->whereDate('inventory_status_histories.created_at','>=', $selectedDate)
-				->where('in_stock','>',0)
-				->groupBy('inventory_status_histories.supplier_id');
-						
-			if($request->supplier and $request->supplier != "") {
-				$inventory = $inventory->where('inventory_status_histories.supplier_id',$request->supplier);
-			}
-			//$inventory = $inventory->orderBy('product_count_count','desc')->simplePaginate(5);
-			$inventory = $inventory->offset($page * $limit)->limit($limit)->get();
-		
-	
+		$suppliers = $suppliers->paginate($total_rows);
 		$allHistory = [];
-		
-				
-			foreach ($inventory as $key => $row) {          
-				$newRow = [];
-				$newRow['supplier_name'] = '';
-				if(isset($suppliers[$row->supplier_id])) {
-					$newRow['supplier_name'] = $suppliers[$row->supplier_id];
-				}
-				$brandCount = \App\InventoryStatusHistory::join("products as p","p.id","inventory_status_histories.product_id")
-						->whereDate('inventory_status_histories.created_at','>=', $selectedDate)
-						->where("inventory_status_histories.supplier_id",$row->supplier_id)
-						->groupBy("p.brand")
-						->select(\DB::raw("count(p.brand) as total"))
-						->get()
-						->count();
+		$columnData = [];
+		$start_date = new \DateTime(date('Y-m-d',strtotime('-7 days')));
+		$end_date= new \DateTime(date('Y-m-d'));
+		$interval = new \DateInterval("P1D");
+		$range = new \DatePeriod($start_date,$interval,$end_date);
 
-				$newRow['brands'] = $brandCount;
-				$newRow['products'] = $row->product_count_count;
-				$newRow['supplier_id'] = $row->supplier_id;
-				$newRow['last_scrapped_on'] = $row->last_completed_at;
-
-				foreach ($columnData as $c) { 
-					# code...
-					$totalProduct = \App\InventoryStatusHistory::whereDate('created_at',$c)
-								->where('supplier_id',$row->supplier_id)
-								->select(\DB::raw("count(distinct product_id) as total_product"))->first();
-					$newRow['dates'][$c] = ($totalProduct) ? $totalProduct->total_product : 0;
-								
-					//$dataToInsert[] = ['supplier_id'=>$row->supplier_id, 'supplier_name'=>$newRow['supplier_name'], 'last_scrapped_on'=>$newRow['last_scrapped_on'], 'products'=>$newRow['products'], 'brands'=>$newRow['brands'], 'date'=>$c, 'count'=>$newRow['dates'][$c] ];
-				}
-							
-				array_push($allHistory,$newRow);
-				
-			}
-		
-		/*dd($dataToInsert);
-		if(count($dataToInsert) > 0) {
-			\App\InventoryStatusHistoryView::insert($dataToInsert);
-		}*/
-		
 		if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('product-inventory.partials.supplier-product-history-data', compact('allHistory', 'total_rows', 'request', 'columnData'))->render()
+                'tbody' => view('product-inventory.partials.supplier-product-history-data', compact('total_rows','suppliers','range'))->render()
             ], 200);
         }
         
-		return view('product-inventory.supplier-product-history',compact('allHistory','total_rows','suppliers','request','columnData'));
+		return view('product-inventory.supplier-product-history',compact('range','supplier_droupdown','total_rows','suppliers','columnData'));
 	}
 
+	public static function getLastScrappedOn($supplier_id) 
+	{
+		$data =(array) DB::table('inventory_status_histories')->where('supplier_id','=', $supplier_id)->latest('date')->first();
+
+		if(isset($data['date'])) {
+			return $data['date'];
+		}
+		return '';
+		
+	}
 
 	public function supplierProductHistoryWithView(Request $request)
 	{ 
@@ -2914,4 +2864,6 @@ class ProductInventoryController extends Controller
         }
 
     }
+
+
 }

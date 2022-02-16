@@ -8,7 +8,7 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Google Translation Settings List</h2>
             <div class="pull-left col-md-12">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#googleServerCreateModal"><i class="fa fa-plus"></i></button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addGooleSetting"><i class="fa fa-plus"></i></button>
             </div>
         </div>
     </div>

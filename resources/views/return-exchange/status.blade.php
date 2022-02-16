@@ -6,34 +6,34 @@
 @section('large_content')
 
 <div class="row" id="return-exchange-page">
-	<div class="col-lg-12 margin-tb p-0">
+    <div class="col-lg-12 margin-tb p-0">
         <h2 class="page-heading">Return Exchange Status <span id="total-counter">({{$status->count()}})</span></h2>
     </div>
     <br>
     <div class="col-lg-12 margin-tb">
-    	<div class="row" style="margin-bottom:10px;">
-	    	<div class="col">
-		    	<div class="h" style="margin-bottom:0px;">
-		    		<form class="form-inline return-exchange-handler" method="get">
-					  <div class="row">
-				  		<div class="col">
-				  			<div class="form-group pl-4 return-input">
-							    <?php echo Form::text("search",request("search"),["class"=> "
+        <div class="row" style="margin-bottom:10px;">
+            <div class="col">
+                <div class="h" style="margin-bottom:0px;">
+                    <form class="form-inline return-exchange-handler" method="get">
+                      <div class="row">
+                        <div class="col">
+                            <div class="form-group pl-4 return-input">
+                                <?php echo Form::text("search",request("search"),["class"=> "
                                   form-control","placeholder" => "Search by keyword"]) ?>
-						  	</div>
-						  	<div class="form-group">
-						  		<!--<label for="button">&nbsp;</label>-->
-						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
-						  			<img src="/images/search.png" style="cursor: default;">
-						  		</button>
-						  	</div>		
-				  		</div>
-					  </div>	
-					</form>	
-		    	</div>
-		    </div>
-	    </div>	
-		<div class="col-md-12 margin-tb infinite-scroll" id="page-view-result">
+                            </div>
+                            <div class="form-group">
+                                <!--<label for="button">&nbsp;</label>-->
+                                <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
+                                    <img src="/images/search.png" style="cursor: default;">
+                                </button>
+                            </div>      
+                        </div>
+                      </div>    
+                    </form> 
+                </div>
+            </div>
+        </div>  
+        <div class="col-md-12 margin-tb infinite-scroll" id="page-view-result">
             <table class="table table-bordered" style="table-layout:fixed;">
             <thead>
               <tr>
@@ -64,8 +64,8 @@
                 <?php } ?>
             </tbody>
           </table>          
-		</div>
-	</div>
+        </div>
+    </div>
 </div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">
@@ -73,7 +73,7 @@
 @endsection
 
 @section('scripts')
-	<script type="text/javascript">
+    <script type="text/javascript">
         $(document).on("keyup",".text-editor",function(e) {
             var $this = $(this);
             if(e.keyCode == 13) {
@@ -154,5 +154,5 @@
             }
 
         });
-	</script>
+    </script>
 @endsection

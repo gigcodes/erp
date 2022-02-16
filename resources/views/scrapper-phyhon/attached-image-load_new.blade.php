@@ -20,11 +20,22 @@
                                 onclick="setStoreAsDefault(this)" data-website-id="{{ $item->website_table_id }}"
                                 data-store-id="{{ $item->website_stores_id }}" /></span> 
                         </td>
+                        <td>
+                             <span class="btn p-0"> <input type="checkbox" class="defaultInput {{ $item->website_stores_flag }}" {{ $item->website_stores_flag ? 'checked' : '' }}
+                                onclick="setStoreAsFlag(this)" data-website-id="{{ $item->website_table_id }}"
+                                data-store-id="{{ $item->website_stores_id }}" /></span> 
+                        </td>
                     <td>
                         <!-- <button data-website={{ $list->storeWebsite->website ?? '' }} type="button" class="btn btn-xs btn-image scrapper-python-modal" title="Scrapper action" data-toggle="modal" data-target="#scrapper-python-modal">
                             <img src="/images/add.png" alt="" style="cursor: pointer">
                         </button> -->
-                        
+
+                         <!-- <button data-url="{{ route('scrapper.image.urlList', ['id' => $item->website_stores_id,'web_id' => $item->website_store_views_id,'code' => $item->website_id, 'startDate' => $item->date_created_at, 'endDate' => $item->date_created_at ]) }}" title="Open Urls"
+                            type="button" class="btn show-scrape-images btn-image no-pd"
+                            data-suggestedproductid="{{ $item->website_stores_id }}">
+                            <img src="{{env('APP_URL')}}/images/view.png" style="cursor: default;">
+                        </button> -->
+
 
                          <button data-url="{{ route('scrapper.phyhon.listImages', ['id' => $item->website_stores_id,'web_id' => $item->website_store_views_id,'code' => $item->website_id, 'startDate' => $item->date_created_at, 'endDate' => $item->date_created_at ]) }}" title="Open Images"
                             type="button" class="btn show-scrape-images btn-image no-pd"
@@ -108,6 +119,14 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="">
+                            <div class="mb-3">
+                                <input type="radio" name="is_flag" id="is_flag" value="is_flag">
+                                <label class="form-check-label" for="is_flag">
+                                    Is Flag
+                                </label>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer pb-0">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -129,6 +148,9 @@
         websiteName = $(this).data('website').replace('www.', '').replace('.com', '')
 
     })
+    $(document).on("change","#store_website", function(e) {
+        $('#store_website').removeClass('c-error');
+    });
 
 
     $(document).on('submit', '#scrapper-python-form', function(e) {
@@ -149,6 +171,8 @@
         // console.log(store_website);
         console.log(websiteName, 'aaaaaaaaa')
 
+        if(store_website!=""){
+
         $.ajax({
             type: 'POST',
             url: "{{route('scrapper.call')}}",
@@ -159,7 +183,8 @@
                 _token: "{{ csrf_token() }}",
                 webName: websiteName,
                 type: typeOfData,
-                data_name: nameOfData
+                data_name: nameOfData,
+                is_flag: $('input[name="is_flag"]:checked').val()
             },
             dataType: "json"
         }).done(function(response) {
@@ -176,6 +201,10 @@
 
             console.log("Sorry, something went wrong");
         });
+        }else{
+            toastr['error']("Please select store website", 'error');
+            $('#store_website').addClass('c-error');
+        }
 
     })
 </script>

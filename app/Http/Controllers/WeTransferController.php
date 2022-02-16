@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Wetransfer;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use App\Setting;
+use App\WeTransferLog;;
+use Response;
+use Validator;
 
 class WeTransferController extends Controller
 {
@@ -62,28 +65,54 @@ class WeTransferController extends Controller
      */
     public function storeFile(Request $request)
     {
-        $wetransfer = Wetransfer::find($request->id);
-        if($request->status){
+        $validator = Validator::make($request->all(), ['file' => 'required', 'id' => 'required', 'filename' => 'required']);
+        if($validator->fails()) return response()->json(['status' => 400, 'errors' => $validator->errors(), 'success' => false], 400);
+
+		WeTransferLog::create(['link'=>'', 'log_description'=>json_encode($request->all())]);
+		//WeTransferLog::create(['link'=>'', 'log_description'=>json_encode($request->)]);
+		$wetransfer = Wetransfer::find($request->id);
+        if(!$wetransfer) {
+	        WeTransferLog::create(['link'=>'', 'log_description'=>'we transfer item not found']);
+            return response()->json(['status' => 400, 'message' => 'Wetransfer item not found', 'success' => false]);
+        }
+        /*if($request->status){
             $wetransfer->is_processed = 2;
             $wetransfer->update();
             return json_encode(['success' => 'Wetransfer Status has been updated']);
-        }
-
+        }*/
+	    WeTransferLog::create(['link'=>'', 'log_description'=>'we transfer item found']);
         if($request->file){
-
-            $wetransfer->is_processed = 1;
+		    $file = $request->file('file');
+			$fileN = time(). $file->getClientOriginalName();
+			$path = public_path() . '/wetransfer/'.$request->id;
+			$file->move($path, $fileN);
+			
+            $wetransfer->is_processed = 2;
+			
+			if($wetransfer->files_list == null || $wetransfer->files_list == '') {
+				$wetransfer->files_list = $fileN;
+			} else {
+				$wetransfer->files_list = $wetransfer->files_list.','.$fileN;
+			}
             $wetransfer->update();
-            $file = $request->file('file');
+			
+   		
             $attachments_array = [];
-            if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+            /*if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
                 $attachments = ErpExcelImporter::excelZipProcess($file, $file->getClientOriginalName(), $wetransfer->supplier, '', $attachments_array);
                 
-            }
-
-            return json_encode(['success' => 'Wetransfer has been stored']);
+            }*/
+			WeTransferLog::create(['link'=>'', 'log_description'=>'Wetransfer has been stored']);
+            return response()->json(['status' => 200, 'message' => 'Wetransfer has been stored', 'success' => true]);
         }	
+        return response()->json(['status' => 400, 'message' => 'File not found', 'success' => false]);
     }
 
+	public function logs() {
+		$logs = WeTransferLog::orderBy('id', 'desc')->paginate(30);
+		return view('wetransfer.logs', compact('logs'));
+	}
+	
     public function reDownloadFiles(Request $request)
     {   
 
@@ -92,9 +121,21 @@ class WeTransferController extends Controller
 
         if ( !empty( $list ) ) {
             // foreach ($queuesList as $list) {
-                
-                $this->downloadFromURL( $list->url, $list->supplier );
-                $file  = $this->downloadWetransferFiles( $list->url );
+               /* if($list['files_list'] != null and $list['files_list'] != '') {
+					$files = explode(',', $list['files_list']);
+					foreach($files as $file){
+						$filepath = public_path('/wetransfer/'.$list['id'].'/'. $file);
+						 Response::download($filepath); 
+					} 
+				} else{
+					
+				}*/
+				$response = $this->downloadFromURL( $list->id, $list->url, $list->supplier );
+                WeTransferLog::create(['link'=>$list->url, 'log_description'=> $response ? 'Download request submitted' : 'Failed to send download request']);
+				$list->update([
+                  'is_processed' => $response ? 3 : 0  
+                ]);
+                /*$file  = $this->downloadWetransferFiles( $list->url );
                 
                 if ( !empty( $file ) ) {
                     
@@ -142,9 +183,13 @@ class WeTransferController extends Controller
                         'files_list'   => null,
                         'is_processed' => 0,
                 );
-                Wetransfer::where( 'id', $list->id )->update( $update );
+                Wetransfer::where( 'id', $list->id )->update( $update );*/
                
-            // }	
+            // }
+                return response()->json([
+                    'status'      => true,
+                    'message'     => $response ? 'Download completed' : 'Download failed'
+                ], 200);
         }
         return response()->json([
             'status'      => true,
@@ -261,11 +306,37 @@ class WeTransferController extends Controller
         return false;
     }
 
-    public static function downloadFromURL($url, $supplier)
+    public static function downloadFromURL($id, $url, $supplier)
     {
-        $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
+        $payload = sprintf('{"id":%u,"url":"%s"}',$id,$url);
+		$curl = curl_init();
+		curl_setopt_array($curl, array(
+		  CURLOPT_URL => 'http://75.119.154.85:100/download',
+		  CURLOPT_RETURNTRANSFER => true,
+		  CURLOPT_ENCODING => '',
+		  CURLOPT_MAXREDIRS => 10,
+		  CURLOPT_TIMEOUT => 0,
+		  CURLOPT_FOLLOWLOCATION => true,
+		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		  CURLOPT_CUSTOMREQUEST => 'POST',
+		  CURLOPT_POSTFIELDS => $payload,
+		  CURLOPT_HTTPHEADER => array(
+			'Content-Type: text/plain'
+		  ),
+		));
 
+		$response = curl_exec($curl);
 
+		curl_close($curl);
+		if($response == "Request Submitted!") {
+			return true;
+		} else {
+			return false;
+		}
+		
+		
+		
+       /* $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
 
         if (strpos($url, 'https://we.tl/') !== false) {
             
@@ -395,6 +466,6 @@ class WeTransferController extends Controller
                     }           
                 return true;
             }
-        return false;
+        return false; */
     }
 }

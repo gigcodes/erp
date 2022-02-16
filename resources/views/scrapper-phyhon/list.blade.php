@@ -71,6 +71,10 @@
         td{
             padding: 4px !important;
         }
+         .c-error{ 
+            border: 1px solid #c51244 !important; 
+        }
+
     </style>
 @endsection
 
@@ -181,12 +185,16 @@
                             <label class="form-check-label  mt-2" for="tablet">
                                 Tablet
                             </label>
+                            <input class="mt-2" type="radio" name="is_flag" id="is_flag" value="is_flag">
+                            <label class="form-check-label  mt-2" for="is_flag">
+                                Is Flag
+                            </label>
                             </div>
                               <div class="col-md-7 "style="display: flex;">
                             <button type="submit" class="btn btn-secondary custom-button btn-xs"style="height: 34px; width: 300px !important;" >Send Request</button>
                             <button type="submit"  class="btn ml-5 btn-secondary custom-button action_history btn-xs"style="height: 34px; width: 300px !important;">Action History</button>
                             <button type="submit" class="btn btn-secondary ml-5 custom-button view_history btn-xs" style="height: 34px; width: 300px !important;">History</button>
-                            <button type="submit" class="btn btn-secondary ml-5 custom-button btn-xs"style="height: 34px; width: 300px !important;" >Delete Images</button>
+                            <button type="submit" class="btn btn-secondary ml-5 delete-image-btn custom-button btn-xs"style="height: 34px; width: 300px !important;" >Delete Images</button>
                         </div>
                     </form>
                     </div>
@@ -244,14 +252,15 @@
             <table class="table table-bordered"style="table-layout:fixed;">
                 <thead>
                 <th style="width:4%">Date</th>
-                <th style="width:4%">Id</th>
-                <th style="width:20%">Website</th>
+                
+                <th style="width:19%">Website</th>
                 <th style="width:12%">Name</th>
-                <th style="width:10%">Language</th>
+                <th style="width:9%">Language</th>
                 <th style="width:5%">Desktop</th>
                 <th style="width:5%">Mobile</th>
                 <th style="width:5%">Tablet</th>
-                <th style="width:6%">Set as Default</th>
+                <th style="width:5%">Set as Default</th>
+                <th style="width:3%">Is Flag</th>
                 <th style="width:4%">Action</th>
                 </thead>
                 <tbody class="infinite-scroll-data">
@@ -1304,7 +1313,7 @@
 
         $(document).on('click', '.expand-row-msg', function () {
             var name = $(this).data('name');
-			var id = $(this).data('id');
+            var id = $(this).data('id');
             var full = '.expand-row-msg .show-short-'+name+'-'+id;
             var mini ='.expand-row-msg .show-full-'+name+'-'+id;
             $(full).toggleClass('hidden');
@@ -1537,7 +1546,7 @@
 
         
         $('#delete_date').datetimepicker({ format: 'YYYY-MM-DD' });
-         $(document).on('submit', '#scrapper-image-delete-form', function(e) {
+         $(document).on('click', '.delete-image-btn', function(e) {
 
             e.preventDefault();
             if( $('#delete_date').val()==""){
@@ -1575,6 +1584,49 @@
             });
 
         });
+
+         function setStoreAsFlag(selector)
+        {
+            var website=$(selector).attr('data-website-id');
+            var store=$(selector).attr('data-store-id');
+            var checked=0;
+            var thisSelector=$(selector);
+
+            if($(selector).prop('checked')==true)
+            {
+                var checked=1;
+            }
+
+            $('.expand-'+website).each(function(){
+
+                console.log($(this).find('.defaultInput'));
+
+                $(this).find('.defaultInput').prop('checked',false);
+            })
+            
+
+            if(checked)
+            {
+                $(selector).prop('checked',true);
+            }
+
+            
+
+            $.get('{{route("set.flag.store")}}'+'/'+website+'/'+store+'/'+checked,function(res)
+            {
+                if(res.status==1)
+                {
+                   toastr['success'](res.message, 'success');
+                }
+                else
+                {
+                    toastr['error'](res.message, 'error');
+                }
+
+
+            })
+
+        }
         
 </script>
 
