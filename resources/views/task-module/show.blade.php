@@ -466,11 +466,12 @@ input.cmn-toggle-round + label {
                 </div>
                 @endif
                 <div class="row">
-                    <div class="col-xs-12 col-md-4" id="recurring-task" >
+                    <div class="col-xs-12 col-md-4" id="recurring-task"  style="display:none;">
                         <div class="row">
                             <div class="col-xs-12 col-md-6">
                                 <div class="form-group">
-                                    <select name="recurring_type" class="form-control input-sm">
+                                    <select name="recurring_type" class="form-control input-sm" required>
+                                        <option value="">Select</option>
                                         <option value="EveryHour">EveryHour</option>
                                         <option value="EveryDay">EveryDay</option>
                                         <option value="EveryWeek">EveryWeek</option>
@@ -479,7 +480,7 @@ input.cmn-toggle-round + label {
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-xs-12 col-md-6" style="display:none;">
+                            <div class="col-xs-12 col-md-6">
                                 <div class="form-group">
                                     <div class='input-group date' id='sending-datetime'>
                                         <input type='text' class="form-control input-sm" name="sending_time" value="{{ date('Y-m-d H:i') }}" required/>
@@ -1386,7 +1387,10 @@ input.cmn-toggle-round + label {
                             <thead>
                                 <tr>
                                     <th>Sl no</th>
+                                    <th>Log case id</th>
                                     <th>Message</th>
+                                    <th>Log msg </th>
+                                    <th>Date/Time</th>
                                 </tr>
                             </thead>
                             <tbody class="recurring-history-list-view">
@@ -1982,7 +1986,7 @@ input.cmn-toggle-round + label {
                     $('#appointment-container').hide();
 
                     if (!isAdmin)
-                        $('select[name="task_asssigned_to"]').html(`<option value="${current_userid}">${ current_username }</option>`);
+                        $('select[name="task_asssigned_to"]').html('<option value="${current_userid}">${ current_username }</option>');
 
                     $('#recurring-task').show();
                 } else if ($(".is_statutory").val() == 2) {
@@ -3829,6 +3833,7 @@ $(document).on("click",".btn-save-documents",function(e){
         $(document).on('click','.cmn-toggle',function()
         {
             let id = $(this).attr('task-id');
+            var showstatus = "";
             $.ajax({
                 url: "{{route('task.CommunicationTaskStatus')}}",
                 data: {
@@ -3839,14 +3844,15 @@ $(document).on("click",".btn-save-documents",function(e){
                     {
                         $('#getMsg'+id).prop("readonly", true); 
                         $('#sendMsg'+id).prop("readonly", true); 
-
+                        showstatus = "Off";
                     }
                     if(response.communication_status == 0)
                     {
                         $('#getMsg'+id).prop("readonly", false); 
                         $('#sendMsg'+id).prop("readonly", false); 
+                        showstatus = "On";
                     }
-                    toastr["success"]("Communication message status is changed successfully", "Message")
+                    toastr["success"]("Communication message status is "+showstatus+" successfully", "Message")
                 },
                 error: function (error) {
                     toastr["error"](error.responseJSON.message, "Message")

@@ -268,6 +268,7 @@
                         <th width="11%">Delivery Date</th>
                         <th width="20%">Communication</th>
                         <th width="13%">Status</th>
+
                     </tr>
                 </thead>
 

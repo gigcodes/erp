@@ -5,11 +5,11 @@
     <td style="display:table-cell;vertical-align: baseline;">
     {{ $issue->id }}
     </td>
+
     <td style="display:table-cell;vertical-align: baseline;">
         @if($special_task->site_developement_id && $special_task->site_development->store_website)
                 {{ $special_task->site_development->store_website?$special_task->site_development->store_website->title:'' }}
         @endif
-    
     </td>
     <td class="Website-task" style="vertical-align: baseline;">    
        {{ $issue->task_subject }}
@@ -91,6 +91,11 @@
          <button type="button" class="btn btn-image flag-task pd-5" data-type="task" data-id="{{ $issue->id }}"><img src="{{asset('images/unflagged.png')}}"/></button>
          @endif
      </div>
+    </td>
+        <td>
+        <button type="button" title="Task Time history" class="btn tasktime-history-btn btn-xs pull-left" data-id="{{$issue->id}}">
+          <i class="fa fa-history"></i>
+      </button>
     </td>
  
 </tr>
