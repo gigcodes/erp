@@ -1735,3 +1735,27 @@ GET https://erp.theluxuryunlimited.com/api/all-reviews
     "message": "Error message"
 }
 ```
+
+## Sync Transaction against any order id
+**Request**
+```json
+post https://erp.theluxuryunlimited.com/api/order/sync-transaction
+{
+    "order_id":"ONN-Dec-2019-2001", 
+    "transaction_id":"testtransaction"
+}
+```
+**Success Response:**
+```Json
+{
+    "message": "Transaction id updated successfully",
+    "success": false
+}
+```
+**Error Response:**
+```json
+{
+    "message": "Issue in order",
+    "success": false
+}
+```

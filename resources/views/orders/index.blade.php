@@ -171,6 +171,7 @@
         <tr>
             <th width="1%" style="padding:0;" >Select</th>
             <th width="5%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
+            <th width="5%">Transaction id</th>
             <th width="6%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
             <th width="10%">Site Name</th>
@@ -220,7 +221,7 @@
               <td><span class="td-mini-container">
                   <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}">
                   </span>
-                </td>
+              </td>
               <td class="table-hover-cell">
               <div class="form-inline">
                   @if ($order->is_priority == 1)
@@ -235,6 +236,7 @@
                   </span>
                 </div>
               </td>
+              <td>{{ $order->transaction_id ?? 'NA' }}</td>
               <td>{{ Carbon\Carbon::parse($order->order_date)->format('d-m') }}</td>
               <td class="expand-row table-hover-cell" style="color:grey;">
                 @if ($order->customer)
