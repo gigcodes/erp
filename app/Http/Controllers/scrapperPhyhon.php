@@ -688,7 +688,7 @@ class scrapperPhyhon extends Controller
                $urls = DB::table('scraper_imags')->join('store_websites', 'store_websites.id','=','scraper_imags.store_website')->select('scraper_imags.*','store_websites.title as wtitle','store_websites.id as swid')->whereRaw('url != "" and url IS  NOT NULL');
                if(!empty($flagUrl)){
                
-                $urls = $urls->where("id",$flagUrl);
+                $urls = $urls->where("scraper_imags.id",$flagUrl);
                 $flagUrl="#".$flagUrl;
                }
                if($request->flt_website && $request->flt_website != null){
