@@ -174,6 +174,12 @@
                                 value="{{ isset($search_phone_no) ? $search_phone_no : '' }}"
                                 placeholder="Phone No." id="search_phone_no">
                     </div>
+                    <div class="col-md-2 pl-3 pr-0">
+                        <input name="search_source" type="text" class="form-control"
+                                value="{{ isset($search_source) ? $search_source : '' }}"
+                                placeholder="Source." id="search_source">
+                    </div>
+                    
                     <!-- <div class="col-md-2">
                         <input name="search_category" type="text" class="form-control"
                                 value="{{ isset($search_category) ? $search_category : '' }}"
@@ -538,7 +544,8 @@ function opnMsg(email) {
     });
 
     function submitSearch(){
-                src = "{{url('whatsapp/pollTicketsCustomer')}}";
+                //src = "{{url('whatsapp/pollTicketsCustomer')}}";
+                src = "{{url('livechat/tickets')}}";
                 term = $('#term').val();
                 erp_user = 152;
                 serach_inquiry_type = $('#serach_inquiry_type').val();
@@ -550,6 +557,7 @@ function opnMsg(email) {
                 status_id = $('#status_id').val();
                 date = $('#date').val();
                 users_id = $('#users_id').val();
+                search_source = $('#search_source').val();
                 $.ajax({
                     url: src,
                     dataType: "json",
@@ -564,6 +572,7 @@ function opnMsg(email) {
                         status_id : status_id,
                         date : date,
                         users_id : users_id,
+                        search_source : search_source
 
                     },
                     beforeSend: function () {
@@ -574,10 +583,11 @@ function opnMsg(email) {
                     $("#loading-image").hide();
                     //location.reload();
                     //alert(ticket_id);
+                    
                     $('#ticket').val(ticket_id);
-
+                    $('#content_data').html(message.tbody);
                     var rendered = renderMessage(message, tobottom);
-
+                    
                 }).fail(function (jqXHR, ajaxOptions, thrownError) {
                     alert('No response from server');
                 });
