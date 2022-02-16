@@ -46,7 +46,7 @@ class SendTasksTimeReminder extends Command
     {
         $messageApplicationId = 3;
         $currenttime = date("Y-m-d H:m:s");
-        $developertasks = DeveloperTask::where('is_flagged', '1')->get();
+         $developertasks = DeveloperTask::where('is_flagged', '1')->whereNotNull('user_id')->where('user_id', '<>', 0)->get();
         $est_time_message = TaskMessage::where('message_type','est_time_message')->first();
         $est_time_msg = (!empty($est_time_message)) ? $est_time_message->message : "";
         $est_date_message = TaskMessage::where('message_type','est_date_message')->first();
@@ -60,6 +60,7 @@ class SendTasksTimeReminder extends Command
             {
                     $insertParams = [
                         "developer_task_id"      => $developertask->id,
+                         "user_id"      => $developertask->user_id,
                         "message"                => $est_time_msg,
                         "status"                 => 1,
                         "is_queue"               => 1,
@@ -72,10 +73,11 @@ class SendTasksTimeReminder extends Command
 
                 $this->logs("#1",$developertask->id,$est_time_msg,"Created Estimate Time Message for developer task");
             } 
-            if($developertask->estimate_date == NULL)
+            elseif($developertask->estimate_date == NULL)
             {
                 $insertParams = [
                     "developer_task_id"      => $developertask->id,
+                     "user_id"      => $developertask->user_id,
                     "message"                => $est_date_msg,
                     "status"                 => 1,
                     "is_queue"               => 1,
@@ -88,10 +90,11 @@ class SendTasksTimeReminder extends Command
 
                 $this->logs("#2",$developertask->id,$est_date_msg,"Created Estimate Date Message for developer task");
             } 
-            if(strtotime($currenttime) > strtotime($developertask->estimate_date))
+            else if($developertask->estimate_date != null and strtotime($currenttime) > strtotime($developertask->estimate_date)) 
             {
                 $insertParams = [
                     "developer_task_id"      => $developertask->id,
+                     "user_id"      => $developertask->user_id,
                     "message"                => $overdue_message,
                     "status"                 => 1,
                     "is_queue"               => 1,
@@ -104,13 +107,14 @@ class SendTasksTimeReminder extends Command
                 $this->logs("#3",$developertask->id,$overdue_message,"Created Overdue Message for developer task");
             }  
         }
-        $tasks = Task::where('is_flagged', '1')->get();
+        $tasks = Task::where('is_flagged', '1')->whereNotNull('assign_to')->where('assign_to', '<>', 0)->get();
         foreach ($tasks as $task) 
         {
             if($task->timeSpent == NULL)
             {
                     $insertParams = [
                         "task_id"                => $task->id,
+                         "user_id"                => $task->assign_to,
                         "message"                => $est_time_msg,
                         "status"                 => 1,
                         "is_queue"               => 1,
@@ -122,10 +126,11 @@ class SendTasksTimeReminder extends Command
                 $chatMessage = \App\ChatMessage::firstOrCreate($insertParams);
                 $this->logs("#4",$task->id,$est_time_msg,"Created Estimate Time message for task");
             } 
-            if($task->approximate == NULL)
-            {
+             elseif($task->approximate == NULL) 
+             {
                 $insertParams = [
                     "task_id"                => $task->id,
+                    "user_id"                => $task->assign_to,
                     "message"                => $est_date_msg,
                     "status"                 => 1,
                     "is_queue"               => 1,
@@ -137,10 +142,11 @@ class SendTasksTimeReminder extends Command
                 $chatMessage = \App\ChatMessage::firstOrCreate($insertParams);
                 $this->logs("#5",$task->id,$est_date_msg,"Created Estimate date message for task");
             } 
-            if(strtotime($currenttime) > strtotime($task->approximate))
+            elseif($task->approximate != null and strtotime($currenttime) > strtotime($task->approximate))
             {
                 $insertParams = [
                     "task_id"                => $task->id,
+                    "user_id"                => $task->assign_to,
                     "message"                => $overdue_message,
                     "status"                 => 1,
                     "is_queue"               => 1,
