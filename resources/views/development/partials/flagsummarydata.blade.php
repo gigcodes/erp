@@ -95,6 +95,9 @@
     </td>
     <td>
         <button type="button" title="Tasktime history" class="btn tasktime-history-btn btn-xs pull-left" data-id="{{$issue->id}}">
+          <i class="fa fa-comments-o"></i>
+      </button>
+        <button type="button" title="LogTasktime history" class="btn logtasktime-history-btn btn-xs pull-left" data-id="{{$issue->id}}">
           <i class="fa fa-history"></i>
       </button>
     </td>
