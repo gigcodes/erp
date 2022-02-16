@@ -1338,7 +1338,6 @@ class LiveChatController extends Controller
 
         // Use for search by source tof ticket 
         if ($request->search_source != "") {
-
             $query = $query->where('tickets.source_of_ticket', 'LIKE', '%' . $request->search_source . '%');
         }
 
