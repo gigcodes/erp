@@ -70,6 +70,7 @@ class Product extends Model
     protected $fillable = [
         'name',
         'brand',
+        'stock',
         'category',
         'short_description',
         'price',
@@ -103,6 +104,8 @@ class Product extends Model
         'suggested_color',
         'last_brand',
         'sub_status_id',
+        'price_usd',
+        'price_usd_special',
         "is_cron_check"
     ];
 
@@ -1303,7 +1306,7 @@ class Product extends Model
             ->Join("product_suppliers as psu", function ($q) {
                 $q->on("psu.product_id", "products.id");
             });
-
+		//dd($query->select('products.id')->orderBy('id', 'desc')->limit(10)->get());
         //  check filtering
         if (isset($filter_data['product_names'])) {
             $query = $query->whereIn('products.name', $filter_data['product_names']);

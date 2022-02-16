@@ -197,6 +197,9 @@
                             ["class"=> "form-control"]
                         ); ?>
                     </div>
+                    <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-2">
+                        <?php echo Form::select("flt_vendor_status",[null=>'Select Status']+$statusList,'',["class" => "form-control"]); ?>
+                    </div>
                     <div class="form-group col-md-1 cls_filter_checkbox p-0 mr-2">
                         <div class="form-check form-check-inline">
                             <input type="checkbox" class="form-check-input"  name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
@@ -236,7 +239,7 @@
                     </div>
                     <div id="collapse1" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <table class="table table-bordered table-striped">
+                            <table class="table table-bordered table-striped" >
                                 <tr>
                                     <th>Category</th>
                                     <th>Responsible User</th>
@@ -264,17 +267,17 @@
     </div>
     <div class="infinite-scroll">
     <div class="table-responsive mt-3">
-        <table class="table table-bordered" id="vendor-table">
+        <table class="table table-bordered" id="vendor-table"style="table-layout: fixed;">
             <thead>
             <tr>
-                <th width="1%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">ID</a></th>
-                <th width="2%">WhatsApp</th>
-                <th width="1%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">Category</a></th>
+                <th width="2%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">ID</a></th>
+                <th width="5%">WhatsApp</th>
+                <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">Category</a></th>
                 <th width="7%">Status</th>
                 <th width="6%">Name</th>
-                <th width="5%">Phone</th>
-                <th width="2%">Email</th>
-                <th width="23%">Communication</th>
+                <th width="4%">Phone</th>
+                <th width="5%">Email</th>
+                <th width="21%">Communication</th>
                 <th width="16%">Action</th>
             </tr>
             </thead>

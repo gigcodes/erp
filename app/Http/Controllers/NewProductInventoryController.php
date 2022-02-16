@@ -8,8 +8,10 @@ use App\Library\Product\ProductSearch;
 use App\Library\Shopify\Client as ShopifyClient;
 use App\Stage;
 use App\Supplier;
+use App\UpteamLog;
 use Illuminate\Http\Request;
 use App\Services\Scrap\GoogleImageScraper;
+use DB;
 
 class NewProductInventoryController extends Controller
 {   
@@ -112,7 +114,34 @@ class NewProductInventoryController extends Controller
 
         return view("product-inventory.index", compact('category_selection','productCount','suppliersDropList', 'typeList', 'products', 'items', 'categoryArray', 'sampleColors','scrapperDropList'));
     }
-//
+
+    public function upteamLogs(Request $request) {
+        if(($request->upteam_log && $request->upteam_log != null) && ($request->from_date != '' && $request->to_date != '')){
+            $logs = UpteamLog::where('log_description','LIKE','%'.$request->upteam_log.'%')->whereBetween('created_at', array($request->from_date, $request->to_date))->orderBy('id', 'desc')->paginate(30);
+        }elseif($request->upteam_log && $request->upteam_log != '') {
+            $logs = UpteamLog::where('log_description','LIKE','%'.$request->upteam_log.'%')->orderBy('id', 'desc')->paginate(30);
+        }
+        elseif($request->from_date != '' && $request->to_date != ''){
+           $logs = UpteamLog::whereBetween('created_at', array($request->from_date, $request->to_date))->orderBy('id', 'desc')->paginate(30);
+        }else{
+            $logs = UpteamLog::orderBy('id', 'desc')->paginate(30);
+        }
+        return view("product-inventory.upteam_logs", compact('logs'));
+    }
+	
+	// public function upteamLogs(Request $request) {
+ //        if($request->upteam_log && $request->upteam_log != '') {
+ //            $logs = UpteamLog::where('log_description','LIKE','%'.$request->upteam_log.'%');
+ //        }
+
+ //        if($request->from_date != '' && $request->to_date != '')
+ //        {
+ //           $logs = UpteamLog::whereBetween('created_at', array($request->from_date, $request->to_date))->orderBy('id', 'desc')->paginate(30);
+ //        }else{
+ //            $logs = UpteamLog::orderBy('id', 'desc')->paginate(30);
+ //        }
+ //        return view("product-inventory.upteam_logs", compact('logs'));
+	// }
     public function pushInStore(Request $request)
     {
         if (!empty($request->product_ids)) {

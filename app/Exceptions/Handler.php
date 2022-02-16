@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Exception;
+use App\Email;
+use App\EmailLog;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -58,6 +60,34 @@ class Handler extends ExceptionHandler
             return response()->json(['status' => 'failed','message' => 'Please check the file permission issue on the folder => '.$exception->getMessage()], 405);
             \Log::error($exception);
         }
+
+        if ($exception instanceof \Webklex\IMAP\Exceptions\ConnectionFailedException) {
+            $email = Email::find($request->route('id'));
+            EmailLog::create([
+                'email_id'   => $email->id,
+                'email_log' => "Error in Sending Email",
+                'message'       => 'Imap Connection Issue => '.$exception->getMessage()
+                ]);
+            $email->error_message = 'Imap Connection Issue => '.$exception->getMessage();
+            $email->save();
+            return response()->json(['status' => 'failed','message' => 'Imap Connection Issue => '.$exception->getMessage()], 405);
+            \Log::error($exception);
+        }
+        
+        if ($exception instanceof \Swift_RfcComplianceException) {
+            $replymail_id = $request->reply_email_id;
+            $email = Email::find($replymail_id);
+            EmailLog::create([
+                'email_id'   => $email->id,
+                'email_log' => "Error in Sending Email",
+                'message'       => 'Mail Compliance issue Issue => '.$exception->getMessage()
+                ]);
+            $email->error_message = 'Mail Compliance issue Issue => '.$exception->getMessage();
+            $email->save();
+            return response()->json(['status' => 'failed','message' => 'Mail Compliance issue => '.$exception->getMessage()], 405);
+            \Log::error($exception);
+        }
+        
 
 	    return parent::render($request, $exception);
     }

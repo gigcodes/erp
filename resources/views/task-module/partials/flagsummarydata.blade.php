@@ -4,7 +4,7 @@
     <td style="display:table-cell;vertical-align: baseline;">
     {{ $issue->id }}
     </td>
-    <td class="Website-task" style="vertical-align: baseline;">    
+    <td class="Website-task" title="{{ $issue->task_subject }}" style="vertical-align: baseline;">    
        {{ $issue->task_subject }}
     </td>
        <td>
@@ -37,10 +37,14 @@
 
    <button type="button" class="btn btn-xs show-time-history-task" title="Show History" data-id="{{$issue->id}}" data-user_id="{{$issue->assign_to}}" style="background: none;"><i class="fa fa-info-circle"></i></button>
     </td>
-    <td  style="vertical-align: baseline;">
+    <td style="vertical-align: baseline;" title="  {{ $issue->due_date }}">
         <div class="d-flex">
+        <div class="Website-task" title=" {{ $issue->due_date }}">
         {{ $issue->due_date }}
-        <span> 2021-12-07 00:00:00</span>
+<<<<<<< HEAD
+        <span > 2021-12-07 00:00:00</span>
+        >>>>>>> c340cc9cccaaf6b2b1b80dd25e1a8fd097adf4c4
+=======</div>
         <button type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="task" style="margin-top: -2px; background: none;"><i class="fa fa-info-circle"></i></button>
        </div>
     </td>
@@ -88,11 +92,16 @@
                 <i class="fa fa-info-circle"></i>
             </button>
             @if ($issue->is_flagged == 1)
-         <button type="button" class="btn pr-0 btn-image flag-task pd-5" data-type="task" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}"/ style="filter: grayscale(1);"></button>
+         <button type="button" class="btn pr-0 btn-image flag-task pd-5" data-type="task" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}"style="filter: grayscale(1);"></button>
          @else
-         <button type="button" class="btn btn-image flag-task pd-5" data-type="task" data-id="{{ $issue->id }}"><img src="{{asset('images/unflagged.png')}}"/></button>
+         <button type="button" class="btn btn-image flag-task pd-5" data-type="task" data-id="{{ $issue->id }}"><img src="{{asset('images/unflagged.png')}}"/ style="filter: grayscale(1);"></button>
          @endif
      </div>
+    </td>
+        <td>
+        <button type="button" title="Task Time history" class="btn tasktime-history-btn  pull-left" data-id="{{$issue->id}}" style="background:none;">
+          <i class="fa fa-history"></i>
+      </button>
     </td>
  
 </tr>

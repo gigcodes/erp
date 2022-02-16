@@ -73,7 +73,7 @@
 				<input type="hidden" name="action_id[]" value="{{$flowAction['id']}}">
 				
 				<div class="col-md-11 cross_first_label_time p-0 pl-3">
-					{{Form::select("condition[".$flowAction['id']."]", [''=>'Select Condition','customer has ordered before'=>'Customer has ordered before','check_if_pr_merged'=>'Check if PR merged', 'check_scrapper_error_logs'=>'Check If scrapper has errors'], $flowAction['condition'], array('class'=>'form-control condition_select','required', 'data-action_id'=>$flowAction['id']))}}
+					{{Form::select("condition[".$flowAction['id']."]", [''=>'Select Condition','customer has ordered before'=>'Customer has ordered before','check_if_pr_merged'=>'Check if PR merged', 'check_scrapper_error_logs'=>'Check If scrapper has errors', 'check_if_design_task_done'=>'Check If design task done', 'check_if_development_task_done'=>'Check If development task done'], $flowAction['condition'], array('class'=>'form-control condition_select','required', 'data-action_id'=>$flowAction['id']))}}
 					<input type="hidden" name="action_type[{{$flowAction['id']}}]" value="SMS">													
 				</div>			
 				<div class="col-md-1 cross_first_remove text-left pl-3 pt-3 p-0">

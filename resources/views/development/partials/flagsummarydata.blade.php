@@ -78,7 +78,7 @@
             </span>
         </div>
     </td>    
-    <td >
+    <td > 
         @if($issue->is_resolved)
             <strong>Done</strong>
         @else
@@ -92,6 +92,11 @@
         <button style="float:right;padding-right:0px;" type="button"  data-type="develop" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{$issue->id}}">
                 <i class="fa fa-info-circle"></i>
             </button>
+    </td>
+    <td>
+        <button type="button" title="Tasktime history" class="btn tasktime-history-btn btn-xs pull-left" data-id="{{$issue->id}}">
+          <i class="fa fa-history"></i>
+      </button>
     </td>
  
 </tr>
