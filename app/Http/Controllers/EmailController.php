@@ -379,18 +379,35 @@ class EmailController extends Controller
         $imap->connect();
 
         $array = is_array(json_decode($email->additional_data, true)) ? json_decode($email->additional_data, true) : [];
-
+    
         if (array_key_exists('attachment', $array)) {
             $temp = json_decode($email->additional_data, true)['attachment'];
         }
-        if (!is_array($temp)) {
-            $attachment[] = $temp;
-        } else {
-            $attachment = $temp;
+        if(isset($temp)) {
+            if (!is_array($temp)) {
+                $attachment[] = $temp;
+            } else {
+                $attachment = $temp;
+            }
         }
         $customConfig = [
             'from' => $email->from,
         ];
+
+        $emailsLog = \App\Email::create([
+            'model_id' => $email->id,
+            'model_type' => \App\Email::class,
+            'from' => $email->from,
+            'to' => $email->to,
+            'subject' => $email->subject,
+            'message' => $email->message,
+            'template' => 'resend-email',
+            'additional_data' => "",
+            'status' => 'pre-send',
+            'store_website_id' => null,
+            'is_draft' => 1,
+        ]);
+
         Mail::to($email->to)->send(new PurchaseEmail($email->subject, $email->message, $attachment));
         if ($type == 'approve') {
             $email->update(['approve_mail' => 0]);
@@ -439,8 +456,31 @@ class EmailController extends Controller
         }
 
         $email = Email::find($request->reply_email_id);
-        Mail::send(new ReplyToEmail($email, $request->message));
-
+        $replyPrefix = 'Re: ';
+        $subject = substr($email->subject, 0, 4) === $replyPrefix
+            ? $email->subject
+            : $replyPrefix . $email->subject;
+        $dateCreated = $email->created_at->format('D, d M Y');
+        $timeCreated = $email->created_at->format('H:i');
+        $originalEmailInfo = "On {$dateCreated} at {$timeCreated}, <{$email->from}> wrote:";
+        $message_to_store = $originalEmailInfo.'<br/>'. $request->message.'<br/>'.$email->message;
+        $emailsLog = \App\Email::create([
+            'model_id' => $email->id,
+            'model_type' => \App\Email::class,
+            'from' => $email->from,
+            'to' => $email->to,
+            'subject' => $subject,
+            'message' => $message_to_store,
+            'template' => 'reply-email',
+            'additional_data' => "",
+            'status' => 'pre-send',
+            'store_website_id' => null,
+            'is_draft' => 1,
+        ]);
+        //$replyemails = (new ReplyToEmail($email, $request->message))->build();
+        \App\Jobs\SendEmail::dispatch($emailsLog);
+        //Mail::send(new ReplyToEmail($email, $request->message));
+        
         return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
     }
 
@@ -1197,7 +1237,15 @@ class EmailController extends Controller
         if ($emailLogData == '') {
             $emailLogData = '<tr><td>No data found.</td></tr>';
         }
-        //echo $emailLogData;
         return $emailLogData;
+    }
+/**
+ * Update Email Category using Ajax
+ */
+    public function changeEmailCategory(Request $request) 
+    {
+        Email::where('id', $request->email_id)->update(['email_category_id' => $request->category_id]);
+        session()->flash('success', 'Status has been updated successfully');
+        return response()->json(['type' => 'success'], 200);
     }
 }
