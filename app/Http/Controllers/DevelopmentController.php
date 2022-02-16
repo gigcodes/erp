@@ -9,6 +9,7 @@ use App\TaskAttachment;
 use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redirect;
@@ -861,14 +862,17 @@ class DevelopmentController extends Controller
         // if ($request->get('language') != '') {
         //     $issues = $issues->where('language', 'LIKE', "%" . $request->get('language') . "%");
         // }
-        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message  FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message   FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
 
         if ($request->get('last_communicated', "off") == "on") {
             $issues = $issues->orderBy('chat_messages.id', "desc");
         }
+        if ($request->get('unread_messages', "off") == "unread") {
+            $issues = $issues->where('chat_messages.sent_to_user_id', Auth::user()->id);
+        }
 
-        $issues = $issues->select("developer_tasks.*", "chat_messages.message");
+        $issues = $issues->select("developer_tasks.*", "chat_messages.message","chat_messages.sent_to_user_id");
 
         // Set variables with modules and users
         $modules = DeveloperModule::orderBy('name')->get();
@@ -1008,7 +1012,9 @@ class DevelopmentController extends Controller
     {
         $users = Helpers::getUserArray(User::orderBy('name')->get());
         $title = 'Automatic Task List';
-        $task =  Task::with('timeSpent')->where('is_flow_task', '1'); 
+        $task =  Task::leftJoin('site_developments', 'site_developments.id', 'tasks.site_developement_id')
+		->leftJoin('store_websites', 'store_websites.id', 'site_developments.website_id')
+		->with('timeSpent')->where('is_flow_task', '1'); 
       
         if ((int) $request->get('assigned_to') > 0) {
             $task = $task->where('tasks.assign_to', $request->get('assigned_to'));
@@ -1025,7 +1031,7 @@ class DevelopmentController extends Controller
     
         $task = $task->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, task_id, message  FROM `chat_messages` where task_id > 0 ' . $whereTaskCondition . ' GROUP BY task_id ) m_max'), 'm_max.task_id', '=', 'tasks.id');
         $task = $task->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
-        $task = $task->select("tasks.*", "chat_messages.message");
+        $task = $task->select("tasks.*", "chat_messages.message", "store_websites.title as website_title");
         
         if (!auth()->user()->isReviwerLikeAdmin()) {
           $task = $task->where(function ($query) use ($request) {
@@ -1098,7 +1104,7 @@ class DevelopmentController extends Controller
         if (!empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
         } 
-        $task = $task->where('tasks.status', $inprocessStatusID->id);
+        //$task = $task->where('tasks.status', $inprocessStatusID->id);
         $whereCondition =   $whereTaskCondition = "";
         if ($request->get('subject') != '') {
             $whereCondition = ' and message like  "%' . $request->get('subject') . '%"';
@@ -1199,14 +1205,53 @@ class DevelopmentController extends Controller
             "task_statuses"=>$task_statuses
         ]);
     }
+    public function gettasktimemessage(request $request)
+    {
+        $id = $request->input('id');
+        $html = '';
+        $chatmessages = ChatMessage::where('task_id', $id)->orwhere('developer_task_id', $id)->get();
+        $i = 1;
+        if (count($chatmessages) > 0) {
+            foreach ($chatmessages as $history) {
+                $html .= '<tr>';
+                $html .= '<td>' . $i . '</td>';
+                $html .= '<td>' . $history->message . '</td>';
+                $html .= '<td>' . $history->created_at . '</td>';
+                $html .= '</tr>';
 
-	public function saveTaskMessage(Request $request) {
+                $i++;
+            }
+            return response()->json(['html' => $html, 'success' => true], 200);
+        }
+         else {
+            $html .= '<tr>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '</tr>';
+        }
+        return response()->json(['html' => $html, 'success' => true], 200);
+
+    }
+
+	public function saveTaskMessage(Request $request) 
+    {
 		$input = $request->input();
-		TaskMessage::updateOrCreate(['id'=>$input['id']], $input);
-		return response()->json([
-		  'success'
-		]);
+        TaskMessage::updateOrCreate(['id'=>$input['id']], $input);
+        return response()->json([
+          'success'
+        ]);
 	}
+    public function saveTaskTimeMessage(Request $request) {
+        $est_time_date_message['message'] = $request->est_time_date_message;
+        $overdue_time_date_message['message'] = $request->overdue_time_date_message;
+
+        TaskMessage::updateOrCreate(['message_type'=>'est_time_date_message'], $est_time_date_message);
+        TaskMessage::updateOrCreate(['message_type'=>'overdue_time_date_message'], $overdue_time_date_message);
+        return response()->json([
+          'success'
+        ]);
+    }
 
 
     public function summaryList1(Request $request)
