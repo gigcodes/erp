@@ -777,7 +777,7 @@
 
 	$("#change_website").change(function(){
 		var websiteUrl='';
-		websiteUrl="{{route('site-development.index')}}/"+$(this).val()+"/"+location.search;
+		websiteUrl="{{route('site-development.index')}}/"+$(this).val();
 		window.location=websiteUrl;
 	});
 	$('.assign-to.select2').select2({
