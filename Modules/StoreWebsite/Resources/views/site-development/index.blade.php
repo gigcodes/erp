@@ -708,6 +708,7 @@
 	$(document).on('click', '.confirm-messge-button1', function (e) {   
 		 e.preventDefault();
 		 if($("#task_asssigned_to").val()!=""){
+			 var copy_from_website=$('#copy_from_website').val();
 			$("#confirmMessageModal").modal("hide");
 			$.ajax({
 				url: '{{ route('site-development.copy.task') }}',
@@ -765,7 +766,7 @@
 		}
 	}
 	function copyTasksFromWebsite() {
-		var copy_from_website = $('#copy_from_website').val()
+		var copy_from_website = $('#copy_from_website').val();
 		if (copy_from_website === '') {
 			alert('Please select website');
 		} else {
@@ -776,7 +777,7 @@
 
 	$("#change_website").change(function(){
 		var websiteUrl='';
-		websiteUrl="{{route('site-development.index')}}/"+$(this).val()+"/"+location.search;
+		websiteUrl="{{route('site-development.index')}}/"+$(this).val();
 		window.location=websiteUrl;
 	});
 	$('.assign-to.select2').select2({

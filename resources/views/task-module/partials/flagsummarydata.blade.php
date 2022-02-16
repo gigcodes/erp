@@ -4,6 +4,9 @@
     <td style="display:table-cell;vertical-align: baseline;">
     {{ $issue->id }}
     </td>
+    <td style="vertical-align: baseline;">    
+       {{ $issue->website_title }}
+    </td>
     <td class="Website-task" style="vertical-align: baseline;">    
        {{ $issue->task_subject }}
     </td>
@@ -92,6 +95,11 @@
          <button type="button" class="btn btn-image flag-task pd-5" data-type="task" data-id="{{ $issue->id }}"><img src="{{asset('images/unflagged.png')}}"/></button>
          @endif
      </div>
+    </td>
+        <td>
+        <button type="button" title="Task Time history" class="btn tasktime-history-btn btn-xs pull-left" data-id="{{$issue->id}}">
+          <i class="fa fa-history"></i>
+      </button>
     </td>
  
 </tr>

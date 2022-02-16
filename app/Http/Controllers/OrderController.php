@@ -886,7 +886,7 @@ class OrderController extends Controller
  * @return \Illuminate\Http\Response
  */
     public function store(Request $request)
-    {
+    { 
         $this->validate($request, [
             'customer_id' => 'required',
             'advance_detail' => 'numeric|nullable',
@@ -911,6 +911,9 @@ class OrderController extends Controller
 
         if (empty($request->input('order_date'))) {
             $data['order_date'] = date('Y-m-d');
+        }
+        if (!empty($request->website_address)) {
+            $data['website_address_id'] = $request->website_address;
         }
 
         // if ($customer = Customer::where('name', $data['client_name'])->first()) {
@@ -3316,25 +3319,50 @@ class OrderController extends Controller
             'OrderController@viewAllInvoices');
     }
 
-    public function mailInvoice(Request $request, $id)
+    /**
+     * This function is use to get invoice customer email address.
+     *
+     * @param Request $request
+     * @param int $id
+     * @return Array
+     */
+    public function getInvoiceCustomerEmail(Request $request, $id) 
     {
         $invoice = Invoice::where("id", $id)->first();
+        return [
+            'email' => $invoice->orders[0]->customer->email,
+            'id' => $id
+        ];
+    }
 
-        if ($invoice) {
-
-            $data["invoice"] = $invoice;
-            $data["orders"] = $invoice->orders;
-            if ($invoice->orders) {
-                try {
+    /**
+     * This function is use to Email invoice to customer
+     *
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function mailInvoice(Request $request, $id)
+    {
+        try {
+            $invoice = Invoice::where("id", $id)->first();
+            if ($invoice) {
+                $data["invoice"] = $invoice;
+                $data["orders"] = $invoice->orders;
+                if ($invoice->orders) {
                     Mail::to($invoice->orders[0]->customer->email)->send(new ViewInvoice($data));
                     return response()->json(["code" => 200, "data" => [], "message" => "Email sent successfully"]);
-                } catch (InvalidArgumentException $e) {
-                    return response()->json(["code" => 500, "data" => [], "message" => "Sorry , there is no matching order found"]);
                 }
+            } else {
+                Invoice::where("id", $id)->update(['invoice_error_log' => 'Sorry , there is no matching order found']);
+                return response()->json(["code" => 500, "data" => [], "message" => "Sorry , there is no matching order found"]);
             }
+           
+        } catch (\Exception $e) {
+            \Log::info("Sending mail issue at the ordercontroller invoice log->" . $e->getMessage());
+            Invoice::where("id", $id)->update(['invoice_error_log' => $e->getMessage()]);
+            return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
         }
-
-        return response()->json(["code" => 500, "data" => [], "message" => "Sorry , there is no matching order found"]);
     }
 
     // public function fetchOrders() {
@@ -3640,6 +3668,21 @@ class OrderController extends Controller
             }
         }
     }
+    
+    //TODO::Get companyList
+    public function getCompany(Request $request)
+    {
+        if ($request->ajax()) {
+            try {
+                $term = $request->q;
+                $storeWebsites = \App\StoreWebsite::where('website_address', 'like', '%' . $term . '%')->take(100)->get();
+                return $storeWebsites;
+            } catch (\Exception $ex) {
+                //later put exception block message here
+            }
+        }
+    }
+    
     public function getSearchedProducts(Request $request)
     {
         $term = $request->q;
@@ -3923,10 +3966,14 @@ class OrderController extends Controller
 
         $template = str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $statusModal->status], $template);
         $from = "customercare@sololuxury.co.in";
+		$preview = "";
         if (strtolower($statusModal->status) == "cancel") {
 
             $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
             $storeWebsiteOrder = $order->storeWebsiteOrder;
+			if($emailClass != null) {
+				$preview = $emailClass->render();
+			}
             if ($storeWebsiteOrder) {
                 $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteOrder->website_id)->first();
                 if ($emailAddress) {
@@ -3942,11 +3989,14 @@ class OrderController extends Controller
                        <td>From </td> <td>
                        <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >
                        </td></tr><tr>
-                       <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $emailClass->render() . "</textarea></td>
+                       <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $preview . "</textarea></td>
                     </tr>
             </table>";
         } else {
             $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+			if($emailClass != null) {
+				$preview = $emailClass->render();
+			}
             $storeWebsiteOrder = $order->storeWebsiteOrder;
             if ($storeWebsiteOrder) {
                 $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteOrder->website_id)->first();
@@ -3962,7 +4012,7 @@ class OrderController extends Controller
                        <td>From </td> <td>
                        <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >
                        </td></tr><tr>
-                       <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $emailClass->render() . "</textarea></td>
+                       <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $preview . "</textarea></td>
                     </tr>
             </table>";
         }
