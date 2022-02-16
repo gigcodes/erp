@@ -72,7 +72,13 @@
 			<td colspan=2>
 			<table class="assign">	
 				@foreach($category->assignedTo as $assignedTo)   
-					<tr><td width="32%">{{$assignedTo['assigned_to_name']}}</td>
+					<tr>
+                        <td width="32%"><select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="assign_to[]" id="first_customer" title="Choose a User">
+                        @foreach ($users_all as $value)
+                            <option data-tokens="{{ $value->id }} {{ $value->name }}" value="{{ $value->id }}" @if($value->id == $assignedTo['id']) selected @endif>{{ $value->name }}</option>
+                        @endforeach
+                    </select>
+                </td>
 					<td class="pt-2">
                           <div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1 msg">
                               <?php
