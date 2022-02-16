@@ -15,9 +15,10 @@ class CreateFlowConditionsTable extends Migration
     {
         Schema::create('flow_conditions', function (Blueprint $table) {
             $table->increments('id');
-			$table->string('condition_name');
+			$table->integer('flow_id');
+            $table->string('condition_name');
 			$table->string('message');
-            $table->integer('status');
+            $table->boolean('status')->default(0);
             $table->timestamps();
         });
     }
