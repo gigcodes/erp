@@ -14,6 +14,7 @@ namespace App;
 
 use Google\Cloud\Translate\V2\TranslateClient;
 use App\googleTraslationSettings;
+use App\Loggers\TranslateLog;
 
 class GoogleTranslate
 {
@@ -45,19 +46,45 @@ class GoogleTranslate
                 ];
 
                 $translate = new TranslateClient($keyFileArray);
+           
+            // echo $target." ".$text;
+                $result = $translate->translate($text, [
+                    'target' => $target
+                ]);
+                \Log::info(print_r(["Result of google",$result],true));
+                return $result['text'];
             }else{
-                $translate = new TranslateClient([
-                    'keyFile' => json_decode(file_get_contents($this->path), true)
+                // $translate = new TranslateClient([
+                //     'keyFile' => json_decode(file_get_contents($this->path), true)
+                // ]);
+                $translateLog = TranslateLog::log([
+                    "google_traslation_settings_id" => 0, 
+                    "messages" =>"Not any account found",
+                    "code" =>404,
+                    "domain" =>' ',
+                    "reason" =>' '
                 ]);
             }
-            // echo $target." ".$text;
-            $result = $translate->translate($text, [
-                'target' => $target
-            ]);
-            \Log::info(print_r(["Result of google",$result],true));
-            return $result['text'];
-        } catch (\Exception $e) {
-            \Log::error($e);
+        } catch (\Google\Cloud\Core\Exception\ServiceException $e) {
+           
+            // \Log::info("-----------------");
+            // \Log::info(json_decode($e));
+            // \Log::info($e->getServiceException());
+           \Log::error($e);
+            $message = json_decode($e->getMessage());
+           // dd($message->error);
+
+            if($message->error){
+                $translateLog = TranslateLog::log([
+                    "google_traslation_settings_id" => (!empty($lastFileId))?$lastFileId:0, 
+                    "messages" =>$message->error->message,
+                    "code" =>$message->error->code,
+                    "domain" =>$message->error->errors[0]->domain,
+                    "reason" =>$message->error->errors[0]->reason
+                ]);
+            // $translateLog = TranslateLog::log(["google_traslation_settings_id" => (!empty($lastFileId)), "messages" => $flow["name"] . " has found total Action  : " . $flowActions->count()]);
+                
+            }
             if (!empty($lastFileId)) {
                 $googleTraslationSettings = new googleTraslationSettings;
                 $googleTraslationSettings->where('id', $lastFileId)
@@ -65,7 +92,13 @@ class GoogleTranslate
                 ->update([
                     'status' => 0,
                 ]);
-                 goto someLine;
+            }
+            $file = googleTraslationSettings::select('id','account_json')
+            ->where('status','1')
+            ->orderBy('id')
+            ->first();
+            if (!empty($file)) {
+                goto someLine;
             }
         }
     }

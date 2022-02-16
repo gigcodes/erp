@@ -63,4 +63,10 @@ class PaymentReceipt extends Model
     {
         return $this->morphMany(CashFlow::class, 'cash_flow_able');
     }
+    public function saveWithoutEvents(array $options=[])
+    {
+        return static::withoutEvents(function() use ($options) {
+            return $this->save($options);
+        });
+    }
 }

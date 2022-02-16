@@ -1,6 +1,15 @@
 @foreach ($data as $key => $user)
                 <tr>
                     <td>{{ ++$i }}</td>
+                    <td class="number">
+                        <select class="form-control ui-autocomplete-input whatsapp_number" data-user-id="{{ $user->id }}">
+                            <option>-- Select --</option>
+                            @foreach($whatsapp as $wp)
+                            <option value="{{ $wp->number }}" @if($user->whatsapp_number == $wp->number) selected=selected @endif>
+                                {{ $wp->number }}</option>
+                            @endforeach
+                        </select>
+                    </td>
                     <td><span class="user-status {{ $user->isOnline() ? 'is-online' : '' }}"></span> {{ str_replace( '_' , ' ' ,$user->name) }}</td>
                     <td>{{ $user->email }}</td>
                     <td>

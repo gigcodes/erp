@@ -11,6 +11,9 @@ use Illuminate\Queue\SerializesModels;
 class SendReferralMail extends Mailable
 {
     use Queueable, SerializesModels;
+
+    const STORE_ERP_WEBSITE = 15;
+
     public $referlink;
     public $referrer_email;
     public $referee_coupon;
@@ -27,14 +30,14 @@ class SendReferralMail extends Mailable
      */
     public function __construct($data)
     {
-        $this->subject          = "Refer A friend - Luxury Erp";
-        $this->fromMailer       = "customercare@sololuxury.co.in";
-        $this->referlink        = isset($data['referlink']) ? $data['referlink'] : "";
-        $this->referrer_email   = isset($data['referrer_email']) ? $data['referrer_email'] : "";
-        $this->referee_coupon   = isset($data['referee_coupon']) ? $data['referee_coupon'] : "";
+        $this->subject = "Refer A friend - Luxury Erp";
+        $this->fromMailer = "customercare@sololuxury.co.in";
+        $this->referlink = isset($data['referlink']) ? $data['referlink'] : "";
+        $this->referrer_email = isset($data['referrer_email']) ? $data['referrer_email'] : "";
+        $this->referee_coupon = isset($data['referee_coupon']) ? $data['referee_coupon'] : "";
         $this->store_website_id = isset($data['store_website_id']) ? $data['store_website_id'] : "";
-        $this->title            = !empty($data['title']) ? $data['title'] : "";
-        $this->website          = !empty($data['website']) ? $data['website'] : "";
+        $this->title = !empty($data['title']) ? $data['title'] : "";
+        $this->website = !empty($data['website']) ? $data['website'] : "";
 
         $this->Controller = new Controller();
     }
@@ -47,15 +50,22 @@ class SendReferralMail extends Mailable
     public function build()
     {
 
-        $emailAddress = \App\EmailAddress::where('store_website_id', $this->store_website_id)->first();
-        if ($emailAddress) {
-            $this->fromMailer = $emailAddress->from_address;
+        if ($this->store_website_id) {
+            $emailAddress = \App\EmailAddress::where('store_website_id', $this->store_website_id)->first();
+            if ($emailAddress) {
+                $this->fromMailer = $emailAddress->from_address;
+            }
+        } else {
+            $emailAddress = \App\EmailAddress::where('store_website_id', self::STORE_ERP_WEBSITE)->first();
+            if ($emailAddress) {
+                $this->fromMailer = $emailAddress->from_address;
+            }
         }
 
-        $data['title']          = $this->title;
-        $data['referlink']      = $this->referlink;
+        $data['title'] = $this->title;
+        $data['referlink'] = $this->referlink;
         $data['referee_coupon'] = $this->referee_coupon;
-        $data['website']        = $this->website;
+        $data['website'] = $this->website;
 
         $template = \App\MailinglistTemplate::getReferAFirendTemplate($this->store_website_id);
         if ($template) {
@@ -74,12 +84,6 @@ class SendReferralMail extends Mailable
                         'data'
                     ));
             }
-        } else {
-            $message = $this->Controller->generate_erp_response("coupon.failed", $this->store_website_id, $default = 'Unable to create coupon', request('lang_code'));
-            return response()->json([
-                'status'  => 'failed',
-                'message' => $message,
-            ], 500);
         }
 
     }

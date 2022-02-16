@@ -42,24 +42,22 @@
     <div class="row">
         <div class="col-lg-12 margin-tb mb-3">
             <h2 class="page-heading">Vendor payments</h2>
-
-            <div class="pull-right">
-              @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
-                <a class="btn btn-secondary manual-payment-btn" href="#">Manual payment</a>
-                <a class="btn btn-secondary paid-selected-payment-btn" href="javascript:;">Paid Selected</a>
-              @endif
-              <a class="btn btn-secondary manual-request-btn" href="javascript:void(0);">Manual request</a>
-              <!-- <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a> -->
+              <div class="col-sm">
+                <div class="pull-right">
+                    <a class="btn btn-secondary manual-payment-btn" href="#">Manual payment</a>
+                    <a class="btn btn-secondary paid-selected-payment-btn" href="javascript:;">Paid Selected</a>
+                  <a class="btn btn-secondary manual-request-btn" href="javascript:void(0);">Manual request</a>
+                  <!-- <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a> -->
+                </div>
             </div>
         </div>
     </div>
     @include('partials.flash_messages')
     <div class="row mb-3">
       <div class="col-sm-12">
-        <form action="{{ route('voucher.index') }}" method="GET" class="form-inline align-items-start" id="searchForm">
-          <div class="row full-width" style="width: 100%;">
-            @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
-              <div class="col-md-4 col-sm-12">
+        <form action="{{ route('voucher.index') }}" method="GET" class="form-inline align-items-start voucher-search" id="searchForm">
+          <div class="row m-0 full-width" style="width: 100%;">
+              <div class="col-md-2 col-sm-12">
               <select class="form-control select-multiple" name="user_id" id="user-select">
                   <option value="">Select User</option>
                   @foreach($users as $key => $user)
@@ -67,20 +65,19 @@
                   @endforeach
                 </select>
               </div>
-            @endif
 
-            <div class="col-sm-12 col-md-4">
+            <div class="col-sm-12 col-md-3">
               <div class="form-group mr-3">
                 <input type="text" name="range_start" value="{{ request('range_start') }}" hidden/>
                 <input type="text" name="range_end" value="{{ request('range_end') }}" hidden/>
                 <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                   <i class="fa fa-calendar"></i>&nbsp;
-                  <span></span> <i class="fa fa-caret-down"></i>
+                  <span>Select Date</span> <i class="fa fa-caret-down"></i>
                 </div>
               </div>
             </div>
 
-            <div class="col-md-2 col-sm-3">
+            <div class="col-md-2 col-sm-2">
               <select class="form-control " name="limit" id="limit">
                   <option value="">--Select Page--</option>
                   <option {{ request("limit") == "24"  ? 'selected' : ''}} value="24">24</option>
@@ -90,49 +87,50 @@
                 </select>
               </div>
 
-            <div class="col-md-2 col-sm-3">
+            <div class="col-md-2 col-sm-2">
               <select class="form-control " name="status" id="status"> 
                   <option {{ request("status") == null || request("status") == "Pending"  ? 'selected' : ''}} value="Pending">Pending</option>
                   <option {{ request("status") == "Done"  ? 'selected' : ''}} value="Done">Done</option> 
                 </select>
               </div>
-
-              <div class="col-sm-12 col-md-4">
-                <label>Due Date</label>
-                <div class="form-group mr-3">
+              <div class="col-sm-12 col-md-3 voucher-due-date">
+                <div class="form-group mr-3" style="display:flex;">
                   <input type="text" name="range_due_start" value="{{ request('range_due_start') }}" hidden/>
                   <input type="text" name="range_due_end" value="{{ request('range_due_end') }}" hidden/>
-                  <div id="reportrange_duedate" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                  <div id="reportrange_duedate" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width:88%">
                     <i class="fa fa-calendar"></i>&nbsp;
-                    <span></span> <i class="fa fa-caret-down"></i>
+                    <span>Due Date</span> <i class="fa fa-caret-down"></i>
                   </div>
+                     <div class="col-md-1"><button type="submit" class="btn btn-image"><img src="/images/search.png" /></button></div>
                 </div>
               </div>
 
-            <div class="col-md-2"><button type="submit" class="btn btn-image"><img src="/images/search.png" /></button></div>
+            
           </div>
         </form>
       </div>
     </div>
 
 
-
-    <div class="table-responsive">
-        <table class="table table-bordered">
+     <div class="col-sm">
+        <div class="table-responsive vendor-payments-list">
+        <table class="table table-bordered"style="table-layout: fixed;">
         <tr>
-          <th width="2%">-</th>
-          <th width="5%">User</th>
-          <th width="5%">Date</th>
-          <th width="20%">Details</th>
-          <th width="5%">Category</th>
-          <th width="5%">Time Spent</th>
-          <th width="7%">Amount</th>
-          <th width="7%">Currency</th>
-          <th width="5%">Amount Paid</th>
-          <th width="7%">Balance</th>
-          <th width="11%">Due Date</th>
-          <th width="15%">Communication</th>
-          <th width="20%" colspan="2" class="text-center">Action</th>
+          <th style="width:1%;">-</th>
+          <th style="width:2%";>User</th>
+          <th style="width:3%";>Date</th>
+          <th style="width:2%;">Details</th>
+          <th style="width:2%;">Category</th>
+          <th style="width:2%;">Tm St</th>
+          <th style="width:2%;">Hours</th>
+          <th style="width:2%;">Rate</th>
+          <th style="width:2.5%;">Amount</th>
+          <th style="width:2%;">Currency</th>
+          <th style="width:2%";>Amt Pd</th>
+          <th style="width:2%";>Balance</th>
+          <th style="width:2%;">Due Date</th>
+          <th style="width:5%;">Communication</th>
+          <th style="width:3%;">Action</th>
         </tr>
           @php
             $totalRateEstimate = 0;
@@ -142,49 +140,56 @@
           @foreach ($tasks as $task)
             <tr>
               <td><input type="checkbox" class="paid-all-payment" name="paid_all[]" value="{{$task->id}}"></td>
-              <td>
+              <td class="Website-task">
                 @if(isset($task->user)) {{  $task->user->name }} @endif
               </td>
               <td>{{ \Carbon\Carbon::parse($task->date)->format('d-m-Y') }}</td>
-              <td>{{ str_limit($task->details, $limit = 100, $end = '...') }}</td>
+              <td class="Website-task">{{ str_limit($task->details, $limit = 100, $end = '...') }}</td>
               <td>@if($task->task_id) Task #{{$task->task_id}} @elseif($task->developer_task_id) Devtask #{{$task->developer_task_id}} @else Manual @endif </td>
-              <td>{{ $task->estimate_minutes }}</td>
-              <td>{{ $task->rate_estimated }}</td>
+              <td>{{ $task->estimate_minutes }} </td>
+              <td>{{ number_format((float)$task->estimate_minutes/60, 2, '.', '') }} </td>
+              <td>{{ isset($task->user)?$task->user->hourly_rate:'' }} </td>
+              <td style="display:flex;border-bottom: none;">  {{ $task->rate_estimated }} 
+                  <button  type="button" class="btn btn-xs show-calculation"style="margin-top: -2px;" title="Show History" data-id="{{ $task->id }}"><i class="fa fa-info-circle"></i></button> 
+              </td>
               <td>{{ $task->currency }}</td>
               <td>{{ $task->paid_amount }}</td>
               <td>{{ $task->balance }}</td>
               <td>{{ $task->billing_due_date }}</td>
               <td>
                 <div class="row">
-                    <div class="col-md-12 form-inline cls_remove_rightpadding">
-                          <textarea rows="1" class="form-control quick-message-field cls_quick_message" id="messageid_{{ $task->id }}" name="message" placeholder="Message"></textarea>
-                          <button class="btn btn-sm btn-image send-message1" data-payment-receipt-id="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
-                          <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="payment-receipts" data-id="{{$task->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    <div class="col-md-12 form-inline cls_remove_rightpadding"style="display: flex;">
+                        <textarea rows="1" class="form-control quick-message-field cls_quick_message " id="messageid_{{ $task->id }}" name="message" placeholder="Message"style="width:60% !important;"></textarea>
+                        <div class="ml-4 pl-0">
+                        <button class="btn btn-sm p-0 m-0 btn-image send-message1 " data-payment-receipt-id="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
+                        <button type="button" class="btn btn-xs  p-0 m-0  btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="payment-receipts" data-id="{{$task->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                           </div> 
+                        </div>
                     </div>
                 </div>
                 <div class="row cls_mesg_box">
-                  <div class="col-md-12">
-                      <div class="col-md-12 expand-row" style="padding: 3px;">
-                      @if(isset($task->chat_messages[0]))
-                          <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $task->id }}">
-                          {{ strlen($task->chat_messages[0]->message) > 30 ? substr($task->chat_messages[0]->message, 0, 30) . '...' : $task->chat_messages[0]->message }}
-                          </span>
-                          <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $task->id }}">
-                            {{ $task->chat_messages[0]->message }}
-                          </span>
-                      @endif
-                      </div>
-                  </div>
-              </div>
-              </td>
+                    <div class="col-md-12">
+                        <div class="col-md-12 expand-row" style="padding: 3px;">
+                          @if(isset($task->chat_messages[0]))
+                              <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $task->id }}">
+                              {{ strlen($task->chat_messages[0]->message) > 30 ? substr($task->chat_messages[0]->message, 0, 30) . '...' : $task->chat_messages[0]->message }}
+                              </span>
+                              <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $task->id }}">
+                                {{ $task->chat_messages[0]->message }}
+                              </span>
+                          @endif
+                        </div>
+                    </div>
+                </div>
+            </td>
               @php
                 $totalRateEstimate += is_numeric(str_replace(",","",$task->rate_estimated)) ? str_replace(",","",$task->rate_estimated) : 0;
                 $totalPaid += is_numeric(str_replace(",","",$task->paid_amount)) ? str_replace(",","",$task->paid_amount) : 0;
                 $totalBalance += is_numeric(str_replace(",","",$task->balance)) ? str_replace(",","",$task->balance) : 0;
               @endphp
-              <td>
+            <td>
                 @if (Auth::user()->hasRole('Admin'))
-                  <a data-toggle="tooltip" title="Create Payment" class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a>
+                  <a data-toggle="tooltip" title="Create Payment" class="btn-secondary create-payment"style="background: none; color: gray;" data-id="{{$task->id}}"><i class="fa fa-plus" aria-hidden="true"></i></a>
                 @endif
                 <button type="button" data-toggle="tooltip" title="Upload File" data-payment-receipt-id="{{$task->id}}" class="btn btn-file-upload pd-5">
                     <i class="fa fa-upload" aria-hidden="true"></i>
@@ -195,6 +200,9 @@
                 <button type="button" data-payment-receipt-id="{{$task->id}}" data-toggle="tooltip" title="Payment" class="btn btn-payment-list pd-5">
                     <i class="fa fa-globe" aria-hidden="true"></i>
                 </button>
+                <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" data-id="{{$task->id}}">
+                      <i class="fa fa-history"></i>
+                  </button>
                 <?php /* ?>
                 <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-store-development-remark pd-5">
                     <i class="fa fa-comment" aria-hidden="true"></i>
@@ -213,7 +221,7 @@
       </table>
       {{$tasks->links()}}
     </div>
-
+    </div>
 
 
     <div id="paymentModal" class="modal fade" role="dialog">
@@ -349,7 +357,39 @@
             </div>
         </div>
     </div>
-
+    <div id="show_counting" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Show Counting</h4>
+                </div>
+                <div class="modal-body">
+                <table class="table table-bordered">
+                      <tr>
+                        <td width="65%">Total Minutes</td>
+                        <td class="total_minutes"></td>
+                      </tr>
+                      <tr>
+                        <td width="65%">Worked in Hours</td>
+                        <td class="worked_in_hour"></td>
+                      </tr>
+                      <tr>
+                        <td width="65%">Rate Per Hour</td>
+                        <td class="rate_per_hour"> </td>
+                      </tr>
+                      <tr>
+                        <td width="65%"> Total (Worked in Hours * Rate Per Hour)</td>
+                        <td class="total"></td>
+                      </tr>
+                    </table>
+                      
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -373,6 +413,32 @@
           50% 50% no-repeat;display:none;">
     </div>
 
+    <div id="payment-history-modal" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-body">
+            <div class="col-md-12">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Sl no</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody class="payment-history-list-view">
+                            </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <div id="file-upload-area-section" class="modal fade" role="dialog">
       <div class="modal-dialog">
           <div class="modal-content">
@@ -467,6 +533,24 @@
     //     enableFiltering: true,
     //    });
     // });
+    $(document).on('click', '.show-calculation', function() {
+        var issueId = $(this).data('id');
+  
+        $.ajax({
+            url: "/voucher/"+issueId,
+            data: {id: issueId},
+            success: function (data) {
+              $(".total_minutes").html(data.worked_minutes);
+              $(".worked_in_hour").html(data.worked_minutes/60);
+              $(".rate_per_hour").html(data.hourly_rate);
+              $(".total").html(data.rate_estimated);
+              
+              $("#show_counting").modal();   
+            }
+        });
+    
+  
+    });
 
   $(document).on("click",".btn-save-documents",function(e){
     e.preventDefault();
@@ -751,6 +835,30 @@
             $("#loading-image").hide();
           });
     });
+
+    $('.payment-history-btn').click(function(){
+          var task_id = $(this).data('id');
+          $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('voucher.paymentHistory') }}",
+            data: {
+              task_id:task_id,
+            },
+        }).done(response => {
+          $('#payment-history-modal').find('.payment-history-list-view').html('');
+            if(response.success==true){
+              $('#payment-history-modal').find('.payment-history-list-view').html(response.html);
+              $('#payment-history-modal').modal('show');
+            }
+
+        }).fail(function(response) {
+
+          alert('Could not fetch payments');
+        });
+      });
 
     $(document).on('click', '.send-message1', function () {
         var thiss = $(this);

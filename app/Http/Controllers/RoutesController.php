@@ -31,9 +31,12 @@ class RoutesController extends Controller
 		}
 		if($request->search){
 			$request->search = preg_replace('/[\s]+/', '/', $request->search);
-			$query = $query->where('url', 'LIKE','%'.$request->search.'%')->orWhere('page_title', 'LIKE', '%'.$request->search.'%')
-                    ->orWhere('page_description', 'LIKE', '%'.$request->search.'%');
+			$query = $query->whereRaw("MATCH(url)AGAINST('".$request->search."')")
+				->orWhereRaw("MATCH(page_title, page_description)AGAINST('".$request->search."')");
+			/*$query = $query->where('url', 'LIKE','%'.$request->search.'%')->orWhere('page_title', 'LIKE', '%'.$request->search.'%')
+                    ->orWhere('page_description', 'LIKE', '%'.$request->search.'%');*/
 		}
+		//dd($query->getQuery()->toSql());
 		$routesData = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
 		return view('routes.index', compact('routesData'))
 			->with('i', ($request->input('page', 1) - 1) * 5);

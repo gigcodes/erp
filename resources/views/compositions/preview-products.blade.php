@@ -13,17 +13,19 @@
                     <th width="2%"></th>
                     <th width="2%">SKU</th>
                     <th width="2%">Website</th>
-                    <th width="38%">Title</th>
-                    <th width="30%">Created At</th>
+                    <th width="25%">Title</th>
+                    <th width="25%">Categories</th>
+                    <th width="10%">Created At</th>
                   </tr>
                 </thead>
                 <tbody>
                     @foreach($products as $product)
                       <tr>
                         <td></td>
-                        <td>{{ $product->sku }}</td>
+                        <td><a href="{{ $product->url }}" target="_blank"> {{ $product->sku }}</a></td>
                         <td>{{ $product->website }}</td>
                         <td>{{ $product->title }}</td>
+                        <td>{{ $product->categories }}</td>
                         <td>{{ $product->created_at }}</td>
                       </tr>
                     @endforeach

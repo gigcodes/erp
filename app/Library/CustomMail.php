@@ -12,10 +12,11 @@ class CustomMail implements MailSettings
 
     public function initialize($key)
     {
-        $this->config = \App\EmailAddress::where('from_address', $key)->first();
 
+        $this->config = \App\EmailAddress::where('from_address', $key)->where("from_address", "not like", "%theluxuryunlimited.com%")->first();
 
         if ($this->config) {
+
             $this->provider = [
                 'host'       => $this->config->host,
                 'port'       => $this->config->port,
@@ -29,7 +30,16 @@ class CustomMail implements MailSettings
                 'from'          => $this->config->from_address,
                 'reply_to_mail' => $this->config->from_address,
             ];
-        }else{
+
+            if (!empty($this->config->send_grid_token)) {
+                $this->provider['host']       = config('env.MAIL_HOST');
+                $this->provider['port']       = config('env.MAIL_PORT');
+                $this->provider['encryption'] = config('env.MAIL_ENCRYPTION');
+                $this->setting['pass']        = $this->config->send_grid_token;
+                $this->setting['username']    = 'apikey';
+            }
+
+        } else {
             $this->provider = [
                 // 'host'       => env('MAIL_HOST'),
                 // 'port'       => env('MAIL_PORT'),

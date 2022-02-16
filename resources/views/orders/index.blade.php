@@ -353,6 +353,9 @@
               <td>{{$duty_shipping[$order->id]['duty']}}</td>
               <td>
                 <div class="d-flex">
+                 <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" data-id="{{$order->id}}">
+                      <i class="fa fa-history"></i>
+                  </button>
                   <a class="btn btn-image pd-5 btn-ht" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
                     <img title="Purchase Grid" style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
                   </a>
@@ -374,6 +377,8 @@
                   <a title="Generate AWB" data-order-id="<?php echo $order->id; ?>" data-items='<?php echo json_encode($extraProducts); ?>'  data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;"  >
                     <i class="fa fa-truck" aria-hidden="true"></i>
                   </a>
+
+                  <a title="Preview Sent Mails" data-order-id="<?php echo $order->id; ?>" class="btn btn-image preview_sent_mails pd-5 btn-ht" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
 
                   <a title="View customer address" data-order-id="<?php echo $order->id; ?>"  class="btn btn-image customer-address-view pd-5 btn-ht" href="javascript:;"  >
                     <i class="fa fa-address-card" aria-hidden="true"></i>
@@ -451,6 +456,32 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div id="payment-history-modal" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-body">
+            <div class="col-md-12">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Sl no</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody class="payment-history-list-view">
+                            </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div id="order-status-map" class="modal fade" role="dialog">
@@ -600,21 +631,40 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="col-md-2">
-                            <strong>Message:</strong>
-                        </div>
-                        <div class="col-md-8">
+                      <div class="col-md-2">
+                          <strong>Message:</strong>
+                      </div>
+                      <div class="col-md-8">
                         <div class="form-group">
                           <textarea cols="45" class="form-control" id="order-template-status-tpl" name="message"></textarea>
                         </div>
+                      </div>
+                      <div class="col-md-12">
+                      <div class="col-md-2">
+                        <div class="form-group">
+                          <div class="checkbox">
+                            <label><input class="msg_platform" onclick="loadpreview(this);" type="checkbox" value="email">Email</label>
+                          </div>
+                          <div class="checkbox">
+                            
+                            <label><input class="msg_platform" type="checkbox" value="sms">SMS</label>
+                          </div>
                         </div>
+                </div>
+                <div class="col-md-8">
+                       <div id="preview" style="display:none">
+                             
+                       </div>
+                </div>
+                      </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-secondary update-status-with-message">With Message</button>
-                <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button>
+                <button type="button" class="btn btn-primary update-status-with-message">Submit</button>
+                <!-- <button type="button" class="btn btn-secondary update-status-with-message">With Message</button> -->
+                <!-- <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button> -->
             </div>
         </form>
       </div>
@@ -650,10 +700,14 @@
 @include("partials.modals.update-delivery-date-modal")
 @include("partials.modals.tracking-event-modal")
 @include("partials.modals.generate-awb-modal")
+@include("partials.modals.preview_sent_mails_modal")
 @include("partials.modals.customer-address-modal")
 @include("partials.modals.add-invoice-modal")
 @include('partials.modals.return-exchange-modal')
 @section('scripts')
+
+
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="{{ asset('/js/order-awb.js') }}"></script>
@@ -661,7 +715,13 @@
   <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
   <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
   <script type="text/javascript">
+    CKEDITOR.replace('editableFile');
+  </script>
+  <script type="text/javascript">
+
+  
     $(document).on('click','.magento-order-status',function(event){ 
       event.preventDefault();
       $('#order-status-map').modal('show');
@@ -835,6 +895,65 @@
       });
 
 
+
+
+      $(document).on("click",".preview_sent_mails",function() {
+
+          var id = $(this).data("order-id");
+          
+          $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "order/preview-sent-mails",
+            type: "post",
+            data : {
+              id: id,
+            },
+            beforeSend: function() {
+
+              $("loading-image").show();
+            }
+          }).done( function(response) {
+
+            $("loading-image").hide();
+
+            if(response.code == 200) {
+            var items = response.data;
+            console.log(response.data);
+            if(items.length > 0) {
+              var itemsHtml = '';
+              $.each(items, function(k,v) {
+                  itemsHtml += `<tr class="in-background filter-message reviewed_msg" data-message="Greetings from Solo Luxury Ref: order number 1730030 we have updated your order with status : prepaid.">
+                      <td >`+v.created_at+`</td>
+                      <td >`+v.from+`</td>
+                      <td >`+v.to+`</td>
+                      <td >`+v.subject+`</td>
+                      <td >`+v.message+`</td> 
+                      <td >`+v.status+`</td>
+                      <td >`+v.is_draft+`</td>
+                      <td >`+v.error_message+`</td>
+                    </tr>`;
+
+                });
+              
+              $("#previewSendMailsModal").find(".product-items-list").html(itemsHtml);
+            }
+
+            $("#previewSendMailsModal").modal("show");
+
+            }
+            
+          }).fail(function(errObj) {
+              alert("Could not change status");
+          });
+
+
+
+
+      });
+
+
     function ConfirmDialog(message,id,status) {
       $('<div></div>').appendTo('body')
         .html('<div><h5>' + message + '?</h5></div>')
@@ -893,7 +1012,7 @@
       $(document).on("change",".order-status-select",function() {
           var id = $(this).data("id");
           var status = $(this).val();
-
+          $("#preview").hide();
           $.ajax({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -911,8 +1030,11 @@
             $("loading-image").hide();
             if(response.code == 200) {
               $("#order-id-status-tpl").val(id);
+              $("#preview").html(response.preview);
+              CKEDITOR.replace( 'editableFile' );
               $("#order-status-id-status-tpl").val(status);
               $("#order-template-status-tpl").val(response.template);
+              $(".msg_platform").prop('checked', false);
               $("#update-status-message-tpl").modal("show");
             }
             
@@ -923,7 +1045,19 @@
 
       $(document).on("click",".update-status-with-message",function(e) {
           e.preventDefault();
-          $.ajax({
+          console.log($("#email_from_mail").val());
+          console.log($("#email_to_mail").val());
+          var selected_array = [];
+          console.log(selected_array);
+          $('.msg_platform:checkbox:checked').each(function() {
+            selected_array.push($(this).val());
+          });
+          
+          if(selected_array.length == 0){
+            alert('Please at least select one option');
+            return;
+          }else{
+            $.ajax({
             url: "/order/change-status",
             type: "GET",
             async : false,
@@ -932,12 +1066,18 @@
               status : $("#order-status-id-status-tpl").val(),
               sendmessage:'1',
               message:$("#order-template-status-tpl").val(),
+              custom_email_content:$("#customEmailContent").val(),
+              from_mail:$("#email_from_mail").val(),
+              to_mail:$("#email_to_mail").val(),
+              order_via: selected_array,
             }
-          }).done( function(response) {
+            }).done( function(response) {
               $("#update-status-message-tpl").modal("hide");
-          }).fail(function(errObj) {
-            alert("Could not change status");
-          });
+            }).fail(function(errObj) {
+              alert("Could not change status");
+            });
+          }
+          
       });
 
       $(document).on("click",".update-status-without-message",function() {
@@ -1045,6 +1185,30 @@
            $("#loading-image").hide();
         });
     });
+
+    $('.payment-history-btn').click(function(){
+          var order_id = $(this).data('id');
+          $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('order.paymentHistory') }}",
+            data: {
+              order_id:order_id,
+            },
+        }).done(response => {
+          $('#payment-history-modal').find('.payment-history-list-view').html('');
+            if(response.success==true){
+              $('#payment-history-modal').find('.payment-history-list-view').html(response.html);
+              $('#payment-history-modal').modal('show');
+            }
+
+        }).fail(function(response) {
+
+          alert('Could not fetch payments');
+        });
+      });
 
     $(document).on("click",".send-order-email-btn",function(e){
        e.preventDefault();
@@ -1235,16 +1399,22 @@
         })
         $(document).on('click','.update-del-date',function(e){
           e.preventDefault();
+		   var selected_array = [];
+          $('.msg_platform_del:checkbox:checked').each(function() {
+            selected_array.push($(this).val());
+          });
           var newdeldate = $('#newdeldate').val();
           if(!newdeldate){
             toastr['error']('Estimate delivery date field cannot be empty !');
             return;
           }
             var form = $("#updateDelDateForm");
+			var data = form.serialize();
+			
             $.ajax({
                 type: form.attr("method"),
                 url: form.attr("action"),
-                data: form.serialize(),
+                data: {'orderid':$('#orderid').val(), 'newdeldate':$('#newdeldate').val(), 'fieldname':$('#fieldname').val(), 'order_via':selected_array},
                 dataType:"json",
                 beforeSend:function(data){
                   $('.ajax-loader').show();
@@ -1543,6 +1713,14 @@
             });
 
         });
+
+        function loadpreview(t)
+        {
+          $("#preview").hide();
+          if (t.checked == true){
+            $("#preview").show();
+          }
+        }
 
   </script>
 @endsection

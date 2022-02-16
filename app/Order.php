@@ -88,7 +88,8 @@ class Order extends Model
         'currency',
         'invoice_id',
         'store_currency_code',
-        'monetary_account_id'
+        'monetary_account_id',
+        'website_address_id'
     ];
 
     protected $appends = ['action'];
@@ -300,6 +301,33 @@ class Order extends Model
     public function duty_tax()
     {
         return $this->hasOne(\App\WebsiteStore::class, 'website_id','store_id');
+    }
+
+    public function getWebsiteTitle()
+    {
+        $storeWebsiteOrder = $this->storeWebsiteOrder;
+
+        if($storeWebsiteOrder) {
+            $website = $storeWebsiteOrder->storeWebsite;
+            if($website) {
+                return $website->title;
+            }
+        }
+
+        return false;
+    }
+
+    public function totalWayBills()
+    {
+        $waybills =  $this->waybills;
+        $awbno = [];
+        if(!$waybills->isEmpty()) {
+            foreach($waybills as $waybill) {
+                $awbno[] = $waybill->awb;
+            }
+        }
+
+        return implode(",",$awbno);
     }
 
 

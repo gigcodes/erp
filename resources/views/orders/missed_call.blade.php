@@ -21,12 +21,13 @@
     Missed Call
     <div class="margin-tb" style="flex-grow: 1;">
         <div class="pull-right ">
-
-
             <div class="d-flex justify-content-between  mx-3">
-
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#reservedCalls">
+                    Waiting Calls({{count($reservedCalls)}})  
+                </button>  &nbsp;
+                
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-status">
-                    Add Status
+                     Add Status
                 </button>
             </div>
         </div>
@@ -84,18 +85,18 @@
 
     <div class="col-md-12">
         <div class="table-responsive">
-            <table class="table table-bordered">
+            <table class="table table-bordered" style="table-layout:fixed;">
                 <tr>
-                    <th style="width: 10%">Mobile Number</th>
-                    <th style="width: 8%">Message</th>
-                    <th style="width: 10%">Website name</th>
-                    <th style="width: 10%">From</th>
-                    <th style="width: 10%">To</th>
-                    <th style="width: 10%">Agent</th>
-                    <th style="width: 20%">Call Recording</th>
-                    <th style="width: 9%">Call Time</th>
-                    <th style="width: 8%">Status</th>
-                    <th  style="width:10%">Action</th>
+                    <th style="width:9%">Mobile Number</th>
+                    <th style="width:7%">Message</th>
+                    <th style="width:9%">Website name</th>
+                    <th style="width:10%">From</th>
+                    <th style="width:8%">To</th>
+                    <th style="width:10%">Agent</th>
+                    <th style="width:18%">Call Recording</th>
+                    <th style="width:10%">Call Time</th>
+                    <th style="width:8%">Status</th>
+                    <th  style="width:4%">Action</th>
                 </tr>
 
 
@@ -123,23 +124,25 @@
                         <td>{{$callBusyMessage['to']}}</td>
                         <td>{{(isset($callBusyMessage['agent']) ? $callBusyMessage['agent'] : '' )}}</td>
                         <td>
-                            <audio src="{{$callBusyMessage['recording_url']}}" controls preload="metadata">
-                            <p>Alas, your browser doesn't support html5 audio.</p>
-                            </audio>
-                            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-http-status" title="Http Status" data-toggle="modal" data-target="#show-recording-text{{$key}}" data-request="N/A" data-response="N/A">
-                                <i class="fa fa-headphones"></i>
-                            </button>
-                            <div id="show-recording-text{{$key}}" class="modal fade" role="dialog" >
-                                <div class="modal-dialog" style="width:100%;max-width:96%">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h4 class="modal-title">Audio Text</h4>
-                                        </div>
-                                        <div class="modal-body">
-                                            {{ $callBusyMessage['audio_text'] }}
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <div class="d-flex pb-2">
+                                <audio src="{{$callBusyMessage['recording_url']}}" controls preload="metadata">
+                                <p>Alas, your browser doesn't support html5 audio.</p>
+                                </audio>
+                                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-http-status" title="Http Status" data-toggle="modal" data-target="#show-recording-text{{$key}}" data-request="N/A" data-response="N/A">
+                                    <i class="fa fa-headphones"></i>
+                                </button>
+                                <div id="show-recording-text{{$key}}" class="modal fade" role="dialog" >
+                                    <div class="modal-dialog" style="width:100%;max-width:96%">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title">Audio Text</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                {{ $callBusyMessage['audio_text'] }}
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -170,14 +173,14 @@
                             style="cursor: pointer;" data-call-message-id={{ $callBusyMessage['id']}}   data-number="{{ $callBusyMessage['twilio_call_sid'] }}" data-fullname="{{ isset($callBusyMessage['customer_name']) ? $callBusyMessage['customer_name'] : null }}" data-customer-id="{{ isset($callBusyMessage['customerid']) ? $callBusyMessage['customerid'] : null }}"></i>
 
                             
-                            <a type="button" class="btn btn-xs btn-image load-communication-modal pl-1" data-object="customer" data-id="{{isset($callBusyMessage['customerid']) ? $callBusyMessage['customerid'] : null}}" data-load-type="text" data-all="1" title="Load messages" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/chat.png" alt=""></a>
+                            <a type="button" class="btn btn-xs btn-image load-communication-modal pl-1" data-object="customer" data-id="{{isset($callBusyMessage['customerid']) ? $callBusyMessage['customerid'] : null}}" data-load-type="text" data-all="1" title="Load messages" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/chat.png" class="pt-0" alt=""></a>
 
                             @if (isset($callBusyMessage['customerid']))
                             <i class="fa fa-info-circle show_customer_histories" data-customer_id="{{ $callBusyMessage['customerid'] }}" style="cursor: pointer;" title="Customer Information" aria-hidden="true"></i>
                             @endif
 
                             @if (isset($callBusyMessage['customerid']))
-                                <!-- <a class="btn btn-image p-0"
+                                <!-- <a class="btn btn-image p-0 pt-0"
                                     href="{{ route('customer.show', $callBusyMessage['customerid']) }}"><img
                                         src="/images/view.png" /></a> -->
                             @endif
@@ -275,6 +278,53 @@
         </div>
     </div>
 
+ <!-- Add status  Modal -->
+     <div class="modal fade" id="reservedCalls" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="exampleModalLabel">Reserved Calls</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body add-status-body">
+                <table id="show-ordres-table" class="table table-bordered table-hover" style="table-layout:fixed;">
+                    <thead class="reserved-calls">
+                        <tr>
+                        <th>Customer Name</th>
+                        <th>Customer Email</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Call Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        @foreach($reservedCalls as $reservedCall)
+                            <tr>
+                            <td>
+                                {{$reservedCall->name}}
+                            </td>
+                            <td>
+                                {{$reservedCall->email}}
+                            </td>
+                            <td>
+                                {{$reservedCall->from}}
+                            </td>
+                            <td>
+                                {{$reservedCall->to}}
+                            </td>
+                            <td>{{$reservedCall->created_at}}</td>
+                            </tr>
+                        @endforeach
+                        
+                    </tbody>
+                </table>
+            </div>
+          </div>
+        </div>
+      </div>
     
      <!-- Add status  Modal -->
      <div class="modal fade" id="add-status" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

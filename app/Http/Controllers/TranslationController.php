@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 use App\Translations;
 use Illuminate\Http\Request;
-
+use App\Loggers\TranslateLog;
 class TranslationController extends Controller
 {
     /**
@@ -24,7 +24,7 @@ class TranslationController extends Controller
                     ->orWhere('updated_at', 'LIKE', '%'.$request->term.'%');
 		}
 
-		$data = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
+		$data = $query->orderBy('id', 'desc')->paginate(25)->appends(request()->except(['page']));
 		if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('translation.partials.list-translation', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
@@ -127,5 +127,14 @@ class TranslationController extends Controller
 
 		return redirect()->route('translation.list')
 			->with('success', 'Translation deleted successfully');
+    }
+    public function translateLog(Request $request){
+        $translateLog = new TranslateLog();
+        if(isset($request->id)){
+            $translateLog = $translateLog->where('google_traslation_settings_id', $request->id);
+        }
+        $translateLog = $translateLog->get();
+        return view('translation.log', compact('translateLog'));
+
     }
 }

@@ -160,15 +160,18 @@
     @include("development.partials.time-tracked-modal")
     @include("development.partials.add-status-modal")
     @include("development.partials.user_history_modal")
+    @include("development.partials.pull-request-history-modal")
     @include("development.partials.lead_time-history-modal")
     @include("development.partials.development-reminder-modal")
 @endsection
 @section('scripts')
-    <script src="/js/bootstrap-datetimepicker.min.js"></script>
-    <script src="/js/jquery-ui.js"></script>
-    <script src="/js/jquery.jscroll.min.js"></script>
-    <script src="/js/bootstrap-multiselect.min.js"></script>
-    <script src="/js/bootstrap-filestyle.min.js"></script>
+
+    <script src="{{env('APP_URL')}}/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="{{env('APP_URL')}}/js/jquery-ui.js"></script>
+    <script src="{{env('APP_URL')}}/js/jquery.jscroll.min.js"></script>
+    <script src="{{env('APP_URL')}}/js/bootstrap-multiselect.min.js"></script>
+    <script src="{{env('APP_URL')}}/js/bootstrap-filestyle.min.js"></script>
+
     <script>
         $(document).ready(function () {
 
@@ -240,7 +243,7 @@
 
             $(window).scroll(function() {
                 if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
-                    loadMoreProducts();
+                   // loadMoreProducts();
                 }
             });
 
@@ -343,9 +346,26 @@
 
             $(".estimate-date").each(function() {
                 // ...
-                $(this).datepicker({
-                    dateformat: 'yyyy-mm-dd'
-                });
+                $(this).datetimepicker({
+                    format: 'YYYY-MM-DD HH:mm'
+                }).on('dp.change', function(e){
+                   // alert("dddd");
+                    var formatedValue = e.date.format(e.date._f);
+                   // alert(formatedValue);
+                     let issueId = $(this).data('id');
+                //     alert(issueId);
+                        let estimate_date_ = $("#estimate_date_" + issueId).val();
+                        $.ajax({
+                            url: "{{action('DevelopmentController@saveEstimateDate')}}",
+                            data: {
+                                estimate_date : formatedValue,
+                                issue_id: issueId
+                            },
+                            success: function () {
+                                toastr["success"]("Estimate Date updated successfully!", "Message");
+                            }
+                        });
+                    });
             });
       
             $('#estimate_date_picker').datepicker({
@@ -373,18 +393,18 @@
                     selected_issue: selected_issue,
                 },
                 success: function (response) {
-                    var html = '';
-                    response.forEach(function (issue) {
-                        html += '<tr>';
-                        html += '<td><input type="hidden" name="priority[]" value="' + issue.id + '">' + issue.id + '</td>';
-                        html += '<td>' + issue.module + '</td>';
-                        html += '<td>' + issue.subject + '</td>';
-                        html += '<td>' + issue.task + '</td>';
-                        html += '<td>' + issue.submitted_by + '</td>';
-                        html += '<td><a href="javascript:;" class="delete_priority" data-id="' + issue.id + '">Remove<a></td>';
-                        html += '</tr>';
-                    });
-                    $(".show_issue_priority").html(html);
+                    // var html = '';
+                    // response.forEach(function (issue) {
+                    //     html += '<tr>';
+                    //     html += '<td><input type="hidden" name="priority[]" value="' + issue.id + '">' + issue.id + '</td>';
+                    //     html += '<td>' + issue.module + '</td>';
+                    //     html += '<td>' + issue.subject + '</td>';
+                    //     html += '<td>' + issue.task + '</td>';
+                    //     html += '<td>' + issue.submitted_by + '</td>';
+                    //     html += '<td><a href="javascript:;" class="delete_priority" data-id="' + issue.id + '">Remove<a></td>';
+                    //     html += '</tr>';
+                    // });
+                    $(".show_issue_priority").html(response.html);
                     <?php if (auth()->user()->isAdmin()) { ?>
                     $(".show_issue_priority").sortable();
                     <?php } ?>
@@ -402,7 +422,9 @@
         });
         $('.priority_model_btn').click(function () {
             $("#priority_user_id").val('');
-            $(".show_task_priority").html('');
+            $("#sel_user_id").val('0');
+
+            $(".show_issue_priority").html('');
             <?php if (auth()->user()->isAdmin()) { ?>
                 $("#priority_user_id").show();
                 getPriorityTaskList($('#priority_user_id').val());
@@ -414,6 +436,7 @@
         });
 
         $('#priority_user_id').change(function () {
+            $("#sel_user_id").val($(this).val());
             getPriorityTaskList($(this).val())
         });
 
@@ -729,12 +752,12 @@
 
         });
 
-        $(document).on('keyup', '.estimate-date-update', function () {
+       /* $(document).on('keyup', '.estimate-date-update', function () {
             if (event.keyCode != 13) {
                 return;
             }
             let issueId = $(this).data('id');
-            alert(issueId);
+       //     alert(issueId);
             let estimate_date_ = $("#estimate_date_" + issueId).val();
             $.ajax({
                 url: "{{action('DevelopmentController@saveEstimateDate')}}",
@@ -747,7 +770,7 @@
                 }
             });
 
-        });
+        });*/
 
         $(document).on('click', '.show-time-history', function() {
             var data = $(this).data('history');
@@ -888,7 +911,28 @@
             });
             $('#date_history_modal').modal('show');
         });
-
+        $(document).on('click', '.pull-request-history', function() {
+         
+            var issueId = $(this).data('id');
+            $('#pull-request-history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/pull/history') }}",
+                data: {id: issueId},
+                success: function (data) {
+                    console.log(data.pullrequests);
+                    $.each(data.pullrequests, function(i, item) {
+                            $('#pull-request-history_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['user_id'] != null) ? item['user_id'] : '-') +'</td>\
+                                    <td>'+ ((item['pull_request_id'] != null) ? item['pull_request_id'] : '-') +'</td>\
+                                </tr>'
+                            );
+                        });
+                }
+            });
+            $('#pull-request-history_modal').modal('show');
+        });
         $(document).on('click', '.show-status-history', function() {
             var data = $(this).data('history');
             var issueId = $(this).data('id');
@@ -1479,6 +1523,8 @@
             <?php } ?>
         });
 
+
+        
 
         $(document).on('click', '.show-user-history', function() {
             var issueId = $(this).data('id');

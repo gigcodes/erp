@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Reply;
+use App\ReplyUpdateHistory;
 use App\Setting;
 use App\ReplyCategory;
 use App\ChatbotQuestion;
 use App\ChatbotQuestionReply;
 use App\WatsonAccount;
 use App\ChatbotQuestionExample;
+use App\StoreWebsitePage;
+use Illuminate\Support\Facades\Auth;
 
 class ReplyController extends Controller
 {
@@ -32,7 +36,7 @@ class ReplyController extends Controller
             }    
 
             $replies = $replies->paginate(Setting::get('pagination'));
-  	
+    
         return view('reply.index',compact('replies','reply_categories'))
         ->with('i', (request()->input('page', 1) - 1) * 10);
     }
@@ -50,7 +54,7 @@ class ReplyController extends Controller
         $data['modify'] = 0;
         $data['reply_categories'] = ReplyCategory::all();
 
-  		return view('reply.form',$data);
+        return view('reply.form',$data);
     }
 
     /**
@@ -64,19 +68,19 @@ class ReplyController extends Controller
 
         $this->validate($request,[
             'reply'       => 'required|string',
-  			'category_id' => 'required|numeric',
-  			'model'       => 'required'
-  		]);
+            'category_id' => 'required|numeric',
+            'model'       => 'required'
+        ]);
 
-  		$data = $request->except('_token','_method');
+        $data = $request->except('_token','_method');
         $data['reply'] = trim($data['reply']);
-  		$reply->create($data);
+        $reply->create($data);
 
       if ($request->ajax()) {
         return response()->json(trim($request->reply));
       }
 
-  		return redirect()->route('reply.index')->with('success','Quick Reply added successfully');
+        return redirect()->route('reply.index')->with('success','Quick Reply added successfully');
     }
 
     public function categoryStore(Request $request)
@@ -112,10 +116,10 @@ class ReplyController extends Controller
     public function edit(Reply $reply)
     {
       $data = $reply->toArray();
-  		$data['modify'] = 1;
+      $data['modify'] = 1;
       $data['reply_categories'] = ReplyCategory::all();
 
-  		return view('reply.form',$data);
+        return view('reply.form',$data);
     }
 
     /**
@@ -128,15 +132,15 @@ class ReplyController extends Controller
     public function update(Request $request, Reply $reply)
     {
       $this->validate($request,[
-  			'reply' => 'required|string',
-  			'model' => 'required'
-  		]);
+            'reply' => 'required|string',
+            'model' => 'required'
+        ]);
 
-  		$data = $request->except('_token','_method');
+        $data = $request->except('_token','_method');
 
-  		$reply->update($data);
+        $reply->update($data);
 
-  		return redirect()->route('reply.index')->with('success','Quick Reply updated successfully');
+        return redirect()->route('reply.index')->with('success','Quick Reply updated successfully');
     }
 
     /**
@@ -151,7 +155,7 @@ class ReplyController extends Controller
       if ($request->ajax()) {
           return response()->json(['message' => "Deleted successfully"]);
       }
-  		return redirect()->route('reply.index')->with('success','Quick Reply Deleted successfully');
+        return redirect()->route('reply.index')->with('success','Quick Reply Deleted successfully');
     }
 
     public function chatBotQuestion(Request $request)
@@ -208,6 +212,112 @@ class ReplyController extends Controller
         Reply::where('id',$request->intent_reply_id)->delete();
 
         return response()->json(['message' => 'Successfully created','code' => 200]);     
+    }
+
+    public function replyList(Request $request)
+    {
+        $storeWebsite = $request->get("store_website_id");
+        $keyword = $request->get("keyword");
+
+        $replies = \App\ReplyCategory::join("replies","reply_categories.id","replies.category_id")
+        ->leftJoin("store_websites as sw","sw.id","replies.store_website_id")
+        ->where("model","Store Website")
+        ->select(["replies.*","sw.website","reply_categories.name as category_name","reply_categories.parent_id","reply_categories.id as reply_cat_id"]);
+
+        if($storeWebsite > 0) {
+           $replies = $replies->where("replies.store_website_id",$storeWebsite);
+        }
+
+        if(!empty($keyword)) {
+           $replies = $replies->where(function($q) use($keyword) {
+              $q->orWhere("reply_categories.name","LIKE","%".$keyword."%")->orWhere("replies.reply","LIKE","%".$keyword."%");
+           });
+        }
+
+        $replies = $replies->paginate(25);
+
+        return view("reply.list",compact('replies'));
+    }
+
+    public function replyListDelete(Request $request)
+    {
+        $id     = $request->get("id");
+        $record = \App\ReplyCategory::find($id);
+
+        if($record) {
+            $replies = $record->replies;
+            if(!$replies->isEmpty()) {
+                foreach($replies as $re) {
+                    $re->delete();
+                }
+            }
+            $record->delete();
+        }
+
+        return response()->json(["code" => 200, "data" => [] , "message" => "Record deleted successfully"]);
+    }
+
+    public function replyUpdate(Request $request)
+    {
+        $id     = $request->get("id");
+        $reply  = \App\Reply::find($id);
+        
+        $replies = Reply::where('id',$id)->first();
+        $ReplyUpdateHistory = new ReplyUpdateHistory;
+        $ReplyUpdateHistory->last_message = $replies->reply;
+        $ReplyUpdateHistory->reply_id = $replies->id;
+        $ReplyUpdateHistory->user_id = Auth::id();
+        $ReplyUpdateHistory->save();
+
+        if($reply) {
+            $reply->reply = $request->reply;
+            $reply->pushed_to_watson = 0;
+			$reply->save();
+			
+			$replyCategory  = \App\ReplyCategory::find($reply->category_id);
+		
+		    $replyCategories = $replyCategory->parentList();
+			$cats = explode('>',str_replace(' ', '',$replyCategories));
+			if(isset($cats[0]) and $cats[0] == "FAQ") {
+				$faqCat = \App\ReplyCategory::where('name', 'FAQ')->pluck('id')->first();
+				if($faqCat != null) {
+					$faqToPush = '<div class="cls_shipping_panelmain">';
+					$topParents = \App\ReplyCategory::where('parent_id', $faqCat)->get(); 
+					foreach($topParents as $topParent) {
+						$faqToPush .= '<div class="cls_shipping_panelsub">
+						<div id="shopPlaceOrder" class="accordion_head" role="tab">
+							<h4 class="panel-title"><a role="button" href="javascript:;" class="cls_abtn"> '.$topParent['name'].' </a><span class="plusminus">-</span></h4>
+						</div> <div class="accordion_body" style="display: block;">';
+						$questions = \App\ReplyCategory::where('parent_id', $topParent['id'])->get(); 
+						foreach($questions as $question) {
+							$answer = Reply::where('category_id', $question['id'])->first();
+							if($answer != null) {
+							    $faqToPush .= '<p class="md-paragraph"><strong>'.$question['name'].'</strong></p>
+									<p class="md-paragraph"> '.$answer['reply'].' </p>';
+							}							
+						}
+						$faqToPush .= "</div></div>";
+					}
+					$faqToPush .= "</div>";
+					$faqPage = StoreWebsitePage::where(['store_website_id'=>$reply->store_website_id, 'url_key'=>'faqs'])->first();
+					if($faqPage == null) {  echo "if";
+						$a = StoreWebsitePage::create(['title'=>'faqs','content'=>$faqToPush, 'store_website_id'=>$reply->store_website_id, 'url_key'=>'faqs', 'is_pushed'=>0]);
+					} else{  echo "else";
+						$a = StoreWebsitePage::where('id', $faqPage->id)->update(['content'=>$faqToPush, 'is_pushed'=>0]);
+					}
+				}	
+					
+					
+			}
+        }
+
+        return redirect()->back()->with('success','Quick Reply Updated successfully');
+    }
+    public function getReplyedHistory(Request $request)
+    {
+        $id = $request->id;
+        $reply_histories = DB::select( DB::raw("SELECT reply_update_histories.id,reply_update_histories.reply_id,reply_update_histories.user_id,reply_update_histories.last_message,reply_update_histories.created_at,users.name FROM `reply_update_histories` JOIN `users` ON users.id = reply_update_histories.user_id where reply_update_histories.reply_id = ".$id));
+        return response()->json(['histories' => $reply_histories]);
     }
 
 }

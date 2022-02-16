@@ -57,7 +57,10 @@
 	<div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Product Templates</h2>
         <div class="pull-right">
-            <button type="button" class="btn btn-secondary create-product-template-btn">Add Product Template</button>
+            <button type="button" class="btn btn-secondary create-product-template-btn"style="margin-right: 9px;">Add Product Template</button>
+        </div>
+		<div class="pull-right">
+            <a href="{{route('product.templates.log')}}" class="btn btn-secondary website-template-btn"style="margin-right: 9px;">Website Template Log</a>
         </div>
         <div class="pull-left">
         	<form action="?" method="get">
@@ -66,6 +69,16 @@
 				</div>
 			</form>
         </div>
+		<div class="pull-left">
+
+		<input type="date" name="log_date" id="log_date" class="form-control mr-2"style="width:250px !important">
+		<button  class="btn  btn-info btn-log-instances">
+			Get Python Logs
+		</button>
+                            
+
+		</div>
+
     </div>
     <br>
     <div class="row" style="margin:10px;">
@@ -75,6 +88,22 @@
 	</div>
 </div>
 <div id="display-area"></div>
+
+<div id="manage-log-instance" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Instagram Logs</h4>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @include("product-template.partials.list-template")
 @include("product-template.partials.create-form-template")
 @include("partials.modals.large-image-modal")
@@ -195,6 +224,25 @@
 	var templatesData=JSON.parse('{!!json_encode($templatesJSON)!!}');
 
     console.log(templatesData);
+
+	$(document).on("click",".btn-log-instances",function(e) {
+            e.preventDefault();
+            var $date=  $('#log_date').val();
+            $.ajax({
+                url: '{{url("product-templates/get-log")}}',
+                method:"get",
+                data : {
+                    date : $date
+                },
+                success: function (data) {
+                    if(data.type=="success"){
+                          $("#manage-log-instance").find(".modal-body").html(data.response);
+                          $("#manage-log-instance").modal('show'); 
+                    }else{
+                        alert(data.response)                     }
+                },
+            });
+        });
 </script>
 
 @endsection

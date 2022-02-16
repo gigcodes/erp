@@ -39,7 +39,7 @@ class Tickets extends Model {
     protected $table = 'tickets';
     protected $fillable = [
         'customer_id', 'ticket_id', 'subject', 'message', 'assigned_to', 'source_of_ticket', 'status_id', 'date', 'name', 'email','phone_no','order_no',
-        'type_of_inquiry','country','last_name','notify_on','amount','sku'
+        'type_of_inquiry','country','last_name','notify_on','amount','sku','lang_code'
     ];
 
     public function getTicketList($params = array()) {
@@ -66,7 +66,12 @@ class Tickets extends Model {
             return $this->hasMany('App\ChatMessage', 'ticket_id')->latest();
         }
     }
-
+    public function sendMessageToSite()
+    {
+      
+        return $this->hasMany('App\ChatMessage', 'ticket_id')->where("send_to_tickets",1)->select(['id','message','created_at'])->latest();
+        
+    }
     public function customer()
     {
       return $this->hasOne(\App\Customer::class,'id','customer_id');

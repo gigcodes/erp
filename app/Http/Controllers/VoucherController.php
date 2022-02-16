@@ -38,28 +38,28 @@ class VoucherController extends Controller
         // $tasks         = PaymentReceipt::where('status', $status);
         $teammembers   = Team::where(['teams.user_id' => Auth::user()->id])->join('team_user', 'team_user.team_id', '=', 'teams.id')->select(['team_user.user_id'])->get()->toArray();
         $teammembers[] = Auth::user()->id;
-        if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
+        // if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
 
-            if ($request->user_id != null && $request->user_id != "") {
-                $tasks = $tasks->where('user_id', $request->user_id)->where('date', '>=', $start)->where('date', '<=', $end);
-            } else {
-                $tasks = $tasks->where('date', '>=', $start)->where('date', '<=', $end);
-            }
-        } elseif (count($teammembers) > 0) {
+        //     if ($request->user_id != null && $request->user_id != "") {
+        //         $tasks = $tasks->where('user_id', $request->user_id)->where('date', '>=', $start)->where('date', '<=', $end);
+        //     } else {
+        //         $tasks = $tasks->where('date', '>=', $start)->where('date', '<=', $end);
+        //     }
+        // } elseif (count($teammembers) > 0) {
 
-            $tasks = $tasks->whereIn('user_id', $teammembers)->where('date', '>=', $start)->where('date', '<=', $end);
-        } else {
+        //     $tasks = $tasks->whereIn('user_id', $teammembers)->where('date', '>=', $start)->where('date', '<=', $end);
+        // } else {
 
-            $tasks = $tasks->where('user_id', Auth::id())->where('date', '>=', $start)->where('date', '<=', $end);
-        }
+        //     $tasks = $tasks->where('user_id', Auth::id())->where('date', '>=', $start)->where('date', '<=', $end);
+        // }
 
-        if($request->range_due_start) {
-            $tasks = $tasks->whereDate('billing_due_date', '>=', $request->range_due_start);
-        }
+        // if($request->range_due_start) {
+        //     $tasks = $tasks->whereDate('billing_due_date', '>=', $request->range_due_start);
+        // }
 
-        if($request->range_due_end) {
-            $tasks = $tasks->whereDate('billing_due_date', '<=', $request->range_due_end);
-        }
+        // if($request->range_due_end) {
+        //     $tasks = $tasks->whereDate('billing_due_date', '<=', $request->range_due_end);
+        // }
 
         $limit = request('limit');
         if (!empty($limit)) {
@@ -234,6 +234,9 @@ class VoucherController extends Controller
      */
     public function show($id)
     {
+        $task         = PaymentReceipt::where('id', $id)->first();
+        return response()->json($task);
+       
         //
     }
 
@@ -688,5 +691,39 @@ class VoucherController extends Controller
         }
 
         return response()->json(["code" => 200, "message" => "Payment paid successfully"]);
+    }
+
+    public function paymentHistory(request $request)
+    {
+        $task_id = $request->input('task_id');
+        $html = '';
+        $paymentData = \App\CashFlow::where('cash_flow_able_id', $task_id)
+            ->where('cash_flow_able_type', 'App\PaymentReceipt')
+            ->where('type', 'paid')
+            ->orderBy('date', 'DESC')
+            ->get();
+        $i = 1;
+        if (count($paymentData) > 0) {
+            foreach ($paymentData as $history) {
+                $html .= '<tr>';
+                $html .= '<td>' . $history->id . '</td>';
+                $html .= '<td>' . $history->amount . '</td>';
+                $html .= '<td>' . $history->date . '</td>';
+                $html .= '<td>' . $history->description . '</td>';
+                $html .= '</tr>';
+
+                $i++;
+            }
+            return response()->json(['html' => $html, 'success' => true], 200);
+        } else {
+            $html .= '<tr>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '</tr>';
+        }
+        return response()->json(['html' => $html, 'success' => true], 200);
+
     }
 }

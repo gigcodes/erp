@@ -14,7 +14,7 @@ class SiteDevelopmentCategory extends Model
      * @var string
 
      */
-    protected $fillable = ['title'];
+    protected $fillable = ['title', 'master_category_id'];
 
 
     public function development()

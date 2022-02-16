@@ -20,6 +20,9 @@ use InstagramAPI\Instagram;
 use InstagramAPI\Signatures;
 use Plank\Mediable\Media;
 use App\Customer;
+use App\MailinglistTemplate;
+use Illuminate\Support\Facades\Http;
+
 
 Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
@@ -687,9 +690,46 @@ class HashtagController extends Controller
         }
 
         $replies = \App\Reply::where("model", "influencers")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
-
-        return view('instagram.hashtags.influencers', compact('accounts', 'replies', 'influencers', 'keywords', 'posts', 'followers', 'following', 'term'));
+		$mailingListTemplates = MailinglistTemplate::pluck('name', 'id')->toArray();
+        return view('instagram.hashtags.influencers', compact('accounts', 'replies', 'influencers', 'keywords', 'posts', 'followers', 'mailingListTemplates','following', 'term'));
     }
+	
+	public function sendMailToInfluencers(Request $request) {
+		$ids = explode(",",$request->selectedInfluencers);
+		foreach($ids as $id) {
+			$customer = ScrapInfluencer::find($id);
+			$templateData = MailinglistTemplate::where('id', $request->mailing_list )->first();
+			if($templateData->static_template) {
+                 $arrToReplace = ['{FIRST_NAME}'];
+                 $valToReplace = [$customer->name];
+                 $bodyText = str_replace($arrToReplace,$valToReplace,$templateData->static_template);
+            } else {
+                 $bodyText  = @(string)view($templateData->mail_tpl);
+            }  
+
+			 $storeEmailAddress = \App\EmailAddress::first();			
+			 $emailData['subject'] = $templateData->subject;
+             $emailData['template'] = $bodyText;
+             $emailData['from'] = $storeEmailAddress->from_address;
+			 
+			 $emailClass = (new  \App\Mail\SendInfluencerEmail($emailData))->build(); 
+			 $email = \App\Email::create([
+                              'model_id'        => $customer->id,
+                              'model_type'      => \App\ScrapInfluencer::class,
+                              'from'            => $emailClass->fromMailer,
+                              'to'              => $customer->email,
+                              'subject'         => $templateData->subject,
+                              'message'         => $emailClass->render(),
+                              'template'        => 'scrapper-email',
+                              'additional_data' => '',
+                              'status'          => 'pre-send',
+                              'is_draft'        => 1,
+                           ]);
+
+            \App\Jobs\SendEmail::dispatch($email);
+		}
+		   return response()->json(['message' => 'Successfull.'],200);
+	}
 
     public function addReply(Request $request)
     {
@@ -898,5 +938,53 @@ class HashtagController extends Controller
        }       
        
        return redirect()->back()->with('message', 'mailinglist create successfully');    
-    }  
+    } 
+    
+    public function loginstance(Request $request)
+    {
+      
+
+        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-logs';
+       $date=($request->date!='')?\Carbon\Carbon::parse($request->date)->format('m-d-Y'):'';
+        $id=$request->id;
+
+     //   echo $url;exit;
+     if(!empty($date)){
+        $data = ['name' => $id,'date'=>$date];
+     }else{
+        return response()->json([
+            'type'=>'error',
+            'response' =>'Please select Date'
+                  ], 200);
+     }
+
+     
+        $data = json_encode($data);
+        
+     \Log::info("INFLUENCER_loginstance -->".$data);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'accept: application/json'));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        $result1 = curl_exec($ch);
+        $result = explode("\n",$result1);
+        
+       
+        if(count($result)>1){
+            return response()->json([
+                'type'=>'success',
+                'response' => view('instagram.hashtags.partials.get_status', compact('result'))->render()
+            ], 200); 
+         
+        }else{
+            return response()->json([
+            'type'=>'error',
+            'response' =>($result[0]=='')?'Please select Date':"Instagram Scrapter for $id not found"
+            ], 200);
+         
+        }
+
+        
+    }
 }

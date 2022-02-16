@@ -61,17 +61,17 @@
 					  </select>
 				    </div>
 				    <div class="col">
-				      <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
+				      <button type="submit" class="btn btn-xs text-secondary mt-2"><i class="fa fa-filter"></i></button>
 				    </div>
 				</div>
 			</form>
         </div>
         <div class="col-md-5">
             <div class="form-inline pull-right">
-                <button type="button" class="btn btn-secondary ml-3" id="repeat-bulk-option">Repeat</button>
-                <button type="button" class="btn btn-secondary ml-3" id="create-reply-btn">Dynamic Reply</button>
-                <button type="button" class="btn btn-secondary ml-3" id="create-task-btn">Dynamic Task</button>
-                <button type="button" class="btn btn-secondary ml-3" id="create-keyword-btn">Create</button>
+                <button type="button" class="btn btn-xs btn-secondary ml-3" id="repeat-bulk-option">Repeat</button>
+                <button type="button" class="btn btn-xs btn-secondary ml-3" id="create-reply-btn">Dynamic Reply</button>
+                <button type="button" class="btn btn-xs btn-secondary ml-3" id="create-task-btn">Dynamic Task</button>
+                <button type="button" class="btn btn-xs btn-secondary ml-3" id="create-keyword-btn">Create</button>
         	</div>
         </div>
     </div>
@@ -82,67 +82,116 @@
 	        <table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%" style="table-layout:fixed;">
 			  <thead>
 			    <tr>
-			      <th class="th-sm" style="width:7%">Id</th>
-			      <th class="th-sm" style="width:13%">Intent / entity</th>
-			      <th class="th-sm" style="width:5%">Type</th>
-			      <th class="th-sm" style="width:30%">User Intent / entity</th>
-                  <th class="th-sm" style="width:10%">Erp/Watson</th>
-                  <th class="th-sm" style="width:10%">Suggested Response</th>
-			      <th class="th-sm" style="width:9%">Category</th>
-			      <th class="th-sm" style="width:9%">Status</th>
-                  <th class="th-sm" style="width:9%">Created</th>
-			      <th class="th-sm" style="width:8%">Action</th>
+					<th class="th-sm" style="width:2%">#</th>
+					<th class="th-sm" style="width:5%">Id</th>
+					<th class="th-sm" style="width:10%">Intent / entity</th>
+					<th class="th-sm" style="width:5%">Type</th>
+					<th class="th-sm" style="width:15%">User Intent / entity</th>
+					<th class="th-sm" style="width:7%">Erp/Watson</th>
+					<th class="th-sm" style="width:10%">Sugg Resp</th>
+					<th class="th-sm" style="width:9%">Category</th>
+					<th class="th-sm" style="width:9%">Status</th>
+					<th class="th-sm" style="width:9%">Created</th>
+					<th class="th-sm" style="width:8%">Action</th>
 			    </tr>
 			  </thead>
 			  <tbody>
 			    <?php foreach($chatQuestions as $chatQuestion) { ?>
 				    <tr>
-				      <td><?php echo $chatQuestion->id; ?> <br> 
-						<input type="checkbox" value="{{ $chatQuestion->id }}" class="chatbotQuestion_chkbox">
-					 </td>
-				      <td><?php echo $chatQuestion->value; ?></td>
-				      <td><?php echo $chatQuestion->keyword_or_question; ?></td>
-                      <?php
-                        $listOfQuestions = explode(",", $chatQuestion->questions);
-                      ?>
-					  <td><?php echo implode("</br>",$listOfQuestions); ?></td>
-                      <td><?php echo $chatQuestion->erp_or_watson; ?></td>
-                      <td>
-                        <i class="fa fa-comments show-response-by-website"></i>
-					  @if(request('store_website_id'))
-        					  <?php 
-        						$reply = \App\ChatbotQuestionReply::where('store_website_id',request('store_website_id'))->where('chatbot_question_id',$chatQuestion->id)->first();
-        						if($reply) {
-        							$r = $reply->suggested_reply;
-        						}
-        						else {
-        							$r = '';
-        						}
-        					  ?>
-						{{$r}}
-						@endif
-					  </td>
-				      <td>
-					  <select name="category_id" id="" class="form-control question-category" data-id="{{$chatQuestion->id}}">
-						  <option value="">Select</option>
-						  @foreach($allCategoryList as $cat)
-						  	<option {{$cat['id'] == $chatQuestion->category_id ? 'selected' : ''}} value="{{$cat['id']}}">{{$cat['text']}}</option>
-						  @endforeach
-						</select>
-					  </td>
-				      <td class="{{ ( $chatQuestion->watson_status == 1 ) ? 'success' : null }}">{{ ( $chatQuestion->watson_status == '1' ) ? 'Success' : null }} {{ ( $chatQuestion->watson_status == 0 ) ? 'Error' : null }} {{ ( $chatQuestion->watson_status != 1 && $chatQuestion->watson_status != 0 ) ? $chatQuestion->watson_status : null }}</td>
-                      <td title="{{ $chatQuestion->created_at }}">{{ date("Y-m-d",strtotime($chatQuestion->created_at))}}</td>
-				      <td>
-							<a title="Edit" class="btn btn-image edit-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.edit",[$chatQuestion->id]); ?>"><img src="/images/edit.png"></a>
-							<a title="Delete" class="btn btn-image delete-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.delete",[$chatQuestion->id]); ?>"><img src="/images/delete.png"></a>
-							<a title="Show" class="btn btn-image show-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="javascript:void(0);"><img src="/images/details.png"></a>
-							<a title="Repeat" class="btn btn-image repeat-button pd-3 fa fa-repeat" data-id="<?php echo $chatQuestion->id; ?>" href="javascript:void(0);"></a>
-						<!-- @if($chatQuestion->keyword_or_question == 'entity')
-						<a class="btn btn-image edit-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.keyword.edit",[$chatQuestion->id]); ?>"><img src="/images/edit.png"></a>
-                        <a class="btn btn-image delete-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.keyword.delete",[$chatQuestion->id]); ?>"><img src="/images/delete.png"></a>
-						@endif -->
-				      </td>
-				    </tr>
+						<td>
+							<input type="checkbox" value="{{ $chatQuestion->id }}" class="chatbotQuestion_chkbox">
+						</td>
+				      	<td>
+							<?php echo $chatQuestion->id; ?>
+						</td>
+						<td class="expand-row-msg" data-name="value" data-id="{{$chatQuestion->id}}">
+							<span class="show-short-value-{{$chatQuestion->id}}">{{ str_limit($chatQuestion->value, 15, '..')}}</span>
+							<span style="word-break:break-all;" class="show-full-value-{{$chatQuestion->id}} hidden">{{$chatQuestion->value	}}</span>
+						</td>
+						<td>
+							<?php echo $chatQuestion->keyword_or_question; ?>
+						</td>
+						<?php
+							$listOfQuestions = explode(",", $chatQuestion->questions);
+						?>
+						<td class="expand-row-msg" data-name="listOfQuestions" data-id="{{$chatQuestion->id}}">
+							<?php 
+							//echo implode("</br>",$listOfQuestions);
+							if(count($listOfQuestions) > 0){
+								$listOfQuestion= $listOfQuestions[0];
+								?>
+								<span class="show-short-listOfQuestions-{{$chatQuestion->id}}">{{ str_limit($listOfQuestion, 18, '..')}}</span>
+                  				<span style="word-break:break-all;" class="show-full-listOfQuestions-{{$chatQuestion->id}} hidden">{{$listOfQuestion}}</span>
+								<button type="button" class="btn btn-xs text-secondary" data-toggle="modal" data-target="#listOfQuestion_{{$chatQuestion->id}}"><i class="fa fa-info-circle"></i></button>
+								<div class="modal fade" id="listOfQuestion_{{$chatQuestion->id}}" tabindex="-1" role="dialog" aria-labelledby="listOfQuestion_{{$chatQuestion->id}}" aria-hidden="true">
+									<div class="modal-dialog modal-lg" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<h5 class="modal-title" id="listOfQuestion_{{$chatQuestion->id}}">User Intent / entity</h5>
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+												</button>
+											</div>
+											<div class="modal-body">
+												<ul class="list-group">
+												<?php 
+												//echo implode("</br>",$listOfQuestions); 
+												foreach ($chatQuestion->chatbotQuestionExamples as $key => $value) {
+												?>
+													<li class="list-group-item d-flex justify-content-between align-items-center">
+													<?php echo $value->question; ?>
+													<a data-id="<?php echo $value->id; ?>" href="<?php echo route("chatbot.question-example.delete", [$chatQuestion->id, $value->id]); ?>" class="btn btn-xs text-secondary"><i class="fa fa-trash"></i></a>
+													</li>
+												<?php
+												}
+												?>
+												</ul>
+											</div>
+										</div>
+									</div>
+								</div>
+								<?php
+							}else{
+								$listOfQuestion='';
+							}
+							
+							?>
+						</td>
+						<td>
+							<?php echo $chatQuestion->erp_or_watson; ?>
+						</td>
+						<td>
+							<i class="text-secondary fa fa-comments show-response-by-website"></i>
+							@if(request('store_website_id'))
+									<?php 
+									$reply = \App\ChatbotQuestionReply::where('store_website_id',request('store_website_id'))->where('chatbot_question_id',$chatQuestion->id)->first();
+									if($reply) {
+										$r = $reply->suggested_reply;
+									}
+									else {
+										$r = '';
+									}
+									?>
+							{{$r}}
+							@endif
+						</td>
+						<td>
+							<select name="category_id" id="" class="form-control question-category" data-id="{{$chatQuestion->id}}">
+								<option value="">Select</option>
+								@foreach($allCategoryList as $cat)
+								<option {{$cat['id'] == $chatQuestion->category_id ? 'selected' : ''}} value="{{$cat['id']}}">{{$cat['text']}}</option>
+								@endforeach
+							</select>
+						</td>
+						<td class="{{ ( $chatQuestion->watson_status == 1 ) ? 'success' : null }}">{{ ( $chatQuestion->watson_status == '1' ) ? 'Success' : null }} {{ ( $chatQuestion->watson_status == 0 ) ? 'Error' : null }} {{ ( $chatQuestion->watson_status != 1 && $chatQuestion->watson_status != 0 ) ? $chatQuestion->watson_status : null }}</td>
+						<td title="{{ $chatQuestion->created_at }}">{{ date("Y-m-d",strtotime($chatQuestion->created_at))}}</td>
+						<td>
+							<a title="Edit" class="btn btn-xs text-secondary edit-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.edit",[$chatQuestion->id]); ?>"><i class="fa fa-edit"></i></a>
+							<a title="Delete" class="btn btn-xs text-secondary delete-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.delete",[$chatQuestion->id]); ?>"><i class="fa fa-trash"></i></a>
+							<a title="Show" class="btn btn-xs text-secondary show-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="javascript:void(0);"><i class="fa fa-clipboard"></i></a>
+							<a title="Repeat" class="btn btn-xs text-secondary repeat-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="javascript:void(0);"><i class="fa fa-repeat"></i></a>
+						</td>
+					</tr>
 				<?php } ?>
 			  </tbody>
 			</table>
@@ -165,6 +214,14 @@
     </div>    
 </div>
 <script type="text/javascript">
+	$(document).on('click', '.expand-row-msg', function () {
+      var name = $(this).data('name');
+      var id = $(this).data('id');
+      var full = '.expand-row-msg .show-short-'+name+'-'+id;
+      var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+      $(full).toggleClass('hidden');
+      $(mini).toggleClass('hidden');
+    });
 	$("#create-keyword-btn").on("click",function() {
 		$("#create-question").modal("show");
 	});

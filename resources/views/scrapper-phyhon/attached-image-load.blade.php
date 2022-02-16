@@ -5,7 +5,9 @@
         {{-- <td>{{ $list->storeWebsite->website ?? '' }}</td> --}}
         {{-- <td>{{ $list->name }}</td> --}}
         {{-- <td></td> --}}
-
+         {{-- <td></td> --}}
+          {{-- <td></td> --}}
+           {{-- <td></td> --}}
         {{-- <td> --}}
             {{-- <button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd" --}}
                 {{-- data-suggestedproductid="{{ $list->id }}"> --}}
@@ -36,16 +38,27 @@
                 </td>
             </tr>
         @endif
-
             @foreach ($store->storeViewMany as $item)
-                
+                @php 
+                    $imagesDesktop = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$item->code)->where('device','desktop')->get()->count();
+                    $imagesMobile = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$item->code)->where('device','mobile')->get()->count();
+                    $imagesTablet = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$item->code)->where('device','tablet')->get()->count();
+                @endphp
                 <tr class="expand-{{ $list->id }}">
                     <td>{{ \Carbon\Carbon::parse($store->created_at)->format('d-m-y') }}</td>
                     <td>{{ $store->id }}</td>
-                    <td>{{ $list->storeWebsite->website ?? '' }}</td>
+                    <td class="expand-row-msg" data-name="storeWebsite" data-id="{{$store->id}}">
+                        <span class="show-short-storeWebsite-{{$store->id}}">{{ str_limit($list->storeWebsite->website, 30, '..')}}</span>
+                        <span style="word-break:break-all;" class="show-full-storeWebsite-{{$store->id}} hidden">{{ $list->storeWebsite->website ?? '' }}</span>
+                    </td>
                     <td>{{ $store->name }}</td>
-                    <td>{{ $item->name }}({{ $item->code }})</td>
-
+                    <td class="{{ $list->store_website_id }} {{ $item->code }}">{{ $item->name }}({{ $item->code }})</td>
+                        <td> @if($imagesDesktop > 0) {{ $imagesDesktop }} @else {{ '1' }} @endif</td>
+                        <td>@if($imagesMobile > 0) {{ $imagesMobile }} @else {{ '0' }} @endif</td>
+                        <td>@if($imagesTablet > 0) {{ $imagesTablet }} @else {{ '0' }} @endif</td>
+                        <td><span class="btn p-0"> <input type="checkbox" class="defaultInput" {{ $store->is_default ? 'checked' : '' }}
+                                onclick="setStoreAsDefault(this)" data-website-id="{{ $list->id }}"
+                                data-store-id="{{ $store->id }}" /></span></td>
                     <td>
                         <!-- <button data-website={{ $list->storeWebsite->website ?? '' }} type="button" class="btn btn-xs btn-image scrapper-python-modal" title="Scrapper action" data-toggle="modal" data-target="#scrapper-python-modal">
                             <img src="/images/add.png" alt="" style="cursor: pointer">
@@ -58,9 +71,7 @@
                             <img src="/images/forward.png" style="cursor: default;">
                         </button>
 
-                        <span class="btn p-0"> <input type="checkbox" class="defaultInput" {{ $store->is_default ? 'checked' : '' }}
-                                onclick="setStoreAsDefault(this)" data-website-id="{{ $list->id }}"
-                                data-store-id="{{ $store->id }}" /> Set as default</span>
+                        
 
                         <!-- Button trigger modal -->
 
@@ -210,7 +221,7 @@
 
         $.ajax({
             type: 'POST',
-            url: "/scrapper-python/call",
+            url: "{{route('scrapper.call')}}",
             beforeSend: function() {
                 $("#loading-image").show();
             },

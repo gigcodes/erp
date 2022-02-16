@@ -110,7 +110,8 @@
            
                 <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-date-history" title="Show Date History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
          
-                  <span>Approved : {{$issue->developerTaskHistory ? $issue->developerTaskHistory->new_value :'--'  }}</span>
+                  <span>@if($issue->developerTaskHistory) @if($issue->developerTaskHistory->is_approved == 1) Approved @else Un-Approved @endif : {{ $issue->developerTaskHistory->new_value   }} @else -- @endif</span>
+
 
             </div>
         </div>
@@ -191,6 +192,7 @@
         </select>
     </div>
     <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+    <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs pull-request-history" title="Pull Request History" data-id="{{$issue->id}}"><i class="fa fa-history"></i></button>
     </td>
     <td>
         <div>

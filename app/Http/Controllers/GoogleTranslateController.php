@@ -17,6 +17,7 @@ class GoogleTranslateController extends Controller
     public static function translateProductDetails($product,$logid=null)
     {
 		$logModel = LogListMagento::find($logid);
+       
         try {
             $measurement = ProductHelper::getMeasurements($product);
             $isDefaultAvailable = Product_translation::where('locale','en')->where('product_id',$product->id)->first();
@@ -52,19 +53,23 @@ class GoogleTranslateController extends Controller
 							$requestData = $responseData = [];
 							if($product_translation->title == ''){
                                  $title = self::translateProducts($googleTranslate, $language, $productNames);
-                                  if($title != '' and !empty($logid)) {
-									  $requestData['title'] = $productNames;
-									  $responseData['title'] = $title;
-								   }
+                                 $requestData['title'] = $productNames;
+                                 $responseData['title'] = $title;
+                                  if($title=="" and !empty($logid)){
+                                    ProductPushErrorLog::log("",$product->id, 'Product Title transact to '.$language." is blank", 'error',$logModel->store_website_id,$requestData,$responseData,$logModel->id);
+                                  }
 								  $product_translation->title = $title;
                             }
                             if($product_translation->description == ''){
                                 $description = self::translateProducts($googleTranslate, $language, $productShortDescription);
                                 $product_translation->description = $description;
-								if($description != ''and !empty($logid)) {
+							//	if($description != ''and !empty($logid)) {
 									  $requestData['description'] = $productShortDescription;
 									  $responseData['description'] = $description;
-								}
+							//	}
+                                if($description =="" and !empty($logid)){
+                                    ProductPushErrorLog::log("",$product->id, 'Product description transact to '.$language." is blank", 'error',$logModel->store_website_id,$requestData,$responseData,$logModel->id);
+                                }
                             }
                             if($product_translation->composition == ''){
                                 $composition = self::translateProducts($googleTranslate, $language, [$product->composition]);
@@ -73,6 +78,9 @@ class GoogleTranslateController extends Controller
 									$requestData['composition'] = [$product->composition];
 									$responseData['composition'] = $composition;
 								}
+                                /*if($composition =="" and !empty($logid)){
+                                    ProductPushErrorLog::log("",$product->id, 'Product composition transact to '.$language." is blank", 'error',$logModel->store_website_id,$requestData,$responseData,$logModel->id);
+                                }*/
                             }
                             if($product_translation->color == ''){
                                 $color = self::translateProducts($googleTranslate, $language, [$product->color]);
@@ -81,6 +89,9 @@ class GoogleTranslateController extends Controller
 									$requestData['color'] = [$product->color];
 									$responseData['color'] = $color;
 								}
+                                /*if($color =="" and !empty($logid)){
+                                    ProductPushErrorLog::log("",$product->id, 'Product color transact to '.$language." is blank", 'error',$logModel->store_website_id,$requestData,$responseData,$logModel->id);
+                                }*/
                             }
                             /*if(!$checkdata || $checkdata->size==''){
                                 $size = self::translateProducts($googleTranslate, $language, [$product->size]);
@@ -93,6 +104,9 @@ class GoogleTranslateController extends Controller
 								   $requestData['country_of_manufacture'] = [$product->made_in];
 								   $responseData['country_of_manufacture'] = $country_of_manufacture;
 								}
+                              /*  if($country_of_manufacture =="" and !empty($logid)){
+                                    ProductPushErrorLog::log("",$product->id, 'Product country_of_manufacture transact to '.$language." is blank", 'error',$logModel->store_website_id,$requestData,$responseData,$logModel->id);
+                                }*/
 							}
                             if($product_translation->dimension == ''){
                                 $dimension = self::translateProducts($googleTranslate, $language, [$measurement]);
@@ -100,13 +114,17 @@ class GoogleTranslateController extends Controller
 								if($dimension != '' and !empty($logid)) {
 									$requestData['dimension'] = [$measurement];
 								    $responseData['dimension'] = $country_of_manufacture;
+
 								}
+                             /*   if($dimension =="" and !empty($logid)){
+                                    ProductPushErrorLog::log("",$product->id, 'Product dimension transact to '.$language." is blank", 'error',$logModel->store_website_id,$requestData,$responseData,$logModel->id);
+                                }*/
                             }
                             $product_translation->product_id = $product->id;
                             $product_translation->locale = $language;
                             $product_translation->save();
 							if($responseData and !empty($logid)) {
-								ProductPushErrorLog::log("",$product->id, 'Product Translated to '.$language, 'success',$logModel->store_website_id,$requestData,$responseData,$logModel->id);
+								ProductPushErrorLog::log("",$product->id, 'Product Translated to '.$language, 'info',$logModel->store_website_id,$requestData,$responseData,$logModel->id);
 							}	
 
                          } catch (\Exception $e) {

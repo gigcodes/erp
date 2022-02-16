@@ -39,7 +39,9 @@ class SizeController extends Controller
             $stores              = [];
             if (!$item->storeWebsitSize->isEmpty()) {
                 foreach ($item->storeWebsitSize as $sws) {
-                    $stores[] = $sws->storeWebsite->title . "#" . $sws->platform_id;
+                    if($sws->storeWebsite) {
+                        $stores[] = $sws->storeWebsite->title . "#" . $sws->platform_id;
+                    }
                 }
             }
             $item->store_wesites = $stores;
@@ -158,6 +160,20 @@ class SizeController extends Controller
         }
         $unknownSizes = $unknownSizes->paginate(50);
         return view('size.reference', compact('sizes', 'unknownSizes'));
+    }
+
+    public function newSizeReferences(Request $request)
+    {
+        $sizes = \App\SizeAndErpSize::all();
+        $erpSizes = \App\SystemSizeManager::select('id', 'erp_size')->get();
+        $erpSizesCount = \App\SizeAndErpSize::select('id', 'erp_size')->count();
+        return view('size.new-reference', compact('sizes', 'erpSizes', 'erpSizesCount'));
+    }
+
+    public function updateNewSizeReferences(Request $request){
+        $inputs = $request->input();
+        \App\SizeAndErpSize::where('id', $inputs['id'])->update(['erp_size_id'=>$inputs['erp_size_id']]);
+        return response()->json(["code" => 200, "data" => 'Its changed']);
     }
 
     public function referenceAdd(Request $request)

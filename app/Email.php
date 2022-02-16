@@ -30,7 +30,8 @@ class Email extends Model
      */
   protected $fillable = [
     'model_id', 'model_type', 'type', 'seen', 'from', 'to', 'subject', 'message', 'template', 'additional_data', 'created_at',
-      'cc', 'bcc','origin_id','reference_id', 'status','approve_mail','is_draft' , 'error_message','store_website_id'
+      'cc', 'bcc','origin_id','reference_id', 'status','approve_mail','is_draft' , 'error_message','store_website_id',
+	  'message_en','schedule_at','mail_status'
   ];
 
   protected $casts = [
@@ -46,5 +47,11 @@ class Email extends Model
 
   public function remarks(){
     return $this->hasMany(EmailRemark::class);
+  }
+
+  public function category() {
+    
+    return $this->belongsTo(EmailCategory::class,  'email_category_id', 'id');
+    
   }
 }

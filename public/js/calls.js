@@ -94,7 +94,7 @@
 		bMute = false;
 	}
 
-	function loadTwilioDevice(token,agent) {
+	function loadTwilioDevice(token,agent) { console.log('97');
 		const $confirmModal = $('#receive-call-popup');
 		var set_status = '';
 		console.log("Token : "+token);
@@ -182,8 +182,21 @@
 				},
 			})
 
+			$.ajax({
+				url: '/twilio/update_number_status',
+				type: 'POST',
+				dataType: 'json',
+				data: {
+					_token: "{{ csrf_token() }}",
+					authid : auth_id,
+					number : conn.parameters.From,
+					status: 0,
+				},
+			})
+
 			cleanup();
 		});
+		
 
 		device.on('incoming', function (conn) {
 
@@ -231,7 +244,7 @@
 				});
 
 				$buttonForAnswer.off().one('click', function () {
-
+					console.log('called');
 					$confirmModal.modal('hide');
 
 					sendTwilioEvents({
@@ -253,6 +266,20 @@
 							data: {
 								_token: "{{ csrf_token() }}",
 								authid : auth_id,
+								status: 1,
+							},
+						})
+					}, 2000);
+
+					add_number = setInterval(function(){  
+						$.ajax({
+							url: '/twilio/add_number',
+							type: 'POST',
+							dataType: 'json',
+							data: {
+								_token: "{{ csrf_token() }}",
+								authid : auth_id,
+								number : conn.parameters.From,
 								status: 1,
 							},
 						})
@@ -286,6 +313,19 @@
 							status: 0,
 						},
 					})
+
+					$.ajax({
+						url: '/twilio/update_number_status',
+						type: 'POST',
+						dataType: 'json',
+						data: {
+							_token: "{{ csrf_token() }}",
+							authid : auth_id,
+							number : conn.parameters.From,
+							status: 0,
+						},
+					})
+
 					conn.reject();
 				});
 			});
@@ -323,6 +363,18 @@
 						status: 0,
 					},
 				})
+
+				$.ajax({
+					url: '/twilio/update_number_status',
+					type: 'POST',
+					dataType: 'json',
+					data: {
+						_token: "{{ csrf_token() }}",
+						authid : auth_id,
+						number : conn.parameters.From,
+						status: 0,
+					},
+				})
 			}
 		});
 	}
@@ -341,6 +393,19 @@
 	}
 
 	function callerHangup() {
+		console.log('caller hanged up');
+		$.ajax({
+			url: '/twilio/update_number_status',
+			type: 'POST',
+			dataType: 'json',
+			data: {
+				_token: "{{ csrf_token() }}",
+				authid : auth_id,
+				number : currentConnection.parameters.From,
+				status: 0,
+			},
+		})
+
 		if (currentConnection) currentConnection.disconnect();
 
 		var auth_id = $('.call-twilio ').attr('data-auth-id');
@@ -358,6 +423,7 @@
 
 		device.disconnectAll();
 	}
+	
 
 	function callerMute(number) {
 		var conn = device.activeConnection();

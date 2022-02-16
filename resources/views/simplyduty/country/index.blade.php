@@ -136,10 +136,11 @@
                     },
                     success:function(result){
                         // console.log(result);
+                        toastr["success"]("Value assigned!", "Message");
                     },
                     error:function(exx){
                         alert('Something went wrong!')
-                        window.location.reload();
+                        //window.location.reload();
                     }
                 })
             }

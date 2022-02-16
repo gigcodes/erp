@@ -73,11 +73,11 @@
                 </div>
             </div>
 		</div>
-	</div>
+	</div> 
 	<div class="modal fade" id="assignModel" tabindex="-1" role="dialog" aria-labelledby="assignModel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-				<form action="{{url('emailleads/assign')}}" method="POST">
+				<form action="{{ route('emailleads.assign') }}" method="POST">
 					@csrf
 					<div class="modal-header">
 						<h5 class="modal-title">Assign Mailing List</h5>

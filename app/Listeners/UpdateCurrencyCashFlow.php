@@ -28,8 +28,7 @@ class UpdateCurrencyCashFlow
 
         $cashflow = $event->cashflow;
         if ($cashflow->amount_eur <= 0) {
-            $cashflow->amount_eur = \App\Currency::convert($cashflow->amount, 'EUR', $cashflow->currency);
-            $cashflow->save();
+            \DB::table('cash_flows')->where('id', $cashflow->id)->update(['amount_eur' => \App\Currency::convert($cashflow->amount, 'EUR', $cashflow->currency)]);
         }
 
         if ($cashflow->monetary_account_id > 0 && ($cashflow->type == "received" || $cashflow->type == "paid")) {

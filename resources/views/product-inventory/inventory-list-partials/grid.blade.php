@@ -5,7 +5,7 @@
           <td >   <a  title="show status history" class="btn  show-scraped-product des-pd" style="color:#337ab7;">{{ $data['id'] }}</a></td>
           <td>
             <span id="sku_long_string_{{$data['id']}}" style="display: none">{{ $data['sku'] }}</span>
-            <a href="/products/{{ $data['id'] }}">
+            <a href="/products/{{ $data['id'] }}"  target="_blank">
             <span id="sku_small_string_{{$data['id']}}"><?php echo \Illuminate\Support\Str::substr($data['sku'],-10) ?> </span></a> @if(strlen($data['sku'])>10) ...<!-- <a href="javascript:;" data-id="{{$data['id']}}" class="show_sku_long">More</a> --> @endif
           </td>
           <td><a  title="show suppliers" data-id="{{ $data['id'] }}" class="btn btn-image show-supplier-modal des-pd">{{$data['total_product']}}</a></td>
@@ -50,6 +50,7 @@
             @if(empty($data['size_eu']))
               <a title="add-size" data-id="{{ $data['id'] }}" data-size-system="{{ $data['size_system'] }}" data-category-id="{{ $data['category'] }}" data-sizes='{{ json_encode(explode(",",$data["size"])) }}' class="btn btn-image add-size-btn"><i class="fa fa-plus" aria-hidden="true"></i></a>
             @endif
+            <a title="show rejected medias" class="btn btn-image show-rejected-medias-modal des-pd" data-id="{{ $data['id'] }}" aria-expanded="false"><i class="fa fa-ban" aria-hidden="true"></i></a>
           </td>
           <td class="medias-data" data='@if(isset($data['medias']))@json($data['medias'])@endif' style="display:none"></td>
           <td class="status-history" data='@if(isset($data['status_history']))@json($data['status_history'])@endif' style="display:none"></td>

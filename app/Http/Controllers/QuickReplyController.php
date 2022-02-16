@@ -43,7 +43,7 @@ class QuickReplyController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'text' => 'required'
+            'text' => 'required',
         ]);
 
         $r = new QuickReply();
@@ -102,22 +102,49 @@ class QuickReplyController extends Controller
         //
     }
 
-    public function quickReplies()
+    public function quickReplies(Request $request)
     {
+
         try {
-            $all_categories = ReplyCategory::all();
+            $subcat = '';
+            $all_categories = ReplyCategory::where('parent_id', 0);
+            if($request->sub_category){
+                $subcat = $request->sub_category;
+                $parent_id = ReplyCategory::find($request->sub_category);
+                $all_categories->where('id',$parent_id->parent_id);
+            }
+            $all_categories = $all_categories->get();
             $store_websites = StoreWebsite::all();
+            $sub_categories = [''=>'Select Sub Category'] + ReplyCategory::where('parent_id','!=', 0)->pluck('name', 'id')->toArray();
             $website_length = 0;
-            if(count($store_websites) > 0){
+            if (count($store_websites) > 0) {
                 $website_length = count($store_websites);
             }
             //all categories replies related to store website id
             $all_replies = DB::select("SELECT * from replies");
             $category_wise_reply = [];
-            foreach($all_replies as $replies){
-                    $category_wise_reply[$replies->category_id][$replies->store_website_id][$replies->id] = $replies;
+            foreach ($all_replies as $replies) {
+                $category_wise_reply[$replies->category_id][$replies->store_website_id][$replies->id] = $replies;
             }
-            return view('quick_reply.quick_replies', compact('all_categories', 'store_websites', 'website_length','category_wise_reply'));
+            if ($all_categories) {
+                foreach ($all_categories as $k => $_cat) {
+                    $childs = ReplyCategory::where('parent_id', $_cat->id);
+                    if($request->sub_category){
+                        $childs->where('id',$request->sub_category);
+                    }
+                    $childs = $childs->get();
+                    $all_categories[$k]['childs'] = $childs;
+                    if($childs){
+                        foreach ($all_categories[$k]['childs'] as $c => $_child) {
+                            $subchilds = ReplyCategory::where('parent_id', $_child->id);
+                            $subchilds = $subchilds->get();
+                            $all_categories[$k]['childs'][$c]['subchilds'] = $subchilds;
+                        }
+                    }
+                }
+            }
+
+            return view('quick_reply.quick_replies', compact('all_categories', 'store_websites', 'website_length', 'category_wise_reply','sub_categories','subcat'));
         } catch (\Exception $e) {
             return redirect()->back();
         }
@@ -127,40 +154,67 @@ class QuickReplyController extends Controller
     public function getStoreWiseReplies($category_id, $store_website_id = null)
     {
         try {
-            
-            $replies = ( $store_website_id ) 
-                        ? Reply::where(['category_id' => $category_id, 'store_website_id' => $store_website_id])->get()
-                        : Reply::where(['category_id' => $category_id])->get();
+
+            $replies = ($store_website_id)
+            ? Reply::where(['category_id' => $category_id, 'store_website_id' => $store_website_id])->get()
+            : Reply::where(['category_id' => $category_id])->get();
             return new JsonResponse(['status' => 1, 'data' => $replies]);
         } catch (\Exception $e) {
             return new JsonResponse(['status' => 0, 'message' => 'Try again']);
         }
     }
 
-    public function saveStoreWiseReply(Request $request){
+    public function saveStoreWiseReply(Request $request)
+    {
         try {
-            if(isset($request->reply_id)){
+            if (isset($request->reply_id)) {
                 //update reply
-                Reply::where('id','=',$request->reply_id)->update([
+                Reply::where('id', '=', $request->reply_id)->update([
                     'reply' => $request->reply,
+					'pushed_to_watson'=>0
                 ]);
-                return new JsonResponse(['status' => 1, 'data' =>  $request->reply, 'message' => 'Reply updated successfully']);
-            }else{
+                return new JsonResponse(['status' => 1, 'data' => $request->reply, 'message' => 'Reply updated successfully']);
+            } else {
                 Reply::create([
                     'category_id' => $request->category_id,
                     'store_website_id' => $request->store_website_id,
                     'reply' => $request->reply,
-                    'model' => 'Store Website'
+                    'model' => 'Store Website',
+					'pushed_to_watson'=>0
                 ]);
-                return new JsonResponse(['status' => 1, 'data' =>  $request->reply, 'message' => 'Reply added successfully']);
+                return new JsonResponse(['status' => 1, 'data' => $request->reply, 'message' => 'Reply added successfully']);
             }
         } catch (\Exception $e) {
             return new JsonResponse(['status' => 0, 'message' => 'Try again']);
         }
     }
 
+    public function saveSubCat(Request $request)
+    {
 
-
-
+        try {
+            if (isset($request->sub_id)) {
+                //update name
+				$replyCategory = ReplyCategory::find($request->sub_id);
+				if($replyCategory != null and $replyCategory['name'] != $request->name) {
+					ReplyCategory::where('id', '=', $request->sub_id)->update([
+						'name' => $request->name,
+						'intent_id' => 0,
+						'dialog_id' => 0,
+						'pushed_to_watson' => 0,
+					]);
+				} 
+                return new JsonResponse(['status' => 1, 'data' => $request->name, 'message' => 'Category updated successfully']);
+            } else {
+                ReplyCategory::create([
+                    'name' => $request->reply,
+                    'parent_id' => $request->category_id,
+                ]);
+                return new JsonResponse(['status' => 1, 'data' => $request->reply, 'message' => 'Category added successfully']);
+            }
+        } catch (\Exception $e) {
+            return new JsonResponse(['status' => 0, 'message' => 'Try again']);
+        }
+    }
 
 }

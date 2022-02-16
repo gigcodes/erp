@@ -220,6 +220,8 @@ class CategoryController extends Controller
 
         $parent_id = $category_instance->parent_id;
 
+        $categoryTree[]    = $category_instance->title;
+
         while ($parent_id != 0) {
 
             $category_instance = $category->find($parent_id);
@@ -487,8 +489,13 @@ class CategoryController extends Controller
 
         if ($q) {
             // check the type and then
-            $q        = '"' . $q . '"';
-            $products = \App\ScrapedProducts::where("properties", "like", '%' . $q . '%')->latest()->limit(5)->get();
+           // $q        = '"' . $q . '"';
+            $q        =  str_replace('/', ',', $q);
+            $products = \App\ScrapedProducts::where("categories", $q)->join("products as p","p.id","scraped_products.product_id")
+			->where("p.stock",">",0)->groupBy('website')
+            ->select("scraped_products.*")
+            ->orderBy("scraped_products.created_at","desc")
+            ->get();
 
             $view = (string) view("compositions.preview-products", compact('products'));
             return response()->json(["code" => 200, "html" => $view]);
@@ -556,6 +563,14 @@ class CategoryController extends Controller
             'user_id'        => \Auth::user()->id,
         ]);
 
+        \App\UserUpdatedAttributeHistory::create([
+            'old_value'      => $scrappedCategory->id,
+            'new_value'      => $selectedCategory->id,
+            'attribute_name' => 'scraped-category',
+            'attribute_id'   => $scrappedCategory->id,
+            'user_id'        => \Auth::user()->id,
+        ]);
+
         $scrappedCategory->update([
             'category_id' => $selectedCategory->id,
             'is_skip' => 1
@@ -589,6 +604,14 @@ class CategoryController extends Controller
                 'user_id'        => $loggedUser->id,
             ]);
 
+            \App\UserUpdatedAttributeHistory::create([
+                'old_value'      => $scrappedCategory->id,
+                'new_value'      => $selectedCategory->id,
+                'attribute_name' => 'scraped-category',
+                'attribute_id'   => $scrappedCategory->id,
+                'user_id'        => $loeggedUser->id,
+            ]);
+
             ScrappedCategoryMapping::where('id', $scrappedCategory->id)->update([
                 'category_id' => $selectedCategory->id,
                 'is_skip' => 1
@@ -604,20 +627,35 @@ class CategoryController extends Controller
 
     public function newCategoryReferenceIndex(Request $request)
     {
+        $users=[];
         $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
 
-        $scrapped_category_mapping = ScrappedCategoryMapping::whereNull('category_id')
-        ->selectRaw('scrapped_category_mappings.*, COUNT(scrapped_product_category_mappings.category_mapping_id) as total_products')
+        $scrapped_category_mapping = ScrappedCategoryMapping::selectRaw('scrapped_category_mappings.*, COUNT(scrapped_product_category_mappings.category_mapping_id) as total_products')
         ->leftJoin('scrapped_product_category_mappings', 'scrapped_category_mappings.id', '=', 'scrapped_product_category_mappings.category_mapping_id')
         ->groupBy('scrapped_category_mappings.id')
-        ->orderBy('total_products', 'DESC');
-
+        ->groupBy('scrapped_category_mappings.name')
+        ->orderBy('total_products', 'DESC')
+        ->orderBy('is_skip', 'ASC');
 
         if($request->search){
             $scrapped_category_mapping->where('name', 'LIKE', '%'.$request->search.'%');
         }
 
+        if(isset($request->is_skipped)) {
+            $scrapped_category_mapping->where('is_skip', $request->is_skipped);
+        }
+        if ($request->user_id != null) {
+            $matchedArray= \App\UserUpdatedAttributeHistory::where([
+                'attribute_name' => 'scraped-category',
+                'user_id'        => $request->user_id,
+            ])->pluck('attribute_id');
+            $scrapped_category_mapping = $scrapped_category_mapping->whereIn('scrapped_category_mappings.id', $matchedArray);
+            $users=\App\User::where("id",$request->user_id)->select(['id','name'])->first();
+
+        }
         $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
+
+        //dd($scrapped_category_mapping);
 
         $mappingCategory = $scrapped_category_mapping->toArray();
 
@@ -660,7 +698,7 @@ class CategoryController extends Controller
             }
         }
 
-        return view('category.new-reference', ['categoryAll' => $categoryArray, 'need_to_skip_status' =>  true, 'unKnownCategoryId' => $unKnownCategory->id ,'scrapped_category_mapping' => $scrapped_category_mapping]);
+        return view('category.new-reference', ['categoryAll' => $categoryArray, 'need_to_skip_status' =>  true, 'unKnownCategoryId' => $unKnownCategory->id ,'scrapped_category_mapping' => $scrapped_category_mapping,'users'=>$users]);
 
     }
 
@@ -682,8 +720,24 @@ class CategoryController extends Controller
 
     public function history(Request $request, $id)
     {
-        $records = \App\UserUpdatedAttributeHistory::where("attribute_id", $id)->where("attribute_name", "category")->latest()->get();
+        $type = $request->get("type","category");
+        $records = \App\UserUpdatedAttributeHistory::where("attribute_id", $id)->where("attribute_name", $type)->latest()->get();
         return view("compositions.partials.show-update-history", compact('records'));
+    }
+
+    public function historyForScraper(Request $request, $id)
+    {
+        $type = $request->get("type","category");
+        $records = \App\UserUpdatedAttributeHistory::where("attribute_id", $id)->where("attribute_name", $type)->latest()->get();
+        dd($records);
+        return view("compositions.partials.show-update-history-scrapeed", compact('records'));
+    }
+
+    public function ScraperUserHistory(Request $request)
+    {
+        $type = 'scraped-category';
+        $records = \App\UserUpdatedAttributeHistory::where("attribute_id", $request->id)->where("attribute_name", $request->type)->latest()->get();
+        return view("compositions.partials.show-update-history-scrapeed", compact('records'));
     }
 
     public function deleteUnused()
@@ -784,6 +838,15 @@ class CategoryController extends Controller
                         'user_id'        => $loeggedUser->id,
                     ]);
 
+                    \App\UserUpdatedAttributeHistory::create([
+                        'old_value'      => $scrappedCategory->id,
+                        'new_value'      => $selectedCategory->id,
+                        'attribute_name' => 'scraped-category',
+                        'attribute_id'   => $scrappedCategory->id,
+                        'user_id'        => $loeggedUser->id,
+                    ]);
+
+
                   $isUpdtaed =   $scrappedCategory->update([
                         'category_id' => $selectedCategory->id,
                         'is_skip' => 1,
@@ -834,6 +897,14 @@ class CategoryController extends Controller
                         'new_value'      => $selectedCategory->id,
                         'attribute_name' => 'category',
                         'attribute_id'   => $selectedCategory->id,
+                        'user_id'        => $loeggedUser->id,
+                    ]);
+
+                    \App\UserUpdatedAttributeHistory::create([
+                        'old_value'      => $scrappedCategory->id,
+                        'new_value'      => $selectedCategory->id,
+                        'attribute_name' => 'scraped-category',
+                        'attribute_id'   => $scrappedCategory->id,
                         'user_id'        => $loeggedUser->id,
                     ]);
 
@@ -1030,5 +1101,57 @@ class CategoryController extends Controller
         }else{
             return response()->json(["code" => 500 , "message" => "Category not found"]);
         }
+    }
+
+    /**
+     * copy data from One category To Another.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function storeCopyCategory(Request $request)
+    {
+        $sourceCategoryId = $request->sourceCategoryId;
+        $targetCategoryId = $request->targetCategoryId;
+
+        $categories     = Category::where('parent_id',$sourceCategoryId)->orderBy('title')->get();
+       
+        $data = [];
+        
+        if($categories){
+            foreach($categories as $category){
+                $data['child'][$category->id] = $category->toArray();
+                $insert_array = $category->toArray();
+                $insert_array['parent_id'] = $targetCategoryId;
+                $insert_array['magento_id'] = 0;
+                unset($insert_array['id']);
+                $pid = Category::insertGetId($insert_array);
+                $data['child'][$category->id]['child'] = $this->getChildData($category->id, $pid); 
+            }
+        }
+        return redirect()->route('category')
+                ->with('success-remove', 'Data Copyied Successfully');
+    }
+
+    /**
+     * find child data from parent.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getChildData($parentId, $pid)
+    {
+        $categories  = Category::where('parent_id',$parentId)->orderBy('title')->get();
+        $data = [];
+        if($categories){
+            foreach($categories as $category){
+                $data[$category->id] = $category->toArray();
+                $insert_array = $category->toArray();
+                $insert_array['parent_id'] = $pid;
+                $insert_array['magento_id'] = 0;
+                unset($insert_array['id']);
+                $newpid = Category::insertGetId($insert_array);
+                $data[$category->id]['child'] = $this->getChildData($category->id, $newpid);
+            } 
+        }
+        return $data;
     }
 }

@@ -108,6 +108,11 @@ class Brand extends Model
         return $this->hasMany( DeveloperTask::class, 'brand_id', 'id' );
     }
 
+    public function singleBrandTask()
+    {
+        return $this->hasOne( DeveloperTask::class, 'brand_id', 'id' )->latest();
+    }
+
     public function products()
     {
         return $this->hasMany( Product::class, 'brand', 'id' );
@@ -154,6 +159,16 @@ class Brand extends Model
         }else{
             return '';
         }
+    }
+
+    public function productCountInExternalScraper()
+    {
+        return \App\Product::where("brand",$this->id)->where("status",\App\Helpers\StatusHelper::$requestForExternalScraper)->count();
+    }
+
+    public function productFromExternalScraper()
+    {
+        return \App\ScrapedProducts::where("brand_id",$this->id)->where("is_external_scraper",">",0)->count();
     }
 
     // public function categorySegment()

@@ -3,19 +3,30 @@
 @section('title', 'Magento Settings')
 
 @section('content')
-
-<div class="row">
-    <div class="col-12">
+<div class="row m-0">
+    <div class="col-12 p-0">
+<style>
+div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
+</style>
         <h2 class="page-heading">Magento Settings</h2>
     </div>
-
-     <div class="row">
-         <div class="col-lg-12 margin-tb mb-3 ml-4">
+    @if($errors->any())
+        <div class="row m-2">
+          {!! implode('', $errors->all('<div class="alert alert-danger">:message</div>')) !!}
+        </div>
+    @endif
+    @if (session('success'))
+        <div class="row m-2">
+          <div class="alert alert-success">{{session('success')}}</div>
+        </div>
+    @endif
+     <div class="row m-0">
+         <div class="col-lg-12 margin-tb pl-3">
              <?php $base_url = URL::to('/');?> 
              <div class="pull-left cls_filter_box">
                  <form class="form-inline" action="{{ route('magento.setting.index') }}" method="GET"> 
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;"> 
-                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#add-setting-popup">ADD Setting</button>
+                    <div class="form-group cls_filter_inputbox" >
+                        <button style="color: #999999;border:1px solid #ddd;" type="button" class="btn btn-default" data-toggle="modal" data-target="#add-setting-popup">ADD Setting</button>
                     </div>  
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                        <select class="form-control select2" name="scope" data-placeholder="scope">
@@ -26,7 +37,7 @@
                        </select>
                     </div> 
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                       <select class="form-control websites select2" name="website" data-placeholder="website">
+                       <select class="form-control websites select2" name="website" data-placeholder="website" style="width: 100px !important;">
                            <option value=""></option>
                            @foreach($storeWebsites as $w)
                                <option value="{{ $w->id }}" {{ request('website') && request('website') == $w->id ? 'selected' : '' }}>{{ $w->website }}</option>
@@ -34,32 +45,61 @@
                        </select>
                     </div>  
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                       <input class="form-control" name="name" placeholder="name" value="{{ request('name')  ? request('name') : '' }}">
+                       <input class="form-control" name="name" placeholder="name" value="{{ request('name')  ? request('name') : '' }}" style="width: 162px!important;">
                           
                     </div>  
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                       <input class="form-control" name="path" placeholder="path"  value="{{ request('path')  ? request('path') : '' }}">
-                          
+                       <input class="form-control" name="path" placeholder="path"  value="{{ request('path')  ? request('path') : '' }}"style="width: 160px!important;">
                     </div> 
                      <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                         <a href="{{ route('magento.setting.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
-                        <button type="submit" style="" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+                        <button type="submit" style="" class="btn btn-image pl-0"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
                      </div> 
                  </form>
+				{{Form::open(array('url'=>route('magento.setting.pushMagentoSettings'), 'class'=>'form-inline'))}}
+					<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+						<select class="form-control websites select2" name="store_website_id" data-placeholder="website" style="width:100px !important;">
+                           <option value=""></option>
+                           @foreach($storeWebsites as $w)
+                               <option value="{{ $w->id }}" {{ request('website') && request('website') == $w->id ? 'selected' : '' }}>{{ $w->website }}</option>
+                           @endforeach
+                        </select>
+					</div> 
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                        <button type="submit" style="" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+                    </div> 
+					<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;"> 
+                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#push_logs">Sync Logs</button>
+                    </div>
+                    <div class="pull-left cls_filter_box">
+                {{Form::open(array('url'=>route('magento.setting.updateViaFile'), 'class'=>'form-inline','files' => true))}}
+                    <div class="form-group ml-3 mt-2 cls_filter_inputbox" style="margin-left: 10px;">
+                        <?php echo Form::file('file'); ?>
+                    </div> 
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;"> 
+                        <button type="submit" onclick="confirm('Are you sure you want to update setting ?')" class="btn btn-default">Start sync</button>
+                    </div>
+                </form>
+				</form>		
+				
+             </div>
+         </div> 
+
+        
              </div>
          </div> 
      </div>
 
-    <div class="col-12 mb-3">
+    <div class="col-12 mb-3 mt-3 p-0">
 
         <div class="pull-left"></div>
         <div class="pull-right"></div>
-        <div class="col-12">
+        <div class="col-12 pl-3 pr-3">
             <div class="table-responsive">
-                <table class="table table-bordered">
+                  <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th style="display:block;">ID</th>
                             <th>Website</th>
                             <th>Store</th>
                             <th>Store View</th>
@@ -67,44 +107,63 @@
                             <th>Name</th>
                             <th>Path</th>
                             <th>Value</th>
+                            <th style="width:6% !important;">Value On Magento</th>
                             <th>Date</th>
+                            <th>Status</th>
                             <th>Created By</th>
+							<th>Data Type</th>
                             <th>Action</th>
                         </tr>
                     </thead>
 
                     <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
-                        @foreach ($magentoSettings as $magentoSetting)
+                        @foreach ($magentoSettings as $magentoSetting) 
                             <tr>
                                 <td>{{ $magentoSetting->id }}</td>
 
                                 @if($magentoSetting->scope === 'default')
 
-                                        <td>{{ $magentoSetting->website->website }}</td>
-                                        <td>-</td>
-                                        <td>-</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->website->website; ?>')" >{{  substr($magentoSetting->website->website, 0,10) }} @if(strlen($magentoSetting->website->website) > 10) ... @endif</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal(' ')" >-</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal(' ')" >-</td>
 
                                 @elseif($magentoSetting->scope === 'websites')
                                 
-                                        <td>{{ $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : '-' }}</td>
-                                        <td>{{ $magentoSetting->store->website->name }}</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : '-' ; ?>')" >
+                                            {{ $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : '-' }} ...
+                                        </td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->store->website->name; ?>')" >{{ substr($magentoSetting->store->website->name, 0,10) }} @if(strlen($magentoSetting->store->website->name) > 10) ... @endif</td>
                                         <td>-</td>
                                         
-                                @else
+                                @else 
                                         <td>{{ $magentoSetting->storeview && $magentoSetting->storeview->websiteStore && $magentoSetting->storeview->websiteStore->website && $magentoSetting->storeview->websiteStore->website->storeWebsite ? $magentoSetting->storeview->websiteStore->website->storeWebsite->website : '-' }}</td>
-                                        <td>{{ $magentoSetting->storeview && $magentoSetting->storeview->websiteStore ? $magentoSetting->storeview->websiteStore->name : '-' }}</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('{{$magentoSetting->storeview && $magentoSetting->storeview->websiteStore ? $magentoSetting->storeview->websiteStore->name : '-'}}')" >  {{   substr($magentoSetting->storeview && $magentoSetting->storeview->websiteStore ? $magentoSetting->storeview->websiteStore->name : '-', 0,10) }}</td>
                                         <td>{{ $magentoSetting->storeview->code }}</td>
                                 @endif
 
                                 <td>{{ $magentoSetting->scope }}</td>
-                                <td>{{ $magentoSetting->name }}</td>
-                                <td>{{ $magentoSetting->path }}</td>
-                                <td>{{ $magentoSetting->value }}</td>
-                                <td>{{ $magentoSetting->created_at }}</td>
+                                <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->name ; ?>')" >{{ substr($magentoSetting->name,0,12) }} @if(strlen($magentoSetting->name) > 12) ... @endif</td>
+
+                                <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->path ; ?>')" >{{ substr($magentoSetting->path,0,12) }} @if(strlen($magentoSetting->path) > 12) ... @endif</td>
+
+                                <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->value ; ?>')" >{{ substr($magentoSetting->value,0,12) }} @if(strlen($magentoSetting->value) > 12) ... @endif</td>
+
+                                <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php if(isset($newValues[$magentoSetting['id']])) {echo  $newValues[$magentoSetting['id']];   } ?>')">
+
+
+                                    @if(isset($newValues[$magentoSetting['id']])) {{ substr( $newValues[$magentoSetting['id']], 0,10) }} @if(strlen($newValues[$magentoSetting['id']]) > 10) ... @endif @endif
+
+
+                                </td>
+
+                                <td>{{ $magentoSetting->created_at->format('Y-m-d') }}</td>
+                                <td>{{ $magentoSetting->status }}</td>
                                 <td>{{ $magentoSetting->uname }}</td>
+								<td>{{ $magentoSetting->data_type }}</td>
                                 <td>
-                                    <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
-                                    <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting" ><img src="/images/delete.png"></button>
+                                    <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting p-0" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
+                                    <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting p-0" ><img src="/images/delete.png"></button>
+                                    <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image push_logs p-0" ><i class="fa fa-eye"></i></button>
                                 </td>
                             </tr>
                         @endforeach
@@ -165,14 +224,15 @@
                     </div>
                     
                     <div class="form-group d-none website_store_form">
-                        <label for="">Website Store </label><br>
-                        <select class="form-control website_store select2" name="website_store[]" data-placeholder="Select setting website store" style="width: 100%">
-                        </select>
+                        <label for="">Website Store  </label><br>
+                        <select class="form-control website_store select2 " name="website_store[]" multiple data-placeholder="Select setting website store" style="width: 100%">
+							
+					   </select>
                     </div>       
 
                     <div class="form-group d-none website_store_view_form">
                         <label for="">Website Store View</label><br>
-                        <select class="form-control website_store_view select2" name="website_store_view[]" data-placeholder="Select setting website store view" style="width: 100%">
+                        <select class="form-control website_store_view select2" name="website_store_view[]"  data-placeholder="Select setting website store view" style="width: 100%">
                         </select>
                     </div>                       
                     
@@ -199,7 +259,14 @@
                                 <option value="{{ $w->id }}">{{ $w->website }}</option>
                             @endforeach
                         </select>
-                    </div>    
+                    </div> 
+					<div class="form-group">
+						<label for="">Data Type</label><br>
+                        <input type="radio" name="datatype" id="sensitive" value="sensitive" checked>
+                        <label for="sensitive">sensitive</label><br>
+                        <input type="radio" name="datatype" id="shared" value="shared">
+                        <label for="shared">Shared</label><br>
+                    </div>
                         
                 </div>
                 <div class="modal-footer">
@@ -255,16 +322,7 @@
                         <label for="">Value</label>
                         <input type="text" class="form-control" name="value" placeholder="Enter setting value">
                     </div>
-                    <div class="form-group">
-                        <label for="git_repository">Github Repository</label><br>
-                        <select class="form-control" name="git_repository" data-placeholder="Select github repository" style="width: 100%">
-                            @php $i=0;  @endphp
-                            @foreach(\App\Github\GithubRepository::all() as $w)
-                            <option value="{{ $w->name }}" @if($i==0) selected @endif >{{ $w->name }}</option>
-                                @php $i+=1; @endphp
-                            @endforeach
-                        </select>                        
-                    </div>
+                   
                     <div class="form-group">
                         <label for="">Websites (This setting will apply to following websites)</label><br>
                         <select class="form-control website select2 websites" name="websites[]" multiple data-placeholder="Select setting websites" style="width: 100%">
@@ -282,6 +340,13 @@
                         <input type="checkbox" name="live" id="live" checked>
                         <label for="live">Live</label>
                     </div>
+					<div class="form-group">
+						<label for="">Data Type</label><br>
+                        <input type="radio" name="datatype" id="sensitive" value="sensitive" checked>
+                        <label for="sensitive">Sensitive</label><br>
+                        <input type="radio" name="datatype" id="shared" value="shared">
+                        <label for="shared">Shared</label><br>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -293,8 +358,9 @@
 </div>
 
 <div id="namepopup" class="modal fade" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
+    <!-- <div class="modal-dialog for-name-history" role="document" style="margin-right: 50%;"> -->
+    <div class="modal-dialog for-name-history" role="document" style="margin-right: 50%;">
+        <div class="modal-content" style="width: fit-content;" >
                 <div class="modal-header">
                     <h5 class="modal-title">Name History</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -314,7 +380,84 @@
         </div>
     </div>
 </div>
+<div id="push_logs" class="modal fade" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Sync Logs</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                    <table class="table table-bordered">
+						<thead>
+							<tr>
+								<th>Website </th>
+								<th>Synced on</th>
+							</tr>
+						</thead>
+						<tbody>
+						@foreach($pushLogs as $pushLog)
+							<tr>
+								<td>{{$pushLog['website']}}</td>
+								<td>{{$pushLog['created_at'] }}</td>
+							</tr>
+						@endforeach
+						</tbody>
+					</table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                   
+                </div>
+          
+        </div>
+    </div>
+</div>
 
+<div id="viewMore" class="modal fade" role="dialog">
+    <div class="modal-dialog  modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">View More</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <p><span id="more-content"></span> </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="settingsPushLogsModal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Magento Push Logs</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			  <div class="modal-body">
+				<div class="table-responsive mt-3">
+				  <table class="table table-bordered"style="table-layout: fixed;">
+					<thead>
+					  <tr>
+						<th width="10%">Date</th>
+						<th width="20%">Command</th>
+                        <th width="25%">Status</th>
+						<th width="25%">Command Output</th>
+					  </tr>
+					</thead>
+					<tbody id="settingsPushLogs">
+
+					</tbody>
+				  </table>
+				</div>
+			  </div>    
+		</div>
+	</div>
+</div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
 50% 50% no-repeat;display:none;"></div>
 @endsection
@@ -379,6 +522,17 @@
 
         return false;
     });
+	
+	$(document).on('click', '.push_logs', function(e) { 
+		var settingId = $(this).data('id');
+		$.ajax({
+          url: 'magento-admin-settings/pushLogs/'+ $(this).data('id'),
+          success: function (data) { console.log(data);
+            $('#settingsPushLogs').html(data);
+            $('#settingsPushLogsModal').modal('show');
+          },
+        });
+	});
 
     $(document).on('click', '.edit-setting', function(e) { 
         $('.edit-magento-setting-form select[name="websites"]').val('');
@@ -512,12 +666,16 @@
                 html += `<option value="${value.id}">${value.name}</option>`
             }) 
             $('#add-setting-popup .website_store').append(html);
+			$('#add-setting-popup .website_store').attr('multiple','multiple');
             $('#add-setting-popup .website_store').select2();
         }).fail(function() {
             console.log("error");
         });
     });
 
+    function opnModal(message){
+      $(document).find('#more-content').html(message);
+    }
 
     $(document).on('change', '#add-setting-popup .website_store', function(){
         var scope = $('#add-setting-popup .scope:checked').val(); 

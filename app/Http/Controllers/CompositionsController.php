@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Compositions;
 use Illuminate\Http\Request;
+use App\User;
 
 class CompositionsController extends Controller
 {
@@ -14,8 +15,10 @@ class CompositionsController extends Controller
      */
     public function index(Request $request)
     {
-        $matchedArray = [];
+        $users=$matchedArray = [];
         $compositions =Compositions::withCount('productCounts');
+
+        $users = User::query();
 
         if ($request->keyword != null) {
             //getting search results based on two words
@@ -42,6 +45,26 @@ class CompositionsController extends Controller
         if ($request->keyword != null) {
             $compositions = $compositions->whereIn('id', $matchedArray);
         }
+        if ($request->user_id != null) {
+            
+            if( $request->start_date  && $request->end_date ){
+                $matchedArray= \App\UserUpdatedAttributeHistory::where([
+                    'attribute_name' => 'compositions',
+                    'user_id'        => $request->user_id,
+                ])->whereBetween( 'created_at', [ $request->start_date, $request->end_date ] )->pluck('attribute_id');
+                $compositions = $compositions->whereIn('id', $matchedArray);
+                $users=\App\User::where("id",$request->user_id)->select(['id','name'])->first();
+
+            }else{
+                $matchedArray= \App\UserUpdatedAttributeHistory::where([
+                    'attribute_name' => 'compositions',
+                    'user_id'        => $request->user_id,
+                ])->pluck('attribute_id');
+                $compositions = $compositions->whereIn('id', $matchedArray);
+                $users=\App\User::where("id",$request->user_id)->select(['id','name'])->first();
+            }
+
+        }
 
         $listcompostions = Compositions::where('replace_with', '!=', '')->groupBy('replace_with')->pluck('replace_with', 'replace_with')->toArray();
 // dd($compositions->get());
@@ -54,7 +77,7 @@ class CompositionsController extends Controller
 //     dump($com->title);
 // }
 
-        if ($request->with_ref == 1) {
+        if ($request->with_ref == 1 || $request->user_id != null) {
             $compositions = $compositions->where(function ($q) use ($request) {
                 $q->orWhere('replace_with', "!=", '')->WhereNotNull('replace_with');
             });
@@ -63,12 +86,12 @@ class CompositionsController extends Controller
                 $q->orWhere('replace_with', '')->orWhereNull('replace_with');
             });
             
-            $compositions = $compositions->orderBy('product_counts_count', 'desc')->paginate(200);
         }
+        $compositions = $compositions->orderBy('product_counts_count', 'desc')->paginate(200);
 
 
-
-        return view('compositions.index', compact('compositions', 'listcompostions'));
+      //  dd($users);
+        return view('compositions.index', compact('compositions', 'listcompostions','users'));
     }
 
     /**

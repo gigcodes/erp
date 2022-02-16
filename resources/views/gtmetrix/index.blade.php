@@ -18,7 +18,7 @@
 
 @include('partials.flash_messages')
 <div class = "row">
-    <div class="col-md-10 margin-tb">
+    <div class="col-md-9 margin-tb">
         <div class="pull-left cls_filter_box">
             <form class="form-inline" action="" method="GET">
                 <div class="form-group ml-3 cls_filter_inputbox">
@@ -43,15 +43,29 @@
                 <div class="form-group ml-3 cls_filter_inputbox">
                     <input type="text" name="loc" class="form-control" value="{{request()->get('loc')}}" placeholder="Location">
                 </div> --}}
+ 
+
+                <div class="form-group ml-3 cls_filter_inputbox">
+                    <select name="sortby" class="form-control">
+                        <option disabled="true" selected="true" >Select Sorting</option>
+                        <option {{ (request('sortby') == 'desc') ? 'selected' : ''  }} value="desc">DESC</option>
+                        <option {{ (request('sortby') == 'asc') ? 'selected' : ''  }} value="asc">ASC</option>
+                    </select>
+                </div>
+
+
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
             </form> 
         </div>
     </div>  
-    <div class="col-md-2 margin-tb">
-        <div class="pull-right mt-3">
-        <button class="btn btn-secondary multi-run-test-btn btn-xs" onclick="checkCheckbox()" title="Run Test">
-            <i class="fa fa-play"></i>
+    <div class="col-md-3 margin-tb"style="margin-left:-20px">
+        <div class="pull-right">
+        <button class="btn multi-run-test-btn btn-xs text-dark" onclick="checkCheckbox()" title="Run Test">
+            <i class="fa fa-play" aria-hidden="true"></i>
         </button>
+        <button type="button" class="btn btn-secondary" btn="" btn-success="" btn-block="" btn-publish="" mt-0="" data-toggle="modal" data-target="#setCron" title="" data-id="1">
+                Add
+            </button>
             <button type="button" class="btn btn-secondary" btn="" btn-success="" btn-block="" btn-publish="" mt-0="" data-toggle="modal" data-target="#setSchedule" title="" data-id="1">Set cron time
                 @if ( $cronTime && !empty( $cronTime->val ))
                     ( <small> {{$cronTime->val}} </small> )
@@ -66,40 +80,118 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-lg-12 margin-tb">
+    <div class="col-lg-12 margin-tb p-5">
         <div class="panel-group" style="margin-bottom: 5px;">
             <div class="panel mt-3 panel-default">
-                <table class="table table-bordered table-striped table-responsive site-gtMetrix-data">
+                <table class="table table-bordered table-striped table-responsive site-gtMetrix-data"style="table-layout: fixed;display: table;">
                     <thead>
                         <tr>
-                            <th>Website</th>
-                            <th>Test id</th>
-                            <th>Status</th>
-                            <th>Error</th>
-                            <th>Report URL</th>
-                            <th>Html load time</th>
-                            <th>Html bytes</th>
-                            <th>Page load time</th>
-                            <th>Page bytes</th>
-                            <th>Page elements</th>
-                            <th>Pagespeed score</th>
-                            <th>Yslow score</th>
-                            <th style="width: 12%;">Resources</th>
-                            <th style="width: 7.5%;">Date</th>
-                            <th>PDF</th>
-                            <th style="width: 10.5%;">Action</th>
+                            @php
+                              $url=url('gtmetrix');
+                              $p='';
+                              if (isset($_GET['date']))
+                                 {
+                                     if ($p=='')
+                                       $p="?date=".$_GET['date'];
+                                     else
+                                        $p.= "&date=".$_GET['date']; 
+                                 }
+                                 if (isset($_GET['status']))
+                                 {
+                                     if ($p=='')
+                                       $p="?status=".$_GET['status'];
+                                     else
+                                        $p.= "&status=".$_GET['status']; 
+                                 } 
+                                 if (isset($_GET['keyword']))
+                                 {
+                                     if ($p=='')
+                                       $p="?keyword=".$_GET['keyword'];
+                                     else
+                                        $p.= "&keyword=".$_GET['keyword']; 
+                                 } 
+                                 
+                                 $ord1='';
+                                 if (isset($_GET['sortby']) && $_GET['sortby']=='pagespeed_score' && $_GET['ord']=='asc' )
+                                 {
+                                     if ($p=='')
+                                     $ord1="?sortby=pagespeed_score&ord=desc";
+                                     else
+                                     $ord1.= "&sortby=pagespeed_score&ord=desc"; 
+                                 }
+                                 else
+                                 {
+                                    if ($p=='')
+                                     $ord1="?sortby=pagespeed_score&ord=asc";
+                                     else
+                                     $ord1.= "&sortby=pagespeed_score&ord=asc"; 
+                                 }
+
+                                 $ord2='';
+                                 if (isset($_GET['sortby']) && $_GET['sortby']=='yslow_score' && $_GET['ord']=='asc' )
+                                 {
+                                     if ($p=='')
+                                     $ord2="?sortby=yslow_score&ord=desc";
+                                     else
+                                     $ord2.= "&sortby=yslow_score&ord=desc"; 
+                                 }
+                                 else
+                                 {
+                                    if ($p=='')
+                                     $ord2="?sortby=yslow_score&ord=asc";
+                                     else
+                                     $ord2.= "&sortby=yslow_score&ord=asc"; 
+                                 }
+                                 $url1=$url.$p.$ord1;
+                                 $url2=$url.$p.$ord2;
+
+                            @endphp
+                            <th width="1.5%">
+                                <input type="checkbox" onclick="selectAll();" />
+                            </th>
+                            <th width="4%">Website</th>
+                            <th width="4%">Test id</th>
+                            <th width="5%">Status</th>
+                            <th width="3%">Error</th>
+                            <th width="4%">Report</th>
+                            <th width="5%">HTML L T</th>
+                            <th width="4.5%">HTML BY</th>
+                            <th width="5%">PG LD TM</th>
+                            <th width="4%">PG BY</th>
+                            <th width="4%">PG ELE</th>
+                            <th width="5.5%">
+                                <a class="text-dark" href="{{$url1}}">PG SPD SC</a>
+                            </th>
+                            <th width="5%">
+                                <a class="text-dark" href="{{$url2}}">YSLOW SC</a>
+                            </th>
+                            <th width="3%">Rsrc</th>
+                            <th width="5%">Date</th>
+                            <th width="3%">PDF</th>
+                            <th width="9%">Action</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
                         @foreach ($list as $key)
                         
                             <tr>
-                            
-                                <td> <input type="checkbox" name ="multi-run-test-type" class= "multi-run-test" value ="{{ $key->id }}"><a href="{{ $key->website_url }}" target="_blank" title="Goto website"> {{ !empty($key->website_url) ? $key->website_url : $key->store_view_id }} </a></td>
+                                <td>
+                                    <input type="checkbox" name ="multi-run-test-type" class= "multi-run-test" value ="{{ $key->id }}">
+                                </td>
+                                <td class="Website-task">
+                                    <a class="text-dark" href="{{ $key->website_url }}" target="_blank" title="Goto website"> {{ !empty($key->website_url) ? $key->website_url : $key->store_view_id }} </a>
+                                </td>
                                 <td>{{ $key->test_id }}</td>
                                 <td>{{ $key->status }}</td>
-                                <td>{{ $key->error }}</td>
-                                <td><a href="{{$key->report_url}}" target="_blank" title="Show report"> Report </a></td>
+                                
+                                <td class="expand-row-msg" data-name="error" data-id="{{$key->id}}">
+                                    <span class="show-short-error-{{$key->id}}">{{ str_limit($key->error, 35, '...')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-error-{{$key->id}} hidden">{{$key->error}}</span>
+                                </td>
+                                
+                                <td>
+                                    <a class="text-dark" href="{{$key->report_url}}" target="_blank" title="Show report"> Report </a>
+                                </td>
                                 <td>{{ $key->html_load_time }}</td>
                                 <td>{{ $key->html_bytes }}</td>
                                 <td>{{ $key->page_load_time }}</td>
@@ -118,24 +210,35 @@
                                      --
                                     @endif
                                     
-                                <td>{{ $key->created_at }}</td>
-                                <td><a target="__blank" href="{{url('/')}}{{ $key->pdf_file }}"> {{ !empty($key->pdf_file) ? 'Open' : 'N/A' }} </a></td>
-                                <td>  
-                                    <button class="btn btn-secondary show-history btn-xs" title="Show old history" data-url="{{ route('gtmetrix.history',[ 'id'=>$key->store_view_id ])}}">
-                                        <i class="fa fa-history"></i>
+                                <td class="Website-task" title="{{ $key->created_at }}">{{ $key->created_at }}</td>
+                                <td>
+                                    <a class="text-dark" target="__blank" href="{{url('/')}}{{ $key->pdf_file }}"> {{ !empty($key->pdf_file) ? 'Open' : 'N/A' }} </a>
+                                </td>
+                                <td class="action-column">  
+                                    <button class="btn show-history btn-xs text-dark" title="Show old history" data-url="{{ route('gtmetrix.web-hitstory',[ 'id'=>$key->website_url ])}}">
+                                        <i class="fa fa-history" aria-hidden="true"></i>
                                     </button>
-                                    <button class="btn btn-secondary run-test btn-xs" title="Run Test" data-id="{{ $key->id }}">
-                                        <i class="fa fa-play"></i>
+                                    <button class="btn run-test btn-xs text-dark" title="Run Test" data-id="{{ $key->id }}">
+                                        <i class="fa fa-play" aria-hidden="true"></i>
                                     </button>
+
+                                    <a style="padding:1px;" class="btn d-inline btn-image active-task" href="#" data-id="{{$key->id}}" title="task status" data-active="{{$key->flag}}">
+                                    @if($key->flag == 1 || $key->flag == '')
+                                      <img src="/images/flagged-green.png"  style="cursor: pointer; width: 0px;">
+                                    @else
+                                      <img src="/images/flagged.png"  style="cursor: pointer; width: 0px;">
+                                    @endif
+                                    </a>
+
                                     @if ($key->status == "completed")
-                                        <button class="btn btn-secondary show-pagespeed btn-xs" title="Show Pagespeed Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>'pagespeed','id'=>$key->test_id])}}" data-type="pagespeed">
-                                            <i class="fa fa-tachometer"></i>
+                                        <button class="btn show-pagespeed btn-xs text-dark" title="Show Pagespeed Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>'pagespeed','id'=>$key->test_id])}}" data-type="pagespeed">
+                                            <i class="fa fa-tachometer" aria-hidden="true"></i>
                                         </button>
-                                        <button class="btn btn-secondary show-pagespeed btn-xs" title="Show Yslow Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>'yslow','id'=>$key->test_id])}}">
-                                            <i class="fa fa-compass"></i>
+                                        <button class="btn show-pagespeed btn-xs text-dark" title="Show Yslow Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>'yslow','id'=>$key->test_id])}}">
+                                            <i class="fa fa-compass" aria-hidden="true"></i>
                                         </button>
-                                        <button class="btn btn-secondary show-comparison btn-xs" title="Show comparison" data-url="{{ route('gtmetrix.getstatsCmp',['id'=>$key->test_id])}}">
-                                        <i class="fa fa-balance-scale"></i>
+                                        <button class="btn show-comparison btn-xs text-dark" title="Show comparison" data-url="{{ route('gtmetrix.getstatsCmp',['id'=>$key->test_id])}}">
+                                        <i class="fa fa-balance-scale" aria-hidden="true"></i>
                                         </button>
                                     @endif
                                 </td>
@@ -143,9 +246,15 @@
                         @endforeach
                     </tbody>
                 </table>
+<!-- 
+                <td colspan="12">
+                    {{ $list->links() }}
+                </td> -->
             </div>
         </div>
-        {{ $list->links() }}
+        <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
+
+       
     </div>
 </div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
@@ -179,10 +288,22 @@
 </div>
 
 @include('gtmetrix.setSchedule')
+@include('gtmetrix.setCron')
 @endsection
     
 @section('scripts')
 <script>
+
+$(document).on('click', '.expand-row-msg', function () {
+    var name = $(this).data('name');
+    var id = $(this).data('id');
+    console.log(name);
+    var full = '.expand-row-msg .show-short-'+name+'-'+id;
+    var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+    $(full).toggleClass('hidden');
+    $(mini).toggleClass('hidden');
+  });
+
 
 //$(".site-gtmetrix-data tbody>tr").append("<input type='checkbox' />");
     function setactive(id){
@@ -223,7 +344,14 @@
             $('#loading-image').hide();
         });
     });
+    function selectAll() {
+        if ($('.multi-run-test').prop('checked')) {
+            $('.multi-run-test').prop('checked',false);
+        } else {
+            $('.multi-run-test').prop('checked',true);
+        }
 
+    }
     $(document).on('click', '.show-comparison', function(e){
         e.preventDefault();
         var url = $(this).data('url');
@@ -362,5 +490,96 @@
     };
 
 </script>
+
+<script>
+        
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+            
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
+                }
+            });
+
+            function loadMore() { 
+              if (isLoading)
+                    return;
+                isLoading = true;
+                var $loader = $('.infinite-scroll-products-loader');
+                page = page + 1;
+                const params = new URLSearchParams(window.location.search); 
+                keyword = params.get('keyword');
+                status = params.get('status');
+                date = params.get('date');
+                if(keyword == null) {
+                    keyword = '';
+                }
+                if(status == null || status == 'null') { 
+                    status = '';
+                }
+                if(date == null) {
+                    date = '';
+                }
+                 var url = "{{url('gtmetrix')}}?ajax=1&page="+page+"&date="+date+"&status="+status+"&keyword="+keyword;
+                
+                console.log(url);
+
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function (data) {
+                        $loader.hide();
+                        if('' === data.trim())
+                            return;
+                        $('.infinite-scroll-cashflow-inner').append(data);
+                        
+
+                        isLoading = false;
+                    },
+                    error: function () {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }            
+        });
+
+
+      $(document).on("click",".active-task",function(e) {
+        let flag = $(this).attr('data-active');
+        let id = $(this).attr('data-id');
+        $.ajax({
+            type: "POST",
+            url: "{{route('gtmetrix.toggle.flag')}}", 
+            data: {
+                flag: flag,id: id, _token: "{{ csrf_token() }}", 
+            }, 
+            
+            success: function (response) {
+                if(response.status){
+                    toastr['success'](response.message);
+                }else{
+                    toastr['error'](response.message);
+                }
+                setTimeout(function(){
+                    window.location.reload(1);
+                }, 1000);
+            },
+            error: function () {
+                toastr['error']('Something went wrong!');
+            }
+        });
+    });  
+
+       
+
+  </script>      
+
 
 @endsection

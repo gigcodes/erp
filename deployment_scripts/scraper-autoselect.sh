@@ -2,14 +2,15 @@
 ###  This script is used to autoselect scraper server which has maximum memory available and start scraper there
 
 ScriptDIR=`dirname "$0"`
-day=`date +%d`
+datetime=`date +%d%b%y-%H:%M`
 
-rm /tmp/scrap_* /opt/scrap_status
+rm /tmp/scrap_* /opt/scrap_status /tmp/chromimum_service
+echo "" > /opt/scrap_restart
 
 ####################    Get all running Scraper details in all servers #######
 function scraper_status
 {
-	for server in 0{1..6}
+	for server in 0{1..9} {10..10}
 	do
 	        ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep command|grep -v externalScraper|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$4}'" >> /opt/scrap_status 2>/dev/null
 	done
@@ -19,7 +20,7 @@ function scraper_status
 function scraper_memory
 {
 	rm /tmp/scrap_memory  > /dev/null
-	for server in 0{1..6}
+	for server in 0{1..9} {10..10}
 	do
 		Used_mem=`ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com 'free | grep Mem | awk '\''{print $3/$2 * 100.0}'\''' 2>/dev/null`
 		if [ -z $Used_mem ]
@@ -43,21 +44,41 @@ function scraper_restart_list
 			then
 				server=`echo $status|cut -d' ' -f1`
 				pid=`echo $status|cut -d' ' -f2`
-				ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "kill -9 $pid" < /dev/null
+				ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "pkill -9 -P $pid ; kill -9 $pid" < /dev/null
 				sed -i "/$scrap/d" /opt/scrap_status
-				echo "$scrap restart" >> /tmp/scrap_restart
+				echo "$scrap" |tee -a /tmp/scrap_restart |tee -a /opt/scrap_restart |tee -a /opt/scraper/scrap-start-$datetime
 			fi
 		else
 			scrapfile=`echo $scrap|cut -d'.' -f1`
 			logfile=`find /mnt/logs/ -mmin -720 -iname "$scrapfile-*.log"|wc -l`
 			if [ $logfile -eq 0 ]
 			then
-				echo "$scrap" >> /tmp/scrap_restart
+				echo "$scrap" |tee -a /tmp/scrap_restart|tee -a /opt/scraper/scrap-start-$datetime
 			fi
 		fi
 	done < $ScriptDIR/scraper-list.txt
 }
 	
+####################    Kill all chromium browser process which scrapers are not running #######
+function chromium_kill
+{
+	for server in 0{1..9} {10..10}
+	do
+	        ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep chromium|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$3}'" >> /tmp/chromimum_service 2>/dev/null
+	done
+
+	while read process
+	do
+		chromium_time=`echo $process|cut -d' ' -f3|cut -d'.' -f1`
+		if [ $chromium_time -gt 50 ]				### if chromium process running from more than 72 hrs
+		then
+			server=`echo $process|cut -d' ' -f1`
+			pid=`echo $process|cut -d' ' -f2`
+			ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "kill -9 $pid" < /dev/null
+		fi
+	done < /tmp/chromimum_service
+}
+
 ########### Restart Scraper #####
 function scraper_restart
 {
@@ -69,13 +90,18 @@ function scraper_restart
 		scraper=`echo $scraperjs|cut -d'.' -f1`
 		server=`cat /tmp/scrap_memory|sort -n -k2|head -n1|cut -d' ' -f1`
 		minmemory=`cat /tmp/scrap_memory|sort -n -k2|head -n1|cut -d' ' -f2|cut -d'.' -f1`
-		if [ $minmemory -gt 95 ]
+		if [ $minmemory -gt 75 ]
 		then
-			echo "No server has free memory more than 5%"
+			email=`sed -ne "/$scraperjs/,$ p" /tmp/scrap_restart|cut -d' ' -f1`
+			echo $email |mail -s "No Scraper server has free memory more than 25% so exiting script" sahilkataria.1989@gmail.com
+			echo $email |mail -s "No Scraper server has free memory more than 25% so exiting script" yogeshmordani@icloud.com 
+			echo "No server has free memory more than 10%"
+			chromium_kill
 			exit
 		fi
 		echo $server $scraper
-		ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "nohup node /root/scraper_nodejs/commands/completeScraps/$scraper.js &> /root/logs/$scraper-$day.log &" < /dev/null
+		scraperfile=`ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "find /root/scraper_nodejs/commands/completeScraps/ -iname $scraper.js" < /dev/null`
+		ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "nohup node $scraperfile &> /root/logs/$scraper-$datetime.log &" < /dev/null
 		if [ $? -eq 0 ]
 		then
 	                ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep $scraperjs|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$4}'" >> /opt/scrap_status 2>/dev/null < /dev/null 
@@ -83,11 +109,12 @@ function scraper_restart
 			day=`date +'%d'`
 			echo "$scraper s$server $date Processing-$scraper-$day-s$server" >> /opt/scrap_history
 		fi
-		echo "Wait for 30 Seconds before starting another scrapper"
-		sleep 30
+		echo "Wait for 60 Seconds before starting another scrapper"
+		sleep 60
 	done < /tmp/scrap_restart
 }
 
 scraper_status
 scraper_restart_list
 scraper_restart < /dev/null
+chromium_kill

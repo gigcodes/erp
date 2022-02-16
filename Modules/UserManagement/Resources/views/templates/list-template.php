@@ -29,11 +29,12 @@ a {
 		    <thead>
 		      <tr>
 		      	<th style="width:50px;">ID</th> 
-		      	<th style="width:150px;">User</th> 
-				<th style="width:80px;">TASKS</th>
-				<th style="width:80px">Yesterday hours</th>
-				<th style="width:80px">No Time est.</th>
-				<th style="width:80px;">Overdue task</th> 
+		      	<th style="width:120px;">User</th>
+				<th style="width:100px;">Sender Number</th> 
+				<th style="width:60px;">TASKS</th>
+				<th style="width:60px">Yesterday hours</th>
+				<th style="width:60px">No Time est.</th>
+				<th style="width:60px;">Overdue task</th> 
 				<th style="width:80px;">Last seen</th>
 				<th style="width:80px">Payment Due</th>
 				<th style="width:80px">Due date</th> 			
@@ -57,7 +58,19 @@ a {
 			      		</br>
 			      		S/F PX : {{if prop.fixed_price_user_or_job == 1}} Fixed price Job {{else prop.fixed_price_user_or_job == 2}} Hourly Per Task {{else prop.fixed_price_user_or_job == 3}} Salaried  {{/if}}
 					</td>
-					 
+					<td class="number">
+                        <select class="form-control ui-autocomplete-input whatsapp_number" data-user-id="{{:prop.id}}">
+                            <option>-- Select --</option>
+						
+						   <?php foreach ($whatsapp as $wp) {  $k=  $wp->number; ?>
+					      	<option  {{if prop.whatsapp_number == "<?php echo $k; ?>" }} selected='selected' {{/if}}  value="<?php echo $wp->number; ?>"><?php echo $wp->number; ?></option>
+										  
+					      			<?php } ?>
+
+						
+
+                        </select>
+                    </td>
 			        <td>
 						<a href="#" class="load-task-modal" data-id="{{:prop.id}}">{{:prop.pending_tasks}}/{{:prop.total_tasks}}</a>
 					</td>

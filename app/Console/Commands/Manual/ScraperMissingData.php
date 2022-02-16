@@ -71,7 +71,7 @@ class ScraperMissingData extends Command
             GROUP BY
                 website
         ";
-            $results = DB::select(DB::raw($sql));
+            $results = \DB::select(DB::raw($sql));
 
             if ($results !== null) {
                 echo "website;SKU;URL;Brand;Gender;Category;Title;Description;Color;Sizes;Dimension;Images;Size System;Currency;Price;Discounted Price;Is Sale\n";

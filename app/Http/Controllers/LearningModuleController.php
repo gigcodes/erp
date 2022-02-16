@@ -40,7 +40,7 @@ use App\Helpers\HubstaffTrait;
 
 class LearningModuleController extends Controller {
 
-	use hubstaffTrait;
+	use HubstaffTrait;
 
 	public function __construct() {
 		// $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));

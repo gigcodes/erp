@@ -57,6 +57,9 @@
         table tr td{
             word-wrap: break-word;
         }
+        div#chat-list-history.modal {
+            z-index: 99999999;
+        }
     </style>
 @endsection
 
@@ -484,6 +487,9 @@
                                 <button style="padding: 1px" data-id="{{ $supplier->id }}" type="button" class="btn btn-image d-inline get-tasks-remote" title="Task list">
                                      <i class="fa fa-tasks"></i>
                                 </button>
+                                <button style="padding: 1px" data-id="{{ $supplier->id }}" type="button" class="btn btn-image d-inline get-tasks-killed" title="Scraper killed histories">
+                                     <i class="fa fa-history"></i>
+                                </button>
                                 <button style="padding: 1px" data-id="{{ $supplier->id }}" type="button" class="btn btn-image d-inline get-position-history" title="Histories">
                                      <i class="fa fa-address-card"></i>
                                 </button>
@@ -676,6 +682,9 @@
                                         </button>
                                         <button style="padding: 3px" data-id="{{ $childSupplier->id }}" type="button" class="btn btn-image d-inline get-tasks-remote">
                                              <i class="fa fa-tasks"></i>
+                                        </button>
+                                        <button style="padding: 3px" data-id="{{ $childSupplier->id }}" type="button" class="btn btn-image d-inline get-tasks-killed">
+                                            <i class="fa fa-history"></i>
                                         </button>
                                         <button style="padding: 3px" data-id="{{ $childSupplier->id }}" type="button" class="btn btn-image d-inline get-position-history">
                                              <i class="fa fa-address-card"></i>
@@ -933,7 +942,7 @@
                 </div>
             </div>
       </div>
-      <div id="show-content-model-table" class="modal fade" role="dialog">
+      <div id="show-content-model-table" class="modal fade scrp-task-list" role="dialog">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -992,7 +1001,7 @@
 
       <!-- Modal -->
     <div class="modal fade" id="scrapper_process_log" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="">Scraper Process List</h5>
@@ -1007,6 +1016,7 @@
                             <th style="width:15%">No.</th>
                             <th style="width:40%">Scraper Name</th>
                             <th style="width:45%">Status</th>
+                            <th style="width:45%">Assign To </th>
                         </tr>
                     </thead>
                     <tbody class="ScraperProcess">
@@ -1027,9 +1037,31 @@
 @endsection
 
 @section('scripts')
+
     <script type="text/javascript" src="/js/bootstrap-datepicker.min.js"></script>
     <script src="/js/jquery-ui.js"></script>
+    @include('partials.script_developer_task')
+
     <script type="text/javascript">
+	
+	    function saveAssignedTo(fieldId, scrapperId) {
+			var assignedTo = $('#'+fieldId).val();
+			if(assignedTo == '') {
+				alert('Please select user.');
+				return false;
+			}
+			$.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{route('scrap.assign')}}",
+                    method: "POST",
+                    data: {scrapper_id: scrapperId, assigned_to: assignedTo},
+					success: function (response) {
+						toastr['success']('Scrapper assigned.');
+					},
+				});
+		}
 
         $(".total-info").html("({{$totalCountedUrl}})");
 
@@ -1064,44 +1096,7 @@
 
         });
 
-        $(document).on("click", ".delete_quick_comment-scrapp", function (e) {
-            var deleteAuto = $(this).closest(".d-flex").find(".quickComments").find("option:selected").val();
-            if (typeof deleteAuto != "undefined") {
-                $.ajax({
-                    headers: {
-                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                    },
-                    url: BASE_URL+"/scrap/statistics/reply/delete",
-                    dataType: "json",
-                    method: "POST",
-                    data: {id: deleteAuto}
-                }).done(function (data) {
-                    if (data.code == 200) {
-                        // $(".quickComment ")
-                        //     .find('option').not(':first').remove();
-
-                        $(".quickComment").each(function(){
-                        var selecto=  $(this)
-                            $(this).children("option").not(':first').each(function(){
-                            $(this).remove();
-
-
-                            });
-                            $.each(data.data, function (k, v) {
-                                $(selecto).append("<option  value='" + k + "'>" + v + "</option>");
-                            });
-                            $(selecto).select2({tags: true});
-                        });
-
-
-                    }
-
-                }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                    alert('No response from server');
-                });
-            }
-        });
-
+        
 
         $(".scrapers_status").select2();
 
@@ -1805,11 +1800,12 @@
 
         
 
-        $(document).on("click",".get-tasks-remote",function (e){
+        
+        $(document).on("click",".get-tasks-killed",function (e){
             e.preventDefault();
             var id = $(this).data("id");
             $.ajax({
-                url: '/scrap/task-list',
+                url: '/scrap/killed-list',
                 type: 'GET',
                 data: {id: id},
                 beforeSend: function () {
@@ -1818,7 +1814,7 @@
             }).done(function(response) {
                 $("#loading-image").hide();
                 var model  = $("#show-content-model-table");
-                model.find(".modal-title").html("Task List");
+                model.find(".modal-title").html("Scraper Killed Histories List");
                 model.find(".modal-body").html(response);
                 model.modal("show");
             }).fail(function() {
@@ -1874,75 +1870,7 @@
 
 
 
-        $(document).on("click",".btn-create-task",function (e){
-            e.preventDefault();
-            var $this = $(this).closest("form");
-            $.ajax({
-                url: $this.attr("action"),
-                type: $this.attr("method"),
-                data: $this.serialize(),
-                beforeSend: function () {
-                    $("#loading-image").show();
-                }
-            }).done(function(response) {
-                $("#loading-image").hide();
-                var model  = $("#show-content-model-table");
-                model.find(".modal-title").html("Task List");
-                model.find(".modal-body").html(response);
-            }).fail(function() {
-                $("#loading-image").hide();
-                alert('Please check laravel log for more information')
-            });
-        });
-
-
-        $(document).on("click",".scraper-log-details",function(e) {
-            var $this = $(this);
-            $.ajax({
-                type: 'GET',
-                url: '{{ route('scrap.log-details') }}',
-                data: {
-                    scrapper_id : $this.data("scrapper-id")
-                },
-                beforeSend: function () {
-                    $("#loading-image").show();
-                }
-            }).done(function(response) {
-                $("#loading-image").hide();
-                var model  = $("#show-content-model-table");
-                model.find(".modal-title").html("Log History");
-                model.find(".modal-body").html(response);
-                model.modal("show");
-            }).fail(function() {
-                $("#loading-image").hide();
-                alert('Please check laravel log for more information')
-            });
-        });
         
-
-        
-
-        $(document).on("click","#show-content-model-table li",function (e){
-            e.preventDefault();
-            var a = $(this).find("a");
-            if(typeof a != "undefined") {
-                $.ajax({
-                    url: a.attr("href"),
-                    type: 'GET',
-                    beforeSend: function () {
-                        $("#loading-image").show();
-                    }
-                }).done(function(response) {
-                     $("#loading-image").hide();
-                    var model  = $("#show-content-model-table");
-                    model.find(".modal-body").html(response);
-                }).fail(function() {
-                    $("#loading-image").hide();
-                    alert('Please check laravel log for more information')
-                });
-            }
-        });
-
         $(document).on("click",".flag-scraper",function (e){
             e.preventDefault();
             var flag = $(this).data("flag");
@@ -2004,49 +1932,7 @@
         });
 
 
-        $(document).on('click', '.send-message1', function () {
-            var thiss = $(this);
-            var data = new FormData();
-            var task = $(this).data('task-id');
-            var message = $("#messageid_"+task).val();
-            data.append("issue_id", task);
-            data.append("message", message);
-            data.append("status", 1);
-            data.append("sendTo", $(".send-message-number-"+task).val());
-
-            if (message.length > 0) {
-                if (!$(this).is(':disabled')) {
-                    $.ajax({
-                        url: BASE_URL+'/whatsapp/sendMessage/issue',
-                        type: 'POST',
-                        "dataType": 'json',           // what to expect back from the PHP script, if anything
-                        "cache": false,
-                        "contentType": false,
-                        "processData": false,
-                        "data": data,
-                        beforeSend: function () {
-                            $(thiss).attr('disabled', true);
-                            $("#loading-image").show();
-                        }
-                    }).done(function (response) {
-                        //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
-                        $("#message-chat-txt-"+task).html(response.message.message);
-                        $("#messageid_"+task).val('');
-                        $("#loading-image").hide();
-                        $(this).attr('disabled', false);
-                    }).fail(function (errObj) {
-                        $(this).attr('disabled', false);
-
-                        alert("Could not send message");
-                        console.log(errObj);
-                        $("#loading-image").hide();
-                    });
-                }
-            } else {
-                alert('Please enter a message first');
-            }
-        });
-
+       
         $(document).on("click",".toggle-title-box",function(ele) {
             var $this = $(this);
             if($this.hasClass("has-small")){

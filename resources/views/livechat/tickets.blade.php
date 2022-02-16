@@ -19,6 +19,7 @@
     .tickets>tbody>tr>td, .tickets>tbody>tr>th, .tickets>tfoot>tr>td, .tickets>tfoot>tr>th, .tickets>thead>tr>td, .tickets>thead>tr>th{
         padding: 6px !important;
     }
+
     .tickets .page-heading{
         font-size: 16px;
         text-align: left;
@@ -134,9 +135,9 @@
                             @endforeach
                         </select>
                     </div>
-                        
+
                     <div class="col-md-2 pl-3 pr-0">
-                        <?php echo Form::select("status_id",["" => "Select Status"] + \App\TicketStatuses::pluck("name","id")->toArray(),request('status_id'),["class" => "form-control globalSelect2", "id" => "status_id"]); ?>
+                        <?php echo Form::select("status_id", ["" => "Select Status"]+\App\TicketStatuses::pluck("name", "id")->toArray(), request('status_id'), ["class" => "form-control globalSelect2", "id" => "status_id"]); ?>
                     </div>
                     <div class="col-md-2 pl-3 pr-0">
                         <div class='input-group date' id='filter_date'>
@@ -147,7 +148,7 @@
                             </span>
                         </div>
                     </div>
-                
+
                     <div class="col-md-2 pl-3 pr-0">
                         <input name="term" type="text" class="form-control"
                                 value="{{ isset($term) ? $term : '' }}"
@@ -190,10 +191,10 @@
 
                 </div>
 
-               
-           
+
+
             </div>
-           
+
         </div>
 {{--        <div class="col-lg-12 margin-tb">--}}
 {{--            <div class="pull-right mt-3">--}}
@@ -203,29 +204,29 @@
 {{--        </div>--}}
     </div>
 
-    <div class="space-right infinite-scroll">
+    <div class="space-right infinite-scroll chat-list-table">
 
         <div class="table-responsive">
             <table class="table table-bordered" style="font-size: 14px;table-layout: fixed">
                 <thead>
                 <tr>
                     <th style="width: 2%;"></th>
-                    <th style="width: 3%;">#</th>
-                    <th style="width: 5%;">Tickit Id</th>
+                    <th style="width: 4%;">Id</th>
                     <th style="width: 5%;">Source</th>
-                    <th style="width: 7%;">Name</th>
-                    <th style="width: 7%;">Email</th>
-                    <th style="width: 6%;">Subject</th>
-                    <th style="width: 7%;">Message</th>
-                    <th style="width: 6%;">Assigned name</th>
+                    <th style="width: 5%;">Name</th>
+                    <th style="width: 5%;">Email</th>
+                    <th style="width: 5%;">Subject</th>
+                    <th style="width: 6%;">Message</th>
+                    <th style="width: 6%;">Asg name</th>
                     <th style="width: 5%;">Brand</th>
                     <th style="width: 5%;">Country</th>
-                    <th style="width: 5%;">Order no</th>
-                    <th style="width: 9%;">Phone no</th>
-                    <th style="width: 13%;">Message Box</th>
-                    <th style="width: 7%;">Status</th>
-                    <th style="width: 8%;">Created</th>
-                    <th style="width: 8%;">Action</th>
+                    <th style="width: 5%;">Ord no</th>
+                    <th style="width: 6%;">Ph no</th>
+                    <th style="width: 13%;">Msg Box</th>
+                    <th style="width: 13%;">Resolution Date</th>
+                    <th style="width: 6%;">Status</th>
+                    <th style="width: 5%;">Created</th>
+                    <th style="width: 12%;">Action</th>
                 </tr>
                 </thead>
                 <tbody id="content_data" class="infinite-scroll-pending-inner">
@@ -236,10 +237,12 @@
 
 
     </div>
-    
+
 
     @include('livechat.partials.model-email')
     @include('livechat.partials.model-assigned')
+    @include('livechat.partials.modal_ticket_send_option')
+    
 
 
     <div id="AddStatusModal" class="modal fade" role="dialog">
@@ -259,7 +262,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <strong>Status</strong>
-                            <input type="text" name="name"  class="form-control"  required> 
+                            <input type="text" name="name"  class="form-control"  required>
                         </div>
                     </div>
 
@@ -311,10 +314,90 @@
             </div>
         </div>
     </div>
-    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+
+    <div id="model_email" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width:1000px">
+            <div class="modal-content"  style="width:1000px">
+                <div class="modal-header">
+                    <h4 class="modal-title">Email</h4>
+                </div>
+                <div class="modal-body" id="model_email_txt">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
               50% 50% no-repeat;display:none;">
     </div>
 
+	 <div id="ticketsEmails" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h4 class="modal-title">Emails sent</h4>
+                    </div>
+                    <div class="modal-body" >
+						<div class="table-responsive" style="margin-top:20px;">
+							<table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
+								<thead>
+								  <tr>
+									<th>Bulk <br> Action</th>
+									<th>Date</th>
+									<th>Sender</th>
+									<th>Receiver</th>
+									<th>Mail <br> Type</th>
+									<th>Subject</th>
+									<th>Body</th>
+									<th>Status</th>
+									<th>Draft</th>
+									<th>Action</th>
+								  </tr>
+								</thead>
+								<tbody id="ticketEmailData">
+
+								</tbody>
+							  </table>
+						</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+            </div>
+        </div>
+    </div>
+<div id="viewMore" class="modal fade" role="dialog">
+    <div class="modal-dialog  modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">View More</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <p><span id="more-content"></span> </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="viewMail" class="modal fade" role="dialog">
+    <div class="modal-dialog  modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">View Email</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <p><strong>Subject : </strong> <span id="emailSubject"></span> </p>
+              <p><strong>Message : </strong> <span id="emailMsg"></span> </p>
+            </div>
+        </div>
+    </div>
+</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 @endsection
 
@@ -324,6 +407,29 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script type="text/javascript">
+function opnMsg(email) {
+      console.log(email);
+      $('#emailSubject').html(email.subject);
+      $('#emailMsg').html(email.message);
+
+      // Mark email as seen as soon as its opened
+      if(email.seen ==0 || email.seen=='0'){
+        // Mark email as read
+        var $this = $(this);
+            $.ajax({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+              url: '/email/'+email.id+'/mark-as-read',
+              type: 'put'
+            }).done( function(response) {
+
+            }).fail(function(errObj) {
+
+            });
+      }
+
+    }
 
         var page = 1;
         function getScrollTop() {
@@ -344,7 +450,39 @@
             );
         };
 
-
+		function showEmails(ticketId) {
+			$('#ticketEmailData').html('');
+		    $.get(window.location.origin+"/tickets/emails/"+ticketId, function(data, status){
+				$('#ticketEmailData').html(data);
+				$('#ticketsEmails').modal('show');
+		    });
+		}
+		function opnModal(message){
+		  $(document).find('#more-content').html(message);
+		}
+		$(document).on('click', '.resend-email-btn', function(e) {
+		    e.preventDefault();
+		    var $this = $(this);
+		    var type = $(this).data('type');
+			$.ajax({
+			  headers: {
+				  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			  },
+			  url: '/email/resendMail/'+$this.data("id"),
+			  type: 'post',
+			  data: {
+				type:type
+			  },
+				beforeSend: function () {
+					$("#loading-image").show();
+				},
+			}).done( function(response) {
+			  toastr['success'](response.message);
+			  $("#loading-image").hide();
+			}).fail(function(errObj) {
+			  $("#loading-image").hide();
+			});
+		});
         function loadMore(page) {
 
             var url = "/livechat/tickets?page="+page;
@@ -362,9 +500,9 @@
                         $('.infinite-scroll-products-loader').hide();
                     }
                     $('.globalSelect2').select2();
-                    
+
                     $('.infinite-scroll-products-loader').hide();
-                  
+
                     $('.infinite-scroll-pending-inner').append(data.tbody);
                 },
                 error: function () {
@@ -377,7 +515,7 @@
         $('#viewmore #contentview').html($(this).data('content'));
         $('#viewmore').modal("show");
     });
-        
+
 
    $(document).on('click', '.send-email-to-vender', function () {
 
@@ -394,7 +532,7 @@
 
     });
 
-        
+
    $('#filter_date').datetimepicker({
         format: 'YYYY-MM-DD'
     });
@@ -443,7 +581,7 @@
                 }).fail(function (jqXHR, ajaxOptions, thrownError) {
                     alert('No response from server');
                 });
-                
+
             }
 
     function resetSearch(){
@@ -539,7 +677,7 @@
             let id = task_id;
             let status = $(obj).val();
             let self = this;
-            
+
 
             $.ajax({
                 url: "{{ route('tickets.status.change')}}",
@@ -558,7 +696,107 @@
             });
         }
 
+        function changeDate(obj, ticket_id) {
+            let id = ticket_id;
+            let date = $(obj).val();
+            let self = this;
+
+            $.ajax({
+                url: "{{ route('tickets.date.change')}}",
+                method: "POST",
+                data: {
+                    id: id,
+                    date: date
+                },
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                success: function () {
+                    toastr["success"]("Date updated!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+        }
         $(document).on('click', '.send-message1', function () {
+           
+           var thiss = $(this);
+           var data = new FormData();
+           var ticket_id = $(this).data('ticketid');
+           var message = $("#messageid_"+ticket_id).val();
+           if(message!=""){
+               $("#message_confirm_text").html(message);
+               $("#confirm_ticket_id").val(ticket_id);
+               $("#confirm_message").val(message);
+               $("#confirm_status").val(1);
+               $("#confirmMessageModal").modal();
+           }
+       });
+       $(document).on('click', '.confirm-messge-button', function () {
+            var thiss = $(this);
+            var data = new FormData();
+        //    var ticket_id = $(this).data('ticketid');
+        //    var message = $("#messageid_"+ticket_id).val();
+            var ticket_id = $("#confirm_ticket_id").val();
+            var message = $("#confirm_message").val();
+            var status = $("#confirm_status").val();
+
+            data.append("ticket_id", ticket_id);
+            data.append("message", message);
+            data.append("status", 1);
+
+            var checkedValue = [];
+            var i=0;
+            $('.send_message_recepients:checked').each(function () {
+                checkedValue[i++] = $(this).val();
+            });   
+            data.append("send_ticket_options",checkedValue); 
+          //  alert(data);
+
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: BASE_URL+'/whatsapp/sendMessage/ticket',
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function (response) {
+                        //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
+                        $('#confirmMessageModal').modal('hide');
+                        if(message.length > 30)
+                        {
+                            var res_msg = message.substr(0, 27)+"...";
+                            $("#message-chat-txt-"+ticket_id).html(res_msg);
+                            $("#message-chat-fulltxt-"+ticket_id).html(message);
+                        }
+                        else
+                        {
+                            $("#message-chat-txt-"+ticket_id).html(message);
+                            $("#message-chat-fulltxt-"+ticket_id).html(message);
+                        }
+
+                        $("#messageid_"+ticket_id).val('');
+
+                        $(thiss).attr('disabled', false);
+                    }).fail(function (errObj) {
+                        $(thiss).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
+
+
+        $(document).on('click', '.send-message1_bk', function () {
             var thiss = $(this);
             var data = new FormData();
             var ticket_id = $(this).data('ticketid');
@@ -583,18 +821,18 @@
                         //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
                         if(message.length > 30)
                         {
-                            var res_msg = message.substr(0, 27)+"..."; 
+                            var res_msg = message.substr(0, 27)+"...";
                             $("#message-chat-txt-"+ticket_id).html(res_msg);
-                            $("#message-chat-fulltxt-"+ticket_id).html(message);    
+                            $("#message-chat-fulltxt-"+ticket_id).html(message);
                         }
                         else
                         {
-                            $("#message-chat-txt-"+ticket_id).html(message); 
-                            $("#message-chat-fulltxt-"+ticket_id).html(message);      
+                            $("#message-chat-txt-"+ticket_id).html(message);
+                            $("#message-chat-fulltxt-"+ticket_id).html(message);
                         }
-                        
+
                         $("#messageid_"+ticket_id).val('');
-                        
+
                         $(thiss).attr('disabled', false);
                     }).fail(function (errObj) {
                         $(thiss).attr('disabled', false);
@@ -649,14 +887,14 @@
                 $("#loading-image").hide();
                 toastr["error"]("Please select atleast 1 task!");
             }
-        });  
+        });
 
 </script>
 <script>
     $(document).on("click","#softdeletedata",function() {
-        
-       var id = $(this).data("id"); 
-       
+
+       var id = $(this).data("id");
+
        if(confirm('Do you really want to delete this record'))
        {
            $.ajax({
@@ -673,13 +911,44 @@
                toastr["success"](response.message);
                $("#loading-image").hide();
                location.reload();
-           
+
            }).fail(function (response) {
                $("#loading-image").hide();
-               
+
            });
        }
    });
+</script>
+<script>
+ function message_show(t)
+ {
+    $('#model_email_txt ').html($(t).data('content'));
+    $("#model_email").modal("show");
+ }
+
+  $(document).on('click', '.resend-email-btn', function(e) {
+      e.preventDefault();
+      var $this = $(this);
+      var type = $(this).data('type');
+        $.ajax({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: '/email/resendMail/'+$this.data("id"),
+          type: 'post',
+          data: {
+            type:type
+          },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done( function(response) {
+          toastr['success'](response.message);
+          $("#loading-image").hide();
+        }).fail(function(errObj) {
+          $("#loading-image").hide();
+        });
+    });
 </script>
 @endsection
 

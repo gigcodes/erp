@@ -334,7 +334,7 @@
 				</div>
 			</div>
 		{{/if}}
-			<h4>Dialog Section : </h4>
+			<h4>Dialog Section else: </h4>
 		<div class="form-row">
 		    <div class="form-group col-md-12">
 		      <select class="form-control search-dialog" name="title" id="keyword_search" placeholder="Enter your keyword" name="keyword" value="{{:data.name}}">
@@ -348,7 +348,7 @@
 		<h4>Store Website : </h4>
 			<div class="form-row">
 		    <div class="form-group col-md-12">
-		      <select class="form-control store_on_change" data-dialog={{:data.id}} name="store_website_id" placeholder="Enter your keyword">
+		      <select class="form-control store_on_change {{:data.store_website_id}}" data-dialog={{:data.id}} name="store_website_id" placeholder="Enter your keyword">
 			  	<option value="">Select Website</option>
 				  {{props data.sites ~selectedCondition = data.store_website_id}}
 		      		<option value="{{:prop.id}}" {{if ~selectedCondition == prop.id}} selected {{/if}}>{{:prop.name}}</option>

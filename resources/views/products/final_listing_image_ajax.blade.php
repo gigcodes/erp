@@ -1,5 +1,21 @@
-@php $imageCropperRole = Auth::user()->hasRole('ImageCropers'); 
+@php $imageCropperRole = Auth::user()->hasRole('ImageCropers');
 
+$categoryAll = \App\Category::with('childs.childLevelSencond')->where('parent_id', 0)->get();
+$categoryArray = [];
+foreach ($categoryAll as $category) {
+    $categoryArray[] = array('id' => $category->id, 'value' => $category->title);
+    // $childs = Category::where('parent_id', $category->id)->get();
+    foreach ($category->childs as $child) {
+        $categoryArray[] = array('id' => $child->id, 'value' => $category->title . ' > ' . $child->title);
+        // $grandChilds = Category::where('parent_id', $child->id)->get();
+        if ($child->childLevelSencond != null) {
+            foreach ($child->childLevelSencond as $grandChild) {
+                $categoryArray[] = array('id' => $grandChild->id, 'value' => $category->title . ' > ' . $child->title . ' > ' . $grandChild->title);
+            }
+        }
+    }
+} 
+$categoryArray = collect($categoryArray)->pluck("value", "id")->toArray();
 @endphp
 <table class="table table-bordered table-striped" style="table-layout:fixed;">
         @foreach ($products as $key => $product)
@@ -11,16 +27,29 @@
         <thead productid="{{ $product->id }}">
             <tr>
                 <th>#{{ $product->id }} [{{$product->sku}}] {{$product->name}}
-                <div class="row">
-                        <div class="col-md-12">
-                            <button type="button" value="reject" id="reject-all-cropping{{$product->id}}" data-product_id="{{$product->id}}" class="btn btn-xs btn-secondary pull-right reject-all-cropping">
+                    <p class="card-text"></p>
+                    <div class="row" style="float:left;">
+                        <div class="col-md-9">
+                            <?php echo Form::select("category",$categoryArray,$product->category,[
+                                "class" => "form-control change-category-product" , 
+                                "id" => "category_".$product->id,
+                                "data-product-id" => $product->id
+                              ]); ?>
+                         </div>
+                    </div>
+                    <div class="row" style="float:right;">
+                        <div class="col-md-8">
                                 @if($anyCropExist)
-                                    Reject All - Re Crop
+                                     <button type="button" value="reject" id="reject-all-cropping{{$product->id}}" data-product_id="{{$product->id}}" class="btn btn-xs btn-secondary pull-right reject-all-cropping">
+                           Reject All - Re Crop </button>
                                 @else 
-                                    All Rejected - Re Crop
+									@if($product->status_id == 4)  <button type="button" value="reject" class="btn btn-xs btn-secondary pull-right">
+                           Rejected </button> <br> <br>@endif
+                                     <button type="button" value="reject" id="reject-all-cropping{{$product->id}}" data-product_id="{{$product->id}}" class="btn btn-xs btn-secondary pull-right reject-all-cropping">
+                           All Rejected - Re Crop </button>
                                 @endif
                             </button>
-                         </div>   
+                         </div>
                     </div>
                 </th>
             </tr>
@@ -30,7 +59,6 @@
                 <td>
                     
                     <div class="row"> 
-                        
                             @if(!$websiteList->isEmpty())
                                 @foreach($websiteList as $index => $site)
                                     <div class="col-md-12" productid="{{ $product->id }}">
@@ -44,6 +72,14 @@
                                                             All Rejected - Re Crop for this website
                                                         @endif
                                                     </button>
+                                                    @if(request("submit_for_image_approval") =="on" )
+                                                        Last Approved By : {{isset($users_list[$product->last_approve_user])?$users_list[$product->last_approve_user]:""}}
+                                                    @endif
+                                                    @if(request("rejected_image_approval") =="on" )
+                                                   
+                                                        Rejected By :  {{isset($users_list[$product->rejected_user_id])?$users_list[$product->rejected_user_id]:""}}
+                                                        Rejected Time : {{isset($product->rejected_date)?$product->rejected_date:""}}
+                                                    @endif
                                                 </div>   
                                             </div>
                                             @php

@@ -78,7 +78,7 @@ return [
     */
 
     'waits' => [
-        'redis:default' => 60,
+        'redis:default' => 60*15,
     ],
 
     /*
@@ -131,6 +131,7 @@ return [
                 'balance' => 'auto',
                 'processes' => count($allQueue),
                 'tries' => 1,
+				'retry_after' => 60 * 60,
                 'minProcesses' => 1,
                 'maxProcesses' => count($allQueue) * 2,
                 'memory' => 2048,
@@ -145,6 +146,7 @@ return [
                 'balance' => 'auto',
                 'processes' => count($allQueue),
                 'tries' => 1,
+				'retry_after' => 60 * 60,
                 'minProcesses' => 1,
                 'maxProcesses' => count($allQueue) * 2,
                 'memory' => 2048,

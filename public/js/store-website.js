@@ -107,6 +107,14 @@ var page = {
             page.editBuildProcess($(this));
         });
 
+        page.config.bodyView.on("click",".add-website-company-address-template",function(e) {
+            e.preventDefault();
+            page.addCompanyWebAddress($(this));
+        });
+        $(".common-modal").on("click",".update-company-wesite-address",function(e) {
+            e.preventDefault();
+            page.updateCompanyAddress($(this));
+        });
         
 
         $(".common-modal").on("click",".add-attached-brands",function(e) {
@@ -125,6 +133,11 @@ var page = {
         $(".common-modal").on("click",".update-seo-format",function(e) {
             e.preventDefault();
             page.updateSeoFormat($(this));
+        });
+
+        $(".common-modal").on("click",".update-build-process",function(e) {
+            e.preventDefault();
+            page.updateBuildProcess($(this));
         });
 
         
@@ -171,9 +184,10 @@ var page = {
             
         });
 
-        $(document).on("click",".open-store-reindex-history",function(href) {
-            page.openStoreReindexHistory($(this));            
+		$(document).on("click",".open-store-user-histoty",function(href) {
+            page.openUserStoreHistorListing($(this));
         });
+
 
     },
     openStoreReindexHistory: function(ele) {
@@ -358,15 +372,56 @@ var page = {
         }
         this.sendAjax(_z, 'afterBuildProcess');
     },
-    afterBuildProcess: function(response) {
-        var createWebTemplate = $.templates("#template-build-process");
+
+    addCompanyWebAddress : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/add-company-website-address",
+            method: "get",
+        }
+        this.sendAjax(_z, 'afterCopmanyWebsiteAdd');
+    },
+    afterCopmanyWebsiteAdd: function(response) { 
+        
+        var createWebTemplate = $.templates("#add-website-company-address"); 
         var tplHtml = createWebTemplate.render(response);
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
-            common.modal("show");
+            common.modal("show"); 
     },
-    updateBuildProcess : function(ele) {
-          var _z = {
+    updateCompanyAddress : function(ele) { 
+        console.log(ele.closest("form").serialize());
+        var _z = {
+             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/update-company-website-address",
+             method: "post",
+             data : ele.closest("form").serialize(),
+             beforeSend : function() {
+                 $("#loading-image").show();
+             }
+         }
+         this.sendAjax(_z, "afterUpdateCompanyAddress");
+     },
+     afterUpdateCompanyAddress : function(response) { 
+        if(response.code  == 200) {
+            $("#loading-image").hide();
+            $(".common-modal").modal("hide");
+            toastr["success"]("Address Updated successfully","");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+
+    
+	
+    afterBuildProcess: function(response) { 
+        var createWebTemplate = $.templates("#template-build-process"); 
+        var tplHtml = createWebTemplate.render(response);
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show"); 
+    },
+	updateBuildProcess : function(ele) { 
+       var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/build-process/save",
             method: "post",
             data : ele.closest("form").serialize(),
@@ -376,7 +431,7 @@ var page = {
         }
         this.sendAjax(_z, "afterUpdateBuildProcess");
     },
-    afterUpdateBuildProcess : function(response) {
+    afterUpdateBuildProcess : function(response) { 
         if(response.code  == 200) {
             $("#loading-image").hide();
             $(".common-modal").modal("hide");

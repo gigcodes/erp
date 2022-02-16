@@ -60,6 +60,7 @@
               <thead>
             <tr>
                 <th>No</th>
+                <th>Sender Number</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Roles</th>
@@ -161,6 +162,22 @@
             alert('No response from server');
         });
     }
+    $(".number .whatsapp_number").change(function(e){        
+            e.preventDefault();
+            $("#loading-image").show();
+            $.ajax({
+                type:"POST",
+                url:"{{ route('user.changewhatsapp') }}",
+                data:{
+                    "_token": "{{ csrf_token() }}",
+                    user_id: $(this).attr('data-user-id'),
+                    whatsapp_number:$(this).val()
+                },
+                success:function(response){
+                    $("#loading-image").hide();
+                }
+            });
+        });
 </script>
 
 @endsection

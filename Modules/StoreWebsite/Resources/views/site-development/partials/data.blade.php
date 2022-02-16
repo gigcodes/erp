@@ -4,9 +4,8 @@
     $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
     $userId = auth()->user()->id;
     $pagrank = $categories->perPage() * ($categories->currentPage()- 1) + 1;
-    @endphp
-
-    @foreach($categories as $key => $category)
+    @endphp 
+	 @foreach($categories as $key => $category) 
     <?php
     $site = $category->getDevelopment($category->id, $website->id, $category->site_development_id);//
 
@@ -15,7 +14,7 @@
 
         <tr>
             <td>
-                {{ $pagrank++  }}
+                {{ $pagrank++  }} 
             </td>
             <td>
                 @include("storewebsite::site-development.partials.edit-modal")
@@ -51,20 +50,20 @@
                 </form>
             </td>
 			<td>
-				{{Form::select('site_development_master_category_id', [''=>'- Select-']+$masterCategories, $category->site_development_master_category_id, array('class'=>'save-item-select','data-category'=>$category->id, 'data-type'=>'site_development_master_category_id', 'data-site'=>$site ? $site->id : '0'))}}
+				{{Form::select('site_development_master_category_id', [''=>'- Select-']+$masterCategories, $category->site_development_master_category_id, array('class'=>'save-item-select globalSelect2','data-category'=>$category->id, 'data-type'=>'site_development_master_category_id', 'data-site'=>$site ? $site->id : '0'))}}
             </td>
-			<td>
-				<div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1">
+			<td class="pt-0 pr-2">
+				<div class="col-md-12 mb-1 p-0 d-flex  pt-2 mt-1">
 					 <input style="margin-top: 0px;width:auto !important;" type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="remark_{{$key}}" data-catId="{{ $category->id }}" data-siteId="@if($site){{ $site->id }}@endif" data-websiteId="@if($website) {{ $website->id }} @endif" >
-					 <div style="margin-top: 4px;" class="d-flex p-0">
+					 <div style="margin-top: 0px;" class="d-flex p-0">
 						<button class="btn pr-0 btn-xs btn-image " onclick="saveRemarks({{$key}})"><img src="/images/filled-sent.png" /></button>
 					 </div>
                 </div>
-				<div class="col-md-12 p-0 pl-4">
+				<div class="col-md-12 p-0 pl-1">
 				  <div class="d-flex">
                                       @if($site->lastRemark) Remarks = @endif
                                       <div class="justify-content-between expand-row-msg" data-id="@if($site->lastRemark){{$site->lastRemark->id}}@endif">
-                                          <span class="td-full-container-@if($site->lastRemark){{$site->lastRemark->id}}@endif" > @if($site->lastRemark)  {{ str_limit($site->lastRemark->remarks, 25, '...') }} @endif</span>
+                                          <span class="td-full-container-@if($site->lastRemark){{$site->lastRemark->id}}@endif" > @if($site->lastRemark)  {{ str_limit($site->lastRemark->remarks, 10, '...') }} @endif</span>
                                       </div>
                     </div>
                  </div>
@@ -74,7 +73,7 @@
 			<table class="assign">	
 				@foreach($category->assignedTo as $assignedTo)   
 					<tr><td width="32%">{{$assignedTo['assigned_to_name']}}</td>
-					<td>
+					<td class="pt-2">
                           <div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1 msg">
                               <?php
                               $MsgPreview = '# ';
@@ -87,12 +86,12 @@
                               ?>
 							  <input type="text" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
                                  <div class="d-flex p-0">
-								     <button style="float: left;" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{$assignedTo['id']}}"><img src="/images/filled-sent.png" style="cursor: default;"></button> 
+								     <button style="float: left;padding: 0 0 0 5px" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{$assignedTo['id']}}"><img src="/images/filled-sent.png" style="cursor: default;"></button>
 								 </div>
 								 <button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="{{$assignedTo['message_type']}}" data-id="{{$assignedTo['id']}}" title="Load messages" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>
 							</div>
 						  
-                          <div class="col-md-12 p-0 pl-4 text">
+                          <div class="col-md-12 p-0 pl-1 text">
 								<!-- START - Purpose : Show / Hide Chat & Remarks , Add Last Remarks - #DEVTASK-19918 -->
                                   <div class="d-flex">
                                       <div class="justify-content-between expand-row-msg-chat" data-id="{{$assignedTo['id']}}">
@@ -166,7 +165,7 @@
                 </div>
             </td>
            
-            <td>
+            <td class="pt-1">
                 <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-upload pd-5">
                     <i class="fa fa-upload" aria-hidden="true"></i>
                 </button>

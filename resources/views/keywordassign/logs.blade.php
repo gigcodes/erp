@@ -17,12 +17,9 @@ table tbody tr td{
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Keyword Response Logs</h2>
     </div>
-    <div class="col-lg-12">
-        &nbsp;
-    </div>
 </div>
-
-    <form action="{{ route('keywordreponse.logs') }}" method="get">
+ <div class="col-md-12 ">
+    <form action="{{ route('keywordreponse.logs') }}" method="get"style="margin-bottom: -30px;">
         <div class="row mb-5">
             <div class="col-md-3">
                 <input type="text" name="keyword" class="form-control" id="keyword" placeholder="Enter Keyword" value="">
@@ -42,36 +39,39 @@ table tbody tr td{
             </div>
         </div>
     </form>
-
-<div class="row">
+</div>
+  <div class="row ">
+    <div class="col-lg-12 p-5"style="padding-top: 10px !important;">
     <div class="table-responsive">
-        <table class="table table-striped table-bordered" style="width: 99%" id="keywordassign_table">
+        <table class="table table-striped table-bordered" style="width:100%; table-layout:fixed;" id="keywordassign_table">
             <thead>
                 <tr>
-                    <th width="10%">Model</th>
-                    <th width="15%">Model Id</th>
-                    <th width="10%">Keyword</th>
-                    <th width="15%">Keyword Match</th>
-                    <th width="10%">Message Send Id</th>
-                    <th width="20%">Comment</th>
-                    <th width="10%">Date</th>
+                    <th width="5%">Model</th>
+                    <th width="4%">Model Id</th>
+                    <th width="4%">Keyword</th>
+                    <th width="6%">Keyword Match</th>
+                    <th width="6%">Message Send Id</th>
+                    <th width="30%">Comment</th>
+                    <th width="7%">Date</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($keywordlogs as $key => $value)
                     <tr>
-                        <td>{{$value->model}}</td>
+                        <td class="Website-task"title="{{$value->model}}">{{$value->model}}</td>
                         <td>{{$value->model_id}}</td>
-                        <td>{{$value->keyword}}</td>
-                        <td>{{$value->keyword_match}}</td>
+                        <td class="Website-task" title="{{$value->keyword}}">{{$value->keyword}}</td>
+                        <td class="Website-task"title="{{$value->keyword_match}}">{{$value->keyword_match}}</td>
                         <td>{{$value->message_sent_id}}</td>
-                        <td>{!!nl2br($value->comment)!!}</td>
+                        <td class="Website-task" title="{{ $value->comment }}">{{ $value->comment }}</td>
                         <td>{{$value->created_at}}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
+  </div>
+
     <div class="row">
         <div class="col-md-12 text-center">
             {{ $keywordlogs->appends($request->except('page'))->links() }}.

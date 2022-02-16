@@ -6,15 +6,15 @@
 		      	<th width="2%">Id</th>
 		        <th width="5%">Title</th>
 		        <th width="10%">Website</th>
-		        <th width="2%">Remote software</th>
-		        <th width="5%">Facebook</th>
-		        <th width="5%">Instagram</th>
-		        <th width="3%">Published</th>
-				<th width="3%">FCM Key</th>
-				<th width="3%">FCM Id</th>
-				<th width="3%">Icon</th>
-				<th width="5%">Created At</th>
-		        <th width="10%">Action</th>
+		        <th width="2%">Service id</th>
+		        <th width="5%">Remote software</th>
+		        <th width="2%">Facebook</th>
+		        <th width="2%">Instagram</th>
+		        <th width="2%">Published</th>
+				<th width="2%">FCM Key</th>
+				<th width="2%">FCM Id</th>
+				<th width="2%">Icon</th>
+		        <th width="12%">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -26,7 +26,9 @@
 			        	<b>Website : </b>{{:prop.website}}<br>
 			        	<b>Country Duty : </b>{{:prop.country_duty}}<br>
 			        	<b>Description : </b>{{:prop.description}}<br>
+						<b>Address : </b>{{:prop.website_address}}<br>
 			        </td>
+			        <td>{{:prop.mailing_service_id}}</td>
 			        <td>{{:prop.remote_software}}</td>
 			        <td>
 			        	{{:prop.facebook}}
@@ -41,7 +43,6 @@
 					<td>{{if prop.push_web_key !=null}} {{:prop.push_web_key.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
 					<td>{{if prop.push_web_id !=null}} {{:prop.push_web_id.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
 					<td>{{if prop.icon !=null}} <img width="25px" height="25px" alt="" src="{{:prop.icon}}""> {{else}} {{/if}} </td>
-			        <td>{{:prop.created_at}}</td>
 			        <td>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template">
 			        		<i class="fa fa-edit" aria-hidden="true"></i>
@@ -81,7 +82,17 @@
                                         
                                         <button title="Build Process" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-template">
                                             <a href="javascript:void(0);"><i class="fa fa-simplybuilt"></i></a>
-                                        </button>                                            
+                                        </button>   
+										<button title="Build Process History" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-history">
+                                            <a href="javascript:void(0);"><i class="fa fa-folder"></i></a>
+                                        </button> 
+										<button title="Sync Stage To Master" data-id="{{>prop.id}}" type="button"  class="btn sync_stage_to_master">
+                                            <a href="javascript:void(0);"><i class="fa fa-refresh"></i></a>
+                                        </button>
+										<button title="Company Address" data-id="{{>prop.id}}" type="button" class="btn add-website-company-address-template">
+                                            <a href="javascript:void(0);"><i class="fa fa-address-card"></i></a>
+                                        </button> 			
+										
 			        </td>
 			      </tr>
 			    {{/props}}  
@@ -232,7 +243,7 @@
 		    	{{props data}}
 			      <tr id="preview-category-{{:prop.id}}">
 			      	<td><input class="preview-checkbox" type="checkbox" name="push_category" value="{{:prop.id}}"></td>
-			      	<td>{{:prop.website_mode}}</td>
+			      	<td>{{:prop.title}}</td>
 			        <td>
 			        	<button type="button" data-category-id="{{:prop.id}}" class="btn btn-delete-preview-category">
 			        		<i class="fa fa-trash" aria-hidden="true"></i>
@@ -570,16 +581,11 @@
         <div class="modal-body">
             <div class="row">
                 <div class="col-lg-12">
-                    <form>
+                    <form class="build-process">
                         <?php echo csrf_field(); ?>
                         <input type="hidden" class="frm_store_website_id" name="store_website_id" value="{{:data.id}}">
                         <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="build_name">Build Name</label>
-                                    <input type="text" name="build_name" id="build_name" value="{{:data.build_name}}" placeholder="Enter Build Name" class="form-control mt-0" />
-                                </div>
-                            </div>
+                            
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="build_repository">Repository</label>
@@ -594,7 +600,40 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <button data-id="{{:data.id}}" class="btn btn-secondary update-build-process">Update</button>
+                                    <button data-id="{{:data.id}}"class="btn btn-secondary update-build-process">Update</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/x-jsrender" id="add-website-company-address">
+	<div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Add Address</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form class="website-address">
+                        <?php echo csrf_field(); ?>
+                        <input type="hidden" class="frm_store_website_id" name="store_website_id" value="{{:data.id}}">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="company_address">Address</label>
+                                    <textarea name="website_address" id="company_address" placeholder="Enter Address Name" class="form-control mt-0">{{:data.website_address}}</textarea> </textarea>
+                                </div> 
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <button data-id="{{:data.id}}"class="btn btn-secondary update-company-wesite-address">Update</button>
                                 </div>
                             </div>
                         </div>

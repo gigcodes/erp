@@ -45,14 +45,15 @@ class UserPayment extends Command
     {
         try {
         DB::beginTransaction();
-        $users = User::where('fixed_price_user_or_job',2)->get();
-        $firstEntryInActivity = HubstaffActivity::orderBy('starts_at')->first();
+        $users = User::whereIn('fixed_price_user_or_job',[2,3])->get();
+        $firstEntryInActivity = HubstaffActivity::orderBy('starts_at','asc')->first();
 
         if($firstEntryInActivity) {
             $bigining = date('Y-m-d',strtotime($firstEntryInActivity->starts_at));
         }else {
             $bigining = date('Y-m-d');
         }
+        \Log::info('Users found - '.$users->count().' on Date - '.$bigining);
         foreach($users as $user) {
             $lastPayment = PaymentReceipt::where('user_id',$user->id)->orderBy('date','DESC')->first();
             $start =  $bigining;
@@ -64,12 +65,17 @@ class UserPayment extends Command
             $yesterday = date('Y-m-d',strtotime("-1 days"));
             echo PHP_EOL . "=====Checking $start - $end for $user->id ====" . PHP_EOL;
 
+            \Log::info("=====Checking $start - $end for $user->id ====");
+
             $activityrecords  = HubstaffActivity::getTrackedActivitiesBetween($start, $end, $user->id);
             echo PHP_EOL . "===== Result found ".count($activityrecords)." ====" . PHP_EOL;
+
+            \Log::info('User ID - '.$user->id);
 
             $total = 0;
             $minutes = 0;
             $startsAt = null;
+            \Log::info('Activity Records found - '.count($activityrecords));
             foreach($activityrecords as $record) {
                 $latestRatesOnDate = UserRate::latestRatesOnDate($record->starts_at,$user->id);
                 if($record->tracked > 0 && $latestRatesOnDate && $latestRatesOnDate->hourly_rate > 0) {
@@ -81,6 +87,7 @@ class UserPayment extends Command
                 }
             }
 
+            \Log::info('Total count - '.$total);
             /*$billingStartDate = ($lastPayment && !empty($startsAt)) ? $startsAt : date("Y-m-d",strtotime("-1 day"));
             if($user->payment_frequency == 'fornightly') {
                 $billingEndDate   = date('Y-m-d',strtotime($billingStartDate . "+1 days"));  
@@ -125,14 +132,16 @@ class UserPayment extends Command
                 if($user->billing_frequency_day > 0) {
                     $paymentReceipt->billing_due_date = date("Y-m-d",strtotime($startsAt." +".$user->billing_frequency_day));
                 }
-                $paymentReceipt->save();
+                $paymentReceipt->saveWithoutEvents();
 
+                \Log::info('Paymemt Receipt Added - '.$paymentReceipt->id);
 
             }
         }
         DB::commit();
         echo PHP_EOL . "=====DONE====" . PHP_EOL;
         } catch (Exception $e) {
+            \Log::error($e);
             echo $e->getMessage();
             DB::rollBack();
             echo PHP_EOL . "=====FAILED====" . PHP_EOL;

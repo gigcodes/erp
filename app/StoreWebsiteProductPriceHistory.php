@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class StoreWebsiteProductPriceHistory extends Model
 {
+    public $timestamps = true;
+    
 	/**
      * @var string
 

@@ -8,10 +8,10 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Assets Manager List</h2>
             <div class="pull-left">
-              <form class="form-inline" action="{{ route('assets-manager.index') }}" method="GET"> 
+              <form class="form-inline" action="{{ route('assets-manager.index') }}" method="GET">
                 <div class="form-group ml-3">
-                  <?php echo Form::text("search",request()->get("search",""),["class" => "form-control", "placeholder" => "Enter keyword for search"]); ?>
-                </div>               
+                  <?php echo Form::text("search", request()->get("search", ""), ["class" => "form-control", "placeholder" => "Enter keyword for search"]); ?>
+                </div>
                 <div class="form-group ml-3">
                   <select class="form-control" name="archived">
                     <option value="">Select</option>
@@ -19,19 +19,22 @@
                   </select>
                 </div>
                 <div class="form-group ml-3">
-                  <?php echo Form::select("asset_type",\App\AssetsManager::assertTypeList(),request("asset_type",""),["class" => "form-control"]); ?>
+                  <?php echo Form::select("asset_type", \App\AssetsManager::assertTypeList(), request("asset_type", ""), ["class" => "form-control"]); ?>
                 </div>
                 <div class="form-group ml-3">
-                  <?php echo Form::select("purchase_type",\App\AssetsManager::purchaseTypeList(),request("purchase_type",""),["class" => "form-control"]); ?>
+                  <?php echo Form::select("purchase_type", \App\AssetsManager::purchaseTypeList(), request("purchase_type", ""), ["class" => "form-control"]); ?>
                 </div>
                 <div class="form-group ml-3">
-                  <?php echo Form::select("payment_cycle",\App\AssetsManager::paymentCycleList(),request("payment_cycle",""),["class" => "form-control"]); ?>
+                  <?php echo Form::select("payment_cycle", \App\AssetsManager::paymentCycleList(), request("payment_cycle", ""), ["class" => "form-control"]); ?>
                 </div>
-                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                <button type="submit" class="btn btn-xs"><i class="fa fa-filter"></i></button>
               </form>
             </div>
-            <div class="pull-right">            
-                <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#assetsCreateModal">+</button>
+            <div class="pull-right">
+                <button type="button" class="btn btn-xs ml-3 mr-3" data-toggle="modal" data-target="#assetsCreateModal"><i class="fa fa-plus"></i></button>
+            </div>
+            <div class="pull-right">
+                <button type="button" class="btn btn-xs ml-3 mr-3" data-toggle="modal" data-target="#cashflows">Cash Flows</button>
             </div>
         </div>
     </div>
@@ -40,86 +43,117 @@
 
 
     <div class="mt-3 col-md-12">
-      <table class="table table-bordered table-striped">
-        <thead>
-          <tr>
-            <th width="5%">ID</th>
-            <th>Name</th>
-            <th>Capacity</th>
-            <th>Password</th>
-            <th width="10%">Asset Type</th>
-            <th width="15%">Category</th>
-            <th width="15%">Provider Name</th>
-            <th width="10%">Purchase Type</th>
-            <th width="10%">Payment Cycle</th>
-            <th width="10%">Due Date</th>
-            <th width="10%">Amount</th>
-            <th width="10%">Currency</th>
-            <th width="8%">Location</th>
-            <th width="7%">Usage</th>
-            <th width="15%">Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          @foreach ($assets as $asset)
+      <div class="infinite-scroll">
+        <table class="table table-bordered table-striped">
+          <thead>
             <tr>
-              <td>{{ $asset->id }}</td>
-              <td>{{ $asset->name }}</td>
-              <td>{{ $asset->capacity }}</td>
-              <td>{{ $asset->password }}</td>
-              <td>{{ $asset->asset_type }}</td>
-              <td>@if(isset($asset->category)) {{ $asset->category->cat_name }} @endif</td>
-              
-              <td>{{ $asset->provider_name }}</td>
-              <td>{{ $asset->purchase_type }}</td>
-              <td>{{ $asset->payment_cycle }}</td>   
-              <td>{{ ($asset->due_date)?$asset->due_date:'--' }}</td>           
-              <td>{{ $asset->amount }}</td>
-              <td>{{ $asset->currency }}</td> 
-              <td>{{ $asset->location }}</td>
-              <td>{{ $asset->usage }}</td>        
-              <td>
-                  <div style="min-width: 100px;">
-                    <!--   <a href="{{ route('assets-manager.show', $asset->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a> -->
-                      <button type="button" class="btn btn-image edit-assets d-inline" data-toggle="modal" data-target="#assetsEditModal" data-assets="{{ json_encode($asset) }}"><img src="/images/edit.png" /></button>
-                      <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $asset->id }}"><img src="/images/remark.png" /></button>
-                      {!! Form::open(['method' => 'DELETE','route' => ['assets-manager.destroy', $asset->id],'style'=>'display:inline']) !!}
-                      <button type="submit" class="btn btn-image d-inline"><img src="/images/delete.png" /></button>
-                      {!! Form::close() !!}
-                      <button type="button" title="Payment history" class="btn payment-history-btn pd-5" data-id="{{$asset->id}}">
-                        <i class="fa fa-history" aria-hidden="true"></i>
-                      </button>
-                  </div>
-              </td>
+              <th width="4%">ID</th>
+              <th width="9%">Name</th>
+              <th width="8%">Capacity</th>
+              <th width="6%">Pwd</th>
+              <th width="7%">Ast Type</th>
+              <th width="5%">Cat</th>
+              <th width="7%">Pro Name</th>
+              <th width="7%">Pur Type</th>
+              <th width="9%">Pymt Cycle</th>
+              <th width="7%">Due Date</th>
+              <th width="5%">Amount</th>
+              <th width="5%">Currency</th>
+              <th width="5%">Location</th>
+              <th width="7%">Usage</th>
+              <th width="15%">Action</th>
             </tr>
-          @endforeach
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            @foreach ($assets as $asset)
+              <tr>
+                <td>{{ $asset->id }}</td>
+                <td class="expand-row-msg" data-name="name" data-id="{{$asset->id}}">
+                  <span class="show-short-name-{{$asset->id}}">{{ str_limit($asset->name, 12, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-name-{{$asset->id}} hidden">{{$asset->name}}</span>
+                </td>
+                <td class="expand-row-msg" data-name="capacity" data-id="{{$asset->id}}">
+                  <span class="show-short-capacity-{{$asset->id}}">{{ str_limit($asset->capacity, 10, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-capacity-{{$asset->id}} hidden">{{$asset->capacity}}</span>
+                </td>
+                <td class="expand-row-msg" data-name="password" data-id="{{$asset->id}}">
+                  <span class="show-short-password-{{$asset->id}}">{{ str_limit($asset->password, 3, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-password-{{$asset->id}} hidden">{{$asset->password}}</span>
+                </td>
+                <td>{{ $asset->asset_type }}</td>
+                <td>@if(isset($asset->category)) {{ $asset->category->cat_name }} @endif</td>
+
+                <td>{{ $asset->provider_name }}</td>
+                <td>{{ $asset->purchase_type }}</td>
+                <td>{{ $asset->payment_cycle }}</td>
+                <td>{{ ($asset->due_date)?$asset->due_date:'--' }}</td>
+                <td>{{ $asset->amount }}</td>
+                <td>{{ $asset->currency }}</td>
+                <td>{{ $asset->location }}</td>
+                <td class="expand-row-msg" data-name="usage" data-id="{{$asset->id}}">
+                  <span class="show-short-usage-{{$asset->id}}">{{ str_limit($asset->usage, 9, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-usage-{{$asset->id}} hidden">{{$asset->usage}}</span>
+                </td>
+                <td>
+                    <!--   <a href="{{ route('assets-manager.show', $asset->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a> -->
+                    <button type="button" class="btn btn-xs edit-assets pull-left" data-toggle="modal" data-target="#assetsEditModal" data-assets="{{ json_encode($asset) }}"><i class="fa fa-edit"></i></button>
+                        <button type="button" class="btn btn-xs make-remark pull-left" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $asset->id }}"><i class="fa fa-clipboard"></i></button>
+                        {!! Form::open(['method' => 'DELETE','route' => ['assets-manager.destroy', $asset->id],'style'=>'display:inline']) !!}
+                        <button type="submit" class="btn btn-xs pull-left"><i class="fa fa-trash"></i></button>
+                        {!! Form::close() !!}
+                        <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" data-id="{{$asset->id}}">
+                          <i class="fa fa-history"></i>
+                        </button>
+                        
+                </td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+        {{ $assets->appends(request()->except('page'))->links() }}
+      </div>
     </div>
-    <div class="mt-3 col-md-12">
-      {{ $assets->appends(request()->except('page'))->links() }}
-    </div> 
     @include('partials.modals.remarks')
     @include('assets-manager.partials.payment-history')
-    @include('assets-manager.partials.assets-modals')   
+    @include('assets-manager.partials.assets-modals')
 @endsection
 
 @section('scripts')
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
-  <script type="text/javascript">      
-
-    
+  <script type="text/javascript">
+    $('ul.pagination').hide();
+    $(function() {
+      $('.infinite-scroll').jscroll({
+        autoTrigger: true,
+        loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+        padding: 2500,
+        nextSelector: '.pagination li.active + li a',
+        contentSelector: 'div.infinite-scroll',
+        callback: function() {
+          $('ul.pagination').first().remove();
+          $(".select-multiple").select2();
+          initialize_select2();
+        }
+      });
+    });
+      
     $(document).on('click', '.edit-assets', function() {
       var asset = $(this).data('assets');
       var url = "{{ url('assets-manager') }}/" + asset.id;
       console.log(asset);
+      var d = new Date(asset.start_date);
+      var day = (d.getDate() < 10 ? '0' : '') + d.getDate();
+      var str = d.getFullYear() + '-' + (d.getMonth()+1) + '-' + day;
       $('#assetsEditModal form').attr('action', url);
       $('#asset_name').val(asset.name);
       $('#password').val(asset.password);
       $('#provider_name').val(asset.provider_name);
       $('#location').val(asset.location);
       $('#currency').val(asset.currency);
+      $('#start_date').val(''+str+'');
       $('#asset_asset_type').val(asset.asset_type);
       $('#category_id2').val(asset.category_id);
       $('#asset_purchase_type').val(asset.purchase_type);
@@ -127,6 +161,14 @@
       $('#asset_amount').val(asset.amount);
       $('#usage').val(asset.usage);
       $('#capacity').val(asset.capacity);
+    });
+    $(document).on('click', '.expand-row-msg', function () {
+      var name = $(this).data('name');
+      var id = $(this).data('id');
+      var full = '.expand-row-msg .show-short-'+name+'-'+id;
+      var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+      $(full).toggleClass('hidden');
+      $(mini).toggleClass('hidden');
     });
 
     $(document).on('click', '.make-remark', function(e) {
@@ -185,29 +227,29 @@
     });
 
     $(document).ready(function() {
-      // Change category on create page logic      
-      $('#category_id').on('change', function(){        
+      // Change category on create page logic
+      $('#category_id').on('change', function(){
           var category_id = $('#category_id').val();
           if( category_id != '' && category_id == '-1')
           {
               $('.othercat').show();
-          } 
+          }
           else{
             $('.othercat').hide();
-          } 
+          }
       });
       // Change categoryon create page logic
-      $('#category_id2').on('change', function(){        
+      $('#category_id2').on('change', function(){
           var category_id = $('#category_id2').val();
           if( category_id != '' && category_id == '-1')
           {
               $('.othercatedit').show();
-          } 
+          }
           else{
             $('.othercatedit').hide();
-          } 
+          }
       });
-            
+
     });
     $(document).ready(function() {
           $('.payment-history-btn').click(function(){
@@ -227,13 +269,13 @@
                 $('#payment-history-modal').find('.payment-history-list-view').html(response.html);
                 $('#payment-history-modal').modal('show');
               }
-               
+
           }).fail(function(response) {
 
             alert('Could not fetch payments');
           });
         });
-       
+
       });
 
   </script>

@@ -80,47 +80,40 @@
 
   <div class="col-md-12 pl-3 pr-3">
     <div class="mb-3">
-
       <div class="panel-body p-0">
         <form action="{{ route('list.magento.logging') }}" method="GET" class="handle-search">
           <div class="row m-0">
-          <div class="col-md-2 pl-0">
-                <label for="select_date">Date</label>
-                <input type="text" name="select_date" class="form-control datepicker" id="select_date" placeholder="Enter Date" value="{{isset($request->select_date) ? $request->select_date : ''}}">
-             
+            <div class="col-md-1 pl-0">
+                <input type="text" name="select_date" class="form-control datepicker" id="select_date" placeholder="Date" value="{{isset($request->select_date) ? $request->select_date : ''}}">
             </div>
-            <div class="col-md-2 pl-0">
-              <label for="product_id">Product ID</label>
-              <input type="text" class="form-control" id="product_id" name="product_id" value="{{ request('product_id') }}">
+            <div class="col-md-1 pl-0">
+              <input type="text" class="form-control" id="product_id" name="product_id" value="{{ request('product_id') }}" placeholder="Product ID">
             </div>
-            <div class="col-md-2 pl-0">
-              <label for="sku">SKU</label>
-              <input type="text" class="form-control" id="sku" name="sku" value="{{ request('sku')}}">
+            <div class="col-md-1 pl-0">
+              <input type="text" class="form-control" id="sku" name="sku" value="{{ request('sku')}}" placeholder="SKU">
             </div>
-            <div class="col-md-2 pl-0">
-              <label for="sku">Brand</label>
-              <input type="text" class="form-control" id="brand" name="brand" value="{{ request('brand')}}">
+            <div class="col-md-1 pl-0">
+              <input type="text" class="form-control" id="brand" name="brand" value="{{ request('brand')}}" placeholder="Brand">
             </div>
             @php
-              $category_suggestion = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])->selected(request('category',null))->renderAsDropdown();
+              $category_suggestion = \App\Category::attr(['name' => 'category[]', 'data-placeholder' => 'Category', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])->selected(request('category',null))->renderAsDropdown();
             @endphp
-            <div class="col-md-2 pl-0">
-                <label for="sku">Category</label>
-                    {!! $category_suggestion !!}
-                </div>
+            <div class="col-md-1 pl-0">
+              {!! $category_suggestion !!}
+            </div>
 
-            <div class="col-md-2 pl-0 pr-0">
-              <label for="sku">Status</label>
+            <div class="col-md-1 pl-0">
               <select class="form-control" name="status">
+                <option value="" disabled selected>Status</option>
                 <option value=''>All</option>
                 <option value="available" {{ request('status') == 'available' ? 'selected' : '' }}>Available</option>
                 <option value="out_of_stock" {{ request('status') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
               </select>
             </div>
 
-              <div class="col-md-2 pl-0">
-                  <label for="sku">Sync Status</label>
+              <div class="col-md-1 pl-0">
                   <select class="form-control" name="sync_status">
+                      <option value="" disabled selected>Sync Status</option>
                       <option value=''>All</option>
                       <option value="success" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'success' ? 'selected' : '' }}>Success</option>
                       <option value="error" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'error' ? 'selected' : '' }}>Error</option>
@@ -132,27 +125,25 @@
                   </select>
               </div>
               <div class="col-md-1 pl-0">
-                  <label for="queue">Queue List</label>
-                  <?php echo Form::select("queue",[null => "--Select--"] + \App\Helpers::getQueueName(true),request('queue'),["class" => "form-control"]); ?>
+                  <?php echo Form::select("queue",[null => "Queue List"] + \App\Helpers::getQueueName(true),request('queue'),["class" => "form-control"]); ?>
               </div>
 
           <div class="col-md-1 pl-0">
-            <label for="size_info">Size info</label>
             <select class="form-control" name="size_info">
+              <option value="" disabled selected>Size info</option>
               <option value=''>All</option>
               <option value="yes" {{ isset($filters['size_info']) && $filters['size_info'] == 'yes' ? 'selected' : '' }}>Yes</option>
               <option value="no" {{ isset($filters['size_info']) && $filters['size_info'] == 'no' ? 'selected' : '' }}>No</option>
             </select>
           </div>
-
+        </div>
+        <div class="row m-0 mt-3">
           <div class="col-md-2 pl-0">
-            <label for="select_date">Date</label>
             <input type="text" name="job_start_date" class="form-control datepicker" id="job_start_date" placeholder="Enter Job Start Date" value="{{isset($request->job_start_date) ? $request->job_start_date : ''}}">
-
           </div>
-          <div class="col-md-2 pl-0">
-            <label for="sku">Users</label>
+          <div class="col-md-1 pl-0">
             <select class="form-control" name="user">
+              <option value="" disabled selected>Users</option>
               <option value=''>All</option>
               @foreach($users as $user)
                 <option value="{{$user->id}}" {{ isset($filters['user']) && $filters['user'] == $user->id ? 'selected' : '' }}>{{$user->name}}</option>
@@ -161,38 +152,29 @@
             </select>
           </div>
 
-          <div class="col-md-4 pl-0 pr-0 d-flex" style="align-items: flex-end;justify-content: space-between;">
-           <div>
-             <label for="sku">Crop Image Date</label>
-             <input type="hidden" class="range_start_filter" value="<?php echo request()->get('crop_start_date') ; ?>" name="crop_start_date" />
-             <input type="hidden" class="range_end_filter" value="<?php echo request()->get('crop_end_date'); ?>" name="crop_end_date" />
-             <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
-               <!-- <i class="fa fa-calendar"></i>&nbsp;
-               <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
-               <i class="fa fa-calendar"></i>&nbsp;
-               <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{request()->get('crop_start_date') .' '.request()->get('crop_end_date')}}</p><i class="fa fa-caret-down"></i>
-             </div>
-           </div>
-            <button class="btn btn-primary " style="height: 34px" id="submit">
-              <span class="fa fa-filter"></span> Filter Results
-            </button>
-            <button class="btn btn-primary "  style="height: 34px" id="send-product-for-live-checking"><span class="fa fa-send"></span>&nbsp;Send Live Product</button>
-
+          <div class="col-md-2 pl-0" style="align-items: flex-end;justify-content: space-between;">
+            <input type="hidden" class="range_start_filter" value="<?php echo request()->get('crop_start_date') ; ?>" name="crop_start_date" />
+            <input type="hidden" class="range_end_filter" value="<?php echo request()->get('crop_end_date'); ?>" name="crop_end_date" />
+            <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+              <!-- <i class="fa fa-calendar"></i>&nbsp;
+              <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
+              <i class="fa fa-calendar"></i>&nbsp;
+              <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{request()->get('crop_start_date') ? request()->get('crop_start_date') .' '.request()->get('crop_end_date') : 'Crop Image Date'}}</p><i class="fa fa-caret-down pull-right"></i>
+            </div>
           </div>
-
-{{--          <div class="col-md-2 pl-0" style="display: flex;align-items: flex-end">--}}
-{{--            <button class="btn btn-primary" id="submit">--}}
-{{--              <span class="fa fa-filter"></span> Filter Results--}}
-{{--            </button>--}}
-{{--            <button class="btn btn-primary" id="send-product-for-live-checking"><span class="fa fa-send"></span>&nbsp;Send Live Product</button>--}}
-{{--          </div>--}}
-
-                </div>
-
-            </form>
+          <div class="col-md-3 pl-0">
+            <button class="btn btn-primary text-dark" style="height: 34px" id="submit">
+                <span class="fa fa-filter"></span>&nbsp;Filter Results
+              </button>
+              <button class="btn btn-primary text-dark"  style="height: 34px" id="send-product-for-live-checking">
+                <span class="fa fa-send"></span>&nbsp;Send Live Product
+              </button>
           </div>
-        </form>
-  </div>
+        </div>
+      </form>
+    </div>
+  </form>
+</div>
 
 
 
@@ -201,28 +183,29 @@
         <div class="table-responsive">
           <table id="magento_list_tbl_895" class="table table-bordered table-hover" style="table-layout: fixed">
             <thead>
-              <th style="width:5%">Product ID</th>
-              <th style="width:5%">SKU</th>
-              <th style="width:5%">Brand</th>
-              <th style="width:6%">Category</th>
-              <th style="width:5%">Price</th>
-              <th style="width:6%">Message</th>
-              <th style="width:6%">Date/  Time</th>
-              <th style="width:6%">Website</th>
-              <th style="width:5%">Status</th>
-              <th style="width:4%">Lang. Id</th>
-              <th style="width:8%">Sync Status</th>
-              <th style="width:6%">Job Start</th>
-              <th style="width:4%">Job End</th>
-              <th style="width:4%;word-break: break-all">Total Assigned</th>
-              <th style="width:4%;padding-left: 0;word-break: break-all">Success</th>
-              <th style="width:5%">Failure</th>
-              <th style="width:3%;padding-left: 0">User</th>
-              <th style="width:5%;">Time</th>
-              <th style="width:4%;padding-left: 5px">Size</th>
-              <th style="width:8%;padding-left: 2px">Queue</th>
-              <th style="width:4%">Try</th>
-              <th style="width:8%">Action</th>
+              <th width="4%">ID</th>
+              <th width="4%">SKU</th>
+              <th width="5%">Brand</th>
+              <th width="6%">Category</th>
+              <th width="5%">Price</th>
+              <th width="6%">Message</th>
+              <th width="4%">D&T</th>
+              <th width="6%">Website</th>
+              <th width="5%">Status</th>
+              <th width="5%">Lang Id</th>
+              <th width="6%">Sync Sts</th>
+              <th width="6%">Job Start</th>
+              <th width="6%">Job End</th>
+              <th width="3%">Total</th>
+              <th width="4%;">Success</th>
+              <th width="4%">Failure</th>
+              <th width="3%;">User</th>
+              <th width="3%;">Time</th>
+              <th width="3%;">Size</th>
+              <th width="5%;">Queue</th>
+              <th width="2%">Try</th>
+              <th width="10%">Action</th>
+
             </thead>
             <tbody class="infinite-scroll-pending-inner">
 				@include("logging.partials.magento_product_data")                
@@ -252,6 +235,39 @@
               <th style="width:6%">Status</th>
             </thead>
             <tbody class="error-log-data">
+
+            </tbody>
+          </table>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
+  <div id="PriceModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Price details</h4>
+        </div>
+        <div class="modal-body">
+          <table class="table table-bordered table-hover" style="table-layout:fixed;">
+            <thead>
+              <th style="width:7%">Product ID</th>
+              <th style="width:7%">Default Price</th>
+              <th style="width:7%">Segment Discount</th>
+              <th style="width:7%">Duty Price</th>
+              <th style="width:7%">Override Price</th>
+              <th style="width:6%">Status</th>
+              <th style="width:6%">Web Store</th>
+              <th style="width:11%">Store Website</th>
+            </thead>
+            <tbody class="price-data">
 
             </tbody>
           </table>
@@ -309,98 +325,77 @@
           <div class="modal-body">
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
             <input type="hidden" name="update_product_id" id="update_product_id" value="">
-            <div class="form-group col-md-8">
-              <label for="title">Name</label>
-              <input name="name" type="text" class="form-control" id="update_name" value="" required>
-            </div>
-            <div class="form-group col-md-4">
-              <img src="" id="single_product_image" class="quick-image-container img-responive" style="width: 70px;" alt="">
-            </div>
-            <div class="form-group col-md-12">
-              <label for="title">Size</label>
-              <input name="size" type="text" class="form-control" id="update_size" value="">
-            </div>
-            <div class="form-group col-md-12">
-              <label for="title">Short Description</label>
-              <textarea name="short_description" class="form-control" id="update_short_description"></textarea>
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">Price</label>
-              <input name="price" type="text" class="form-control" id="update_price" value="" required>
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">Price Special</label>
-              <input name="price_eur_special" type="text" class="form-control" id="update_price_eur_special" value="" required>
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">Price Discounted</label>
-              <input name="price_eur_discounted" type="text" class="form-control" id="update_price_eur_discounted" value="" required>
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">Price INR</label>
-              <input name="price_inr" type="text" class="form-control" id="update_price_inr" value="" required>
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">Price Special</label>
-              <input name="price_inr_special" type="text" class="form-control" id="update_price_inr_special" value="" required>
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">Price Discounted</label>
-              <input name="price_inr_discounted" type="text" class="form-control" id="update_price_inr_discounted" value="" required>
-            </div>
-            <div class="form-group col-md-12">
-              <label for="title">Measurement Type</label>
-              <input name="measurement_size_type" type="text" class="form-control" id="update_measurement_size_type" value="">
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">L Measurement</label>
-              <input name="lmeasurement" type="text" class="form-control" id="update_lmeasurement" value="">
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">H Measurement</label>
-              <input name="hmeasurement" type="text" class="form-control" id="update_hmeasurement" value="">
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">D Measurement</label>
-              <input name="dmeasurement" type="text" class="form-control" id="update_dmeasurement" value="">
-            </div>
-            <div class="form-group col-md-12">
-              <label for="title">Composition</label>
-              <input name="composition" type="text" class="form-control" id="update_composition" value="" required>
-            </div>
             <div class="form-group col-md-6">
-              <label for="title">Made In</label>
-              <input name="made_in" type="text" class="form-control" id="update_made_in" value="">
+              <input name="name" type="text" class="form-control" id="update_name" value=""placeholder="Name" required>
             </div>
+            
             <div class="form-group col-md-6">
-              <label for="title">Brand</label>
-              <select name="brand" class="form-control" id="update_brand">
+              <input name="size" type="text" class="form-control" id="update_size" value=""placeholder="Size">
+            </div>
+            <div class="form-group col-md-12">
+              <textarea name="short_description" class="form-control" id="update_short_description"placeholder="Short Description"style="height: 34px;"></textarea>
+            </div>
+            <div class="form-group col-md-4">
+               <input name="price" type="text" class="form-control" id="update_price" value="" placeholder="price"   required>
+            </div>
+            <div class="form-group col-md-4">
+               <input name="price_eur_special" type="text" class="form-control" id="update_price_eur_special" value=""placeholder="Price Special"  required>
+            </div>
+            <div class="form-group col-md-4">
+              <input name="price_eur_discounted" type="text" class="form-control" id="update_price_eur_discounted" value="" placeholder="Price Discounted" required>
+            </div>
+            <div class="form-group col-md-4">
+              <input name="price_inr" type="text" class="form-control" id="update_price_inr" value="" placeholder="Price INR" required>
+            </div>
+            <div class="form-group col-md-4">
+             <input name="price_inr_special" type="text" class="form-control" id="update_price_inr_special" value="" placeholder="Price Special" required>
+            </div>
+            <div class="form-group col-md-4">
+              <input name="price_inr_discounted" type="text" class="form-control" id="update_price_inr_discounted" value="" pl placeholder="Price Discounted"      required>
+            </div>
+            <div class="form-group col-md-4">
+              <input name="measurement_size_type" type="text" class="form-control" id="update_measurement_size_type" value="" placeholder="Measurement Type">
+            </div>
+            <div class="form-group col-md-4">
+              <input name="lmeasurement" type="text" class="form-control" id="update_lmeasurement" value=""placeholder="L Measurement">
+            </div>
+            <div class="form-group col-md-4">
+              <input name="hmeasurement" type="text" class="form-control" id="update_hmeasurement" value=""placeholder="H Measurement">
+            </div>
+            <div class="form-group col-md-4">
+              <input name="dmeasurement" type="text" class="form-control" id="update_dmeasurement" value=""placeholder="D Measurement">
+            </div>
+            <div class="form-group col-md-4">
+              <input name="composition" type="text" class="form-control" id="update_composition" value="" placeholder="Composition" required>
+            </div>
+            <div class="form-group col-md-4">
+              <input name="made_in" type="text" class="form-control" id="update_made_in" value=""placeholder="Made In">
+            </div>
+            <div class="form-group col-md-4">
+              <select name="brand" class="form-control" id="update_brand"placeholder="Brand">
                 <option value=""></option>
                 @foreach($brands as $brand)
                   <option value="{{$brand->id}}">{{$brand->name}}</option>
                 @endforeach
               </select>
             </div>
-            <div class="form-group col-md-6">
-              <label for="title">Category</label>
-              <select name="category" class="form-control" id="update_category">
+            <div class="form-group col-md-4">
+              <select name="category" class="form-control" id="update_category"placeholder="Category">
                 <option value=""></option>
                 @foreach($categories as $cat)
                   <option value="{{$cat->id}}">{{$cat->title}}</option>
                 @endforeach
               </select>
             </div>
+            <div class="form-group col-md-4">
+              <input name="supplier" type="text" class="form-control" id="update_supplier" placeholder="Supplier">
+            </div>
             <div class="form-group col-md-6">
-              <label for="title">Supplier</label>
-              <input name="supplier" type="text" class="form-control" id="update_supplier">
+              
+              <input name="supplier_link" type="text" class="form-control" id="update_supplier_link"placeholder="Supplier Link">
             </div>
-            <div class="form-group col-md-12">
-              <label for="title">Supplier Link</label>
-              <input name="supplier_link" type="text" class="form-control" id="update_supplier_link">
-            </div>
-            <div class="form-group col-md-12">
-              <label for="title">Product Link</label>
-              <input name="product_link" type="text" class="form-control" id="update_product_link">
+            <div class="form-group col-md-6">
+              <input name="product_link" type="text" class="form-control" id="update_product_link"placeholder="Product Link">
             </div>
           </div>
           <div class="modal-footer">
@@ -692,6 +687,26 @@
     });
 
   });
+
+  $(document).on("click", ".show_prices", function() {
+    var id = $(this).data('id');
+    var store_website_id = $(this).data('website');
+    var product = $(this).data('product');
+    $.ajax({
+      method: "GET",
+      url: "/logging/show-prices/" + product,
+      data: {
+        "_token": "{{ csrf_token() }}"
+      },
+      dataType: 'html'
+    })
+    .done(function(result) {
+      $('#PriceModal').modal('show');
+      $('.price-data').html(result);
+    });
+
+  });
+
   $(document).on("click", ".update_modal", function() {
     var data = $(this).data('id');
 

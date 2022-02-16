@@ -1,4 +1,4 @@
-<form id="create-form" enctype="multipart/form-data" method="POST">
+    <form id="create-form" enctype="multipart/form-data" method="POST">
             @csrf
             <div class="modal-header">
                 <h4 class="modal-title"></h4>
@@ -34,4 +34,4 @@
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-secondary">Submit</button> 
             </div>
-        </form>
+    </form>

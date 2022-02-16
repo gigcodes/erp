@@ -14,6 +14,10 @@ use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Storage;
+use Carbon\Carbon;
+use App\Loggers\HubstuffCommandLog;
+use App\Loggers\HubstuffCommandLogMessage;
+
 
 class CashFlowController extends Controller
 {
@@ -24,6 +28,9 @@ class CashFlowController extends Controller
      */
     public function index(Request $request)
     {
+        $date_fornightly = Carbon::now()->format('d');
+
+
         $cash_flow = CashFlow::with(['user', 'files']);
         if ($request->type!='')
             $cash_flow->where('type',$request->type);
@@ -56,6 +63,18 @@ class CashFlowController extends Controller
                         {
                         $cash_flow->join('assets_manager','cash_flows.cash_flow_able_id','assets_manager.id');
                         $cash_flow->where('name','like',"%$request->b_name%");
+                        }
+                  
+                         
+
+                  }  
+                  if ($request->module_type=='vendor_frequency')
+                  {
+                        $cash_flow->where('cash_flow_able_type',\App\HubstaffActivityByPaymentFrequency::class); 
+                        if ($request->b_name!='')
+                        {
+                     //   $cash_flow->join('assets_manager','cash_flows.cash_flow_able_id','assets_manager.id');
+                     //   $cash_flow->where('name','like',"%$request->b_name%");
                         }
                   
                          
@@ -292,7 +311,24 @@ class CashFlowController extends Controller
         return response()->json(["code" => 500, "data" => [], "message" => "Cashflow requested id is not found"]);
     }
 
-
+    public function getPaymentDetails(Request $request){
+        $cashflow_id=$request->id;
+        $cash_flow = CashFlow::find($cashflow_id);
+        
+        $payment_receipts = [];
+        if($cash_flow){
+         $hubstaffActivityByPaymentFrequency = \App\HubstaffActivityByPaymentFrequency::where("id",$cash_flow->cash_flow_able_id)->first();
+         
+         if($hubstaffActivityByPaymentFrequency){
+             $payment_receipts = json_decode($hubstaffActivityByPaymentFrequency->payment_receipt_ids);
+             if(!empty($payment_receipts)){
+                $tasks         = \App\PaymentReceipt::with('chat_messages','user')->whereIn('id', $payment_receipts)->get();
+              
+                return view("cashflows.payment_receipts", compact('tasks'));
+             }
+         }   
+        }
+    }
     public function getBnameList(Request $request)
     {
          
@@ -348,6 +384,51 @@ class CashFlowController extends Controller
                 
                 return response()->json($data);
          }  
+    }
+    public function hubstuffCommandLog(Request $request)
+    {
+       // dd("test");
+        if ( $request->created_at) {
+
+            $query = HubstuffCommandLog::orderby('created_at', 'desc');
+
+            if (request('created_at') != null) {
+                $query->whereDate('created_at', request('created_at'));
+            }
+           
+
+            
+            $paginate = (Setting::get('pagination') * 10);
+            $logs     = $query->paginate($paginate)->appends(request()->except(['page']));
+        } else {
+
+            $paginate = (Setting::get('pagination') * 10);
+            $logs     = HubstuffCommandLog::orderby('created_at', 'desc')->paginate($paginate);
+
+        }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('cashflows.hubstuff_command_log_data', compact('logs'))->render(),
+                'links' => (string) $logs->render(),
+                'count' => $logs->total(),
+            ], 200);
+        }
+
+        return view('cashflows.hubstuff_command_log', compact('logs'));
+    }
+    public function hubstuffCommandLogDetail(Request $request){
+		$messageLogs =  [];
+        $users =\App\User::pluck("name","id");
+			if(isset($request->id) and $request->id != 0){
+				$messageLogs = HubstuffCommandLogMessage::where('hubstuff_command_log_id', $request->id)->get();
+			/*	$messageLogs = $messageLogs->leftJoin('store_websites as sw', 'sw.id', '=', 'flow_log_messages.store_website_id')->leftJoin('users', 'users.id', '=', 'flow_log_messages.leads')
+				->select('flow_log_messages.*','sw.website as website', 'users.name as lead_name')->get();*/
+                
+
+            }
+	    
+        return view('cashflows.hubstuff_command_log_detail_data', compact('messageLogs','users'));
     }    
 
 }

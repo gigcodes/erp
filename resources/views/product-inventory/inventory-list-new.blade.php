@@ -57,6 +57,22 @@
                 </span>
             </div>
         </div>
+        <div class="form-group mr-pd col-md-2">
+            {!! Form::text('term',request("term"), ['placeholder' => 'Search by product, sku, brand, category','class' => 'form-control','style' => 'width: 100%;']) !!}
+        </div>
+        <div class="form-group mr-pd col-md-2">
+            <select class="form-control globalSelect2" data-placeholder="Select a Brand" data-ajax="{{ route('select2.brands',['sort'=>true]) }}"
+            name="brand_names[]" multiple>
+            <option value="">Select a Brand</option>
+
+                @if ($selected_brand)        
+                    @foreach($selected_brand as $brand)
+                                    <option value="{{ $brand->id }}" selected>{{ $brand->name }}</option>
+                    @endforeach
+                @endif
+            </select>
+
+        </div>
         <div class="form-group mr-pd col-md-1">
             <button type="submit" class="btn btn-secondary"><i class="fa fa-filter"></i>Filter</button>
         </div>
@@ -146,7 +162,7 @@
     </div>
 </div>
 
-<div id="history-modal" class="modal fade" tabindex="-1" role="dialog">
+<div id="history-modal" class="modal fade inventory-listing" tabindex="-1" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">

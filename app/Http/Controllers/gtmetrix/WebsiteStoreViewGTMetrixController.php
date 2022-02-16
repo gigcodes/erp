@@ -5,11 +5,15 @@ namespace App\Http\Controllers\gtmetrix;
 use App\Http\Controllers\Controller;
 use App\Setting;
 use App\StoreViewsGTMetrix;
+use App\StoreViewsGTMetrixUrl;
 use App\StoreGTMetrixAccount;
+use App\WebsiteStoreView;
+use App\StoreWebsite;
 use Entrecore\GTMetrixClient\GTMetrixClient;
 use Entrecore\GTMetrixClient\GTMetrixTest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
 
 class WebsiteStoreViewGTMetrixController extends Controller
 {
@@ -19,33 +23,207 @@ class WebsiteStoreViewGTMetrixController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {
+    { 
         $query = StoreViewsGTMetrix::select(\DB::raw('store_views_gt_metrix.*'));
-
-        if (request('date')) {
+         
+        if (request('date') and request('date') != null) { 
             $query->whereDate('store_views_gt_metrix.created_at', request('date'));
         }
 
-        if (request('status')) {
+        if (request('status') and request('status') != null) {
             $query->where('store_views_gt_metrix.status', request('status'));
         }
 
-        $columns = ['error', 'report_url', 'report_url', 'html_load_time', 'html_bytes', 'page_load_time', 'page_bytes', 'page_elements', 'pagespeed_score', 'yslow_score'];
+        $columns = ['error', 'report_url', 'report_url', 'html_load_time', 'html_bytes', 'page_load_time', 'page_bytes', 'page_elements', 'pagespeed_score', 'yslow_score','website_url'];
         if (request('keyword')) {
-            foreach ($columns as $column) {
-                $query->orWhere('store_views_gt_metrix.' . $column, 'LIKE', '%' . request('keyword') . '%');
-            }
+            $query->where(function($q) use ($columns) {
+                foreach ($columns as $column) {
+                    $q->orWhere('store_views_gt_metrix.' . $column, 'LIKE', '%' . request('keyword') . '%');
+                }
+            });
+        }
+        if (request('sortby') && request('ord') && request('sortby') != null && request('ord') != null ){
+              $query->orderBy(request('sortby'),request('ord'));
         }
 
-        $list = $query->from(\DB::raw('(SELECT MAX( id) as id, status, store_view_id, website_url, html_load_time FROM store_views_gt_metrix  GROUP BY store_views_gt_metrix.website_url ) as t'))
-            ->leftJoin('store_views_gt_metrix', 't.id', '=', 'store_views_gt_metrix.id')->orderBy('id', 'desc')
-            ->paginate(25);
+        $query->from(\DB::raw('(SELECT MAX( id) as id, status, store_view_id, website_url, html_load_time FROM store_views_gt_metrix  GROUP BY store_views_gt_metrix.website_url ) as t'))
+            ->leftJoin('store_views_gt_metrix', 't.id', '=', 'store_views_gt_metrix.id');
+        
+        if (request('sortby') and request('sortby') != null) { 
+            $list = $query->orderBy('id', request('sortby'))->paginate(25);
+        }else{ 
+            $list = $query->orderBy('id', 'desc')->paginate(25);
+        }
+        
 
         //$list = $query->orderBy('id','desc')->paginate(25);
 
         $cronStatus = Setting::where('name', "gtmetrixCronStatus")->get()->first();
         $cronTime   = Setting::where('name', "gtmetrixCronType")->get()->first();
-        return view('gtmetrix.index', compact('list', 'cronStatus', 'cronTime'));
+        $storeViewList = WebsiteStoreView::whereNotNull('website_store_id')->get();
+        $StoreWebsite=StoreWebsite::get();
+        if ($request->ajax()) 
+        {
+            return view('gtmetrix.index_ajax', compact('list', 'cronStatus', 'cronTime'));
+        }
+        else
+        {
+            return view('gtmetrix.index', compact('list', 'cronStatus', 'cronTime','storeViewList','StoreWebsite'));
+        }    
+       
+    }
+	
+	public function delete_website_url(Request $request)
+	{
+		if(isset($request->rowid))
+		{
+			try
+			{
+				StoreViewsGTMetrixUrl::where('id', '=', $request->rowid)->delete();
+				return response()->json(["code" => 200, "message" => "Record Deleted Successfully"]);
+			}
+			catch (\Exception $e) {
+                    return response()->json(["code" => 500, "message" => "Error :" . $e->getMessage()]);
+			}
+			
+		}
+	}
+	
+	public function add_website_url(Request $request)
+	{
+		if(isset($request->arrayList))
+		{
+			$allRecords = StoreViewsGTMetrixUrl::select('store_views_gt_metrix_url.*')->get();
+			try{
+			foreach($allRecords as $recordsData)
+			{
+				
+				if(in_array($recordsData['id'],$request->arrayList))
+				{
+					$gtmetrix = StoreViewsGTMetrixUrl::where('id', $recordsData['id']);
+					$update = [
+								'process' => 1
+						];
+					$gtmetrix->update($update);
+				}
+				else
+				{
+					$gtmetrix = StoreViewsGTMetrixUrl::where('id', $recordsData['id']);
+					$update = [
+								'process' => 0
+						];
+					$gtmetrix->update($update);
+				}
+			}
+			return response()->json(["code" => 200, "message" => "Processed Successfully"]);
+			}
+			catch (\Exception $e) {
+                    return response()->json(["code" => 500, "message" => "Error :" . $e->getMessage()]);
+			}
+		}
+		else
+		{
+			$storename = "";
+			if(isset($request->store_view))
+			{  
+				$storeViewList = WebsiteStoreView::where('id',$request->store_view)->get();
+				if(isset($storeViewList[0]))
+				{
+					$storename = $storeViewList[0]->name;
+				}
+			}
+			
+			
+			$date = Carbon::now();
+			$addwebsite['website_url'] = $request->website;
+			$addwebsite['process'] = $request->process_url;
+			$addwebsite['store_view_id'] = $request->store_view;
+			$addwebsite['account_id'] = '';
+			$addwebsite['created_at']  = $date;
+			$addwebsite['updated_at']  = $date;
+			$addwebsite['store_name']  = $storename;
+			$website_data = StoreViewsGTMetrixUrl::where('website_url',$request->website)->get();
+
+			if ($website_data->isEmpty()) 
+			{
+				
+				StoreViewsGTMetrixUrl::create($addwebsite);
+				return redirect()->back()->with('success', 'Website url added successfully');
+			}
+			else
+			{
+				return redirect()->back()->with('warning', 'Website url already exists');
+			}
+		}
+		
+		
+		
+		//return response()->json(["code" => 200, "message" => "Request has been send for queue successfully"]);
+	}
+	
+	public function website_url(Request $request)
+	{
+		$query = StoreViewsGTMetrixUrl::select('store_views_gt_metrix_url.*');
+         
+        if (request('date') and request('date') != null) { 
+            $query->whereDate('store_views_gt_metrix_url.created_at', request('date'));
+        }
+		if (request('website_url') and request('website_url') != null) { 
+            $query->where('store_views_gt_metrix_url.website_url','like', '%'.request('website_url').'%');
+        }
+		if (request('process') and request('process') != null) { 
+			$process = (request('process') == 'yes') ? 1 : 0;
+            $query->where('store_views_gt_metrix_url.process', $process);
+        }
+		
+        if (request('sortby') && request('ord') && request('sortby') != null && request('ord') != null ){
+              $query->orderBy(request('sortby'),request('ord'));
+        }
+
+        if (request('sortby') and request('sortby') != null) { 
+            $list = $query->orderBy('id', request('sortby'))->paginate(25);
+        }else{ 
+            $list = $query->orderBy('id', 'desc')->paginate(25);
+        }
+        
+
+        //$list = $query->orderBy('id','desc')->paginate(25);
+		$storeViewList = WebsiteStoreView::whereNotNull('website_store_id')->get();
+        
+        if ($request->ajax()) 
+        {
+            return view('gtmetrix.website_url_ajax', compact('list','storeViewList'));
+        }
+        else
+        {
+            return view('gtmetrix.website_url', compact('list','storeViewList'));
+        }
+	}
+	
+    public function toggleFlag(Request $request){
+        
+        $input = $request->all();
+        
+        if($input['flag']==null || $input['flag']== 2){
+            $data = ['flag'=>1];
+        }else{
+            $data = ['flag'=>2];
+        }
+        
+        $response = StoreViewsGTMetrix::where('id',$input['id'])->update($data);
+
+        if($response){
+            return response()->json([
+                'status' => true,
+                'message' => 'Flag Successfully Updated.'
+            ]);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'Something Went Wrong.'
+            ]);
+        }
+        
     }
 
     public function saveGTmetrixCronStatus($status = null)
@@ -94,6 +272,24 @@ class WebsiteStoreViewGTMetrixController extends Controller
         return redirect()->back()->with('success', 'Success');
     }
 
+
+    public function saveGTmetrixCron(Request $request)
+    {
+
+        $request->validate([
+            'website' => 'required',
+        ]);
+        $data['store_view_id']=$request->store_view;
+        $data['status']=$request->status;
+        $data['website_url']=$request->website;
+
+
+        StoreViewsGTMetrix::create( $data);
+
+     
+        return redirect()->back()->with('success', 'Success'); 
+    }
+
     /**
      * Show the store view history.
      *
@@ -103,7 +299,19 @@ class WebsiteStoreViewGTMetrixController extends Controller
     {
         $title = 'History';
         if ($id) {
-            $history = StoreViewsGTMetrix::where('store_view_id', $id)->orderBy("created_at", "desc")->paginate(25);
+            $history = StoreViewsGTMetrix::where("website_url",$id)->whereNotNull('test_id')->orderBy("created_at", "desc")->paginate(25);
+
+            return view('gtmetrix.history', compact('history','title'));
+            //return response()->json(["code" => 200, "data" => $history]);
+        }
+    }
+
+    public function webHistory(Request $request)
+    {
+        $id = $request->get("id");
+        $title = 'History';
+        if ($id) {
+            $history = StoreViewsGTMetrix::where("website_url",$id)->whereNotNull('test_id')->orderBy("created_at", "desc")->paginate(25);
 
             return view('gtmetrix.history', compact('history','title'));
             //return response()->json(["code" => 200, "data" => $history]);

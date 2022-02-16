@@ -153,17 +153,31 @@ class BrandController extends Controller
         $appliedQ      = StoreWebsiteBrand::all();
         
         $apppliedResult = [];
+        $apppliedResultCount = [];
 
         if(!$appliedQ->isEmpty()){
             foreach($appliedQ as $raw) {
                 $apppliedResult[$raw->brand_id][] = $raw->store_website_id;
+                $apppliedResultCount[$raw->store_website_id][]=$raw->brand_id;
             }
         }
-		$limit = 30; 
+        $brandsCount=$query->get()->toArray();
+        $brandsCountIds=[];
+        foreach($brandsCount as $brandCount){
+            array_push($brandsCountIds,$brandCount['id']);
+        }
+        foreach($apppliedResultCount as $k => $v){
+            $diff = array_diff($v,$brandsCountIds);
+            $result = (array_diff($v,$diff));
+            $apppliedResultCount[$k] = $result;
+        }
+        
+        $limit=30;
+
 		if ($request->ajax() && $request->pagination == null) {
 			$brands = $query->limit($limit)->offset(($request->page - 1)*$limit)->get();
             return response()->json([
-                'tbody' => view('storewebsite::brand.partials.brand_data', compact('brands', 'storeWebsite', 'apppliedResult'))->render(),
+                'tbody' => view('storewebsite::brand.partials.brand_data', compact('brands', 'storeWebsite', 'apppliedResult','apppliedResultCount'))->render(),
                 'count' => count($brands)
             ], 200);
         } else{
@@ -171,7 +185,7 @@ class BrandController extends Controller
 		}
        $categories = Category::join('products', 'products.category', '=', 'categories.id')->orderBy('categories.title','asc')->pluck('categories.title','categories.id');
 
-        return view("storewebsite::brand.index", compact(['title', 'brands', 'storeWebsite','apppliedResult','categories']));
+        return view("storewebsite::brand.index", compact(['title', 'brands', 'storeWebsite','apppliedResult','categories','apppliedResultCount']));
     }
 
     public function pushToStore(Request $request)

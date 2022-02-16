@@ -614,12 +614,13 @@ $('select.select2').select2({
 
 	function submitCategoryChange(id){
 		category = $('#category-name'+id).val();
+		var website = $("#select2-change_website-container").val();
 		categoryId = id
 		$.ajax({
 			url: '{{ route("content-management.category.edit") }}',
 			type: 'POST',
 			dataType: 'json',
-			data: {category: category , "_token": "{{ csrf_token() }}" , categoryId : categoryId},
+			data: {category: category , "_token": "{{ csrf_token() }}" , categoryId : categoryId, 'website' : website },
 			beforeSend: function () {
                     $("#loading-image").show();
                 },

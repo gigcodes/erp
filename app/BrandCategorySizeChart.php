@@ -43,4 +43,9 @@ class BrandCategorySizeChart extends Model
         
         return $img;
     }
+
+    public function brands()
+    {
+        return $this->hasOne('App\Brand','id','brand_id');
+    }
 }

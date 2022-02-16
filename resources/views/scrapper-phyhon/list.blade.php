@@ -71,6 +71,10 @@
         td{
             padding: 4px !important;
         }
+         .c-error{ 
+            border: 1px solid #c51244 !important; 
+        }
+
     </style>
 @endsection
 
@@ -81,143 +85,125 @@
     <div class="row m-0">
         <div class="col-lg-12 margin-tb p-0">
             <div class="">
-
                 <!--roletype-->
                 <h2 class="page-heading">Scrapper python list<span id="products_count"></span> </h2>
-
                 <!--pending products count-->
-
-            <!--attach Product-->
-            <!--Product Search Input -->
-            
+                <!--attach Product-->
+                <!--Product Search Input -->
             </div>
         </div>
-
-
     </div>
 
     @include('partials.flash_messages')
-    
-    <div>
 
-       
-    </div>
-
-        <form method="get" action="{{route('scrapper.phyhon.index')}}">
-
-     <div class="form-group">
-                        <div class="row m-0">
-                            
-                            <div class="col-md-3 pr-0">
-                                <input name="search" type="text" class="form-control" value="{{$query}}"  placeholder="search" id="search">
-                            </div>
-                            <div class="col-md-3 pr-0">
-                               <select class="form-control select-multiple" id="web-select" tabindex="-1" aria-hidden="true" name="website" onchange="showStores(this)">
-                                    <option value="">Select Website</option>
-
-                                    @foreach($allWebsites as $websiteRow)
-
-                                    @if(isset($request->website) && $websiteRow->id==$request->website)
-
-                                     <option value="{{$websiteRow->id}}" selected="selected">{{$websiteRow->name}}</option>
-
-
-                                    @else
-
-                                     <option value="{{$websiteRow->id}}">{{$websiteRow->name}}</option>
-
-
-                                    @endif
-
-                                   
-                                         @endforeach
-                                        </select>
-                            </div>
-
-                             <div class="col-md-3 pr-0">
-                               <select class="form-control select-multiple" id="store-select" tabindex="-1" aria-hidden="true" name="store">
-                                    <option value="">Select Store</option>
-
-                                   
-                                        </select>
-                            </div>
-                            <div class="col-md-2">
-                               <button type="submit" class="btn btn-xs btn-image" ><img src="/images/filter.png"></button>
-                                <button type="button" onclick="resetForm(this)" class="btn btn-image btn-xs" id=""><img src="/images/resend2.png"></button>
-
-                            </div>
-                            <div class="col-md-1">
-                            </div>
+    <div class="row m-0">
+        <div class="col-md-12 margin-tb p-0">
+            <form method="get" action="{{route('scrapper.phyhon.index')}}">
+                <div class="form-group">
+                    <div class="row m-0">
+                        <div class="col-md-2">
+                            <input name="search" type="text" class="form-control" value="{{$query}}"  placeholder="search" id="search">
                         </div>
-
-                    </div>
-
-</form>
-
-        <form action="" method="POST" id="scrapper-python-form">
-        @csrf
-            <div class="form-group">    
-                <div class="row m-0">
-                    
-                    <div class="col-md-3 pr-0">
-                        <select class="form-control select-multiple" id="store_website" tabindex="-1" aria-hidden="true" name="store_website" onchange="showStores(this)">
-                            <option value="">Select Website</option>
-                                @foreach($storewebsite as $web)
-                                    <option value="{{$web->website}}">{{$web->website}}</option>
+                        <div class="col-md-2">
+                            <?php echo Form::select("store_website_id",[null => "- select website -"] + $storewebsite->toArray(),request('store_website_id'),["class" => "form-control"]) ?>
+                        </div>
+                        <?php /* <div class="col-md-2">
+                            <select class="form-control select-multiple" id="web-select" tabindex="-1" aria-hidden="true" name="website" onchange="showStores(this)">
+                                <option value="">Select Website</option>
+                                @foreach($allWebsites as $websiteRow)
+                                    @if(isset($request->website) && $websiteRow->id==$request->website)
+                                        <option value="{{$websiteRow->id}}" selected="selected">{{$websiteRow->name}}</option>
+                                    @else
+                                    <option value="{{$websiteRow->id}}">{{$websiteRow->name}}</option>
+                                    @endif
                                 @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-md-2 pr-0">
-                            
-                        <input type="radio" name="name" id="start" value="start" checked>
-                        <label class="form-check-label pr-4" for="start">
-                            Start
-                        </label>
-                    
-                        <input type="radio" name="name" id="stop" value="stop">
-                        <label class="form-check-label pr-4" for="stop">
-                            Stop
-                        </label>
-
-                        <input type="radio" name="name" id="get-status" value="get-status">
-                        <label class="form-check-label pr-4" for="get-status">
-                            Get status
-                        </label>
-                            
-                    </div>
-
-                    <div class="col-md-2 pr-0">
-                            
-                        <input type="radio" name="type" id="desktop" value="desktop" checked>
-                        <label class="form-check-label pr-4" for="desktop">
-                            Desktop
-                        </label>
-                    
-                        <input type="radio" name="type" id="mobile" value="mobile">
-                        <label class="form-check-label pr-4" for="mobile">
-                            Mobile
-                        </label>
-
-                        <input type="radio" name="type" id="tablet" value="tablet">
-                        <label class="form-check-label pr-4" for="tablet">
-                            Tablet
-                        </label>
-                            
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-secondary" >Send Request</button>
-
-                        <button type="submit" class="btn btn-secondary view_history" >History</button>
-
-                    </div>
-                    <div class="col-md-1">
+                            </select>
+                        </div> */ ?>
+                        <div class="col-md-2">
+                            <?php echo Form::select('device',["desktop" => "Desktop" , "mobile" => "Mobile", "tablet" => "Tablet"],request('device'), ["class" => "form-control"]) ?>
+                        </div>
+                        <?php /* <div class="col-md-2">
+                            <select class="form-control select-multiple" id="store-select" tabindex="-1" aria-hidden="true" name="store">
+                                <option value="">Select Store</option>
+                            </select>
+                        </div> */?>
+                        <div class="col-md-2 mt-3  pl-19">
+                            <button type="submit" class="btn btn-xs btn-image" ><img src="/images/filter.png"></button>
+                            <button type="button" onclick="resetForm(this)" class="btn btn-image btn-xs" id=""><img src="/images/resend2.png"></button>
+                        </div>
+                         <div class="col-md-2">
+                            <select class="form-control select-multiple" id="store_website" tabindex="-1" aria-hidden="true" name="store_website" onchange="showStores(this)">
+                                <option value="">Select Website</option>
+                                @foreach($storewebsite as $key=>$web)
+                                <option value="{{$key}}">{{$web}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class='input-group mr-2' id='log-created-date1' style="width: 226px; float:left;">
+                                <input type='text' class="form-control " name="delete_date" value="" placeholder="Date for delete" id="delete_date" />
+                                    <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                           
+                            </div>
                     </div>
                 </div>
-            </div>
-        </form>
-
-
+            </form>
+        </div>
+    </div>
+    <div class="row ">
+        <div class="col-md-12 margin-tb p-0">
+            
+                <div class="form-group">    
+                    <div class="row m-0">
+                    <div class="col-md-9">
+                    <form action="" method="POST" id="scrapper-python-form">
+                      @csrf
+                       
+                        <div class="col-md-5">
+                            <input class="mt-2" type="radio" name="name" id="start" value="start" checked>
+                            <label class="form-check-label pr-1 mt-2" for="start">
+                                Start
+                            </label>
+                            <input class="mt-2" type="radio" name="name" id="stop" value="stop">
+                            <label class="form-check-label pr-1 mt-2" for="stop">
+                                Stop
+                            </label>
+                            <input class="mt-2" type="radio" name="name" id="get-status" value="get-status">
+                            <label class="form-check-label pr-1  mt-2" for="get-status">
+                                Get status
+                            </label>
+                            <input class="mt-2" type="radio" name="type" id="desktop" value="desktop" checked>
+                            <label class="form-check-label pr-1 mt-2" for="desktop">
+                                Desktop
+                            </label>
+                            <input class="mt-2" type="radio" name="type" id="mobile" value="mobile">
+                            <label class="form-check-label  mt-2" for="mobile">
+                                Mobile
+                            </label>
+                            <input class="mt-2" type="radio" name="type" id="tablet" value="tablet">
+                            <label class="form-check-label  mt-2" for="tablet">
+                                Tablet
+                            </label>
+                            <input class="mt-2" type="radio" name="is_flag" id="is_flag" value="is_flag">
+                            <label class="form-check-label  mt-2" for="is_flag">
+                                Is Flag
+                            </label>
+                            </div>
+                              <div class="col-md-7 "style="display: flex;">
+                            <button type="submit" class="btn btn-secondary custom-button btn-xs"style="height: 34px; width: 300px !important;" >Send Request</button>
+                            <button type="submit"  class="btn ml-5 btn-secondary custom-button action_history btn-xs"style="height: 34px; width: 300px !important;">Action History</button>
+                            <button type="submit" class="btn btn-secondary ml-5 custom-button view_history btn-xs" style="height: 34px; width: 300px !important;">History</button>
+                            <button type="submit" class="btn btn-secondary ml-5 delete-image-btn custom-button btn-xs"style="height: 34px; width: 300px !important;" >Delete Images</button>
+                        </div>
+                    </form>
+                    </div>
+                    
+                    </div>
+                </div>
+           
+        </div>
+    </div>
     <div id="history" class="modal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="history_img">
             <div class="modal-content">
@@ -263,22 +249,27 @@
 
     <div class="col-md-12 margin-tb">
         <div class="table-responsive">
-            <table class="table table-bordered" {{--style="table-layout:fixed;"--}}>
+            <table class="table table-bordered"style="table-layout:fixed;">
                 <thead>
-                <th style="width:8%">Date</th>
-                <th style="width:5%">Id</th>
-                <th style="width:35%">Website</th>
-                <th style="width:20%">Name</th>
-                <th style="width:15%">Language</th>
-                <th style="width:17%">Action</th>
+                <th style="width:4%">Date</th>
+                
+                <th style="width:19%">Website</th>
+                <th style="width:12%">Name</th>
+                <th style="width:9%">Language</th>
+                <th style="width:5%">Desktop</th>
+                <th style="width:5%">Mobile</th>
+                <th style="width:5%">Tablet</th>
+                <th style="width:5%">Set as Default</th>
+                <th style="width:3%">Is Flag</th>
+                <th style="width:4%">Action</th>
                 </thead>
                 <tbody class="infinite-scroll-data">
-                    @include('scrapper-phyhon.attached-image-load')
+                    @include('scrapper-phyhon.attached-image-load_new')
                 </tbody>
             </table>
 
         </div>
-        {{ $websites->appends(request()->except('page'))->links() }}
+        {{ $images->appends(request()->except('page'))->links() }}
     </div>
 
 
@@ -318,6 +309,38 @@
         </div>
     </div>
 
+
+    <div id="action-list-history" class="modal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Action Log</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <td>User</td>
+                            <td>Action</td>
+                            <td>Website</td>
+                            <td>Device</td>
+                            <td>Action</td>
+                            <td>Url</td>
+                            <td>Request</td>
+                            <td>Response</td>
+                            <td>Date</td>
+                        </thead>
+                        <tbody  class="action-list-history_data">
+                            
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- @include('partials.modals.category') --}}
     {{-- @include('partials.modals.forward-products') --}}
     {{-- @include('partials.add-order-model') --}}
@@ -325,8 +348,11 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="/js/bootstrap-multiselect.min.js"></script>
     <script src="/js/jquery.jscroll.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script>
-
+         
             $('.customer-search').select2({
                 width: "100%"
             });
@@ -1235,6 +1261,8 @@
                     }
     })
 
+    
+
     $('#customer-search').select2({
             tags: true,
             width : '100%',
@@ -1285,7 +1313,7 @@
 
         $(document).on('click', '.expand-row-msg', function () {
             var name = $(this).data('name');
-			var id = $(this).data('id');
+            var id = $(this).data('id');
             var full = '.expand-row-msg .show-short-'+name+'-'+id;
             var mini ='.expand-row-msg .show-full-'+name+'-'+id;
             $(full).toggleClass('hidden');
@@ -1366,6 +1394,15 @@
         $(document).ready(function()
         {
             $('[name="website"]').trigger('change');
+
+            $(document).on('click', '.expand-row-msg', function () {
+                var name = $(this).data('name');
+                var id = $(this).data('id');
+                var full = '.expand-row-msg .show-short-'+name+'-'+id;
+                var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+                $(full).toggleClass('hidden');
+                $(mini).toggleClass('hidden');
+            });
         })
 
         function showStores(selector)
@@ -1476,6 +1513,120 @@
                 console.log(response);
             });
         });
+
+        $(document).on("click",".action_history",function(e) {
+            e.preventDefault();
+
+            let startDate=   jQuery('input[name="range_start"]').val();
+            let endDate =    jQuery('input[name="range_end"]').val();
+
+            $.ajax({
+                type: "GET",
+                url: "{{route('scrapper.action.history')}}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    startDate:startDate,
+                    endDate:endDate,
+                },
+                dataType : "json",  
+                beforeSend : function() {
+                    $(this).text('Loading...');
+                },
+            }).done(function (response) {
+                
+             //   var html_data = '';
+               
+                $('.action-list-history_data').html(response.message);
+                $('#action-list-history').modal('show');
+
+            }).fail(function (response) {
+                console.log(response);
+            });
+        });
+
+        
+        $('#delete_date').datetimepicker({ format: 'YYYY-MM-DD' });
+         $(document).on('click', '.delete-image-btn', function(e) {
+
+            e.preventDefault();
+            if( $('#delete_date').val()==""){
+                alert("Please select delete date to delete the images");
+                return false;
+            }
+            if(!confirm("Do you really want to do this?")) {
+                return false;
+            }
+             $.ajax({
+                type: 'POST',
+                url: "{{route('scrapper.phyhon.delete')}}",
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    delete_date: $('#delete_date').val(),
+                    
+                },
+                dataType: "json"
+            }).done(function(response) {
+                $("#loading-image").hide();
+                if (response.message) {
+                    toastr['success'](response.message, 'success');
+                } else {
+                    toastr['error'](response.err, 'error');
+                }
+                
+            }).fail(function(response) {
+                $("#loading-image").hide();
+                $('#scrapper-python-modal').modal('hide')
+
+                console.log("Sorry, something went wrong");
+            });
+
+        });
+
+         function setStoreAsFlag(selector)
+        {
+            var website=$(selector).attr('data-website-id');
+            var store=$(selector).attr('data-store-id');
+            var checked=0;
+            var thisSelector=$(selector);
+
+            if($(selector).prop('checked')==true)
+            {
+                var checked=1;
+            }
+
+            $('.expand-'+website).each(function(){
+
+                console.log($(this).find('.defaultInput'));
+
+                $(this).find('.defaultInput').prop('checked',false);
+            })
+            
+
+            if(checked)
+            {
+                $(selector).prop('checked',true);
+            }
+
+            
+
+            $.get('{{route("set.flag.store")}}'+'/'+website+'/'+store+'/'+checked,function(res)
+            {
+                if(res.status==1)
+                {
+                   toastr['success'](res.message, 'success');
+                }
+                else
+                {
+                    toastr['error'](res.message, 'error');
+                }
+
+
+            })
+
+        }
         
 </script>
 

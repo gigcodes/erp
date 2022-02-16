@@ -17,6 +17,7 @@ class ErpLeads extends Model
      * @SWG\Property(property="lead_status_id",type="integer")
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="product_id",type="integer")
+     * @SWG\Property(property="store_website_id",type="integer")
      * @SWG\Property(property="brand_id",type="integer")
      * @SWG\Property(property="category_id",type="integer")
      * @SWG\Property(property="color",type="string")
@@ -25,6 +26,7 @@ class ErpLeads extends Model
      * @SWG\Property(property="max_price",type="float")
      * @SWG\Property(property="brand_segment",type="string")
      * @SWG\Property(property="gender",type="string")
+     * @SWG\Property(property="type",type="string")
      * @SWG\Property(property="created_at",type="datetime")
      * @SWG\Property(property="updated_at",type="datetime")
    
@@ -34,6 +36,7 @@ class ErpLeads extends Model
     protected $fillable = [
         'lead_status_id',
         'customer_id',
+        'store_website_id',
         'product_id',
         'brand_id',
         'category_id',
@@ -43,6 +46,7 @@ class ErpLeads extends Model
         'max_price',
         'brand_segment',
         'gender',
+        'type',
         'created_at',
         'updated_at',
     ];
@@ -50,6 +54,11 @@ class ErpLeads extends Model
     public function status_changes()
     {
         return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\ErpLeads')->latest();
+    }
+
+    public function storeWebsite()
+    {
+        return $this->hasOne('App\StoreWebsite', "id","store_website_id");
     }
 
     public function customer()

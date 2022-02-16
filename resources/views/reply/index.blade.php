@@ -101,7 +101,7 @@
                             @foreach ($replies as $key => $reply)
                                 <tr>
                                     <td id="reply_id">{{ $reply->id }}</td>
-                                    <td id="reply_category_name">{{ $reply->category->name }}</td>
+                                    <td id="reply_category_name">{{ ($reply->category) ?  $reply->category->name : '-' }}</td>
                                     <td id="reply_text">{{ $reply->reply }}</td>
                                     <td id="reply_model">{{ $reply->model }}</td>
                                     <td>

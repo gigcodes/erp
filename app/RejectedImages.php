@@ -15,7 +15,11 @@ class RejectedImages extends Model
      * @SWG\Property(property="status",type="string")
      */
     protected $fillable = [
-        'website_id', 'product_id', 'status'
+        'website_id', 'product_id', 'status', 'user_id'
     ];
-
+    
+    public static function getRejectedMediasFromProductId($product_id)
+    {
+       	return  \App\RejectedImages::join('mediables','mediables.mediable_id','rejected_images.product_id')->leftJoin('media','media.id','mediables.media_id')->join('store_websites','store_websites.id','=','rejected_images.website_id')->where("product_id",$product_id)->get();
+    }
 }

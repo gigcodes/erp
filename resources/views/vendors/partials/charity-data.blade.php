@@ -32,18 +32,19 @@
     <td class="expand-row table-hover-cell" style="word-break: break-all;">
         {{ $vendor->store_websites_name }}
     </td>
-    <th width="7%">Email</th>
     {{-- <td style="word-break: break-all;">{{ $vendor->social_handle }}</td>
     <td style="word-break: break-all;">{{ $vendor->website }}</td> --}}
-    <td class="table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;padding: 5px;">
+    <td class="table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;padding: 5px;"> 
+   
+
         <div class="row">
             <div class="col-md-8 form-inline cls_remove_rightpadding">
                 <div class="row cls_textarea_subbox">
-                    <div class="col-md-11 cls_remove_rightpadding">
+                    <div class="col-md-10 cls_remove_rightpadding">
                         <textarea rows="1" class="form-control quick-message-field cls_quick_message" id="messageid_{{ $vendor->id }}" name="message" placeholder="Message"></textarea>
                     </div>
-                    <div class="col-md-1 cls_remove_allpadding">
-                        <button class="btn btn-sm btn-image send-message1" data-vendorid="{{ $vendor->id }}"><img src="<?php echo $base_url;?>/images/filled-sent.png"/></button>
+                    <div class="col-md-2 cls_remove_allpadding d-flex align-items-center">
+                        <button class="btn btn-sm btn-image send-message1 pr-0" data-vendorid="{{ $vendor->id }}"><img src="<?php echo $base_url;?>/images/filled-sent.png"/></button>
                         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="charity" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     </div>
                 </div>
@@ -72,7 +73,7 @@
                                     <?php }
                                     ?>
                                 </select>
-                                <a class="btn btn-image delete_quick_comment"><img src="<?php echo $base_url;?>/images/delete.png" style="cursor: default; width: 16px;"></a>
+                                <a class="btn btn-image delete_quick_comment d-flex align-items-center"><img src="<?php echo $base_url;?>/images/delete.png" style="cursor: default; width: 16px;"></a>
                             </div>
                         </div> 
                     </div>
@@ -108,7 +109,7 @@
                 <button type="submit" class="btn btn-image"><img src="<?php echo $base_url;?>/images/delete.png"/></button>
             {!! Form::close() !!}
             @if($vendor->product_id)
-                <button type="submit" class="btn btn-image upload-single" title="push to magento" data-product-id="{{$vendor->product_id}}"  data-id="{{$vendor->id}}"><img src="<?php echo $base_url;?>/images/upload.png"/></button>
+                <button type="button" onclick="showpushbox('{{ $vendor->product_id }}');" class="btn btn-image " title="push to magento" data-product-id="{{$vendor->product_id}}"  data-id="{{$vendor->id}}"><img src="<?php echo asset('/images/upload.png');?>"></button>
             @endif
             @if($vendor->email)
                 <button type="button" class="btn send-email-common-btn" data-toemail="{{ $vendor->email }}" data-object="charity" data-id="{{ $vendor->id }}"><i class="fa fa-envelope-square"></i></button>

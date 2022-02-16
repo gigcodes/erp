@@ -4,7 +4,7 @@
         <td>
             <input    type="checkbox" 
                       class="selectedInfluencers" 
-                      name="selectedInfluencers" 
+                      name="selectedInfluencers" autocomplete="off"
                       value="{{$influencer->id}}">
          </td>
 
@@ -13,18 +13,18 @@
         </td>
 	      
         <td style="white-space: nowrap;">
-          {{date('d-m-y', strtotime($influencer->created_at))}}
+          {{ str_limit(date('d-m-y', strtotime($influencer->created_at)), 5, '..')}}
         </td>
 
         <td>
-            <a href="{{ $influencer->url }}" target="_blank">
-              {{ str_limit($influencer->name, 12, '...')}}
+            <a href="{{ $influencer->profile_url }}" target="_blank" class="text-dark">
+              {{ str_limit($influencer->name, 7, '..')}}
             </a>
         </td>
 
         <td class="expand-row-msg" data-name="email" data-id="{{$influencer->id}}">
 	            	<span onclick="showModal('{{$influencer->email}}','Email')" class="show-short-email-{{$influencer->id}}">
-                  {{ str_limit($influencer->email, 12, '...')}}
+                  {{ str_limit($influencer->email, 7, '..')}}
                 </span>
 	            	<span style="word-break:break-all;" class="show-full-email-{{$influencer->id}} hidden">
                   {{$influencer->email}}
@@ -33,7 +33,7 @@
 
         <td class="expand-row-msg" data-name="keyword" data-id="{{$influencer->id}}">
 	      	<span onclick="showModal('{{$influencer->keyword}}','Influencer Name')" class="show-short-keyword-{{$influencer->id}}">
-            {{ str_limit($influencer->keyword, 12, '...')}}
+            {{ str_limit($influencer->keyword, 7, '..')}}
           </span>
 		      <span style="word-break:break-all;" class="show-full-keyword-{{$influencer->id}} hidden">
             {{$influencer->keyword}}
@@ -57,22 +57,22 @@
                   class="show-short-country-{{$influencer->id}}"
                   style="cursor:pointer"
                   >
-                  {{ str_limit($influencer->country, 5, '...')}}
+                  {{ str_limit($influencer->country, 5, '..')}}
             </span>
         <span style="word-break:break-all;" class="show-full-country-{{$influencer->id}} hidden">{{$influencer->country}}</span>
         </td>
 
         <td class="expand-row-msg" data-name="description" data-id="{{$influencer->id}}">
 
-        <span onclick="showModal( '{{$influencer->description}}' , 'Description' )" class="show-short-description-{{$influencer->id}}">{{ str_limit($influencer->description, 6, '...')}}</span>
+        <span onclick="showModal( '{{$influencer->description}}' , 'Description' )" class="show-short-description-{{$influencer->id}}">{{ str_limit($influencer->description, 6, '..')}}</span>
         <span style="word-break:break-all;" class="show-full-description-{{$influencer->id}} hidden">{{$influencer->description}}</span>
         </td>  
         
         <td>
-          <div class="row" style="margin-bottom:8px">
+          <div class="row">
             <div class="col-md-12">
                 <select class="form-control account-search-{{$influencer->id}} select2" name="account_id" data-placeholder="Sender...">
-                    <option value="">Select sender...</option>
+                    <option value="">Select sender..</option>
                     @foreach ($accounts as $key => $account)
                       <option value="{{ $key }}" {{ isset($thread) && $thread->account_id == $key ? 'selected' : '' }}>{{ $account }}</option>
                     @endforeach
@@ -82,7 +82,7 @@
         </td>
 
         <td>
-		        <div class="d-flex" style="flex-direction: column;">
+		        <div  style="flex-direction: column;">
               @php 
                    $thread =\App\InstagramThread::where('scrap_influencer_id', $influencer->id)->first();
               @endphp
@@ -93,7 +93,7 @@
                        @if($thread->lastMessage->sent == 1) style="color: green;" 
                        @else style="color: red;" 
                        @endif>
-                        {{ str_limit($thread->lastMessage->message, 20, '...')}}
+                        {{ str_limit($thread->lastMessage->message, 20, '..')}}
                     </div>
                 @endif
               @endif
@@ -103,40 +103,33 @@
 
             
 
-            <div class="row">
+            <div class="row m-0">
 
-              <div class="col-md-12 form-inline d-flex ">
-                  <textarea placeholder="Message..." style="width: 110px;
-                  /* border: none; */
-                  padding: 2px;
-                  height: 30px;
-    border-radius: 5px;" name="" class="quick-message-field" 
+              <div class="col-md-12 form-inline p-0">
+                  <textarea placeholder="Message..." name="" class="quick-message-field form-control w-75 mr-2" 
                             id="message{{ $influencer->id }}"></textarea>
-                 <input type="hidden" id="message-id" name="message-id" />
-                  <a style="margin-right: -16px;
-                  margin-left: 18px;" class="btn btn-sm btn-image send-message" href="javascript:void(0)">
+                  <input type="hidden" id="message-id" name="message-id" />
+                  <a  class="btn btn-xs text-dark  btn-image send-message" href="javascript:void(0)">
                     <span class="send_btn" data-id="{{$influencer->id}}">
-                      <img src="{{asset('images/filled-sent.png')}}"/>
+                      <i class="fa fa-plus" style="margin-top: 5px;"></i>
                     </span>
                   </a>
-                  <a class="btn btn-image delete_quick_comment">
-                    <img src="<?php echo url('/');?>/images/delete.png" style="cursor: default; width: 16px;">
+                  <a class="btn btn-image  btn-xs text-dark delete_quick_comment">
+                    <i class="fa fa-trash"style="color: gray; margin-top: 5px;"></i>
                   </a>
               </div>
-
-              <div class="col-md-4"  style="margin-top:10px" >
-              
-                
-  
+              <div class="col-md-4 form-inline p-0" >
                 @if($thread)
                           <a href="{{ route('attachImages', ['direct', @$thread->id, 1]) .'?'.http_build_query(['return_url' => 'instagram/influencers'])}}" 
-                             class="btn btn-image px-1">
-                            <img src="{{asset('images/attach.png')}}"/>
+                             class="btn btn-image btn-xs text-dark">
+                             <i class="fa fa-paperclip"></i>
                           </a>
                 @endif
   
                 @if($thread)
-                  <button type="button" class="btn btn-xs btn-image load-direct-chat-model" data-object="direct" data-id="{{ $thread->id  }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                  <button type="button" class="btn btn-xs btn-image load-direct-chat-model" data-object="direct" data-id="{{ $thread->id  }}" title="Load messages">
+                  <i class="fa fa-comments"></i>
+                  </button>
                 @endif
               </div>
 
@@ -161,7 +154,7 @@
     </td>
     
     <td>
-        <select style="border:1px;padding:2px" name="quickComment">
+        <select name="quickComment" class="form-control">
           <option  data-vendorid="{{ $influencer->id }}"  value="">Auto Reply</option>
           <?php
           foreach ($replies ?? [] as $key_r => $value_r) { ?>
@@ -180,23 +173,28 @@
       <div class="d-flex">
 
         <button title="Retrieve latest post and comment." 
-                class="btn btn-image latest-post pd-2 action-icon" data-id="{{ $influencer->id }}">
-          <img src="{{asset('images/add.png')}}"/>
+                class="btn btn-image latest-post pd-2 action-icon btn-xs text-dark" data-id="{{ $influencer->id }}">
+          <i class="fa fa-plus"style="color: gray; margin-top: 9px;"></i>
         </button>
             
-        <button class="btn btn-image expand-row-btn pd-2 action-icon" 
+        <button class="btn btn-image expand-row-btn pd-2 action-icon btn-xs text-dark" 
                 data-id="{{ $influencer->id }}">
-                <img src="{{asset('images/forward.png')}}">
+                <i class="fa fa-forward"style="color: gray; margin-top: 9px;"></i>
         </button>
-        @if($influencer->hasMedia('instagram-screenshot'))
+        <!-- @if($influencer->hasMedia('instagram-screenshot'))
           @php
             $url = $influencer->getMedia('instagram-screenshot')->first()->getUrl();
           @endphp
-          <a href="{{$url}}" target="_blank" class="btn" 
+          <a href="{{$url}}" target="_blank" class="btn btn-xs text-dark" 
                 data-id="{{ $influencer->id }}">
                 <i class="fa fa-picture-o"></i>
           </a>
-        @endif
+        @endif -->
+        <a href="{{$influencer->url}}" target="_blank" class="btn btn-xs text-dark" 
+                data-id="{{ $influencer->id }}">
+                <i class="fa fa-picture-o"style="color: gray; margin-top: 5px;"></i>
+          </a>
+
       </div>
     </td>
 </tr>

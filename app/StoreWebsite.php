@@ -53,6 +53,7 @@ class StoreWebsite extends Model
         'title',
         'remote_software',
         'website',
+        'mailing_service_id',
         'description',
         'is_published',
         'disable_push',
@@ -61,6 +62,7 @@ class StoreWebsite extends Model
         'updated_at',
         'magento_url',
         'stage_magento_url',
+        'product_markup',
         'dev_magento_url',
         'magento_username',
         'magento_password',
@@ -87,7 +89,15 @@ class StoreWebsite extends Model
         'push_web_id',
         'icon',
         'is_price_override',
-		'semrush_project_id'
+        'repository_id',
+		'semrush_project_id',
+        'logo_color',  
+        'logo_border_color',  
+        'text_color',   
+        'border_color',   
+        'border_thickness',
+        'sale_old_products',
+        'website_address'
     ];
 
     const DB_CONNECTION = [
@@ -121,6 +131,11 @@ class StoreWebsite extends Model
             return $urlStr = 'http://' . ltrim($url, '/');
         }
         return $url;
+    }
+
+    public function storeWebsiteProductPrice()
+    {
+        return $this->hasOne(\App\StoreWebsiteProductPrice::class, "store_website_id", "id");
     }
 
     /**

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\StoreWebsite;
-use Illuminate\Support\Facades\Validator;
+use App\Mails\Manual\TicketCreate;
 use App\Tickets;
+use App\ChatMessage;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class TicketController extends Controller
 {
@@ -42,8 +44,8 @@ class TicketController extends Controller
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
      *
@@ -56,6 +58,7 @@ class TicketController extends Controller
      */
     public function store(Request $request)
     {
+
         header('Access-Control-Allow-Origin: *');
         header('Access-Control-Allow-Methods: *');
         header('Access-Control-Allow-Headers: *');
@@ -75,15 +78,39 @@ class TicketController extends Controller
             $message = $this->generate_erp_response("ticket.failed.validation", 0, $default = "Please check the errors in validation!", request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
-        if(isset($request->notify_on) && $request->notify_on!='email' && $request->notify_on!='phone'){
+        if (isset($request->notify_on) && $request->notify_on != 'email' && $request->notify_on != 'phone') {
             $message = $this->generate_erp_response("ticket.failed.email_or_phone", 0, $default = "notify_on field must be either email or phone!", request('lang_code'));
-            return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);            
+            return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
 
         $data = $request->all();
         $data['ticket_id'] = "T" . date("YmdHis");
         $data['status_id'] = 1;
+        $data['resolution_date'] = Carbon::now()->addDays(2)->format('Y-m-d H:i:s');
+        if (isset($request->lang_code) && $request->lang_code != '') {
+            $lang = explode("_", str_replace("-","_",$request->lang_code));
+            $data['lang_code'] = $lang[1];
+        }
+
         $success = Tickets::create($data);
+        $ticket = Tickets::find($success->id);
+        $emailClass = (new TicketCreate($ticket))->build();
+
+        $email = \App\Email::create([
+            'model_id' => $ticket->id,
+            'model_type' => Ticket::class,
+            'from' => $emailClass->fromMailer,
+            'to' => @$ticket->email,
+            'subject' => $emailClass->subject,
+            'message' => $emailClass->render(),
+            'template' => 'ticket-create',
+            'additional_data' => $ticket->id,
+            'status' => 'pre-send',
+            'is_draft' => 1,
+        ]);
+
+        \App\Jobs\SendEmail::dispatch($email);
+
         if (!is_null($success)) {
             $message = $this->generate_erp_response("ticket.success", 0, $default = 'Ticket #' . $data['ticket_id'] . ' created successfully', request('lang_code'));
             return response()->json(['status' => 'success', 'data' => ["id" => $data['ticket_id']], 'message' => $message], 200);
@@ -149,8 +176,8 @@ class TicketController extends Controller
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
      *
@@ -158,32 +185,55 @@ class TicketController extends Controller
     public function sendTicketsToCustomers(request $request)
     {
         $Validator = Validator::make($request->all(), [
-            'website' => 'required'
+            'website' => 'required',
         ]);
         if ($Validator->fails()) {
             $message = $this->generate_erp_response("ticket.send.failed.validation", 0, $default = 'Please check validation errors !', request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $Validator->errors()], 400);
         }
-        if(empty($request->email) && empty($request->ticket_id)){
+        if (empty($request->email) && empty($request->ticket_id)) {
             $message = $this->generate_erp_response("ticket.send.failed.ticket_or_email", 0, $default = 'Please input either email or ticket_id !', request('lang_code'));
-            return response()->json(['status' => 'failed', 'message' => $message, ], 400);            
+            return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
-        $tickets = Tickets::select('tickets.*','ts.name as status')->where('source_of_ticket',$request->website);
-        if($request->email!=null){
-            $tickets->where('email',$request->email);
+        $tickets = Tickets::select('tickets.*', 'ts.name as status')->where('source_of_ticket', $request->website);
+        if ($request->email != null) {
+            $tickets->where('email', $request->email);
         }
-        if($request->ticket_id!=null){
-            $tickets->where('ticket_id',$request->ticket_id);
+        if ($request->ticket_id != null) {
+            $tickets->where('ticket_id', $request->ticket_id);
         }
-        $per_page='';
-        if(!empty($request->per_page)){
-            $per_page=$request->per_page;
+        if(isset($request->action) && $request->action == "send_messsage"){
+            $ticket = Tickets::where('source_of_ticket', $request->website)->where("ticket_id",$request->ticket_id)->first();
+            $params['message'] =$request->get('message');
+            $params['message_en'] = $request->get('message');
+            $params['ticket_id'] = $ticket->id;
+            $params['user_id'] = 6;
+            $params['approved'] = 1;
+            $params['status'] = 2;
+            $chat_message = ChatMessage::create($params);
+
         }
-        $tickets = $tickets->join('ticket_statuses as ts','ts.id', 'tickets.status_id')->paginate($per_page);
-        if(empty($tickets)){
+        $per_page = '';
+        if (!empty($request->per_page)) {
+            $per_page = $request->per_page;
+        }
+        $tickets = $tickets->join('ticket_statuses as ts', 'ts.id', 'tickets.status_id')->paginate($per_page);
+        if (empty($tickets)) {
             $message = $this->generate_erp_response("ticket.send.failed", 0, $default = 'Tickets not found for customer !', request('lang_code'));
-            return response()->json(['status' => 'failed', 'message' => $message, ], 404);    
+            return response()->json(['status' => 'failed', 'message' => $message], 404);
         }
-        return response()->json(['status' => 'success', 'tickets' => $tickets ], 200);
+        foreach ($tickets as $ticket){
+            $replies = [];
+            $messages = \App\ChatMessage::where("ticket_id",$ticket->id)->select("id","message","created_at","user_id")->latest()->get();
+            foreach($messages as $message){
+                $message->send_by = "Admin";
+                if($message->user_id==6){
+                    $message->send_by = "Customer";
+                }
+                $replies[]=$message;
+            }
+            $ticket->messages=$replies;
+        }
+        return response()->json(['status' => 'success', 'tickets' => $tickets], 200);
     }
 }

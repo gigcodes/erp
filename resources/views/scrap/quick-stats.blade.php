@@ -54,8 +54,8 @@
             $hod = $user->hasRole('HOD of CRM');
         @endphp
 
-    <div class="row mb-5">
-        <div class="col-lg-12 margin-tb">
+    <div class="row">
+        <div class="col-lg-12 margin-tb p-0">
             <h2 class="page-heading">Quick Supplier Scrapping Info <span class="total-info"></span></h2>
         </div>
     </div>
@@ -65,56 +65,62 @@
     <?php $excelOnly = request()->get('excelOnly', ''); ?>
     <form class="" action="/scrap/quick-statistics">
         <div class="row">
-            <div class="form-group mb-3 col-md-2">
-                <input name="term" type="text" class="form-control" id="product-search" value="{{ request()->get('term','') }}" placeholder="Enter Supplier name">
+            <div class="form-group col-md-2">
+                <input name="term" type="text" class="form-control w-75 d-inline" id="product-search" value="{{ request()->get('term','') }}" placeholder="Enter Supplier name">
+                <button type="submit" class="btn btn-xs d-inline">
+                    <i class="fa fa-search"></i>
+                </button>
             </div>
-            
-            <div class="form-group mb-3 col-md-2">
-                <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
-            </div>
-        </div>
-    </form>
-    <form class="" action="/scrap/quick-statistics">
-        <div class="row">
-            <div class="form-group mb-3 col-md-2">
+            <div class="form-group col-md-2">
                 <select class="form-control" name="column">
                     <option value="">Select column</option>
                     <option value="last_started_at" {{ request('column') == 'last_started_at' ? 'selected' : '' }}>Last started</option>
                     <option value="least_product" {{ request('column') == 'least_product' ? 'selected' : '' }}>Least product</option>
                 </select>
             </div>
-            <div class="form-group mb-3 col-md-2">
+            <div class="form-group col-md-2">
                 <select class="form-control" name="order_by">
                     <option value="">Select orderBy</option>
                     <option value="asc" {{ request('order_by') == 'asc' ? 'selected' : '' }}>ASC</option>
                     <option value="desc" {{ request('order_by') == 'desc' ? 'selected' : '' }}>DESC</option>
                 </select>
             </div>
-            <div class="form-group mb-3 col-md-2">
-                <button type="submit" class="btn btn-secondary btn-sm"><i class="fa fa-sort"></i></button>
+            <div class="form-group col-md-2">
+                <select class="form-control" name="assigned_to[]" multiple id="assigned_to">
+                    @if($assignedUsers)
+                    @foreach($assignedUsers as $k=> $_user)
+                     <option value="{{$k}}" {{ (request('assigned_to'))?in_array($k,request('assigned_to')) ? 'selected' : '' : '' }}>{{$_user}}</option>
+                    @endforeach
+                    @endif
+                </select>
+            </div>
+            <div class="form-group col-md-2">
+                <button type="submit" class="btn btn-xs btn-sm bg-transparent mt-2">
+                    <i class="fa fa-sort"></i>
+                </button>
             </div>
         </div>
     </form>
    <br>
    <?php $totalCountedUrl = 0; ?>
-    <div class="row no-gutters mt-3">
+    <div class="row ">
         <div class="col-md-12" id="plannerColumn">
             <div class="">
-                <table class="table table-bordered table-striped sort-priority-scrapper">
+                <table class="table table-bordered table-striped sort-priority-scrapper"style="table-layout: fixed;margin-top:-22px;">
                     <thead>
                     <tr>
-                        <th>Supplier</th>
-                        <th>Server ID</th>
-                        <th>Auto Restart</th>
-                        <th>Run Time</th>
-                        <th>YDay New</th>
-                        <th>Last started</th>
-                        <th>Last status</th>
-                        <th>Urls count</th>
-                        <th>Task</th>
-                        <th>Remarks</th>
-                        <th>Full scrap</th>
-                        <th>Functions</th>
+                        <th width="8%">Supplier</th>
+                        <th width="8%">Server ID</th>
+                        <th width="7%">At Restart</th>
+                        <th width="8%">Run Time</th>
+                        <th width="5%">New</th>
+                        <th width="10%">Lst Started</th>
+                        <th width="6%">Lst Sts</th>
+                        <th width="6%">Url Cnt</th>
+                        <th width="5%">Task</th>
+                        <th width="12%">Remarks</th>
+                        <th width="7%">Full Scrap</th>
+                        <th width="30%">Functions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -157,7 +163,7 @@
                                 $lastError = $supplier->lastErrorFromScrapLogNew;
 
                             @endphp
-                            <td width="6%">
+                            <td>
                                 <span class="toggle-title-box has-small" data-small-title="<?php echo $supplier->mainSupplier ? substr($supplier->mainSupplier->supplier , 0, 3).'..' : '' ?>" data-full-title="<?php echo ($supplier->mainSupplier ?  $supplier->mainSupplier->supplier : '') ?>">
                                     <?php
                                         if($supplier->mainSupplier) {
@@ -177,8 +183,8 @@
                                 <i style="color: orange;" class="fa fa-exclamation-triangle"></i>
                                 <?php } ?>
                             </td>
-                            <td width="8%">
-                                <div class="form-group" style="display: flex;">
+                            <td>
+                                <div class="form-group" style="display: flex;margin-bottom: 0px !important;">
                                         <select style="width:100% !important;" name="server_id" class="form-control select2 scraper_field_change" data-id="{{$supplier->scrapper_id}}" data-field="server_id">
                                             <option value="">Select</option>
                                             @foreach($serverIds as $serverId)
@@ -189,14 +195,14 @@
                                         
                                 </div>
                             </td>
-                            <td width="4%">
+                            <td>
                                 <div class="form-group">
                                     <?php echo Form::select("auto_restart",[0 => "Off", 1 => "On"], $supplier->auto_restart, ["class" => "form-control auto_restart select2", "style" => "width:100%;"]); ?>
                                 </div>
                             </td>
 
-                            <td width="4%" style="text-right">
-                                <div class="form-group" style="display: flex;" >
+                            <td>
+                                <div class="form-group" style="display: flex;margin-bottom: 0px !important;" >
                                         <select style="width:100% !important;display:inline;" name="scraper_start_time" class="form-control scraper_field_change select2" data-id="{{$supplier->scrapper_id}}" data-field="scraper_start_time">
                                         <option value="">Select</option>
                                         @for($i=1; $i<=24;$i++)
@@ -206,27 +212,27 @@
                                         <button style="padding-right:0px;width:10%;display:inline-block;" type="button" class="btn btn-xs show-history" title="Show History" data-field="scraper_start_time" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
                                 </div>
                             </td>
-                            <td width="5%">{{ !empty($data) ? $data->total_new_product : '' }}</td>
+                            <td>{{ !empty($data) ? $data->total_new_product : '' }}</td>
 
-                            <td width="13%" data-start-time="@if($supplier->last_started_at){{$supplier->last_started_at }}@endif" data-end-time="@if($supplier->last_completed_at){{$supplier->last_completed_at }}@endif" class="show-scraper-detail">
+                            <td data-start-time="@if($supplier->last_started_at){{$supplier->last_started_at }}@endif" data-end-time="@if($supplier->last_completed_at){{$supplier->last_completed_at }}@endif" class="show-scraper-detail">
                                 @if(isset($supplier->scraper_name) && !empty($supplier->scraper_name) &&  isset($lastRunAt[$supplier->scraper_name]))
                                     {!! str_replace(' ', '-', date('d-m H:i', strtotime($lastRunAt[$supplier->scraper_name]))) !!}
                                     <br/>
                                 @endif
                             </td>
                             
-                            <td width="3%">{{ $supplier->status ?? '' }}</td>
+                            <td>{{ str_limit( $supplier->status, '7', '..') }}</td>
                             
                             <?php $totalCountedUrl += !empty($data) ? $data->total : 0; ?>
-                            <td width="3%">{{ !empty($data->total) ? $data->total : '' }}</td>
+                            <td>{{ !empty($data->total) ? $data->total : '' }}</td>
                             
-                            <td width="2%">
+                            <td>
                                 @php
                                     $hasTask = $supplier->developerTaskNew;
                                 @endphp
                                 {{ ($hasTask) ? "TA" : "NT" }}
                             </td>
-                            <td width="9%" class="" style="font-size: 12px">
+                            <td>
                                 <?php
                                     $logString = null;
                                     $logbtn = null;
@@ -248,53 +254,77 @@
                                 ?>
                             </td>
                             
-                            <td width="6%">
+                            <td>
                                 <div class="form-group">
                                     <?php echo Form::select("full_scrape",[0 => "No", 1 => "Yes"], $supplier->full_scrape, ["class" => "form-control full_scrape select2", "style" => "width:100%;"]); ?>
                                 </div>
                             </td>
-                            <td  style="display: flex">
-                                <button style="padding:3px;" type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}" title="Expand more data"><img width="2px;" src="/images/forward.png"/></button>
-                                <a style="padding:3px;" class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank" title="View log"><img src="/images/view.png" /></a>
-                                <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )" title="Restart script"><img width="2px;" src="/images/resend2.png"/></button>
-                                <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="getRunningStatus('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )" title="Check running status"><img width="2px;" src="/images/resend.png"/></button>
-                                <a href="<?php echo route("scraper.get.log.list"); ?>?name=<?php echo $supplier->scraper_name ?>&server_id=<?php echo $supplier->server_id ?>" target="__blank">
-                                    <button style="padding:3px;" type="button" class="btn btn-image d-inline" title="API call">
-                                        <i class="fa fa-bars"></i>
-                                    </button>
+                            <td>
+                                <button type="button" class="btn btn-xs toggle-class bg-transparent" data-id="{{ $supplier->id }}" title="Expand more data">
+                                    <i class="fa fa-forward"></i>
+                                </button>
+                                <a class="btn btn-xs bg-transparent" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank" title="View log">
+                                    <i class="fa fa-eye"></i>
                                 </a>
-                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-screenshot" title="Get screenshot">
+                                <button type="button" class="btn btn-xs bg-transparent" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )" title="Restart script">
+                                    <i class="fa fa-refresh"></i>
+                                </button>
+
+                                <button type="button" class="btn btn-xs bg-transparent" onclick="getRunningStatus('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )" title="Check running status">
+                                    <i class="fa fa-paper-plane"></i>
+                                </button>
+                                <a class="btn btn-xs bg-transparent" href="<?php echo route("scraper.get.log.list"); ?>?name=<?php echo $supplier->scraper_name ?>&server_id=<?php echo $supplier->server_id ?>" target="__blank">
+                                    <i class="fa fa-bars"></i>
+                                </a>
+                                <button data-id="{{ $supplier->id }}" type="button" class="btn btn-xs get-screenshot bg-transparent" title="Get screenshot">
                                      <i class="fa fa-desktop"></i>
                                 </button>
-                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-tasks-remote" title="Task list">
+                                <button data-id="{{ $supplier->id }}" type="button" class="btn btn-xs get-tasks-remote bg-transparent" title="Task list">
                                      <i class="fa fa-tasks"></i>
                                 </button>
-                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-position-history" title="Histories">
+                                <button data-id="{{ $supplier->id }}" type="button" class="btn btn-xs get-tasks-killed bg-transparent" title="Scraper killed histories">
+                                     <i class="fa fa-history"></i>
+                                </button>
+                                <button data-id="{{ $supplier->id }}" type="button" class="btn btn-xs get-position-history bg-transparent" title="Histories">
                                      <i class="fa fa-address-card"></i>
                                 </button>
-                                <button style="padding-right:0px;" type="button" class="btn btn-image d-inline show-history" data-field="update-restart-time" data-id="{{ $supplier->scrapper_id }}" title="Remark history" ><i class="fa fa-clock-o"></i></button>
-                                <button style="padding-right:0px;" type="button" class="btn btn-image d-inline get-scraper-server-timing" data-name="{{ $supplier->scraper_name }}" title="Get scraper server timing"><i class="fa fa-info-circle"></i></button>
-                                <button style="padding-right:0px;" type="button" class="btn btn-image d-inline get-last-errors" data-id="{{ $supplier->scrapper_id }}" data-name="{{ $supplier->scraper_name }}" title="Last errors">
+                                <button type="button" class="btn btn-xs show-history bg-transparent" data-field="update-restart-time" data-id="{{ $supplier->id }}" title="Remark history" >
+                                    <i class="fa fa-clock-o"></i>
+                                </button>
+                                <button type="button" class="btn btn-xs get-scraper-server-timing bg-transparent" data-name="{{ $supplier->scraper_name }}" title="Get scraper server timing">
+                                    <i class="fa fa-info-circle"></i>
+                                </button>
+                                <button type="button" class="btn btn-xs get-last-errors bg-transparent" data-id="{{ $supplier->id }}" data-name="{{ $supplier->scraper_name }}" title="Last errors">
                                     <i class="fa fa-list-ol"></i>
                                 </button>
                                 @if($isAdmin)
-                                    <div class="flag-scraper-div" style="float: left"> 
+                                    <div class="flag-scraper-div d-inline"> 
                                         @if ($supplier->flag == 1)
-                                            <button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
+                                            <button type="button" class="btn btn-xs flag-scraper bg-transparent" data-flag="0" data-id="{{ $supplier->id }}">
+                                                <i class="fa fa-flag" style="color: red;"></i>
+                                            </button>
                                         @else
-                                            <button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
+                                            <button type="button" class="btn btn-xs flag-scraper bg-transparent" data-flag="1" data-id="{{ $supplier->id }}">
+                                                <i class="fa fa-flag"></i>
+                                            </button>
                                         @endif
                                     </div>
-                                    <div class="flag-scraper-developer-div" style="float: left"> 
+                                    <div class="flag-scraper-developer-div d-inline"> 
                                         @if ($supplier->developer_flag == 1)
-                                            <button type="button" class="btn btn-image flag-scraper-developer" data-flag="0" data-id="{{ $supplier->id }}"><img src="/images/flagged-green.png" /></button>
+                                            <button type="button" class="btn btn-xs flag-scraper-developer bg-transparent" data-flag="0" data-id="{{ $supplier->id }}">
+                                                <i class="fa fa-flag" style="color: green;"></i>
+                                            </button>
                                         @else
-                                            <button type="button" class="btn btn-image flag-scraper-developer" data-flag="1" data-id="{{ $supplier->id }}"><img src="/images/flagged-yellow.png" /></button>
+                                            <button type="button" class="btn btn-xs flag-scraper-developer bg-transparent" data-flag="1" data-id="{{ $supplier->id }}">
+                                                <i class="fa fa-flag" style="color: yellow;"></i>
+                                            </button>
                                         @endif
                                     </div>
                                 @endif
                                 @if($supplier->children_scraper_count != 0) 
-                                    <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> 
+                                    <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-xs btn-link">
+                                        <i class="fa fa-caret-down" style="font-size:24px"></i>
+                                    </button> 
                                 @endif
                             </td>
                             </tr>
@@ -468,6 +498,9 @@
                                         </button>
                                         <button style="padding: 3px" data-id="{{ $childSupplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-tasks-remote">
                                              <i class="fa fa-tasks"></i>
+                                        </button>
+                                        <button style="padding: 3px" data-id="{{ $childSupplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-tasks-killed">
+                                            <i class="fa fa-history"></i>
                                         </button>
                                         <button style="padding: 3px" data-id="{{ $childSupplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-position-history">
                                              <i class="fa fa-address-card"></i>
@@ -1429,7 +1462,7 @@
             e.preventDefault();
             var id = $(this).data("id");
             $.ajax({
-                url: '/scrap/task-list',
+                url: '{{ route("scrap.task-list")}}',
                 type: 'GET',
                 data: {id: id},
                 beforeSend: function () {
@@ -1439,6 +1472,28 @@
                 $("#loading-image").hide();
                 var model  = $("#show-content-model-table");
                 model.find(".modal-title").html("Task List");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+        $(document).on("click",".get-tasks-killed",function (e){
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: '/scrap/killed-list',
+                type: 'GET',
+                data: {id: id},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Scraper Killed Histories List");
                 model.find(".modal-body").html(response);
                 model.modal("show");
             }).fail(function() {
@@ -1582,9 +1637,9 @@
             }).done(function(response) {
                  $("#loading-image").hide();
                  if(response.data.flag == 1) {
-                    $this.closest(".flag-scraper-div").append('<button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="'+response.data.supplier_id+'"><img src="/images/flagged.png" /></button>');
+                    $this.closest(".flag-scraper-div").append('<button type="button" class="btn btn-xs flag-scraper bg-transparent" data-flag="0" data-id="'+response.data.supplier_id+'"><i class="fa fa-flag" style="color: red;"></i></button>');
                  }else{
-                    $this.closest(".flag-scraper-div").append('<button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="'+response.data.supplier_id+'"><img src="/images/unflagged.png" /></button>');
+                    $this.closest(".flag-scraper-div").append('<button type="button" class="btn btn-xs flag-scraper bg-transparent" data-flag="1" data-id="'+response.data.supplier_id+'"><i class="fa fa-flag"></i></button>');
                  }
                  $this.remove();
             }).fail(function() {
@@ -1665,6 +1720,11 @@
             } else {
                 alert('Please enter a message first');
             }
+        });
+
+        $("#assigned_to").select2({
+            placeholder: 'Select Users',
+            allowClear: true
         });
 
         $(document).on("click",".toggle-title-box",function(ele) {

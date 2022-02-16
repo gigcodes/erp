@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('favicon' , 'task.png')
 
-@section('title', 'Message List | Chatbot')
+@section('title', 'Message List  | Chatbot')
 
 @section('content')
 
@@ -34,23 +34,14 @@
         <div class="col-lg-12 margin-tb pl-3 pr-3" style="margin-bottom: 10px;">
             <div class="pull-left">
                 <div class="form-inline">
-                    <form method="get" class="chatbot">
+                    <form method="get" class="chatbot mr-3">
                         <div class="row">
 
 
                             <div class="col pr-0">
                                 <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
                             </div>
-                            <div class="col">
-                                <select style="width: 130px !important" name="search_type" class="chatboat-message-status form-control">
-                                    <option value="">Select Search Type</option>
-                                    <option value="customer" {{request()->get('search_type') == 'customer' ? 'selected' : ''}}>Customer</option>
-                                    <option value="vendor" {{request()->get('search_type') == 'vendor' ? 'selected' : ''}}>Vendor</option>
-                                    <option value="supplier" {{request()->get('search_type') == 'supplier' ? 'selected' : ''}}>Supplier</option>
-                                    <option value="task" {{request()->get('search_type') == 'task' ? 'selected' : ''}}>Task</option>
-                                    <option value="dev_task" {{request()->get('search_type') == 'dev_task' ? 'selected' : ''}}>DEV Task</option>
-                                </select>
-                            </div>
+                           
 
                             <div class="col">
                                 <select style="width: 130px !important" name="status" class="chatboat-message-status form-control">
@@ -85,6 +76,21 @@
                                 <input class="mt-0 mr-2" type="checkbox" id="unread_message" name="unread_message" {{$check_status}} value="true"> Unread Messages
                             </div>
                             <!-- END - DEVATSK=4350 -->
+							<div style="margin-left: 20px;display: flex;align-items: center">
+                                 <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="customer" @if(request()->get('search_type') != null and in_array('customer', request()->get('search_type'))) checked @endif > Customer
+                            </div>
+							<div style="margin-left: 20px;display: flex;align-items: center">
+                                 <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="vendor" @if(request()->get('search_type') != null and in_array('vendor', request()->get('search_type'))) checked @endif> Vendor
+                            </div>
+							<div style="margin-left: 20px;display: flex;align-items: center">
+                                 <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="supplier" @if(request()->get('search_type') != null and in_array('supplier', request()->get('search_type'))) checked @endif> Supplier
+                            </div>
+							<div style="margin-left: 20px;display: flex;align-items: center">
+                                 <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="task" @if(request()->get('search_type') != null and in_array('task', request()->get('search_type'))) checked @endif> Task
+                            </div>
+							<div style="margin-left: 20px;display: flex;align-items: center">
+                                 <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="dev_task" @if(request()->get('search_type') != null and in_array('dev_task', request()->get('search_type'))) checked @endif> Dev Task
+                            </div>
 
                             <button type="submit" style="display: inline-block;width: auto" class="btn btn-sm btn-image">
                                 <img src="/images/search.png" style="cursor: default;">
@@ -92,10 +98,7 @@
                         </div>
                     </form>
 
-                </div>
-            </div>
-            <div class="pull-right">
-                <div class="form-inline">
+                
                     <form method="post">
                         <?php echo csrf_field(); ?>
                         <?php echo Form::select("customer_id[]", [], null, ["class" => "form-control customer-search-select-box", "multiple" => true, "style" => "width:250px;"]); ?>
@@ -117,6 +120,7 @@
             </div>
         </div>
     </div>
+    
     <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -259,6 +263,8 @@
                         $("#page-view-result").find(".pagination").first().remove();
                     }
                     $("#page-view-result").append(response.tpl);
+                    callQuickCategory();
+                    callCategoryComment();
                 }
             }).fail(function (response) {
                 $("#loading-image").hide();
@@ -386,12 +392,16 @@
             var field = "customer_id";
             var tr  = $(this).closest("tr").find("td").first();
             var typeId = tr.data('customer-id');
+            var id = $(this).data('id');
             var chatMessageReplyId = tr.data('chat-message-reply-id')
             var type = tr.data("context");
             var data_chatbot_id = tr.data('chatbot-id');
-
+            data.append("chat_id", id);
             console.log(type);
 
+            var message= $('#message_'+id).val();
+          
+             
             if(parseInt(tr.data("vendor-id")) > 0) {
                 type = "vendor";
                 typeId = tr.data("vendor-id");
@@ -408,8 +418,10 @@
             }
             
             var customer_id = typeId;
-            var message = thiss.closest(".cls_textarea_subbox").find("textarea").val();
-
+            //var message = thiss.closest(".cls_textarea_subbox").find("textarea").val();
+           
+            var message= $('#message_'+id).val();
+          
             if(type === 'customer'){
 
                 data.append("customer_id", typeId);
@@ -469,7 +481,7 @@
 
             var add_autocomplete  = thiss.closest(".cls_textarea_subbox").find("[name=add_to_autocomplete]").is(':checked') ;
             data.append("add_autocomplete", add_autocomplete);
-
+           console.log(data);
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({

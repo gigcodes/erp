@@ -2,157 +2,152 @@
 
 namespace App\Console;
 
-use App\Console\Commands\GoogleWebMasterFetchAllRecords;
+use App\Console\Commands\AccountHubstaffActivities;
+use App\Console\Commands\AddGroupTheme;
+use App\Console\Commands\AddRoutesToGroups;
+use App\Console\Commands\AssetsManagerPaymentCron;
+use App\Console\Commands\AuthenticateWhatsapp;
+use App\Console\Commands\AutoInterestMessage;
+use App\Console\Commands\AutoMessenger;
+use App\Console\Commands\AutoReminder;
+use App\Console\Commands\BuildStatus;
+use App\Console\Commands\CacheMasterControl;
+use App\Console\Commands\ChangeTesterBasedOnTeamLead;
+use App\Console\Commands\CheckEmailsErrors;
+use App\Console\Commands\CheckLogins;
+use App\Console\Commands\CheckMessagesErrors;
 use App\Console\Commands\CheckScrapersLog;
+use App\Console\Commands\CheckWhatsAppActive;
+use App\Console\Commands\ConnectGoogleClientAccounts;
+use App\Console\Commands\CreateErpLeadFromCancellationOrder;
+use App\Console\Commands\CreateScrapedProducts;
+use App\Console\Commands\CustomerListToEmailLead;
+use App\Console\Commands\DailyHubstaffActivityLevel;
+use App\Console\Commands\DeleteChatMessages;
+use App\Console\Commands\DeleteGnbProducts;
+use App\Console\Commands\DeleteStoreWebsiteCategory;
+use App\Console\Commands\DeleteWiseProducts;
 use App\Console\Commands\DocumentReciever;
 use App\Console\Commands\DoubleFProductDetailScraper;
 use App\Console\Commands\DoubleFScraper;
 use App\Console\Commands\EnrichWiseProducts;
+use App\Console\Commands\errorAlertMessage;
+use App\Console\Commands\FetchAllEmails;
+use App\Console\Commands\FetchEmails;
+use App\Console\Commands\FetchMagentoCronData;
+use App\Console\Commands\FetchStoreWebsiteOrder;
 use App\Console\Commands\FixCategoryNameBySupplier;
 use App\Console\Commands\FlagCustomersIfTheyHaveAComplaint;
+//use App\Console\Commands\SyncInstagramMessage;
+use App\Console\Commands\GenerateProductPricingJson;
 use App\Console\Commands\GetGebnegozionlineProductDetails;
 use App\Console\Commands\GetGebnegozionlineProductDetailsWithEmulator;
 use App\Console\Commands\GetGebnegozionlineProductEntries;
+use App\Console\Commands\getLiveChatIncTickets;
 use App\Console\Commands\GetMostUsedWordsInCustomerMessages;
+use App\Console\Commands\GetOrdersFromnMagento;
+use App\Console\Commands\GoogleWebMasterFetchAllRecords;
 use App\Console\Commands\GrowInstagramAccounts;
+use App\Console\Commands\ImageBarcodeGenerator;
+use App\Console\Commands\ImportCustomersEmail;
+use App\Console\Commands\IncrementFrequencyWhatsappConfig;
+use App\Console\Commands\InfluencerDescription;
+use App\Console\Commands\InsertPleskEmail;
+use App\Console\Commands\InstagramHandler;
+use App\Console\Commands\LogScraperDelete;
 use App\Console\Commands\MailingListSendMail;
 use App\Console\Commands\MakeApprovedImagesSchedule;
 use App\Console\Commands\MakeKeywordAndCustomersIndex;
-use App\Console\Commands\PostScheduledMedia;
-use App\Console\Commands\CheckLogins;
-use App\Console\Commands\AutoInterestMessage;
-use App\Console\Commands\AutoReminder;
-use App\Console\Commands\AutoMessenger;
-use App\Console\Commands\FetchEmails;
-use App\Console\Commands\FetchAllEmails;
-use App\Console\Commands\CheckEmailsErrors;
-use App\Console\Commands\SaveProductsImages;
 use App\Console\Commands\MessageScheduler;
-use App\Console\Commands\SendAutoReplyToCustomers;
-use App\Console\Commands\SendMessageToUserIfTheirTaskIsNotComplete;
-use App\Console\Commands\SendPendingTasksReminders;
-use App\Console\Commands\SendRecurringTasks;
-use App\Console\Commands\CheckMessagesErrors;
-use App\Console\Commands\SendBroadcastMessageToColdLeads;
-use App\Console\Commands\SendProductSuggestion;
-use App\Console\Commands\SendActivitiesListing;
-use App\Console\Commands\SendDailyPlannerReport;
-use App\Console\Commands\ProcessCommentsFromCompetitors;
-//use App\Console\Commands\SyncInstagramMessage;
-use App\Console\Commands\SendReminderToCustomerIfTheyHaventReplied;
-use App\Console\Commands\SendReminderToDubbizlesIfTheyHaventReplied;
-use App\Console\Commands\SendReminderToSupplierIfTheyHaventReplied;
-use App\Console\Commands\SendReminderToVendorIfTheyHaventReplied;
-use App\Console\Commands\SendReminderToTaskIfTheyHaventReplied;
-use App\Console\Commands\SendReminderToDevelopmentIfTheyHaventReplied;
-use App\Console\Commands\UpdateInventory;
-use App\Console\Commands\UpdateSkuInGnb;
-use App\Console\Commands\CreateScrapedProducts;
-use App\Console\Commands\UploadProductsToMagento;
-use App\Console\Commands\UpdateGnbPrice;
-use App\Console\Commands\DeleteGnbProducts;
-use App\Console\Commands\DeleteWiseProducts;
-use App\Console\Commands\UpdateWiseProducts;
-use App\Console\Commands\UpdateWiseCategory;
-use App\Console\Commands\UpdateDoubleProducts;
-use App\Console\Commands\ScheduleList;
-use App\Console\Commands\IncrementFrequencyWhatsappConfig;
-use App\Console\Commands\SendHourlyReports;
-use App\Console\Commands\RunMessageQueue;
 use App\Console\Commands\MonitorCronJobs;
-use App\Console\Commands\SendVoucherReminder;
-use App\Console\Commands\VisitorLogs;
-use App\Console\Commands\InfluencerDescription;
-
 use App\Console\Commands\MovePlannedTasks;
-use App\Console\Commands\ResetDailyPlanner;
-use App\Console\Commands\SkuErrorCount;
-use App\Console\Commands\ImageBarcodeGenerator;
-use App\Console\Commands\UpdateImageBarcodeGenerator;
-use App\Console\Commands\SetTemplatesForProduct;
+use App\Console\Commands\NumberOfImageCroppedCheck;
+use App\Console\Commands\ParseLog;
+use App\Console\Commands\PostScheduledMedia;
+use App\Console\Commands\ProcessCommentsFromCompetitors;
+use App\Console\Commands\productActivityStore;
+use App\Console\Commands\ProjectDirectory;
+use App\Console\Commands\ProjectFileManagerDateAndSize;
+use App\Console\Commands\RecieveResourceImages;
+use App\Console\Commands\RemoveScrapperImages;
 
 //use App\Console\Commands\SaveProductsImages;
 
-use App\Console\Commands\UpdateMagentoProductStatus;
-use App\Console\Commands\ImportCustomersEmail;
-use App\Console\Commands\TwilioCallLogs;
-use App\Console\Commands\ZoomMeetingRecordings;
-use App\Console\Commands\ZoomMeetingDeleteRecordings;
-use App\Console\Commands\RecieveResourceImages;
-use App\Console\Commands\CheckWhatsAppActive;
-use App\Console\Commands\ParseLog;
-use App\Http\Controllers\MagentoController;
-use App\Http\Controllers\NotificaitonContoller;
-use App\Http\Controllers\NotificationQueueController;
-use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
-use App\Console\Commands\UpdateCustomerSizeFromOrder;
-use App\Console\Commands\CreateErpLeadFromCancellationOrder;
-use App\Console\Commands\SendQueuePendingChatMessages;
-use App\Console\Commands\SendQueuePendingChatMessagesGroup;
-use App\Console\Commands\SyncCustomersFromMagento;
-use App\Console\Commands\StoreChatMessagesToAutoCompleteMessages;
-
-use App\NotificationQueue;
-use App\Benchmark;
-use App\Task;
-use Carbon\Carbon;
-use App\CronJobReport;
-use App\Console\Commands\UpdateCronSchedule;
+use App\Console\Commands\ResetDailyPlanner;
+use App\Console\Commands\RoutesSync;
 use App\Console\Commands\RunErpEvents;
 use App\Console\Commands\RunErpLeads;
-use App\Console\Commands\GetOrdersFromnMagento;
-use App\Console\Commands\NumberOfImageCroppedCheck;
-use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use App\Console\Commands\StoreBrands;
-use App\Console\Commands\StoreLiveChats;
-use App\Console\Commands\RunPriorityKeywordSearch;
-use App\Console\Commands\CacheMasterControl;
-use App\Console\Commands\SendEventNotificationBefore24hr;
-use App\Console\Commands\SendEventNotificationBefore2hr;
-//use App\Console\Commands\SendEventNotificationBefore30Min;
-use App\Console\Commands\AccountHubstaffActivities;
-use App\Console\Commands\DailyHubstaffActivityLevel;
-use App\Console\Commands\GenerateProductPricingJson;
-use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
-use App\Console\Commands\FetchStoreWebsiteOrder;
-use App\Console\Commands\UserPayment;
-use App\Console\Commands\ScrapLogs;
-use App\Console\Commands\AuthenticateWhatsapp;
-use App\Console\Commands\getLiveChatIncTickets;
-use App\Console\Commands\RoutesSync;
-use App\Console\Commands\DeleteChatMessages;
-use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
-use App\Console\Commands\CustomerListToEmailLead;
-use App\Console\Commands\WayBillTrackHistories;
-use App\Console\Commands\ProjectDirectory;
-use App\Console\Commands\LogScraperDelete;
-use App\Console\Commands\AssetsManagerPaymentCron;
-use App\Console\Commands\SendEmailNewsletter;
-use App\Console\Commands\DeleteStoreWebsiteCategory;
 use App\Console\Commands\RunGoogleAnalytics;
+use App\Console\Commands\RunMessageQueue;
+use App\Console\Commands\RunPriorityKeywordSearch;
+use App\Console\Commands\SaveProductsImages;
+use App\Console\Commands\ScheduleList;
+use App\Console\Commands\ScrapLogs;
 use App\Console\Commands\scrappersImages;
 use App\Console\Commands\scrappersImagesDelete;
-use App\Console\Commands\productActivityStore;
-use App\Console\Commands\errorAlertMessage;
-use App\Console\Commands\InstagramHandler;
-use App\Console\Commands\SendDailyReports;
+use App\Console\Commands\SendActivitiesListing;
+use App\Console\Commands\SendAutoReplyToCustomers;
+use App\Console\Commands\SendBroadcastMessageToColdLeads;
 use App\Console\Commands\SendDailyLearningReports;
-use App\Console\Commands\InsertPleskEmail;
 use App\Console\Commands\SendDailyPlannerNotification;
-use App\Console\Commands\RemoveScrapperImages;
-use App\Console\Commands\ChangeTesterBasedOnTeamLead;
-use App\Console\Commands\AddGroupTheme;
+use App\Console\Commands\SendDailyPlannerReport;
+use App\Console\Commands\SendDailyReports;
+use App\Console\Commands\SendEmailNewsletter;
+use App\Console\Commands\SendEventNotificationBefore2hr;
+use App\Console\Commands\SendEventNotificationBefore24hr;
+use App\Console\Commands\SendHourlyReports;
 use App\Console\Commands\SendInstagramMessageInQueue;
-use App\Console\Commands\AddRoutesToGroups;
-use App\Console\Commands\UpdateProductInformationFromCsv;
-use App\Console\Commands\ConnectGoogleClientAccounts; 
-use App\Console\Commands\UpdateLanguageToGroup;
-
-use App\Console\Commands\ProjectFileManagerDateAndSize;
+use App\Console\Commands\SendMessageToUserIfTheirTaskIsNotComplete;
+use App\Console\Commands\SendPendingTasksReminders;
+use App\Console\Commands\SendProductSuggestion;
+use App\Console\Commands\SendQueuePendingChatMessages;
+use App\Console\Commands\SendQueuePendingChatMessagesGroup;
+use App\Console\Commands\SendRecurringTasks;
+use App\Console\Commands\SendTasksTimeReminder;
+use App\Console\Commands\SendReminderToCustomerIfTheyHaventReplied;
+use App\Console\Commands\SendReminderToDevelopmentIfTheyHaventReplied;
+use App\Console\Commands\SendReminderToDubbizlesIfTheyHaventReplied;
+use App\Console\Commands\SendReminderToSupplierIfTheyHaventReplied;
+use App\Console\Commands\SendReminderToTaskIfTheyHaventReplied;
+use App\Console\Commands\SendReminderToVendorIfTheyHaventReplied;
+use App\Console\Commands\SendVoucherReminder;
+//use App\Console\Commands\SendEventNotificationBefore30Min;
+use App\Console\Commands\SetTemplatesForProduct;
+use App\Console\Commands\SkuErrorCount;
+use App\Console\Commands\StoreBrands;
+use App\Console\Commands\StoreChatMessagesToAutoCompleteMessages;
+use App\Console\Commands\StoreLiveChats;
+use App\Console\Commands\SyncCustomersFromMagento;
+use App\Console\Commands\TwilioCallLogs;
+use App\Console\Commands\TwilioErrors;
 use App\Console\Commands\UpdateCharities;
-
-use DB;
+use App\Console\Commands\UpdateCronSchedule;
+use App\Console\Commands\UpdateCustomerSizeFromOrder;
+use App\Console\Commands\UpdateDoubleProducts;
+use App\Console\Commands\UpdateGnbPrice;
+use App\Console\Commands\UpdateImageBarcodeGenerator;
+use App\Console\Commands\UpdateInventory;
+use App\Console\Commands\UpdateLanguageToGroup;
+use App\Console\Commands\UpdateMagentoProductStatus;
+use App\Console\Commands\UpdatePricesWithDecimals;
+use App\Console\Commands\UpdateProductInformationFromCsv;
+use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
+use App\Console\Commands\UpdateSkuInGnb;
+use App\Console\Commands\UpdateWiseCategory;
+use App\Console\Commands\UpdateWiseProducts;
+use App\Console\Commands\UploadProductsToMagento;
+use App\Console\Commands\UserPayment;
+use App\Console\Commands\VisitorLogs;
+use App\Console\Commands\WayBillTrackHistories;
+use App\Console\Commands\ZoomMeetingDeleteRecordings;
+use App\Console\Commands\ZoomMeetingRecordings;
+use App\Http\Controllers\Marketing\MailinglistController;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
+use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
+use App\Console\Commands\GetPytonLogs;
+use App\Console\Commands\HubstuffActivityCommand;
 
 class Kernel extends ConsoleKernel
 {
@@ -162,6 +157,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
+        FetchMagentoCronData::class,
         GoogleWebMasterFetchAllRecords::class,
         PostScheduledMedia::class,
         CheckLogins::class,
@@ -172,10 +168,12 @@ class Kernel extends ConsoleKernel
         AutoReminder::class,
         AutoMessenger::class,
         FetchEmails::class,
+        TwilioErrors::class,
         FetchAllEmails::class,
         CheckEmailsErrors::class,
         MessageScheduler::class,
         SendRecurringTasks::class,
+        SendTasksTimeReminder::class,
         CheckMessagesErrors::class,
         SendProductSuggestion::class,
         SendActivitiesListing::class,
@@ -184,6 +182,7 @@ class Kernel extends ConsoleKernel
         UpdateSkuInGnb::class,
         CreateScrapedProducts::class,
         UpdateGnbPrice::class,
+        UpdatePricesWithDecimals::class,
         DeleteGnbProducts::class,
         DeleteWiseProducts::class,
         UpdateWiseProducts::class,
@@ -266,7 +265,7 @@ class Kernel extends ConsoleKernel
         ScrapLogs::class,
         AuthenticateWhatsapp::class,
         getLiveChatIncTickets::class,
-		RoutesSync::class,
+        RoutesSync::class,
         DeleteChatMessages::class,
         PriceComparisonScraperCommand::class,
         WayBillTrackHistories::class,
@@ -278,7 +277,7 @@ class Kernel extends ConsoleKernel
         SendEmailNewsletter::class,
         DeleteStoreWebsiteCategory::class,
         RunGoogleAnalytics::class,
-		RunGoogleAnalytics::class,
+        RunGoogleAnalytics::class,
         scrappersImages::class,
         scrappersImagesDelete::class,
         productActivityStore::class,
@@ -299,6 +298,9 @@ class Kernel extends ConsoleKernel
         ConnectGoogleClientAccounts::class,
         UpdateCharities::class,
         UpdateLanguageToGroup::class,
+        BuildStatus::class,
+        GetPytonLogs::class,
+        HubstuffActivityCommand::class
     ];
 
     /**
@@ -309,10 +311,17 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->command('HubstuffActivity:Command')->daily();
 
         $schedule->command('project:filemanagementdate')->daily();
 
+        $schedule->command('twilio:errors')->dailyAt('01:00');
+
+        $schedule->command('command:fetchMagentoCronData')->dailyAt('01:00');
+
         $schedule->command('ScrapperImage:REMOVE')->hourly(); // Remove scrapper iamges older than 1 day
+
+        $schedule->command('ScrapperImage:REMOVE')->hourly(); //jenkins status detail
 
         // $schedule->command('reminder:send-to-dubbizle')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         // $schedule->command('reminder:send-to-vendor')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
@@ -320,7 +329,9 @@ class Kernel extends ConsoleKernel
         // $schedule->command('reminder:send-to-supplier')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         // $schedule->command('visitor:logs')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
 
-
+        $schedule->call(function () {
+            MailinglistController::sendAutoEmails();
+        })->hourly();
 
         // Store unknown categories on a daily basis
         //$schedule->command('category:missing-references')->daily();
@@ -352,7 +363,6 @@ class Kernel extends ConsoleKernel
         //This command sends the reply on products if they request...
         // $schedule->command('customers:send-auto-reply')->everyFifteenMinutes();
 
-
         //This command checks for the whatsapp number working properly...
         // $schedule->command('whatsapp:check')->everyFifteenMinutes();
 
@@ -362,52 +372,50 @@ class Kernel extends ConsoleKernel
         //Get Posts , Userdata as well as comments based on hastag
         // $schedule->command('competitors:process-users')->daily();
 
-
         //$schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
 
-
 //        $schedule->call(function () {
-//            $report = CronJobReport::create([
-//                'signature' => 'update:benchmark',
-//                'start_time' => Carbon::now()
-//            ]);
-//
-//            $benchmark = Benchmark::orderBy('for_date', 'DESC')->first()->toArray();
-//            $tasks = Task::where('is_statutory', 0)->whereNotNull('is_verified')->get();
-//
-//            if ($benchmark[ 'for_date' ] != date('Y-m-d')) {
-//                $benchmark[ 'for_date' ] = date('Y-m-d');
-//                Benchmark::create($benchmark);
-//            }
-//
-//            foreach ($tasks as $task) {
-//                $time_diff = Carbon::parse($task->is_completed)->diffInDays(Carbon::now());
-//
-//                if ($time_diff >= 2) {
-//                    $task->delete();
-//                }
-//            }
-//
-//            $report->update(['end_time' => Carbon::now()]);
-//        })->dailyAt('00:00');
+        //            $report = CronJobReport::create([
+        //                'signature' => 'update:benchmark',
+        //                'start_time' => Carbon::now()
+        //            ]);
+        //
+        //            $benchmark = Benchmark::orderBy('for_date', 'DESC')->first()->toArray();
+        //            $tasks = Task::where('is_statutory', 0)->whereNotNull('is_verified')->get();
+        //
+        //            if ($benchmark[ 'for_date' ] != date('Y-m-d')) {
+        //                $benchmark[ 'for_date' ] = date('Y-m-d');
+        //                Benchmark::create($benchmark);
+        //            }
+        //
+        //            foreach ($tasks as $task) {
+        //                $time_diff = Carbon::parse($task->is_completed)->diffInDays(Carbon::now());
+        //
+        //                if ($time_diff >= 2) {
+        //                    $task->delete();
+        //                }
+        //            }
+        //
+        //            $report->update(['end_time' => Carbon::now()]);
+        //        })->dailyAt('00:00');
 
 //2020-02-17        $schedule->call(function () {
-//            \Log::debug('deQueueNotficationNew Start');
-//            NotificationQueueController::deQueueNotficationNew();
-//        })->everyFiveMinutes();
+        //            \Log::debug('deQueueNotficationNew Start');
+        //            NotificationQueueController::deQueueNotficationNew();
+        //        })->everyFiveMinutes();
 
 // THE COMMAND BELOW SEEMS TO BE A DUPLICATE FROM ANOTHER CRON TO FETCH MAGENTO ORDERS
-//2020-02-17         $schedule->call(function () {
-//            $report = CronJobReport::create([
-//                'signature' => 'update:benchmark',
-//                'start_time' => Carbon::now()
-//            ]);
-//
-//            MagentoController::get_magento_orders();
-//            //fetched magento orders...
-//
-//            $report->update(['end_time' => Carbon::now()]);
-//        })->hourly();
+        //2020-02-17         $schedule->call(function () {
+        //            $report = CronJobReport::create([
+        //                'signature' => 'update:benchmark',
+        //                'start_time' => Carbon::now()
+        //            ]);
+        //
+        //            MagentoController::get_magento_orders();
+        //            //fetched magento orders...
+        //
+        //            $report->update(['end_time' => Carbon::now()]);
+        //        })->hourly();
 
         //2020-02-17 $schedule->command('product:replace-text')->everyFiveMinutes();
 
@@ -475,7 +483,7 @@ class Kernel extends ConsoleKernel
         //This command saves the twilio call logs in call_busy_messages table...
         //2020-02-17 $schedule->command('twilio:allcalls')->everyFifteenMinutes();
         // Saved zoom recordings corresponding to past meetings based on meeting id
-        // $schedule->command('meeting:getrecordings')->hourly();
+         $schedule->command('meeting:getrecordings')->hourly();
         // $schedule->command('meeting:deleterecordings')->dailyAt('07:00')->timezone('Asia/Kolkata');
 
         // Check scrapers
@@ -486,50 +494,47 @@ class Kernel extends ConsoleKernel
 
         // send only cron run time
         $queueStartTime = \App\ChatMessage::getStartTime();
-        $queueEndTime  = \App\ChatMessage::getEndTime();
-        $queueTime  = \App\ChatMessage::getQueueTime();
+        $queueEndTime = \App\ChatMessage::getEndTime();
+        $queueTime = \App\ChatMessage::getQueueTime();
         // check if time both is not empty then run the cron
-        if(!empty($queueStartTime) && !empty($queueEndTime)) {
-            if(!empty($queueTime)) {
-                foreach($queueTime as $no => $time) {
-                    if($time > 0) {
-
+        if (!empty($queueStartTime) && !empty($queueEndTime)) {
+            if (!empty($queueTime)) {
+                foreach ($queueTime as $no => $time) {
+                    if ($time > 0) {
 
                         $allowCounter = true;
                         $counterNo[] = $no;
-                        $schedule->command('send:queue-pending-chat-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);
-                        $schedule->command('send:queue-pending-chat-group-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);
+                        $schedule->command('send:queue-pending-chat-messages ' . $no)->cron('*/' . $time . ' * * * *')->between($queueStartTime, $queueEndTime);
+                        $schedule->command('send:queue-pending-chat-group-messages ' . $no)->cron('*/' . $time . ' * * * *')->between($queueStartTime, $queueEndTime);
 
                     }
                 }
 
-
             }
 
             /*if(!empty($allowCounter) and $allowCounter==true and !empty($counterNo))
-            {
-                $tempSettingData = DB::table('settings')->where('name','is_queue_sending_limit')->get();
-                $numbers = array_unique($counterNo);
-                foreach ($numbers as $number)
-                {
+        {
+        $tempSettingData = DB::table('settings')->where('name','is_queue_sending_limit')->get();
+        $numbers = array_unique($counterNo);
+        foreach ($numbers as $number)
+        {
 
-                    $tempNo = $number;
-                    $settingData = $tempSettingData[0];
-                    $messagesRules = json_decode($settingData->val);
-                    $counter = ( !empty($messagesRules->$tempNo) ? $messagesRules->$tempNo : 0);
-                    $insert_data = null;
+        $tempNo = $number;
+        $settingData = $tempSettingData[0];
+        $messagesRules = json_decode($settingData->val);
+        $counter = ( !empty($messagesRules->$tempNo) ? $messagesRules->$tempNo : 0);
+        $insert_data = null;
 
-                    $insert_data = array(
-                        'counter'=>$counter,
-                        'number'=>$number,
-                        'time'=>now()
-                    );
-                    DB::table('message_queue_history')->insert($insert_data);
+        $insert_data = array(
+        'counter'=>$counter,
+        'number'=>$number,
+        'time'=>now()
+        );
+        DB::table('message_queue_history')->insert($insert_data);
 
-                }
-            }*/
         }
-
+        }*/
+        }
 
         // need to run this both cron every minutes
         //2020-02-17 $schedule->command('cronschedule:update')->everyMinute();
@@ -537,8 +542,7 @@ class Kernel extends ConsoleKernel
         // /$schedule->command('erpleads:run')->everyMinute();
 
 //        $schedule->command('barcode-generator-product:run')->everyFiveMinutes()->between('23:00', '7:00')->withoutOverlapping();
-//        $schedule->command('barcode-generator-product:update')->everyFiveMinutes()->withoutOverlapping();
-
+        //        $schedule->command('barcode-generator-product:update')->everyFiveMinutes()->withoutOverlapping();
 
         // HUBSTAFF
         // $schedule->command('hubstaff:refresh_users')->hourly();
@@ -546,10 +550,10 @@ class Kernel extends ConsoleKernel
         // Sends hubstaff report to whatsapp
         // $schedule->command('hubstaff:send_report')->hourly()->between('7:00', '23:00');
         // $schedule->command('hubstaff:load_activities')->hourly();
-        
+
         // $schedule->command('hubstaff:account')->dailyAt('20:00')->timezone('Asia/Dubai');
         // $schedule->command('scraplogs:activity')->dailyAt('01:00')->timezone('Asia/Dubai');
-        
+
         // $schedule->command('hubstaff:daily-activity-level-check')->dailyAt('21:00')->timezone('Asia/Dubai');
 
         //Sync customer from magento to ERP
@@ -589,21 +593,19 @@ class Kernel extends ConsoleKernel
 
         // If scraper not completed, store alert
         // $schedule->command('scraper:not-completed-alert')->dailyAt('00:00');
-		
-		$schedule->command('routes:sync')->hourly()->withoutOverlapping();
 
-		//$schedule->command('command:assign_incomplete_products')->dailyAt('01:30');
-		$schedule->command('send:daily-reports')->dailyAt('23:00');
+        $schedule->command('routes:sync')->hourly()->withoutOverlapping();
 
-		
+        //$schedule->command('command:assign_incomplete_products')->dailyAt('01:30');
+        $schedule->command('send:daily-reports')->dailyAt('23:00');
+
         //update order way billtrack histories
         $schedule->command('command:waybilltrack')->dailyAt("1:00");
-       
-		//update directory manager to db
-	    //$schedule->command('project_directory:manager')->dailyAt("1:00");
 
+        //update directory manager to db
+        //$schedule->command('project_directory:manager')->dailyAt("1:00");
 
-         // make payment receipt for hourly associates on daily basis.
+        // make payment receipt for hourly associates on daily basis.
         //  $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
         // $schedule->command('check:landing-page')->everyMinute();
 
@@ -614,10 +616,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('AuthenticateWhatsapp:instance')->hourly();
         // Get tickets from Live Chat inc and put them as unread messages
         // $schedule->command('livechat:tickets')->everyMinute();
-        // delate chat message 
-         //$schedule->command('delete:chat-messages')->dailyAt('00:00')->timezone('Asia/Kolkata');
+        // delate chat message
+        //$schedule->command('delete:chat-messages')->dailyAt('00:00')->timezone('Asia/Kolkata');
 
-        //daily cron for checking due date and add to cashflow 
+        //daily cron for checking due date and add to cashflow
         $schedule->command("assetsmanagerduedate:pay")->daily();
 
         //for adding due date in asset manager
@@ -626,17 +628,15 @@ class Kernel extends ConsoleKernel
         $schedule->command("assetsmanagerpayment:cron Yearly")->yearly();
         $schedule->command("assetsmanagerpayment:cron Monthly")->monthly();
         $schedule->command("assetsmanagerpayment:cron Bi-Weekly")->twiceMonthly(1, 16, '13:00');
-        
-        
-        
+
         //cron for fcm push notifications
         $schedule->command("fcm:send")->everyMinute();
         //cron for influencers start stop
         $schedule->command('influencers:startstop')->hourly();
         //cron for price check api daily basis
         $schedule->command("pricedrop:check")->daily();
-		// Cron for scrapper images.
-		$schedule->command("scrappersImages")->daily();
+        // Cron for scrapper images.
+        $schedule->command("scrappersImages")->daily();
         $schedule->command("scrappersImagesDelete")->daily();
         //cron for instagram handler daily basis
         $schedule->command("instagram:handler")->everyMinute()->withoutOverlapping();
@@ -651,9 +651,13 @@ class Kernel extends ConsoleKernel
         //Instagram automation command
         $schedule->command('InstaAutoFeedDaily')->daily();
         //cron for updating data from csv
-        $schedule->command('update-product:from-csv')->daily();	
-        $schedule->command('send-instagram-message:in-queue')->everyMinute();	
+        $schedule->command('update-product:from-csv')->daily();
+        $schedule->command('send-instagram-message:in-queue')->everyMinute();
         //$schedule->command('ConnectGoogleClientAccounts')->hourly();
+
+        // get python site log
+        $schedule->command('get:pythonLogs')->daily();
+
 
     }
 

@@ -13,7 +13,7 @@ $statuses = \App\ticketStatuses::all();
     }
 </style>
 <!--form modal-->
-<div class="modal fade" id="create-customer-credit-modal" tabindex="-1" role="dialog" aria-labelledby="create-customer-credit-modal-label" aria-hidden="true">
+<div class="modal fade" id="create-customer-credit-modal" role="dialog" aria-labelledby="create-customer-credit-modal-label" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -22,14 +22,24 @@ $statuses = \App\ticketStatuses::all();
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+
             <div class="modal-body">
                 <form id="credit_form">
                     <input type="hidden" id="credit_customer_id" name="credit_customer_id">
                     <input type="hidden" id="source_of_credit" name="source_of_credit" value="customer">
                     <div class="form-group">
-                        <label for="recipient-name" class="col-form-label">Credit:</label>
-                        <input type="text" class="form-control" name="credit" id="credit">
+                        <label for="credit" class="col-form-label">Credit:</label>
+                        <input type="number" min="0" class="form-control" name="credit" id="credit">
                         <span class="text-danger" id="credit_error"></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="radio" class="d-inline" name="credit_type" value="PLUS" checked id="">PLUS
+                        <input type="radio" class="d-inline" name="credit_type" value="MINUS" id="">MINUS
+                    </div>
+                    <div class="form-group">
+                        <label for="currency" class="col-form-label">Currency:</label>
+                        <?php echo Form::select('currency',\App\Currency::pluck('name','code')->toArray(),request('currency','EUR'),['class' => 'form-control select2','style' => "width:250px;","tabindex" => 1]);  ?>
+                        <span class="text-danger" id="currency_error"></span>
                     </div>
                 </form>
             </div>
@@ -80,6 +90,20 @@ $statuses = \App\ticketStatuses::all();
             $('#credit_customer_id').val($(this).attr('data-customer_id'));
         });
 
+        var inputBox = document.getElementById("credit");
+
+        var invalidChars = [
+        "-",
+        "+",
+        "e",
+        ];
+
+        inputBox.addEventListener("keydown", function(e) {
+        if (invalidChars.includes(e.key)) {
+            e.preventDefault();
+        }
+        });
+
         $('#submit_credit_form').click(function (e) {
             e.preventDefault();
             if ($('#credit').val() == '') {
@@ -99,6 +123,8 @@ $statuses = \App\ticketStatuses::all();
                         alert('credit updated successfully.');
                         $('#credit_form').trigger("reset");
                         $('#create-customer-credit-modal').modal('toggle');
+                    }else{
+                        alert(data[0]);
                     }
                 }, error: function (jqXHR, exception) {
                     var msg = '';

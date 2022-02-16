@@ -575,6 +575,101 @@ Content-Type: application/json
                 "id": 3,
                 "customer_id": 3008,
                 "name": "Bardambek Yusupov",
+                "email": "bardam.yus@gmail.com",
+                "ticket_id": "PWTCR",
+                "subject": "Task test",
+                "message": "Message: Hi",
+                "resolution_date": null,
+                "assigned_to": null,
+                "source_of_ticket": "live_chat",
+                "status_id": 1,
+                "date": "2020-08-25 03:26:31",
+                "created_at": "2020-09-11 13:48:23",
+                "updated_at": "2020-09-11 14:08:33",
+                "type_of_inquiry": null,
+                "last_name": null,
+                "country": null,
+                "phone_no": null,
+                "order_no": null,
+                "notify_on": null,
+                "amount": null,
+                "sku": null,
+                "brand": null,
+                "style": null,
+                "keyword": null,
+                "image": null,
+                "deleted_at": null,
+                "lang_code": null,
+                "status": "open",
+                "messages": [
+                    {
+                        "id": 1814762,
+                        "message": "test",
+                        "created_at": "2022-02-07 09:35:41"
+                    },
+                    {
+                        "id": 1814761,
+                        "message": "test",
+                        "created_at": "2022-02-07 09:34:03"
+                    },
+                    {
+                        "id": 1814760,
+                        "message": "test",
+                        "created_at": "2022-02-07 09:33:54"
+                    }
+                ]
+            }
+        ],
+        "first_page_url": "https://erpdev3.theluxuryunlimited.com/api/ticket/send?page=1",
+        "from": 1,
+        "last_page": 1,
+        "last_page_url": "https://erpdev3.theluxuryunlimited.com/api/ticket/send?page=1",
+        "next_page_url": null,
+        "path": "https://erpdev3.theluxuryunlimited.com/api/ticket/send",
+        "per_page": "10",
+        "prev_page_url": null,
+        "to": 1,
+        "total": 1
+    }
+}
+```
+
+key : ticket.send.failed, ticket.send.failed.validation, ticket.send.failed.ticket_or_email
+
+**Failed Response:**
+```json
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "Tickets not found for customer !"
+}
+```
+##  send Ticket message
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/ticket/send
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "live_chat",
+    "ticket_id":"PWTCR",
+    "message":"Message from customer",
+    "action":"send_messsage",
+}
+```
+**Successful Response:**
+```json
+{
+    "status": "success",
+    "tickets": {
+        "current_page": 1,
+        "data": [
+            {
+                "id": 3,
+                "customer_id": 3008,
+                "name": "Bardambek Yusupov",
                 "last_name": null,
                 "email": "bardam.yus@gmail.com",
                 "ticket_id": "PWTCR",
@@ -590,28 +685,23 @@ Content-Type: application/json
                 "country": null,
                 "phone_no": null,
                 "order_no": null,
-                "status": "open"
-            },
-            {
-                "id": 4,
-                "customer_id": 3008,
-                "name": "Bardambek Yusupov",
-                "last_name": null,
-                "email": "bardam.yus@gmail.com",
-                "ticket_id": "J7XPB",
-                "subject": "About new Products",
-                "message": "Message: Hi",
-                "assigned_to": null,
-                "source_of_ticket": "live_chat",
-                "status_id": 1,
-                "date": "2020-08-25 01:25:30",
-                "created_at": "2020-09-11 11:48:23",
-                "updated_at": "2020-09-11 11:48:23",
-                "type_of_inquiry": null,
-                "country": null,
-                "phone_no": null,
-                "order_no": null,
-                "status": "open"
+                "status": "open",
+                "messages": [
+                    {
+                        "id": 1795378,
+                        "message": "Testing Message 12345",
+                        "created_at": "2022-02-07 19:49:26",
+                        "user_id": 6,
+                        "send_by": "Customer"
+                    },
+                    {
+                        "id": 1795377,
+                        "message": "Testing Message 12345",
+                        "created_at": "2022-02-07 19:47:45",
+                        "user_id": "",
+                        "send_by": "Admin"
+                    },
+                ]
             }
         ],
         "first_page_url": "http://127.0.0.1:8000/api/ticket/send?page=1",
@@ -773,6 +863,47 @@ Content-Type: application/json
 }
 ```
 
+## Fetch Customer credit
+```json
+POST https://erp.theluxuryunlimited.com/api/fetch-credit-balance
+Accept: application/json
+Content-Type: application/json
+{
+	'website':'www.sololuxury.com',
+	'platform_id':1,
+	"lang_code":"ae_ar",
+}
+Response
+{"message":"Credit Fetched Successfully",'code' => 200,"status":success,"data":{"credit_balance":400,"currency":INR}}
+```
+## save Customer credit
+```json
+POST https://erp.theluxuryunlimited.com/api/deduct-credit
+Accept: application/json
+Content-Type: application/json
+{
+	'website':'www.sololuxury.com'
+	'platform_id':1,
+	'amount':50,
+	"lang_code":"ae_ar",
+}
+Response
+{"message":"Credit updated successfully","code":200,"status":"success"}
+```
+## add Customer credit
+```json
+POST https://erp.theluxuryunlimited.com/api/add-credit
+Accept: application/json
+Content-Type: application/json
+{
+	'website':'www.sololuxury.com'
+	'platform_id':1,
+	'amount':50,
+	"lang_code":"ae_ar",
+}
+Response
+{"message":"Credit added successfully","code":200,"status":"success"}
+```
 ## Store data into the laravel logs
 **Request:**
 
@@ -1413,7 +1544,8 @@ POST https://erp.theluxuryunlimited.com/api/out-of-stock-subscription
 {
    "email":"test@gmail.com",
    "sku" : "2EG286W08F0C6D",
-   "website" : "WWW.SOLOLUXURY.COM"
+   "website" : "WWW.SOLOLUXURY.COM",
+   "size" : "XL"
 }
 ```
 
@@ -1446,6 +1578,7 @@ POST https://erp.theluxuryunlimited.com/api/customer/add_cart_data
 "lang_code":"en-US",
 "email":"effertz.isadore@cremin.org",
 "website":"WWW.SOLOLUXURY.COM",
+"type" : "add-to-cart",
 "item_info":[
     {
         "sku":"1BH018VCNK2AIXF0F6R",
@@ -1463,6 +1596,135 @@ POST https://erp.theluxuryunlimited.com/api/customer/add_cart_data
 {
     "status": "200",
     "message": "Successfully Added"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```
+
+## Store customer reviews
+
+Key : reviews.failed.validation, reviews.add.success
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/store_reviews
+{
+"name":"test",
+"lang_code":"en-US",
+"platform_id":"1",
+"stars":"3.5",
+"comment":"Good",
+"email":"effertz.isadore@cremin.org",
+"website":"WWW.SOLOLUXURY.COM",
+"type" : "store-reviews",
+}
+```
+**Successful Response:**
+```json
+{
+    "status": "success",
+    "message": "Successfully Added"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": "error",
+    "message": "Error message"
+}
+```
+
+## Get all customer reviews
+
+Key : reviews.failed.validation, reviews.add.success
+
+**Request:**
+
+```json
+GET https://erp.theluxuryunlimited.com/api/all-reviews
+{
+"name":"test",
+"lang_code":"en-US",
+"platform_id":"1",
+"email":"effertz.isadore@cremin.org",
+"website":"www.lussolicious.com",
+"type" : "get-reviews",
+}
+```
+**Successful Response:**
+```json
+{
+    "status": "200",
+    "data":[{
+            "id": 4,
+            "store_website_id": 2,
+            "platform_id": 1,
+            "email": "effertz.isadore@cremin.org",
+            "name": "test",
+            "stars": "3.5",
+            "comment": "Good Product",
+            "status": 1,
+            "deleted_at": null,
+            "created_at": "2021-10-17 19:38:32",
+            "updated_at": "2021-10-17 19:38:32",
+            "store_website": {
+                "id": 2,
+                "website": "www.lussolicious.com",
+                "title": "Lussolicious",
+                "description": "Copy of Solo Luxury to be built on 1.9",
+                "repository_id": null,
+                "cropper_color_name": null,
+                "cropper_color": null,
+                "is_published": 0,
+                "disable_push": 0,
+                "remote_software": "2",
+                "magento_url": null,
+                "stage_magento_url": null,
+                "dev_magento_url": null,
+                "magento_username": null,
+                "magento_password": null,
+                "api_token": null,
+                "stage_api_token": null,
+                "dev_api_token": null,
+                "instagram": null,
+                "instagram_remarks": null,
+                "facebook": null,
+                "facebook_remarks": null,
+                "country_duty": null,
+                "is_price_override": 0,
+                "deleted_at": null,
+                "created_at": "2020-05-15 15:36:22",
+                "updated_at": "2020-09-02 06:38:40",
+                "server_ip": null,
+                "username": "developer",
+                "password": "Uen1Fa?Eaza6Ti",
+                "staging_username": null,
+                "staging_password": null,
+                "mysql_username": null,
+                "mysql_password": null,
+                "mysql_staging_username": null,
+                "mysql_staging_password": null,
+                "website_source": "magento",
+                "push_web_id": null,
+                "icon": null,
+                "push_web_key": null,
+                "cropping_size": null,
+                "reference": null,
+                "build_name": null,
+                "repository": null,
+                "semrush_project_id": null,
+                "mailing_service_id": 1,
+                "website_url": "http://www.lussolicious.com"
+            }
+    }],
+    "message": "All reviews fetched successfully"
 }
 ```
 **Failed Response:**

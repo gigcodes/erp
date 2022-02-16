@@ -157,28 +157,31 @@
                                     @foreach ($chatIds as $chatId)
                                     @php
                                     $customer = $chatId->customer;
-                                    $customerInital = substr($customer->name, 0, 1);
-                                    $website_data = \App\StoreWebsite::where("id", $customer->store_website_id)->first();
-                                    @endphp
-                                        <input type="hidden" id="live_selected_customer_store" value="{{ $customer->store_website_id }}" />
-                                        <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
+                                    if($customer) {
+                                        $customerInital = substr($customer->name, 0, 1);
+                                        $website_data = \App\StoreWebsite::where("id", $customer->store_website_id)->first();
+                                        @endphp
+                                            <input type="hidden" id="live_selected_customer_store" value="{{ $customer->store_website_id }}" />
+                                            <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
 
-                                        <div class="d-flex bd-highlight">
-                                            <div class="img_cont">
-                                                <!-- <soan class="rounded-circle user_inital">{{ $customerInital }}</soan> -->
-                                                {{-- <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"> --}}
-                                                <span class="online_icon @if($chatId->status == 0) offline @endif "></span>
+                                            <div class="d-flex bd-highlight">
+                                                <div class="img_cont">
+                                                    <!-- <soan class="rounded-circle user_inital">{{ $customerInital }}</soan> -->
+                                                    {{-- <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"> --}}
+                                                    <span class="online_icon @if($chatId->status == 0) offline @endif "></span>
+                                                </div>
+                                                <div class="user_info">
+                                                    <span>{{ $customer->name }}</span>
+                                                    <h5>{{ $customer->phone ?? '' }} </h5>
+                                                    <!-- <p>{{ $customer->name }} is @if($chatId->status == 0) offline @else online @endif </p> -->
+                                                    <h5>{{ $website_data->website ?? '' }} </h5>
+                                                </div>
+                                                <!-- @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif -->
                                             </div>
-                                            <div class="user_info">
-                                                <span>{{ $customer->name }}</span>
-                                                <h5>{{ $customer->phone ?? '' }} </h5>
-                                                <!-- <p>{{ $customer->name }} is @if($chatId->status == 0) offline @else online @endif </p> -->
-                                                <h5>{{ $website_data->website ?? '' }} </h5>
-                                            </div>
-                                            <!-- @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif -->
-                                        </div>
-                                    </li>
-
+                                        </li>
+                                    @php 
+                                        } 
+                                    @endphp    
                                     @endforeach
 
                                 </ul>
