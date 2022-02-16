@@ -20,12 +20,13 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::get('/cancellation', 'StoreWebsiteController@cancellation')->name("store-website.cancellation");
     Route::get('/records', 'StoreWebsiteController@records')->name("store-website.records");
     Route::post('/save', 'StoreWebsiteController@save')->name("store-website.save");
+    Route::get('/log-website-users/{id}', 'StoreWebsiteController@logWebsiteUsers')->name("store-website.logwebsiteusers");
     Route::post('/save-cancellation', 'StoreWebsiteController@saveCancellation')->name("store-website.save-cancellation");
     Route::post('/generate-file-store', 'StoreWebsiteController@generateStorefile')->name("store-website.generate-file-store");
     
     Route::post('/save-user-in-magento', 'StoreWebsiteController@saveUserInMagento')->name("store-website.save-user-in-magento");
     Route::post('/delete-user-in-magento', 'StoreWebsiteController@deleteUserInMagento')->name("store-website.delete-user-in-magento");
-
+    Route::post('/update-company-website-address', 'StoreWebsiteController@updateCompanyWebsiteAddress'); 
     Route::prefix('{id}')->group(function () {
         
         Route::get('/sync-stage-to-master', 'StoreWebsiteController@syncStageToMaster');
@@ -35,7 +36,10 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/store-reindex-history', 'StoreWebsiteController@storeReindexHistory');
 
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
+
+        Route::get('/add-company-website-address', 'StoreWebsiteController@addCompanyWebsiteAddress');    
         
+
         Route::get('/edit-cancellation', 'StoreWebsiteController@editCancellation')->name("store-website.edit-cancellation");
         
         Route::get('/delete', 'StoreWebsiteController@delete')->name("store-website.delete");
@@ -44,6 +48,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         
         Route::post('/submit-social-remarks', 'StoreWebsiteController@updateSocialRemarks')->name("store-website.update.social-remarks");
         
+        
+
         Route::prefix('build-process')->group(function () {
             Route::get('/', 'StoreWebsiteController@buildProcess')->name("store-website.build.process");
             Route::get('/history', 'StoreWebsiteController@buildProcessHistory')->name("store-website.build.process.history");
@@ -127,7 +133,11 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
 
     Route::prefix('category')->group(function () {
         Route::get('/', 'CategoryController@list')->name("store-website.category.list");
+        Route::post('category-history', 'CategoryController@categoryHistory')->name('store-website.category,categoryHistory');
+        Route::post('website-category-user-history', 'CategoryController@webiteCategoryUserHistory')->name('store-website.category,webiteCategoryUserHistory');
         Route::post('save/store/category', 'CategoryController@saveStoreCategory')->name("store-website.save.store.category");
+        Route::post('/delete-category', 'CategoryController@deleteCategory')->name("store-website.delete-category");
+
     });
 
     Route::prefix('color')->group(function () {
@@ -153,6 +163,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/push', 'WebsiteController@push')->name("store-website.websites.push");
         Route::get('/{id}/push-stores', 'WebsiteController@pushStores')->name("store-website.websites.pushStores");
         Route::get('/{id}/copy-website-struct', 'WebsiteController@copyWebsiteStructure')->name("store-website.websites.copyWebsiteStructure");
+        
     });
 
     Route::prefix('website-stores')->group(function () {

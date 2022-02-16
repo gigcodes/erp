@@ -1102,4 +1102,56 @@ class CategoryController extends Controller
             return response()->json(["code" => 500 , "message" => "Category not found"]);
         }
     }
+
+    /**
+     * copy data from One category To Another.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function storeCopyCategory(Request $request)
+    {
+        $sourceCategoryId = $request->sourceCategoryId;
+        $targetCategoryId = $request->targetCategoryId;
+
+        $categories     = Category::where('parent_id',$sourceCategoryId)->orderBy('title')->get();
+       
+        $data = [];
+        
+        if($categories){
+            foreach($categories as $category){
+                $data['child'][$category->id] = $category->toArray();
+                $insert_array = $category->toArray();
+                $insert_array['parent_id'] = $targetCategoryId;
+                $insert_array['magento_id'] = 0;
+                unset($insert_array['id']);
+                $pid = Category::insertGetId($insert_array);
+                $data['child'][$category->id]['child'] = $this->getChildData($category->id, $pid); 
+            }
+        }
+        return redirect()->route('category')
+                ->with('success-remove', 'Data Copyied Successfully');
+    }
+
+    /**
+     * find child data from parent.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getChildData($parentId, $pid)
+    {
+        $categories  = Category::where('parent_id',$parentId)->orderBy('title')->get();
+        $data = [];
+        if($categories){
+            foreach($categories as $category){
+                $data[$category->id] = $category->toArray();
+                $insert_array = $category->toArray();
+                $insert_array['parent_id'] = $pid;
+                $insert_array['magento_id'] = 0;
+                unset($insert_array['id']);
+                $newpid = Category::insertGetId($insert_array);
+                $data[$category->id]['child'] = $this->getChildData($category->id, $newpid);
+            } 
+        }
+        return $data;
+    }
 }

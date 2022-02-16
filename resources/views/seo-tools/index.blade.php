@@ -123,7 +123,12 @@
 					{{ Form::select('search', $websites, null, array('class'=>'search select2', 'placeholder'=>'Seletc Website', 'id'=>'search')) }}
 				</div>
 			</div>
-
+		<div class="form-group col-md-12 pull-right">
+				<div class="seo_select_inner col-md-4 ">
+					<a class="btn btn-secondary" href="#" id="fetch_details">Fetch Latest Records</a>
+				</div>
+			</div>
+			<p id="myTabContent"></p>
     @if(Session::has('message'))
         <p class="alert {{ Session::get('alert-class', 'alert-info') }}">{{ Session::get('message') }}</p>
     @endif
@@ -271,20 +276,24 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
 		$('.select2').select2();
-        $('.search').change(function(){ 
-            var websiteId = $(this).val();
-            var website = $('.search').select2('data'); 
+        $('#fetch_details').click(function(){ 
+          //  var websiteId = $(this).val();
+            //var website = $('.search').select2('data'); 
 			 $.ajax({
                 url : "{{ route('fetch-seo-details') }}",
-                type : "POST",
+                type : "GET",
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
-                data : {
+				  beforeSend: function() {
+                    $("#loading-image").show();
+                    },
+             /*   data : {
                     websiteId : websiteId,
                     website : website[0].text
-                },
+                },*/
                 success : function (data){ console.log(data);console.log(data.status_code);
+				 $("#loading-image").hide();
 					if(data.status_code == 200) {
 						$('#myTabContent').html(data.response);
 					}               

@@ -42,6 +42,7 @@ use Response;
 use App\Hubstaff\HubstaffActivity;
 use App\Sop;
 use App\TaskUserHistory;
+use App\LogChatMessage;
 
 
 class TaskModuleController extends Controller
@@ -3114,7 +3115,57 @@ class TaskModuleController extends Controller
 
   		return response()->json(["code" => 500 , "message" => "Please select atleast one task"]);
   }
+    public function CommunicationTaskStatus(Request $request)
+    {
+        $task = Task::find($request->get('task_id'));
 
+        if($task->communication_status == 0)
+        {
+            $status = 1;
+        }
+        if($task->communication_status == 1)
+        {
+            $status = 0;
+        }
+
+        $updatetask = Task::find($request->get('task_id'));
+        $updatetask->communication_status = $status;
+        $updatetask->update();
+        return response()->json(['status' => 'success','communication_status'=>$status]);
+    }
+    public function recurringHistory(request $request)
+    {
+        $task_id = $request->input('task_id');
+        $html = '';
+        $chatData = LogChatMessage::where('task_id', $task_id)
+            ->orderBy('id', 'DESC')
+            ->get();
+        $i = 1;
+        if (count($chatData) > 0) {
+            foreach ($chatData as $history) {
+                $html .= '<tr>';
+                $html .= '<td>' . $i . '</td>';
+                $html .= '<td>' . $history->log_case_id . '</td>';
+                $html .= '<td>' . $history->message . '</td>';
+                $html .= '<td>' . $history->log_msg . '</td>';
+                $html .= '<td>' . $history->created_at . '</td>';
+                $html .= '</tr>';
+
+                $i++;
+            }
+            return response()->json(['html' => $html, 'success' => true], 200);
+        } else {
+            $html .= '<tr>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '</tr>';
+        }
+        return response()->json(['html' => $html, 'success' => true], 200);
+
+    }
     public function AssignTaskToUser(Request $request){
         $task = Task::find($request->get('issue_id'));
         $old_id = $task->assign_to;

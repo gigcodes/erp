@@ -52,7 +52,6 @@
         <table class="table table-bordered">
             <thead>
             <tr>
-                <th>ID</th>
                 <th>Type</th>
                 <th style="width:25%">Log</th>
                 <th style="width:40%">Context</th>
@@ -61,7 +60,6 @@
             <tbody>
             @foreach($data as $key => $value)
                 <tr>
-                    <td>{{ $key + 1 }}</td>
                     <td>{{ \App\SocialWebhookLog::TYPE[$value->type] }}</td>
                     <td style="width:25%">{{ $value->log }}</td>
                     <td style="width:40%">

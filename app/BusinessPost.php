@@ -19,6 +19,7 @@ class BusinessPost extends Model
     const PHOTO = "photo";
     const VIDEO = "video";
     const COMMENT = "comment";
+    const COMMENTS = "comments";
 
     public function comments()
     {
