@@ -543,40 +543,6 @@ function opnMsg(email) {
         format: 'YYYY-MM-DD'
     });
 
-    function submitsearchbtn() {
-        var routeURL = '';
-        $.ajax({
-                url: src,
-                dataType: "json",
-                data: {
-                    erpUser:erp_user,
-                    term : term,
-                    serach_inquiry_type : serach_inquiry_type,
-                    search_country : search_country,
-                    search_order_no : search_order_no,
-                    search_phone_no : search_phone_no,
-                    ticket_id : ticket_id,
-                    status_id : status_id,
-                    date : date,
-                    users_id : users_id,
-                
-                },
-                beforeSend: function () {
-                    $("#loading-image").show();
-                },
-
-            }).done(function (message) {
-                $("#loading-image").hide();
-                //location.reload();
-                //alert(ticket_id);
-                $('#ticket').val(ticket_id);
-                
-                var rendered = renderMessage(message, tobottom);
-                
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                alert('No response from server');
-        });
-    }
     function submitSearch(){
                 //src = "{{url('whatsapp/pollTicketsCustomer')}}";
                 src = "{{url('livechat/tickets')}}";
@@ -607,26 +573,21 @@ function opnMsg(email) {
                         date : date,
                         users_id : users_id,
                         search_source : search_source
-
                     },
                     beforeSend: function () {
                         $("#loading-image").show();
                     },
-
                 }).done(function (message) {
                     $("#loading-image").hide();
                     //location.reload();
                     //alert(ticket_id);
-                    
                     $('#ticket').val(ticket_id);
                     $('#content_data').html(message.tbody);
                     var rendered = renderMessage(message, tobottom);
-                    
                 }).fail(function (jqXHR, ajaxOptions, thrownError) {
                     alert('No response from server');
                 });
-
-            }
+    }
 
     function resetSearch(){
         $("#loading-image").hide();

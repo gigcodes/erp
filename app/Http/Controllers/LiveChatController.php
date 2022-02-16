@@ -1336,6 +1336,7 @@ class LiveChatController extends Controller
             $query = $query->where('tickets.type_of_inquiry', 'LIKE', '%' . $request->serach_inquiry_type . '%');
         }
 
+        // Use for search by source tof ticket 
         if ($request->search_source != "") {
 
             $query = $query->where('tickets.source_of_ticket', 'LIKE', '%' . $request->search_source . '%');
