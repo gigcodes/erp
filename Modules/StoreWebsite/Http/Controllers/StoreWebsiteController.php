@@ -130,6 +130,7 @@ class StoreWebsiteController extends Controller
         $validator = Validator::make($post, [
             'title'   => 'required',
             'website' => 'required',
+			'product_markup' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -154,9 +155,9 @@ class StoreWebsiteController extends Controller
         $records->fill($post);
         $records->save();
 
-
-        $this->savelogwebsiteuser("#1",$post['id'],$post['username'],$post['userEmail'],$post['firstName'],$post['lastName'],$post['password'],$post['website_mode'],"For this Website ".$post['id']." ,A new user has been created.");
-
+		if(isset($post['username'])) {
+			$this->savelogwebsiteuser("#1",$post['id'],$post['username'],$post['userEmail'],$post['firstName'],$post['lastName'],$post['password'],$post['website_mode'],"For this Website ".$post['id']." ,A new user has been created.");
+		}
         if($request->staging_username && $request->staging_password) {
             $message = 'Staging Username: '.$request->staging_username.', Staging Password is: ' . $request->staging_password;
             $params['user_id'] = Auth::id();

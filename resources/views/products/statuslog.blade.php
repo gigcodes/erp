@@ -15,15 +15,15 @@
     </div>
     <form action="{{ action('ProductController@productScrapLog') }}" method="get">
         <div class="row mb-5">
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="form-group">
                 <input type="text" name="select_date" class="form-control datepicker" id="select_date" placeholder="Enter Date" value="{{isset($request->select_date) ? $request->select_date : ''}}">
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
             <input type="text" name="product_id" class="form-control" id="product_id" placeholder="Enter Product ID" value="{{isset($request->product_id) ? $request->product_id : ''}}">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="form-group">
                 <select class="form-control" name="status" id="status">
                     <option value="">Status</option>
@@ -33,7 +33,10 @@
                 </select>
                 </div>
             </div>
-            <div class="col-md-1">
+            <div class="col-md-2">
+                <input type="text" name="sku" class="form-control" id="sku" placeholder="Enter Sku" value="{{isset($request->sku) ? $request->sku : ''}}">
+            </div>
+            <div class="col-md-2">
                 <button class="btn btn-image btn-default">
                     <img src="{{ asset('images/search.png') }}" alt="Search">
                 </button>
