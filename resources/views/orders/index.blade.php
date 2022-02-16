@@ -352,7 +352,9 @@
               <td>{{$duty_shipping[$order->id]['shipping']}}</td>
               <td>{{$duty_shipping[$order->id]['duty']}}</td>
               <td>
-                <div class="d-flex">
+                <div class="d-flex"> <button type="button" title="Payment history" class="btn cancel-transaction-btn btn-xs pull-left" data-id="{{$order->id}}">
+                      <i class="fa fa-close"></i>
+                  </button>
                  <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" data-id="{{$order->id}}">
                       <i class="fa fa-history"></i>
                   </button>
@@ -1186,7 +1188,34 @@
         });
     });
 
-    $('.payment-history-btn').click(function(){
+    $('.cancel-transaction-btn').click(function(){
+          var order_id = $(this).data('id');
+          console.log(order_id);
+          //return false;
+          $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('order.canceltransaction') }}",
+            data: {
+              order_id:order_id,
+            },
+        }).done(response => {
+          //$('#payment-history-modal').find('.payment-history-list-view').html('');
+            if(response.success==true){
+              console.log("response returned");
+              //$('#payment-history-modal').find('.payment-history-list-view').html(response.html);
+              //$('#payment-history-modal').modal('show');
+            }
+
+        }).fail(function(response) {
+
+          alert('Issue in response');
+        });
+      });
+
+ $('.payment-history-btn').click(function(){
           var order_id = $(this).data('id');
           $.ajax({
             type: 'POST',
@@ -1209,7 +1238,6 @@
           alert('Could not fetch payments');
         });
       });
-
     $(document).on("click",".send-order-email-btn",function(e){
        e.preventDefault();
        var $this = $(this);
