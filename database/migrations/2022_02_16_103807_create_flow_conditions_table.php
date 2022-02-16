@@ -18,7 +18,7 @@ class CreateFlowConditionsTable extends Migration
 			$table->integer('flow_id');
             $table->string('condition_name');
 			$table->string('message');
-            $table->boolean('status')->default(0);
+            $table->boolean('status')->default(1);
             $table->timestamps();
         });
     }
