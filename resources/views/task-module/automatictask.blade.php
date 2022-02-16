@@ -167,6 +167,9 @@
             <?php $base_url = URL::to('/'); ?>
             <div class=" cls_filter_box" style="margin-left: -13px;">
                 <form class="form-inline form-search-data" action="{{ route('development.automatic.tasks') }}" method="GET">
+						<div class="col-md-2">
+							{{ Form::text('subject', $request->get('subject'), array('class'=>'form-control')) }}
+                        </div>
                    @if (auth()->user()->isReviwerLikeAdmin())
                         <div class="col-md-2 pd-sm pd-rt">
                             <select class="form-control" name="assigned_to" id="assigned_to">
@@ -200,13 +203,14 @@
                 <thead>
                     <tr>
                         <th width="7%">ID</th>
+                        <th width="5%">Website</th>
                         <th width="9%">Subject</th>
                         <th width="12%">Assigned To</th>
                         <th width="10%">Tracked Time</th>
                         <th width="9%">Estimated Time</th>
                         <th width="12%">Delivery Date</th>
-                        <th width="22%">Communication</th>
-                        <th width="13%">Status</th>
+                        <th width="20%">Communication</th>
+                        <th width="10%">Status</th>
                     </tr>
                 </thead>
 
