@@ -1012,7 +1012,9 @@ class DevelopmentController extends Controller
     {
         $users = Helpers::getUserArray(User::orderBy('name')->get());
         $title = 'Automatic Task List';
-        $task =  Task::with('timeSpent')->where('is_flow_task', '1'); 
+        $task =  Task::leftJoin('site_developments', 'site_developments.id', 'tasks.site_developement_id')
+		->leftJoin('store_websites', 'store_websites.id', 'site_developments.website_id')
+		->with('timeSpent')->where('is_flow_task', '1'); 
       
         if ((int) $request->get('assigned_to') > 0) {
             $task = $task->where('tasks.assign_to', $request->get('assigned_to'));
@@ -1029,7 +1031,7 @@ class DevelopmentController extends Controller
     
         $task = $task->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, task_id, message  FROM `chat_messages` where task_id > 0 ' . $whereTaskCondition . ' GROUP BY task_id ) m_max'), 'm_max.task_id', '=', 'tasks.id');
         $task = $task->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
-        $task = $task->select("tasks.*", "chat_messages.message");
+        $task = $task->select("tasks.*", "chat_messages.message", "store_websites.title as website_title");
         
         if (!auth()->user()->isReviwerLikeAdmin()) {
           $task = $task->where(function ($query) use ($request) {

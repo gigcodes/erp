@@ -4,6 +4,9 @@
     <td style="display:table-cell;vertical-align: baseline;">
     {{ $issue->id }}
     </td>
+    <td style="vertical-align: baseline;">    
+       {{ $issue->website_title }}
+    </td>
     <td class="Website-task" style="vertical-align: baseline;">    
        {{ $issue->task_subject }}
     </td>
