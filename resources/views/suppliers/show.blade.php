@@ -80,7 +80,7 @@
                 <h3>Supplier Page</h3>
             </div>
             <div class="pull-right mt-4">
-                <a class="btn btn-xs btn-secondary" href="{{ route('supplier.index') }}">Back</a>
+                <a class="btn btn-xs mr-2 custom-button" href="{{ route('supplier.index') }}">Back</a>
                 {{-- <a class="btn btn-xs btn-secondary" href="#" id="quick_add_lead">+ Lead</a>
                 <a class="btn btn-xs btn-secondary" href="#" id="quick_add_order">+ Order</a>
                 <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#privateViewingModal">Set Up for Private Viewing</button> --}}
@@ -258,7 +258,7 @@
                             </div>
 
                             <div class="form-group pl-1"style="margin-top:-7px;">
-                                <button type="button" id="updateSupplierButton" class="btn btn-xs btn-secondary">Save</button>
+                                <button type="button" id="updateSupplierButton" class="btn btn-xs custom-button">Save</button>
                             </div>
                         </div>
 
@@ -409,7 +409,7 @@
                                 </select>
                             </div>
                              <div class="ml-2">
-                                <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#ReplyModal" id="approval_reply" style="height:34px;">Create Quick Reply</button>
+                                <button type="button" class="btn btn-xs custom-button" data-toggle="modal" data-target="#ReplyModal" id="approval_reply" style="height:34px;">Create Quick Reply</button>
                             </div>
                              <div class="ml-2">
                                 <select name="autoTranslate" id="autoTranslate" class="form-control input-sm mb-3"style="    width:164px!important; height: 34px;">
@@ -423,7 +423,7 @@
                 </form>
                 <div class="row">
                     <div class="col mb-3 pl-5">
-                        <button type="button" class="btn btn-xs btn-secondary" id="auto-translate" style="height:34px;">Add translation language</button>
+                        <button type="button" class="btn btn-xs custom-button" id="auto-translate" style="height:34px;">Add translation language</button>
                     </div>
                 </div>
             </div>
@@ -465,7 +465,7 @@
                                     @csrf
                                 <input name="excel_file" type="file" class="form-control">
                                 <input type="hidden" name="id" value="{{ $supplier->id }}">
-                                <button type="submit" class="btn btn-secondary">Submit</button>
+                                <button type="submit" class="btn mt-2 custom-button">Submit</button>
                                 </form>
                             </div>
                         </div>
@@ -480,16 +480,22 @@
 
                 <div class="row pr-5 pt-3">
                     <form action="{{ route('supplier.image') }}" method="post" enctype="multipart/form-data" style="width: 100%">
-                        @csrf
-                        <button type="buttin" class="btn btn-xs btn-secondary" value="1" name="type" id="createProduct">Create Product</button>
-                        <button type="button" class="btn btn-xs btn-secondary" value="2" name="type" id="createGroup">Create Product Group</button>
-                        <button type="button" class="btn btn-xs btn-secondary" value="3" name="type" id="createInStockProduct">Create InStock Product</button>
+                     @csrf
+                      <div class="d-flex">
+                        <button type="buttin" class="btn btn-xs  custom-button" value="1" name="type" id="createProduct"style="height:34px;width: 200px;">Create Product</button>
+                        <button type="button" class="btn btn-xs  ml-2 custom-button" value="2" name="type" id="createGroup"style="height:34px;">Create Product Group</button>
+                        <button type="button" class="btn btn-xs  ml-2 custom-button" value="3" name="type" id="createInStockProduct" style="height:34px;">Create InStock Product</button>
+                      </div>
+                      <div class="d-flex pt-3">
                         <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></a>
-                        <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
-                        <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></a>
-                        <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message">
+                        <a type="button" class="btn ml-2 btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
+                        <a type="button" class="btn ml-2 btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></a>
+                      </div>
+                      <div class="pt-2">
+                        <input type="text" name="search_chat_pop"  class="form-control  search_chat_pop" placeholder="Search Message">
+                     </div>
                         <div class="load-communication-modal chat-history-load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"  style="display: none;" data-object="supplier" data-attached="1" data-id="{{ $supplier->id }}"></div>
-                        <div class="col-12" id="chat-history" style="height:271px !important;">
+                        <div class="col-12 mt-3" id="chat-history" style="height:271px !important;">
                         </div>
                     </form>
                 </div>
@@ -1472,7 +1478,8 @@
                     $(thiss).text('Saving...');
                 }
             }).done(function () {
-                $(thiss).text('Save');
+                $(thiss).text('
+                    ');
                 $(thiss).removeClass('btn-secondary');
                 $(thiss).addClass('btn-success');
 
