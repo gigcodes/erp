@@ -60,7 +60,7 @@ class ScheduleEmails extends Command
 		$leads = [];
 
 		//$flows = Flow::select('id', 'flow_name as name')->get();
-		$flows = Flow::whereIn('flow_name', ['task_pr'])->select('id', 'flow_name as name')->get();  
+		$flows = Flow::whereIn('flow_name', ['site_dev'])->select('id', 'flow_name as name')->get();  
 
 		FlowLog::log(["flow_id" => 0, "messages" => "Flow action started to check and found total flows : " . $flows->count()]);
 
@@ -431,13 +431,16 @@ class ScheduleEmails extends Command
 					->where('flow_paths.parent_action_id', '=', $flowAction['action_id'])->orderBy('flow_actions.rank', 'asc')
 					->get()->groupBy('path_for');
 				foreach ($flowPathsNew as $path_for => $flowActiosnNew) { 
-					$designCategoryId = TaskCategory::where('title', 'like', 'Design%')->pluck('id')->first();
-					if ($path_for == 'yes') { 
+					$designCategoryId = \App\TaskCategory::where('title', 'like', 'Design%')->pluck('id')->first(); 
+					if ($path_for == 'yes') {   
+						$parentTaskIds = Task::whereNotNull('parent_task_id')->pluck('parent_task_id')->toArray();
 						$tasks = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')
-							    ->whereDate('tasks.created_at', '<=', $created_date)
+							    ->whereDate('tasks.is_completed', '<=', $created_date)
 								->where('category', $designCategoryId)
 								->whereNotNull('is_completed')
+								->whereNotIn('tasks.id', $parentTaskIds)
 							    ->select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.site_developement_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+						
 						$devCategoryId = TaskCategory::where('title', 'like', 'Site Devel%')->pluck('id')->first();
 						foreach($tasks as $task) { 
 							$ifAlreadyCreated = Task::where('parent_task_id', $task['id'])->first();
