@@ -800,7 +800,7 @@ $(document).on('change', '.assign-user', function () {
 
 	$("#change_website").change(function(){
 		var websiteUrl='';
-		websiteUrl="{{route('site-development.index')}}/"+$(this).val()+"/"+location.search;
+		websiteUrl="{{route('site-development.index')}}/"+$(this).val();
 		window.location=websiteUrl;
 	});
 	$('.assign-to.select2').select2({
@@ -1895,7 +1895,38 @@ $(document).on('change', '.assign-user', function () {
 		});
 	});
 </script>
-<script>
+<script> 
+$(document).on("click", ".tasks-relation", function() { alert('called');
+		var $this = $(this);
+		var site_id = $(this).data("id");
+		$.ajax({
+			type: 'get',
+			url: 'task/relation/' + site_id,
+			dataType: "json",
+			beforeSend: function() {
+				$("#loading-image").show();
+			},
+			success: function(data) {
+				$("#dev_task_statistics").modal("show");
+				var table = '<div class="table-responsive">'+
+					'<table class="table table-bordered table-striped">'+
+						'<tr><th width="4%">Task Id</th><th width="4%">Parent Task</th></tr>';
+				for (var i = 0; i < data.othertask.length; i++) {
+					table = table + '<tr><td>' + data.othertask[i].id + '</td><td>#' + data.othertask[i].parent_task_id + '</td></tr>';
+				}
+				table = table + '</table></div>';
+				$("#loading-image").hide();
+				$(".modal").css("overflow-x", "hidden");
+				$(".modal").css("overflow-y", "auto");
+				$("#dev_task_statistics_content").html(table);
+			},
+			error: function(error) {
+				console.log(error);
+				$("#loading-image").hide();
+			}
+		});
+	});
+	
 	$(document).on("click", ".count-dev-customer-tasks", function() {
 
 		var $this = $(this);
@@ -1945,6 +1976,7 @@ $(document).on('change', '.assign-user', function () {
 
 
 	});
+	
 	$(document).on('click', '.expand-row-msg', function () {
 		var name = $(this).data('name');
 		var id = $(this).data('id');

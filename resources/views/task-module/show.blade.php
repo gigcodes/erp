@@ -466,11 +466,11 @@ input.cmn-toggle-round + label {
                 </div>
                 @endif
                 <div class="row">
-                    <div class="col-xs-12 col-md-4" id="recurring-task" >
+                    <div class="col-xs-12 col-md-4" id="recurring-task"  style="display:none;">
                         <div class="row">
                             <div class="col-xs-12 col-md-6">
                                 <div class="form-group">
-                                    <select name="recurring_type" class="form-control input-sm" required>
+                                    <select name="recurring_type" class="form-control input-sm">
                                         <option value="">Select</option>
                                         <option value="EveryHour">EveryHour</option>
                                         <option value="EveryDay">EveryDay</option>
@@ -1986,7 +1986,7 @@ input.cmn-toggle-round + label {
                     $('#appointment-container').hide();
 
                     if (!isAdmin)
-                        $('select[name="task_asssigned_to"]').html(`<option value="${current_userid}">${ current_username }</option>`);
+                        $('select[name="task_asssigned_to"]').html('<option value="${current_userid}">${ current_username }</option>');
 
                     $('#recurring-task').show();
                 } else if ($(".is_statutory").val() == 2) {

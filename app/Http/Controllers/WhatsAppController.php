@@ -1982,7 +1982,7 @@ class WhatsAppController extends FindByNumberController
         $this->validate($request, [
             'customer_id' => 'sometimes|nullable|numeric',
             'supplier_id' => 'sometimes|nullable|numeric',
-            'task_id' => 'sometimes|nullable|numeric',
+            /*'task_id' => 'sometimes|nullable|numeric',*/
             'erp_user' => 'sometimes|nullable|numeric',
             'status' => 'required|numeric',
             'assigned_to' => 'sometimes|nullable',
