@@ -25,14 +25,14 @@ a {
 
 </style>
 	<div class="row">
-		<table class="table table-bordered"style="table-layout:fixed;">
+		<table class="table table-bordered"style="table-layout:fixed;" id="reply_history_div">
 		    <thead>
 		      <tr>
 		     <th style="width:2%" >ID</th> 
-		     <th style="width:2%">User</th>
+		     <th style="width:3%">User</th>
 		     <th style="width:2%">Rate</th>
 		     <th style="width:3%">S/F PX</th>
-				<th style="width:3%">S N</th> 
+				<th style="width:2%">S N</th> 
 				<th style="width:3%">Tsk</th>
 				<th style="width:2%">Y h</th>
 				<th style="width:3%">N T e.</th>
@@ -43,17 +43,17 @@ a {
 				<th style="width:3%">Pai on</th>
 				<th style="width:1%">S</th>
 				<?php if (Auth::user()->isAdmin()) { ?>
-				<th style="width:3%" class="Website-task" title="Send" >Send</th>
-				<th style="width:3%" class="Website-task" title="Reply" >Reply</th>
+				<th style="width:3%">Send</th>
+				<th style="width:3%">Reply</th>
 				<?php } ?>
-				<th style="width:19%" class="Website-task" title="Action" >Action</th>
+				<th style="width:19%">Action</th>
 			</tr>
 		    </thead>
 		    <tbody>
 		    	{{props data}}
 			      <tr>
 			      	<td class="Website-task"title="{{:prop.id}}">{{:prop.id}}</td>
-			      	<td class="Website-task"><a  title="Task Hours" class="Website-task btn-image load-userdetail-modal" data-id="{{:prop.id}}">{{:prop.name}}</a>
+			      	<td class="Website-task "><a class="Website-task btn-image load-userdetail-modal" data-id="{{:prop.id}}">{{:prop.name}}</a>
 					</td>
 					<td class="Website-task"title="{{:prop.hourly_rate}} {{:prop.currency}}"> {{:prop.hourly_rate}} {{:prop.currency}}</td>
 					<td class="Website-task"title="Fixed price Job">{{if prop.fixed_price_user_or_job == 1}} Fixed price Job {{else prop.fixed_price_user_or_job == 2}} Hourly Per Task {{else prop.fixed_price_user_or_job == 3}} Salaried  {{/if}}</td>

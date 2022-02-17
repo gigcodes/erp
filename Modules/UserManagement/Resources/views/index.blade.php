@@ -159,15 +159,11 @@
                             </form>
                         @if (auth()->user()->isAdmin())
 
-                            <button class="btn custom-button btn-xs pull-right mt-0 mr-2 permission-request">Permission
-                                request ( {{ $permissionRequest }} )</button>
+                            <img src="http://cdn.onlinewebfonts.com/svg/img_108143.png" class="mt-3" style="width:20px; height:20px;" alt="Permission request">
 
-                            <button class="btn custom-button btn-xs pull-right mt-0 mr-2 erp-request">ERP IPs</button>
-
-                            <button class="btn custom-button btn-xs pull-right ml-2 mt-0 mr-2 system-request" data-toggle="modal"
-                                data-target="#system-request">System IPs</button>
-
-                            <button class="btn custom-button btn-xs pull-right today-history"> All user task </button>
+                            <img src="https://e7.pngegg.com/pngimages/287/966/png-clipart-computer-icons-erp-icon-computer-network-business.png"class="mt-2 ml-4" style="width:35px; height:25px;"  alt="ERP IPs">
+                            <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg" class="mt-2 ml-4" style="width:35px; height:25px;" alt="Permission request" alt=" ERP IPs">
+                            <img src="https://www.kindpng.com/picc/m/391-3916045_task-management-task-management-icon-hd-png-download.png" class="mt-2 ml-4" style="width:31px; height:25px;" alt="Permission request" alt="All user task" >
                         @endif
                     </div>
                     </div>
