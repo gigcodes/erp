@@ -470,7 +470,7 @@ input.cmn-toggle-round + label {
                         <div class="row">
                             <div class="col-xs-12 col-md-6">
                                 <div class="form-group">
-                                    <select name="recurring_type" class="form-control input-sm" required>
+                                    <select name="recurring_type" class="form-control input-sm">
                                         <option value="">Select</option>
                                         <option value="EveryHour">EveryHour</option>
                                         <option value="EveryDay">EveryDay</option>

@@ -375,6 +375,32 @@
         </div>
     </div>
 </div>
+<div id="logtasktime-history-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Sl no</th>
+                                <th>Log case id</th>
+                                <th>Message</th>
+                                <th>Log Message</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="logtasktime-history-list-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @include("development.partials.time-history-modal")
 @include("task-module.partials.tracked-time-history")
 @include("development.partials.user_history_modal")
@@ -422,10 +448,17 @@
                 </div>
                 <div class="modal-body">
                     {{ Form::model($taskMessage, array('url'=>route('development.tasktimemessage'), 'id'=>'task_time_message_form'))}}
-
                         <div class="form-group">
-                            <label for="reminder_message">Estimated Time / Date Message</label>
-                            <textarea name="est_time_date_message" rows="3" required class="form-control"></textarea>
+                            <label for="frequency">Frequency</label>
+                            <?php echo Form::select("frequency",drop_down_frequency(),null,["class" => "form-control", "id" => "frequency", 'required']); ?>
+                        </div>
+                        <div class="form-group">
+                            <label for="reminder_message">Estimated Time Message</label>
+                            <textarea name="est_time_message" rows="3" required class="form-control"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="reminder_message">Estimated Date Message</label>
+                            <textarea name="est_date_message" rows="3" required class="form-control"></textarea>
                         </div>
                         <div class="form-group">
                             <label for="reminder_message">Overdue Time / Date Message</label>
@@ -2083,6 +2116,29 @@ $(document).on('click', '.show-date-history', function() {
             if(response.success==true){
               $('#tasktime-history-modal').find('.tasktime-history-list-view').html(response.html);
               $('#tasktime-history-modal').modal('show');
+            }
+
+        }).fail(function(response) {
+
+          alert('Could not fetch payments');
+        });
+    });
+     $('.logtasktime-history-btn').click(function(){
+        var id = $(this).data('id');
+        $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('development.getlogtasktimemessage') }}",
+            data: {
+              id:id,
+            },
+        }).done(response => {
+          $('#logtasktime-history-modal').find('.logtasktime-history-list-view').html('');
+            if(response.success==true){
+              $('#logtasktime-history-modal').find('.logtasktime-history-list-view').html(response.html);
+              $('#logtasktime-history-modal').modal('show');
             }
 
         }).fail(function(response) {

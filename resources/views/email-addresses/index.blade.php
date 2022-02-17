@@ -326,7 +326,7 @@
           <div class="row">
           <div class="form-group col-md-4">
               <strong>Send Grid Token:</strong>
-              <input type="text" name="send_grid_token" class="form-control" value="{{ old('send_grid_token') }}" required>
+              <input type="text" name="send_grid_token" class="form-control" value="{{ old('send_grid_token') }}">
 
               @if ($errors->has('send_grid_token'))
                 <div class="alert alert-danger">{{$errors->first('send_grid_token')}}</div>
@@ -620,7 +620,7 @@
           <div class="row">
           <div class="form-group col-md-4">
               <strong>Send Grid Token:</strong>
-              <input type="text" name="send_grid_token" class="form-control" value="{{ old('send_grid_token') }}" required>
+              <input type="text" name="send_grid_token" class="form-control" value="{{ old('send_grid_token') }}">
 
               @if ($errors->has('send_grid_token'))
                 <div class="alert alert-danger">{{$errors->first('send_grid_token')}}</div>

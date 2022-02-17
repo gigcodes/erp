@@ -958,6 +958,16 @@ class SiteDevelopmentController extends Controller
         return response()->json(["code" => 200, "taskStatistics" => $merged]);
 
     }
+	
+	 public function taskRelation($site_developement_id)
+    {
+      
+        $othertask = Task::where('site_developement_id', $site_developement_id)->select('id', 'parent_task_id')->get();;
+       
+        return response()->json(["code" => 200, "othertask" => $othertask]);
+
+    }
+	
     public function deleteDevTask(Request $request)
     {
 

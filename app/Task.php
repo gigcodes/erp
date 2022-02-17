@@ -188,7 +188,7 @@ class Task extends Model {
         $message = '';
         $assignedUserId = 0;
        
-	    if (isset($request['task_asssigned_from'])) {
+	    if (isset($request['task_asssigned_from'])) { 
             $data["assign_from"] = $request['task_asssigned_from'];
         } else {
 			$data['assign_from'] = Auth::id();

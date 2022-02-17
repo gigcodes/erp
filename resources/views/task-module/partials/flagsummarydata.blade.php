@@ -11,6 +11,9 @@
                 {{ $special_task->site_development->store_website?$special_task->site_development->store_website->title:'' }}
         @endif
     </td>
+    <td style="vertical-align: baseline;">    
+       {{ $issue->parent_task_id }}
+    </td>
     <td class="Website-task" style="vertical-align: baseline;">    
        {{ $issue->task_subject }}
     </td>
@@ -92,8 +95,11 @@
          @endif
      </div>
     </td>
-        <td>
+    <td>
         <button type="button" title="Task Time history" class="btn tasktime-history-btn btn-xs pull-left" data-id="{{$issue->id}}">
+          <i class="fa fa-comments-o"></i>
+      </button>
+        <button type="button" title="LogTasktime history" class="btn logtasktime-history-btn btn-xs pull-left" data-id="{{$issue->id}}">
           <i class="fa fa-history"></i>
       </button>
     </td>
