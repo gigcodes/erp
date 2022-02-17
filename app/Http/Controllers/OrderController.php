@@ -334,9 +334,10 @@ class OrderController extends Controller
 
         $statusFilterList = $statusFilterList->leftJoin("order_statuses as os", "os.id", "orders.order_status_id")
             ->where("order_status", "!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"), "os.status as order_status", "swo.website_id")->get()->toArray();
+        
         $totalOrders = sizeOf($orders->get());
         $orders_array = $orders->paginate(10);
-
+        
         $quickreply = Reply::where('model', 'Order')->get();
 
         $duty_shipping = array();
@@ -364,6 +365,7 @@ class OrderController extends Controller
 
         }
         $orderStatusList = OrderStatus::all();
+       
         //return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
         return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault', 'duty_shipping', 'orderStatusList'));
     }
@@ -4223,6 +4225,24 @@ class OrderController extends Controller
             $html .= '</tr>';
         }
         return response()->json(['html' => $html, 'success' => true], 200);
+
+    }
+
+    public function syncTransaction(Request $request) 
+    {
+        $order_id = $request->get('order_id');
+        $transaction_id = $request->get('transaction_id');
+        $order = Order::where('order_id', $order_id)->first();
+        $message  = "Issue in order";
+        $success= false;
+        if($order) {
+            $order->transaction_id = $transaction_id;
+            $order->save();
+            $message = "Transaction id updated successfully";
+            $success=true;
+        }
+        
+        return response()->json(['message' => $message, 'success' => $success], 200);
 
     }
 

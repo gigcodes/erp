@@ -3137,7 +3137,7 @@ class TaskModuleController extends Controller
     {
         $task_id = $request->input('task_id');
         $html = '';
-        $chatData = LogChatMessage::where('task_id', $task_id)
+        $chatData = LogChatMessage::where('task_id', $task_id)->where('task_time_reminder',0)
             ->orderBy('id', 'DESC')
             ->get();
         $i = 1;
