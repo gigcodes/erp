@@ -78,7 +78,7 @@ class SiteDevelopmentController extends Controller
         } else {
             $categories->orderBy('title', 'asc');
         }
-        $categories = $categories->paginate(Setting::get('pagination'));
+        $categories = $categories->paginate(10);
 
         foreach ($categories as $category) {
             $finalArray = [];
@@ -133,7 +133,7 @@ class SiteDevelopmentController extends Controller
             ->get();
 
         $allUsers = User::select('id', 'name')->get();
-        $users_all = User::all();
+        $users_all = $allUsers;
         $users = User::select('id', 'name')->whereIn('id', $userIDs)->get();
         $store_websites = StoreWebsite::pluck("title","id")->toArray();
         if ($request->ajax() && $request->pagination == null) {
