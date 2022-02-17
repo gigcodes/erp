@@ -11072,6 +11072,7 @@ td.title p {
 }
 .whatsAppConfig-action button, .whatsAppConfig-action a i {
     padding: 5px 2px;
+    width: 10%;
 }
 .whatsAppConfig-action button i, .whatsAppConfig-action a i{
     color: black !important;
@@ -11443,6 +11444,9 @@ table.table-striped-custom tbody tr td {
 .return-input input{
     width: 250px !important;
 }
+.multipal .select2-selection.select2-selection--single{
+    width: 250px important;
+}
 .page-history-table tbody .result:hover{
     overflow: visible;
     text-overflow: unset;
@@ -11474,4 +11478,10 @@ table.table-striped-custom tbody tr td {
 }
 #app{
     overflow: hidden !important;
+}
+.selectbox{
+    width: 100px !important;
+}
+.show-product-information{
+    color: black;
 }

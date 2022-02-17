@@ -13,4 +13,9 @@ class SocialConfig extends Model
     {
         return $this->hasOne('\App\StoreWebsite','id','store_website_id');
     }
+
+    public function businessPost()
+    {
+        return $this->hasMany('\App\BusinessPost');
+    }
 }

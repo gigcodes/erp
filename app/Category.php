@@ -309,17 +309,20 @@ class Category extends Model
         // Create category instance
         $categoryInstance = $category->find( $id );
 
+
+
         // Set empty category tree for holding categories
         $categoryTree = [];
+    
 
         // Continue only if category is not null
         if ( $categoryInstance !== NULL && $categoryMulti) {
 
             // Load initial category
             if($needOrigin) {
-                $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryMulti->remote_id,'org_id'=>$categoryMulti->category_id];
+                $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryMulti->remote_id,'org_id'=>$categoryMulti->category_id,"topParent"=>$topParent];
             }else{
-                $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryMulti->remote_id];
+                $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryMulti->remote_id,"topParent"=>$topParent];
             }
 
             // Set parent ID

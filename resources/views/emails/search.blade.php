@@ -40,12 +40,24 @@
 			</td>
             <td>{{ ($email->is_draft == 1) ? "Yes" : "No" }}</td>
             <td>{!! wordwrap($email->error_message,15,"<br>\n") !!}</td>
-			
+			<td><select class="select selecte2 email-category">
+                    <option  value="" >Please select</option> 
+                    @foreach($email_categories as $email_category)
+                            @if($email_category->id == (int)$email->email_category_id)
+                                <option  value="{{ $email_category->id }}" data-id="{{$email->id}}"   selected>{{ $email_category->category_name }}</option> 
+                            @else
+                                <option  value="{{ $email_category->id }}" data-id="{{$email->id}}" >{{$email_category->category_name }}</option> 
+                            @endif
+                    @endforeach
+                </select>
+            </td>
 			<td>
-				
-                <a title="Resend" class="btn-image resend-email-btn" data-type="resend" data-id="{{ $email->id }}" >
+                @if($email->type != "incoming")
+                <a title="Resend"  class="btn-image resend-email-btn" data-type="resend" data-id="{{ $email->id }}" >
                     <i class="fa fa-repeat"></i>
                 </a>
+                @endif
+                
 
                 <a title="Reply" class="btn-image reply-email-btn" data-toggle="modal" data-target="#replyMail" data-id="{{ $email->id }}" >
                     <i class="fa fa-reply"></i>
@@ -76,6 +88,9 @@
             
 				<a class="btn btn-image btn-ht" onclick="fetchEvents('{{$email['origin_id']}}')">
                   <i class="fa fa-eye" aria-hidden="true"></i>      
+                </a>
+                <a class="btn btn-image btn-ht" title="View Email Log" onclick="fetchEmailLog('{{$email['id']}}')">
+                  <i class="fa fa-history" aria-hidden="true"></i>      
                 </a>
 			</td>  
 

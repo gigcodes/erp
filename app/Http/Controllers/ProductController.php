@@ -3882,7 +3882,11 @@ class ProductController extends Controller
         $products = Product::orderBy('updated_at', 'DESC');
 
         if ($request->get('product_id') != '') {
-            // $products = Product::where('id',$request->get('product_id'))->get();
+             $products = $products->where('id',$request->get('product_id'));
+        }
+        if($request->get('sku') !='')
+        {
+            $products = $products->where('sku',$request->get('sku'));
         }
         if ($request->get('select_date') != '') {
             $date = $request->get('select_date');
@@ -3896,7 +3900,7 @@ class ProductController extends Controller
             $statusarray = [2, 4, 9, 15, 20, 33, 35, 36, 38, 39, 40];
         }
 
-        $products = $products->whereHas('productstatushistory', function ($query) use ($date, $statusarray, $request) {
+        /*$products = $products->whereHas('productstatushistory', function ($query) use ($date, $statusarray, $request) {
             $query->whereDate('created_at', $date);
             $query->whereIn('new_status', $statusarray);
             if ($request->get('product_id') != '') {
@@ -3908,7 +3912,7 @@ class ProductController extends Controller
             if ($request->get('product_id') != '') {
                 $query->where('product_id', $request->get('product_id'));
             }
-        }]);
+        }]);*/
 
         $products_count = $products->count();
 
@@ -4749,6 +4753,11 @@ class ProductController extends Controller
         $input = $request->input();
         PushToMagentoCondition::where('id', $input['id'])->update(['status'=>$input['status']]);
         return 'Status Updated';
+    }
+    public function updateConditionUpteamStatus(Request $request) {
+        $input = $request->input();
+        PushToMagentoCondition::where('id', $input['id'])->update(['upteam_status'=>$input['upteam_status']]);
+        return 'Upteam Status Updated';
     }
 
     public function getPreListProducts()
