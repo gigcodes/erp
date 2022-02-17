@@ -1204,7 +1204,9 @@
         }).done(response => {
           //$('#payment-history-modal').find('.payment-history-list-view').html('');
             if(response.success==true){
-              console.log("response returned");
+              console.log(response);
+              message = JSON.parse(response.message);
+              alert(message.message);
               //$('#payment-history-modal').find('.payment-history-list-view').html(response.html);
               //$('#payment-history-modal').modal('show');
             }

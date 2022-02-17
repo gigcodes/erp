@@ -4195,14 +4195,12 @@ class OrderController extends Controller
                 $website = StoreWebsite::find($storeWebsiteOrder->website_id);
                
                 if ($website) {
-                    //$store_order_status = Store_order_status::where('order_status_id', $status)->where('store_website_id', $storeWebsiteOrder->website_id)->first();
-                    //if ($store_order_status) {
-                        //$magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
-                        //if ($magento_status) {
+                    
                             $magentoHelper = new MagentoHelperv2;
-                           echo $result = $magentoHelper->cancelTransaction($order, $website);
-                        //}
-                    //}
+                            $result = $magentoHelper->cancelTransaction($order, $website);
+                            
+                            return response()->json(['message' => $result, 'success' => true], 200);
+                       
                 }
                 //$storeWebsiteOrder->update(['order_id', $status]);
             }
