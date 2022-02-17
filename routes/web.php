@@ -2634,6 +2634,8 @@ Route::middleware('auth')->group(function () {
 //Routes for flows
 Route::group(['middleware' => 'auth', 'prefix' => 'flow'], function () {
     Route::get('/list', 'FlowController@index')->name('flow.index');
+    Route::get('/conditionlist', 'FlowController@conditionlist')->name('flow.conditionlist');
+    Route::get('/conditionliststatus', 'FlowController@conditionListStatus')->name('flow.conditionliststatus'); 
     Route::get('/scheduled-emails', 'FlowController@allScheduleEmails')->name('flow.schedule-emails');
     Route::get('/scheduled-messages', 'FlowController@allScheduleMessages')->name('flow.schedule-messages');
     Route::post('/update-email', 'FlowController@updateEmail')->name('flow.update-email');
