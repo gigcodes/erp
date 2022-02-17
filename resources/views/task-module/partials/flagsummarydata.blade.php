@@ -7,6 +7,9 @@
     <td style="vertical-align: baseline;">    
        {{ $issue->website_title }}
     </td>
+    <td style="vertical-align: baseline;">    
+       {{ $issue->parent_task_id }}
+    </td>
     <td class="Website-task" style="vertical-align: baseline;">    
        {{ $issue->task_subject }}
     </td>
