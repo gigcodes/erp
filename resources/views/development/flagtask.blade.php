@@ -209,6 +209,9 @@
                     <div class="col-md-2 pd-sm pd-rt status-selection">
                         <?php echo Form::select('task_status[]', $statusList, request()->get('task_status', array_values($statusList)), ['class' => 'form-control multiselect', 'multiple' => true]); ?>
                     </div>
+                    <a data-toggle="modal" data-target="#reminderTimeMessageModal" class="btn pd-5 task-set-reminder">
+                       <i class="fa fa-plus red-notification " aria-hidden="true"></i>
+                    </a> 
                     <div class='input-group date mr-3 ml-3' id='datetimepicker'>
                          <input name="delivery_date" type='text' class="form-control" placeholder="Search Delivery Date" id="delivery_date">
                          <span class="input-group-addon">
@@ -220,8 +223,8 @@
                         id="show"><img src="<?php echo $base_url; ?>/images/filter.png" /></button>
 					<a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder">
                        <i class="fa fa-bell  red-notification " aria-hidden="true"></i>
-                    </a>   
-                    
+                    </a> 
+                   
                 </form>
                 
             </div>
@@ -243,6 +246,7 @@
                         <th width="12%">Delivery Date</th>
                         <th width="22%">Communication</th>
                         <th width="13%">Status</th>
+                        <th width="13%">Action</th>
                     </tr>
                 </thead>
 
@@ -347,6 +351,56 @@
             </div>
         </div>
     </div>
+    <div id="tasktime-history-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Sl no</th>
+                                <th>Message</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="tasktime-history-list-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="logtasktime-history-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Sl no</th>
+                                <th>Log case id</th>
+                                <th>Message</th>
+                                <th>Log Message</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="logtasktime-history-list-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @include("development.partials.time-history-modal")
 @include("task-module.partials.tracked-time-history")
 @include("development.partials.user_history_modal")
@@ -384,6 +438,45 @@
             </div>
         </div>
 </div>
+<div id="reminderTimeMessageModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Set / Edit Time Message</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    {{ Form::model($taskMessage, array('url'=>route('development.tasktimemessage'), 'id'=>'task_time_message_form'))}}
+                        <div class="form-group">
+                            <label for="frequency">Frequency</label>
+                            <?php echo Form::select("frequency",drop_down_frequency(),null,["class" => "form-control", "id" => "frequency", 'required']); ?>
+                        </div>
+                        <div class="form-group">
+                            <label for="reminder_message">Estimated Time Message</label>
+                            <textarea name="est_time_message" rows="3" required class="form-control"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="reminder_message">Estimated Date Message</label>
+                            <textarea name="est_date_message" rows="3" required class="form-control"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="reminder_message">Overdue Time / Date Message</label>
+                            <textarea name="overdue_time_date_message" rows="3" required class="form-control"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            {{Form::hidden('message_type', 'task_date_time_reminder_message')}}
+                            <button type="button" class="btn btn-secondary task-time-submit-reminder">Save</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+</div>
 
 @endsection
 
@@ -412,7 +505,21 @@
                 }
             });
         });
-		
+		$(document).on('click', '.task-time-submit-reminder', function () {
+            var task_time_message_form = $("#task_time_message_form").serialize();
+            $.ajax({
+                url: "{{route('development.tasktimemessage')}}",
+                type: 'POST',
+                data: task_time_message_form,
+                success: function () {
+                    toastr['success']('message updated successfully!');
+                },
+                error: function (){
+                    toastr['error']('Something went wrong, Please try again!');
+                }
+            });
+        });
+        
 		
         var isLoading = false;
         var page = 1;
@@ -1993,7 +2100,52 @@ $(document).on('click', '.show-date-history', function() {
          });
 
      });
+     $('.tasktime-history-btn').click(function(){
+        var id = $(this).data('id');
+        $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('development.gettasktimemessage') }}",
+            data: {
+              id:id,
+            },
+        }).done(response => {
+          $('#tasktime-history-modal').find('.tasktime-history-list-view').html('');
+            if(response.success==true){
+              $('#tasktime-history-modal').find('.tasktime-history-list-view').html(response.html);
+              $('#tasktime-history-modal').modal('show');
+            }
 
+        }).fail(function(response) {
+
+          alert('Could not fetch payments');
+        });
+    });
+     $('.logtasktime-history-btn').click(function(){
+        var id = $(this).data('id');
+        $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('development.getlogtasktimemessage') }}",
+            data: {
+              id:id,
+            },
+        }).done(response => {
+          $('#logtasktime-history-modal').find('.logtasktime-history-list-view').html('');
+            if(response.success==true){
+              $('#logtasktime-history-modal').find('.logtasktime-history-list-view').html(response.html);
+              $('#logtasktime-history-modal').modal('show');
+            }
+
+        }).fail(function(response) {
+
+          alert('Could not fetch payments');
+        });
+    });
 
 
 </script>

@@ -74,197 +74,198 @@ class SeoToolController extends Controller
 		//fetch domain reports
 		$storeWebsites = StoreWebsite::select('id', 'website')->get();
 		foreach($storeWebsites as $storeWebsite) {
-		$inputs['website'] = $storeWebsite['website'];
-		$inputs['websiteId'] =  $websiteId =$storeWebsite['id'];
-		$database = 'us';
-		if(isset($_GET['database'])) {
-			$database = $_GET['database'];
-		}
-		$toolId = 1;
-		$now = Carbon::now()->format('Y-m-d');
+			$inputs['website'] = $storeWebsite['website'];
+			$inputs['websiteId'] =  $websiteId =$storeWebsite['id'];
+			$database = 'us';
+			if(isset($_GET['database'])) {
+				$database = $_GET['database'];
+			}
+			$toolId = 1;
+			$now = Carbon::now()->format('Y-m-d');
 
-		$semrushOrganicSearchKeywordsResponse = $semrushPaidSearchKeywordsResponse = $semrushBacklinkOverviewResponse = $semrushBacklinkAnchorResponse = $semrushBacklinkDomainResponse=$semrushCompetitorResponse=[];		
-		//Semrush Domain apis start
-		$semrushDomainReportApis = (new DomainSearchKeyword)->domainKeywordSearchSemrushApis($inputs['website'], $database);   
-		foreach($semrushDomainReportApis as $column=>$api) {  
-			$domainSearchKeywords = DomainSearchKeyword::where('store_website_id', $websiteId)->where('created_at', 'like', '%'.$now.'%')->where('subtype',$column)->first();
-			if($domainSearchKeywords == null) { 
-				$semrushDomainResponse = $this->semrushCurlRequests('domain_search_keywords', $column, $api, 1);	 
-				foreach(json_decode($semrushDomainResponse, true) as $value) { //dd($value);
-					if($column == "organic") {
-						$url = $value['url'];
-						$traffic = $value['traffic_cost_'];
-					} else{
-						$url = $value['visible_url'];
-						$traffic = $value['traffic_cost'];
-					}
-					$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database,'subtype'=>$column,'database'=>$database,
-					'keyword'=>$value['keyword'],'position'=>$value['position'],'previous_position'=>$value['previous_position'],
-					'position_difference'=>$value['position_difference'],'search_volume'=>$value['search_volume'],'cpc'=>$value['cpc'],'url'=>$url,'traffic_percentage'=>$value['traffic_'],'traffic_cost'=>$traffic,
-					'competition'=>$value['competition'],'number_of_results'=>$value['number_of_results'], 'trends'=>$value['trends']];
-					DomainSearchKeyword::create($dataToInsert);
-				}				
-			}
-		}
-
-		//Semrush Domain Overview apis start
-		$semrushDomainReportApi = (new DomainOverview)->domainOverviewSemrushApis($inputs['website'], $database, 'overview_all');   
-		$domainOverviewData = DomainOverview::where(['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database])->where('created_at', 'like', '%'.$now.'%')->first();
-		if($domainOverviewData == null) {
-			$semrushDomainOverviewResponse = $this->semrushCurlRequests('domain_overview', 'overview_all', $semrushDomainReportApi, $keyValuePair=1);
-			foreach(json_decode($semrushDomainOverviewResponse, true) as $value) { 
-				$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database,'rank'=>$value['rank'],'organic_keywords'=>$value['organic_keywords'],'organic_traffic'=>$value['organic_traffic'],'organic_cost'=>$value['organic_cost'],'adwords_keywords'=>$value['adwords_keywords'],'adwords_traffic'=>$value['adwords_traffic'],'adwords_cost'=>$value['adwords_cost'],'pla_keywords'=>$value['pla_keywords'],'pla_uniques'=>$value['pla_uniques']];
-				DomainOverview::create($dataToInsert);
-			}
-		}
-        
-         //Semrush Backlink apis Start
-		$semrushBacklinkOverviewReportApi = (new BacklinkOverview)->backlinkoverviewSemrushApis($inputs['website'], $database);   
-		    $backlinkOverviewData = BacklinkOverview::where(['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database])->where('created_at', 'like', '%'.$now.'%')->first(); 
-			if($backlinkOverviewData  == null){
-				$semrushBacklinkOverviewResponse = $this->semrushCurlRequests('backlink_overview','overview', $semrushBacklinkOverviewReportApi, 1);
-				if($semrushBacklinkOverviewResponse != '') {
-					foreach(json_decode($semrushBacklinkOverviewResponse, true) as $value) { 
-						$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database, 'ascore'=>$value['ascore'], 'total'=>$value['total'], 'domains_num'=>$value['domains_num'], 'urls_num'=>$value['urls_num'], 'ips_num'=>$value['ips_num'], 'ipclassc_num'=>$value['ipclassc_num'], 'follows_num'=>$value['follows_num'], 'nofollows_num'=>$value['nofollows_num'], 'sponsored_num'=>$value['sponsored_num'], 'ugc_num'=>$value['ugc_num'], 'texts_num'=>$value['texts_num'], 'images_num'=>$value['images_num'], 'forms_num'=>$value['forms_num'], 'frames_num'=>$value['frames_num']];
-						BacklinkOverview::create($dataToInsert);
-					}
-				}
-			}
-		       
-		//Semrush Backlink Anchor Api Start
-        $semrushBacklinkAnchorReportApi = (new BacklinkAnchors)->backlinkanchorsSemrushApis($inputs['website'], $database);   
-		$backlinkAnchorData = BacklinkAnchors::where(['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database])->where('created_at', 'like', '%'.$now.'%')->first(); 
-		if($backlinkAnchorData  == null){
-			$semrushBacklinkAnchorResponse = $this->semrushCurlRequests('back_link_anchors','anchor', $semrushBacklinkAnchorReportApi, 1);
-			if($semrushBacklinkAnchorResponse != '') {
-			foreach(json_decode($semrushBacklinkAnchorResponse, true) as $value) { 
-				$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database,'anchor'=>$value['anchor'],'domains_num'=>$value['domains_num'],'backlinks_num'=>$value['backlinks_num']];
-				BacklinkAnchors::create($dataToInsert);
-			}
-			}
-		}
-
-        //Semrush Backlink Domain Api Start
-        $semrushBacklinkDomainReportApis = (new BacklinkDomains)->backlinkdomainsSemrushApis($inputs['website'], $database);   
-		foreach($semrushBacklinkDomainReportApis as $column=>$api) {
-			$backlinkDomainsData = BacklinkDomains::where(['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database,'subtype'=>$column])->where('created_at', 'like', '%'.$now.'%')->first(); 
-			if($backlinkDomainsData  == null) {
-				$semrushBacklinkDomainResponse = $this->semrushCurlRequests('back_link_domains',$column, $api, 1);	
-				if($semrushBacklinkDomainResponse != "") {
-					foreach(json_decode($semrushBacklinkDomainResponse, true) as $value) { 
-						$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database,'subtype'=>$column,'domain'=>$value['domain'],'domain_ascore'=>$value['domain_ascore'],'backlinks_num'=>$value['backlinks_num']];
-						 BacklinkDomains::create($dataToInsert);
-					}
-				}
-			}
-		}
-
-	    //Semrush Competitor Api Start
-		$semrushCompetitorReportApis = (new Competitor)->competitorSemrushApis($inputs['website'], $database);   
-		foreach($semrushCompetitorReportApis as $column=>$api) {
-			$competitorData = Competitor::where(['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database,'subtype'=>$column])->where('created_at', 'like', '%'.$now.'%')->first(); 
-			if($competitorData  == null) {
-				$semrushCompetitorResponse = $this->semrushCurlRequests('competitors',$column, $api, 1);
-				if($semrushCompetitorResponse != "") {
-					foreach(json_decode($semrushCompetitorResponse, true) as $value) { 
-						if($column == 'paid') {
-							$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database,'subtype'=>$column,'domain'=>$value['domain'],'common_keywords'=>$value['common_keywords'],'keywords'=>$value['adwords_keywords'],'traffic'=>$value['adwords_traffic']];
+			$semrushOrganicSearchKeywordsResponse = $semrushPaidSearchKeywordsResponse = $semrushBacklinkOverviewResponse = $semrushBacklinkAnchorResponse = $semrushBacklinkDomainResponse=$semrushCompetitorResponse=[];		
+			//Semrush Domain apis start
+			$semrushDomainReportApis = (new DomainSearchKeyword)->domainKeywordSearchSemrushApis($inputs['website'], $database);   
+			foreach($semrushDomainReportApis as $column=>$api) {  
+				$domainSearchKeywords = DomainSearchKeyword::where('store_website_id', $websiteId)->where('created_at', 'like', '%'.$now.'%')->where('subtype',$column)->first();
+				if($domainSearchKeywords == null) { 
+					$semrushDomainResponse = $this->semrushCurlRequests('domain_search_keywords', $column, $api, 1);	 
+					foreach(json_decode($semrushDomainResponse, true) as $value) { //dd($value);
+						if($column == "organic") {
+							$url = $value['url'];
+							$traffic = $value['traffic_cost_'];
 						} else{
-							$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database,'subtype'=>$column,'domain'=>$value['domain'],'common_keywords'=>$value['common_keywords'],'keywords'=>$value['organic_keywords'],'traffic'=>$value['organic_traffic']];
+							$url = $value['visible_url'];
+							$traffic = $value['traffic_cost'];
 						}
-						Competitor::create($dataToInsert);
+						$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database,'subtype'=>$column,'database'=>$database,
+						'keyword'=>$value['keyword'],'position'=>$value['position'],'previous_position'=>$value['previous_position'],
+						'position_difference'=>$value['position_difference'],'search_volume'=>$value['search_volume'],'cpc'=>$value['cpc'],'url'=>$url,'traffic_percentage'=>$value['traffic_'],'traffic_cost'=>$traffic,
+						'competition'=>$value['competition'],'number_of_results'=>$value['number_of_results'], 'trends'=>$value['trends']];
+						DomainSearchKeyword::create($dataToInsert);
+					}				
+				}
+			}
+
+			//Semrush Domain Overview apis start
+			$semrushDomainReportApi = (new DomainOverview)->domainOverviewSemrushApis($inputs['website'], $database, 'overview_all');   
+			$domainOverviewData = DomainOverview::where(['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database])->where('created_at', 'like', '%'.$now.'%')->first();
+			if($domainOverviewData == null) {
+				$semrushDomainOverviewResponse = $this->semrushCurlRequests('domain_overview', 'overview_all', $semrushDomainReportApi, $keyValuePair=1);
+				foreach(json_decode($semrushDomainOverviewResponse, true) as $value) { 
+					$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database,'rank'=>$value['rank'],'organic_keywords'=>$value['organic_keywords'],'organic_traffic'=>$value['organic_traffic'],'organic_cost'=>$value['organic_cost'],'adwords_keywords'=>$value['adwords_keywords'],'adwords_traffic'=>$value['adwords_traffic'],'adwords_cost'=>$value['adwords_cost'],'pla_keywords'=>$value['pla_keywords'],'pla_uniques'=>$value['pla_uniques']];
+					DomainOverview::create($dataToInsert);
+				}
+			}
+			
+			 //Semrush Backlink apis Start
+			$semrushBacklinkOverviewReportApi = (new BacklinkOverview)->backlinkoverviewSemrushApis($inputs['website'], $database);   
+				$backlinkOverviewData = BacklinkOverview::where(['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database])->where('created_at', 'like', '%'.$now.'%')->first(); 
+				if($backlinkOverviewData  == null){
+					$semrushBacklinkOverviewResponse = $this->semrushCurlRequests('backlink_overview','overview', $semrushBacklinkOverviewReportApi, 1);
+					if($semrushBacklinkOverviewResponse != '') {
+						foreach(json_decode($semrushBacklinkOverviewResponse, true) as $value) { 
+							$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database, 'ascore'=>$value['ascore'], 'total'=>$value['total'], 'domains_num'=>$value['domains_num'], 'urls_num'=>$value['urls_num'], 'ips_num'=>$value['ips_num'], 'ipclassc_num'=>$value['ipclassc_num'], 'follows_num'=>$value['follows_num'], 'nofollows_num'=>$value['nofollows_num'], 'sponsored_num'=>$value['sponsored_num'], 'ugc_num'=>$value['ugc_num'], 'texts_num'=>$value['texts_num'], 'images_num'=>$value['images_num'], 'forms_num'=>$value['forms_num'], 'frames_num'=>$value['frames_num']];
+							BacklinkOverview::create($dataToInsert);
+						}
+					}
+				}
+				   
+			//Semrush Backlink Anchor Api Start
+			$semrushBacklinkAnchorReportApi = (new BacklinkAnchors)->backlinkanchorsSemrushApis($inputs['website'], $database);   
+			$backlinkAnchorData = BacklinkAnchors::where(['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database])->where('created_at', 'like', '%'.$now.'%')->first(); 
+			if($backlinkAnchorData  == null){
+				$semrushBacklinkAnchorResponse = $this->semrushCurlRequests('back_link_anchors','anchor', $semrushBacklinkAnchorReportApi, 1);
+				if($semrushBacklinkAnchorResponse != '') {
+				foreach(json_decode($semrushBacklinkAnchorResponse, true) as $value) { 
+					$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database,'anchor'=>$value['anchor'],'domains_num'=>$value['domains_num'],'backlinks_num'=>$value['backlinks_num']];
+					BacklinkAnchors::create($dataToInsert);
+				}
+				}
+			}
+
+			//Semrush Backlink Domain Api Start
+			$semrushBacklinkDomainReportApis = (new BacklinkDomains)->backlinkdomainsSemrushApis($inputs['website'], $database);   
+			foreach($semrushBacklinkDomainReportApis as $column=>$api) {
+				$backlinkDomainsData = BacklinkDomains::where(['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database,'subtype'=>$column])->where('created_at', 'like', '%'.$now.'%')->first(); 
+				if($backlinkDomainsData  == null) {
+					$semrushBacklinkDomainResponse = $this->semrushCurlRequests('back_link_domains',$column, $api, 1);	
+					if($semrushBacklinkDomainResponse != "") {
+						foreach(json_decode($semrushBacklinkDomainResponse, true) as $value) { 
+							$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database,'subtype'=>$column,'domain'=>$value['domain'],'domain_ascore'=>$value['domain_ascore'],'backlinks_num'=>$value['backlinks_num']];
+							 BacklinkDomains::create($dataToInsert);
+						}
 					}
 				}
 			}
-		}
-				       
-		//Semrush OrganicPage Api Start
-        $semrushOrganicPageApi = (new DomainOrganicPage)->organicPageSemrushApi($inputs['website'], $database);   
-		$organicPageData = DomainOrganicPage::where(['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database])->where('created_at', 'like', '%'.$now.'%')->first(); 
-		if($organicPageData == null){
-			$semrushOrganicPageResponse = $this->semrushCurlRequests('organic_page','organic_page', $semrushOrganicPageApi, 1);
-			if($semrushOrganicPageResponse != "") {
-				foreach(json_decode($semrushOrganicPageResponse, true) as $value) {
+
+			//Semrush Competitor Api Start
+			$semrushCompetitorReportApis = (new Competitor)->competitorSemrushApis($inputs['website'], $database);   
+			foreach($semrushCompetitorReportApis as $column=>$api) {
+				$competitorData = Competitor::where(['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database,'subtype'=>$column])->where('created_at', 'like', '%'.$now.'%')->first(); 
+				if($competitorData  == null) {
+					$semrushCompetitorResponse = $this->semrushCurlRequests('competitors',$column, $api, 1);
+					if($semrushCompetitorResponse != "") {
+						foreach(json_decode($semrushCompetitorResponse, true) as $value) { 
+							if($column == 'paid') {
+								$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database,'subtype'=>$column,'domain'=>$value['domain'],'common_keywords'=>$value['common_keywords'],'keywords'=>$value['adwords_keywords'],'traffic'=>$value['adwords_traffic']];
+							} else{
+								$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database,'subtype'=>$column,'domain'=>$value['domain'],'common_keywords'=>$value['common_keywords'],'keywords'=>$value['organic_keywords'],'traffic'=>$value['organic_traffic']];
+							}
+							Competitor::create($dataToInsert);
+						}
+					}
+				}
+			}
+						   
+			//Semrush OrganicPage Api Start
+			$semrushOrganicPageApi = (new DomainOrganicPage)->organicPageSemrushApi($inputs['website'], $database);   
+			$organicPageData = DomainOrganicPage::where(['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database])->where('created_at', 'like', '%'.$now.'%')->first(); 
+			if($organicPageData == null){
+				$semrushOrganicPageResponse = $this->semrushCurlRequests('organic_page','organic_page', $semrushOrganicPageApi, 1);
+				if($semrushOrganicPageResponse != "") {
+					foreach(json_decode($semrushOrganicPageResponse, true) as $value) {
+						$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 
+						'database'=>$database,'url'=>$value['url'], 'number_of_keywords'=>$value['number_of_keywords'], 'traffic'=>$value['traffic'], 'traffic_percentage'=>$value['traffic_']];
+						DomainOrganicPage::create($dataToInsert);
+					}
+				}
+			}
+			
+			//Semrush Indexed Page Api Start
+			$semrushIndexedPageApi = (new BacklinkIndexedPage)->indexedPageSemrushApi($inputs['website'], $database, 'indexed_page');   
+			$indexedPageData = BacklinkIndexedPage::where(['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database])->where('created_at', 'like', '%'.$now.'%')->first(); 
+			if($indexedPageData == null){
+				$semrushIndexedPageResponse = $this->semrushCurlRequests('indexed_page','indexed_page', $semrushIndexedPageApi, 1);
+				foreach(json_decode($semrushIndexedPageResponse, true) as $value) {
 					$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 
-					'database'=>$database,'url'=>$value['url'], 'number_of_keywords'=>$value['number_of_keywords'], 'traffic'=>$value['traffic'], 'traffic_percentage'=>$value['traffic_']];
-					DomainOrganicPage::create($dataToInsert);
+					'database'=>$database,'source_url'=>$value['source_url'], 'source_title'=>$value['source_title'], 
+					'response_code'=>$value['response_code'], 'backlinks_num'=>$value['backlinks_num'], 
+					'domains_num'=>$value['domains_num'],'last_seen'=>$value['last_seen'],'external_num'=>$value['external_num'],'internal_num'=>$value['internal_num']];
+					BacklinkIndexedPage::create($dataToInsert);
+				}
+			}
+			//Semrush Landing Page Api Start
+			$semrushLandingPageApi = (new DomainLandingPage)->landingPageSemrushApi($inputs['website'], $database, 'landing_page');   
+			$LandingPageData = DomainLandingPage::where(['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database])->where('created_at', 'like', '%'.$now.'%')->first(); 
+			if($LandingPageData == null){ 
+				$semrushLandingPageResponse = $this->semrushCurlRequests('landing_page','landing_page', $semrushLandingPageApi, 1);
+				if($semrushLandingPageResponse  != '') {
+				foreach(json_decode($semrushLandingPageResponse, true) as $value) { 
+					$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 
+					'database'=>$database,'target_url'=>$value['target_url'], 'first_seen'=>$value['first_seen'], 
+					'last_seen'=>$value['last_seen'], 'times_seen'=>$value['times_seen'], 
+					'ads_count'=>$value['ads_count']];
+					DomainLandingPage::create($dataToInsert);
+				}
+				}
+			}
+								   
+			
+			//Semrush siteaudit api start
+			$websiteId = $inputs['websiteId'];
+			$projectId = StoreWebsite::where('id', $websiteId)->pluck('semrush_project_id')->first();
+			$projectId = 1;
+			if($projectId  != null){
+				
+				$auditLaunchApi = (new SiteAudit)->semrushApis('site_audit');
+				
+				$auditInfoApi = (new SiteAudit)->semrushApis('site_audit_info');	
+				$auditInfoResponse = (new SiteAudit)->semrushApiResponses('site_audit_info');
+				
+				$siteIssuesApi = (new SiteAudit)->semrushApis('site_issues');
+				$siteIssuesResponse = (new SiteAudit)->semrushApiResponses('site_issues');
+				
+				$data = json_decode($auditInfoResponse, true);				
+				$siteAudit = SiteAudit::where('store_website_id', $websiteId)->where('created_at', 'like', '%'.$now.'%')->first();	
+				if($siteAudit == null) {
+					$data = ['project_id'=>$projectId, 'store_website_id'=>$websiteId] + $data; unset($data['id']);
+					$data['defects'] = json_encode($data['defects']); 
+					$data['depths'] = json_encode($data['depths']); 
+					$data['markups'] = json_encode($data['markups']); 
+					$data['depths'] = json_encode($data['depths']); 
+					$data['mask_allow'] = json_encode($data['mask_allow']); 
+					$data['mask_disallow'] = json_encode($data['mask_disallow']); 
+					$data['removedParameters'] = json_encode($data['removedParameters']);
+					if($data['excluded_checks'] == null) {
+						$data['excluded_checks'] = 0;
+					}
+					$siteAudit = SiteAudit::create($data);
+				}	
+				$siteAuditIssues = json_decode($siteIssuesResponse, true);
+				foreach($siteAuditIssues['issues'] as $siteAuditIssuesData) { //dd($siteAuditIssuesData);
+					$dataToSave = ['project_id'=>$projectId, 'store_website_id'=>$websiteId];
+					$dataToSave['title'] = $siteAuditIssuesData['title'];
+					$dataToSave['desc'] = $siteAuditIssuesData['desc'];
+					$dataToSave['title_page'] = $siteAuditIssuesData['title_page'];
+					SiteIssue::create($dataToSave);
 				}
 			}
 		}
-		
-		//Semrush Indexed Page Api Start
-        $semrushIndexedPageApi = (new BacklinkIndexedPage)->indexedPageSemrushApi($inputs['website'], $database, 'indexed_page');   
-		$indexedPageData = BacklinkIndexedPage::where(['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database])->where('created_at', 'like', '%'.$now.'%')->first(); 
-		if($indexedPageData == null){
-			$semrushIndexedPageResponse = $this->semrushCurlRequests('indexed_page','indexed_page', $semrushIndexedPageApi, 1);
-			foreach(json_decode($semrushIndexedPageResponse, true) as $value) {
-				$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 
-				'database'=>$database,'source_url'=>$value['source_url'], 'source_title'=>$value['source_title'], 
-				'response_code'=>$value['response_code'], 'backlinks_num'=>$value['backlinks_num'], 
-				'domains_num'=>$value['domains_num'],'last_seen'=>$value['last_seen'],'external_num'=>$value['external_num'],'internal_num'=>$value['internal_num']];
-				BacklinkIndexedPage::create($dataToInsert);
-			}
-		}
-		//Semrush Landing Page Api Start
-        $semrushLandingPageApi = (new DomainLandingPage)->landingPageSemrushApi($inputs['website'], $database, 'landing_page');   
-		$LandingPageData = DomainLandingPage::where(['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database])->where('created_at', 'like', '%'.$now.'%')->first(); 
-		if($LandingPageData == null){ 
-			$semrushLandingPageResponse = $this->semrushCurlRequests('landing_page','landing_page', $semrushLandingPageApi, 1);
-			if($semrushLandingPageResponse  != '') {
-			foreach(json_decode($semrushLandingPageResponse, true) as $value) { 
-				$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 
-				'database'=>$database,'target_url'=>$value['target_url'], 'first_seen'=>$value['first_seen'], 
-				'last_seen'=>$value['last_seen'], 'times_seen'=>$value['times_seen'], 
-				'ads_count'=>$value['ads_count']];
-				DomainLandingPage::create($dataToInsert);
-			}
-			}
-		}
-						       
-		
-		//Semrush siteaudit api start
-		$websiteId = $inputs['websiteId'];
-		$projectId = StoreWebsite::where('id', $websiteId)->pluck('semrush_project_id')->first();
-		if($projectId  != null){
-			
-			$auditLaunchApi = (new SiteAudit)->semrushApis('site_audit');
-			
-			$auditInfoApi = (new SiteAudit)->semrushApis('site_audit_info');	
-			$auditInfoResponse = (new SiteAudit)->semrushApiResponses('site_audit_info');
-			
-			$siteIssuesApi = (new SiteAudit)->semrushApis('site_issues');
-			$siteIssuesResponse = (new SiteAudit)->semrushApiResponses('site_issues');
-			
-			$data = json_decode($auditInfoResponse, true);				
-			$siteAudit = SiteAudit::where('store_website_id', $websiteId)->where('created_at', 'like', '%'.$now.'%')->first();	
-			if($siteAudit == null) {
-				$data = ['project_id'=>$projectId, 'store_website_id'=>$websiteId] + $data; unset($data['id']);
-				$data['defects'] = json_encode($data['defects']); 
-				$data['depths'] = json_encode($data['depths']); 
-				$data['markups'] = json_encode($data['markups']); 
-				$data['depths'] = json_encode($data['depths']); 
-				$data['mask_allow'] = json_encode($data['mask_allow']); 
-				$data['mask_disallow'] = json_encode($data['mask_disallow']); 
-				$data['removedParameters'] = json_encode($data['removedParameters']);
-				if($data['excluded_checks'] == null) {
-					$data['excluded_checks'] = 0;
-				}
-				$siteAudit = SiteAudit::create($data);
-			}	
-			$siteAuditIssues = json_decode($siteIssuesResponse, true);
-			foreach($siteAuditIssues['issues'] as $siteAuditIssuesData) { //dd($siteAuditIssuesData);
-				$dataToSave = ['project_id'=>$projectId, 'store_website_id'=>$websiteId];
-				$dataToSave['title'] = $siteAuditIssuesData['title'];
-				$dataToSave['desc'] = $siteAuditIssuesData['desc'];
-				$dataToSave['title_page'] = $siteAuditIssuesData['title_page'];
-				SiteIssue::create($dataToSave);
-			}
-		}
-		}
-		return redirect('seo');
+		return ['status_code'=>200, 'response'=>'Data fetched'];
 	}
 	
-	public function semrushCurlRequests($type, $column, $api, $keyValuePair=0,$env="live") { 
+	public function semrushCurlRequests($type, $column, $api, $keyValuePair=0,$env="test") { 
 		try {
 		if($env == "test") {
 			if($type == "domain_search_keywords") {

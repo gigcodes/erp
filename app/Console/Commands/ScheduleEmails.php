@@ -58,10 +58,9 @@ class ScheduleEmails extends Command
 		$created_date = Carbon::now();
 		$modalType = "";
 		$leads = [];
-
+		$leads_new = [];
 		//$flows = Flow::select('id', 'flow_name as name')->get();
 		$flows = Flow::whereIn('flow_name', ['task_pr'])->select('id', 'flow_name as name')->orderBy('id', 'desc')->get();  
-		
 		FlowLog::log(["flow_id" => 0, "messages" => "Flow action started to check and found total flows : " . $flows->count()]);
 
 		//$this->log[]="Flow action started to check and found total flows : ".$flows->count();
@@ -71,7 +70,7 @@ class ScheduleEmails extends Command
 				->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
 				->join('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
 				->join('store_websites', 'store_websites.id', '=', 'flows.store_website_id')
-				->select('flows.store_website_id','store_websites.website','flows.flow_description', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_actions.condition', 'flow_types.type', 'flow_actions.time_delay_type', 'flows.flow_name')
+				->select('flows.store_website_id','flows.id','store_websites.website','flows.flow_description', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_actions.condition', 'flow_types.type', 'flow_actions.time_delay_type', 'flows.flow_name')
 				->where('flows.id', '=', $flow['id'])->whereNull('flow_paths.parent_action_id')->orderBy('flow_actions.rank', 'asc')
 				->get();
 
@@ -195,10 +194,14 @@ class ScheduleEmails extends Command
 					$emailData['subject'] = $message['subject'];
 					$emailData['template'] = $bodyText;
 					$emailData['from'] = $message['sender_email_address'];
+					
 					$emailClass = (new ScheduledEmail($emailData))->build();
-
+					$flow_id = $flowAction['id'];
+					if(isset($flow) && isset($flow['id'])) {
+						$flow_id = $flow['id'];
+					}
 					$params = [
-						'model_id'        => $lead->id,
+						'model_id'        => $lead->id ?? $lead['id'],
 						'model_type'      => $modalType,
 						'type'            => 'outgoing',
 						'seen'            => 0,
@@ -207,7 +210,7 @@ class ScheduleEmails extends Command
 						//'to'              => "technodeviser05@gmail.com",
 						'subject'         => $message['subject'],
 						'message'         =>  $emailClass->render(),
-						'template'        => 'flow#' . $flow['id'],
+						'template'        => 'flow#' . $flow_id,
 						'schedule_at'     => $created_date,
 						'is_draft'     => 1,
 					];
@@ -395,14 +398,18 @@ class ScheduleEmails extends Command
 							->select('developer_tasks.id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.scraper_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->orderBy('developer_tasks.id','desc')->first();
 						//dd($leads[0]);
 					}  
-					$leaddata = $leads->toArray();
+					$lead_new = array();
+					if($leads) {
+						$leaddata = $leads->toArray();
 					
-					 $leaddata['description'] = $flowAction['flow_description'];
-					 $leaddata['website'] = $flowAction['website'];
-					 $leaddata['modalType'] = $modalType;
-					 //$leaddata['task'] = $modalType;
-					$lead_new[0] = $leaddata;
-					
+						$leaddata['description'] = $flowAction['flow_description'];
+						$leaddata['website'] = $flowAction['website'];
+						$leaddata['modalType'] = $modalType;
+						//$leaddata['task'] = $modalType;
+					   $lead_new[0] = $leaddata;
+   
+					}
+										
 					foreach ($flowActiosnNew as $flowActionNew) {
 						$this->doProcess($flowActionNew, $modalType, $lead_new, $store_website_id, $created_date, $flow_log_id, 'user');
 					}
@@ -440,13 +447,16 @@ class ScheduleEmails extends Command
 					->where('flow_paths.parent_action_id', '=', $flowAction['action_id'])->orderBy('flow_actions.rank', 'asc')
 					->get()->groupBy('path_for');
 				foreach ($flowPathsNew as $path_for => $flowActiosnNew) { 
-					$designCategoryId = TaskCategory::where('title', 'like', 'Design%')->pluck('id')->first();
-					if ($path_for == 'yes') { 
+					$designCategoryId = \App\TaskCategory::where('title', 'like', 'Design%')->pluck('id')->first(); 
+					if ($path_for == 'yes') {   
+						$parentTaskIds = Task::whereNotNull('parent_task_id')->pluck('parent_task_id')->toArray();
 						$tasks = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')
-							    ->whereDate('tasks.created_at', '<=', $created_date)
+							    ->whereDate('tasks.is_completed', '<=', $created_date)
 								->where('category', $designCategoryId)
 								->whereNotNull('is_completed')
+								->whereNotIn('tasks.id', $parentTaskIds)
 							    ->select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.site_developement_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+						
 						$devCategoryId = TaskCategory::where('title', 'like', 'Site Devel%')->pluck('id')->first();
 						foreach($tasks as $task) { 
 							$ifAlreadyCreated = Task::where('parent_task_id', $task['id'])->first();
