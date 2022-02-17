@@ -48,6 +48,7 @@
    </div>
 </div>
 <div class="mt-3 col-md-12">
+   <div style="max-width: 100%;margin: 0 auto;overflow: auto;">
    <table class="table table-bordered table-striped" id="log-table">
       <thead>
          <tr>
@@ -111,6 +112,7 @@
          @include('logging.partials.apilogdata')
       </tbody>
    </table>
+   </div>
 </div>
 <div class="modal fade" id="api_response_modal" role="dialog" style="display: none;">
    <div class="modal-dialog modal-lg">
