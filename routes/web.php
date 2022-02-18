@@ -197,6 +197,7 @@ Route::prefix('category-messages')->middleware('auth')->group(function () {
 
 Route::prefix('seo')->middleware('auth')->group(function () {
     Route::get('/', 'SeoToolController@index')->name('seo-tool');
+    Route::get('/search', 'SeoToolController@searchSeoFilter')->name('seo-tool-search');
     Route::post('tool/save', 'SeoToolController@saveTool')->name('save.seo-tool');
    // Route::post('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');
     Route::get('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');;
