@@ -84,7 +84,7 @@
         <div class="col-lg-12 margin-tb">
             <div class="row">
                 <div class="col-lg-12 margin-tb">
-                    <h2 class="page-heading">Dashboard</h2>
+                    <h2 class="page-heading">SEO Dashboard</h2>
                     <!--button type="button" class="btn btn-secondary float-right mr-3" data-toggle="modal"
                             data-target="#addToolModal">
                         Add Tool
@@ -116,6 +116,25 @@
             </div>
         </div>
     </div>
+	<div class="col-lg-12 margin-tb pl-3">
+		<div class="form-group mb-3">
+			<br/>
+			<div class="row">
+				<div class="col-md-2 pl-3 pr-0">
+					<div class='input-group date' id='filter_date'>
+						<input type='text' class="form-control" id="search_website" name="search_website" value="{{old('search_website')}}" placeholder="Website" />
+					</div>
+				</div>
+				<div>
+					<button type="button" class="btn btn-image" onclick="submitSearch()"><img src="{{ asset('images/filter.png')}}"/></button>
+				</div>
+				<div >
+					<button type="button" class="btn btn-image pl-0" id="resetFilter" onclick="resetSearch()"><img src="{{ asset('images/resend2.png')}}"/></button>
+				</div>
+			</div>
+		</div>
+	</div>
+
     <!-- Model Add Seo tool END -->
 <div class="form-group col-md-12" style="display:none;">
 				<div class="seo_select_inner col-md-4 ">
@@ -123,16 +142,81 @@
 					{{ Form::select('search', $websites, null, array('class'=>'search select2', 'placeholder'=>'Seletc Website', 'id'=>'search')) }}
 				</div>
 			</div>
-		<div class="form-group col-md-12 pull-right">
+		{{-- <div class="form-group col-md-12 pull-right">
 				<div class="seo_select_inner col-md-4 ">
 					<a class="btn btn-secondary" href="#" id="fetch_details">Fetch Latest Records</a>
 				</div>
-			</div>
-			<p id="myTabContent"></p>
+		</div> --}}
+		<p id="myTabContent"></p>
     @if(Session::has('message'))
         <p class="alert {{ Session::get('alert-class', 'alert-info') }}">{{ Session::get('message') }}</p>
     @endif
 	
+	<div class="space-right infinite-scroll chat-list-table">
+		<div class="table-responsive">
+			<table class="table table-bordered" style="font-size: 14px;table-layout: fixed">
+                <thead>
+                <tr>
+                    <th style="width: 7%;">Website</th>
+                    <th style="width: 3%;">Pages Crawled</th>
+                    <th style="width: 3%;">Errors</th>
+                    <th style="width: 3%;">Warnings</th>
+                    <th style="width: 3%;">Keywords</th>
+                    <th style="width: 3%;">Traffic</th>
+                    <th style="width: 3%;">Traffic cost</th>
+                    <th style="width: 3%;">Ascore</th>
+                    <th style="width: 3%;">Follows</th>
+                    <th style="width: 3%;">No Follows</th>
+                </tr>
+                </thead>
+                <tbody id="content_data" class="infinite-scroll-pending-inner">
+					@foreach($websites as $websiteId=>$website) 
+						@if(isset($domainOverview[$websiteId]) || isset($backlinkreports[$websiteId]) || isset($siteAudits[$websiteId]))
+						<tr>
+							@if(isset($domainOverview[$websiteId]) || isset($backlinkreports[$websiteId]) || isset($siteAudits[$websiteId]))
+								<td>{{$website}}</td>
+							@else
+								<td>---</td>
+							@endif
+							@if(isset($siteAudits[$websiteId]))
+								@php $siteAudit = $siteAudits[$websiteId]; @endphp
+								<td><a href="{{route('site-audit-details', $websiteId)}}"><span>{{$siteAudit['pages_crawled']}}</span></a></td>
+								<td><a href="{{route('site-audit-details', $websiteId)}}"><span> {{$siteAudit['errors']}}</span></a></td>
+								<td><a href="{{route('site-audit-details', $websiteId)}}"><span>{{$siteAudit['warnings']}}</span></a></td>
+							@else
+								<td>---</td>
+								<td>---</td>
+								<td>---</td>
+							@endif
+							@if(isset($domainOverview[$websiteId]))
+								@php $overview = $domainOverview[$websiteId]; @endphp
+								<td><a href="{{route('domain-details', $websiteId)}}"><span>{{$overview['organic_keywords']}}</span></a></td>
+								<td><a href="{{route('domain-details', $websiteId)}}"><span> {{$overview['organic_traffic']}}</span></a></td>
+								<td><a href="{{route('domain-details', $websiteId)}}"><span>{{$overview['organic_cost']}}</span></a></td>
+							@else
+								<td>---</td>
+								<td>---</td>
+								<td>---</td>
+							@endif
+							@if(isset($backlinkreports[$websiteId]))
+								@php $backlinkreport = $backlinkreports[$websiteId]; @endphp
+								<td><a href="{{route('backlink-details', $websiteId)}}"><span>{{$backlinkreport['ascore']}}</span></a></td>
+								<td><a href="{{route('backlink-details', $websiteId)}}"><span> {{$backlinkreport['follows_num']}}</span></a></td>
+								<td><a href="{{route('backlink-details', $websiteId)}}"><span>{{$backlinkreport['nofollows_num']}}</span></a></td>
+							@else
+								<td>---</td>
+								<td>---</td>
+								<td>---</td>
+							@endif
+						</tr>
+						@endif
+					@endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{{-- 
 @foreach($websites as $websiteId=>$website) 
 	<!--20-08-2021-->
 	
@@ -162,7 +246,7 @@
 					</div>
 				</div>
 				@endif
-				@if(isset($siteAudit['errors']))
+				@if(isset($overview['organic_keywords']))
 				<div class="seo_text col-md-4">
 					<div class="seo_text_inner">
 						<h6>Errors</h6>
@@ -170,11 +254,11 @@
 					</div>
 				</div>
 				@endif
-				@if(isset($siteAudit['warnings']))
+				@if(isset($backlinkreport['ascore']))
 				<div class="seo_text col-md-4">
 					<div class="seo_text_inner">
 						<h6>Warnings</h6>
-						<a href="{{route('site-audit-details', $websiteId)}}"><span>{{$siteAudit['warnings']}}</span></a>
+						<a href="{{route('backlink-details', $websiteId)}}"><span>{{$backlinkreport['nofollows_num']}}</span></a>
 					</div>
 				</div>
 				@endif
@@ -264,7 +348,7 @@
 	@endif
 	</div>
 	@endif
-@endforeach
+@endforeach --}}
 
 
 		
@@ -303,6 +387,28 @@
                 }
             });
         });
+		function submitSearch(){
+			    src = "{{url('seo/search')}}";
+                var search_website = $('#search_website').val();
+                $.ajax({
+                    url: src,
+					type: "GET",
+                    dataType: "json",
+                    data: {
+                        search_website : search_website,
+                    },
+                    beforeSend: function () {
+					    $("#loading-image").show();
+                    },
+                }).done(function (message) {
+                    $("#loading-image").hide();
+                    $("#content_data").html(message.tbody);
+					var rendered = renderMessage(message, tobottom);
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+					$("#loading-image").hide();
+                    alert(jqXHR.message);
+                });
+		}
  $(document).on('click', '.expand-row-msg', function () {
     var name = $(this).data('name');
     var id = $(this).data('id');
@@ -311,5 +417,16 @@
     $(full).toggleClass('hidden');
     $(mini).toggleClass('hidden');
   });
+  function resetSearch(){
+        // $("#loading-image").hide();
+        // $('#term').val('');
+        // $('#serach_inquiry_type').val('');
+        // $('#search_country').val('');
+        // $('#search_order_no').val('');
+        // $('#search_phone_no').val('');
+        // $('#ticket').val('');
+        // $('#users_id').val('');
+        location.reload();
+    }
     </script>
 @endsection
