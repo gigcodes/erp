@@ -10,21 +10,21 @@
         </form>
     </div>  
     <div class="col-md-12">
-        <table class="table table-bordered table-striped sort-priority-scrapper">
+        <table class="table table-bordered table-striped sort-priority-scrapper" style="table-layout: fixed;">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Task</th>
-                    <th>Communication</th>
-                    <th>Assigned to</th>
-                    <th>Created at</th>
+                    <th width="3%">#</th>
+                    <th width="4%">Task</th>
+                    <th width="20%">Communication</th>
+                    <th width="5%">Assigned to</th>
+                    <th width="7%">Created at</th>
                 </tr>
             </thead>
             <tbody class="conent">
                 @foreach ($developerTasks as $developerTask)
                     <tr>
-                        <td>{{ $developerTask->id }}</td>
-                        <td>{{ $developerTask->subject }}
+                        <td >{{ $developerTask->id }}</td>
+                        <td class="Website-task" title="{{ $developerTask->subject }}">{{ $developerTask->subject }}
                             <br>
                             @if (isset($developerTask->timeSpent) && $developerTask->timeSpent->task_id > 0)
                               Developer : {{ formatDuration($developerTask->timeSpent->tracked) }}
@@ -44,15 +44,15 @@
                                   }  
                             @endphp
 
-                         <td class="table-hover-cell " style="word-break: break-all;padding: 5px;">
+                         <td class="table-hover-cell " style="word-break: break-all;padding: 5px;width: 100%;">
                             <div class="row">
                                 <div class="col-md-12 form-inline cls_remove_rightpadding">
                                     <div class="row cls_textarea_subbox w-100 align-items-center">
                                         <div class="col-md-5 cls_remove_rightpadding align-items-center">
                                             <textarea rows="1" cols="25" class="form-control quick-message-field cls_quick_message" id="messageid_{{ $developerTask->id }}" name="message"  placeholder="Message"></textarea>
-                                            <div id="message-chat-txt-{{ $developerTask->id }}" class="ml-3">{{ substr($message,0,15) }}</div>
+                                            <div id="message-chat-txt-{{ $developerTask->id }}" class="ml-2 Website-task">{{ substr($message,0,15) }}</div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <div class="d-flex">
                                                 <select class="form-control quickComments select2-quick-reply" name="quickComment" style="width: 50% !important;" >
                                                     <option  data-vendorid="{{ $developerTask->id }}"  value="">Auto Reply</option>
@@ -68,7 +68,7 @@
                                                     <?php } }
                                                     ?>
                                                 </select>
-                                                <a class="btn btn-image delete_quick_comment-scrapp"><img src="<?php echo url('/');?>/images/delete.png" style="cursor: default; width: 16px;"></a>
+                                                <a class="btn mt-0 btn-image delete_quick_comment-scrapp"><img src="<?php echo url('/');?>/images/delete.png" style="cursor: default; width: 16px;"></a>
                                                 <div class="cls_remove_allpadding">
                                                     <?php echo Form::select("send_message_".$developerTask->id,[
                                                           "to_developer" => "Send To Developer",
@@ -81,7 +81,7 @@
                                             </div>
 
                                         </div>
-                                        <div class="col-md-1 text-right">
+                                        <div class="col-md-3 text-right">
                                             <button class="btn btn-sm btn-image send-message1" data-task-id="{{ $developerTask->id }}"style="padding:0;"><img src="/images/filled-sent.png"></button>
                                             <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="1" data-is_hod_crm="" data-object="developer_task" data-id="{{ $developerTask->id }}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
                                         </div>
@@ -89,7 +89,7 @@
                                 </div>
                             </div>
                         </td>   
-                        <td>
+                        <td class="Website-task" title=" {{ ($developerTask->assignedUser) ? $developerTask->assignedUser->name : "N/A" }}">
                           {{ ($developerTask->assignedUser) ? $developerTask->assignedUser->name : "N/A" }}
                         </td>
                         <td>{{ $developerTask->created_at }}</td>

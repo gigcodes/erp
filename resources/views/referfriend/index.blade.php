@@ -67,7 +67,32 @@
     </div>
     <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
 
-  
+    <div id="view_error" class="modal fade" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">View Logs</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            <th>Index</th>
+                            <th>Time</th>
+                            <th>Log</th>
+                            <th>Message</th>
+                        </tr>
+                        <tbody class="content">
+                            
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default close-setting" data-dismiss="modal">Close</button>
+                </div>
+        </div>
+      </div>
+    </div>
 
 
 @endsection
@@ -177,6 +202,64 @@
             });
         }            
     });
+
+    $(document).on('click','.view_error',function(event){
+      event.preventDefault();
+      $.ajax({
+            url: '{{ route("referfriend.logAjax") }}',
+            dataType: "json",
+            data: {
+                id: $(this).data('id')
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done(function (data) {
+            $("#loading-image").hide();
+            var $html = '';
+            if(data.data.length > 0){
+                $.each(data.data, function(i, item) {
+                  $html += '<tr>';
+                  $html += '<td>'+parseInt(i+1)+'</td>';
+                  $html += '<td>'+item.created_at+'</td>';
+                  $html += '<td>'+item.log+'</td>';
+                  $html += '<td>'+wordWrap(item.message, 50)+'</td>';
+                  $html += '</tr>';
+              });
+            }
+            $('#view_error table tbody.content').html($html);
+            $('#view_error').modal('show');
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            $("#loading-image").hide();
+        });
+      
+  });
+function wordWrap(str, maxWidth) {
+    var newLineStr = "\n"; done = false; res = '';
+    while (str.length > maxWidth) {                 
+        found = false;
+        // Inserts new line at first whitespace of the line
+        for (i = maxWidth - 1; i >= 0; i--) {
+            if (testWhite(str.charAt(i))) {
+                res = res + [str.slice(0, i), newLineStr].join('');
+                str = str.slice(i + 1);
+                found = true;
+                break;
+            }
+        }
+        // Inserts new line at maxWidth position, the word is too long to wrap
+        if (!found) {
+            res += [str.slice(0, maxWidth), newLineStr].join('');
+            str = str.slice(maxWidth);
+        }
+    }
+    return res + str;
+}
+function testWhite(x) {
+    var white = new RegExp(/^\s$/);
+    return white.test(x.charAt(0));
+};
+
 </script>
 
 @endsection

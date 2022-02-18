@@ -33,7 +33,7 @@ class ReferFriendController extends Controller
                 'tbody' => view('referfriend.partials.list-referral', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
                 'links' => (string)$data->render(),
                 'count' => $data->total(),
-            ], 200);
+            ], 200); 
         }
 		return view('referfriend.index', compact('data'))
 			->with('i', ($request->input('page', 1) - 1) * 5);
@@ -111,5 +111,23 @@ class ReferFriendController extends Controller
 
 		return redirect()->route('referfriend.list')
 			->with('success', 'Referral deleted successfully');
+    }
+
+    /*
+    * logAjax : Return log of refere friend api
+    */
+    public function logAjax(Request $request){
+        if($request->ajax()){
+            $log = \App\LogReferalCoupon::where("refer_friend_id",$request->get("id"))->get()->toArray();
+            if($log){
+                return response()->json([
+                    'data' => $log
+                ], 200);
+            }
+            return response()->json([
+                'data' => []
+            ], 200);
+        }
+
     }
 }

@@ -160,13 +160,13 @@
                 <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="/images/view.png"/></a>
             @endif
             <button type="button" onClick="return confirm('Are you sure you want to delete this task ?');" data-id="<?php echo $task->id; ?>" class="btn btn-image delete-task-btn pd-5"><img src="/images/delete.png"/></button>
-            @if($task->communication_status == 0)
+            @if($task->communication_status == 1)
                 <div class="switch">
                     <input id="cmn-toggle-<?php echo $task->id; ?>" task-id="<?php echo $task->id; ?>"  class="cmn-toggle cmn-toggle-round" type="checkbox">
                     <label for="cmn-toggle-<?php echo $task->id; ?>"></label>
                 </div>
             @endif
-            @if($task->communication_status == 1)
+            @if($task->communication_status == 0)
                 <div class="switch">
                     <input id="cmn-toggle-<?php echo $task->id; ?>" task-id="<?php echo $task->id; ?>"  class="cmn-toggle cmn-toggle-round" type="checkbox" checked>
                     <label for="cmn-toggle-<?php echo $task->id; ?>"></label>
