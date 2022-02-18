@@ -24,4 +24,10 @@ class AddDeletedStatusInCategoriesTable extends Migration
      * @return void
      */
     
+    public function down()
+    {
+        Schema::table('categories', function (Blueprint $table) {
+            //
+        });
+    }
 }

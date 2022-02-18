@@ -1059,6 +1059,29 @@
         }
     });
 
+    $(document).on('change','.email-category',function(e){
+        if($(this).val() != "" && ($('option:selected', this).attr('data-id') != "" || $('option:selected', this).attr('data-id') != undefined)){
+            $.ajax({
+                  headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                  },
+                  type : "POST",
+                  url : "{{ route('changeEmailCategory') }}",
+                  data : {
+                    category_id : $('option:selected', this).val(),
+                    email_id : $('option:selected', this).attr('data-id')
+                  },
+                  success : function (response){
+                       location.reload();
+                  },
+                  error : function (response){
+
+                  }
+            })
+        }
+    });
+
+
     function opnMsg(email) {
       console.log(email);
       $('#emailSubject').html(email.subject);

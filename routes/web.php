@@ -195,6 +195,24 @@ Route::prefix('category-messages')->middleware('auth')->group(function () {
     Route::resource('category', 'CustomerCategoryController');
 });
 
+Route::prefix('seo')->middleware('auth')->group(function () {
+    Route::get('/', 'SeoToolController@index')->name('seo-tool');
+    Route::get('/search', 'SeoToolController@searchSeoFilter')->name('seo-tool-search');
+    Route::post('tool/save', 'SeoToolController@saveTool')->name('save.seo-tool');
+   // Route::post('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');
+    Route::get('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');;
+    Route::get('domain-report/{id}', 'DetailsController@domainDetails')->name('domain-details');
+    Route::get('domain-report/{id}/{type}', 'DetailsController@domainDetails');
+	Route::get('compitetors-details/{id}', 'SeoToolController@compitetorsDetails')->name('compitetors-details');
+	Route::get('site-audit-details/{id}', 'DetailsController@siteAudit')->name('site-audit-details');
+	Route::get('compitetorsdetails/{id}', 'DetailsController@compitetorsDetails')->name('compitetorsdetails');
+	Route::get('backlink-details/{id}', 'DetailsController@backlinkDetails')->name('backlink-details');
+	Route::get('site-audit/{projectId}', 'SeoToolController@siteAudit');
+	Route::get('project-list', 'SeoToolController@projectList');
+	Route::post('save-keyword', 'SeoToolController@saveKeyword');
+});
+
+
 Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Crop Reference
     Route::get('crop-references', 'CroppedImageReferenceController@index');
@@ -803,6 +821,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('invoice/without-order', 'OrderController@createInvoiceWithoutOrderNumber')->name('invoice.without.order');
     Route::get('order/order-search', 'OrderController@searchOrderForInvoice')->name('order.search.invoice');
     Route::get('customers/customer-search', 'OrderController@getCustomers')->name('customer.search');
+    Route::get('customers/company-address-search', 'OrderController@getCustomers')->name('company.address.search');
+    Route::get('order/website-address-search', 'OrderController@getCompany')->name('company.address.search');
     Route::get('customers/product-search', 'OrderController@getSearchedProducts')->name('product.search');
     Route::get('order/{id}/add-invoice', 'OrderController@addInvoice')->name('order.add.invoice');
     Route::post('order/submit-invoice', 'OrderController@submitInvoice')->name('order.submit.invoice');
@@ -818,6 +838,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/download-invoice/{id}', 'OrderController@downloadInvoice')->name('order.download.invoice');
     Route::post('order/update-customer-address', 'OrderController@updateCustomerInvoiceAddress')->name('order.update.customer.address');
     Route::get('order/{id}/mail-invoice', 'OrderController@mailInvoice')->name('order.mail.invoice');
+    Route::get('order/{id}/get-invoice-customer-email', 'OrderController@getInvoiceCustomerEmail')->name('get.invoice.customer.email');
     Route::get('order/update-delivery-date', 'OrderController@updateDelDate')->name('order.updateDelDate');
     Route::get('order/view-est-delivery-date-history', 'OrderController@viewEstDelDateHistory')->name('order.viewEstDelDateHistory');
     Route::post('order/addNewReply', 'OrderController@addNewReply')->name('order.addNewReply');
@@ -857,6 +878,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('bluckAction', 'EmailController@bluckAction')->name('bluckAction');
     Route::any('syncroniseEmail', 'EmailController@syncroniseEmail')->name('syncroniseEmail');
     Route::post('changeStatus', 'EmailController@changeStatus')->name('changeStatus');
+    Route::post('change-email-category', 'EmailController@changeEmailCategory')->name('changeEmailCategory');
 
     Route::get('email-remark', 'EmailController@getRemark')->name('email.getremark');
     Route::post('email-remark', 'EmailController@addRemark')->name('email.addRemark');
@@ -1422,9 +1444,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 	
     Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
     Route::get('development/flagtask', 'DevelopmentController@flagtask')->name('development.flagtask');
+    Route::post('development/gettasktimemessage', 'DevelopmentController@gettasktimemessage')->name('development.gettasktimemessage');
+    Route::post('development/getlogtasktimemessage', 'DevelopmentController@getlogtasktimemessage')->name('development.getlogtasktimemessage');
+
     Route::get('development/automatic/tasks', 'DevelopmentController@automaticTasks')->name('development.automatic.tasks');
  
     Route::post('save/task/message', 'DevelopmentController@saveTaskMessage')->name('development.taskmessage');
+    Route::post('save/tasktime/message', 'DevelopmentController@saveTaskTimeMessage')->name('development.tasktimemessage');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
@@ -3239,6 +3265,7 @@ Route::middleware('auth')->group(function () {
 Route::prefix('referfriend')->middleware('auth')->group(function () {
     Route::get('/list', 'ReferFriendController@index')->name('referfriend.list');
     Route::DELETE('/delete/{id?}', 'ReferFriendController@destroy')->name('referfriend.destroy');
+    Route::get('/logAjax', 'ReferFriendController@logAjax')->name('referfriend.logAjax');
 });
 
 //Twillio-SMS

@@ -103,6 +103,7 @@ use App\Console\Commands\SendProductSuggestion;
 use App\Console\Commands\SendQueuePendingChatMessages;
 use App\Console\Commands\SendQueuePendingChatMessagesGroup;
 use App\Console\Commands\SendRecurringTasks;
+use App\Console\Commands\SendTasksTimeReminder;
 use App\Console\Commands\SendReminderToCustomerIfTheyHaventReplied;
 use App\Console\Commands\SendReminderToDevelopmentIfTheyHaventReplied;
 use App\Console\Commands\SendReminderToDubbizlesIfTheyHaventReplied;
@@ -172,6 +173,7 @@ class Kernel extends ConsoleKernel
         CheckEmailsErrors::class,
         MessageScheduler::class,
         SendRecurringTasks::class,
+        SendTasksTimeReminder::class,
         CheckMessagesErrors::class,
         SendProductSuggestion::class,
         SendActivitiesListing::class,
