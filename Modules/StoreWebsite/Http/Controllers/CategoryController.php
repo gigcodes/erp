@@ -360,7 +360,7 @@ class CategoryController extends Controller
         ini_set('max_execution_time', 1500);
         $title      = "Store Category";
         
-        $allcategories = Category::query();
+        $allcategories = Category::query()->get();
         $allstoreWebsite = StoreWebsite::query()->get();
 
 
@@ -375,7 +375,7 @@ class CategoryController extends Controller
 
         //$categories = $categories->whereIn("id", [3]);
 
-        $categories = $categories->paginate(10);
+        $categories = $categories->paginate(25);
 
         $storeWebsite = StoreWebsite::query();
         if ($request->website_id != null) {
