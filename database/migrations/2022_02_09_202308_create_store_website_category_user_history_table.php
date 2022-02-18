@@ -4,23 +4,23 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateLogStoreWebsiteCategoriesTable extends Migration
+class CreateStoreWebsiteCategoryUserHistoryTable extends Migration
 {
     /**
      * Run the migrations.
      *
      * @return void
      */
+
     public function up()
     {
-        if (!Schema::hasTable('log_store_website_categories')) {
-            Schema::create('log_store_website_categories', function (Blueprint $table) {
+        if (!Schema::hasTable('store_website_category_user_history')) {
+            Schema::create('store_website_category_user_history', function (Blueprint $table) {
                 $table->increments('id');
-                $table->String('log_case_id');
-                $table->String('category_id');
-                $table->String('log_detail');
-                $table->String('log_msg');
-                $table->String('description');
+                $table->integer('store_id');
+                $table->integer('category_id');
+                $table->integer('user_id');
+                $table->String('website_action');
                 $table->timestamps();
             });
         }

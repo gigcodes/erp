@@ -42,6 +42,7 @@ use Response;
 use App\Hubstaff\HubstaffActivity;
 use App\Sop;
 use App\TaskUserHistory;
+use App\LogChatMessage;
 
 
 class TaskModuleController extends Controller
@@ -3136,7 +3137,7 @@ class TaskModuleController extends Controller
     {
         $task_id = $request->input('task_id');
         $html = '';
-        $chatData = ChatMessage::where('task_id', $task_id)
+        $chatData = LogChatMessage::where('task_id', $task_id)->where('task_time_reminder',0)
             ->orderBy('id', 'DESC')
             ->get();
         $i = 1;
@@ -3144,7 +3145,10 @@ class TaskModuleController extends Controller
             foreach ($chatData as $history) {
                 $html .= '<tr>';
                 $html .= '<td>' . $i . '</td>';
+                $html .= '<td>' . $history->log_case_id . '</td>';
                 $html .= '<td>' . $history->message . '</td>';
+                $html .= '<td>' . $history->log_msg . '</td>';
+                $html .= '<td>' . $history->created_at . '</td>';
                 $html .= '</tr>';
 
                 $i++;
@@ -3152,6 +3156,9 @@ class TaskModuleController extends Controller
             return response()->json(['html' => $html, 'success' => true], 200);
         } else {
             $html .= '<tr>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
             $html .= '<td></td>';
             $html .= '<td></td>';
             $html .= '</tr>';

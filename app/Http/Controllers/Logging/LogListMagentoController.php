@@ -1034,4 +1034,22 @@ class LogListMagentoController extends Controller
         return view('logging.magento-push-daily-message', compact('response',"websites","count"));
     }
 
+    /*
+    * logMagentoApisAjax : Return log of product api
+    */
+    public function logMagentoApisAjax(Request $request){
+        if($request->ajax()){
+            $log = \App\LogMagentoApi::where("magento_api_search_product_id",$request->get("id"))->get()->toArray();
+            if($log){
+                return response()->json([
+                    'data' => $log
+                ], 200);
+            }
+            return response()->json([
+                'data' => []
+            ], 200);
+        }
+
+    }
+
 }

@@ -40,7 +40,7 @@
                     </div>
             </div>
             <div class="pull-right">
-                <a class="btn btn-secondary" href="{{ route('pushfcmnotification.add') }}">+</a>
+                <button  class="btn btn-secondary new-notification" data-toggle="modal" data-target="#create-notification">+</button>
             </div>
         </div>
     </div>
@@ -87,6 +87,60 @@
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
                50% 50% no-repeat;display:none;">
     </div>
+
+    <div id="create-notification" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Create Notification</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    {!! Form::open(array('route' => 'pushfcmnotification.store','method'=>'POST')) !!}
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row subject-field">
+                                <div class="row m-4">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <strong>Notification Title:</strong>
+                                            {!! Form::text('title', null, array('placeholder' => 'Name','class' => 'form-control')) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <strong>Notification Website:</strong>
+                                            <select name="url" class="form-control">
+                                                <option value="">Select Website</option>
+                                                @foreach($StoreWebsite as $website)
+                                                <option value="{{$website->website}}" {{ ($website->website == old('url'))?'selected':''}}>{{$website->website}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <strong>Notification body:</strong>
+                                            {!! Form::textarea('body', null, array('placeholder' => 'body','class' => 'form-control')) !!}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            {!! Form::text('sent_at', null, array('placeholder' => 'time to send notification at','class' => 'form-control', 'id' => 'sent_at_fcm_create')) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Save</button>
+                    </div>
+                    {!! Form::close() !!}
+                </div>
+            </div>
+      </div>
 
 
 @endsection
