@@ -29,9 +29,32 @@ class DetailsController extends Controller
 		$domainlandingpage = DomainLandingPage::where('store_website_id', $id)->get();
 		$compitetors = Competitor::where('store_website_id', $id)->get();
 		if (request()->ajax()) {
-			return view("seo-tools.partials.domain-data", compact('keywords', 'domainorganicpage', 'domainlandingpage', 'compitetors', 'viewTypeName'));
+			return view("seo-tools.partials.domain-data", compact('keywords', 'domainorganicpage', 'domainlandingpage', 'compitetors', 'viewId', 'viewTypeName'));
 		}
-	    return view('seo-tools.records', compact('keywords', 'domainorganicpage', 'domainlandingpage', 'compitetors', 'viewTypeName'));
+	    return view('seo-tools.records', compact('keywords', 'domainorganicpage', 'domainlandingpage', 'compitetors', 'id', 'viewId', 'viewTypeName'));
+		//->where('created_at', 'like', $now.'%')
+	}
+
+	/**
+	 * This function is use to search Domain Details
+	 *
+	 * @param Request $request
+	 * @param int $id
+	 * @param string $type
+	 * @param int $viewId
+	 * @param string $viewTypeName
+	 * @return JsonResponse
+	 */
+	public function domainDetailsSearch(Request $request, $id, $type='organic', $viewId ='', $viewTypeName ='') {
+		$now = Carbon::now()->format('Y-m-d');
+		$keywords = DomainSearchKeyword::where('store_website_id', $id)->where('subtype', $type)->get();
+		$domainorganicpage = DomainOrganicPage::where('store_website_id', $id)->get();
+		$domainlandingpage = DomainLandingPage::where('store_website_id', $id)->get();
+		$compitetors = Competitor::where('store_website_id', $id)->get();
+		if (request()->ajax()) {
+			return view("seo-tools.partials.domain-data", compact('keywords', 'domainorganicpage', 'domainlandingpage', 'compitetors', 'viewId', 'viewTypeName'));
+		}
+	    return view('seo-tools.records', compact('keywords', 'domainorganicpage', 'domainlandingpage', 'compitetors', 'id', 'viewId', 'viewTypeName'));
 		//->where('created_at', 'like', $now.'%')
 	}
 	

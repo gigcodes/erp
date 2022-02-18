@@ -14,6 +14,25 @@
     </div>
 	
 @if($viewTypeName =='organic_keywords') 
+	<div class="row mx-1">
+		<div class="col-lg-12 margin-tb p-3">
+			<div class="col-md-2">
+				<div class='input-group date' id='filter'>
+					<input type='text' class="form-control" id="source_url" name="source_url" value="{{old('source_url')}}" placeholder="Enter Source url" />
+				</div>
+			</div>
+			<div class="col-md-2">
+				<div class='input-group date' id='filter'>
+					<input type='text' class="form-control" id="source_title" name="source_title" value="{{old('source_title')}}" placeholder="Enter Source title" />
+				</div>
+			</div>
+			
+			<div class="col-md-2">
+				<button type="button" class="btn btn-image" onclick="submitSearch();"><img src="{{ asset('images/filter.png')}}"/></button>
+				<button type="button" class="btn btn-image pl-0" id="resetFilter" onclick="resetSearch()"><img src="{{ asset('images/resend2.png')}}"/></button>
+			</div>
+		</div>
+	</div>
 	<div class="table-responsive" >	
 		<table class="table table-striped table-bordered"> 
 			<thead>
@@ -45,6 +64,25 @@
 @endif
 
 @if($viewTypeName =='organic_traffic') 
+<div class="row mx-1">
+	<div class="col-lg-12 margin-tb p-3">
+		<div class="col-md-2">
+			<div class='input-group date' id='filter'>
+				<input type='text' class="form-control" id="source_url" name="source_url" value="{{old('source_url')}}" placeholder="Enter Source url" />
+			</div>
+		</div>
+		<div class="col-md-2">
+			<div class='input-group date' id='filter'>
+				<input type='text' class="form-control" id="source_title" name="source_title" value="{{old('source_title')}}" placeholder="Enter Source title" />
+			</div>
+		</div>
+		
+		<div class="col-md-2">
+			<button type="button" class="btn btn-image" onclick="submitSearch();"><img src="{{ asset('images/filter.png')}}"/></button>
+			<button type="button" class="btn btn-image pl-0" id="resetFilter" onclick="resetSearch()"><img src="{{ asset('images/resend2.png')}}"/></button>
+		</div>
+	</div>
+</div>
 <div class="table-responsive" >	
 	<table class="table table-striped table-bordered"> 
 		<thead>
@@ -65,6 +103,25 @@
 @endif
 
 @if($viewTypeName =='organic_cost') 
+<div class="row mx-1">
+	<div class="col-lg-12 margin-tb p-3">
+		<div class="col-md-2">
+			<div class='input-group date' id='filter'>
+				<input type='text' class="form-control" id="source_url" name="source_url" value="{{old('source_url')}}" placeholder="Enter Source url" />
+			</div>
+		</div>
+		<div class="col-md-2">
+			<div class='input-group date' id='filter'>
+				<input type='text' class="form-control" id="source_title" name="source_title" value="{{old('source_title')}}" placeholder="Enter Source title" />
+			</div>
+		</div>
+		
+		<div class="col-md-2">
+			<button type="button" class="btn btn-image" onclick="submitSearch();"><img src="{{ asset('images/filter.png')}}"/></button>
+			<button type="button" class="btn btn-image pl-0" id="resetFilter" onclick="resetSearch()"><img src="{{ asset('images/resend2.png')}}"/></button>
+		</div>
+	</div>
+</div>
 <div class="table-responsive" >	
 	<table class="table table-striped table-bordered"> 
 		<thead>
@@ -143,4 +200,47 @@
 		$(mini).toggleClass('hidden');
 	  });
     </script>
+	<script>
+		function submitSearch() {
+			var websiteId = "{{$id}}";
+			var viewId = "{{$viewId}}";
+			var viewTypeName = "{{$viewTypeName}}";
+			var src = "{{url('seo/domain-report/search/')}}/"+websiteId+"/"+viewId+"/"+viewTypeName;
+			var searchDatabase = $('#search_database').val();
+			var searchDomain = $('#search_domain').val();
+			var searchAnchor = $('#search_anchor').val();
+			var sourceUrl = $('#source_url').val();
+			var sourceTitle = $('#source_title').val();
+			data = {
+				"search_websiteId" : websiteId,
+				"search_database" : searchDatabase,
+				"search_domain" : searchDomain,
+				"search_anchor" : searchAnchor,
+				"source_url" : sourceUrl,
+				"source_title" : sourceTitle
+			};
+			$.ajax({
+				url: src,
+				type: "post",
+				dataType: "json",
+				data: data,
+				headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+				beforeSend: function () {
+					$("#loading-image").show();
+				},
+			}).done(function (message) {
+				$("#loading-image").hide();
+				$("#keywordData").html(message.tbody);
+				var rendered = renderMessage(message, tobottom);
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+				$("#loading-image").hide();
+				alert(jqXHR.message);
+			});
+		}
+		function resetSearch(){
+        	location.reload();
+    	}
+	</script>
 @endsection
