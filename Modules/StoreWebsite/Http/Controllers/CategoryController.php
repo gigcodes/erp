@@ -360,11 +360,11 @@ class CategoryController extends Controller
         ini_set('max_execution_time', 1500);
         $title      = "Store Category";
         
-        $allcategories = Category::query()->where("deleted_status", "0")->get();
+        $allcategories = Category::query();
         $allstoreWebsite = StoreWebsite::query()->get();
 
 
-        $categories = Category::query()->where("deleted_status", "0");
+        $categories = Category::query();
 
         if ($request->keyword != null) {
             $categories = $categories->where("title", "like", "%" . $request->keyword . "%");
