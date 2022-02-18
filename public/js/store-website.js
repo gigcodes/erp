@@ -107,6 +107,14 @@ var page = {
             page.editBuildProcess($(this));
         });
 
+        page.config.bodyView.on("click",".add-website-company-address-template",function(e) {
+            e.preventDefault();
+            page.addCompanyWebAddress($(this));
+        });
+        $(".common-modal").on("click",".update-company-wesite-address",function(e) {
+            e.preventDefault();
+            page.updateCompanyAddress($(this));
+        });
         
 
         $(".common-modal").on("click",".add-attached-brands",function(e) {
@@ -364,6 +372,47 @@ var page = {
         }
         this.sendAjax(_z, 'afterBuildProcess');
     },
+
+    addCompanyWebAddress : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/add-company-website-address",
+            method: "get",
+        }
+        this.sendAjax(_z, 'afterCopmanyWebsiteAdd');
+    },
+    afterCopmanyWebsiteAdd: function(response) { 
+        
+        var createWebTemplate = $.templates("#add-website-company-address"); 
+        var tplHtml = createWebTemplate.render(response);
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show"); 
+    },
+    updateCompanyAddress : function(ele) { 
+        console.log(ele.closest("form").serialize());
+        var _z = {
+             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/update-company-website-address",
+             method: "post",
+             data : ele.closest("form").serialize(),
+             beforeSend : function() {
+                 $("#loading-image").show();
+             }
+         }
+         this.sendAjax(_z, "afterUpdateCompanyAddress");
+     },
+     afterUpdateCompanyAddress : function(response) { 
+        if(response.code  == 200) {
+            $("#loading-image").hide();
+            $(".common-modal").modal("hide");
+            toastr["success"]("Address Updated successfully","");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+
+    
+	
     afterBuildProcess: function(response) { 
         var createWebTemplate = $.templates("#template-build-process"); 
         var tplHtml = createWebTemplate.render(response);

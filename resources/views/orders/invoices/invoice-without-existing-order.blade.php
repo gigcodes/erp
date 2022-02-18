@@ -2,6 +2,16 @@
 <div class="form-group">
   <input type="text" class="form-control" name="invoice_no" id="invoice_no" value="" required autofocus>
 </div>
+<label for="company-address-search">Select Company Address</label>
+<div class="form-group">
+  <select name="website_address" type="text" class="form-control" placeholder="Search by website address" id="company-address-search" data-allow-clear="true">
+    <?php
+    if (request()->get('customer')) {
+      echo '<option value="'.request()->get('customer').'" selected>'.request()->get('customer').'</option>';
+    }
+    ?>
+  </select>
+</div>
 <label for="customer_name">Select Customer Name</label>
 <div class="form-group">
   <select name="customer" type="text" class="form-control" placeholder="Search by customer name" id="customer-name-search" data-allow-clear="true">
@@ -205,19 +215,70 @@ $('#customer-name-search').select2({
     }
   },
   templateSelection: (customer) =>customer.name,
-
 });
+      
+$('#company-address-search').select2({
+  tags: true,
+  width : '100%',
+  ajax: {
+    url: '/order/website-address-search',
+    dataType: 'json',
+    delay: 500,
+    data: function (params) {
+      return {
+        q: params.term, // search term
+      };
+    },
+    processResults: function (data, params) {
+      for (var i in data) {
+        data[i].id = data[i].id ? data[i].id : data[i].name;
+      }
+      params.page = params.page || 1;
+
+      return {
+        results: data,
+        pagination: {
+          more: (params.page * 30) < data.total_count
+        }
+      };
+    },
+  },
+  placeholder: 'Search by Company address',
+  escapeMarkup: function (markup) {
+    return markup;
+  },
+  minimumInputLength: 1,
+  templateResult: function (company) {
+    if (company.loading) {
+      return company.website_address;
+    }
+    if (company.website_address) {
+      return "<p><b>Company Address :</b> " + company.website_address +"</p>";
+    }
+  },
+  templateSelection: (company) =>company.website_address,
+ 
+});
+
+
 $('#save_cart_btn').on('click',function(){
   var qty = qty_collector()
   var invoice_no = $('#invoice_no').val()
   var customer_id = $('#customer-name-search').val()
+  var website_address = $('#company-address-search').val()
   $.ajax({
      headers: {
           'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
       },
       url: "/order",
       type: "post",
-      data:{invoice_no:invoice_no,qty:JSON.stringify(qty),customer_id:customer_id,slected_products_ids:JSON.stringify(slected_products_ids)}
+      data:{
+        invoice_no: invoice_no,
+        qty:JSON.stringify(qty),
+        customer_id: customer_id,
+        slected_products_ids: JSON.stringify(slected_products_ids),
+        website_address: website_address
+      }
     }).done(function(response) {
       if(response.code == 200){
         toastr['success']('Success');
