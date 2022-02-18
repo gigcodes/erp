@@ -54,11 +54,11 @@
                     <thead>
                     <tr>
                         <th width="1%">Id</th>
-                        <th width="2%">Store Website</th>
+                        <th width="3%">Store Website</th>
                         <th width="2%">Url Key</th>
                         <th width="5%">URl</th>
                         <th width="15%">Result</th>
-                        <th width="2%">Result Type</th>
+                        <th width="3%">Result Type</th>
                         <th width="2%">Updated by</th>
                     </tr>
                     </thead>
@@ -66,9 +66,9 @@
                                             <?php foreach($records as $record) {  ?>
                                                 <tr>
                                                     <td><?php echo $record->id; ?></td>
-                                                    <td class="Website-task"title="<?php echo $record->store_website_name; ?>"><?php echo $record->store_website_name; ?></td>
-                                                    <td class="Website-task"title="<?php echo $record->url_key; ?>"><?php echo $record->url_key; ?></td>
-                                                    <td class="Website-task"title="<?php echo $record->url; ?>"><?php echo $record->url; ?></td>
+                                                    <td class="Website-task result"title="<?php echo $record->store_website_name; ?>"><?php echo $record->store_website_name; ?></td>
+                                                    <td class="Website-task result"title="<?php echo $record->url_key; ?>"><?php echo $record->url_key; ?></td>
+                                                    <td class="Website-task result"title="<?php echo $record->url; ?>"><?php echo $record->url; ?></td>
                                                     <td class="Website-task result"title="<?php echo $record->result; ?>"><?php echo $record->result; ?></td>
                                                     <td><?php echo $record->result_type; ?></td>
                                                     <td><?php echo $record->updatedBy; ?></td>

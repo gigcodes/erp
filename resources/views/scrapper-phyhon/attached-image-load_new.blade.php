@@ -148,6 +148,9 @@
         websiteName = $(this).data('website').replace('www.', '').replace('.com', '')
 
     })
+    $(document).on("change","#store_website", function(e) {
+        $('#store_website').removeClass('c-error');
+    });
 
 
     $(document).on('submit', '#scrapper-python-form', function(e) {
@@ -167,6 +170,8 @@
         // console.log("+++++++++++++++++++++++++>>>");
         // console.log(store_website);
         console.log(websiteName, 'aaaaaaaaa')
+
+        if(store_website!=""){
 
         $.ajax({
             type: 'POST',
@@ -196,6 +201,10 @@
 
             console.log("Sorry, something went wrong");
         });
+        }else{
+            toastr['error']("Please select store website", 'error');
+            $('#store_website').addClass('c-error');
+        }
 
     })
 </script>

@@ -55,11 +55,10 @@ class HubstuffActivityCommand extends Command
     public function handle()
     {
         $HubstuffCommandLog = new HubstuffCommandLog();
-        $message = [];
         $tasks_controller = new HubstaffActivitiesController;
        
         $users = User::where('payment_frequency', '!=' ,'')->get();
-        $message[] = "Total user for payment frequency is:".count($users);
+        $HubstuffCommandLog->messages= "Total user for payment frequency is:".count($users);
         $today = Carbon::now()->toDateTimeString();
         $HubstuffCommandLog->date = $today;
         $HubstuffCommandLog->day =  Carbon::now()->dayOfWeek;
@@ -76,7 +75,8 @@ class HubstuffActivityCommand extends Command
             $HubstuffCommandLogMessage->hubstuff_command_log_id = $HubstuffCommandLog_id;
             $HubstuffCommandLogMessage->user_id = $user->id;
             $HubstuffCommandLogMessage->frequency = $user->payment_frequency;
-          
+            $HubstuffCommandLogMessage->save();
+            $HubstuffCommandLogMessage_id = $HubstuffCommandLogMessage->id;
             $payment_frequency = $user->payment_frequency;
             $last_mail_sent = $user->last_mail_sent_payment;
 
@@ -102,12 +102,13 @@ class HubstuffActivityCommand extends Command
             $req->request->add(["developer_task_id" => null]);
             $req->request->add(["task_id" => null]);
             $req->request->add(["task_status" => null]);
-            $req->request->add(["start_date" => $to]);
-            $req->request->add(["end_date" => $from]);
+//            $req->request->add(["start_date" => $to]);
+  //          $req->request->add(["end_date" => $from]);
             $req->request->add(["status" => null]);
             $req->request->add(["submit" => "report_download"]);
             $req->request->add(["response_type" => "with_payment_receipt"]);
-
+            $req->request->add(["HubstuffCommandLogMessage_id" =>$HubstuffCommandLogMessage_id]);
+            $get_activity=false;
 
             // $res = $tasks_controller->getActivityUsers($req, $req);
 
@@ -128,15 +129,12 @@ class HubstuffActivityCommand extends Command
                 //$weekEndDate = $day->endOfWeek()->format('Y-m-d H:i');
                 $from = date("Y-m-d ", strtotime("last week monday"));
                 $to = date("Y-m-d ", strtotime("last week sunday"));
-                $req->request->add(["start_date" => $from]);
-                 $req->request->add(["end_date" => $to]);
-                 $HubstuffCommandLogMessage->start_date = $from;
-                 $HubstuffCommandLogMessage->end_date = $to;
-                 
-                 if($today_week->dayOfWeek == Carbon::TUESDAY){
+                
+                if($today_week->dayOfWeek == Carbon::FRIDAY){
                     $HubstuffCommandLogMessage->message =  $HubstuffCommandLogMessage->message ."-->go to monday condition";
-                    dump('Get Report ......');
-                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
+                    $get_activity = true;
+                
+                //    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                       
                 }
 
@@ -147,34 +145,19 @@ class HubstuffActivityCommand extends Command
                 $biweekly++;
                 $HubstuffCommandLogMessage->message = "Go to biweekly condition"; 
                 $today_week = new Carbon();
-                if($today_week->dayOfWeek == Carbon::TUESDAY){
+                if($today_week->dayOfWeek == Carbon::MONDAY){
                     $from = date("Y-m-d ", strtotime("last week friday"));
                     $to = date("Y-m-d ", strtotime("last week sunday"));
-                    $req->request->add(["start_date" => $from]);
-                     $req->request->add(["end_date" => $to]);
-                     $HubstuffCommandLogMessage->start_date = $from;
-                     $HubstuffCommandLogMessage->end_date = $to;
                      $HubstuffCommandLogMessage->message =  $HubstuffCommandLogMessage->message ."-->go to MONDAY condition";
-
-                    dump('Get Report ......');
-                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
+                     $get_activity = true;
+                        //  $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                       
                 }
                 if($today_week->dayOfWeek == Carbon::FRIDAY){
                     $from = date("Y-m-d ", strtotime("last week monday"));
                     $to = date("Y-m-d ", strtotime("last week thursday"));
-                    $req->request->add(["start_date" => $from]);
-                     $req->request->add(["end_date" => $to]);
-                     $HubstuffCommandLogMessage->start_date = $from;
-                     $HubstuffCommandLogMessage->end_date = $to;
-                     $HubstuffCommandLogMessage->message =  $HubstuffCommandLogMessage->message ."-->go to FRIDAY condition";
-                    dump('Get Report ......');
-                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
-                      
+                     $get_activity = true;
                 }
-
-                dump('biweekly => '.$user->name.', Day =>'.$today_week->dayOfWeek.', Least Mail Date => '.($last_mail_sent ?? 'No').', Start Date => '.$to.', End Date => '.$from);
-
 
                
             }
@@ -185,18 +168,15 @@ class HubstuffActivityCommand extends Command
                 $HubstuffCommandLogMessage->message = "Go to fornightly condition";
                 dump('fornightly => '.$user->name.', Today Date =>'.$date_fornightly.', Least Mail Date => '.($last_mail_sent ?? 'No').', Start Date => '.$to.', End Date => '.$from);
 
-                if($date_fornightly == 18){
+                if($date_fornightly == 16){
                     $last_month_first_date = new Carbon('first day of last month');
                     $last_month_last_date =  new Carbon('last day of last month');
                     $from = Carbon::createFromFormat('Y-m-d H:s:i', $last_month_first_date);
                     $to = Carbon::createFromFormat('Y-m-d H:s:i', $last_month_first_date->subdays(-14));
-                    $req->request->add(["start_date" => $from]);
-                    $req->request->add(["end_date" => $to]);
-                    $HubstuffCommandLogMessage->start_date = $from;
-                    $HubstuffCommandLogMessage->end_date = $to;
-
                     $HubstuffCommandLogMessage->message =  $HubstuffCommandLogMessage->message ."-->go to date 16 condition";
-                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
+                    $get_activity = true;
+                 
+                 //   $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                     
                 }
                 if($date_fornightly == 1){
@@ -204,13 +184,9 @@ class HubstuffActivityCommand extends Command
                     $last_month_last_date =  new Carbon('last day of last month');
                     $from = Carbon::createFromFormat('Y-m-d H:s:i', $last_month_first_date->subdays(-15));
                     $to = Carbon::createFromFormat('Y-m-d H:s:i', $last_month_last_date);
-                    dump('fornightly => '.$user->name.', Today Date =>'.$date_fornightly.', Least Mail Date => '.($last_mail_sent ?? 'No').', Start Date => '.$to.', End Date => '.$from);
-                    $req->request->add(["start_date" => $from]);
-                    $req->request->add(["end_date" => $to]);
-                    $HubstuffCommandLogMessage->start_date = $from;
-                    $HubstuffCommandLogMessage->end_date = $to;
                     $HubstuffCommandLogMessage->message =  $HubstuffCommandLogMessage->message ."-->go to date 1 condition";
-                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
+                    $get_activity = true;
+                   // $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                
                 }
 
@@ -219,22 +195,15 @@ class HubstuffActivityCommand extends Command
             if($payment_frequency == "monthly"){
                 $monthly++;
                 $date_monthly = Carbon::now()->format('d');
-                $HubstuffCommandLogMessage->message = "Go to fornightly condition";
+                $HubstuffCommandLogMessage->message = "Go to MONTHLY condition";
                 $last_month_first_date = new Carbon('first day of last month');
                 $last_month_last_date = new Carbon('last day of last month');
                 $from = Carbon::createFromFormat('Y-m-d H:s:i', $last_month_first_date);
                 $to = Carbon::createFromFormat('Y-m-d H:s:i', $last_month_last_date);
-
-                $req->request->add(["start_date" => $from]);
-                $req->request->add(["end_date" => $to]);
-                $HubstuffCommandLogMessage->start_date = $from;
-                $HubstuffCommandLogMessage->end_date = $to;
-                dump('monthly => '.$user->name.', Today Date =>'.$date_monthly.', Least Mail Date => '.($last_mail_sent ?? 'No').', Start Date => '.$from.', End Date => '.$to);
-
                 if($date_monthly == 1){
                     $HubstuffCommandLogMessage->message =  $HubstuffCommandLogMessage->message ."-->go to date 1 condition";
-                    dump('Get Report ......');
-                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
+                    $get_activity = true;
+                   // $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                    
                     
                 }
@@ -242,7 +211,15 @@ class HubstuffActivityCommand extends Command
             }
             
             //dd($res);
-            $HubstuffCommandLogMessage->save();
+               $HubstuffCommandLogMessage->start_date = $from;
+                $HubstuffCommandLogMessage->end_date = $to;
+                $HubstuffCommandLogMessage->save();
+             if($get_activity){
+                $req->request->add(["start_date" => $from]);
+                $req->request->add(["end_date" => $to]);
+             
+                $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
+             }
            
 
             if (isset($res)) {

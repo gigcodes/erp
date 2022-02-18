@@ -13,7 +13,7 @@
                         {!! Form::open(['method' => 'DELETE','route' => ['referfriend.destroy', $refferal->id],'style'=>'display:inline']) !!}
                         <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                         {!! Form::close() !!}
-
+                        <button class="btn btn-image view_error p-0" data-toggle="modal" data-id="{{ $refferal->id }}"> <i class="fa fa-eye"></i> </button>
                     </td>
                 </tr>
 @endforeach

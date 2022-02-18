@@ -55,7 +55,7 @@ class SendRecurringTasks extends Command
             $today_day     = Carbon::now()->format('d');
             $today_month   = Carbon::now()->format('m');
 
-            $tasks = Task::where('is_statutory', 1)->whereNull('is_completed')->whereNotNull('recurring_type')->get();
+            $tasks = Task::where('is_statutory', 1)->where('communication_status', 0)->whereNull('is_completed')->whereNotNull('recurring_type')->get();
 
             $params = [
                 'user_id'  => 6,
