@@ -21,7 +21,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if($estimated_delivery_histories)
+                                @if(isset($estimated_delivery_histories))
                                 @foreach($estimated_delivery_histories as $delDateHistory)
                                 <tr>
                                 <td>{{$delDateHistory->created_at}}</td>

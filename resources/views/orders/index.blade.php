@@ -700,6 +700,8 @@
 @include("partials.modals.customer-address-modal")
 @include("partials.modals.add-invoice-modal")
 @include('partials.modals.return-exchange-modal')
+@include('partials.modals.return-exchange-modal')
+@include('partials.modals.estimated-delivery-date-histories')
 @section('scripts')
 
 
