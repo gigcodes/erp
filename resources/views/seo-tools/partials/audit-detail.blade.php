@@ -28,16 +28,20 @@
 			    <td>Status</td>
 				<td>{{$siteAudit['status']}}</td>
 			</tr>
+			@if($viewTypeName == 'errors')
 			<tr>
 			    <td>Site Audit</td>
                 <td>Errors</td>    
 				<td>{{$siteAudit['errors']}}</td>
 			</tr>
+			@endif
+			@if($viewTypeName == 'warnings')
 			<tr>	
 			    <td>Site Audit</td>			
 			    <td>Warnings</td>  
 				<td>{{$siteAudit['warnings']}}</td>
 			</tr>
+			@endif
 			<tr>
 			    <td>Site Audit</td>				
 			    <td>Notices</td> 
@@ -126,6 +130,7 @@
 				<td>Next audit</td>
 				<td>{{$siteAudit['next_audit']}}</td>
 			</tr>
+			@if($viewTypeName == 'pages_crawled')
 			<tr>
 			    <td>Site Audit</td>
 				<td>Running pages crawled</td>
@@ -146,21 +151,27 @@
 				<td >Pages limit</td>
 				<td>{{$siteAudit['pages_limit']}}</td>
 			</tr>
+			@endif
+			
 			<tr>
 			    <td>Site Audit</td>
 				<td >Total checks</td>
 				<td>{{$siteAudit['total_checks']}}</td>
 			</tr>
+			@if($viewTypeName == 'errors')
 			<tr>
 			    <td>Site Audit</td>
 				<td>Errors delta</td>
 				<td>{{$siteAudit['errors_delta']}}</td>
 			</tr>
+			@endif
+			@if($viewTypeName == 'warnings')
 			<tr>
 			    <td>Site Audit</td>
 				<td >Warnings delta</td>
 				<td>{{$siteAudit['warnings_delta']}}</td>
 			</tr>
+			@endif
 			<tr>
 			    <td>Site Audit</td>
 				<td >Notices delta</td>

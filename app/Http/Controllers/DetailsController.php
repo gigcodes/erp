@@ -10,6 +10,7 @@ use App\SiteAudit;
 use Carbon\Carbon;
 use App\DomainOrganicPage;
 use App\DomainLandingPage;
+use DB;
 
 class DetailsController extends Controller
 {
@@ -21,16 +22,16 @@ class DetailsController extends Controller
 		   return view('seo-tools.compitetorsrecords', compact('keywords', 'id'));
 	}
 	 
-	public function domainDetails($id, $type='organic') {
+	public function domainDetails($id, $type='organic', $viewId ='', $viewTypeName ='') {
 		$now = Carbon::now()->format('Y-m-d');
-		$keywords = DomainSearchKeyword::where('store_website_id', $id)->where('created_at', 'like', '%'.$now.'%')->where('subtype', $type)->get();
-		$domainorganicpage = DomainOrganicPage::where('store_website_id', $id)->where('created_at', 'like', '%'.$now.'%')->get();
-		$domainlandingpage = DomainLandingPage::where('store_website_id', $id)->where('created_at', 'like', '%'.$now.'%')->get();
-		$compitetors = Competitor::where('store_website_id', $id)->where('created_at', 'like', '%'.$now.'%')->get();
+		$keywords = DomainSearchKeyword::where('store_website_id', $id)->where('subtype', $type)->get();
+		$domainorganicpage = DomainOrganicPage::where('store_website_id', $id)->get();
+		$domainlandingpage = DomainLandingPage::where('store_website_id', $id)->get();
+		$compitetors = Competitor::where('store_website_id', $id)->get();
 		if (request()->ajax()) {
-			return view("seo-tools.partials.domain-data", compact('keywords', 'domainorganicpage', 'domainlandingpage', 'compitetors'));
+			return view("seo-tools.partials.domain-data", compact('keywords', 'domainorganicpage', 'domainlandingpage', 'compitetors', 'viewTypeName'));
 		}
-	    return view('seo-tools.records', compact('keywords', 'domainorganicpage', 'domainlandingpage', 'compitetors'));
+	    return view('seo-tools.records', compact('keywords', 'domainorganicpage', 'domainlandingpage', 'compitetors', 'viewTypeName'));
 	}
 	
 	public function backlinkDetails($id) {
@@ -42,11 +43,14 @@ class DetailsController extends Controller
 	}
 	
 	
-	  public function siteAudit(Request $request,$id) {
+	  public function siteAudit(Request $request, $id, $viewId, $viewTypeName) {
 		$websiteId = $id;
 		$now = Carbon::now()->format('Y-m-d');
-	    $siteAudit=SiteAudit::where(['store_website_id'=> $id])->where('created_at', 'like', $now.'%')->first();
-		return view('seo-tools.partials.audit-detail', compact('siteAudit', 'id'))->render();
+	    DB::enableQueryLog(); // Enable query log
+		$siteAudit = SiteAudit::where(['store_website_id'=> $id])->where($viewTypeName, '=', $viewId)->where('created_at', 'like', $now.'%')->first();
+		//dd(DB::getQueryLog()); // Show results of log
+		return view('seo-tools.partials.audit-detail', compact('siteAudit', 'id', 'viewTypeName'))->render();
+		//->where('created_at', 'like', $now.'%')
 	}
 }
 

@@ -12,34 +12,39 @@
             </div>
         </div>
     </div>
-<div class="table-responsive" >	
-	<table class="table table-striped table-bordered"> 
-		<thead>
-			<tr>
-			  <th style="width:7%">Domain report</th>       
-			  <th style="width:7%">
-			  <select id="keyword_type" class=""><option value="organic" selected>Organic</option><option value="paid">Paid</option></select>
-			  </th>       
-			  <th style="width:7%">Keyword</th>       
-			  <th style="width:7%">Position</th>       
-			  <th style="width:7%">Previous Position</th>       
-			  <th style="width:7%">Position Difference</th>       
-			  <th style="width:7%">Search Volume</th>       
-			  <th style="width:7%">CPC</th>       
-			  <th style="width:7%">Url</th>       
-			  <th style="width:7%">Traffic (%)</th>       
-			  <th style="width:7%">Traffic Cost (%)</th>       
-			  <th style="width:7%">Competition</th>       
-			  <th style="width:7%">Number of Results</th>       
-			  <th style="width:7%">Trends</th>       
-		   </tr>
-	   </thead>
-	   <tbody id="keywordData">
-		@include('seo-tools.partials.domain-data')
-	   </tbody>
-	  
-	</table>
-</div>
+	
+@if($viewTypeName =='organic_keywords') 
+	<div class="table-responsive" >	
+		<table class="table table-striped table-bordered"> 
+			<thead>
+				<tr>
+				<th style="width:7%">Domain report</th>       
+				<th style="width:7%">
+				<select id="keyword_type" class=""><option value="organic" selected>Organic</option><option value="paid">Paid</option></select>
+				</th>       
+				<th style="width:7%">Keyword</th>       
+				<th style="width:7%">Position</th>       
+				<th style="width:7%">Previous Position</th>       
+				<th style="width:7%">Position Difference</th>       
+				<th style="width:7%">Search Volume</th>       
+				<th style="width:7%">CPC</th>       
+				<th style="width:7%">Url</th>       
+				<th style="width:7%">Traffic (%)</th>       
+				<th style="width:7%">Traffic Cost (%)</th>       
+				<th style="width:7%">Competition</th>       
+				<th style="width:7%">Number of Results</th>       
+				<th style="width:7%">Trends</th>       
+			</tr>
+		</thead>
+		<tbody id="keywordData">
+			@include('seo-tools.partials.domain-data')
+		</tbody>
+		
+		</table>
+	</div>
+@endif
+
+@if($viewTypeName =='organic_traffic') 
 <div class="table-responsive" >	
 	<table class="table table-striped table-bordered"> 
 		<thead>
@@ -57,6 +62,9 @@
 	  
 	</table>
 </div>
+@endif
+
+@if($viewTypeName =='organic_cost') 
 <div class="table-responsive" >	
 	<table class="table table-striped table-bordered"> 
 		<thead>
@@ -75,6 +83,8 @@
 	  
 	</table>
 </div>	 
+@endif
+
 <!-- Model Add Seo tool START -->
     <div id="compModal" class="modal fade in" role="dialog">
         <div class="modal-dialog">

@@ -158,7 +158,7 @@
 				<div class="seo_text seo_fir col-md-4">
 					<div class="seo_text_inner">
 						<h6>Pages Crawled</h6>
-						<a href="{{route('site-audit-details', $websiteId)}}"><span>{{$siteAudit['pages_crawled']}}</span></a>
+						<a href="{{route('site-audit-details', ['websiteId'=>$websiteId,'viewId'=>$siteAudit['pages_crawled'], 'viewTypeName' => 'pages_crawled'])}}"><span>{{$siteAudit['pages_crawled']}}</span></a>
 					</div>
 				</div>
 				@endif
@@ -166,7 +166,7 @@
 				<div class="seo_text col-md-4">
 					<div class="seo_text_inner">
 						<h6>Errors</h6>
-						<a href="{{route('site-audit-details', $websiteId)}}"><span> {{$siteAudit['errors']}}</span></a>
+						<a href="{{route('site-audit-details', ['websiteId'=>$websiteId,'viewId'=>$siteAudit['errors'], 'viewTypeName' => 'errors'])}}"><span> {{$siteAudit['errors']}}</span></a>
 					</div>
 				</div>
 				@endif
@@ -174,7 +174,7 @@
 				<div class="seo_text col-md-4">
 					<div class="seo_text_inner">
 						<h6>Warnings</h6>
-						<a href="{{route('site-audit-details', $websiteId)}}"><span>{{$siteAudit['warnings']}}</span></a>
+						<a href="{{route('site-audit-details',  ['websiteId'=>$websiteId,'viewId'=>$siteAudit['warnings'], 'viewTypeName' => 'warnings'])}}"><span>{{$siteAudit['warnings']}}</span></a>
 					</div>
 				</div>
 				@endif
@@ -198,7 +198,7 @@
 				<div class="seo_text seo_fir col-md-4">
 					<div class="seo_text_inner">
 						<h6>Keywords</h6>
-						<a href="{{route('domain-details', $websiteId)}}"><span>{{$overview['organic_keywords']}}</span></a>
+						<a href="{{route('domain-details', ['websiteId'=>$websiteId, 'type' => 'organic', 'viewId' => $overview['organic_keywords'], 'viewTypeName' => 'organic_keywords'])}}"><span>{{$overview['organic_keywords']}}</span></a>
 					</div>
 				</div>
 				@endif
@@ -206,7 +206,7 @@
 				<div class="seo_text col-md-4">
 					<div class="seo_text_inner">
 						<h6>Traffic</h6>
-						<a href="{{route('domain-details', $websiteId)}}"><span> {{$overview['organic_traffic']}}</span></a>
+						<a href="{{route('domain-details', ['websiteId'=>$websiteId, 'type' => 'organic', 'viewId'=>$overview['organic_traffic'], 'viewTypeName' => 'organic_traffic'])}}"><span> {{$overview['organic_traffic']}}</span></a>
 					</div>
 				</div>
 				@endif
@@ -214,7 +214,7 @@
 				<div class="seo_text col-md-4">
 					<div class="seo_text_inner">
 						<h6>Traffic cost</h6>
-						<a href="{{route('domain-details', $websiteId)}}"><span>{{$overview['organic_cost']}}</span></a>
+						<a href="{{route('domain-details', ['websiteId'=>$websiteId, 'type' => 'organic', 'viewId'=>$overview['organic_cost'], 'viewTypeName' => 'organic_cost'])}}"><span>{{$overview['organic_cost']}}</span></a>
 					</div>
 				</div>
 				@endif
