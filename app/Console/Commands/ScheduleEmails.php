@@ -405,8 +405,7 @@ class ScheduleEmails extends Command
 						$leaddata['description'] = $flowAction['flow_description'];
 						$leaddata['website'] = $flowAction['website'];
 						$leaddata['modalType'] = $modalType;
-						//$leaddata['task'] = $modalType;
-					   $lead_new[0] = $leaddata;
+					    $lead_new[0] = $leaddata;
    
 					}
 										
