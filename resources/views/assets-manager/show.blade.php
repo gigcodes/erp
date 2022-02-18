@@ -28,7 +28,7 @@
 <div class="row">
   <div class="col-lg-12 margin-tb">
     <div class="pull-left">
-      <h3>Supplier Page</h3>
+      <h3>Supplier Pagexdsfrdgtf</h3>
     </div>
     <div class="pull-right mt-4">
       <a class="btn btn-xs btn-secondary" href="{{ route('assets-manager.index') }}">Back</a>
