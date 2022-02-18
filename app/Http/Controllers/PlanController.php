@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PlanAction;
 use Illuminate\Http\Request;
 use App\StoreWebsiteAnalytic;
 use App\StoreWebsite;
@@ -9,6 +10,7 @@ use App\Plan;
 use App\PlanBasisStatus;
 use App\PlanTypes;
 use App\PlanCategories;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Storage;
 use File;
@@ -250,14 +252,102 @@ class PlanController extends Controller
         return $data;
         //return response()->json(["code" => 200,"message" => 'Your data saved sucessfully.']);
     }
+    public function planActionAddOn(Request $request,$id){
+        $data = Plan::where('id' ,$id)
+            ->with('getPlanActionStrength','getPlanActionWeakness','getPlanActionOpportunity','getPlanActionThreat')->first();
+        $strengths = $data->getPlanActionStrength;
+        $weaknesses = $data->getPlanActionWeakness;
+        $opportunities = $data->getPlanActionOpportunity;
+        $threats = $data->getPlanActionThreat;
+        return view('modal.plan_action', compact('strengths','weaknesses','opportunities','threats'));
+        //return response()->json(["code" => 200,"message" => 'Your data saved sucessfully.']);
+    }
     public function planActionStore(Request $request){
+
         $data = Plan::where('id' ,$request->id)->first();
-        if($data){
-            $data->strength = $request->strength."\n";
-            $data->weakness = $request->weakness."\n";
-            $data->opportunity = $request->opportunity."\n";
-            $data->threat = $request->threat."\n";
-            $data->save();
+
+        //old code
+//        if($data){
+//            $data->strength = $request->strength."\n";
+//            $data->weakness = $request->weakness."\n";
+//            $data->opportunity = $request->opportunity."\n";
+//            $data->threat = $request->threat."\n";
+//            $data->save();
+//            return response()->json(["code" => 200,"message" => 'Your data saved sucessfully.']);
+//        }
+//        return response()->json(["code" => 500,"message" => 'Data not found!']);
+
+        //change code by new requirement
+        if($data) {
+
+            $created_by = \Auth::user()->id;
+            $do_not_delete = array();
+
+            //----------------- Edit Process ----------------------------
+            if(isset($request->plan_action_old)) {
+                $do_not_delete = $request->plan_action_old;
+            }
+
+            $plan_action_old_active = array();
+            if(isset($request->plan_action_old_active)) {
+                $plan_action_old_active = $request->plan_action_old_active;
+            }
+            //update active status
+            PlanAction::whereIn('id',$plan_action_old_active)->where('plan_id',$request->id)->update(['is_active' => 1]);
+            PlanAction::whereNotIn('id',$plan_action_old_active)->where('plan_id',$request->id)->update(['is_active' => 0]);
+
+            //----------------- Edit Process End ----------------------------
+
+            //----------------- Add/Edit Process ----------------------------
+            if (isset($request->plan_action_strength)) {
+                foreach ($request->plan_action_strength as $plan_action_strength){
+                    $plan_action_strengthData = PlanAction::firstOrCreate([
+                        'plan_id' => $request->id,
+                        'plan_action' => $plan_action_strength,
+                        'plan_action_type' => 1,
+                        'created_by' => $created_by
+                    ]);
+                    array_push($do_not_delete,$plan_action_strengthData->id);
+                }
+            }
+            if (isset($request->plan_action_weakness)) {
+                foreach ($request->plan_action_weakness as $plan_action_weakness){
+                    $plan_action_weaknessData = PlanAction::firstOrCreate([
+                        'plan_id' => $request->id,
+                        'plan_action' => $plan_action_weakness,
+                        'plan_action_type' => 2,
+                        'created_by' => $created_by
+                    ]);
+                    array_push($do_not_delete,$plan_action_weaknessData->id);
+                }
+            }
+            if (isset($request->plan_action_opportunity)) {
+                foreach ($request->plan_action_opportunity as $plan_action_opportunity){
+                    $plan_action_opportunityData = PlanAction::firstOrCreate([
+                        'plan_id' => $request->id,
+                        'plan_action' => $plan_action_opportunity,
+                        'plan_action_type' => 3,
+                        'created_by' => $created_by
+                    ]);
+                    array_push($do_not_delete,$plan_action_opportunityData->id);
+                }
+            }
+            if (isset($request->plan_action_threat)) {
+                foreach ($request->plan_action_threat as $plan_action_threat){
+                    $plan_action_threatData = PlanAction::firstOrCreate([
+                        'plan_id' => $request->id,
+                        'plan_action' => $plan_action_threat,
+                        'plan_action_type' => 4,
+                        'created_by' => $created_by
+                    ]);
+                    array_push($do_not_delete,$plan_action_threatData->id);
+                }
+            }
+            //----------------- Add/Edit Process End ----------------------------
+
+            //delete extra plan action
+            PlanAction::whereNotIn('id',$do_not_delete)->where('plan_id',$request->id)->delete();
+
             return response()->json(["code" => 200,"message" => 'Your data saved sucessfully.']);
         }
         return response()->json(["code" => 500,"message" => 'Data not found!']);
