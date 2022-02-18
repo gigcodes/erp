@@ -681,6 +681,29 @@
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
 <script type="text/javascript">
+
+$(document).on('change', '.assign-user', function () {
+            let id = $(this).attr('data-id');
+            let userId = $(this).val();
+            if (userId == '') {
+                return;
+            }
+            $.ajax({
+                url: "{{route('task.AssignTaskToUser')}}",
+                data: {
+                    user_id: userId,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("User assigned successfully!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
+                }
+            });
+
+        });
 	 $("#user_id").select2({
 		ajax: {
 			url: '{{ route('user-search') }}',
