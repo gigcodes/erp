@@ -36,7 +36,9 @@
 		.seo_tabs.nav-tabs>li.active>a, .seo_tabs.nav-tabs>li.active>a:focus, .seo_tabs.nav-tabs>li.active>a:hover {     color: #555;     cursor: default;     background-color: #fff;     border: 1px solid #ddd;     border-bottom-color: transparent;     font-family: 'Poppins', sans-serif;     font-weight: bold; }
 		.row.seo_select {     padding: 30px 0 0 0; }
 		
-		
+		table td {
+			overflow-wrap: break-word;
+		}
 		
 		@media(max-width:1199.5px){
 			div.container{width:95%; max-width:95%;}  
@@ -180,9 +182,9 @@
 							@endif
 							@if(isset($siteAudits[$websiteId]))
 								@php $siteAudit = $siteAudits[$websiteId]; @endphp
-								<td><a href="{{route('site-audit-details', $websiteId)}}"><span>{{$siteAudit['pages_crawled']}}</span></a></td>
-								<td><a href="{{route('site-audit-details', $websiteId)}}"><span> {{$siteAudit['errors']}}</span></a></td>
-								<td><a href="{{route('site-audit-details', $websiteId)}}"><span>{{$siteAudit['warnings']}}</span></a></td>
+								<td><a href="{{route('site-audit-details', ['websiteId'=>$websiteId,'viewId'=>$siteAudit['pages_crawled'], 'viewTypeName' => 'pages_crawled'])}}"><span>{{$siteAudit['pages_crawled']}}</span></a></td>
+								<td><a href="{{route('site-audit-details', ['websiteId'=>$websiteId,'viewId'=>$siteAudit['errors'], 'viewTypeName' => 'errors'])}}"><span> {{$siteAudit['errors']}}</span></a></td>
+								<td><a href="{{route('site-audit-details', ['websiteId'=>$websiteId,'viewId'=>$siteAudit['warnings'], 'viewTypeName' => 'warnings'])}}"><span>{{$siteAudit['warnings']}}</span></a></td>
 							@else
 								<td>---</td>
 								<td>---</td>
@@ -190,9 +192,9 @@
 							@endif
 							@if(isset($domainOverview[$websiteId]))
 								@php $overview = $domainOverview[$websiteId]; @endphp
-								<td><a href="{{route('domain-details', $websiteId)}}"><span>{{$overview['organic_keywords']}}</span></a></td>
-								<td><a href="{{route('domain-details', $websiteId)}}"><span> {{$overview['organic_traffic']}}</span></a></td>
-								<td><a href="{{route('domain-details', $websiteId)}}"><span>{{$overview['organic_cost']}}</span></a></td>
+								<td><a href="{{route('domain-details', ['websiteId'=>$websiteId, 'type' => 'organic', 'viewId' => $overview['organic_keywords'], 'viewTypeName' => 'organic_keywords'])}}"><span>{{$overview['organic_keywords']}}</span></a></td>
+								<td><a href="{{route('domain-details', ['websiteId'=>$websiteId, 'type' => 'organic', 'viewId' => $overview['organic_traffic'], 'viewTypeName' => 'organic_traffic'])}}"><span> {{$overview['organic_traffic']}}</span></a></td>
+								<td><a href="{{route('domain-details', ['websiteId'=>$websiteId, 'type' => 'organic', 'viewId' => $overview['organic_cost'], 'viewTypeName' => 'organic_cost'])}}"><span>{{$overview['organic_cost']}}</span></a></td>
 							@else
 								<td>---</td>
 								<td>---</td>
@@ -200,9 +202,9 @@
 							@endif
 							@if(isset($backlinkreports[$websiteId]))
 								@php $backlinkreport = $backlinkreports[$websiteId]; @endphp
-								<td><a href="{{route('backlink-details', $websiteId)}}"><span>{{$backlinkreport['ascore']}}</span></a></td>
-								<td><a href="{{route('backlink-details', $websiteId)}}"><span> {{$backlinkreport['follows_num']}}</span></a></td>
-								<td><a href="{{route('backlink-details', $websiteId)}}"><span>{{$backlinkreport['nofollows_num']}}</span></a></td>
+								<td><a href="{{route('backlink-details', ['websiteId'=>$websiteId, 'viewId' => $backlinkreport['ascore'], 'viewTypeName' => 'ascore'])}}"><span>{{$backlinkreport['ascore']}}</span></a></td>
+								<td><a href="{{route('backlink-details', ['websiteId'=>$websiteId, 'viewId' => $backlinkreport['follows_num'], 'viewTypeName' => 'follows_num'])}}"><span> {{$backlinkreport['follows_num']}}</span></a></td>
+								<td><a href="{{route('backlink-details', ['websiteId'=>$websiteId, 'viewId' => $backlinkreport['nofollows_num'], 'viewTypeName' => 'nofollows_num'])}}"><span>{{$backlinkreport['nofollows_num']}}</span></a></td>
 							@else
 								<td>---</td>
 								<td>---</td>
@@ -388,26 +390,26 @@
             });
         });
 		function submitSearch(){
-			    src = "{{url('seo/search')}}";
-                var search_website = $('#search_website').val();
-                $.ajax({
-                    url: src,
-					type: "GET",
-                    dataType: "json",
-                    data: {
-                        search_website : search_website,
-                    },
-                    beforeSend: function () {
-					    $("#loading-image").show();
-                    },
-                }).done(function (message) {
-                    $("#loading-image").hide();
-                    $("#content_data").html(message.tbody);
-					var rendered = renderMessage(message, tobottom);
-                }).fail(function (jqXHR, ajaxOptions, thrownError) {
-					$("#loading-image").hide();
-                    alert(jqXHR.message);
-                });
+			src = "{{url('seo/search')}}";
+			var search_website = $('#search_website').val();
+			$.ajax({
+				url: src,
+				type: "GET",
+				dataType: "json",
+				data: {
+					search_website : search_website,
+				},
+				beforeSend: function () {
+					$("#loading-image").show();
+				},
+			}).done(function (message) {
+				$("#loading-image").hide();
+				$("#content_data").html(message.tbody);
+				var rendered = renderMessage(message, tobottom);
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+				$("#loading-image").hide();
+				alert(jqXHR.message);
+			});
 		}
  $(document).on('click', '.expand-row-msg', function () {
     var name = $(this).data('name');

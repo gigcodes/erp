@@ -206,8 +206,10 @@ Route::prefix('seo')->middleware('auth')->group(function () {
 	Route::get('compitetors-details/{id}', 'SeoToolController@compitetorsDetails')->name('compitetors-details');
 	Route::get('site-audit-details/{id}/{viewId?}/{viewTypeName?}', 'DetailsController@siteAudit')->name('site-audit-details');
 	Route::get('compitetorsdetails/{id}', 'DetailsController@compitetorsDetails')->name('compitetorsdetails');
-	Route::get('backlink-details/{id}', 'DetailsController@backlinkDetails')->name('backlink-details');
+	Route::get('backlink-details/{id}/{viewId?}/{viewTypeName?}', 'DetailsController@backlinkDetails')->name('backlink-details');
+    Route::post('backlink-details/search/{id}/{viewId?}/{viewTypeName?}', 'DetailsController@backlinkDetailsSearch')->name('backlink-details-search');
 	Route::get('site-audit/{projectId}', 'SeoToolController@siteAudit');
+    Route::post('site-audit/search/{projectId}/{viewId?}/{viewTypeName?}', 'DetailsController@siteAuditSearch');
 	Route::get('project-list', 'SeoToolController@projectList');
 	Route::post('save-keyword', 'SeoToolController@saveKeyword');
 });

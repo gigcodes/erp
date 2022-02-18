@@ -32,25 +32,121 @@ class DetailsController extends Controller
 			return view("seo-tools.partials.domain-data", compact('keywords', 'domainorganicpage', 'domainlandingpage', 'compitetors', 'viewTypeName'));
 		}
 	    return view('seo-tools.records', compact('keywords', 'domainorganicpage', 'domainlandingpage', 'compitetors', 'viewTypeName'));
+		//->where('created_at', 'like', $now.'%')
 	}
 	
-	public function backlinkDetails($id) {
+	public function backlinkDetails($id, $viewId  = '', $viewTypeName = '') {
 		$now = Carbon::now()->format('Y-m-d');
-		$backlink_domains = BacklinkDomains::where(['store_website_id'=> $id, 'tool_id'=> 1])->where('created_at', 'like', $now.'%')->orderBy('id', 'desc')->get(); 
-		$backlink_anchors = BacklinkAnchors::where(['store_website_id'=> $id, 'tool_id'=> 1])->where('created_at', 'like', $now.'%')->orderBy('id', 'desc')->get();
-		$backlink_indexed_page = BacklinkIndexedPage::where(['store_website_id'=> $id, 'tool_id'=> 1])->where('created_at', 'like', $now.'%')->orderBy('id', 'desc')->get();
-		return view('seo-tools.backlinkrecords', compact('backlink_domains', 'backlink_anchors', 'id', 'backlink_indexed_page'));
+		$backlink_domains = BacklinkDomains::where(['store_website_id'=> $id, 'tool_id'=> '1'])->where('created_at', 'like', $now.'%')->orderBy('id', 'desc')->get(); 
+		$backlink_anchors = BacklinkAnchors::where(['store_website_id'=> $id, 'tool_id'=> '1'])->where('created_at', 'like', $now.'%')->orderBy('id', 'desc')->get();
+		$backlink_indexed_page = BacklinkIndexedPage::where(['store_website_id'=> $id, 'tool_id'=> '1'])->where('created_at', 'like', $now.'%')->orderBy('id', 'desc')->get();
+		return view('seo-tools.backlinkrecords', compact('backlink_domains', 'backlink_anchors', 'id', 'backlink_indexed_page', 'viewId', 'viewTypeName'));
 	}
 	
-	
-	  public function siteAudit(Request $request, $id, $viewId, $viewTypeName) {
+
+	/**
+	 * This function is used to search backlink.
+	 *
+	 * @param Request $request
+	 * @param int $id
+	 * @param int $viewId
+	 * @param string $viewTypeName
+	 * @return JsonResponse
+	 */
+	public function backlinkDetailsSearch(Request $request, $id, $viewId  = '', $viewTypeName = '') 
+	{
+		$now = Carbon::now()->format('Y-m-d');
+		//Search Ascore
+		if ($viewTypeName == 'ascore') {
+			$searchCon = [];
+			if ($request->search_database !='') {
+				$searchCon[] = ['database', 'LIKE','%'.$request->search_database.'%'];
+			}
+			if ($request->search_domain !='') {
+				$searchCon[] = ['domain', 'LIKE','%'.$request->search_domain.'%'];
+			}
+			$backlink_domains = BacklinkDomains::where(['store_website_id'=> $id, 'tool_id'=> 1])->where('created_at', 'like', $now.'%')->where($searchCon)->orderBy('id', 'desc')->get(); 
+			dd($backlink_domains);
+		    return response()->json([
+                'tbody' => view('seo-tools.partials.backlink-data', compact('backlink_domains','viewId', 'viewTypeName'))->render(),
+            ], 200);
+        }
+		
+		//Search Follows
+		if ($viewTypeName == 'follows_num') {
+			$searchCon = [];
+			if ($request->search_database !='') {
+				$searchCon[] = ['database', 'LIKE','%'.$request->search_database.'%'];
+			}
+			if ($request->search_anchor !='') {
+				$searchCon[] = ['anchor', 'LIKE','%'.$request->search_anchor.'%'];
+			}
+			//dd($searchCon);
+			$backlink_anchors = BacklinkAnchors::where(['store_website_id'=> $id, 'tool_id'=> 1])->where('created_at', 'like', $now.'%')->where($searchCon)->orderBy('id', 'desc')->get();
+			
+		    return response()->json([
+                'tbody' => view('seo-tools.partials.backlinkanchor-data', compact('backlink_anchors','viewId', 'viewTypeName'))->render(),
+            ], 200);
+        }
+
+		//search No Follows
+		if ($viewTypeName == 'nofollows_num') {
+			$searchCon = [];
+			if ($request->source_url !='') {
+				$searchCon[] = ['source_url', 'LIKE','%'.$request->source_url.'%'];
+			}
+			if ($request->source_title !='') {
+				$searchCon[] = ['source_title', 'LIKE','%'.$request->source_title.'%'];
+			}
+			//dd($searchCon);
+			$backlink_indexed_page = BacklinkIndexedPage::where(['store_website_id'=> $id, 'tool_id'=> 1])->where('created_at', 'like', $now.'%')->where($searchCon)->orderBy('id', 'desc')->get();
+			
+		    return response()->json([
+                'tbody' => view('seo-tools.partials.backlinkindexedpage-data', compact('backlink_indexed_page','viewId', 'viewTypeName'))->render(),
+            ], 200);
+        }
+		
+		return response()->json([
+			'tbody' => view('seo-tools.backlinkrecords', compact('backlink_domains', 'backlink_anchors', 'id', 'backlink_indexed_page', 'viewId', 'viewTypeName'))->render(),
+		], 200);
+	}
+
+	public function siteAudit(Request $request, $id, $viewId  = '', $viewTypeName = '') {
 		$websiteId = $id;
 		$now = Carbon::now()->format('Y-m-d');
-	    DB::enableQueryLog(); // Enable query log
+	    //DB::enableQueryLog(); // Enable query log
 		$siteAudit = SiteAudit::where(['store_website_id'=> $id])->where($viewTypeName, '=', $viewId)->where('created_at', 'like', $now.'%')->first();
 		//dd(DB::getQueryLog()); // Show results of log
-		return view('seo-tools.partials.audit-detail', compact('siteAudit', 'id', 'viewTypeName'))->render();
+		return view('seo-tools.partials.audit-detail', compact('siteAudit', 'id', 'viewId', 'viewTypeName'))->render();
 		//->where('created_at', 'like', $now.'%')
+	}
+
+	/**
+	 * This function use for search site audit
+	 *
+	 * @param Request $request
+	 * @param int $id
+	 * @param int $viewId
+	 * @param string $viewTypeName
+	 * @return JsonResponse
+	 */
+	public function siteAuditSearch(Request $request, $id, $viewId  = '', $viewTypeName = '') 
+	{
+		$websiteId = $id;
+		$now = Carbon::now()->format('Y-m-d');
+		$searchCon = [];
+		if($request->search_status !='') {
+			$searchCon = ['status', 'LIKE','%'.$request->search_status.'%'];
+		}
+	    if($request->search_name !='') {
+			$searchCon = ['name', 'LIKE','%'.$request->search_name.'%'];
+		}
+	    $siteAudit = SiteAudit::where(['store_website_id'=> $id])->where([[$viewTypeName, '=', $viewId], ['created_at', 'like', $now.'%' ], $searchCon])->first();
+		if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('seo-tools.partials.audit-detail-search', compact('siteAudit', 'viewId', 'viewTypeName'))->render(),
+            ], 200);
+        }
 	}
 }
 
