@@ -96,7 +96,10 @@
          @endif
      </div>
     </td>
-
+<td style="vertical-align: initial;">
+    <i class="fa fa-comments-o" aria-hidden="true"></i>
+    <i class="fa fa-history" aria-hidden="true"></i>
+</td>
     
  
 </tr>

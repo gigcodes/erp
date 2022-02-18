@@ -237,13 +237,14 @@
                 <thead>
                     <tr>
                          <th width="7%">ID</th>
-                        <th width="9%">Subject</th>
-                        <th width="12%">Assigned To</th>
+                        <th width="8%">Subject</th>
+                        <th width="11%">Assigned To</th>
                         <th width="10%">Tracked Time</th>
-                        <th width="9%">Estimated Time</th>
-                        <th width="12%">Delivery Date</th>
+                        <th width="10%">Estimated Time</th>
+                        <th width="13%">Delivery Date</th>
                         <th width="22%">Communication</th>
                         <th width="13%">Status</th>
+                        <th width="5%">Action</th>
                     </tr>
                 </thead>
 
