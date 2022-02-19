@@ -78,7 +78,7 @@ class SiteDevelopmentController extends Controller
         } else {
             $categories->orderBy('title', 'asc');
         }
-        $categories = $categories->paginate(Setting::get('pagination'));
+        $categories = $categories->paginate(10);
 
         foreach ($categories as $category) {
             $finalArray = [];
@@ -133,12 +133,9 @@ class SiteDevelopmentController extends Controller
             ->get();
 
         $allUsers = User::select('id', 'name')->get();
-
+        $users_all = $allUsers;
         $users = User::select('id', 'name')->whereIn('id', $userIDs)->get();
         $store_websites = StoreWebsite::pluck("title","id")->toArray();
-    
-
-
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
                 'tbody' => view('storewebsite::site-development.partials.data', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites'))->render(),
@@ -146,7 +143,7 @@ class SiteDevelopmentController extends Controller
             ], 200);
         }
 
-        return view('storewebsite::site-development.index', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites', 'designDevCategories'));
+        return view('storewebsite::site-development.index', compact('input', 'masterCategories', 'categories', 'users','users_all', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites', 'designDevCategories'));
     }
 
     public function SendTask(Request $request)
@@ -410,7 +407,7 @@ class SiteDevelopmentController extends Controller
 						'_token' => $request->_token,
 						'task_subject' => $task['task_subject'],
 						'task_detail' => $task['task_details'],
-						'task_asssigned_to' => 6,
+						'task_asssigned_to' => $request->task_asssigned_to,
 						'category_id'=>$task['category'],
 						'site_id'=>$site_development_id,
 						'task_type'=>0,
@@ -428,14 +425,31 @@ class SiteDevelopmentController extends Controller
 								'user_id' => \Auth::user()->id,
 								'task_id' => $createdTask['id'],
 
-								'sent_to_user_id' => 6,
+								'sent_to_user_id' => $request->task_asssigned_to,
 
 								'erp_user' => \Auth::user()->id,
 								'contact_id' => \Auth::user()->id,
 								'message' => $attachment['message'],
 
 							]);
-						}						
+						}	
+						if ($task->hasMedia(config('constants.attach_image_tag'))) {
+							foreach ($task->getMedia(config('constants.attach_image_tag')) as $media) {
+								$imageExtensions = ['zip'];
+								$explodeImage = explode('.', $media->getUrl());
+								$extension = end($explodeImage);
+
+								if (in_array($extension, $imageExtensions)) {
+									$createdTask->attachMedia($media, config('constants.media_tags'));
+
+									if(!empty($media->filename)){
+										DB::table('media')->where('filename', $media->filename)->update(['user_id' => Auth::id() ]);
+									}
+								} 
+							}
+						}   
+
+						
 					}
 				}
 			}
@@ -941,6 +955,16 @@ class SiteDevelopmentController extends Controller
         return response()->json(["code" => 200, "taskStatistics" => $merged]);
 
     }
+	
+	 public function taskRelation($site_developement_id)
+    {
+      
+        $othertask = Task::where('site_developement_id', $site_developement_id)->select('id', 'parent_task_id')->get();;
+       
+        return response()->json(["code" => 200, "othertask" => $othertask]);
+
+    }
+	
     public function deleteDevTask(Request $request)
     {
 

@@ -62,14 +62,14 @@
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th width="2%">Name</th>
+                <th width="8%">Name</th>
                 <th width="2%">Platform</th>
-                <th width="2%">Website</th>
+                <th width="8%">Website</th>
                 <th width="8%">User input</th>
                 <th width="30%">Message Box </th>
-                <th width="2%">From</th>
-                <th width="2%">Shortcuts</th>
-                <th width="2%">Action</th>
+                <th width="4%">From</th>
+                <th width="5%">Shortcuts</th>
+                <th width="5%">Action</th>
             </tr>
         </thead>
         <tbody>
@@ -78,9 +78,13 @@
                     <td>{{ $contact->name }}</td>
                     <td>{{ ucfirst($contact->socialConfig->platform) }}</td>
                     <td>{{ $contact->socialConfig->name }}</td>
+                    @if($contact->getLatestSocialContactThread)
                     <td class="log-message-popup"
                         data-log_message="{{ $contact->getLatestSocialContactThread->text }}">
                         {{ substr($contact->getLatestSocialContactThread->text, 0, 15) }}...</td>
+                    @else
+                    <td> <small class="text-secondary"> <small>No conversations found</small> </td>
+                    @endif
                     <td class="message-input p-0 pt-2 pl-3">
                         <div class="cls_textarea_subbox">
                             <div class="btn-toolbar" role="toolbar">
