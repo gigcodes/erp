@@ -163,9 +163,9 @@
             </div>
         </div>
     </div>
-<div class="row">
-    <div class="infinite-scroll" style="width:100%;">
-	<div class="table-responsive mt-2">
+<div class="row pl-3 pr-3">
+    <div class="infinite-scroll pl-3 pr-3" style="width:100%;">
+	<div class="table-responsive mt-2 pl-3 pr-3">
       <table class="table table-bordered order-table table-condensed" style="border: 1px solid #5A6268 !important; color:black;">
         <thead>
         <tr>

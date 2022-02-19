@@ -8,27 +8,27 @@
         <div class="modal-body">
           <form method="post" enctype="multipart/form-data" id="product-template-from">
              <?php echo csrf_field(); ?>
-             <div class="form-group row">
-                <label for="name" class="col-sm-3 col-form-label">Template Name</label>
-                <div class="col-sm-6">
+             <div class="col-sm-6">
+                <div class="form-group">
                    <?php echo Form::text("name",null,["class" => "form-control name"]); ?>
                 </div>
              </div>
-             <div class="form-group row">
-                <label for="no_of_images" class="col-sm-3 col-form-label">No Of Images</label>
-                <div class="col-sm-6">
+             <div class="col-sm-6">
+                <div class="form-group">
                    <?php echo Form::text("no_of_images",0,["class" => "form-control no_of_images"]); ?>
                 </div>
              </div>
-             <div class="form-group row">
-                <label for="no_of_images" class="col-sm-3 col-form-label">Auto generate for products</label>
-                <div class="col-sm-6">
-                   <?php echo Form::checkbox("auto_generate_product",null,null, array("class" => "form-control auto_generate_product")); ?>
+             <div class="form-group row pl-5">
+               <div class="d-flex"  style="justify-content: space-between;">
+                <label for="no_of_images" class=" col-form-label">Auto generate for products</label>
+                <div class="pl-3 pt-2">
+                   <?php echo Form::checkbox("auto_generate_product",null,null, array("class" => " auto_generate_product")); ?>
                 </div>
+              </div>
              </div>
-             <div class="form-group row show-product-image"> </div>
+             <div class="form-group  show-product-image"> </div>
              <div class="form-group row">
-              <div class="col-sm-3 imgUp">
+              <div class="col-sm-3 imgUp pl-5">
                  <div class="imagePreview"></div>
                  <label class="btn btn-primary">
                  Upload<input type="file" name="files[]" class="uploadFile img" value="Upload Photo" style="width: 0px;height: 0px;overflow: hidden;">

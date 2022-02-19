@@ -1301,6 +1301,7 @@ if (!empty($notifications)) {
                                                     <a class="dropdown-item" href="{{ action('ArticleController@index') }}">Article Approval</a>
                                                     <a class="dropdown-item" href="{{ action('ProductController@getSupplierScrappingInfo') }}">Supplier Scrapping Info</a>
                                                     <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">New Dev Task Planner</a>
+                                                    <a class="dropdown-item" href="{{ route('seo-tool') }}">Semrush details</a>
                                                 </li>
                                             </ul>
                                 </li>
@@ -1702,6 +1703,9 @@ if (!empty($notifications)) {
                                                     </li>
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{url('magento-admin-settings')}}">Magento Admin Settings</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{route('auto.refresh.index')}}">Auto Refresh page</a>
