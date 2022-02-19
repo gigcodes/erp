@@ -25,33 +25,33 @@
 <link href="//cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
 <div class="row" id="common-page-layout">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
+        <h2 class="page-heading">{{$title}}<span class="count-text"></span></h2>
     </div>
     <br>
     <div class="col-lg-12 margin-tb">
         <div class="row">
-            <div class="col col-md-12">
-                    <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action" data-toggle="modal" data-target="#colorCreateModal">
+            <div class="col col-md-12 d-flex">
+             
+                    <button style="display: inline-block;" class="btn ml-2 btn-sm btn-image btn-add-action" data-toggle="modal" data-target="#colorCreateModal">
                         <img src="/images/add.png" style="cursor: default;">
                     </button>
-                    <button class="btn btn-secondary push-by-store-website"  data-toggle="modal" data-target="#push-by-store-website-modal" style="width:133px;">Push Storewebsite</button> 
-                    <button class="btn btn-secondary pull-by-store-website"  data-toggle="modal" data-target="#pull-by-store-website-modal" style="width:133px;">Pull Storewebsite</button>
-					<button type="button" title="Pull logs" data-id="" class="btn btn-secondary btn-pullLogs" style="width:133px;">
-										Pull Logs
-									</button>
-            </div>
+                    <button class="btn custom-button ml-2 push-by-store-website"  data-toggle="modal" data-target="#push-by-store-website-modal" style="width:133px;">Push Storewebsite</button> 
+                    <button class="btn custom-button ml-2 pull-by-store-website"  data-toggle="modal" data-target="#pull-by-store-website-modal" style="width:133px;">Pull Storewebsite</button>
+					<button type="button" title="Pull logs" data-id="" class="btn ml-2 custom-button btn-pullLogs" style="width:133px;">Pull Logs</button>
+               
+            
                         <form class="form-inline message-search-handler" method="get">
-                            <div class="col-md-2">
+                            <div class="ml-2">
                                 <div class="form-group">
                                     <?php echo Form::select("language",$languagesList,request("language"),["class"=> "form-control","placeholder" => "Select Language"]) ?>
                                 </div>
                             </div>     
-                            <div class="col-md-3">
+                            <div class="ml-2">
                                 <div class="form-group">
-                                    <?php echo Form::select("store_website_id",$storeWebsites,request("store_website_id"),["class"=> "form-control","placeholder" => "Select Store website"]) ?>
+                                    <?php echo Form::select("store_website_id",$storeWebsites,request("store_website_id"),["class"=> "form-control selectbox","placeholder" => "Select Store website"]) ?>
                                 </div>
                             </div>
-                            <div class="col-md-1">
+                            <div class="ml-2">
                                 <div class="form-group">
                                     <select name="is_pushed" class="form-control">
                                         <option value="">Is Pushed</option>
@@ -60,7 +60,7 @@
                                    </select>    
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="ml-2">
                                 <div class="form-group">
                                     <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
                                 </div>
@@ -73,6 +73,7 @@
                                 </div>
                             </div>
                         </form>
+                    </div>
         </div>
         <div class="row">
             <div class="col-md-12">
@@ -103,7 +104,7 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th>Id</th>
+                                <th >Id</th>
                                 <th>Content</th>
 								<th>URL</th>
 								<th>Result</th>
@@ -240,6 +241,14 @@
         });
     }
 	
+	function openUrl(url) {
+		if (url && !url.match(/^http([s]?):\/\/.*/)) {
+			var urlToOpen = 'http://'+url;
+		} else {
+			var urlToOpen = url;
+		}
+		window.open(urlToOpen, '_blank');
+	}
 	
 </script>
 @endsection 

@@ -32,7 +32,7 @@ use App\Exports\HubstaffNotificationReport;
 use Mail;
 use App\Mails\Manual\HubstuffActivitySendMail;
 use App\Mails\Manual\DocumentEmail;
-
+use App\Loggers\HubstuffCommandLogMessage;
 
 class HubstaffActivitiesController extends Controller
 {
@@ -430,7 +430,7 @@ class HubstaffActivitiesController extends Controller
     public function getActivityUsers(Request $request, $params = null, $where = null)
     {  
        
-       
+        
         if($params !== null){
             $params = $params->request->all();
             
@@ -452,7 +452,9 @@ class HubstaffActivitiesController extends Controller
 
         if($where == 'HubstuffActivityCommand')
         {
-          
+            if(isset($params['HubstuffCommandLogMessage_id'])){
+                $hubstufflog = HubstuffCommandLogMessage::find($params['HubstuffCommandLogMessage_id']);
+            }
 
             $title      = "Hubstaff Activities";
             $start_date    = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
@@ -460,8 +462,13 @@ class HubstaffActivitiesController extends Controller
             $task_status   = $request->task_status ? $request->task_status : null;
             $user_id    = $request->user_id ? $request->user_id : null;
             
-            $tasks         = PaymentReceipt::with('chat_messages','user')->where('user_id', $user_id)->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date)->get();PaymentReceipt::with('chat_messages','user')->where('user_id', $user_id)->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date)->get();
+            $tasks         = PaymentReceipt::with('chat_messages','user')->where('user_id', $user_id)->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date)->get();
+            
             $taskIds= PaymentReceipt::with('chat_messages','user')->where('user_id', $user_id)->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date)->pluck('id');
+           if($hubstufflog){
+                $hubstufflog->message =   $hubstufflog->message . "-->get payment receipt_in  date ".json_encode($taskIds);
+                $hubstufflog->save();
+            }
 //            dd($taskIds);
             foreach ($tasks as $task) {
                 $task->user;
@@ -1003,7 +1010,7 @@ class HubstaffActivitiesController extends Controller
 
         //START - Purpose : set data for download  - DEVATSK-4300
         if( $request->submit ==  'report_download' ){
-
+            
             $total_amount = 0;
             $total_amount_paid = 0;
             $total_balance = 0;
@@ -1011,6 +1018,10 @@ class HubstaffActivitiesController extends Controller
                 $total_amount += $value['amount'] ?? 0;
                 $total_amount_paid += $value['amount_paid'] ?? 0;
                 $total_balance += $value['balance'] ?? 0;
+            }
+            if($hubstufflog){
+                $hubstufflog->message =   $hubstufflog->message . "-->activityUsers ".json_encode($activityUsers);
+                $hubstufflog->save();
             }
 
             $file_data = $this->downloadExcelReport($activityUsers);
@@ -1040,7 +1051,21 @@ class HubstaffActivitiesController extends Controller
                 'total_balance' => round($total_balance,2),
                 'payment_date' => $payment_date,
             ]);
-            
+
+            if($hubstufflog){
+                $hubstufflog->message =   $hubstufflog->message . "-->PayentMailData ".json_encode([
+                    'user_id' => $user_id,
+                    'start_date' => $start_date,
+                    'end_date' => $end_date,
+                    'file_path' => $storage_path,
+                    'total_amount' => round($total_amount,2),
+                    'total_amount_paid' => round($total_amount_paid,2),
+                    'total_balance' => round($total_balance,2),
+                    'payment_date' => $payment_date,
+                ]);
+                $hubstufflog->save();
+            }
+          
             if(isset($request->response_type) && $request->response_type =="with_payment_receipt"){
                 return ["receipt_ids"=>$taskIds,"file_data"=>$file_data,"start_date"=>$start_date,"end_date"=>$end_date];
             }

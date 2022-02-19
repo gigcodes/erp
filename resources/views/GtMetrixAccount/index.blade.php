@@ -9,31 +9,33 @@
         max-width: 1250px !important;
     }
 </style>
+<div class="row">
+    <div class="col-md-12">
+         <h2 class="page-heading">GTMetrix Accounts</h2>
+    </div>
+</div>
 
-<div class="row m-4" style="margin-top: 5rem;">
+<div class="row mt-1 pr-5" style="margin-top: 5rem;">
     <div class="col-lg-12 margin-tb">
-        <div class="pull-left">
-        <h2 class="font-weight-bold">GTMetrix Accounts</h2>
-        </div>
         <div class="pull-right">
-            <a class="btn btn-success" href="{{ route('account.create') }}"> Create New Account</a>
+            <button  class="btn btn-secondary new-plan" data-toggle="modal" data-target="#create_gt_metrix_ac"> Create New Account</button>
         </div>
     </div>
 </div>
 
 @include('partials.flash_messages')
 
-<div class="row m-4">
+<div class="row mt-1 pr-5 pl-5">
     <div class="col-lg-12 margin-tb">
         <div class="panel-group" style="margin-bottom: 5px;">
             <div class="panel mt-3 panel-default table-responsive">
-                <table class="table table-bordered table-striped site-gtMetrix-account">
+                <table class="table table-bordered table-striped site-gtMetrix-account"style="table-layout: fixed;">
                     <thead>
                         <tr>
-                            <th>Email</th>
-                            <th>Password</th>
-                            <th>Api Keys</th>
-                            <th>Actions</th>
+                            <th width="18%">Email</th>
+                            <th width="16%">Password</th>
+                            <th width="30%">Api Keys</th>
+                            <th width="4%">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -42,20 +44,20 @@
                             <tr>
                                 <td>{{ $key->email }}</td>
                                 <td>{{ $key->password }}</td>
-                                <td>{{ $key->account_id }}</td>
+                                <td class="Website-task" title="{{ $key->account_id }}">{{ $key->account_id }}</td>
                                 <td>
 
                                     <!-- <a href="{{ route('account.show',$key->id) }}" title="show">
                                         <i class="fa fa-eye text-success  fa-lg"></i>
                                     </a> -->
 
-                                    <a href="{{ route('account.edit',$key->id) }}">
+                                    <a href="{{ route('account.edit',$key->id) }}"style="color: #aaaa;">
                                         <i class="fa fa-pencil  fa-lg"></i>
                                     </a>
 
                                     {!! Form::open(['method' => 'DELETE','route' => ['account.destroy', $key->id],'style'=>'display:inline']) !!} 
                                     <button type="submit"  style="border: none; background-color:transparent;">
-                                        <i class="fa fa-trash fa-lg text-danger"></i>
+                                        <i class="fa fa-trash fa-lg text-danger"style="color: gray !important;"></i>
                                     </button>
                                     {!! Form::close() !!}
                                 </td>
@@ -74,6 +76,55 @@
     <div class="modal-dialog modal-lg" id="account_return_summary_edit_list">
     </div>
     </div>
+
+<!-- The Modal -->
+<div class="modal fade" id="create_gt_metrix_ac" tabindex="-1" role="dialog" aria-labelledby="create_gt_metrix_ac" aria-hidden="true">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="create_gt_metrix_ac">Create New GT Metrix Account</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        {!! Form::open(array('route' => 'account.store','method'=>'POST')) !!}
+        <div class="modal-body">
+            <div class="container-fluid">
+                <div class="row subject-field">
+                    <div class="row m-4">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                {!! Form::text('email', null, array('placeholder' => 'Email','class' => 'form-control')) !!}
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                {!! Form::text('password', null, array('placeholder' => 'Password','class' => 'form-control')) !!}
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                {!! Form::text('account_id', null, array('placeholder' => 'Api Key','class' => 'form-control')) !!}
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                {!! Form::select('status', ["active" => "Active" , "error" => "Error", "in-active" => "In-Active"],request('status'), array('class' => 'form-control')) !!}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-secondary">Save</button>
+        </div>
+{!! Form::close() !!}
+    </div>
+  </div>
+</div>
 
 @section('scripts')
 <script>
