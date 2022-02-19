@@ -421,7 +421,7 @@
     </div>
 
 
-    <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">Customer Page
+    <h2 class="page-heading flex">Customer Page</h2>
         <div class="margin-tb" style="flex-grow: 1;">
             <div class="pull-right ">
                 @if(isset($searchedMessages) && $searchedMessages)
@@ -508,7 +508,7 @@
 </div>
 
 <div style="margin: 0 10px" class="row">
-  <div class="col-xs-12 col-md-4 border">
+  <div class="col-xs-12 col-md-4 border" style="height: 35%;">
     <!-- The Modal -->
     <div id="preview-image-model" class="modal col-6" data-backdrop="false">
       <span class="close">&times;</span>
@@ -523,16 +523,16 @@
             <div class="d-flex">
               @if ($customer->is_priority == 1)
                 <div class="form-group">
-                  <button type="button" class="btn btn-image priority-customer pl-0" data-id="{{ $customer->id }}"><img src="/images/customer-priority.png" /></button>
+                  <button type="button" class="btn btn-image priority-customer mt-2 pl-0" data-id="{{ $customer->id }}"><img src="/images/customer-priority.png" /></button>
                 </div>
               @else
                 <div class="form-group">
-                  <button type="button" class="btn btn-image priority-customer pl-0" data-id="{{ $customer->id }}"><img src="/images/customer-not-priority.png" /></button>
+                  <button type="button" class="btn btn-image priority-customer pl-0 mt-2" data-id="{{ $customer->id }}"><img src="/images/customer-not-priority.png" / ></button>
                 </div>
               @endif
 
               <div class="form-group form-inline">
-                <input type="text" name="name" id="customer_name" class="form-control input-sm" placeholder="Name" value="{{ $customer->name }}">
+                <input type="text" name="name" id="customer_name" class="form-control input-sm" placeholder="Name" value="{{ $customer->name }}"style="    width: 250%">
               </div>
 
               <div class="form-group pl-3 d-flex">
@@ -559,10 +559,18 @@
                 <button type="button" class="btn btn-xs btn-image" data-toggle="modal" data-target="#advancePaymentModal"><img src="/images/advance-link.png" /></button>
                 <button type="button" class="btn btn-xs btn-xs btn-image" data-toggle="modal" data-target="#sendContacts"><img src="/images/details.png" /></button>
                 <a class="d-flex" style="align-items: center" href="{{ route('customer.download.contact-pdf',[$customer->id]) }}" target="_blank">
-                  <button type="button" class="btn btn-xs btn-image"><img src="/images/download.png" /></button>
+                  <button type="button" class="btn btn-xs btn-image"><img src="/images/download.png" / style="filter: grayscale(1)"></button>
                 </a>
 
                 @include('customers.partials.modal-advance-link')
+              </div>
+                    <div class="form-group form-inline">
+                <input type="number" id="customer_phone" name="phone" class="form-control  input-sm" placeholder="910000000000" value="{{ $customer->phone }}">
+
+                @if (strlen($customer->phone) != 12 || !preg_match('/^[91]{2}/', $customer->phone))
+                  <span class="badge badge-danger ml-3" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
+                @endif
+                {{-- <strong>Phone:</strong> <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $customer->phone }}</span> --}}
               </div>
             </div>
 
@@ -572,33 +580,22 @@
 
               <span class="text-success change_status_message" style="display: none;">Successfully updated DND status</span>
       			</div> --}}
-
-              <div class="form-group form-inline">
-                <input type="number" id="customer_phone" name="phone" class="form-control input-sm" placeholder="910000000000" value="{{ $customer->phone }}">
-
-                @if (strlen($customer->phone) != 12 || !preg_match('/^[91]{2}/', $customer->phone))
-                  <span class="badge badge-danger ml-3" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
-                @endif
-                {{-- <strong>Phone:</strong> <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $customer->phone }}</span> --}}
-              </div>
-
-            <div class="form-group">
+            <div class="form-group col-md-3 p-0">
               {{-- <strong>Address:</strong> {{ $customer->address }} --}}
-              <textarea name="address" id="customer_address" class="form-control input-sm" rows="3" cols="80" placeholder="Address">{{ $customer->address }}</textarea>
+              <textarea name="address" id="customer_address" class="form-control Website-task input-sm" style="height: 34px;" rows="3" cols="80" placeholder="Address">{{ $customer->address }}</textarea>
             </div>
-
+              <div class="form-group col-md-3 pr-0">
               @if (!$customer->customerAddress->isEmpty())
                   @foreach ($customer->customerAddress as $address)
                       @if($address->address_type && $address->company)
                       <label class="pl-1">{{$address->address_type}}</label>
-                      <textarea name="address" class="form-control input-sm mb-4" rows="2" cols="80" placeholder="Address">{{$address->company . ','}} {{$address->street . ','}} {{$address->region }} {{ '-' . $address->postcode . ','}} {{$address->country_id}}
+                      <textarea name="address" class="form-control input-sm mb-4" style="height: 34px;" rows="2" cols="80" placeholder="Address">{{$address->company . ','}} {{$address->street . ','}} {{$address->region }} {{ '-' . $address->postcode . ','}} {{$address->country_id}}
                       </textarea>
                       @endif
                   @endforeach
                @endif
-
-              <button class="btn btn-secondary add-address mb-4" data-toggle="modal" data-target="#exampleModal">Add Address +</button>
-
+              <button class="btn btn-secondary add-address " data-toggle="modal" data-target="#exampleModal" style="height:34px !important;     width: 110%;">Add Address +</button>
+             </div>
               <div class="modal" id="exampleModal" tabindex="-1" role="dialog">
                   <div class="modal-dialog" role="document">
                       <div class="modal-content">
@@ -610,29 +607,28 @@
                           </div>
                           <div class="modal-body">
                               <form id="add_customer_address">
-
                                   @csrf
                                   <input type="hidden" name="customer_id" value="{{$customer->id}}">
                                   <div class="row">
-                                      <div class="col-md-6">
+                                      <div class="col-md-3">
                                           <div class="form-group">
                                               <input type="number" name="entity_id" class="form-control input-sm" placeholder="Entitty Id">
                                           </div>
                                       </div>
-                                      <div class="col-md-6">
+                                      <div class="col-md-3">
                                           <div class="form-group">
                                               <input type="number" name="parent_id"  class="form-control input-sm" placeholder="Parent Id">
                                           </div>
                                       </div>
                                   </div>
                                   <div class="row">
-                                      <div class="col-md-6">
+                                      <div class="col-md-3">
                                           <div class="form-group">
                                               <input type="text" name="address_type" class="form-control input-sm" placeholder="Add address Type">
                                           </div>
 
                                       </div>
-                                      <div class="col-md-6">
+                                      <div class="col-md-3">
                                           <div class="form-group">
                                               <input type="text" name="region" class="form-control input-sm" placeholder="Region">
                                           </div>
@@ -640,49 +636,49 @@
                                       </div>
                                   </div>
                                   <div class="row">
-                                      <div class="col-md-6">
+                                      <div class="col-md-3">
                                           <div class="form-group">
                                               <input type="number" name="region_id"  class="form-control input-sm" placeholder="Region Id">
                                           </div>
                                       </div>
-                                      <div class="col-md-6">
+                                      <div class="col-md-3">
                                           <div class="form-group">
                                               <input type="text" name="postcode" class="form-control input-sm" placeholder="Postcode">
                                           </div>
                                       </div>
                                   </div>
                                   <div class="row">
-                                      <div class="col-md-6">
+                                      <div class="col-md-3">
                                           <div class="form-group">
                                               <input type="text" name="firstname"  class="form-control input-sm" placeholder="First Name">
                                           </div>
                                       </div>
-                                      <div class="col-md-6">
+                                      <div class="col-md-3">
                                           <div class="form-group">
                                               <input type="text" name="middlename"  class="form-control input-sm" placeholder="Middlename">
                                           </div>
                                       </div>
                                   </div>
                                   <div class="row">
-                                      <div class="col-md-6">
+                                      <div class="col-md-3">
                                           <div class="form-group">
                                               <input type="text" name="company" class="form-control input-sm" placeholder="Company name">
                                           </div>
 
                                       </div>
-                                      <div class="col-md-6">
+                                      <div class="col-md-3">
                                           <div class="form-group">
                                               <input type="text" name="country_id"  class="form-control input-sm" placeholder="Country">
                                           </div>
                                       </div>
                                   </div>
                                   <div class="row">
-                                      <div class="col-md-4">
+                                      <div class="col-md-3">
                                           <div class="form-group">
                                               <input type="number" name="telephone"  class="form-control input-sm" placeholder="Telephone">
                                           </div>
                                       </div>
-                                      <div class="col-md-4">
+                                      <div class="col-md-3">
                                           <div class="form-group">
                                               <select name="prefix" id="filter" class="form-control form-control-sm">
                                                   <option value="">Select Prefix..</option>
@@ -692,60 +688,42 @@
                                               </select>
                                           </div>
                                       </div>
-                                      <div class="col-md-4">
+                                      <div class="col-md-3">
                                           <div class="form-group">
                                               <input type="text" name="street"  class="form-control input-sm" placeholder="Street">
                                           </div>
                                       </div>
                                   </div>
-
-
-                                <div style="text-align: right;" class="mt-4">
+                                <div class="mt-4 col-md-3" style="text-align: right;">
                                     <button class="btn btn-primary add_customer_address-btn">Save changes</button>
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                 </div>
-
-
-
-
                               </form>
                           </div>
                       </div>
                   </div>
               </div>
-
-
-
-            <div class="row">
-              <div class="col-6">
-                <div class="form-group">
+              
+                <div class="form-group col-md-3">
                   <input type="text" name="city" id="customer_city" class="form-control input-sm" placeholder="City" value="{{ $customer->city }}">
                 </div>
-              </div>
-
-              <div class="col-6">
-                <div class="form-group">
+                <div class="form-group col-md-3 pr-0">
                   <input type="text" name="country" id="customer_country" class="form-control input-sm" placeholder="Country" value="{{ $customer->country }}">
                 </div>
-              </div>
-
-              <div class="col-6">
-                <div class="form-group">
+                <div class="form-group col-md-3 p-0">
                   <input type="number" name="pincode" id="customer_pincode" class="form-control input-sm" placeholder="91111" value="{{ $customer->pincode }}">
                 </div>
-              </div>
-            </div>
-
-              <div class="form-group">
+              
+              <div class="form-group col-md-3">
                 {{-- <strong>Email:</strong> <a href="#" class="btn-link" data-toggle="modal" data-target="#emailSendModal">{{ $customer->email }}</a> --}}
                 <input type="email" name="email" id="customer_email" class="form-control input-sm" placeholder="Email" value="{{ $customer->email }}">
               </div>
 
-              <div class="form-group">
+              <div class="form-group col-md-3">
                 <input type="text" name="insta_handle" id="customer_insta_handle" class="form-control input-sm" placeholder="Instagram Handle" value="{{ $customer->insta_handle }}">
               </div>
 
-              <div class="form-group">
+              <div class="form-group col-md-3 pr-0">
         				<select name="whatsapp_number" class="form-control input-sm" id="whatsapp_change">
         					<option value>Whatsapp Number</option>
 
@@ -756,11 +734,9 @@
 
                 <span class="text-success change_status_message" style="display: none;">Successfully changed whatsapp number</span>
         			</div>
-
             <div class="row">
-              <div class="col-6">
-                <div class="form-group">
-                  <select name="rating" class="form-control input-sm" id="customer_rating">
+                <div class="form-group col-md-3">
+                  <select name="rating" class="form-control " id="customer_rating">
                     <option value>Select Rating</option>
                     <option value="1" {{ '1' == $customer->rating ? 'selected' : '' }}>1</option>
                     <option value="2" {{ '2' == $customer->rating ? 'selected' : '' }}>2</option>
@@ -774,11 +750,8 @@
                     <option value="10" {{ '10' == $customer->rating ? 'selected' : '' }}>10</option>
                   </select>
                 </div>
-              </div>
-
-              <div class="col-6">
-                <div class="form-group">
-                  <select class="form-control input-sm" name="shoe_size" id="customer_shoe_size">
+                <div class="form-group col-md-3">
+                  <select class="form-control" name="shoe_size" id="customer_shoe_size">
                     <option value="">Select a Shoe Size</option>
                     <option value="34" {{ $customer->shoe_size == '34'? 'selected' : '' }}>34</option>
                     <option value="34.5" {{ $customer->shoe_size == '34.5'? 'selected' : '' }}>34.5</option>
@@ -803,25 +776,21 @@
                     <option value="44" {{ $customer->shoe_size == '44' ? 'selected' : ''}}>44</option>
                   </select>
                 </div>
-              </div>
-
-              <div class="col-6">
+              <div class="col-6 col-md-3">
                 <div class="form-group">
-                  <input type="text" name="clothing_size" id="customer_clothing_size" class="form-control input-sm" placeholder="Clothing Size" value="{{ $customer->clothing_size }}">
+                  <input type="text" name="clothing_size" id="customer_clothing_size" class="form-control " placeholder="Clothing Size" value="{{ $customer->clothing_size }}">
                 </div>
               </div>
-              <div class="col-6">
+              <div class="col-6 col-md-3">
                 <div class="form-group">
-                  <select class="form-control input-sm" name="gender" id="customer_gender">
+                  <select class="form-control " name="gender" id="customer_gender">
                     <option value="female" {{ 'female' == $customer->gender ? 'selected' : '' }}>Female</option>
                     <option value="male" {{ 'male' == $customer->gender ? 'selected' : '' }}>Male</option>
                   </select>
                 </div>
               </div>
-              <div class="col-12">
-                <div class="form-group">
-                  <label>Whatsapp No :</label>
-                  <select class="form-control change-whatsapp-no" data-customer-id="<?php echo $customer->id; ?>" data-type="whatsapp_number">
+                <div class="form-group col-md-3">
+                  <select class="form-control change-whatsapp-no" data-customer-id="<?php echo $customer->id; ?>" data-type="whatsapp_number" placeholder="Whatsapp No :">
                       <option value="">-No Selected-</option>
                       @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
                           @if($number != "0")
@@ -830,9 +799,8 @@
                       @endforeach
                   </select>
                 </div>
-                <div class="form-group">
-                    <label>Broadcast No :</label>
-                    <select class="form-control change-whatsapp-no" data-customer-id="<?php echo $customer->id; ?>" data-type="broadcast_number">
+                <div class="form-group col-md-3">
+                    <select class="form-control change-whatsapp-no" data-customer-id="<?php echo $customer->id; ?>" data-type="broadcast_number" placeholder="Broadcast No :">
                         <option value="">-No Selected-</option>
                         @foreach($broadcastsNumbers as $number => $apwCate)
                             @if($number != "0")
@@ -841,37 +809,27 @@
                         @endforeach
                     </select>
                 </div>
-              </div>
-              <div class="col-9">
-                <div class="form-group">
-                  <label>Broadcast Number</label>
-                  <input type="text"  class="form-control input-sm" value="{{ $customer->broadcast_number }}" disabled>
+                <div class="form-group col-md-3">
+                  <input type="text"  class="form-control input-sm" style="background:none;"placeholder="Broadcast Number" value="{{ $customer->broadcast_number }}" disabled>
                 </div>
-              </div>
-              <div class="col-9">
-                <div class="form-group">
-                  <label>Registration Source</label>
-                  <select class="form-control update-customer-field select2" data-customer-id="<?php echo $customer->id; ?>" data-type="store_website_id">
+                <div class="form-group col-md-3">
+                  <select class="form-control update-customer-field select2" data-customer-id="<?php echo $customer->id; ?>" data-type="store_website_id" placeholder="Registration Source">
                       <option value="">-No Selected-</option>
                       @foreach(\App\StoreWebsite::all()->pluck("website","id")->toArray() as $r => $sWeb)
                           <option {{ ($r == $customer->store_website_id && $customer->store_website_id != '') ? "selected='selected'" : "" }} value="{{ $r }}">{{ $sWeb }}</option>
                       @endforeach
                   </select>
                 </div>
-              </div>
-              <div class="col-9">
-                <div class="form-group">
-                  <label>Registration User</label>
-                  <select class="form-control update-customer-field select2" data-customer-id="<?php echo $customer->id; ?>" data-type="user_id">
+                <div class="form-group col-md-6">
+                  <select class="form-control update-customer-field select2" placeholder="Registration User" data-customer-id="<?php echo $customer->id; ?>" data-type="user_id">
                       <option value="">-No Selected-</option>
                       @foreach(\App\User::all()->pluck("name","id")->toArray() as $r => $sWeb)
                           <option {{ ($r == $customer->user_id && $customer->user_id != '') ? "selected='selected'" : "" }} value="{{ $r }}">{{ $sWeb }}</option>
                       @endforeach
                   </select>
                 </div>
-              </div>
-               <div class="col-3 mb-2 d-flex align-bottom" style="align-items: flex-end">
-                <div class="form-group">
+               <div class="">
+                <div class="form-group col-md-1">
                  <label class="switch" style="margin: 0px">
                     @if(isset($customer->customerMarketingPlatformActive) && $customer->customerMarketingPlatformActive->active == 1)
                     <input type="checkbox" class="checkboxs" checked value="{{ $customer->id }}">
@@ -882,17 +840,15 @@
                   </label>
                 </div>
               </div>
-              <div class="col-6">
-                <div class="form-group">
+                <div class="form-group col-md-6">
                   <strong>Created at:</strong> {{ Carbon\Carbon::parse($customer->created_at)->format('d-m H:i') }}
                 </div>
-              </div>
             </div>
 
             <div class="form-group">
-              <button type="button" id="updateCustomerButton" class="btn btn-xs btn-secondary">Save</button>
+              <button type="button" id="updateCustomerButton" class="btn btn-xs custom-button btn-secondary">Save</button>
             </div>
-
+      
             @if ($customer->credit > 0)
               <div class="form-group">
                 <strong>Credit:</strong> {{ $customer->credit }}
@@ -1803,138 +1759,95 @@
   <div class="col-xs-12 col-md-4 mb-3 middle-sec">
     <div class="border pl-4">
       <form action="{{ route('whatsapp.send', 'customer') }}" method="POST" enctype="multipart/form-data">
-        <div class="d-flex">
+        <div class="row">
+          <div class="col-md-12">
           @csrf
-
-          <div class="form-group mb-2">
+          <div class="form-group mb-2 ">
             <div class="upload-btn-wrapper btn-group pr-0 pl-0 d-flex">
-              <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
-              <input type="file" name="image" />
-
-              <button type="submit" class="btn btn-image px-1 send-communication received-customer"><img src="/images/filled-sent.png" /></button>
+                <input type="file" name="image" />
+               
+                  <div class="form-group flex-fill mr-3 mb-2">
+                    <textarea  class="form-control mb-3 hidden" style="height: 110px;" name="body" placeholder="Received from Customer"></textarea>
+                    <input type="hidden" name="status" value="0" />
+                </div>
             </div>
           </div>
-
-          <div class="form-group flex-fill mr-3 mb-2">
-            <button type="button" id="customerMessageButton" class="btn btn-xs mt-2 btn-image"><img src="/images/support.png" /></button>
-            <textarea  class="form-control mb-3 hidden" style="height: 110px;" name="body" placeholder="Received from Customer"></textarea>
-            <input type="hidden" name="status" value="0" />
-          </div>
-
           {{-- <div class="form-group">
             <div class="upload-btn-wrapper">
               <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
               <input type="file" name="image" />
-            </div>
+            </div>col-xs-12 col-md-4 mb-3 middle-sec
           </div> --}}
-        </div>
-
       </form>
 
       <form action="{{ route('whatsapp.send', 'customer') }}" method="POST" enctype="multipart/form-data">
-        <div id="paste-container" style="width: 200px;">
-
-        </div>
-
-        <div class="d-flex">
           @csrf
-
-
-
-          <div class="form-group flex-fill mb-0">
-            <textarea id="message-body" class="form-control mb-3 message-strong" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
-
+          <div class="form-group flex-fill mb-0 col-md-6 mt-3 p-0">
+            <textarea id="message-body" class="form-control mb-3 message-strong" style="height: 34px;width: 290px;" name="body" placeholder="Send for approval"></textarea>
             <input type="hidden" name="screenshot_path" value="" id="screenshot_path" />
             <input type="hidden" name="status" value="1" />
-
             <div class="paste-container"></div>
-
-
           </div>
-            <div class="form-group mr-3">
-                <div style="display:inline-grid;">
-                    <div style="display:inline-grid;">
+            <div class="form-group mr-3 float-right mt-2">
+              
                         <div class="upload-btn-wrapper btn-group px-0">
-                            <button class="btn btn-image p-0"><img src="/images/upload.png" /></button>
-                            <input type="file" name="image" />
-
-                        </div>
-                        <button type="submit" class="btn px-1 btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
-
-                    </div>
-
-                    <div class="" style="display:inline-grid;">
-                        <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}?return_url={{ request()->getRequestUri() }}" class="btn btn-image p-0"><img src="/images/attach.png" /></a>
-
-
-                        <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal"><img src="/images/customer-suggestion.png" /></button>
-                    </div>
-                </div>
+                         
+                          <button class="btn btn-image p-0" ><img src="/images/upload.png" /></button>
+                          <input type="file" name="image" /></div>
+                          <button type="submit" class="btn px-1 btn-image px-1 send-communication" ><img src="/images/filled-sent.png"/  style="margin-top: 4px;"></button>
+                          <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}?return_url={{ request()->getRequestUri() }}" class="btn btn-image p-0"  style="margin-top: 4px;"><img src="/images/attach.png" /></a>
+                          <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal"><img src="/images/customer-suggestion.png"/style="margin-top: 10px;"></button>
+                           <button type="button" id="customerMessageButton" class="btn btn-xs mt-2 btn-image"><img src="/images/support.png"/></button>
+                       
             </div>
+          </div>
+          </div>
           {{-- <div class="form-group">
             <div class="upload-btn-wrapper">
               <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
               <input type="file" name="image" />
             </div>
           </div> --}}
-        </div>
-        <div class="d-flex">
+        
           <div class="upload-btn-wrapper" id="root">
           </div>
-        </div>
-        <div class="pb-5">
-          <div class="row">
-            <div class=" pl-4" style="width: calc(100% - 190px)">
-              <div class="d-inline form-inline mb-3">
+        
+        <div style="margin-top: -20px;">
+          
+            <div class=" ">
+              <div class="d-inline form-inline mb-3 col-md-4 p-0">
                   <input style="width: calc(100% - 40px)" type="text" name="category_name" placeholder="Add Category" class="form-control  quick_category">
                   <button class="btn btn-secondary quick_category_add">+</button>
               </div>
-              <div class="d-flex">
-                <div class="mt-3" style="float: left;width: calc(100% - 40px)">
-                  <select name="quickCategory" id="quickCategory" class="form-control input-sm mb-3">
+                <div class=" col-md-3 d-flex" >
+                  <select name="quickCategory" id="quickCategory" class="form-control input-sm ">
                     <option value="">Select Category</option>
                     @foreach($reply_categories as $category)
                       <option value="{{ $category->approval_leads }}" data-id="{{ $category->id }}">{{ $category->name }}</option>
                     @endforeach
                   </select>
+                   <a class=" btn-image delete_category"style="width: 20px;margin-top: 5px;"><img src="/images/delete.png"></a>
                 </div>
-                <div class="mt-3" style="width:20px;">
-                  <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>
-                </div>
-              </div>
-              <div class="d-flex">
-                <div style="float: left; width: calc(100% - 40px)">
-                  <select name="quickComment" id="quickComment" class="form-control input-sm">
-                    <option value="">Quick Reply</option>
-                  </select>
-                  </div>
-                  <div style="width:20px;">
-                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
-                  </div>
-              </div>
+               <div class="pl-1 col-md-5">
+              <button type="button" class=" form-control input-sm  btn-secondary" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
             </div>
-            <div class="pl-1" style="width: 130px">
-              <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
             </div>
-          </div>
         </div>
 
       </form>
 
-      <div class="row">
-        <div class="col-12 mb-3">
+      <div class="">
+        <div class="col-12 mb-3 d-flex pl-0">
           <form action="{{ route('status.report.store') }}" method="POST">
             @csrf
 
             <input type="hidden" name="customer_id" value="{{ $customer->id }}">
 
-            <div class="row mr-2">
-              <div class="col-6 pr-0">
+            <div class=" mr-2 d-flex">
+              <div class="col-3 p-0">
                 <div class="form-group mb-3">
-                  <strong>Next action due</strong>
-                  <a href="#" data-toggle="modal" data-target="#statusModal" class="btn-link">Add Action</a>
-
-                  <select class="form-control input-sm" name="status_id" required>
+                  <select class="form-control input-sm" name="status_id" required placeholder="Next action due">
+                    <a href="#" data-toggle="modal" data-target="#statusModal" class="btn-link">Add Action</a>
                     <option value="">Select action</option>
                     @foreach ($order_status_report as $status)
                       <option value="{{ $status->id }}">{{ $status->status }}</option>
@@ -1943,11 +1856,10 @@
                 </div>
               </div>
 
-              <div class="col-6 pr-3">
+              <div class="col-3 pr-3">
                 <div class="form-group mb-3" id="completion_form_group">
-                  <strong>Completion Date:</strong>
                   <div class='input-group date' id='report-completion-datetime'>
-                    <input type='text' class="form-control input-sm" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
+                    <input type='text' class="form-control input-sm" placeholder="Completion Date:" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
 
                     <span class="input-group-addon">
                       <span class="glyphicon glyphicon-calendar"></span>
@@ -1959,13 +1871,17 @@
                   @endif
                 </div>
               </div>
+              <div class="col-3 pr-3 d-flex ">
+
+             <button type="submit" class="btn custom-button btn-xs btn-secondary mr-3"style="height: 34px;">Add Report</button>
+             <button type="button" class="btn custom-button btn-xs btn-secondary" id="showActionsButton"style="height: 34px;">Show</button>
+        </div>
             </div>
+  </form>
+           
 
-            <button type="submit" class="btn btn-xs btn-secondary">Add Report</button>
-
-            <button type="button" class="btn btn-xs btn-secondary" id="showActionsButton">Show</button>
-          </form>
-
+            
+           
 
           <div id="actions-container" class="hidden">
             @if (count($customer->many_reports) > 0)
@@ -2036,7 +1952,7 @@
               <form action="{{ route('customer.initiate.followup', $customer->id) }}" method="POST">
                 @csrf
 
-                <button type="submit" class="btn btn-xs btn-secondary" {{ $customer->is_initiated_followup() ? 'disabled' : '' }}>Follow Up</button>
+                <button type="submit" class="btn btn-xs custom-button btn-secondary" {{ $customer->is_initiated_followup() ? 'disabled' : '' }}>Follow Up</button>
               </form>
             </div>
 
