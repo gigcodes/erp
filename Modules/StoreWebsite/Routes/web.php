@@ -20,12 +20,13 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::get('/cancellation', 'StoreWebsiteController@cancellation')->name("store-website.cancellation");
     Route::get('/records', 'StoreWebsiteController@records')->name("store-website.records");
     Route::post('/save', 'StoreWebsiteController@save')->name("store-website.save");
+    Route::get('/log-website-users/{id}', 'StoreWebsiteController@logWebsiteUsers')->name("store-website.logwebsiteusers");
     Route::post('/save-cancellation', 'StoreWebsiteController@saveCancellation')->name("store-website.save-cancellation");
     Route::post('/generate-file-store', 'StoreWebsiteController@generateStorefile')->name("store-website.generate-file-store");
     
     Route::post('/save-user-in-magento', 'StoreWebsiteController@saveUserInMagento')->name("store-website.save-user-in-magento");
     Route::post('/delete-user-in-magento', 'StoreWebsiteController@deleteUserInMagento')->name("store-website.delete-user-in-magento");
-
+    Route::post('/update-company-website-address', 'StoreWebsiteController@updateCompanyWebsiteAddress'); 
     Route::prefix('{id}')->group(function () {
         
         Route::get('/sync-stage-to-master', 'StoreWebsiteController@syncStageToMaster');
@@ -35,7 +36,10 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/store-reindex-history', 'StoreWebsiteController@storeReindexHistory');
 
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
+
+        Route::get('/add-company-website-address', 'StoreWebsiteController@addCompanyWebsiteAddress');    
         
+
         Route::get('/edit-cancellation', 'StoreWebsiteController@editCancellation')->name("store-website.edit-cancellation");
         
         Route::get('/delete', 'StoreWebsiteController@delete')->name("store-website.delete");
@@ -44,6 +48,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         
         Route::post('/submit-social-remarks', 'StoreWebsiteController@updateSocialRemarks')->name("store-website.update.social-remarks");
         
+        
+
         Route::prefix('build-process')->group(function () {
             Route::get('/', 'StoreWebsiteController@buildProcess')->name("store-website.build.process");
             Route::get('/history', 'StoreWebsiteController@buildProcessHistory')->name("store-website.build.process.history");
@@ -127,7 +133,11 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
 
     Route::prefix('category')->group(function () {
         Route::get('/', 'CategoryController@list')->name("store-website.category.list");
+        Route::post('category-history', 'CategoryController@categoryHistory')->name('store-website.category,categoryHistory');
+        Route::post('website-category-user-history', 'CategoryController@webiteCategoryUserHistory')->name('store-website.category,webiteCategoryUserHistory');
         Route::post('save/store/category', 'CategoryController@saveStoreCategory')->name("store-website.save.store.category");
+        Route::post('/delete-category', 'CategoryController@deleteCategory')->name("store-website.delete-category");
+
     });
 
     Route::prefix('color')->group(function () {
@@ -153,6 +163,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/push', 'WebsiteController@push')->name("store-website.websites.push");
         Route::get('/{id}/push-stores', 'WebsiteController@pushStores')->name("store-website.websites.pushStores");
         Route::get('/{id}/copy-website-struct', 'WebsiteController@copyWebsiteStructure')->name("store-website.websites.copyWebsiteStructure");
+        
     });
 
     Route::prefix('website-stores')->group(function () {
@@ -168,6 +179,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::prefix('site-attributes')->group(function () {
         Route::get('/', 'SiteAttributesControllers@index')->name("store-website.site-attributes.index");
         Route::post('save', 'SiteAttributesControllers@store')->name("store-website.site-attributes-views.save");
+        Route::post('attributeshistory', 'SiteAttributesControllers@attributesHistory')->name("store-website.site-attributes-views.attributeshistory");
         Route::get('list', 'SiteAttributesControllers@list')->name("store-website.site-attributes-views.list");
         Route::get('/records', 'SiteAttributesControllers@records')->name("store-website.site-attributes-views.records");
         Route::get('/{id}/delete', 'SiteAttributesControllers@delete')->name("store-website.site-attributes-views.delete");
@@ -196,6 +208,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/delete', 'PageController@delete')->name("store-website.page.delete");
         Route::get('/{id}/push', 'PageController@push')->name("store-website.page.push");
         Route::get('/{id}/pull', 'PageController@pull')->name("store-website.page.pull");
+        Route::get('/pull/logs', 'PageController@pullLogs');
+        Route::get('/{id}/pull/logs', 'PageController@pullLogs');
         Route::get('/{id}/get-stores', 'PageController@getStores')->name("store-website.page.getStores");
         Route::get('/{id}/load-page', 'PageController@loadPage')->name("store-website.page.loadPage");
         Route::get('/{id}/history', 'PageController@pageHistory')->name("store-website.page.history");
@@ -246,9 +260,11 @@ Route::middleware('auth')->group(function()
     Route::post('remark/user_flag', 'SiteDevelopmentController@userRemarkFlag')->name('remark.flag.user');
     Route::post('remark/admin_flag', 'SiteDevelopmentController@adminRemarkFlag')->name('remark.flag.admin');
     Route::get('/countdevtask/{id}', 'SiteDevelopmentController@taskCount');
+    Route::get('/task/relation/{id}', 'SiteDevelopmentController@taskRelation');
     Route::get('/deletedevtask', 'SiteDevelopmentController@deletedevtask')->name('site.development.delete.task');
     Route::get('/{id?}', 'SiteDevelopmentController@index')->name("site-development.index");
     Route::post('/create-tasks', 'SiteDevelopmentController@createTask')->name("site-development.create.task");
+    Route::post('/copy-tasks', 'SiteDevelopmentController@copyTasksFromWebsite')->name("site-development.copy.task");
     Route::post('/save-category', 'SiteDevelopmentController@addCategory')->name("site-development.category.save");
     Route::post('/save-master-category', 'SiteDevelopmentController@addMasterCategory')->name("site-development.master_category.save");
     Route::post('/edit-category', 'SiteDevelopmentController@editCategory')->name("site-development.category.edit");

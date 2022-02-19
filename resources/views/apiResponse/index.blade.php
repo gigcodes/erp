@@ -141,7 +141,6 @@ form label.required:after{
     height: 0%;
   }
 }
-
 </style>
 @endsection
 @section('content')
@@ -150,13 +149,11 @@ form label.required:after{
 <span class="loader">
   <span class="loader-inner"></span>
 </span> -->
-
 <div class="m-auto row">
     <div class="col-lg-12 margin-tb p-0 w-100">
         <h2 class="page-heading">Api Response Management</h2>
     </div>
 </div>
-
 <!-- Hidden content used to generate dynamic elements (start) -->
 <div id="response-alert" style="display:none;" class="alert alert-success">
     <span>You should check in on some of those fields below.</span>
@@ -164,21 +161,37 @@ form label.required:after{
         <span aria-hidden="true">&times;</span>
     </button>
 </div>
-
-
 <!-- Hidden content used to generate dynamic elements (end) -->
-
-
 <div id="response-alert-container"></div>
-
-<div style="text-align: right; margin-bottom: 10px;">
-    <button type="button" class="btn btn-primary" onclick="openAddModal();">
-        Add Response Message
-    </button>
-</div>
-
-
-
+ <form class="form-search-data">
+   <div class="m-auto row">                  
+       <div class="col-xs-6 col-md-2 pd-2">
+           <div class="form-group">
+                <select class="form-control select select2 required" name="store_website_id" placeholder="Select Store Website" >
+                    <option value="">Please select Website</option>
+                    @foreach($store_websites as $web)
+                      <?php $sel='';
+                      if (isset($_GET['store_website_id']) && $_GET['store_website_id']==$web->id)
+                              $sel=" selected='selected' "; ?>
+                        <option value="{{ $web->id }}" {{ $sel }} >{{ $web->title }}</option>
+                    @endforeach
+                </select>
+           </div>
+       </div>
+        <div class="form-group ml-3 cls_filter_inputbox">
+            <input name="api_key" type="text" class="form-control" placeholder="Search Key" id="api-key">
+        </div>
+        <div class="form-group ml-5 cls_filter_inputbox">
+            <input name="api_value" type="text" class="form-control" placeholder="Value" id="api-value" placeholder="Search Value">
+        </div>
+       <button type="button" onclick="$('.form-search-data').submit();" class="btn btn-image btn-call-data"><img src="{{asset('/images/filter.png')}}" style="margin-top:-9px;"></button>
+       <div class="pr-4" style="text-align: right; margin-bottom: 10px;">
+          <button type="button" class="btn btn-primary custom-button " onclick="openAddModal();" style="padding-top:-1;">
+          Add Response Message
+          </button>
+      </div>
+</div>   
+</form>
 <!-- COUPON DETAIL MODAL -->
 <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -186,17 +199,15 @@ form label.required:after{
         <form id="response-form" method="POST" action="{{ route('api-response-message.store') }}">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="responseModalLabel">New Api Response</h5>
+                    <h4 class="modal-title" id="responseModalLabel">New Api Response</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     @csrf
-
-                        <div class="form-group row">
-                            <label for="start" class="col-sm-3 col-form-label required">Store Website</label>
-                            <div class="col-sm-8">
+                        <div class="form-group ">
+                            <div class="col-md-4">
                                 <select class="form-control select select2 required" name="store_website_id"  >
                                     <option value="">Please select</option>
                                     @foreach($store_websites as $web)
@@ -205,32 +216,25 @@ form label.required:after{
                                 </select>
                             </div>
                         </div>
-
-                        <div class="form-group row">
-                            <label for="code" class="col-sm-3 col-form-label required">Key</label>
-                            <div class="col-sm-8">
+                        <div class="form-group">
+                            <div class="col-md-4" style="margin-top: -14px;">
                                 <input type="text" class="form-control required" name="res_key" placeholder="Key" value="" id="key" />
                             </div>
                         </div>
-
-                        <div class="form-group row">
-                            <label for="code" class="col-sm-3 col-form-label required">Value</label>
-                            <div class="col-sm-8">
+                        <div class="form-group ">
+                            <div class="col-md-4" style="margin-top: -14px;">
                                 <input type="text" class="form-control required" name="res_value" placeholder="Value" value="" id="message" />
                             </div>
                         </div>
-
-                      
                     </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary save-button">Save</button>
+                    <button type="button" class="btn custom-button" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn custom-button save-button">Save</button>
                 </div>
             </div>
         </form>
     </div>
 </div>
-
 <!-- Edit MODAL -->
 <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -244,11 +248,7 @@ form label.required:after{
                     </button>
                 </div>
                 <div class="modal-body edit-body">
-                    @csrf
-
-                        
-
-                      
+                    @csrf  
                     </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -258,53 +258,24 @@ form label.required:after{
         </form>
     </div>
 </div>
-
-
 @if(Session::has('message'))
 <p class="alert {{ Session::get('alert-class', 'alert-info') }}">{{ Session::get('message') }}</p>
 @endif
-
-<form class="form-search-data">
-   <div class="m-auto row">                  
-       <div class="col-xs-6 col-md-2 pd-2">
-           <div class="form-group">
-                <label for="with_archived">Select Store Website</label>
-                <select class="form-control select select2 required" name="store_website_id"  >
-                    <option value="">Please select Website</option>
-                    @foreach($store_websites as $web)
-                      <?php $sel='';
-                      if (isset($_GET['store_website_id']) && $_GET['store_website_id']==$web->id)
-                              $sel=" selected='selected' "; ?>
-                        <option value="{{ $web->id }}" {{ $sel }} >{{ $web->title }}</option>
-                    @endforeach
-                </select>
-           </div>
-       </div>
-        <div class="form-group ml-3 cls_filter_inputbox">
-            <label for="with_archived">Search Key</label>
-            <input name="api_key" type="text" class="form-control" placeholder="Key" id="api-key">
-        </div>
-        <div class="form-group ml-5 cls_filter_inputbox">
-            <label for="with_archived">Search Value</label>
-            <input name="api_value" type="text" class="form-control" placeholder="Value" id="api-value">
-        </div>
-       <button type="button" onclick="$('.form-search-data').submit();" class="btn btn-image btn-call-data"><img src="{{asset('/images/filter.png')}}"></button>
-       
-   </div>    
-</form>
+<div class="row">
+    <div class="col-md-12 pl-5 pr-5">
 <div class="m-auto row">
     <div class="table-responsive">
-        <table class="table table-striped table-bordered w-100" style="width: 99%" id="api_response_table">
-            <thead>
+        <table class="table table-striped table-bordered p-0 w-100" style=" table-layout:fixed;" id="api_response_table">
+            <thead class="p-0">
                 <tr>
-                    <th width="15%">ID</th>
-                    <th width="20%">Store Website</th>
-                    <th>Key</th>
-                    <th>Value</th>
-                    <th>Actions</th>
+                    <th width="4%">ID</th>
+                    <th width="25%">Store Website</th>
+                    <th  width="25%">Key</th>
+                    <th  width="25%">Value</th>
+                    <th  width="4%">Actions</th>
                 </tr>
             </thead>
-            <tbody class="pending-row-render-view infinite-scroll-api-inner">
+            <tbody class="p-0 pending-row-render-view infinite-scroll-api-inner">
                 @php $i = 1; @endphp
                 @foreach($api_response as $res)
                     <tr>
@@ -313,8 +284,14 @@ form label.required:after{
                         <td>{{ $res->key }}</td>
                         <td>{{ $res->value }}</td>
                         <td>
-                            <a class="btn btn-secondary" onclick="editModal({{ $res->id}});" href="javascript:void(0);">Edit</a>
-                            <a class="btn btn-secondary" href="{{ route('api-response-message.responseDelete',['id' => $res->id]) }}">Delete</a>
+                            <div class="d-flex"style="justify-content: space-between;">
+                                <a  onclick="editModal({{ $res->id}});" href="javascript:void(0);">
+                                    <i class="fa fa-pencil" aria-hidden="true" style="color:grey;"></i>
+                                </a>
+                                <a  href="{{ route('api-response-message.responseDelete',['id' => $res->id]) }}">
+                                   <i class="fa fa-trash-o" aria-hidden="true" style="color:grey;"></i> 
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     @php $i = $i+1; @endphp
@@ -323,10 +300,10 @@ form label.required:after{
         </table>
     </div>
 </div>
+</div>
+</div>
 <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
-
 @endsection
-
 @section('scripts')
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
@@ -344,10 +321,7 @@ form label.required:after{
         });
 
       //  $('#api_response_table').dataTable();
-        
     });
-
-
     $('#response-form').validate();
     function openAddModal(){
         $('#responseModal').modal('show');

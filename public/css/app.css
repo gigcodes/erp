@@ -11072,6 +11072,7 @@ td.title p {
 }
 .whatsAppConfig-action button, .whatsAppConfig-action a i {
     padding: 5px 2px;
+    width: 10%;
 }
 .whatsAppConfig-action button i, .whatsAppConfig-action a i{
     color: black !important;
@@ -11384,6 +11385,7 @@ table.table-striped-custom tbody tr td {
     background: #9393935e !important;
     color: #555 !important;
     border: 1px solid #bfbaba !important;
+    height: 35px !important;
 }
 .inventory-listing .modal-dialog{
     max-width: 800px;
@@ -11438,10 +11440,13 @@ table.table-striped-custom tbody tr td {
     box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%);
     -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
     -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 }
 .return-input input{
     width: 250px !important;
+}
+.multipal .select2-selection.select2-selection--single{
+    width: 250px important;
 }
 .page-history-table tbody .result:hover{
     overflow: visible;
@@ -11455,6 +11460,9 @@ table.table-striped-custom tbody tr td {
     width:100% !important;
     object-fit: cover;
 }
+.td-mini-container a{
+  color: black;
+}
 .text-center.task_queue_list td{
     text-align: left;
 }
@@ -11466,6 +11474,7 @@ table.table-striped-custom tbody tr td {
     white-space: normal;
     word-break: break-all;
 }
+
 #app{
     overflow: hidden;
 }
@@ -11495,4 +11504,56 @@ overflow-x: hidden !important;
 }
 .table-responsive.coupon-rules-table{
     border: none !important;
+}
+.timeslot .btn-default{
+    height:30px !important;
+}
+#app{
+    overflow: hidden !important;
+}
+.selectbox{
+    width: 100px !important;
+}
+.show-product-information{
+    color: black;
+}
+
+.custom-checkbox input[type="checkbox"]{
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    top: 50%;
+    transform: translateY(-90%);
+    opacity: 0;
+    z-index: 9;
+}
+.custom-checkbox{
+    position: relative;
+}
+.custom-checkbox label{
+    position: relative;
+    padding-left: 23px;
+}
+.custom-checkbox label:before{
+    content: '';
+    width: 15px;
+    height: 15px;
+    border: 1px solid #333;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.custom-checkbox label:after{
+    content: '\2713';
+    position: absolute;
+    left: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    font-size:15px;
+}
+.custom-checkbox input[type="checkbox"]:checked + label:after{
+    opacity: 1;
+
 }

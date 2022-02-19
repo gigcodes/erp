@@ -112,7 +112,7 @@ class scrapperPhyhon extends Controller
         foreach($images as $image){
 
             $Websites = new Website();
-            $Websites =$Websites->selectRaw('website_store_views.name as lang,website_stores.name as store_name,website_stores.id as website_stores_id,website_store_views.id as website_store_views_id,websites.id as website_table_id,website_stores.is_default as website_stores_default');
+            $Websites =$Websites->selectRaw('website_store_views.name as lang,website_stores.name as store_name,website_stores.id as website_stores_id,website_store_views.id as website_store_views_id,websites.id as website_table_id,website_stores.is_default as website_stores_default,website_stores.is_flag as website_stores_flag');
             $Websites = $Websites->join('website_stores','websites.id', '=', 'website_stores.website_id');
             $Websites =  $Websites->join('website_store_views','website_store_views.website_store_id', '=', 'website_stores.id')
              ->where('website_store_views.code',$image->website_id)->where('websites.store_website_id',$image->store_website)->first();
@@ -124,7 +124,7 @@ class scrapperPhyhon extends Controller
                 $image->website_store_views_id = $Websites->website_store_views_id;
                 $image->website_table_id = $Websites->website_table_id;
                 $image->website_stores_default = $Websites->website_stores_default;
-                
+                $image->website_stores_flag = $Websites->website_stores_flag;
             
              }
             
@@ -327,6 +327,41 @@ class scrapperPhyhon extends Controller
         }
     }
 
+    public function setFlagStore(int $website=0,int $store=0,$checked=0)
+    {
+        if($website && $store)
+        {
+           try {
+
+            if($checked)
+            {
+
+              WebsiteStore::where('is_flag',$website)->update(['is_flag'=>0]);
+
+              
+            }
+
+
+           $store=WebsiteStore::find($store);
+
+           $store->is_flag=$checked;
+
+           $store->save();
+
+           $response=array('status'=>1,'message'=>'Url Flagged state has changed.');
+               
+           } catch (Exception $e) {
+
+           $response=array('status'=>0,'message'=>$e->getMessage());
+            
+               
+           }
+
+           return $response;
+
+        }
+    }
+
     public function websiteStoreList(int $website=0)
     {
         try {
@@ -458,18 +493,34 @@ class scrapperPhyhon extends Controller
 
     public function callScrapper(Request $request)
     {
-
     $client = new Client();
     $res = null;
     $err = null;
+    $store_website = \App\StoreWebsite::find($request->webName);
     $log_data=["user_id"=>\Auth::id(),"action"=>$request->data_name, "website"=>$request->webName,"device"=>$request->type,"created_at"=>Carbon::now(),"updated_at"=>Carbon::now()];
     try{
      //   $url = env("PYTHON_PRODUCT_TEMPLATES")."/".$request->data_name;
         $url = 'http://167.86.88.58:5000/' . $request->data_name;
         $data=[
             'type' => $request->type,
-            'name' =>  $request->webName
+            'name' =>  $store_website->title
         ];
+        if($request->webName !=null && $request->is_flag != null){
+          //  $flagUrls = \App\StoreWebsite::join('websites','store_websites.id','websites.store_website_id')->join('website_stores','websites.id','website_stores.website_id')->where('store_websites.id',$request->webName)->where('website_stores.is_flag',1)->get();
+          $flagUrls =  \App\scraperImags::where('store_website',$request->webName)->where('is_flaged_url','1')->select('url')->get();
+            $data['flagged'] = true;
+            $count = 1;
+            $fUrl = '';
+            foreach($flagUrls as $flagUrl){
+             //   $fUrl .= $flagUrl['magento_url'];
+                $fUrl .= $flagUrl['url'];
+                if($count < count($flagUrls)){
+                    $fUrl .= ',';
+                }
+                $count++;
+            }
+            $data['urls'] = $fUrl;
+        }
         $log_data["request"]=json_encode($data);
         $log_data["url"]=$url;
 
@@ -637,13 +688,13 @@ class scrapperPhyhon extends Controller
                $urls = DB::table('scraper_imags')->join('store_websites', 'store_websites.id','=','scraper_imags.store_website')->select('scraper_imags.*','store_websites.title as wtitle','store_websites.id as swid')->whereRaw('url != "" and url IS  NOT NULL');
                if(!empty($flagUrl)){
                
-                $urls = $urls->where("id",$flagUrl);
+                $urls = $urls->where("scraper_imags.id",$flagUrl);
                 $flagUrl="#".$flagUrl;
                }
                if($request->flt_website && $request->flt_website != null){
                 $urls = $urls->where("store_website",$request->flt_website);
                }
-               
+
                 if($request->scrapper_url && $request->scrapper_url != null){
                     $urls->where('url','LIKE','%'.$request->scrapper_url.'%');
                 }
@@ -667,5 +718,4 @@ class scrapperPhyhon extends Controller
             ->with('success', "Url $status successfully");
     }
 }
-
 

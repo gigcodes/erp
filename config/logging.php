@@ -166,6 +166,11 @@ return [
             'path'   => storage_path('logs/scrapper_images/scrapper_images.log'),
             'days'   => 7,
         ],
+        'social_webhook' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/social_webhook/social_webhook.log'),
+            'days'   => 7,
+        ],
     ],
 
 ];

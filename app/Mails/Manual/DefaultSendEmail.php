@@ -2,6 +2,7 @@
 
 namespace App\Mails\Manual;
 
+use App\EmailLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -52,7 +53,20 @@ class DefaultSendEmail extends Mailable
             ]
         ];
 
+        \App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Header Data being attached in email from DefaultSendeEmail',
+            'message'       => json_encode($headerData)
+            ]);
+
         $header = $this->asString($headerData);
+        
+        \App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Header Data attached in email',
+            'message'       => $header
+            ]);
+            
         $this->withSwiftMessage(function ($message) use ($header) {
             $message->getHeaders()
                     ->addTextHeader('X-SMTPAPI', $header);
@@ -62,10 +76,19 @@ class DefaultSendEmail extends Mailable
         ->subject($email->subject)
         ->view('emails.blank_content', compact('content'));	//->with([ 'custom_args' => $this->email ]);
         
-		
+		\App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Mail Object Created in DefaultSendEmail',
+            'message'       => json_encode($mailObj)
+            ]);
 		 
         foreach($this->attchments as $attchment){
             $mailObj->attachFromStorageDisk('files', $attchment);
+            \App\EmailLog::create([
+                'email_id'   => $email->id,
+                'email_log' => 'attachment added in DefaultSendEmail',
+                'message'       => $attchment
+                ]);
         }
 		
 		

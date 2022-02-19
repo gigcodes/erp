@@ -10,6 +10,7 @@ class PushToMagentoCondition extends Model
     protected $fillable = [
         'condition', 
         'description', 
-        'status'
+        'status',
+        'upteam_status'
 	];
 }

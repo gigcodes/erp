@@ -62,6 +62,7 @@ class StoreWebsite extends Model
         'updated_at',
         'magento_url',
         'stage_magento_url',
+        'product_markup',
         'dev_magento_url',
         'magento_username',
         'magento_password',
@@ -95,7 +96,8 @@ class StoreWebsite extends Model
         'text_color',   
         'border_color',   
         'border_thickness',
-        'sale_old_products'
+        'sale_old_products',
+        'website_address'
     ];
 
     const DB_CONNECTION = [

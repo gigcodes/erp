@@ -25,9 +25,9 @@
 @endsection
 
 @section('large_content')
-
-    <div class="row mb-5">
-        <div class="col-lg-12 margin-tb">
+  
+    <div class="row ">
+        <div class="col-lg-12 margin-tb p-0">
             <h2 class="page-heading">Scrapped Brand ({{ $brands->total() }})</h2>
         </div>
     </div>
@@ -70,39 +70,38 @@
         </div>
     </form>
 
-    <div class="row no-gutters mt-3">
-        <div class="col-md-12" id="plannerColumn">
+    <div class="row no-gutters">
+        <div class="col-md-12 pl-4 pr-4" id="plannerColumn">
             <div class="">
-                <table class="table table-bordered table-striped sort-priority-scrapper">
+                <table class="table table-bordered table-striped sort-priority-scrapper" style="table-layout:fixed;">
                     <thead>
                         <tr>
-
-                            <th width="1%"><input type="checkbox" onchange="checkAll(this)" name="chk[]"></th>
-                            <th>#</th>
-                            <th>Brand</th>
-                            <th>In External Scraper</th>
-                            <th>Scraped Brand</th>
-                            <th>Brand Qty</th>
-                            <th width="1%">Functions</th>
-                            <th>Developer</th>
+                            <th width="2%"><input type="checkbox" onchange="checkAll(this)" name="chk[]"></th>
+                            <th width="2%">#</th>
+                            <th width="6%">Brand</th>
+                            <th width="5%">In External Scraper</th>
+                            <th width="4%">Scraped Brand</th>
+                            <th width="5%">Brand Qty</th>
+                            <th width="5%">Functions</th>
+                            <th width="5%">Developer</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($brands as $brand)
                             <tr>
                                 <td><input type="checkbox" name="taskIds[]" class="rowCheckbox" value="{{ $brand->id }}"></td>
-                                <td width="2%">{{ $brand->id }}</td>
-                                <td width="14%">{{ $brand->name }}</td>
-                                <td width="5%">{{ $brand->productCountInExternalScraper() }}</td>
-                                <td width="5%">{{ $brand->productFromExternalScraper() }}</td>
-                                <td width="5%">{{ $brand->total_products }}</td>
-                                <td width="5%">
+                                <td>{{ $brand->id }}</td>
+                                <td>{{ $brand->name }}</td>
+                                <td>{{ $brand->productCountInExternalScraper() }}</td>
+                                <td>{{ $brand->productFromExternalScraper() }}</td>
+                                <td>{{ $brand->total_products }}</td>
+                                <td>
                                     <button style="padding: 3px" data-id="{{ $brand->id }}" type="button"
                                         class="btn btn-image d-inline get-tasks-remote" title="Task list">
                                         <i class="fa fa-tasks"></i>
                                     </button>
                                 </td>
-                                <td width="5%">{{ ($brand->singleBrandTask)? $brand->singleBrandTask->assignedUser->name : 'N/A' }}</td>
+                                <td width="5%" class="Website-task">{{ ($brand->singleBrandTask)? $brand->singleBrandTask->assignedUser->name : 'N/A' }}</td>
                             </tr>
                         @endforeach
                 </table>

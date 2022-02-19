@@ -1,12 +1,15 @@
-@foreach ($allHistory as $key=> $row ) 
+@forelse ($suppliers as $supplier) 
     <tr>
-        <td>{{$row['supplier_name']}}</td>
-        <td>{{$row['last_scrapped_on']}}</td>
-        <td>{{$row['products']}}</td>
-        <td><a href="javascript:;" data-supplier-id="{{ $row['supplier_id'] }}" class="brand-result-page">{{$row['brands']}}</a></td>
-        <?php foreach($columnData as $e) { ?>
-            <td> <?php echo isset($row['dates'][$e]) ? $row['dates'][$e] : 0; ?> </td>
-        <?php } ?> 
-        <td class="showSummary"><a target="_blank" href="{{route('supplier.product.summary',$row['supplier_id'])}}">Details</td>
+        <td>{{$supplier->supplier}}</td>
+        <td>{{ \App\Http\Controllers\ProductInventoryController::getLastScrappedOn($supplier->id) }}</td>
+        <td>{{$supplier->myproducts->count()}}</td>
+        <td><a href="javascript:;" data-supplier-id="{{ $supplier->id }}" class="brand-result-page">
+            {{count(array_unique($supplier->myproducts->pluck("brand_id")->all()))}}</a></td>
+        @foreach($range as $date) 
+            <td>{{$supplier->histories->where("date","=",$date->format("Y-m-d"))->sum('in_stock')}}</td>
+        @endforeach 
+        <td class="showSummary"><a target="_blank" href="{{route('supplier.product.summary',$supplier->id)}}">Details</td>
     </tr>
-@endforeach
+    @empty
+
+@endforelse

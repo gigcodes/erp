@@ -73,7 +73,7 @@
 							</td>
 							<td>{{$reservedCall->created_at}}</td>
 							<td>
-								<a class="call__answer" >Accept</a>
+								<a class="call__answer" data-from-number="{{ $reservedCall->from }}" data-to-number="{{ $reservedCall->to }}">Accept</a>
 								<a class="call__canceled">Reject</a>
 							</td>
                         </tr>
@@ -191,7 +191,9 @@
 @section('scripts')
 <script>
 $(".call__answer").click(function(){
-  $.get("https://erpdev3.theluxuryunlimited.com/twilio/accept?From=919463488313&To=+15106164481", function(data, status){
+    const fromNumber = $(this).data('from-number');
+    const toNumber = $(this).data('to-number');
+  $.get(`https://erpdev3.theluxuryunlimited.com/twilio/accept?From=${fromNumber}&To=${toNumber}`, function(data, status){
     console.log("Data: " + "\nStatus: ");
   });
 });
