@@ -1336,6 +1336,11 @@ class LiveChatController extends Controller
             $query = $query->where('tickets.type_of_inquiry', 'LIKE', '%' . $request->serach_inquiry_type . '%');
         }
 
+        // Use for search by source tof ticket 
+        if ($request->search_source != "") {
+            $query = $query->where('tickets.source_of_ticket', 'LIKE', '%' . $request->search_source . '%');
+        }
+
         if ($request->status_id != '') {
             $query = $query->where('status_id', $request->status_id);
         }
@@ -1350,7 +1355,7 @@ class LiveChatController extends Controller
         }
 
         $data = $query->orderBy('date', 'DESC')->paginate($pageSize)->appends(request()->except(['page']));
-
+        
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('livechat.partials.ticket-list', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize)->render(),
