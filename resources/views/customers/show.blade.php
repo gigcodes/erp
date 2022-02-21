@@ -2260,16 +2260,16 @@
 
       <div class="tab-pane active " id="4">
         <div class="table-responsive" style="border-top-left-radius:0">
-            <table class="table table-bordered m-0">
+            <table class="table table-bordered m-0" style="table-layout: fixed;">
            <thead>
            <tr>
-               <th>Number</th>
-               <th>Assigned to</th>
-               <th>Category</th>
-               <th>Instructions</th>
-               <th colspan="3" class="text-center">Action</th>
-               <th>Created at</th>
-               <th>Remark</th>
+               <th width="8%">Number</th>
+               <th width="7%">Assigned to</th>
+               <th width="6%">Category</th>
+               <th width="8%">Instructions</th>
+               <th width="26%" colspan="3" class="text-center">Action</th>
+               <th width="8%">Created at</th>
+               <th width="3%">Remark</th>
            </tr>
            </thead>
             @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->limit(3)->get() as $instruction)
@@ -2282,7 +2282,7 @@
                   <td>
                     <div class="form-inline">
                       @if ($instruction->is_priority == 1)
-                        <strong class="text-danger mr-1">!</strong>
+                        <strong class="text-danger mr-1" style="color:#212529!important;">!</strong>
                       @endif
 
                       {{ $instruction->instruction }}
@@ -2292,7 +2292,7 @@
                     @if ($instruction->completed_at)
                       {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
                     @else
-                      <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}" data-assignedfrom="{{ $instruction->assigned_from }}">Complete</a>
+                      <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}" data-assignedfrom="{{ $instruction->assigned_from }}" style="color:#212529 !important;">Complete</a>
                     @endif
                   </td>
                   <td>
@@ -2300,7 +2300,7 @@
                       Completed
                     @else
                       @if ($instruction->pending == 0)
-                        <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
+                        <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}"style="color:#212529!important;">Mark as Pending</a>
                       @else
                         Pending
                       @endif
@@ -2317,9 +2317,9 @@
                   </td>
                   <td>{{ $instruction->created_at->diffForHumans() }}</td>
                   <td>
-                    <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
+                    <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}" style="color: #212529;"><i class="fa fa-plus" aria-hidden="true"></i></a>
                     <span> | </span>
-                    <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
+                    <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}" style="color: #212529;"><i class="fa fa-eye" aria-hidden="true"></i></a>
                   </td>
                 </tr>
             @endforeach
@@ -2330,7 +2330,7 @@
             <div class="card mb-5">
               <div class="card-header" id="headingInstruction">
                 <h5 class="mb-0 mt-0">
-                  <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#instructionAcc" aria-expanded="false" aria-controls="">
+                  <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#instructionAcc" aria-expanded="false" aria-controls="" style="color: #212529;">
                     Rest of Instructions
                   </button>
                 </h5>

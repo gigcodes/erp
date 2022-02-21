@@ -11469,6 +11469,8 @@ table.table-striped-custom tbody tr td {
 .green_img {
     background: grey !important;
 }
+#app{
+    overflow: hidden;
 #reply_history_div tbody tr:hover .Website-task, #quick-reply-list tbody tr:hover .Website-task{
     overflow: visible;
     white-space: normal;
@@ -11555,5 +11557,6 @@ overflow-x: hidden !important;
 }
 .custom-checkbox input[type="checkbox"]:checked + label:after{
     opacity: 1;
+
 
 }
