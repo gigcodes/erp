@@ -475,25 +475,25 @@ class CouponController extends Controller
         $result   = json_decode($response);
         \Log::channel('listMagento')->info(print_r([$url,$store_website->api_token,json_encode($parameters),$response],true));
         curl_close($ch); // Close the connection
-        if(true){
-            // if (isset($result->code)) {
-            //     return response()->json(['type' => 'error', 'message' => $result->message, 'data' => $result], 200);
-            // }
+        if($result != false){
+            if (isset($result->code)) {
+                return response()->json(['type' => 'error', 'message' => $result->message, 'data' => $result], 200);
+            }
 
-            // if ($request->coupon_type == "SPECIFIC_COUPON" && !isset($request->auto_generate)) {
-            //     $response = $this->geteratePrimaryCouponCode($request->code, $result->rule_id, $request->uses_per_coustomer, $request->expiration, '', $store_website);
-            //     if(!isset($response->coupon_id)) {
-            //         $this->deleteCouponCodeRuleByWebsiteId($result->rule_id,$request->store_website_id);
-            //         if(isset($response->message) && isset($response->parameters)) {
-            //             return response()->json(['type' => 'error', 'message' => str_replace("%1", $response->parameters[0], $response->message), 'data' => $result], 200);
-            //         }else{
-            //             return response()->json(['type' => 'error', 'message' => "Coupon code cannot be create please check request with magento log", 'data' => $response], 200);
-            //         }
-            //     }
-            // }
+            if ($request->coupon_type == "SPECIFIC_COUPON" && !isset($request->auto_generate)) {
+                $response = $this->geteratePrimaryCouponCode($request->code, $result->rule_id, $request->uses_per_coustomer, $request->expiration, '', $store_website);
+                if(!isset($response->coupon_id)) {
+                    $this->deleteCouponCodeRuleByWebsiteId($result->rule_id,$request->store_website_id);
+                    if(isset($response->message) && isset($response->parameters)) {
+                        return response()->json(['type' => 'error', 'message' => str_replace("%1", $response->parameters[0], $response->message), 'data' => $result], 200);
+                    }else{
+                        return response()->json(['type' => 'error', 'message' => "Coupon code cannot be create please check request with magento log", 'data' => $response], 200);
+                    }
+                }
+            }
 
             $local_rules                      = new CouponCodeRules();
-            $local_rules->magento_rule_id     = 73;
+            $local_rules->magento_rule_id     = $result->rule_id;
             $local_rules->name                = $request->name;
             $local_rules->description         = $request->description;
             $local_rules->is_active           = $request->active == "1" ? true : false;
