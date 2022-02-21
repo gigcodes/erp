@@ -154,13 +154,13 @@ $(document).on('click','.cmn-toggle',function()
         success: function (response) {
             if(response.status == 1)
             { 
-                showstatus = "active";
+                showstatus = "activated";
             }
             if(response.status == 0)
             {
-                showstatus = "deactivate";
+                showstatus = "deactivated";
             }
-            toastr["success"]("Condition is "+showstatus+" successfully", "Message")
+            toastr["success"]("Condition "+showstatus+" successfully", "Message")
         },
         error: function (error) {
             toastr["error"](error.responseJSON.message, "Message")

@@ -17,7 +17,7 @@ class FlowCondition extends Model
         * @SWG\Property(property="status",type="boolean")
      */
     protected $fillable = [
-        'flow_id',
+        'flow_name',
         'condition_name',
         'message',
         'status',
