@@ -617,9 +617,9 @@ class ScheduleEmails extends Command
 					    }   
 					}
 					foreach ($flowActiosnNew as $flowActionNew) {
-						$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date, $flow_log_id);
+						$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date, $flow_log_id,'',$allflowconditions);
 					}
-				}
+				} 
 			}
 		}
 	}
