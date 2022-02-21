@@ -172,12 +172,11 @@
             <?php $base_url = URL::to('/'); ?>
             <div class=" cls_filter_box" style="margin-left: -13px;">
                 <form class="form-inline form-search-data" action="{{ route('development.flagtask') }}" method="GET">
-                    <div class="col-md-2 pd-sm pd-rt">
+                    <div class="col-md-3 pr-0 d-flex pd-sm pd-rt">
                         <input type="text" style="width:100%;" name="subject" id="subject_query"
-                            placeholder="Issue Id / Subject" class="form-control"
+                            placeholder="Issue Id / Subject" class="form-control mr-2"
                             value="{{ !empty(app('request')->input('subject')) ? app('request')->input('subject') : '' }}">
-                    </div>
-                    <div class="col-md-2 pd-sm pd-rt">
+                         
                         <select class="form-control" name="module_id" id="module_id">
                             <option value>Select a Module</option>
                             @foreach ($modules as $module)
@@ -186,34 +185,31 @@
                             @endforeach
                         </select>
                     </div>
-                    @if (auth()->user()->isReviwerLikeAdmin())
-                        <div class="col-md-2 pd-sm pd-rt">
-                            <select class="form-control" name="assigned_to" id="assigned_to">
+                   
+                    <div class="col-md-4 pr-0 d-flex pd-sm pd-rt">
+                        @if (auth()->user()->isReviwerLikeAdmin())
+                            <select class="form-control mr-2" name="assigned_to" id="assigned_to">
                                 <option value="">Assigned To</option>
                                 @foreach ($users as $id => $user)
                                     <option {{ $request->get('assigned_to') == $id ? 'selected' : '' }}
                                         value="{{ $id }}">{{ $user }}</option>
                                 @endforeach
                             </select>
-                        </div>
-                    @endif
-                    <div class="col-md-2 pd-sm">
-                        <select name="order" id="order_query" class="form-control">
-                            <option {{$request->get('order')== "" ? 'selected' : ''}} value="">Latest Communication</option>
-                            <option {{$request->get('order')== "latest_task_first" ? 'selected' : ''}} value="latest_task_first">Latest Task First</option>
-                            <option {{$request->get('order')== "priority" ? 'selected' : ''}} value="priority">Sort by priority</option>
-                            <option {{$request->get('order')== "oldest_first" ? 'selected' : ''}} value="oldest_first">Olderst First</option>
+                        @endif
+                            <select name="order" id="order_query" class="form-control">
+                                <option {{$request->get('order')== "" ? 'selected' : ''}} value="">Latest Communication</option>
+                                <option {{$request->get('order')== "latest_task_first" ? 'selected' : ''}} value="latest_task_first">Latest Task First</option>
+                                <option {{$request->get('order')== "priority" ? 'selected' : ''}} value="priority">Sort by priority</option>
+                                <option {{$request->get('order')== "oldest_first" ? 'selected' : ''}} value="oldest_first">Olderst First</option>
                             
-                        </select>
-                    </div>
+                            </select>
+                        </div>
+                   
                     <div class="col-md-2 pd-sm pd-rt status-selection">
-                        <?php echo Form::select('task_status[]', $statusList, request()->get('task_status', array_values($statusList)), ['class' => 'form-control multiselect', 'multiple' => true]); ?>
-                    </div>
-                    <a data-toggle="modal" data-target="#reminderTimeMessageModal" class="btn pd-5 task-set-reminder">
-                       <i class="fa fa-plus red-notification " aria-hidden="true"></i>
-                    </a> 
-                    <div class='input-group date mr-3 ml-3' id='datetimepicker'>
-                         <input name="delivery_date" type='text' class="form-control" placeholder="Search Delivery Date" id="delivery_date">
+                        <?php echo Form::select('task_status[]', $statusList, request()->get('task_status', array_values($statusList)), ['class' => 'form-control pr-0 multiselect', 'multiple' => true]); ?>
+                    </div> 
+                    <div class='input-group date mr-3 ml-3 col-md-1' id='datetimepicker'>
+                         <input name="delivery_date" type='text' class="form-control" placeholder="Search Delivery Date" id="delivery_date" style="width: 156px !important;">
                          <span class="input-group-addon">
                          <span class="glyphicon glyphicon-calendar"></span>
                          </span>
@@ -224,7 +220,9 @@
 					<a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder">
                        <i class="fa fa-bell  red-notification " aria-hidden="true"></i>
                     </a> 
-                   
+                   <a data-toggle="modal" data-target="#reminderTimeMessageModal" class="btn pd-5 task-set-reminder">
+                       <i class="fa fa-plus red-notification " aria-hidden="true"></i>
+                    </a>
                 </form>
                 
             </div>
@@ -238,15 +236,15 @@
             <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;">
                 <thead>
                     <tr>
-                        <th width="7%">ID</th>
-                        <th width="9%">Subject</th>
-                        <th width="12%">Assigned To</th>
+                         <th width="7%">ID</th>
+                        <th width="8%">Subject</th>
+                        <th width="11%">Assigned To</th>
                         <th width="10%">Tracked Time</th>
-                        <th width="9%">Estimated Time</th>
-                        <th width="12%">Delivery Date</th>
+                        <th width="10%">Estimated Time</th>
+                        <th width="13%">Delivery Date</th>
                         <th width="22%">Communication</th>
                         <th width="13%">Status</th>
-                        <th width="13%">Action</th>
+                        <th width="5%">Action</th>
                     </tr>
                 </thead>
 
