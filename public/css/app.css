@@ -11454,3 +11454,6 @@ table.table-striped-custom tbody tr td {
 .green_img {
     background: grey !important;
 }
+#app{
+    overflow: hidden;
+}
