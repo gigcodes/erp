@@ -44,26 +44,27 @@
             <p>{{ $message }}</p>
         </div>
     @endif
-
+    <div class="row">
+        <div class="col-md-12 p-5 pt-lg-0">
     <div class="productGrid" id="productGrid">
 	<div class="table-responsive-lg">
-		<table class="table table-bordered" style="margin-top: 25px">
+		<table class="table table-bordered" style="margin-top: 25px; table-layout: fixed;">
 		<thead>
 			<tr>
 				<th style="width: 5%">ID</th>
-				<th style="width: 17%">Customer</th>
-				<th style="width: 8%">Date</th>
-				<th style="width: 5%">Prod ID</th>
+				<th style="width: 11%">Customer</th>
+				<th style="width: 10%">Date</th>
+				<th style="width: 9%">Prod ID</th>
 				<th style="width: 17%">Prod</th>
-				<th style="width: 15%">Brand</th>
-				<th style="width: 15%">Default Price</th>
-				<th style="width: 15%">Segement Discount</th>
-				<th style="width: 15%">Duty Price</th>
-				<th style="width: 15%">Override Price</th>
-				<th style="width: 7%">Prod Price</th>
-				<th style="width: 7%">Disc</th>
-				<th style="width: 8%">Final Price</th>
-				<th style="width: 10%">GMU</th>
+				<th style="width: 13%">Brand</th>
+				<th style="width: 5%">Def P</th>
+				<th style="width: 5%">S Disc</th>
+				<th style="width: 5%">Duty</th>
+				<th style="width: 6%">Override</th>
+				<th style="width: 6%">P Price</th>
+				<th style="width: 5%">Disc</th>
+				<th style="width: 6%">F Price</th>
+				<th style="width: 5%">GMU</th>
 			</tr>
 			</thead>
 			<tbody class="infinite-scroll-api-inner">
@@ -71,9 +72,9 @@
 			</tbody>
 		</table>
 	</div>
-
     </div>
-
+</div>
+ </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script type="text/javascript">

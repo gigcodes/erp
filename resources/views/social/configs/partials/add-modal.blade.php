@@ -72,7 +72,7 @@
 
     					<div class="form-group">
     						<strong>Secret:</strong>
-    						<input type="text" name="api_secret	" class="form-control" value="{{ old('api_secret') }}" >
+    						<input type="text" name="api_secret" class="form-control" value="{{ old('api_secret') }}" >
 
     						@if ($errors->has('api_secret'))
     						<div class="alert alert-danger">{{$errors->first('api_secret')}}</div>
@@ -87,6 +87,33 @@
                             <div class="alert alert-danger">{{$errors->first('token')}}</div>
                             @endif
                         </div>
+						<div class="form-group">
+                            <strong>Page Id:</strong>
+                            <input type="text" name="page_id" class="form-control" value="{{ old('page_id') }}" >
+
+                            @if ($errors->has('token'))
+                            <div class="alert alert-danger">{{$errors->first('page_id')}}</div>
+                            @endif
+                        </div>
+
+						<div class="form-group">
+                            <strong>Page Token:</strong>
+                            <input type="text" name="page_token" class="form-control" value="{{ old('page_token') }}" >
+
+                            @if ($errors->has('page_token'))
+                            <div class="alert alert-danger">{{$errors->first('page_token')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Webhook Verify Token:</strong>
+                            <input type="text" name="webhook_token" class="form-control" value="{{ old('webhook_token') }}" >
+
+                            @if ($errors->has('webhook_token'))
+                            <div class="alert alert-danger">{{$errors->first('webhook_token')}}</div>
+                            @endif
+                        </div>
+
 
     					<div class="form-group">
                             <strong>Status:</strong>

@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+@section('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/css/bootstrap-datetimepicker.min.css">
+@endsection
+
 @section('favicon', 'vendor.png')
 
 @section('title', 'Flag Dev Task')
@@ -157,20 +162,21 @@
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
     </div>
-    <div class="row" style="margin-top:13px ;margin-bottom:11px;float: left;">
+    <div class="row">
+        <div class="col-md-12 p-0">
+            <h2 class="page-heading">Quick Dev Task</h2>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/'); ?>
-
-            <div class="pull-left cls_filter_box">
-                <form class="form-inline" action="{{ route('development.flagtask') }}" method="GET">
-
-                    <p style="font-size:16px;text-align:left;margin-top: 10px;font-weight:bold;">Quick Dev Task</p>
-                    <div class="col-md-2 pd-sm pd-rt">
+            <div class=" cls_filter_box" style="margin-left: -13px;">
+                <form class="form-inline form-search-data" action="{{ route('development.flagtask') }}" method="GET">
+                    <div class="col-md-3 pr-0 d-flex pd-sm pd-rt">
                         <input type="text" style="width:100%;" name="subject" id="subject_query"
-                            placeholder="Issue Id / Subject" class="form-control"
+                            placeholder="Issue Id / Subject" class="form-control mr-2"
                             value="{{ !empty(app('request')->input('subject')) ? app('request')->input('subject') : '' }}">
-                    </div>
-                    <div class="col-md-2 pd-sm pd-rt">
+                         
                         <select class="form-control" name="module_id" id="module_id">
                             <option value>Select a Module</option>
                             @foreach ($modules as $module)
@@ -179,36 +185,44 @@
                             @endforeach
                         </select>
                     </div>
-                    @if (auth()->user()->isReviwerLikeAdmin())
-                        <div class="col-md-2 pd-sm pd-rt">
-                            <select class="form-control" name="assigned_to" id="assigned_to">
+                   
+                    <div class="col-md-4 pr-0 d-flex pd-sm pd-rt">
+                        @if (auth()->user()->isReviwerLikeAdmin())
+                            <select class="form-control mr-2" name="assigned_to" id="assigned_to">
                                 <option value="">Assigned To</option>
                                 @foreach ($users as $id => $user)
                                     <option {{ $request->get('assigned_to') == $id ? 'selected' : '' }}
                                         value="{{ $id }}">{{ $user }}</option>
                                 @endforeach
                             </select>
-                        </div>
-                    @endif
-                    <div class="col-md-2 pd-sm">
-                        <select name="order" id="order_query" class="form-control">
-                            <option {{$request->get('order')== "" ? 'selected' : ''}} value="">Latest Communication</option>
-                            <option {{$request->get('order')== "latest_task_first" ? 'selected' : ''}} value="latest_task_first">Latest Task First</option>
-                            <option {{$request->get('order')== "priority" ? 'selected' : ''}} value="priority">Sort by priority</option>
-                            <option {{$request->get('order')== "oldest_first" ? 'selected' : ''}} value="oldest_first">Olderst First</option>
+                        @endif
+                            <select name="order" id="order_query" class="form-control">
+                                <option {{$request->get('order')== "" ? 'selected' : ''}} value="">Latest Communication</option>
+                                <option {{$request->get('order')== "latest_task_first" ? 'selected' : ''}} value="latest_task_first">Latest Task First</option>
+                                <option {{$request->get('order')== "priority" ? 'selected' : ''}} value="priority">Sort by priority</option>
+                                <option {{$request->get('order')== "oldest_first" ? 'selected' : ''}} value="oldest_first">Olderst First</option>
                             
-                        </select>
-                    </div>
+                            </select>
+                        </div>
+                   
                     <div class="col-md-2 pd-sm pd-rt status-selection">
-                        <?php echo Form::select('task_status[]', $statusList, request()->get('task_status', array_values($statusList)), ['class' => 'form-control multiselect', 'multiple' => true]); ?>
-                    </div>
-
+                        <?php echo Form::select('task_status[]', $statusList, request()->get('task_status', array_values($statusList)), ['class' => 'form-control pr-0 multiselect', 'multiple' => true]); ?>
+                    </div> 
+                    <div class='input-group date mr-3 ml-3 col-md-1' id='datetimepicker'>
+                         <input name="delivery_date" type='text' class="form-control" placeholder="Search Delivery Date" id="delivery_date" style="width: 156px !important;">
+                         <span class="input-group-addon">
+                         <span class="glyphicon glyphicon-calendar"></span>
+                         </span>
+                      </div>
 
                     <button type="submit" style="padding: 5px;margin-top:-1px;margin-left: 10px;" class="btn btn-image"
                         id="show"><img src="<?php echo $base_url; ?>/images/filter.png" /></button>
-
-                       
-                    
+					<a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder">
+                       <i class="fa fa-bell  red-notification " aria-hidden="true"></i>
+                    </a> 
+                   <a data-toggle="modal" data-target="#reminderTimeMessageModal" class="btn pd-5 task-set-reminder">
+                       <i class="fa fa-plus red-notification " aria-hidden="true"></i>
+                    </a>
                 </form>
                 
             </div>
@@ -222,14 +236,15 @@
             <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;">
                 <thead>
                     <tr>
-                        <th width="8%">ID</th>
-                        <th width="12%">Subject</th>
-                        <th width="13%">Assigned To</th>
-                        <th width="13%">Tracked Time</th>
-                        <th width="13%">Estimated Time</th>
+                         <th width="7%">ID</th>
+                        <th width="8%">Subject</th>
+                        <th width="11%">Assigned To</th>
+                        <th width="10%">Tracked Time</th>
+                        <th width="10%">Estimated Time</th>
                         <th width="13%">Delivery Date</th>
-                        <th width="35%">Communication</th>
-                        <th width="10%">Status</th>
+                        <th width="22%">Communication</th>
+                        <th width="13%">Status</th>
+                        <th width="5%">Action</th>
                     </tr>
                 </thead>
 
@@ -261,8 +276,7 @@
                 </tbody>
             </table>
         </div>
-        <?php echo $issues->appends(request()->except('page'))->links(); ?>
-
+        
     </div>
     @include("development.partials.upload-document-modal")
     @include("development.partials.time-tracked-modal")
@@ -335,9 +349,132 @@
             </div>
         </div>
     </div>
+    <div id="tasktime-history-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Sl no</th>
+                                <th>Message</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="tasktime-history-list-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="logtasktime-history-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Sl no</th>
+                                <th>Log case id</th>
+                                <th>Message</th>
+                                <th>Log Message</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="logtasktime-history-list-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @include("development.partials.time-history-modal")
 @include("task-module.partials.tracked-time-history")
 @include("development.partials.user_history_modal")
+<img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
+
+<div id="reminderMessageModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Set / Edit Reminder</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+					{{ Form::model($taskMessage, array('url'=>route('development.taskmessage'), 'id'=>'task_message_form'))}}
+						<div class="form-group">
+							<label for="frequency">Frequency</label>
+							<?php echo Form::select("frequency",drop_down_frequency(),null,["class" => "form-control", "id" => "frequency", 'required']); ?>
+						</div>
+						<div class="form-group">
+							<label for="reminder_message">Reminder Message</label>
+							{{Form::textarea('message', null, array('class'=>'form-control', 'required'))}}
+						</div>
+
+						<div class="form-group">
+							{{Form::hidden('message_type', 'date_time_reminder_message')}}
+							{{Form::hidden('id', null)}}
+							<button type="button" class="btn btn-secondary task-submit-reminder">Save</button>
+						</div>
+					</form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+</div>
+<div id="reminderTimeMessageModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Set / Edit Time Message</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    {{ Form::model($taskMessage, array('url'=>route('development.tasktimemessage'), 'id'=>'task_time_message_form'))}}
+                        <div class="form-group">
+                            <label for="frequency">Frequency</label>
+                            <?php echo Form::select("frequency",drop_down_frequency(),null,["class" => "form-control", "id" => "frequency", 'required']); ?>
+                        </div>
+                        <div class="form-group">
+                            <label for="reminder_message">Estimated Time Message</label>
+                            <textarea name="est_time_message" rows="3" required class="form-control"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="reminder_message">Estimated Date Message</label>
+                            <textarea name="est_date_message" rows="3" required class="form-control"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="reminder_message">Overdue Time / Date Message</label>
+                            <textarea name="overdue_time_date_message" rows="3" required class="form-control"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            {{Form::hidden('message_type', 'task_date_time_reminder_message')}}
+                            <button type="button" class="btn btn-secondary task-time-submit-reminder">Save</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+</div>
 
 @endsection
 
@@ -350,7 +487,84 @@
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script src="/js/bootstrap-multiselect.min.js"></script>
+	
+	<script>
+       $(document).on('click', '.task-submit-reminder', function () {
+            var task_message_form = $("#task_message_form").serialize();
+            $.ajax({
+                url: "{{route('development.taskmessage')}}",
+                type: 'POST',
+				data: task_message_form,
+                success: function () {
+                    toastr['success']('message updated successfully!');
+                },
+                error: function (){
+                    toastr['error']('Something went wrong, Please try again!');
+                }
+            });
+        });
+		$(document).on('click', '.task-time-submit-reminder', function () {
+            var task_time_message_form = $("#task_time_message_form").serialize();
+            $.ajax({
+                url: "{{route('development.tasktimemessage')}}",
+                type: 'POST',
+                data: task_time_message_form,
+                success: function () {
+                    toastr['success']('message updated successfully!');
+                },
+                error: function (){
+                    toastr['error']('Something went wrong, Please try again!');
+                }
+            });
+        });
+        
+		
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+            
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
+                }
+            });
+
+            function loadMore() {
+                if (isLoading)
+                    return;
+                isLoading = true;
+                var $loader = $('.infinite-scroll-products-loader');
+                page = page + 1;
+                $.ajax({
+                    url: "{{url('development/flagtask')}}?ajax=1&page="+page,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function (data) {  console.log(data);                   
+                        $loader.hide();
+                        $('#vendor-body').append(data); 
+						isLoading = false;
+						if(data == "") {
+							isLoading = true;
+						}						
+                        
+                    },
+                    error: function () {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }            
+        });
+
+       
+
+  </script>  
+	
     <script type="text/javascript">
+	
         $(document).ready(function() {
             $(".multiselect").multiselect({
                 nonSelectedText: 'Please Select'
@@ -1884,8 +2098,68 @@ $(document).on('click', '.show-date-history', function() {
          });
 
      });
+     $('.tasktime-history-btn').click(function(){
+        var id = $(this).data('id');
+        $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('development.gettasktimemessage') }}",
+            data: {
+              id:id,
+            },
+        }).done(response => {
+          $('#tasktime-history-modal').find('.tasktime-history-list-view').html('');
+            if(response.success==true){
+              $('#tasktime-history-modal').find('.tasktime-history-list-view').html(response.html);
+              $('#tasktime-history-modal').modal('show');
+            }
+
+        }).fail(function(response) {
+
+          alert('Could not fetch payments');
+        });
+    });
+     $('.logtasktime-history-btn').click(function(){
+        var id = $(this).data('id');
+        $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('development.getlogtasktimemessage') }}",
+            data: {
+              id:id,
+            },
+        }).done(response => {
+          $('#logtasktime-history-modal').find('.logtasktime-history-list-view').html('');
+            if(response.success==true){
+              $('#logtasktime-history-modal').find('.logtasktime-history-list-view').html(response.html);
+              $('#logtasktime-history-modal').modal('show');
+            }
+
+        }).fail(function(response) {
+
+          alert('Could not fetch payments');
+        });
+    });
 
 
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/js/bootstrap-datetimepicker.min.js"></script>
 
+<script type="text/javascript">
+$(document).ready(function() {
+  $('#datetimepicker').datetimepicker({
+        format: 'YYYY-MM-DD HH:mm:ss'
+  });
+  $('#datetimepicker2').datetimepicker({
+        format: 'YYYY-MM-DD HH:mm:ss'
+  });
+});
 </script>
 @endsection

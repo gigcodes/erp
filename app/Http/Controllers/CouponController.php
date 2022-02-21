@@ -42,7 +42,12 @@ class CouponController extends Controller
         // $rule_lists = json_decode($response);
         // curl_close($ch); // Close the connection
 
-        $rule_lists = CouponCodeRules::orderBy('id', 'desc')->get();
+        
+        if($request->flt_coupon && $request->flt_coupon != null){
+            $rule_lists = CouponCodeRules::where('coupon_code',$request->flt_coupon)->orderBy('id', 'desc')->get();
+        }else{
+            $rule_lists = CouponCodeRules::orderBy('id', 'desc')->get();    
+        }
         foreach ($rule_lists as $rules) {
             $websites           = Website::whereIn('platform_id', explode(',', $rules->website_ids))->where('store_website_id', $rules->store_website_id)->pluck('name')->toArray();
             $rules->website_ids = implode(',', $websites);
