@@ -200,14 +200,17 @@ Route::prefix('seo')->middleware('auth')->group(function () {
     Route::get('/search', 'SeoToolController@searchSeoFilter')->name('seo-tool-search');
     Route::post('tool/save', 'SeoToolController@saveTool')->name('save.seo-tool');
    // Route::post('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');
-    Route::get('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');;
-    Route::get('domain-report/{id}', 'DetailsController@domainDetails')->name('domain-details');
+    Route::get('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');
+    Route::get('domain-report/{id}/{type?}/{viewId?}/{viewTypeName?}', 'DetailsController@domainDetails')->name('domain-details');
+    Route::post('domain-report/search/{id?}/{type?}/{viewId?}/{viewTypeName?}', 'DetailsController@domainDetailsSearch')->name('domain-details-search');
     Route::get('domain-report/{id}/{type}', 'DetailsController@domainDetails');
 	Route::get('compitetors-details/{id}', 'SeoToolController@compitetorsDetails')->name('compitetors-details');
-	Route::get('site-audit-details/{id}', 'DetailsController@siteAudit')->name('site-audit-details');
+	Route::get('site-audit-details/{id}/{viewId?}/{viewTypeName?}', 'DetailsController@siteAudit')->name('site-audit-details');
 	Route::get('compitetorsdetails/{id}', 'DetailsController@compitetorsDetails')->name('compitetorsdetails');
-	Route::get('backlink-details/{id}', 'DetailsController@backlinkDetails')->name('backlink-details');
+	Route::get('backlink-details/{id}/{viewId?}/{viewTypeName?}', 'DetailsController@backlinkDetails')->name('backlink-details');
+    Route::post('backlink-details/search/{id}/{viewId?}/{viewTypeName?}', 'DetailsController@backlinkDetailsSearch')->name('backlink-details-search');
 	Route::get('site-audit/{projectId}', 'SeoToolController@siteAudit');
+    Route::post('site-audit/search/{projectId}/{viewId?}/{viewTypeName?}', 'DetailsController@siteAuditSearch');
 	Route::get('project-list', 'SeoToolController@projectList');
 	Route::post('save-keyword', 'SeoToolController@saveKeyword');
 });
@@ -2637,6 +2640,8 @@ Route::middleware('auth')->group(function () {
 //Routes for flows
 Route::group(['middleware' => 'auth', 'prefix' => 'flow'], function () {
     Route::get('/list', 'FlowController@index')->name('flow.index');
+    Route::get('/conditionlist', 'FlowController@conditionlist')->name('flow.conditionlist');
+    Route::get('/conditionliststatus', 'FlowController@conditionListStatus')->name('flow.conditionliststatus'); 
     Route::get('/scheduled-emails', 'FlowController@allScheduleEmails')->name('flow.schedule-emails');
     Route::get('/scheduled-messages', 'FlowController@allScheduleMessages')->name('flow.schedule-messages');
     Route::post('/update-email', 'FlowController@updateEmail')->name('flow.update-email');

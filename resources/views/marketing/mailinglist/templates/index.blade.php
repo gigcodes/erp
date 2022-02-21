@@ -77,67 +77,57 @@
                 <div class="modal-body">
                     <form enctype="multipart/form-data" id="form-store">
                         <input type="hidden" name="id" class="py-3" id="form_id">
-                        <div class="form-group">
-                            <label for="exampleInputName">Name</label>
+                        <div class="form-group col-md-6">
                             <input required type="text" name="name" class="form-control" id="form_name"
                                    aria-describedby="NameHelp" placeholder="Enter Name">
                             <span class="text-danger"></span>
                         </div>
-						<div class="form-group">
-                            <label for="form_subject">Subject</label>
+						<div class="form-group col-md-6">
                             <input required type="text" name="subject" class="form-control" id="form_subject" placeholder="Enter Subject">
                             <span class="text-danger"></span>
                         </div>
-                        <div class="form-group">
-                            <label for="form_subject">From Email</label>
+                        <div class="form-group col-md-6">
                             <input required type="text" name="from_email" class="form-control" id="form_from_email" placeholder="Enter From Email">
                             <span class="text-danger"></span>
                         </div>
-                        <div class="form-group">
-                            <label for="form_subject">Salutation</label>
+                        <div class="form-group col-md-6">
                             <input required type="text" name="salutation" class="form-control" id="form_salutation" placeholder="Enter salutation">
                             <span class="text-danger"></span>
                         </div>
-                        <div class="form-group">
-                            <label for="form_subject">Introduction</label>
-                             <textarea required name="introduction" id="form_introduction" class="form-control" placeholder="Enter Introduction" rows='8'></textarea>
+                        <div class="form-group col-md-6">
+                             <textarea required name="introduction" id="form_introduction" class="form-control" placeholder="Enter Introduction" rows='8' style="height: 34px;"></textarea>
                             <span class="text-danger"></span>
                         </div>
-                        <div class="form-group">
-                            <label for="form_subject">Logo</label>
+                        <div class="form-group col-md-6">
                             <input type="hidden" name="old_logo" class="py-3" id="form_logo">
                             <input required type="file" name="logo" class="py-3" id="logo">
                                <span class="text-danger"></span>
                         </div>
 
-						<div class="form-group">
-                            <label for="form_static_template">Static Template</label>
-                            <textarea required name="static_template" id="form_static_template" class="form-control" placeholder="Enter Static Template" rows='8'></textarea>
+						<div class="form-group col-md-6">
+                            <textarea required name="static_template" id="form_static_template" class="form-control" placeholder="Enter Static Template" rows='8' style="height: 34px;"></textarea>
                             <span class="text-danger"></span>
                         </div>
 						
-                        <div class="form-group">
-                            <label for="mail_tpl">Email Template</label>
+                        <div class="form-group col-md-6">
                             <?php echo Form::select("mail_tpl", ["-- None --"] + $rViewMail, null, ["class" => "form-control select2", "required" => true, "id" => "form_mail_tpl"]); ?>
                             <span class="text-danger"></span>
                         </div>
 
-                        <div class="form-group">
-                            <label for="mail_tpl">Category</label>
+                        <div class="form-group col-md-6">
                             <?php echo Form::select("category", ["-- None --"] + $MailingListCategory, null, ["class" => "form-control select2", "required" => true, "id" => "template_category"]); ?>
                             <span class="text-danger"></span>
                         </div>
 
-                        <div class="form-group">
-                            <label for="mail_tpl">Store Website</label>
+                        <div class="form-group col-md-6">
                             <?php echo Form::select("store_website", ["-- None --"] + $storeWebSites, null, ["class" => "form-control select2", "required" => true, "id" => "store_website"]); ?>
                             <span class="text-danger"></span>
                         </div>
 						
 						
-                        <div class="form-group">
+                        <div class="form-group col-md-6">
                             <label for="mail_tpl">Store Website</label>
-							{{ Form::checkbox("store_website", null, null, ["class" => "form-control select2", "required" => true, "id" => "store_website"]) }}
+							{{ Form::checkbox("store_website", null, null, ["class" => " select2", "required" => true, "id" => "store_website"]) }}
                             <span class="text-danger"></span>
                         </div>
 
@@ -155,18 +145,17 @@
                                    placeholder="Enter Text Count">
                             <span class="text-danger"></span>
                         </div> -->
-                        <div class="form-group d-flex flex-column">
+                        <div class="form-group col-md-6">
                             <label for="image">Template Example</label>
                             <input type="hidden" name="old_image" class="py-3" id="form_image">
-                            <input required type="file" name="image" class="py-3" id="image">
-                            <span class="text-danger"></span>
                         </div>
+                        
                         <!-- <div class="form-group d-flex flex-column">
                             <label for="image">File</label>
                             <input required type="file" name="file" class="py-3" id="image">
                             <span class="text-danger"></span>
                         </div> -->
-                        <button id="store" type="submit" class="btn btn-primary">Submit</button>
+                        <button id="store" type="submit" class="btn custom-button" style="margin-left: -34px;">Submit</button>
                     </form>
                 </div>
             </div>
@@ -284,7 +273,7 @@
                         @endif
                     </td>
                     <td>{{$value["salutation"]}}</td>
-                    <td>{{$value["introduction"]}}</td>
+                    <td class="Website-task">{{$value["introduction"]}}</td>
                     <td>
                         @if($value['logo'])
                             <img style="width: 100px" src="{{ asset($value['logo']) }}">

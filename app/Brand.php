@@ -112,7 +112,10 @@ class Brand extends Model
     {
         return $this->hasOne( DeveloperTask::class, 'brand_id', 'id' )->latest();
     }
-
+    public function multiBrandTask($brandId,$devCheckboxs)
+    {
+         return \App\DeveloperTask::where("brand_id",$brandId)->whereIn('assigned_to',$devCheckboxs)->first();
+    }
     public function products()
     {
         return $this->hasMany( Product::class, 'brand', 'id' );

@@ -6,6 +6,7 @@ use App\Flow;
 use App\FlowAction;
 use App\FlowMessage;
 use App\FlowPath;
+use App\FlowCondition;
 use App\FlowType;
 use App\Http\Controllers\Controller;
 use App\StoreWebsite;
@@ -24,8 +25,37 @@ class FlowController extends Controller
             ->select('store_websites.title', 'flows.*')->get();
         $websites = StoreWebsite::pluck('title', 'id')->toArray();
         return view('flow.index', compact('flows', 'websites'));
+    } 
+	
+    public function conditionlist()
+    {
+        /*$flowconditions = FlowCondition::leftJoin('flows', 'flows.id', '=', 'flow_conditions.flow_id')
+						->select('flow_conditions.id as id','flows.flow_name','flow_conditions.condition_name','flow_conditions.message','flow_conditions.condition_name','flow_conditions.status')
+						->get();*/
+						
+		$flowconditions = FlowCondition::select('flow_conditions.*')->get();
+        return view('flow.conditionlist', compact('flowconditions'));
     }
+	
+    public function conditionListStatus(Request $request)
+    {
+        $flowcondition = FlowCondition::find($request->get('id'));
 
+        if($flowcondition->status == 0)
+        {
+            $status = 1;
+        }
+        if($flowcondition->status == 1)
+        {
+            $status = 0;
+        }
+
+        $updateflowcondition = FlowCondition::find($request->get('id'));
+        $updateflowcondition->status = $status;
+        $updateflowcondition->update();
+        return response()->json(['status' => 'success','status'=>$status]);
+    }
+    
     public function allScheduleMessages()
     {
 
