@@ -202,7 +202,7 @@ Route::prefix('seo')->middleware('auth')->group(function () {
    // Route::post('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');
     Route::get('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');
     Route::get('domain-report/{id}/{type?}/{viewId?}/{viewTypeName?}', 'DetailsController@domainDetails')->name('domain-details');
-    Route::post('domain-report/search/{id}/{type?}/{viewId?}/{viewTypeName?}', 'DetailsController@domainDetails')->name('domain-details-search');
+    Route::post('domain-report/search/{id?}/{type?}/{viewId?}/{viewTypeName?}', 'DetailsController@domainDetailsSearch')->name('domain-details-search');
     Route::get('domain-report/{id}/{type}', 'DetailsController@domainDetails');
 	Route::get('compitetors-details/{id}', 'SeoToolController@compitetorsDetails')->name('compitetors-details');
 	Route::get('site-audit-details/{id}/{viewId?}/{viewTypeName?}', 'DetailsController@siteAudit')->name('site-audit-details');

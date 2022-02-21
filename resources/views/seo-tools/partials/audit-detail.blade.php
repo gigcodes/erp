@@ -227,7 +227,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 	<script>
-		function submitSearch() {
+		//This function use for search record by ajax
+		function submitSearch() 
+		{
 			var websiteId = "{{$id}}";
 			var viewId = "{{$viewId}}";
 			var viewTypeName = "{{$viewTypeName}}";
@@ -259,7 +261,10 @@
 				alert(jqXHR.message);
 			});
 		}
-		function resetSearch(){
+
+		//This function use for reset filter data
+		function resetSearch()
+		{
         	location.reload();
     	}
 	</script>

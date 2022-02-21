@@ -13,17 +13,17 @@
         </div>
     </div>
 	
-@if($viewTypeName =='organic_keywords') 
+@if($viewTypeName =='organic_keywords')
 	<div class="row mx-1">
 		<div class="col-lg-12 margin-tb p-3">
 			<div class="col-md-2">
 				<div class='input-group date' id='filter'>
-					<input type='text' class="form-control" id="source_url" name="source_url" value="{{old('source_url')}}" placeholder="Enter Source url" />
+					<input type='text' class="form-control" id="search_url" name="search_url" value="{{old('search_url')}}" placeholder="Enter url" />
 				</div>
 			</div>
 			<div class="col-md-2">
 				<div class='input-group date' id='filter'>
-					<input type='text' class="form-control" id="source_title" name="source_title" value="{{old('source_title')}}" placeholder="Enter Source title" />
+					<input type='text' class="form-control" id="search_keyword" name="search_keyword" value="{{old('search_keyword')}}" placeholder="Enter Keyword" />
 				</div>
 			</div>
 			
@@ -68,12 +68,12 @@
 	<div class="col-lg-12 margin-tb p-3">
 		<div class="col-md-2">
 			<div class='input-group date' id='filter'>
-				<input type='text' class="form-control" id="source_url" name="source_url" value="{{old('source_url')}}" placeholder="Enter Source url" />
+				<input type='text' class="form-control" id="search_url" name="search_url" value="{{old('search_url')}}" placeholder="Enter url" />
 			</div>
 		</div>
 		<div class="col-md-2">
 			<div class='input-group date' id='filter'>
-				<input type='text' class="form-control" id="source_title" name="source_title" value="{{old('source_title')}}" placeholder="Enter Source title" />
+				<input type='text' class="form-control" id="search_keyword" name="search_keyword" value="{{old('search_keyword')}}" placeholder="Enter Number of keyword" />
 			</div>
 		</div>
 		
@@ -107,12 +107,17 @@
 	<div class="col-lg-12 margin-tb p-3">
 		<div class="col-md-2">
 			<div class='input-group date' id='filter'>
-				<input type='text' class="form-control" id="source_url" name="source_url" value="{{old('source_url')}}" placeholder="Enter Source url" />
+				<input type='text' class="form-control" id="target_url" name="target_url" value="{{old('target_url')}}" placeholder="Enter Target url" />
 			</div>
 		</div>
 		<div class="col-md-2">
 			<div class='input-group date' id='filter'>
-				<input type='text' class="form-control" id="source_title" name="source_title" value="{{old('source_title')}}" placeholder="Enter Source title" />
+				<input type='text' class="form-control" id="times_seen" name="times_seen" value="{{old('times_seen')}}" placeholder="Enter Times seen" />
+			</div>
+		</div>
+		<div class="col-md-2">
+			<div class='input-group date' id='filter'>
+				<input type='text' class="form-control" id="ads_count" name="ads_count" value="{{old('ads_count')}}" placeholder="Enter ads seen" />
 			</div>
 		</div>
 		
@@ -177,47 +182,59 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
-	$('.select2').select2();
-	$('#keyword_type').change(function(){ 
-            var type = $(this).val();
-            $.ajax({
-                url : "{{ url('seo/domain-report/2/') }}"+'/'+type,
-                type : "GET",
-                success : function (data){ 
-					$('#keywordData').html(data);              
-                },
-                error : function (response){
+		$('.select2').select2();
+		$('#keyword_type').change(function(){ 
+				var type = $(this).val();
+				$.ajax({
+					url : "{{ url('seo/domain-report/2/') }}"+'/'+type,
+					type : "GET",
+					success : function (data){ 
+						$('#keywordData').html(data);              
+					},
+					error : function (response){
 
-                }
-            });
-        });
-	  $(document).on('click', '.expand-row-msg', function () {
-		var name = $(this).data('name');
-		var id = $(this).data('id');
-		var full = '.expand-row-msg .show-short-'+name+'-'+id;
-		var mini ='.expand-row-msg .show-full-'+name+'-'+id;
-		$(full).toggleClass('hidden');
-		$(mini).toggleClass('hidden');
-	  });
-    </script>
-	<script>
-		function submitSearch() {
+					}
+				});
+			});
+		$(document).on('click', '.expand-row-msg', function () {
+			var name = $(this).data('name');
+			var id = $(this).data('id');
+			var full = '.expand-row-msg .show-short-'+name+'-'+id;
+			var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+			$(full).toggleClass('hidden');
+			$(mini).toggleClass('hidden');
+		});
+
+		//This function use for search record by ajax
+		function submitSearch() 
+		{
 			var websiteId = "{{$id}}";
 			var viewId = "{{$viewId}}";
 			var viewTypeName = "{{$viewTypeName}}";
-			var src = "{{url('seo/domain-report/search/')}}/"+websiteId+"/"+viewId+"/"+viewTypeName;
+			var removeviewIDWhite = viewId.replace(" ", "_");
+			var src = "{{url('seo/domain-report/search/')}}/"+websiteId+"/organic/"+removeviewIDWhite+"/"+viewTypeName;
 			var searchDatabase = $('#search_database').val();
 			var searchDomain = $('#search_domain').val();
 			var searchAnchor = $('#search_anchor').val();
 			var sourceUrl = $('#source_url').val();
 			var sourceTitle = $('#source_title').val();
+			var searchUrl = $("#search_url").val();
+			var searchKeyword = $("#search_keyword").val();
+			var targetUrl = $("#target_url").val();
+			var timesSeen = $("#times_seen").val();
+			var adsCount = $("#ads_count").val();
 			data = {
 				"search_websiteId" : websiteId,
 				"search_database" : searchDatabase,
 				"search_domain" : searchDomain,
 				"search_anchor" : searchAnchor,
 				"source_url" : sourceUrl,
-				"source_title" : sourceTitle
+				"source_title" : sourceTitle,
+				"search_url" : searchUrl,
+				"search_keyword" : searchKeyword,
+				"target_url" : targetUrl,
+				"times_seen" : timesSeen,
+				"ads_count" : adsCount
 			};
 			$.ajax({
 				url: src,
@@ -225,8 +242,8 @@
 				dataType: "json",
 				data: data,
 				headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
+					'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+				},
 				beforeSend: function () {
 					$("#loading-image").show();
 				},
@@ -239,8 +256,11 @@
 				alert(jqXHR.message);
 			});
 		}
-		function resetSearch(){
-        	location.reload();
-    	}
+		
+		//This function use for reset filter data
+		function resetSearch() 
+		{
+			location.reload();
+		}
 	</script>
 @endsection

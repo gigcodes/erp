@@ -22,17 +22,17 @@ class DetailsController extends Controller
 		   return view('seo-tools.compitetorsrecords', compact('keywords', 'id'));
 	}
 	 
-	public function domainDetails($id, $type='organic', $viewId ='', $viewTypeName ='') {
+	public function domainDetails($id, $type='organic', $viewId ='', $viewTypeName ='')
+	{
 		$now = Carbon::now()->format('Y-m-d');
-		$keywords = DomainSearchKeyword::where('store_website_id', $id)->where('subtype', $type)->get();
-		$domainorganicpage = DomainOrganicPage::where('store_website_id', $id)->get();
-		$domainlandingpage = DomainLandingPage::where('store_website_id', $id)->get();
-		$compitetors = Competitor::where('store_website_id', $id)->get();
+		$keywords = DomainSearchKeyword::where('store_website_id', $id)->where('subtype', $type)->where('created_at', 'like', $now.'%')->get();
+		$domainorganicpage = DomainOrganicPage::where('store_website_id', $id)->where('created_at', 'like', $now.'%')->get();
+		$domainlandingpage = DomainLandingPage::where('store_website_id', $id)->where('created_at', 'like', $now.'%')->get();
+		$compitetors = Competitor::where('store_website_id', $id)->where('created_at', 'like', $now.'%')->get();
 		if (request()->ajax()) {
 			return view("seo-tools.partials.domain-data", compact('keywords', 'domainorganicpage', 'domainlandingpage', 'compitetors', 'viewId', 'viewTypeName'));
 		}
 	    return view('seo-tools.records', compact('keywords', 'domainorganicpage', 'domainlandingpage', 'compitetors', 'id', 'viewId', 'viewTypeName'));
-		//->where('created_at', 'like', $now.'%')
 	}
 
 	/**
@@ -43,22 +43,69 @@ class DetailsController extends Controller
 	 * @param string $type
 	 * @param int $viewId
 	 * @param string $viewTypeName
-	 * @return JsonResponse
+	 * @return JsonResponse || View
 	 */
-	public function domainDetailsSearch(Request $request, $id, $type='organic', $viewId ='', $viewTypeName ='') {
+	public function domainDetailsSearch(Request $request, $id, $type='organic', $viewId ='', $viewTypeName ='') 
+	{
 		$now = Carbon::now()->format('Y-m-d');
-		$keywords = DomainSearchKeyword::where('store_website_id', $id)->where('subtype', $type)->get();
-		$domainorganicpage = DomainOrganicPage::where('store_website_id', $id)->get();
-		$domainlandingpage = DomainLandingPage::where('store_website_id', $id)->get();
-		$compitetors = Competitor::where('store_website_id', $id)->get();
+		//Search Keyword
+		if ($viewTypeName == 'organic_keywords') {
+			$searchCon = [];
+			if ($request->search_url !='') {
+				$searchCon[] = ['url', 'LIKE','%'.$request->search_url.'%'];
+			}
+			if ($request->search_keyword !='') {
+				$searchCon[] = ['keyword', 'LIKE','%'.$request->search_keyword.'%'];
+			}
+			$keywords = DomainSearchKeyword::where('store_website_id', $id)->where('subtype', $type)->where('created_at', 'like', $now.'%')->where($searchCon)->get();
+			return response()->json([
+                'tbody' => view('seo-tools.partials.domain-data', compact('keywords','viewId', 'viewTypeName'))->render(),
+            ], 200);
+        }
+		
+		//Search Traffic
+		if ($viewTypeName == 'organic_traffic') {
+			$searchCon = [];
+			if ($request->search_url !='') {
+				$searchCon[] = ['url', 'LIKE','%'.$request->search_url.'%'];
+			}
+			if ($request->search_keyword !='') {
+				$searchCon[] = ['number_of_keywords', 'LIKE','%'.$request->search_keyword.'%'];
+			}
+			$domainorganicpage = DomainOrganicPage::where('store_website_id', $id)->where('created_at', 'like', $now.'%')->where($searchCon)->get();
+			return response()->json([
+                'tbody' => view('seo-tools.partials.domain-organic-page', compact('domainorganicpage','viewId', 'viewTypeName'))->render(),
+            ], 200);
+        }
+		
+		//Search Traffic
+		if ($viewTypeName == 'organic_cost') {
+			$searchCon = [];
+			if ($request->target_url !='') {
+				$searchCon[] = ['target_url', 'LIKE','%'.$request->target_url.'%'];
+			}
+			if ($request->times_seen !='') {
+				$searchCon[] = ['times_seen', 'LIKE','%'.$request->times_seen.'%'];
+			}
+			if ($request->ads_count !='') {
+				$searchCon[] = ['ads_count', 'LIKE','%'.$request->ads_count.'%'];
+			}
+			$domainlandingpage = DomainLandingPage::where('store_website_id', $id)->where('created_at', 'like', $now.'%')->where($searchCon)->get();
+			return response()->json([
+                'tbody' => view('seo-tools.partials.domain-landing-page', compact('domainlandingpage','viewId', 'viewTypeName'))->render(),
+            ], 200);
+        }
+		
+		$compitetors = Competitor::where('store_website_id', $id)->where('created_at', 'like', $now.'%')->get();
 		if (request()->ajax()) {
 			return view("seo-tools.partials.domain-data", compact('keywords', 'domainorganicpage', 'domainlandingpage', 'compitetors', 'viewId', 'viewTypeName'));
 		}
 	    return view('seo-tools.records', compact('keywords', 'domainorganicpage', 'domainlandingpage', 'compitetors', 'id', 'viewId', 'viewTypeName'));
-		//->where('created_at', 'like', $now.'%')
+		
 	}
 	
-	public function backlinkDetails($id, $viewId  = '', $viewTypeName = '') {
+	public function backlinkDetails($id, $viewId  = '', $viewTypeName = '') 
+	{
 		$now = Carbon::now()->format('Y-m-d');
 		$backlink_domains = BacklinkDomains::where(['store_website_id'=> $id, 'tool_id'=> '1'])->where('created_at', 'like', $now.'%')->orderBy('id', 'desc')->get(); 
 		$backlink_anchors = BacklinkAnchors::where(['store_website_id'=> $id, 'tool_id'=> '1'])->where('created_at', 'like', $now.'%')->orderBy('id', 'desc')->get();
@@ -89,8 +136,7 @@ class DetailsController extends Controller
 				$searchCon[] = ['domain', 'LIKE','%'.$request->search_domain.'%'];
 			}
 			$backlink_domains = BacklinkDomains::where(['store_website_id'=> $id, 'tool_id'=> 1])->where('created_at', 'like', $now.'%')->where($searchCon)->orderBy('id', 'desc')->get(); 
-			dd($backlink_domains);
-		    return response()->json([
+			return response()->json([
                 'tbody' => view('seo-tools.partials.backlink-data', compact('backlink_domains','viewId', 'viewTypeName'))->render(),
             ], 200);
         }
@@ -104,7 +150,6 @@ class DetailsController extends Controller
 			if ($request->search_anchor !='') {
 				$searchCon[] = ['anchor', 'LIKE','%'.$request->search_anchor.'%'];
 			}
-			//dd($searchCon);
 			$backlink_anchors = BacklinkAnchors::where(['store_website_id'=> $id, 'tool_id'=> 1])->where('created_at', 'like', $now.'%')->where($searchCon)->orderBy('id', 'desc')->get();
 			
 		    return response()->json([
@@ -121,7 +166,6 @@ class DetailsController extends Controller
 			if ($request->source_title !='') {
 				$searchCon[] = ['source_title', 'LIKE','%'.$request->source_title.'%'];
 			}
-			//dd($searchCon);
 			$backlink_indexed_page = BacklinkIndexedPage::where(['store_website_id'=> $id, 'tool_id'=> 1])->where('created_at', 'like', $now.'%')->where($searchCon)->orderBy('id', 'desc')->get();
 			
 		    return response()->json([
@@ -134,14 +178,12 @@ class DetailsController extends Controller
 		], 200);
 	}
 
-	public function siteAudit(Request $request, $id, $viewId  = '', $viewTypeName = '') {
+	public function siteAudit(Request $request, $id, $viewId  = '', $viewTypeName = '') 
+	{
 		$websiteId = $id;
 		$now = Carbon::now()->format('Y-m-d');
-	    //DB::enableQueryLog(); // Enable query log
-		$siteAudit = SiteAudit::where(['store_website_id'=> $id])->where($viewTypeName, '=', $viewId)->where('created_at', 'like', $now.'%')->first();
-		//dd(DB::getQueryLog()); // Show results of log
+	    $siteAudit = SiteAudit::where(['store_website_id'=> $id])->where($viewTypeName, '=', $viewId)->where('created_at', 'like', $now.'%')->first();
 		return view('seo-tools.partials.audit-detail', compact('siteAudit', 'id', 'viewId', 'viewTypeName'))->render();
-		//->where('created_at', 'like', $now.'%')
 	}
 
 	/**
@@ -159,12 +201,12 @@ class DetailsController extends Controller
 		$now = Carbon::now()->format('Y-m-d');
 		$searchCon = [];
 		if($request->search_status !='') {
-			$searchCon = ['status', 'LIKE','%'.$request->search_status.'%'];
+			$searchCon[] = ['status', 'LIKE','%'.$request->search_status.'%'];
 		}
 	    if($request->search_name !='') {
-			$searchCon = ['name', 'LIKE','%'.$request->search_name.'%'];
+			$searchCon[] = ['name', 'LIKE','%'.$request->search_name.'%'];
 		}
-	    $siteAudit = SiteAudit::where(['store_website_id'=> $id])->where([[$viewTypeName, '=', $viewId], ['created_at', 'like', $now.'%' ], $searchCon])->first();
+	    $siteAudit = SiteAudit::where(['store_website_id'=> $id])->where([[$viewTypeName, '=', $viewId], ['created_at', 'like', $now.'%' ]])->where($searchCon)->first();
 		if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('seo-tools.partials.audit-detail-search', compact('siteAudit', 'viewId', 'viewTypeName'))->render(),

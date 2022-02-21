@@ -138,17 +138,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
-	  $(document).on('click', '.expand-row-msg', function () {
-		var name = $(this).data('name');
-		var id = $(this).data('id');
-		var full = '.expand-row-msg .show-short-'+name+'-'+id;
-		var mini ='.expand-row-msg .show-full-'+name+'-'+id;
-		$(full).toggleClass('hidden');
-		$(mini).toggleClass('hidden');
-	  });
-    </script>
-	<script>
-		function submitSearch() {
+	  	$(document).on('click', '.expand-row-msg', function () {
+			var name = $(this).data('name');
+			var id = $(this).data('id');
+			var full = '.expand-row-msg .show-short-'+name+'-'+id;
+			var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+			$(full).toggleClass('hidden');
+			$(mini).toggleClass('hidden');
+		});
+		
+    	//This function use for search record by ajax
+		function submitSearch() 
+		{
 			var websiteId = "{{$id}}";
 			var viewId = "{{$viewId}}";
 			var viewTypeName = "{{$viewTypeName}}";
@@ -186,7 +187,10 @@
 				alert(jqXHR.message);
 			});
 		}
-		function resetSearch(){
+
+		//This function use for reset filter data
+		function resetSearch()
+		{
         	location.reload();
     	}
 	</script>
