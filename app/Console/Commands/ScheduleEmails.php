@@ -498,7 +498,7 @@ class ScheduleEmails extends Command
 					}
 										
 					foreach ($flowActiosnNew as $flowActionNew) {
-						$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date, $flow_log_id, 'user',$allflowconditions);
+						$this->doProcess($flowActionNew, $modalType, $lead_new, $store_website_id, $created_date, $flow_log_id, 'user',$allflowconditions);
 					}
 				}
 			} elseif ($flowAction['condition'] == 'check_scrapper_error_logs') {
