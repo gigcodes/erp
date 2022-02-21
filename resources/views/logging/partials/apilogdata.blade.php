@@ -6,12 +6,23 @@
 
                     <td>{{$log->ip}}</td>
 
+                    @if($log->api_name)
+                        @php 
+                            $api_name = explode('@', $log->api_name);
+                        @endphp
+                        <td>{{ wordwrap($api_name[0], 30) }}</td>
+
+                        <td>{{ wordwrap($api_name[1], 30) }}</td>
+                    @else
+                    <td></td>
+                    <td></td>
+                    @endif
                     <td>{{$log->method}}</td>
 
                     
 
                         
-                     <td style="width: 30%" class="expand-row table-hover-cell">
+                     <td class="expand-row table-hover-cell">
                         <span class="td-mini-container">
                         {{ strlen( $log->url ) > 50 ? substr( $log->url , 0, 50).'...' :  $log->url }}
                         </span>
