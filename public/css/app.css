@@ -11513,13 +11513,15 @@ overflow-x: hidden !important;
 #app{
     overflow: hidden !important;
 }
+.btn.btn-edit-template{
+    padding: 1px 0px;
+}
 .selectbox{
     width: 100px !important;
 }
 .show-product-information{
     color: black;
 }
-
 .custom-checkbox input[type="checkbox"]{
     position: absolute;
     width: 15px;
@@ -11557,6 +11559,5 @@ overflow-x: hidden !important;
 }
 .custom-checkbox input[type="checkbox"]:checked + label:after{
     opacity: 1;
-
-
 }
+
