@@ -169,26 +169,26 @@
       <table class="table table-bordered order-table table-condensed" style="border: 1px solid #5A6268 !important; color:black;">
         <thead>
         <tr>
-            <th width="1%" style="padding:0;" >Select</th>
-            <th width="5%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
-            <th width="6%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
-            <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
-            <th width="10%">Site Name</th>
-            <th width="10%">Products</th>
-            <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=estdeldate{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Est. Delivery Date</a></th>
+            <th>Select</th>
+            <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
+            <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
+            <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
+            <th >Site Name</th>
+            <th>Products</th>
+            <th class="Website-task" title="Est. Delivery Date"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=estdeldate{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Est. Delivery Date</a></th>
             <th>Brands</th>
-            <th width="14%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
-            <th width="8%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=advance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Advance</a></th>
-            <th width="8%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}{{ isset($order_status) ? implode('&', array_map(function($item) {return 'status[]='. $item;}, $order_status)) . '&' : '&' }}sortby=balance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Balance</a></th>
-            {{-- <th style="width: 5%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=action{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Action Status</a></th>
-            <th style="width: 8%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=due{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Due</a></th> --}}
-            {{-- <th style="width: 8%">Message Status</th> --}}
-            {{-- <th style="width: 20%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th> --}}
+            <th class="Website-task" title="Order Status"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
+            <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=advance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Advance</a></th>
+            <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}{{ isset($order_status) ? implode('&', array_map(function($item) {return 'status[]='. $item;}, $order_status)) . '&' : '&' }}sortby=balance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Balance</a></th>
+            {{-- <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=action{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Action Status</a></th>
+            <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=due{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Due</a></th> --}}
+            {{-- <th >Message Status</th> --}}
+            {{-- <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th> --}}
             <th>Waybill</th>
             <th>Price</th>
             <th>Shipping</th>
             <th>Duty</th>
-            <th width="10%">Action</th>
+            <th >Action</th>
          </tr>
         </thead>
 
@@ -222,7 +222,7 @@
                   </span>
                 </td>
               <td class="table-hover-cell">
-              <div class="form-inline">
+              <div class="form-inline " >
                   @if ($order->is_priority == 1)
                     <strong class="text-danger mr-1">!!!</strong>
                   @endif
@@ -235,13 +235,12 @@
                   </span>
                 </div>
               </td>
-              <td>{{ Carbon\Carbon::parse($order->order_date)->format('d-m') }}</td>
-              <td class="expand-row table-hover-cell" style="color:grey;">
+              <td class="Website-task" title="{{ Carbon\Carbon::parse($order->order_date)->format('d-m') }}">{{ Carbon\Carbon::parse($order->order_date)->format('d-m') }}</td>
+              <td class="expand-row table-hover-cell Website-task" style="color:grey;">
                 @if ($order->customer)
                   <span class="td-mini-container">
                     <a style="color: #6c757d;" href="{{ route('customer.show', $order->customer->id) }}">{{ strlen($order->customer->name) > 15 ? substr($order->customer->name, 0, 13) . '...' : $order->customer->name }}</a>
                   </span>
-
                   <span class="td-full-container hidden">
                     <a style="color: #6c757d;" href="{{ route('customer.show', $order->customer->id) }}">{{ $order->customer->name }}</a>
                   </span>
@@ -311,7 +310,7 @@
               <i style="color:#6c757d;" class="fa fa-info-circle est-del-date-history" data-id="{{$order->id}}"  aria-hidden="true"></i>
        
               </td>
-              <td>
+              <td class="Website-task">
                 <?php 
                    $totalBrands = explode(",",$order->brand_name_list);
                     if(count($totalBrands) > 1) {
@@ -620,7 +619,7 @@
     <div class="modal-dialog modal-lg">
       <!-- Modal content-->
       <div class="modal-content ">
-        <div class="modal-header">
+        <div class="modal-header ml-4 mr-4">
             <h4 class="modal-title">Change Status</h4>
             <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -634,18 +633,17 @@
                       <div class="col-md-2">
                           <strong>Message:</strong>
                       </div>
-                      <div class="col-md-8">
+                      <div class="col-md-5">
                         <div class="form-group">
-                          <textarea cols="45" class="form-control" id="order-template-status-tpl" name="message"></textarea>
+                          <textarea cols="45" class="form-control" id="order-template-status-tpl" name="message"style="height: 35px;"></textarea>
                         </div>
                       </div>
-                      <div class="col-md-12">
                       <div class="col-md-2">
-                        <div class="form-group">
+                        <div class="form-group d-flex">
                           <div class="checkbox">
                             <label><input class="msg_platform" onclick="loadpreview(this);" type="checkbox" value="email">Email</label>
                           </div>
-                          <div class="checkbox">
+                          <div class="checkbox mt-3 ml-2">
                             
                             <label><input class="msg_platform" type="checkbox" value="sms">SMS</label>
                           </div>
@@ -656,13 +654,11 @@
                              
                        </div>
                 </div>
-                      </div>
-                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer pb-0">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary update-status-with-message">Submit</button>
+                <button type="button" class="btn custom-button update-status-with-message">Submit</button>
                 <!-- <button type="button" class="btn btn-secondary update-status-with-message">With Message</button> -->
                 <!-- <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button> -->
             </div>
@@ -704,6 +700,8 @@
 @include("partials.modals.customer-address-modal")
 @include("partials.modals.add-invoice-modal")
 @include('partials.modals.return-exchange-modal')
+@include('partials.modals.return-exchange-modal')
+@include('partials.modals.estimated-delivery-date-histories')
 @section('scripts')
 
 

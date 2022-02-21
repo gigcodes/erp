@@ -38,7 +38,8 @@ class FcmNotificationController extends Controller
                 'count' => $data->total(),
             ], 200);
         }
-		return view('pushfcmnotification.index', compact('data'))
+        $StoreWebsite = StoreWebsite::select('id','website')->groupBy('website')->get();
+		return view('pushfcmnotification.index', compact('data','StoreWebsite'))
 			->with('i', ($request->input('page', 1) - 1) * 5);
     }
 

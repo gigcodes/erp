@@ -36,6 +36,10 @@
                                 <label for="leads_email">Message Type</label>
                                 {{Form::select('message_application_id', $types, $type, array('class'=>'form-control'))}}
                             </div>
+                            <div class="form-group ml-3 cls_filter_inputbox">
+                                <label for="leads_email">Is Queue</label>
+                                {{Form::select('is_queue', $is_queues, $type, array('class'=>'form-control'))}}
+                            </div>
                             <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="{{url('/images/filter.png')}}"/></button>
                         </form>
                     </div>
@@ -53,6 +57,7 @@
             <thead>
             <tr>
                 <th style="">ID</th>
+                <th style="">Task</th>
                 <th style="">Customer</th>
                 <th style="">Message</th>
                 <th style="">Status</th>
@@ -68,12 +73,26 @@
             @foreach($messages as $key=>$value)
                 <tr class="{{$value->id}}">
                     <td id="id">{{$i}}</td>
-                    <td id="name">{{$value->customer_id}}</td>
+                    <td id="task">@if($value->task_id != 0) {{$value->task_id}} @elseif($value->developer_task_id != 0) DEVTASK-{{$value->developer_task_id}} @endif</td>
+                    <td id="name">{{$value->customer_name}}</td>
                     <td id="name">{{$value->message}}</td>
                     <td id="name">{{$value->status}}</td>
-                    <td id="name">{{$value->is_queue}}</td>
-                    <td id="name">{{$value->approved}}</td>
-                    <td id="name">{{$value->user_id}}</td>
+                    <td id="name">
+                        @if($value->is_queue == 0) {{-- message has been sent --}}
+                            No
+                        @else {{-- message has not been sent --}}
+                            Yes
+                        @endif
+                    </td>
+                    
+                    <td id="name">
+                        @if($value->approved == 1) {{-- message has been approved --}}
+                            Yes
+                        @else {{-- message has not been approved --}}
+                            No
+                        @endif
+                    </td>
+                    <td id="name">{{$value->user_name}}</td>
                     <td id="name">{{($value->message_application_id==3)?'SMS':'Whatsapp'}}</td>
                     <td id="name">{{$value->scheduled_at}}</td>
                     <td>
@@ -85,8 +104,8 @@
             @endforeach
             </tbody>
         </table>
-        @if(isset($data))
-            {{ $data->links() }}
+        @if(isset($messages))
+            {{ $messages->links() }}
         @endif
     </div>
 
@@ -104,17 +123,6 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
-
-          <div class="form-group">
-            <strong>Customer:</strong>
-            <input type="text" name="customer_id" class="form-control" value="{{ old('customer_id') }}" required>
-
-            @if ($errors->has('customer_id'))
-              <div class="alert alert-danger">{{$errors->first('customer_id')}}</div>
-            @endif
-          </div>
-
-
           <div class="form-group">
             <strong>Message:</strong>
             <input type="text" name="message" class="form-control" value="{{ old('message') }}" required>
@@ -122,6 +130,11 @@
             @if ($errors->has('message'))
               <div class="alert alert-danger">{{$errors->first('message')}}</div>
             @endif
+          </div>
+		  
+		   <div class="form-group">
+            <strong>Approve:</strong>
+			{{Form::select('approved', [1=>'Yes', 0=>'No'], null, array('class'=>'form-control', 'id'=>'approved'))}}
           </div>
 
         <div class="modal-footer">
@@ -210,8 +223,13 @@
 
       $('#emailAddressEditModal form').attr('action', url);
       $('#emailAddressEditModal').find('input[name="id"]').val(data.id);
-      $('#emailAddressEditModal').find('input[name="customer_id"]').val(data.customer_id);
-      $('#emailAddressEditModal').find('input[name="message"]').val(data.message);
+      //$('#emailAddressEditModal').find('input[name="approved"]').val(data.approved);
+	  var approved = 1;
+	  if(data.approved == false) {
+		  approved = 0;
+	  }
+	   $('#approved').val(approved); console.log(data.approved);
+	   $('#emailAddressEditModal').find('input[name="message"]').val(data.message);
       
     });
 </script>
