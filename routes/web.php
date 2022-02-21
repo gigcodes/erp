@@ -2831,6 +2831,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function () {
     Route::any('/delete-rules/{id}', 'CouponController@deleteCouponCodeRuleById')->name('delete-rules');
 
     Route::post('/quick-coupon-code-rules', 'CouponController@shortCutFroCreateCoupn')->name('quick.couponcode.store');
+    Route::post('/send-coupons', 'CouponController@sendCoupons')->name('coupons.send');
+    Route::get('log-coupon-code-rule-ajax', 'CouponController@logCouponCodeRuleAjax')->name('couponcoderule.log.ajax');
 });
 
 Route::middleware('auth')->group(function () {
