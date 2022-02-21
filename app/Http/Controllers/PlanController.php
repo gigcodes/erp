@@ -287,14 +287,33 @@ class PlanController extends Controller
             if(isset($request->plan_action_old)) {
                 $do_not_delete = $request->plan_action_old;
             }
-
             $plan_action_old_active = array();
-            if(isset($request->plan_action_old_active)) {
-                $plan_action_old_active = $request->plan_action_old_active;
+
+            if(isset($request->plan_action_old_active_hidden)) {
+                foreach($request->plan_action_old_active_hidden as $key => $data) {
+                    if(!isset($request->plan_action_old_active[$key])) {
+                        $plan_action_old_active[$key] = 0;
+                    } else {
+                        $plan_action_old_active[$key] = $request->plan_action_old_active[$key];
+                    }
+                }
+
+                $result = array_diff_assoc($plan_action_old_active,$request->plan_action_old_active_hidden);
+
+                //get active data
+                $filteredArrayByActive = Arr::where($result, function ($value, $key) {
+                    return $value == 1;
+                });
+
+                //get In-active data
+                $filteredArrayByInActive = Arr::where($result, function ($value, $key) {
+                    return $value == 0;
+                });
+
+                //update active status
+                PlanAction::whereIn('id',array_keys($filteredArrayByActive))->update(['is_active' => 1]);
+                PlanAction::whereIn('id',array_keys($filteredArrayByInActive))->update(['is_active' => 0]);
             }
-            //update active status
-            PlanAction::whereIn('id',$plan_action_old_active)->where('plan_id',$request->id)->update(['is_active' => 1]);
-            PlanAction::whereNotIn('id',$plan_action_old_active)->where('plan_id',$request->id)->update(['is_active' => 0]);
 
             //----------------- Edit Process End ----------------------------
 

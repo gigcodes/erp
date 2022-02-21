@@ -24,9 +24,10 @@
                     <td style="vertical-align:middle">{{$strength->getAdminUser->name}}</td>
                     <td style="vertical-align:middle">{{\App\Helpers\CommonHelper::UTCToLocal($strength->created_at, 'd,M Y')}}</td>
                     <td style="vertical-align:middle">{{\App\Helpers\CommonHelper::UTCToLocal($strength->updated_at, 'd,M Y')}}</td>
-                    <td class="actions-main actions-main-sub w-100" style="vertical-align:middle">
+                    <td class="actions-main actions-main-sub w-100 border-bottom-0 border-right-0" style="vertical-align:middle">
                         <label class="switch">
-                            <input type="checkbox" name="plan_action_old_active[]" value="{{$strength->id}}"  {{(($strength->is_active == 1) ? 'checked' : '')}}>
+                            <input type="hidden" name="plan_action_old_active_hidden[{{$strength->id}}]" value="{{$strength->is_active}}">
+                            <input type="checkbox" name="plan_action_old_active[{{$strength->id}}]" value="1" {{(($strength->is_active == 1) ? 'checked' : '')}}>
                             <span class="slider round"></span>
                         </label>
                         <button type="button" class="btn btn-secondary btn-sm delete_field" data-id="{{$strength->id}}" >-</button>
@@ -61,9 +62,10 @@
                     <td style="vertical-align:middle">{{$weakness->getAdminUser->name}}</td>
                     <td style="vertical-align:middle">{{\App\Helpers\CommonHelper::UTCToLocal($weakness->created_at, 'd,M Y')}}</td>
                     <td style="vertical-align:middle">{{\App\Helpers\CommonHelper::UTCToLocal($weakness->updated_at, 'd,M Y')}}</td>
-                    <td class="actions-main actions-main-sub w-100" style="vertical-align:middle">
+                    <td class="actions-main actions-main-sub w-100  border-bottom-0 border-right-0" style="vertical-align:middle">
                         <label class="switch">
-                            <input type="checkbox" name="plan_action_old_active[]" value="{{$weakness->id}}" {{(($weakness->is_active == 1) ? 'checked' : '')}}>
+                            <input type="hidden" name="plan_action_old_active_hidden[{{$weakness->id}}]" value="{{$weakness->is_active}}">
+                            <input type="checkbox" name="plan_action_old_active[{{$weakness->id}}]" value="1" {{(($weakness->is_active == 1) ? 'checked' : '')}}>
                             <span class="slider round"></span>
                         </label>
                         <button type="button" class="btn btn-secondary btn-sm delete_field" data-id="{{$weakness->id}}" >-</button>
@@ -100,9 +102,10 @@
                     <td style="vertical-align:middle">{{$opportunity->getAdminUser->name}}</td>
                     <td style="vertical-align:middle">{{\App\Helpers\CommonHelper::UTCToLocal($opportunity->created_at, 'd,M Y')}}</td>
                     <td style="vertical-align:middle">{{\App\Helpers\CommonHelper::UTCToLocal($opportunity->updated_at, 'd,M Y')}}</td>
-                    <td class="actions-main actions-main-sub w-100" style="vertical-align:middle">
+                    <td class="actions-main actions-main-sub w-100  border-bottom-0 border-right-0" style="vertical-align:middle">
                         <label class="switch">
-                            <input type="checkbox" name="plan_action_old_active[]" value="{{$opportunity->id}}" {{(($opportunity->is_active == 1) ? 'checked' : '')}}>
+                            <input type="hidden" name="plan_action_old_active_hidden[{{$opportunity->id}}]" value="{{$opportunity->is_active}}">
+                            <input type="checkbox" name="plan_action_old_active[{{$opportunity->id}}]" value="1" {{(($opportunity->is_active == 1) ? 'checked' : '')}}>
                             <span class="slider round"></span>
                         </label>
                         <button type="button" class="btn btn-secondary btn-sm delete_field" data-id="{{$opportunity->id}}" >-</button>
@@ -137,9 +140,10 @@
                     <td style="vertical-align:middle">{{$threat->getAdminUser->name}}</td>
                     <td style="vertical-align:middle">{{\App\Helpers\CommonHelper::UTCToLocal($threat->created_at, 'd,M Y')}}</td>
                     <td style="vertical-align:middle">{{\App\Helpers\CommonHelper::UTCToLocal($threat->updated_at, 'd,M Y')}}</td>
-                    <td class="actions-main actions-main-sub w-100" style="vertical-align:middle">
+                    <td class="actions-main actions-main-sub w-100  border-bottom-0 border-right-0" style="vertical-align:middle">
                         <label class="switch">
-                            <input type="checkbox" name="plan_action_old_active[]" value="{{$threat->id}}" {{(($threat->is_active == 1) ? 'checked' : '')}}>
+                            <input type="hidden" name="plan_action_old_active_hidden[{{$threat->id}}]" value="{{$threat->is_active}}">
+                            <input type="checkbox" name="plan_action_old_active[{{$threat->id}}]" value="1" {{(($threat->is_active == 1) ? 'checked' : '')}}>
                             <span class="slider round"></span>
                         </label>
                         <button type="button" class="btn btn-secondary btn-sm delete_field" data-id="{{$threat->id}}" >-</button>
