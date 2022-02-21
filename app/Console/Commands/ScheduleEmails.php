@@ -60,6 +60,7 @@ class ScheduleEmails extends Command
 		$leads = [];
 
 		$flows = Flow::select('id', 'flow_name as name')->get();
+		
 		//$flows = Flow::whereIn('flow_name', ['site_dev', 'task_pr'])->select('id', 'flow_name as name')->get();  
 
 		FlowLog::log(["flow_id" => 0, "messages" => "Flow action started to check and found total flows : " . $flows->count()]);
@@ -73,7 +74,6 @@ class ScheduleEmails extends Command
 				->select('flows.store_website_id', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_actions.condition', 'flow_types.type', 'flow_actions.time_delay_type', 'flows.flow_name')
 				->where('flows.id', '=', $flow['id'])->whereNull('flow_paths.parent_action_id')->orderBy('flow_actions.rank', 'asc')
 				->get();
-
 			$flowlog = FlowLog::log(["flow_id" => $flow['id'], "messages" => $flow["name"] . " has found total Action  : " . $flowActions->count()]);
 
 
@@ -116,7 +116,7 @@ class ScheduleEmails extends Command
 							->select('customer_basket_products.id', 'cb.customer_name', 'cb.customer_email', 'cb.customer_id')
 							->get();
 						$modalType =  CustomerBasketProduct::class;
-					} else if ($key == 0 and $flow['name'] == 'delivered_order') {
+					} else if ($key == 0 and $flow['name'] == 'delivered') {
 						$leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
 							->where("customers.store_website_id", $flow['store_website_id'])
 							->whereIn('orders.order_status', ['delivered', 'Delivered'])
@@ -156,21 +156,27 @@ class ScheduleEmails extends Command
 					} else if ($key == 0 and $flow['name'] == 'site_dev') { //
 						$leads = [];
 						$modalType =  Task::class;
-					} else if($key == 0 and $flow['name'] == 'order_received'){
+					
+					}  else if($key == 0 and in_array($flow['name'], ['order received', 'product shipped to client', 'cancel', 'Refund to be processed', 'Refund Dispatched', 'Refund Credited' ] )){
+						//To manage For all the orders Status 
 						$leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
 							->where("customers.store_website_id", $flow['store_website_id'])
-							->whereIn('orders.order_status', ['order received', 'Order received'])
-							->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%')
-							->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')->get();
-						$modalType =  Orders::class;
+							->where('orders.order_status', $flow['name'])
+							//->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%')
+							->select('orders.id', 'orders.order_status', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')->get();
+
+							$modalType =  Orders::class;
+
 					}
-					$this->doProcess($flowAction, $modalType, $leads, $flow['store_website_id'], $created_date, $flowlog["id"]);
+					
+					$this->doProcess($flowAction, $modalType, $leads, $flow['store_website_id'], $created_date, $flowlog["id"], 'customer',  $flow);
 				}
 			}
 		}
 	}
 
-	public function doProcess($flowAction, $modalType, $leads, $store_website_id, $created_date, $flow_log_id, $leadType = 'customer')
+	
+	public function doProcess($flowAction, $modalType, $leads, $store_website_id, $created_date, $flow_log_id, $leadType = 'customer', $flow=null)
 	{
 		$scraper_id = 0;
 		/*FlowLogMessages::log([
@@ -182,7 +188,11 @@ class ScheduleEmails extends Command
 			"flow_log_id" => $flow_log_id,
 			"scraper_id" => $scraper_id
 		]);*/
+		//Remove older emails and messages
+
+
 		if ($flowAction['type'] == 'Send Message') {
+			
 			$message = FlowMessage::where('action_id', $flowAction['action_id'])->first();
 			
 			if ($message != null) {
@@ -215,7 +225,10 @@ class ScheduleEmails extends Command
 						'template'        => 'flow#' . $flow['id'],
 						'schedule_at'     => $created_date,
 						'is_draft'     => 1,
+						'order_id' => $lead['id']??'',
+						'order_status' => $lead['order_status']??''
 					];
+					Email::where('order_id', $lead['id'])->delete();
 					Email::create($params);
 					$flowLogMessage = FlowLogMessages::where([
 						"flow_action" => $flowAction['type'],
@@ -271,11 +284,19 @@ class ScheduleEmails extends Command
 						"number"                 => null,
 						"message_application_id" => $messageApplicationId,
 						'scheduled_at'     => $created_date,
+						'order_id' => $lead['id']??'',
+						'order_status' =>$lead['order_status']??'',
 					];
-					$chatMessage = \App\ChatMessage::firstOrCreate(["customer_id"=>$lead->customer_id,
+					$order_id = $lead['id']??'';
+					$order_status = $lead['order_status']??'';
+
+					$chatMessage = \App\ChatMessage::updateOrCreate(["customer_id"=>$lead->customer_id,
 						"message"=>$flowAction['message_title'],"status"=>1,"is_queue"=>1,
-						"approved"=>1,"message_application_id"=>$messageApplicationId], $insertParams);
+						"approved"=>1,"message_application_id"=>$messageApplicationId, 'order_id' => $order_id, 'order_status' =>$order_status], $insertParams);
 				} else {
+					$order_id = $lead['id']??'';
+					$order_status = $lead['order_status']??'';
+
 					$insertParams = [
 						"user_id"            => $lead->customer_id,
 						"message"                => $flowAction['message_title'],
@@ -285,9 +306,12 @@ class ScheduleEmails extends Command
 						"number"                 => null,
 						"message_application_id" => $messageApplicationId,
 						'scheduled_at'     => $created_date,
+						'order_id'  => $order_id,
+						'order_status' => $order_status,
+
 					];
-					$chatMessage = \App\ChatMessage::firstOrCreate(["user_id"=> $lead->customer_id,"message"=>$flowAction['message_title'],
-						"status"=>1,"is_queue"=>1,"approved"=>1,"message_application_id"=>$messageApplicationId], $insertParams);
+					$chatMessage = \App\ChatMessage::updateOrCreate(["user_id"=> $lead->customer_id,"message"=>$flowAction['message_title'],
+						"status"=>1,"is_queue"=>1,"approved"=>1,"message_application_id"=>$messageApplicationId, 'order_id' => $order_id, 'order_status' =>$order_status], $insertParams);
 				}
 				
 

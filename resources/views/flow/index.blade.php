@@ -86,7 +86,12 @@
 								{{ Form::select('store_website_id', $websites, null, array('class'=>'form-control','placeholder' => 'Website')) }}
 							</div>
 							<div class="col-md-3">
-								{{ Form::select('flow_name', ['add_to_cart'=>'Add to cart', 'wishlist'=>'Wish List', 'delivered_order'=>'Delivered order', 'newsletters'=>'Newsletters', 'customer_post_purchase'=>'Customer post purchase', 'customer_win_back'=>'Customer Win Back', 'attach_images_for_product'=>'Attach images for product', 'dispatch_send_price'=>'Dispatch send price', 'new_erp_lead'=>'New Erp Lead', 'out_of_stock_subscribe'=>'Out of stock subscribe' , 'payment_failed'=>'Payment Failed', 'order_reviews'=>'Order reviews', 'task_pr'=>'Check if PR is merged', 'site_dev'=>'Site Development','order_received' => 'Order Received'], null, array('class'=>'form-control','placeholder'=>'Flow Name')) }}
+								{{ Form::select('flow_name', ['add_to_cart'=>'Add to cart', 'wishlist'=>'Wish List', 'newsletters'=>'Newsletters', 'customer_post_purchase'=>'Customer post purchase', 'customer_win_back'=>'Customer Win Back', 'attach_images_for_product'=>'Attach images for product', 'dispatch_send_price'=>'Dispatch send price', 'new_erp_lead'=>'New Erp Lead', 'out_of_stock_subscribe'=>'Out of stock subscribe' , 'payment_failed'=>'Payment Failed', 'order_reviews'=>'Order reviews', 'task_pr'=>'Check if PR is merged', 'site_dev'=>'Site Development','order received' => 'Order Received', 'product shipped to client' => 'Product Shipped To Client', 'delivered' =>'Delivered',
+								'cancel' => 'Canceled', 
+								'Refund to be processed' => 'Refund to be processed', 
+								'Refund Dispatched' => 'Refund Dispatched', 
+								'Refund Credited' => 'Refund Credited'
+							], null, array('class'=>'form-control','placeholder'=>'Flow Name')) }}
 							</div>
 							<div class="col-md-4">
 								<input type="text" class="form-control " name="flow_description" placeholder="Flow Description"/>
@@ -579,12 +584,14 @@ jQuery(document).ready(function($){
 					$("#loading-image").hide();
 					if(response.code == 200) {
 						$(this).closest('tr').remove();
-                        toastr["success"](response.message); 
+                        toastr["success"](response.message);
+						 
                     }else if(response.statusCode == 500){
                         toastr["error"](response.message);
                     }
 					
 					showFlow(flow_id);
+					location.reload();
 				},
 				error: function(data) {
 					$("#loading-image").hide();
