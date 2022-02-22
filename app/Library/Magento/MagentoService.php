@@ -87,41 +87,44 @@ class MagentoService
 
     public function pushProduct()
     {
+		$website = $this->storeWebsite;
         // start to send request if there is token
-        if (($this->topParent == "NEW" && in_array('check_if_website_token_exists', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('check_if_website_token_exists',$this->upteamconditionsWithIds))) {
+        if (($this->topParent == "NEW" && in_array('check_if_website_token_exists', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('check_if_website_token_exists',$this->upteamconditions))) {
             if (!$this->validateToken()) {
                 return false;
             }
-        }
+        } else{
+			ProductPushErrorLog::log('', $this->product->id, $this->topParent.' cond' check_if_website_token_exists, 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_images_exists']);
+		}
 
         // started to check for the category
-        if (($this->topParent == "NEW" && in_array('validate_category', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('validate_category',$this->upteamconditionsWithIds))) {
+        if (($this->topParent == "NEW" && in_array('validate_category', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('validate_category',$this->upteamconditions))) {
             if ($this->charity == 0 && !$this->validateCategory()) {
                 return false;
             }
         }
 
         // started to check the product rediness test
-        if (($this->topParent == "NEW" && in_array('validate_readiness', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('validate_readiness',$this->upteamconditionsWithIds))) {
+        if (($this->topParent == "NEW" && in_array('validate_readiness', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('validate_readiness',$this->upteamconditions))) {
             if (!$this->validateReadiness()) {
                 return false;
             }
         }
 
-        if (($this->topParent == "NEW" && in_array('validate_brand', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('validate_brand',$this->upteamconditionsWithIds))) {
+        if (($this->topParent == "NEW" && in_array('validate_brand', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('validate_brand',$this->upteamconditions))) {
             if (!$this->validateBrand()) {
                 return false;
             }
         }
 		
-        if (($this->topParent == "NEW" && in_array('validate_product_category', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('validate_product_category',$this->upteamconditionsWithIds))) {
+        if (($this->topParent == "NEW" && in_array('validate_product_category', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('validate_product_category',$this->upteamconditions))) {
             if (!$this->validateProductCategory()) {
                 return false;
             }
         }
 
         // assign reference
-        if (($this->topParent == "NEW" && in_array('assign_product_references', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('assign_product_references',$this->upteamconditionsWithIds))) {
+        if (($this->topParent == "NEW" && in_array('assign_product_references', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('assign_product_references',$this->upteamconditions))) {
             $this->assignReference();
         }
 
@@ -133,26 +136,26 @@ class MagentoService
 
         //assign all default datas so we can use on calculation
         \Log::info($this->product->id . " #1 => " . date("Y-m-d H:i:s"));
-        if (($this->topParent == "NEW" && in_array('get_website_ids', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_website_ids',$this->upteamconditionsWithIds))) {
+        if (($this->topParent == "NEW" && in_array('get_website_ids', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_website_ids',$this->upteamconditions))) {
             $this->websiteIds = $this->getWebsiteIds();
         }
 
         \Log::info($this->product->id . " #2 => " . date("Y-m-d H:i:s"));
-        if (($this->topParent == "NEW" && in_array('get_website_attributes', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_website_attributes',$this->upteamconditionsWithIds))) {
+        if (($this->topParent == "NEW" && in_array('get_website_attributes', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_website_attributes',$this->upteamconditions))) {
             $this->websiteAttributes = $this->getWebsiteAttributes();
         }
         \Log::info($this->product->id . " #3 => " . date("Y-m-d H:i:s"));
         // start for translation
-        if (($this->topParent == "NEW" && in_array('google_translation', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('google_translation',$this->upteamconditionsWithIds))) {
+        if (($this->topParent == "NEW" && in_array('google_translation', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('google_translation',$this->upteamconditions))) {
             $this->startTranslation();
         }
         \Log::info($this->product->id . " #4 => " . date("Y-m-d H:i:s"));
-        if (($this->topParent == "NEW" && in_array('translate_meta', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('translate_meta',$this->upteamconditionsWithIds))) {
+        if (($this->topParent == "NEW" && in_array('translate_meta', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('translate_meta',$this->upteamconditions))) {
             $this->meta = $this->getMeta();
         }
         \Log::info($this->product->id . " #5 => " . date("Y-m-d H:i:s"));
         $this->translations = [];
-        if (($this->topParent == "NEW" && in_array('get_langauages_translation', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_langauages_translation',$this->upteamconditionsWithIds))) {
+        if (($this->topParent == "NEW" && in_array('get_langauages_translation', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_langauages_translation',$this->upteamconditions))) {
             $this->translations = $this->getTranslations();
             if (!$this->translations) {
                 $this->storeLog("translation_not_found", "No translations found for the product total translation " . count($this->translations), null, null);
@@ -177,21 +180,21 @@ class MagentoService
         \Log::info($this->product->id . " #8 => " . date("Y-m-d H:i:s"));
         $this->sku = $this->getSku();
         \Log::info($this->product->id . " #9 => " . date("Y-m-d H:i:s"));
-        if (($this->topParent == "NEW" && in_array('get_description', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_description',$this->upteamconditionsWithIds))) {
+        if (($this->topParent == "NEW" && in_array('get_description', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_description',$this->upteamconditions))) {
             $this->description = $this->getDescription();
         }
         \Log::info($this->product->id . " #10 => " . date("Y-m-d H:i:s"));
         
-		if (($this->topParent == "NEW" && in_array('get_magento_brand', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_magento_brand',$this->upteamconditionsWithIds))) {
+		if (($this->topParent == "NEW" && in_array('get_magento_brand', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_magento_brand',$this->upteamconditions))) {
             $this->magentoBrand = $this->getMagentoBrand();
         }
         \Log::info($this->product->id . " #11 => " . date("Y-m-d H:i:s"));
         $this->images = $this->getImages();
         \Log::info($this->product->id . " #12 => " . date("Y-m-d H:i:s"));
         
-		if (($this->topParent == "NEW" && in_array('get_store_website_size', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_store_website_size',$this->upteamconditionsWithIds))) {
+		if (($this->topParent == "NEW" && in_array('get_store_website_size', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_store_website_size',$this->upteamconditions))) {
             $this->storeWebsiteSize = $this->storeWebsiteSize();
-           if (($this->topParent == "NEW" && in_array('validate_store_website_size', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('validate_store_website_size',$this->upteamconditionsWithIds))) {
+           if (($this->topParent == "NEW" && in_array('validate_store_website_size', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('validate_store_website_size',$this->upteamconditions))) {
 				if (!$this->validateStoreWebsiteSize()) {
                     return false;
                 }
@@ -199,31 +202,31 @@ class MagentoService
         }
         \Log::info($this->product->id . " #13 => " . date("Y-m-d H:i:s"));
         
-		if (($this->topParent == "NEW" && in_array('get_store_website_color', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_store_website_color',$this->upteamconditionsWithIds))) {
+		if (($this->topParent == "NEW" && in_array('get_store_website_color', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_store_website_color',$this->upteamconditions))) {
             $this->storeLog("success", "fetch colors for website " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_store_website_color']]);
             $this->storeWebsiteColor = $this->storeWebsiteColor();
         }
         \Log::info($this->product->id . " #14 => " . date("Y-m-d H:i:s"));
         
-		if (($this->topParent == "NEW" && in_array('get_measurements', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_measurements',$this->upteamconditionsWithIds))) {
+		if (($this->topParent == "NEW" && in_array('get_measurements', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_measurements',$this->upteamconditions))) {
             $this->storeLog("success", "fetch measurements for website " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_measurements']]);
             $this->measurement = $this->getMeasurements();
         }
         \Log::info($this->product->id . " #15 => " . date("Y-m-d H:i:s"));
 
-        if (($this->topParent == "NEW" && in_array('get_estimate_minimum_days', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_estimate_minimum_days',$this->upteamconditionsWithIds))) {
+        if (($this->topParent == "NEW" && in_array('get_estimate_minimum_days', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_estimate_minimum_days',$this->upteamconditions))) {
             $this->storeLog("success", "estimate minimum for website " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_estimate_minimum_days']]);
             $this->estMinimumDays = $this->getEstimateMinimumDays();
         }
         \Log::info($this->product->id . " #16 => " . date("Y-m-d H:i:s"));
         
-		if (($this->topParent == "NEW" && in_array('get_size_chart', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_size_chart',$this->upteamconditionsWithIds))) {
+		if (($this->topParent == "NEW" && in_array('get_size_chart', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_size_chart',$this->upteamconditions))) {
             $this->storeLog("success", "get size chart for website " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_size_chart']]);
             $this->sizeChart = $this->getSizeChart();
         }
         \Log::info($this->product->id . " #17 => " . date("Y-m-d H:i:s"));
         
-		if (($this->topParent == "NEW" && in_array('get_store_color', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_store_color',$this->upteamconditionsWithIds))) {
+		if (($this->topParent == "NEW" && in_array('get_store_color', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_store_color',$this->upteamconditions))) {
             $this->storeLog("success", "fetch store color" . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_store_color']]);
             $this->storeColor = $this->getStoreColor();
         }
@@ -231,7 +234,7 @@ class MagentoService
 
         // get normal and special prices
         
-		if (($this->topParent == "NEW" && in_array('get_price', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_price',$this->upteamconditionsWithIds))) {
+		if (($this->topParent == "NEW" && in_array('get_price', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_price',$this->upteamconditions))) {
             $this->storeLog("success", "fetch pricing " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_price']]);
             $this->getPricing();
             $this->storeLog("success", "fetched pricing " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_price']]);
