@@ -270,6 +270,34 @@
             }
     	});
 	});
+	
+	$(document).on("click",".push-brand",function(e) {
+		e.preventDefault();
+		var ele = $(this);
+		var brand = ele.data("brand");
+        var store = ele.data("sw");
+		$.ajax({
+            url: "/store-website/brand/push-to-store",
+            type: 'POST',
+            data : {
+				_token: '{{ csrf_token() }}',
+            	brand: brand,
+            	store: store,
+				active : ele.is(":checked")
+            },
+            beforeSend : function() {
+            	$("#loading-image").show();
+            },
+            success: function(response) {
+            	$("#loading-image").hide();
+				alert(response.message);
+            },
+            error: function(response) {
+                $("#loading-image").hide();
+            	alert(response.message);
+            }
+    	});
+	});
 
 	$(document).on("click",".missing-brand-history",function(e) {
 		e.preventDefault();
