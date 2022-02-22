@@ -15,7 +15,7 @@
         <tr>
             <td>
                 {{ $pagrank++  }} 
-            </td>
+            </td>        
             <td>
                 @include("storewebsite::site-development.partials.edit-modal")
 

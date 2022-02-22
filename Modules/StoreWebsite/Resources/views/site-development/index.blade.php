@@ -145,7 +145,18 @@
 						<form class="form-inline handle-search" style="display:inline-block;">
 							<div class="form-group" style="margin-right:10px;">
 								<?php /* <label for="keyword">Search keyword:</label> */?>
-								<?php echo Form::text("k", request("k"), ["class" => "form-control", "placeholder" => "Search keyword", "id" => "enter-keyword"]) ?>
+								<?php //echo Form::text("k", request("k"), ["class" => "form-control", "placeholder" => "Search keyword", "id" => "enter-keyword"]) ?>
+								<select class="form-control globalSelect2" name="k" id="k">
+									<option selected value=''>Please Select</option>
+									 @foreach($categories as $key=>$all_cat) 
+									 @if(request()->k==$all_cat->title) 
+										<option selected value="{{$all_cat->title}}">{{$all_cat->title}}</option>
+									 @else 
+										<option  value="{{$all_cat->title}}">{{$all_cat->title}}</option>
+									 @endif
+									
+									@endforeach
+								</select>
 							</div>
 							<div class="form-group">
 								<?php /* <label for="status">Status:</label> */?>
@@ -161,8 +172,9 @@
 					
 							<div class="form-group" style="display:inline-block;width:300px">
 								<?php /* <label for="status">Status:</label> */?>
-								<?php echo Form::select("select_website", ["" => "All Website"] + $store_websites, isset($website->id)?$website->id:'', ["class" => "form-control globalSelect2", "id" => "change_website"]) ?>
+								<?php echo Form::select("select_website", ["all" => "All Website"] + $store_websites, isset($website->id)?$website->id:'', ["class" => "form-control globalSelect2", "id" => "change_website"]) ?>
 							</div>
+							
 					
 
 					</div>

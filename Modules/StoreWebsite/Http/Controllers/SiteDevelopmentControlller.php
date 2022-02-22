@@ -36,15 +36,24 @@ class SiteDevelopmentController extends Controller
         $masterCategories = SiteDevelopmentMasterCategory::pluck('title', 'id')->toArray();
         $designDevCategories = SiteDevelopmentMasterCategory::where('title', 'Design')->orWhere('title', 'Functionality')->pluck('title', 'id')->toArray();
         //Getting Website Details
-        $website = StoreWebsite::find($id);
-
-        $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC limit 1) as site_development_id'));
+        $website = StoreWebsite::find(1);
+        if($id!='all') {
+            $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id' , 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC limit 1) as site_development_id'));
+        } else {
+            $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id ORDER BY created_at DESC limit 1) as site_development_id'));
+        }
+        
 
         if ($request->k != null) {
             $categories = $categories->where("site_development_categories.title", "like", "%" . $request->k . "%");
         }
+        if($id!='all') { 
+            $ignoredCategory = \App\SiteDevelopmentHiddenCategory::where("store_website_id", $id)->pluck("category_id")->toArray();
+         } else {
+            $ignoredCategory = \App\SiteDevelopmentHiddenCategory::all()->pluck("category_id")->toArray();
+         }
 
-        $ignoredCategory = \App\SiteDevelopmentHiddenCategory::where("store_website_id", $id)->pluck("category_id")->toArray();
+        
 
         if (request('status') == "ignored") {
             $categories = $categories->whereIn('site_development_categories.id', $ignoredCategory);
@@ -54,19 +63,39 @@ class SiteDevelopmentController extends Controller
 
         //$categories = $categories->paginate(Setting::get('pagination'));
         // $categories = $categories->paginate(20);
-
-        $categories->join('site_developments', function ($q) use ($id) {
-            $q->on('site_developments.site_development_category_id', '=', 'site_development_categories.id')
-                ->where('site_developments.website_id', $id);
-
-        });
+        if($id!='all') {
+            $categories->join('site_developments', function ($q) use ($id) {
+               
+                    $q->on('site_developments.site_development_category_id', '=', 'site_development_categories.id')
+                    ->where('site_developments.website_id', $id);
+                
+    
+            });
+        } else {
+            $categories->join('site_developments', function ($q) use ($id) {
+              
+                    $q->on('site_developments.site_development_category_id', '=', 'site_development_categories.id');
+                    
+                
+                
+    
+            });
+        }
+       
         /* Status filter */
         if ($request->status) {
             //$categories->where('site_developments.status' , $request->status);
-            $categories->havingRaw('(SELECT status from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC limit 1) = ' . $request->status);
+            if($id!='all') {
+                $categories->havingRaw('(SELECT status from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC) = ' . $request->status);
+            } else {
+                $categories->havingRaw('(SELECT status from site_developments where site_developments.site_development_category_id = site_development_categories.id  ORDER BY created_at DESC limit 1) = ' . $request->status);
+            }
+           
         }
-
+        if($id!='all') {
         $categories->groupBy('site_development_categories.id');
+
+        }
 
         if ($request->order) {
             if ($request->order == 'title') {
@@ -79,7 +108,7 @@ class SiteDevelopmentController extends Controller
             $categories->orderBy('title', 'asc');
         }
         $categories = $categories->paginate(10);
-
+        
         foreach ($categories as $category) {
             $finalArray = [];
             $site_developement_id = $category->site_development_id;
@@ -123,14 +152,23 @@ class SiteDevelopmentController extends Controller
         $allStatus = \App\SiteDevelopmentStatus::pluck("name", "id")->toArray();
 
 //dd($allStatus);
-
-        $statusCount = \App\SiteDevelopment::join("site_development_statuses as sds", "sds.id", "site_developments.status")
+        if($id !='all') {
+            $statusCount = \App\SiteDevelopment::join("site_development_statuses as sds", "sds.id", "site_developments.status")
             ->where("site_developments.website_id", $id)
             ->where("site_developments.status", $request->status)
             ->groupBy("sds.id")
             ->select(["sds.name", \DB::raw("count(sds.id) as total")])
             ->orderBy("name", "desc")
             ->get();
+        } else {
+            $statusCount = \App\SiteDevelopment::join("site_development_statuses as sds", "sds.id", "site_developments.status")
+            ->where("site_developments.status", $request->status)
+            ->groupBy("sds.id")
+            ->select(["sds.name", \DB::raw("count(sds.id) as total")])
+            ->orderBy("name", "desc")
+            ->get();
+        }
+       
 
         $allUsers = User::select('id', 'name')->get();
         $users_all = $allUsers;
