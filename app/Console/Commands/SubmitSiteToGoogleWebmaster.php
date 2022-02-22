@@ -54,12 +54,12 @@ class SubmitSiteToGoogleWebmaster extends Command
                     ->join("store_websites as sw", "sw.id", "w.store_website_id")
                     ->select("website_store_views.code","website_store_views.id", "sw.website")
                     ->get()->toArray();
-            
+
             foreach ($fetchStores as $key => $value) {
 
                 $websiter = urlencode(utf8_encode($value['website'].'/'.$value['code']));
                 $url_for_sites = 'https://searchconsole.googleapis.com/webmasters/v3/sites/'.$websiter;
-                $token         = env('GOOGLE_CLIENT_ACCESS_TOKEN');
+                $token = \config('google.GOOGLE_CLIENT_ACCESS_TOKEN');
 
         		$curl = curl_init();
                 //replace website name with code coming form site list
@@ -101,6 +101,15 @@ class SubmitSiteToGoogleWebmaster extends Command
                     \Log::info($this->signature.' Request Token::'.$token);
                     \Log::error($this->signature.' Error Msg::'.$response->error->message);
                 }else{
+
+                    \App\WebmasterLog::create([
+                        'user_name' => Auth::user()->name,
+                        'name'      => 'Resubmit Site',
+                        'status'    => 'Success',
+                        'message'   => 'Site submit successfully Website Store View id is '.$value['id']
+                        ]);
+
+                    
                     WebsiteStoreView::where('id', $value['id'])->update( [ 'site_submit_webmaster' => 1 ] );
                 }
             }
