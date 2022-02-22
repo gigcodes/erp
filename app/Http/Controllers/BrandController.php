@@ -193,17 +193,50 @@ class BrandController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'euro_to_inr' => 'required|numeric',
-            'deduction_percentage' => 'required|numeric',
-            'magento_id' => 'required|numeric',
         ]);
-
-        $data = $request->except('_token', '_method', 'category_segment_id', 'amount');
+        $euro_to_inr = $request->euro_to_inr;
+        $deduction_percentage = $request->deduction_percentage;
+        $brand_segment = $request->brand_segment;
+        $magento_id = $request->magento_id;
+        $amount = $request->amount;
+        $category_segment_id = $request->category_segment_id;
+        if($euro_to_inr === null){
+            $euro_to_inr = 0.0;
+        }
+        if($deduction_percentage === null){
+            $deduction_percentage = 0;
+        }
+        if($brand_segment === null){
+            $brand_segment = '';
+        }
+        if($magento_id === null){
+            $magento_id = 0;
+        }
+        if($amount === null){
+            $amount = 0;
+        }
+        if($category_segment_id === null){
+            $category_segment_id = 0;
+        }
+        
+        $data = array(
+            "name" => $request->name,
+            "euro_to_inr" => $euro_to_inr,
+            "deduction_percentage" => $deduction_percentage,
+            "sales_discount" => $request->sales_discount,
+            "apply_b2b_discount_above" => $request->apply_b2b_discount_above,
+            "b2b_sales_discount" => $request->b2b_sales_discount,
+            "magento_id" => $magento_id,
+            "brand_segment" => $brand_segment,
+            "sku_strip_last" => $request->sku_strip_last,
+            "sku_add" => $request->sku_add,
+            "references" => $request->references
+        );
 
         $brand = $brand->create($data);
 
         DB::table('category_segment_discounts')->insert([
-            ['brand_id' => $brand->id, 'category_segment_id' => $request->category_segment_id, 'amount' => $request->amount, 'amount_type' => 'percentage', 'created_at' => now(), 'updated_at' => now()]
+            ['brand_id' => $brand->id, 'category_segment_id' => $category_segment_id, 'amount' => $amount, 'amount_type' => 'percentage', 'created_at' => now(), 'updated_at' => now()]
         ]);
 
         return redirect()->route('brand.index')->with('success', 'Brand added successfully');
