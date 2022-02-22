@@ -1795,8 +1795,8 @@ class ProductController extends Controller
             //code...
             // Get product by ID
             $product = Product::find($id);
-            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-            if(!empty($websiteArrays)) {
+            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id); dd( $websiteArrays);
+            if(!empty($websiteArrays)) { 
                 $storeWebsites = \App\StoreWebsite::whereIn("id",$websiteArrays)->get();
                 foreach($storeWebsites as $website) {
                     if ($website) {
