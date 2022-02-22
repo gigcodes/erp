@@ -100,8 +100,8 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                         echo Form::select(
                             "brand_segment_1",
                             ["" => "--Select segment"] + \App\Brand::BRAND_SEGMENT,
-                            $brand->brand_segment,
-                            ['id'=>'brand_segment_1',"class" => "form-control ", "data-brand-id" => $brand->id,'data-placeholder'=>'-- Select Brand --']
+                            '',
+                            ['id'=>'brand_segment_1',"class" => "form-control ", "data-brand-id" => '','data-placeholder'=>'-- Select Brand --']
                         ); ?>
 
         
