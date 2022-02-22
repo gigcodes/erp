@@ -94,7 +94,7 @@ class MagentoService
                 return false;
             }
         } else{
-			ProductPushErrorLog::log('', $this->product->id, $this->topParent.' cond' check_if_website_token_exists, 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_images_exists']);
+			ProductPushErrorLog::log('', $this->product->id, $this->topParent.' cond  check_if_website_token_exists', 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_images_exists']);
 		}
 
         // started to check for the category
