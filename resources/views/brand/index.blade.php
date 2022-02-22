@@ -62,7 +62,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             </div>
             <div>
                 <a class="btn btn-secondary" data-toggle="collapse" href="#inProgressFilterCount" href="javascript:;">Number of brands per site</a>
-                <a class="btn btn-secondary" href="{{ route('brand.create') }}">+</a>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createBrandModal">+</button>
                 <a class="btn btn-secondary fetch-new" href="#">Fetch New Brands</a>
             </div>
         </div>
@@ -381,6 +381,173 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
     </div>
   </div>
 </div>
+<div id="createBrandModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form action="{{ route('brand.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-header">
+                        <h4 class="modal-title">Add New Brand</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <strong>Name</strong><span class="text-danger">*</span>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="name" placeholder="name" value="" required/>
+                                @if ($errors->has('name'))
+                                    <div class="alert alert-danger">{{$errors->first('name')}}</div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <strong>Euro To Inr</strong>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="euro_to_inr" placeholder="euro_to_inr" value=""/>
+                                @if ($errors->has('euro_to_inr'))
+                                    <div class="alert alert-danger">{{$errors->first('euro_to_inr')}}</div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <strong>Deduction %</strong>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="number" class="form-control" name="deduction_percentage" placeholder="deduction_percentage" value=""/>
+                                @if ($errors->has('deduction_percentage'))
+                                    <div class="alert alert-danger">{{$errors->first('deduction_percentage')}}</div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <strong>Sales Discount %</strong>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="number" class="form-control" name="sales_discount" placeholder="sales discount" value=""/>
+                                <small class="form-text text-muted">
+                                    If the product is discounted at the supplier, regardless of the percentage, this discount will be applied to the special price (original price - brand discount)
+                                </small>
+                                @if ($errors->has('sales_discount'))
+                                    <div class="alert alert-danger">{{$errors->first('sales_discount')}}</div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <strong>Apply B2B discount above</strong>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="number" class="form-control" name="apply_b2b_discount_above" placeholder="e.g. 40" value=""/>
+                                <small class="form-text text-muted">
+                                    Above this percentage of discount at the supplier, the below discount will be applied
+                                </small>
+                                @if ($errors->has('apply_b2b_discount_above'))
+                                    <div class="alert alert-danger">{{$errors->first('apply_b2b_discount_above')}}</div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <strong>B2B Sales Discount %</strong>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="number" class="form-control" name="b2b_sales_discount" placeholder="B2B sales discount" value=""/>
+                                <small class="form-text text-muted">
+                                    If a B2B discount is higher than the above percentage, the sales_discount will be applied to the special price (original price - brand discount)
+                                </small>
+                                @if ($errors->has('b2b_sales_discount'))
+                                    <div class="alert alert-danger">{{$errors->first('b2b_sales_discount')}}</div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <strong>Magento Id</strong>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="magento_id" placeholder="Magento ID" value=""/>
+                                @if ($errors->has('magento_id'))
+                                    <div class="alert alert-danger">{{$errors->first('magento_id')}}</div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <strong>Segment</strong>
+                            </div>
+                            <div class="col-md-8">
+                                <select name="brand_segment" class="form-control">
+                                    <option value=""></option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                </select>
+                                @if ($errors->has('brand_segment'))
+                                    <div class="alert alert-danger">{{$errors->first('brand_segment')}}</div>
+                                @endif
+                            </div>
+                        </div>
+                            @foreach($category_segments as $category_segment)
+                            <div class="row mt-3">
+                                <div class="col-md-4">
+                                    <strong>{{ $category_segment->name }}</strong>
+                                </div>
+                                <div class="col-md-8">  
+                                    <input type="text" class="form-control" name="amount" placeholder="Amount" value=""/>
+                                    
+                                </div>
+                            </div>
+                            @endforeach
+
+                            <div class="row mt-3">
+                                <div class="col-md-4">
+                                    <strong>Strip last # characters from SKU</strong>
+                                </div>
+                                <div class="col-md-8"> 
+                                <input type="text" class="form-control" name="sku_strip_last" placeholder="Strip last # characters from SKU" value=""/>
+                                @if ($errors->has('sku_strip_last'))
+                                    <div class="alert alert-danger">{{$errors->first('sku_strip_last')}}</div>
+                                @endif
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-4">    
+                                    <strong>Add to SKU for brand site</strong>
+                                </div>
+                                <div class="col-md-8"> 
+                                    <input type="text" class="form-control" name="sku_add" placeholder="Add to SKU for brand site" value=""/>
+                                    @if ($errors->has('sku_add'))
+                                        <div class="alert alert-danger">{{$errors->first('sku_add')}}</div>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-4">    
+                                    <strong>References</strong>
+                                </div>
+                                <div class="col-md-8">
+                                <input type="text" class="form-control" name="references" placeholder="Add/update references in comma seperate values" value=""/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-secondary">Add</button>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+
+        </div>
+    </div>
 @endsection
 @section('scripts')
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
