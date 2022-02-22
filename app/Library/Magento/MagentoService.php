@@ -99,7 +99,8 @@ class MagentoService
 
         // started to check for the category
         if (($this->topParent == "NEW" && in_array('validate_category', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('validate_category',$this->upteamconditions))) {
-            if ($this->charity == 0 && !$this->validateCategory()) {
+           
+		   if ($this->charity == 0 && !$this->validateCategory()) {
                 return false;
             }
         }
@@ -187,6 +188,7 @@ class MagentoService
         
 		if (($this->topParent == "NEW" && in_array('get_magento_brand', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_magento_brand',$this->upteamconditions))) {
             $this->magentoBrand = $this->getMagentoBrand();
+			$this->storeLog("success", "brand found" . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_magento_brand']]);
         }
         \Log::info($this->product->id . " #11 => " . date("Y-m-d H:i:s"));
         $this->images = $this->getImages();
@@ -194,7 +196,10 @@ class MagentoService
         
 		if (($this->topParent == "NEW" && in_array('get_store_website_size', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_store_website_size',$this->upteamconditions))) {
             $this->storeWebsiteSize = $this->storeWebsiteSize();
+			$this->storeLog("success", "get store website size" . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_store_website_size']]);
            if (($this->topParent == "NEW" && in_array('validate_store_website_size', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('validate_store_website_size',$this->upteamconditions))) {
+				$this->storeLog("success", "validate store website size" . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_store_website_size']]);
+          
 				if (!$this->validateStoreWebsiteSize()) {
                     return false;
                 }
@@ -385,7 +390,8 @@ class MagentoService
         if ($storeWebsiteAttributes) {
             $description = $storeWebsiteAttributes->description;
         }
-
+ $this->storeLog("success", "description found" . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_description']]);
+           
         return $description;
     }
 
@@ -1246,6 +1252,8 @@ class MagentoService
 
     private function getWebsiteAttributes()
     {
+		  $this->storeLog("success", "get_website_attributes" . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_website_attributes']]);
+   
         return StoreWebsiteAttributes::where("store_website_id", $this->storeWebsite->id)->pluck('attribute_val', 'attribute_key')->toArray();
     }
 
@@ -1258,6 +1266,8 @@ class MagentoService
         } else {
             return $this->storeWebsite->websites()->where('platform_id', '>', 0)->get()->pluck('platform_id')->toArray();
         }
+		  $this->storeLog("success", "get_website_ids" . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_website_ids']]);
+   
     }
 
     private function validateTranslation()
@@ -1276,11 +1286,14 @@ class MagentoService
         $category = $this->product->categories;
 
         if (empty($category)) {
+			$this->storeLog("error", "Product has no category found" . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_product_category']]);
+       
             $this->storeLog("error", "Product has no category found");
         }
 
         $this->category = $category;
-
+$this->storeLog("success", "Product category found " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_product_category']]);
+       
         return true;
     }
 
@@ -1319,13 +1332,16 @@ class MagentoService
     {
         $brand = $this->product->brands;
 
-        if (empty($brand->name)) {
-            $this->storeLog("error", "Product has no brand found");
+        if (empty($brand->name)) {   
+		   $this->storeLog("error", "Product has no brand found " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_brand']]);
+         
+            //$this->storeLog("error", "Product has no brand found");
             return false;
         }
 
         $this->brand = $brand;
-
+	   $this->storeLog("success", "Product brand found " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_brand']]);
+         
         return true;
     }
 
@@ -1342,6 +1358,8 @@ class MagentoService
         $reference->sku = $product->sku;
         $reference->color = $product->color;
         $reference->save();
+	   $this->storeLog("success", "Product references assigned" . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['assign_product_references']]);
+     
     }
 
     private function validateReadiness()
