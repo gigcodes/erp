@@ -332,7 +332,40 @@
             </div>
         </div>
     </div>
+<div id="confirmMessageModal"  class="modal fade" role="dialog">
+  <div class="modal-dialog">
 
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Confirm Message</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <div id="message_confirm_text"></div>
+            <input name="task_id" id="confirm_task_id" type="hidden"/>
+            <input name="message" id="confirm_message" type="hidden"/>
+            <input name="status" id="confirm_status" type="hidden" value="2" />
+          </div>
+          <div class="form-group">
+            <p>Send to Following</p>
+            <input checked="checked" name="send_message_recepients[]" class="send_message_recepients"  type="checkbox" value="assign_by">Assign By
+              <input checked="checked" name="send_message_recepients[]"  class="send_message_recepients" type="checkbox" value="assigned_to">Developer
+              <input checked="checked" name="send_message_recepients[]" class="send_message_recepients" type="checkbox" value="master_user_id">Lead
+              <input checked="checked" name="send_message_recepients[]" class="send_message_recepients"  type="checkbox" value="to_team_lead">Team Lead
+              <input checked="checked" name="send_message_recepients[]" class="send_message_recepients"  type="checkbox" value="to_tester">Tester
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-secondary confirm-messge-button">Send</button>
+        </div>
+    </div>
+
+  </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -1497,13 +1530,107 @@
             });
         });
 
-
-
         $(document).on('click', '.send-message-open', function(event) {
             var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
-            var sendToStr = $(this).closest(".communication-td").next().find(".send-message-number").val();
-            let issueId = textBox.attr('data-id');
             let message = textBox.val();
+            if(message)
+            {
+                $("#message_confirm_text").html(message);
+                $("#confirmMessageModal").modal("show");
+                $("#confirm_task_id").attr('value',$(this).data('id'));
+                $("#confirm_message").attr('value',message);
+            }
+        });
+         $(document).on('click', '.confirm-messge-button', function () {   
+            
+            var thiss = $(this);
+            var data = new FormData();
+            var task_id = $("#confirm_task_id").val();
+            var message = $("#confirm_message").val();
+            var status = $("#confirm_status").val();
+
+        //    alert(message)
+            data.append("issue_id", task_id);
+            data.append("message", message);
+            data.append("status", status);
+
+            var checkedValue = [];
+            var i=0;
+            $('.send_message_recepients:checked').each(function () {
+                checkedValue[i++] = $(this).val();
+            });   
+            data.append("sendTo",checkedValue); 
+
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: "{{ action('WhatsAppController@sendMessage', 'issue') }}",
+                        type: 'POST',
+                        "dataType": 'json',  // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function (response) {
+
+                        $('#send_message_'+task_id).val('');
+                        $('#getMsg'+task_id).val('');
+                        $('#confirmMessageModal').modal('hide');
+
+                        if (cached_suggestions) {
+                            suggestions = JSON.parse(cached_suggestions);
+
+                            if (suggestions.length == 10) {
+                                suggestions.push(message);
+                                suggestions.splice(0, 1);
+                            } else {
+                                suggestions.push(message);
+                            }
+                            localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                            cached_suggestions = localStorage['message_suggestions'];
+
+                            console.log('EXISTING');
+                            console.log(suggestions);
+                        } else {
+                            suggestions.push(message);
+                            localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                            cached_suggestions = localStorage['message_suggestions'];
+
+                            console.log('NOT');
+                            console.log(suggestions);
+                        }
+
+                        // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+                        //   .done(function( data ) {
+                        //
+                        //   }).fail(function(response) {
+                        //     console.log(response);
+                        //     alert(response.responseJSON.message);
+                        //   });
+
+                        $(thiss).attr('disabled', false);
+                    }).fail(function (errObj) {
+                        $('#confirmMessageModal').modal('hide');
+                        $(thiss).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
+
+        /*$(document).on('click', '.confirm-messge-button', function(event) 
+        {
+            var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
+            var sendToStr = $(this).closest(".communication-td").next().find(".send-message-number").val();
+            let issueId =$("#confirm_task_id").val();
+            let message = $("#confirm_message").val();
             if (message == '') {
                 return;
             }
@@ -1536,7 +1663,8 @@
                     $(self).removeAttr('disabled', true);
                 }
             });
-        });
+        });*/
+
 
 
         $(document).on('click', '.show-status-history', function() {

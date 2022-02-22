@@ -2424,7 +2424,7 @@ class WhatsAppController extends FindByNumberController
                     $params['issue_id'] = $request->get('issue_id');
                     $issue = DeveloperTask::find($request->get('issue_id'));
 
-                    $userId = $issue->assigned_to;
+                    /*$userId = $issue->assigned_to;
 
                     if ($sendTo == "to_master") {
                         if ($issue->master_user_id) {
@@ -2442,7 +2442,62 @@ class WhatsAppController extends FindByNumberController
                         if ($issue->tester_id) {
                             $userId = $issue->tester_id;
                         }
+                    }*/
+
+
+                    if($request->sendTo){
+                    $recepients = explode(",",$request->sendTo);
+                  //  dd($recepients);
+                    foreach($recepients as $recepient){
+                        if($recepient=="assign_by"){
+                            $adm = User::find($issue->assign_by);
+                             $userId = $issue->assign_by;
+                            if ($adm) {
+                                $this->sendWithThirdApi($adm->phone, $adm->whatsapp_number, $data['message']);
+                            }
+                        }elseif($recepient=="assigned_to"){
+                            $userId = $issue->assigned_to;
+                            $user = User::find($issue->assigned_to);
+                             if ($user) {
+                            $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                        }
+                        }elseif($recepient=="master_user_id"){
+                            if (!empty($issue->master_user_id)) {
+                                $userMaster = User::find($issue->master_user_id);
+                                $userId = $issue->master_user_id;
+                                if ($userMaster) {
+                                    $this->sendWithThirdApi($userMaster->phone, $userMaster->whatsapp_number, $data['message']);
+                                }
+                            }
+
+                        }elseif($recepient=="to_team_lead"){
+                            if (!empty($issue->team_lead_id)) {
+                                $userMaster = User::find($issue->team_lead_id);
+                                $userId = $issue->team_lead_id;
+                                if ($userMaster) {
+                                    $this->sendWithThirdApi($userMaster->phone, $userMaster->whatsapp_number, $data['message']);
+                                }
+                            }
+
+                        }elseif($recepient=="to_tester"){
+                            if ($issue->tester_id != NULL) {
+                                 $userId = $issue->tester_id;
+                                // if ($task->assign_from == Auth::id()) {
+                                foreach ($issue->tester_id as $key => $contact) {
+                                    if ($key == 0) {
+                                        $data['contact_id'] = $issue->assign_to;
+                                    } else {
+                                        $this->sendWithThirdApi($contact->phone, $contact->whatsapp_number, $data['message']);
+                                    }
+                                }
+                                // } else {
+                                // $data['contact_id'] = $task->assign_from;
+                                // }
+                            }
+                        }
                     }
+
+                }
                     //  if(isset(Auth::user()->id) && Auth::user()->id == $userId) {
                     //     $userId = $issue->created_by;
                     //  }else{
