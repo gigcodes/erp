@@ -2010,6 +2010,8 @@ Route::post('/brand-review/store', '\App\Http\Controllers\Api\v1\BrandReviewCont
 
 Route::prefix('livechat')->group(function () {
     Route::post('/attach-image', 'LiveChatController@attachImage')->name('live-chat.attach.image');
+    Route::post('/get-livechat-coupon-code', 'LiveChatController@getLiveChatCouponCode')->name('get-livechat-coupon-code');
+    Route::post('/send-livechat-coupon-code', 'LiveChatController@sendLiveChatCouponCode')->name('send-livechat-coupon-code');
 });
 
 /* ---------------------------------------------------------------------------------- */
@@ -2836,6 +2838,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function () {
     Route::any('/delete-rules/{id}', 'CouponController@deleteCouponCodeRuleById')->name('delete-rules');
 
     Route::post('/quick-coupon-code-rules', 'CouponController@shortCutFroCreateCoupn')->name('quick.couponcode.store');
+    Route::post('/send-coupons', 'CouponController@sendCoupons')->name('coupons.send');
+    Route::get('log-coupon-code-rule-ajax', 'CouponController@logCouponCodeRuleAjax')->name('couponcoderule.log.ajax');
 });
 
 Route::middleware('auth')->group(function () {
