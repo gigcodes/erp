@@ -1109,9 +1109,9 @@ class DevelopmentController extends Controller
         }
         if((int) $request->get('time_is_overdue') > 0)
         {
-            $issues = $issues->where('developer_tasks.estimate_date', '>', date('Y-m-d'));
+            $issues = $issues->where('developer_tasks.estimate_date', '>', date('Y-m-d'))->where('developer_tasks.status','!=','Done');
 
-            $task = $task->where('tasks.due_date', '>', date('Y-m-d'));
+            $task = $task->where('tasks.due_date', '>', date('Y-m-d'))->where('tasks.status','!=',3);
         }
         if ($request->get('module')) {
             $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
@@ -1119,7 +1119,7 @@ class DevelopmentController extends Controller
         if (!empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
         } 
-        //$task = $task->where('tasks.status', $inprocessStatusID->id);
+        $task = $task->where('tasks.status', $inprocessStatusID->id);
         $whereCondition =   $whereTaskCondition = "";
         if ($request->get('subject') != '') {
             $whereCondition = ' and message like  "%' . $request->get('subject') . '%"';
