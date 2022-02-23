@@ -8,8 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use App\WhatsAppGroup;
+use App\Hubstaff\HubstaffMember;
+use App\Task;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
+use Auth;
+use Illuminate\Http\Request;
 
 
 class Task extends Model {
@@ -75,7 +79,13 @@ class Task extends Model {
 		'message',
 		'reminder_from',
 		'reminder_last_reply',
-        'last_send_reminder'
+        'last_send_reminder',
+
+        'parent_task_id',
+
+		'last_date_time_reminder',
+		'is_flow_task'
+
 	];
 
 	const TASK_TYPES = [
@@ -170,5 +180,157 @@ class Task extends Model {
             'id',
             'status'
         );
+    }
+	
+	public function createTaskFromSortcuts($request)
+    { 
+        $created = 0;
+        $message = '';
+        $assignedUserId = 0;
+       
+	    if (isset($request['task_asssigned_from'])) { 
+            $data["assign_from"] = $request['task_asssigned_from'];
+        } else {
+			$data['assign_from'] = Auth::id();
+		}
+       
+        $data['status'] = 3;
+        $task = 0;
+        $taskType = $request['task_type'];
+
+        if (isset($request['parent_task_id'])) {
+            $data["parent_task_id"] = $request['parent_task_id'];
+        }    
+
+        if ($taskType == "4" || $taskType == "5" || $taskType == "6") {
+            
+        } else {
+			if(isset($data["is_flow_task"])) {
+				$data["is_flow_task"] = $data["is_flow_task"];
+			} else {
+				$data["is_flow_task"] = 1;
+			}
+				if ($request['task_asssigned_to']) {
+                    if (is_array($request['task_asssigned_to'])) {
+                        $data["assign_to"] = $request['task_asssigned_to'];
+                    } else {
+                        $data["assign_to"] = $request['task_asssigned_to'];
+                    }
+                } else {
+                    $data['assign_to'] = $request['assign_to_contacts'];
+                }
+            //discussion task
+            
+                $data['is_statutory'] = $request["task_type"];
+                $data['task_details'] = $request["task_detail"];
+                $data['task_subject'] = $request["task_subject"];
+                $data["customer_id"]    = $request["customer_id"];
+                $data["site_developement_id"]   = $request['site_id'];
+                $data["cost"]   = $request["cost"];
+                if ($request['category_id'] != null) {
+                    $data['category']     = $request['category_id'];
+                }
+                $task = Task::create($data);
+                $created = 1;
+                $assignedUserId = $task->assign_to;
+                if ($task->is_statutory != 1) {
+                    $message = "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details;
+                } else {
+                    $message = $task->task_subject . ". " . $task->task_details;
+                }
+            
+           $params = [
+                'number'       => null,
+                'user_id'      => $data['assign_from'],
+                'approved'     => 1,
+                'status'       => 2,
+                'task_id'      => $task->id,
+                'message'      => $message
+            ];
+
+            if (count($task->users) > 0) {
+                if ($task->assign_from == Auth::id()) {
+                    foreach ($task->users as $key => $user) {
+                        if ($key == 0) {
+                            $params['erp_user'] = $user->id;
+                        } else {
+                            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                        }
+                    }
+                } else {
+                    foreach ($task->users as $key => $user) {
+                        if ($key == 0) {
+                            $params['erp_user'] = $task->assign_from;
+                        } else {
+                            if ($user->id != Auth::id()) {
+                                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (count($task->contacts) > 0) {
+                foreach ($task->contacts as $key => $contact) {
+                    if ($key == 0) {
+                        $params['contact_id'] = $task->assign_to;
+                    } else {
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($contact->phone, null, $params['message']);
+                    }
+                }
+            }
+
+            $chat_message = ChatMessage::create($params);
+            ChatMessagesQuickData::updateOrCreate([
+                'model' => \App\Task::class,
+                'model_id' => $params['task_id']
+                ], [
+                'last_communicated_message' => @$params['message'],
+                'last_communicated_message_at' => $chat_message->created_at,
+                'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+            ]);
+
+            $myRequest = new Request();
+            $myRequest->setMethod('POST');
+            $myRequest->request->add(['messageId' => $chat_message->id]);
+            app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+        }
+
+
+        if ($created) {
+            // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+            $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
+            $assignedUser = HubstaffMember::where('user_id', $assignedUserId)->first();
+      
+            $hubstaffUserId = null;
+            $hubstaffTaskId = null;
+            if ($assignedUser) {
+                $hubstaffUserId = $assignedUser->hubstaff_user_id;
+            }
+            $taskSummery = substr($message, 0, 200);
+            if ($hubstaffUserId) {
+                $hubstaffTaskId = app('App\Http\Controllers\TaskModuleController')->createHubstaffTask(
+                    $taskSummery,
+                    $hubstaffUserId,
+                    $hubstaff_project_id
+                );
+            }
+      
+            if ($hubstaffTaskId) {
+                $task->hubstaff_task_id = $hubstaffTaskId;
+                $task->save();
+            }
+            if ($hubstaffTaskId) {
+                $hubtask = new HubstaffTask();
+                $hubtask->hubstaff_task_id = $hubstaffTaskId;
+                $hubtask->project_id = $hubstaff_project_id;
+                $hubtask->hubstaff_project_id = $hubstaff_project_id;
+                $hubtask->summary = $message;
+                $hubtask->save();
+            }
+        }
+		return $task;
+        return response()->json(["code" => 200, "data" => [], "message" => "Your quick task has been created!"]);
     }
 }

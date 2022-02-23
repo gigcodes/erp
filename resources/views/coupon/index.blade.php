@@ -152,7 +152,7 @@ form label.required:after{
 </span> -->
 
 <div class="row">
-    <div class="col-lg-12 margin-tb">
+    <div class="col-lg-12 margin-tb m-0">
         <h2 class="page-heading">Coupon Management</h2>
     </div>
 </div>
@@ -183,19 +183,29 @@ form label.required:after{
 
 
 <div id="response-alert-container"></div>
-
-<div style="text-align: right; margin-bottom: 10px;">
-    <button type="button" class="btn btn-primary" onclick="showOverallReport()">
-        Overall Report
-    </button>
-    <span>&nbsp;</span>
-    <button type="button" class="btn btn-primary" onclick="createCoupon()">
-        New Coupon
-    </button>
+<div class="row">
+    <div class="col-md-12 pl-5 pr-5">
+        <div class="cls_filter_box col-md-6">
+            <form class="form-inline" action="{{ route('coupons.index')}}" method="GET">
+                <div class="form-group cls_filter_inputbox p-0 mr-2">
+                    <input type="text" name="flt_coupon" class="form-control-sm form-control" placeholder="Coupon code">
+                </div>
+                <div class="form-group p-0 mr-2">
+                    <button type="submit" class="btn btn-xs"><i class="fa fa-filter"></i></button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6" style="text-align: right; margin-bottom: 10px;">
+            <button type="button" class="btn custom-button" onclick="showOverallReport()">
+                Overall Report
+            </button>
+            <span>&nbsp;</span>
+            <button type="button" class="btn custom-button" onclick="createCoupon()">
+                New Coupon
+            </button>
+        </div>
+    </div>
 </div>
-
-
-
 
 <!-- COUPON DETAIL MODAL -->
 <div class="modal fade" id="couponModal" tabindex="-1" role="dialog" aria-labelledby="couponModalLabel" aria-hidden="true">
@@ -224,170 +234,144 @@ form label.required:after{
                                 </div>
                                 <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
                                     <div class="panel-body">
-                                            <div class="form-group row">
-                                                <label for="code" class="col-sm-3 col-form-label required">Rule Name</label>
-                                                <div class="col-sm-8">
-                                                    <input type="text" class="form-control required" name="name" placeholder="Name" value="{{old('name')}}" id="rule_name" />
+                                        <div class="row">
+                                            <div class="form-group ">
+                                                <div class="col-sm-4">
+                                                    <input type="text" class="form-control required" name="name" placeholder="Name" value="{{old('name')}}" id="rule_name" / style="width:220px !important;">
                                                     @if ($errors->has('name'))
                                                     <div class="alert alert-danger">{{$errors->first('name')}}</div>
                                                     @endif
                                                 </div>
                                             </div>
-                                            <div class="form-group row">
-                                                <label for="description" class="col-sm-3 col-form-label">Description</label>
-                                                <div class="col-sm-8">
-                                                    <textarea type="text" class="form-control" name="description" placeholder="Description" id="description">{{old('description')}}</textarea>
+                                            <div class="form-group ">
+                                                <div class="col-sm-4">
+                                                    <textarea type="text" class="form-control" name="description" placeholder="Description" id="description" style="height:35px; width:220px !important;">{{old('description')}}</textarea>
                                                     @if ($errors->has('description'))
                                                     <div class="alert alert-danger">{{$errors->first('description')}}</div>
                                                     @endif
                                                 </div>
                                             </div>
-
-                                            <div class="form-group row">
-                                                <label for="start" class="col-sm-3 col-form-label required">Active</label>
-                                                <div class="col-sm-8">
-                                                        <select class="form-control select select2 required" name="active" id="is_active">
+                                            <div class="form-group">
+                                                <div class="col-sm-4">
+                                                        <select class="form-control select select2 required" name="active" id="is_active" placeholder="Active" style="width:220px !important;">
                                                                 <option value="1">Yes</option>
                                                                 <option value="0">No</option>
                                                         </select>
                                                 </div>
                                             </div>
-
-
-
-                                            <div class="form-group row">
-                                                <label for="start" class="col-sm-3 col-form-label required">Store Websites</label>
-                                                <div class="col-sm-8">
-                                                        <select class="form-control select select2" name="store_website_id" onchange="getWebsitesByStoreId(this);">
-                                                            <option value="">Please select</option>
-                                                            @foreach($store_websites as $ws)
-                                                                <option value="{{ $ws->id }}">{{ $ws->title }}</option>
-                                                            @endforeach
-                                                        </select>
+                                          </div>
+                                           <div class="row">
+                                               <div class="form-group ">
+                                                    <div class="col-sm-4">
+                                                            <select class="form-control select select2" name="store_website_id" onchange="getWebsitesByStoreId(this);" placeholder="Store Websites" style="width:220px !important;">
+                                                                <option value="">Please select</option>
+                                                                @foreach($store_websites as $ws)
+                                                                    <option value="{{ $ws->id }}">{{ $ws->title }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                    </div>
+                                               </div>
+                                               <div class="form-group">
+                                                    <div class="col-sm-4">
+                                                            <select class="form-control select select2 required websites" name="website_ids" multiple="true" id="website_ids" placeholder="Websites" style="height:35px; width:220px !important;">
+                                                                
+                                                            </select>
+                                                    </div>
+                                               </div>
+                                                <div class="form-group">
+                                                    <div class="col-sm-4">
+                                                            <select class="form-control select select2 required customers" name="customer_groups" multiple="true" id="customer_groups" style="height:35px; width:220px !important" placeholder="Customer Groups">
+                                                                <option data-title="NOT LOGGED IN" value="0" selected>NOT LOGGED IN</option>
+                                                                <option data-title="General" value="1">General</option>
+                                                                <option data-title="Wholesale" value="2">Wholesale</option>
+                                                                <option data-title="Retailer" value="3">Retailer</option>
+                                                            </select>
+                                                    </div>
+                                               </div>
+                                           </div> 
+                                           <div class="row">
+                                               <div class="form-group ">
+                                                    <div class="col-sm-5">
+                                                            <select class="form-control select select2 required" name="coupon_type" id="coupon_type" placeholder="Coupon" style="width:250px !important;">
+                                                                <option  value="NO_COUPON">No Coupon</option>
+                                                                <option  value="SPECIFIC_COUPON">Specific Coupon</option>
+                                                            </select>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            
-
-                                            <div class="form-group row">
-                                                <label for="start" class="col-sm-3 col-form-label required">Websites</label>
-                                                <div class="col-sm-8">
-                                                        <select class="form-control select select2 required websites" name="website_ids" multiple="true" id="website_ids">
-                                                            
-                                                        </select>
+                                                <div class="form-group hide_div">
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" name="code" placeholder="Code" id="coupon_code" / placeholder="Coupon Code" >
+                                                        @if ($errors->has('code'))
+                                                        <div class="alert alert-danger">{{$errors->first('code')}}</div>
+                                                        @endif
+                                                    </div>
                                                 </div>
-                                            </div>
-
-                                            <div class="form-group row">
-                                                <label for="start" class="col-sm-3 col-form-label required">Customer Groups</label>
-                                                <div class="col-sm-8">
-                                                        <select class="form-control select select2 required customers" name="customer_groups" multiple="true" id="customer_groups">
-                                                            <option data-title="NOT LOGGED IN" value="0" selected>NOT LOGGED IN</option>
-                                                            <option data-title="General" value="1">General</option>
-                                                            <option data-title="Wholesale" value="2">Wholesale</option>
-                                                            <option data-title="Retailer" value="3">Retailer</option>
-                                                        </select>
-                                                </div>
-                                            </div>
-
-                                            
-
-                                            <div class="form-group row">
-                                                <label for="start" class="col-sm-3 col-form-label required">Coupon</label>
-                                                <div class="col-sm-8">
-                                                        <select class="form-control select select2 required" name="coupon_type" id="coupon_type" >
-                                                            <option  value="NO_COUPON">No Coupon</option>
-                                                            <option  value="SPECIFIC_COUPON">Specific Coupon</option>
-                                                        </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="form-group row hide_div">
-                                                <label for="start" class="col-sm-3 col-form-label">Coupon Code</label>
-                                                <div class="col-sm-8">
-                                                    <input type="text" class="form-control" name="code" placeholder="Code" id="coupon_code" />
-                                                    @if ($errors->has('code'))
-                                                    <div class="alert alert-danger">{{$errors->first('code')}}</div>
-                                                    @endif
-                                                </div>
-                                            </div>
-
-                                            <div class="form-group row hide_div">
-                                            <label for="start" class="col-sm-3 col-form-label"></label>
-                                                <div class="col-sm-8">
-                                                    <input type="checkbox" class="form-control" style="height:20px;width:20px;" id="disable_coupon_code" value="1" name="auto_generate" />
+                                                <div class="form-group  hide_div">
+                                                <div class="col-sm-4">
+                                                    <input type="checkbox" class="form-control" style="height:20px;" id="disable_coupon_code" value="1" name="auto_generate" />
                                                     <div class="">If you select and save the rule you will be able to generate multiple coupon codes.</div>
                                                 </div>
-                                            </div>
-
-                                            <div class="form-group row hide_div">
-                                                <label for="start" class="col-sm-3 col-form-label">Uses per Coupon</label>
-                                                <div class="col-sm-8">
-                                                    <input type="text" class="form-control" name="uses_per_coupon" placeholder="" id="use_per_coupon" />
-                                                    @if ($errors->has('uses_per_coupon'))
-                                                    <div class="alert alert-danger">{{$errors->first('uses_per_coupon')}}</div>
-                                                    @endif
                                                 </div>
-                                            </div>
-
-                                            <div class="form-group row">
-                                                <label for="start" class="col-sm-3 col-form-label">Uses per Coustomer</label>
-                                                <div class="col-sm-8">
-                                                    <input type="text" class="form-control" name="uses_per_coustomer" placeholder="" id="use_per_coustomer" />
-                                                    <div class="">Usage limit enforced for logged in customers only.</div>
-                                                    @if ($errors->has('uses_per_coustomer'))
-                                                    <div class="alert alert-danger">{{$errors->first('uses_per_coustomer')}}</div>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                            
-
-                                            <div class="form-group row">
-                                                <label for="start" class="col-sm-3 col-form-label">Start</label>
-                                                <div class="col-sm-8">
-                                                    <div class='input-group date' id='start'>
-                                                        <input type='text' class="form-control" name="start" value="{{old('start')}}" id="start_input" />
-                                                        <span class="input-group-addon">
-                                                            <span class="glyphicon glyphicon-calendar"></span>
-                                                        </span>
+                                                <div class="form-group  hide_div">
+                                                    <div class="col-sm-4">
+                                                        <input type="text" class="form-control" name="uses_per_coupon" placeholder="" id="use_per_coupon" / placeholder="Uses per Coupon">
+                                                        @if ($errors->has('uses_per_coupon'))
+                                                        <div class="alert alert-danger">{{$errors->first('uses_per_coupon')}}</div>
+                                                        @endif
                                                     </div>
-                                                    @if ($errors->has('start'))
-                                                    <div class="alert alert-danger">{{$errors->first('start')}}</div>
-                                                    @endif
                                                 </div>
-                                            </div>
-                                            <div class="form-group row">
-                                                <label for="expiration" class="col-sm-3 col-form-label">Expiration</label>
-                                                <div class="col-sm-8">
-                                                    <div class='input-group date' id='expiration'>
-                                                        <input type='text' class="form-control" name="expiration" value="{{old('expiration')}}" id="to_input" />
-                                                        <span class="input-group-addon">
-                                                            <span class="glyphicon glyphicon-calendar"></span>
-                                                        </span>
+                                                <div class="form-group ">
+                                                    <div class="col-sm-7">
+                                                        <input type="text" class="form-control" name="uses_per_coustomer" placeholder="" id="use_per_coustomer" / placeholder="Uses per Coustomer" style="width:439px !important;">
+                                                        <div style="width:400px !important">Usage limit enforced for logged in customers only.</div>
+                                                        @if ($errors->has('uses_per_coustomer'))
+                                                        <div class="alert alert-danger">{{$errors->first('uses_per_coustomer')}}</div>
+                                                        @endif
                                                     </div>
-                                                    @if ($errors->has('expiration'))
-                                                    <div class="alert alert-danger">{{$errors->first('expiration')}}</div>
-                                                    @endif
                                                 </div>
-                                            </div>
-
-                                            <div class="form-group row">
-                                                <label for="start" class="col-sm-3 col-form-label">Priority</label>
-                                                <div class="col-sm-8">
-                                                    <input type="text" class="form-control" name="priority" placeholder="" id="" />
-                                                    @if ($errors->has('priority'))
-                                                    <div class="alert alert-danger">{{$errors->first('priority')}}</div>
-                                                    @endif
+                                           </div>
+                                           <div class="row">
+                                            <div class="col-sm-4">
+                                               <div class="form-group">
+                                                        <div class='input-group date' id='start'>
+                                                            <input type='text' class="form-control" name="start" value="{{old('start')}}" id="start_input" / placeholder="Start" style="width:200px !important;">
+                                                            <span class="input-group-addon">
+                                                                <span class="glyphicon glyphicon-calendar"></span>
+                                                            </span>
+                                                        </div>
+                                                        @if ($errors->has('start'))
+                                                        <div class="alert alert-danger">{{$errors->first('start')}}</div>
+                                                        @endif
+                                                    </div>
                                                 </div>
-                                            </div>
-
-                                            <div class="form-group row">
-                                            <label for="start" class="col-sm-3 col-form-label">Public In RSS Feed</label>
-                                                <div class="col-sm-8">
+                                                <div class="col-sm-4">
+                                                <div class="form-group ">
+                                                        <div class='input-group date' id='expiration'>
+                                                            <input type='text' class="form-control" name="expiration" value="{{old('expiration')}}" id="to_input" / placeholder="Expiration" style="width:200px !important;">
+                                                            <span class="input-group-addon">
+                                                                <span class="glyphicon glyphicon-calendar"></span>
+                                                            </span>
+                                                        </div>
+                                                        @if ($errors->has('expiration'))
+                                                        <div class="alert alert-danger">{{$errors->first('expiration')}}</div>
+                                                        @endif
+                                                    </div>
+                                               </div>
+                                               <div class="col-sm-4">
+                                                <div class="form-group ">
+                                                        <input type="text" class="form-control" name="priority" placeholder="Priority" id="" / style="width:200px !important;">
+                                                        @if ($errors->has('priority'))
+                                                        <div class="alert alert-danger">{{$errors->first('priority')}}</div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                           </div>
+                                            <div class="form-group row d-flex" style="float: right;">
+                                            <label for="start" class="col-sm-8 col-form-label" style="width:220px !important;">Public In RSS Feed</label>
+                                                
                                                     <input type="checkbox" class="form-control" style="height:20px;width:20px;" name="rss" checked />
-                                                </div>
+                                                
                                             </div>
-
-
                                     </div>
                                 </div>
                             </div>
@@ -440,6 +424,7 @@ form label.required:after{
                                     Manage Coupon Codes
                                 </a>
                             </h4>
+
                             </div>
                             <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
                             <div class="panel-body">
@@ -588,7 +573,7 @@ form label.required:after{
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <!-- <button type="submit" class="btn btn-primary">Save</button> -->
-                    <button type="button" class="btn btn-primary save-button">Save</button>
+                    <button type="button" class="btn btn-secondary save-button">Save</button>
                 </div>
             </div>
         </form>
@@ -614,7 +599,7 @@ form label.required:after{
                 </div>
                 <div>
                     <div class="table-responsive">
-                        <table class="table table-striped table-bordered" style="width: 99%">
+                        <table class="table table-striped table-bordered" style="width:100%">
                             <tbody id="report-body">
                                 <tr>
                                     <td colspan="3">Coupon : <strong>Coupon Id</strong></td>
@@ -674,21 +659,26 @@ form label.required:after{
 @endif
 
 
-<div class="row">
+ <div class="row">
+    <div class="col-md-12 pl-5 pr-5">
     <div class="col-lg-12 margin-tb">
         <h2 class="" style="margin: 0px;padding: 15px;margin-bottom: 15px;text-align: center;">Coupon Rules</h2>
     </div>
-    <div class="table-responsive">
-        <table class="table table-striped table-bordered" style="width: 99%" id="coupon_rules_table">
+</div>
+</div>
+<div class="row">
+    <div class="col-md-12 pl-5 pr-5">
+    <div class="table-responsive coupon-rules-table">
+        <table class="table table-striped table-bordered" style="width:100%; table-layout: fixed;" id="coupon_rules_table">
             <thead>
                 <tr>
-                    <th width="15%">ID</th>
-                    <th width="20%">Rule</th>
-                    <th>Copupon Code</th>
-                    <th>Websites</th>
-                    <th>Start</th>
-                    <th>End</th>
-                    <th>Status</th>
+                    <th width="2%">ID</th>
+                    <th width="15%">Rule</th>
+                    <th width="10%">Copupon Code</th>
+                    <th width="25%">Websites</th>
+                    <th width="6%">Start</th>
+                    <th width="6%">End</th>
+                    <th width="5%">Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -697,7 +687,7 @@ form label.required:after{
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $rule_list->name }}</td>
                             <td>{{ $rule_list->coupon_code }}</td>
-                            <td>{{ $rule_list->website_ids }}</td>
+                            <td class="Website-task">{{ $rule_list->website_ids }}</td>
                             <td>{{ $rule_list->from_date }}</td>
                             <td>{{ $rule_list->to_date }}</td>
                             <td>{{ $rule_list->is_active == 1 ? "Active" : "InActive" }}</td>
@@ -706,6 +696,8 @@ form label.required:after{
             </tbody>
         </table>
     </div>
+</div>
+</div>
 </div>
 <hr>
 

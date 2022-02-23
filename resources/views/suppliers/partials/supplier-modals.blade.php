@@ -91,6 +91,11 @@
             <strong>Estimate Delivery Time:</strong>
             <input type="number" name="est_delivery_time" class="form-control" value="{{ old('est_delivery_time') }}">
           </div>
+		  
+		  <div class="form-group">
+            <strong>Product Type:</strong>
+            {!!Form::select('product_type', ['1'=>'NEW', '2'=>'PREOWNED'], old('product_type') , ['class' => 'form-control form-control-sm'])!!}
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -195,7 +200,10 @@
             <strong>Estimate Delivery Time:</strong>
             <input type="number" name="est_delivery_time" class="form-control" value="{{ old('est_delivery_time') }}" id="est_delivery_time">
           </div>
-
+		<div class="form-group">
+            <strong>Product Type:</strong>
+            {!!Form::select('product_type', ['1'=>'NEW', '2'=>'PREOWNED'], old('product_type') , ['class' => 'form-control form-control-sm', 'id'=>'product_type'])!!}
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

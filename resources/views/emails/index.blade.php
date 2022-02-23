@@ -62,7 +62,7 @@
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
     </div>
 <div class="row">
-	<div class="col-12">
+	<div class="col-md-12 p-0">
 		<h2 class="page-heading">Emails List</h2>
 	</div>
 </div>
@@ -80,10 +80,10 @@
 <div class="row">
 	<div class="col-lg-12 margin-tb">
 		<div class="pull-right mt-3">
-			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#statusModel">Create Status</button>
-      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#getCronEmailModal">Cron Email</button>
-			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createEmailCategorytModal">Create Category</button>
-      <a href="{{ route('syncroniseEmail')}}" class="btn btn-secondary">Synchronise Emails</a>
+			<button type="button" class="btn  custom-button" data-toggle="modal" data-target="#statusModel">Create Status</button>
+      <button type="button" class="btn  custom-button" data-toggle="modal" data-target="#getCronEmailModal">Cron Email</button>
+			<button type="button" class="btn  custom-button" data-toggle="modal" data-target="#createEmailCategorytModal">Create Category</button>
+      <a href="{{ route('syncroniseEmail')}}" class="btn custom-button">Synchronise Emails</a>
 		</div>
 
     <div class="pull-left mt-3" style="margin-bottom:10px;margin-right:5px;">
@@ -98,10 +98,9 @@
     </div>
 
     <div class="pull-left mt-3" style="margin-bottom:10px;margin-right:5px;">
-        <button type="button" class="btn btn-secondary bulk-dlt" onclick="bulkAction(this,'delete');">Bulk Delete</button>
+        <button type="button" class="btn custom-button bulk-dlt" onclick="bulkAction(this,'delete');">Bulk Delete</button>
     </div>
-	</div>   
-  <div class="col-md-12">
+     <div class="pull-left " style="margin-left:50px;">
       <ul class="nav nav-tabs" id="myTab" role="tablist">
           <li class="nav-item <?php echo (request('type') == 'incoming' && request('seen') == '1') ? 'active' : '' ?>" ><!-- Purpose : Add Turnary -  DEVTASK-18283 -->
               <a class="nav-link" id="read-tab" data-toggle="tab" href="#read" role="tab" aria-controls="read" aria-selected="true" onclick="load_data('incoming',1)">Read</a>
@@ -122,7 +121,9 @@
             <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('pre-send','both')">Queue</a>
           </li>
       </ul>
-      <div class="tab-content" id="myTabContent">
+    </div>
+	</div>   
+  <div class="col-md-12"> <div class="tab-content" id="myTabContent">
           <div class="tab-pane fade show active" id="read" role="tabpanel" aria-labelledby="read-tab">
           </div>
           <div class="tab-pane fade" id="unread" role="tabpanel" aria-labelledby="unread-tab">
@@ -134,11 +135,10 @@
   </div>
 </div>
 <div class="row">
-<div class="col-12 mb-3">
+<div class="col-12 mb-3 mt-4">
   <div class="pull-left">
-
-      <form class="form-inline" >
-        <div class="form-group px-2">
+    <form class="form-inline" >
+        <div class="form-group ">
           <input id="term" name="term" type="text" class="form-control"
                  value="<?php if(Request::get('term')) echo Request::get('term'); ?>"
                  placeholder="Search by Keyword">
@@ -153,7 +153,7 @@
         </div-->
 		
 		<div class="form-group px-2">
-            <select class="form-control" name="sender" id="sender">
+            <select class="form-control" name="sender" id="sender" style="width: 208px !important;">
                 <option value="">Select Sender</option>
                 @foreach($sender_drpdwn as $sender)
                     <option value="{{ $sender['from'] }}" {{ (Request::get('sender') && strcmp(Request::get('sender'),$sender['from']) == 0) ? "selected" : ""}}>{{ $sender['from'] }}</option>
@@ -209,7 +209,7 @@
   </div>
 </div>
 </div>
-<div class="table-responsive" style="margin-top:20px;">
+<div class="table-responsive mt-3" style="margin-top:20px;">
       <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
         <thead>
           <tr>
@@ -588,7 +588,34 @@
               </tr>
             </thead>
 
-            <tbody id="emailEventData">
+      <tbody id="emailEventData">
+            
+			</tbody>
+          </table>
+        </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="emailLogs" class="modal fade" role="dialog">
+    <div class="modal-dialog  modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Email Logs</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+           <div class="modal-body">
+        <div class="table-responsive mt-3">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Message</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+
+      <tbody id="emailLogsData">
             
 			</tbody>
           </table>
@@ -657,7 +684,19 @@
 			}
 		}
 	
-
+    function fetchEmailLog(email_id) {
+			if(email_id == ''){
+				$('#emailLogsData').html('<tr><td>No Data Found.</td></tr>');
+				$('#emailLogs').modal('show');
+				return;
+			} else{
+				$.get(window.location.origin+"/email/emaillog/"+email_id, function(data, status){
+					$('#emailLogsData').html(data);
+					$('#emailLogs').modal('show');
+				});
+			}
+		}
+	
         //$("#unread-tab").trigger("click");
 
         var searchSuggestions = {!! json_encode(array_values($search_suggestions), true) !!};
@@ -1019,6 +1058,29 @@
             })
         }
     });
+
+    $(document).on('change','.email-category',function(e){
+        if($(this).val() != "" && ($('option:selected', this).attr('data-id') != "" || $('option:selected', this).attr('data-id') != undefined)){
+            $.ajax({
+                  headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                  },
+                  type : "POST",
+                  url : "{{ route('changeEmailCategory') }}",
+                  data : {
+                    category_id : $('option:selected', this).val(),
+                    email_id : $('option:selected', this).attr('data-id')
+                  },
+                  success : function (response){
+                       location.reload();
+                  },
+                  error : function (response){
+
+                  }
+            })
+        }
+    });
+
 
     function opnMsg(email) {
       console.log(email);

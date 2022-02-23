@@ -70,6 +70,10 @@ var page = {
             e.preventDefault();
             page.loadHistory($(this));
         });
+        $(document).on("click",".btn-pullLogs",function(e) {
+            e.preventDefault();
+            page.loadLogs($(this));
+        });
 
         $(document).on("click",".btn-activities",function(e) {
             e.preventDefault();
@@ -230,7 +234,8 @@ var page = {
     afterPush : function(response) {
         if(response.code  == 200) {
             toastr["success"](response.message,"");
-            location.reload();
+			$("#loading-image").hide();
+            //location.reload();
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
@@ -249,7 +254,8 @@ var page = {
     afterPull : function(response) {
         if(response.code  == 200) {
             toastr["success"](response.message,"");
-            location.reload();
+			$("#loading-image").hide();
+           // location.reload();
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
@@ -350,6 +356,9 @@ var page = {
                 html += `<tr>
                     <td>`+v.id+`</td>
                     <td>`+v.content+`</td>
+                    <td>`+v.url+`</td>
+                    <td>`+v.result+`</td>
+                    <td>`+v.result_type+`</td>
                     <td>`+user+`</td>
                     <td>`+v.created_at+`</td>
                 </tr>`;
@@ -359,6 +368,45 @@ var page = {
             $(".preview-history-modal").modal("show");
         }
     },
+	
+	loadLogs:function(ele) {
+        
+        let page     = ele.data("id");
+        if(page == "") {
+			var url = this.config.baseUrl + "/page/pull/logs";
+		} else{
+			var url = this.config.baseUrl + "/page/"+page+"/pull/logs";
+		}
+        var _z = {
+            url: url,
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+
+        this.sendAjax(_z, 'afterLoadLogs');
+    },
+    afterLoadLogs : function(response) {
+        var html = ``;
+        if(response.code  == 200) {
+            $.each(response.data,function(k,v) {
+                var user = (v.user) ? v.user.name : "";
+                html += `<tr>
+                    <td>`+v.id+`</td>
+                    <td>`+v.website+`</td>
+                    <td>`+v.content+`</td>
+                    <td>`+v.url_key+`</td>
+                    <td>`+v.response_type+`</td>
+                    <td>`+v.created_at+`</td>
+                </tr>`;
+            })
+            $("#page-logs-tbody").html(html);
+            $("#loading-image").hide();
+            $(".page-logs-modal").modal("show");
+        }
+    },
+	
     loadActivities:function(ele) {
         
         let page     = ele.data("id");

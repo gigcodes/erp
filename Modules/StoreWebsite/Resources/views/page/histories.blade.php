@@ -22,9 +22,6 @@
                     <div class="row">
                         <form class="form-inline message-search-handler" method="get">
                             <div class="form-group  d-flex">
-                               
-                           
-                            <div class="form-group  d-flex">
 
                                 <?php echo Form::select("store_website_id",$storeWebsites,request("store_website_id"),["class"=> "form-control","placeholder" => "Select Store website"]) ?>
                             </div>
@@ -34,7 +31,7 @@
                                 <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
                             </div>
                             <div class="form-group ml-2 d-flex">
-                                <label for="button">&nbsp;</label>
+                                
                                 <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
                                     <img src="/images/search.png" style="cursor: default;">
                                 </button>
@@ -57,22 +54,24 @@
                     <thead>
                     <tr>
                         <th width="1%">Id</th>
-                        <th width="2%">Store Website</th>
+                        <th width="3%">Store Website</th>
                         <th width="2%">Url Key</th>
                         <th width="5%">URl</th>
                         <th width="15%">Result</th>
-                        <th width="2%">Result Type</th>
+                        <th width="3%">Result Type</th>
+                        <th width="2%">Updated by</th>
                     </tr>
                     </thead>
                     <tbody>
                                             <?php foreach($records as $record) {  ?>
                                                 <tr>
                                                     <td><?php echo $record->id; ?></td>
-                                                    <td class="Website-task"title="<?php echo $record->store_website_name; ?>"><?php echo $record->store_website_name; ?></td>
-                                                    <td class="Website-task"title="<?php echo $record->url_key; ?>"><?php echo $record->url_key; ?></td>
-                                                    <td class="Website-task"title="<?php echo $record->url; ?>"><?php echo $record->url; ?></td>
+                                                    <td class="Website-task result"title="<?php echo $record->store_website_name; ?>"><?php echo $record->store_website_name; ?></td>
+                                                    <td class="Website-task result"title="<?php echo $record->url_key; ?>"><?php echo $record->url_key; ?></td>
+                                                    <td class="Website-task result"title="<?php echo $record->url; ?>"><?php echo $record->url; ?></td>
                                                     <td class="Website-task result"title="<?php echo $record->result; ?>"><?php echo $record->result; ?></td>
                                                     <td><?php echo $record->result_type; ?></td>
+                                                    <td><?php echo $record->updatedBy; ?></td>
                                                 </tr>
                                             <?php } ?>
 

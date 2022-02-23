@@ -488,7 +488,8 @@ if (!empty($notifications)) {
                                                 @if(auth()->user()->checkPermission('productlister-list'))
                                                 <a class="dropdown-item" href="{{ route('products.listing') }}?cropped=on">Attribute edit page</a>
                                                 @endif
-                                                <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved listing</a>
+												<a class="dropdown-item" href="{{ route('products.push.conditions') }}">Magento product push conditions</a>
+												<a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved listing</a>
                                                 <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=2">Listings awaiting scraping</a>
                                                 <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=13">Listings unable to scrape</a>
                                                 <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
@@ -682,6 +683,9 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('LaravelLogController@scraperLiveLogs') }}">Live Scraper Log</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('social-webhook-log.index') }}">Social Webhook Log</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
@@ -724,10 +728,10 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('flow.index') }}">Flows</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('flow.schedule-emails') }}">Emails</a>
+                                            <a class="dropdown-item" href="{{ route('flow.schedule-emails') }}">Scheduled Emails</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('flow.schedule-messages') }}">Messages</a>
+                                            <a class="dropdown-item" href="{{ route('flow.schedule-messages') }}">Scheduled Messages</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1297,6 +1301,7 @@ if (!empty($notifications)) {
                                                     <a class="dropdown-item" href="{{ action('ArticleController@index') }}">Article Approval</a>
                                                     <a class="dropdown-item" href="{{ action('ProductController@getSupplierScrappingInfo') }}">Supplier Scrapping Info</a>
                                                     <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">New Dev Task Planner</a>
+                                                    <a class="dropdown-item" href="{{ route('seo-tool') }}">Semrush details</a>
                                                 </li>
                                             </ul>
                                 </li>
@@ -1423,6 +1428,9 @@ if (!empty($notifications)) {
                                         </li>
                                     </ul>
                                 </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a href="{{ route('social.direct-message') }}">Direct Messsage</a>
+                                </li>
                                 @endif
                             </ul>
                         </li>
@@ -1431,6 +1439,9 @@ if (!empty($notifications)) {
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Development --}}
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('development/change-user') }}">Change User</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">Devtask Planner</a>
                                 </li>
                                 <li class="nav-item">
@@ -1438,6 +1449,9 @@ if (!empty($notifications)) {
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ url('scrap/development/list') }}">Scrapper Tasks</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('development/automatic/tasks') }}">Automatic Tasks</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ url('development/list') }}">Tasks</a>
@@ -1515,6 +1529,7 @@ if (!empty($notifications)) {
 											<li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('magento-productt-errors.index') }}">Magento product push errors</a>
                                             </li>
+											
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
                                             </li>
@@ -1572,7 +1587,10 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item" href="{{ route('store-website.product-attribute.index') }}">Product Attribute</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('scrapper.phyhon.index') }}">Site Scrapper Phyhon</a>
+                                                <a class="dropdown-item" href="{{ route('scrapper.phyhon.index') }}">Site Scrapper Python</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('scrapper.image.urlList') }}">Scrapper Phyhon Urls</a>
                                             </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('store-website.site-attributes.index') }}">Site Attributes</a>
@@ -1619,10 +1637,16 @@ if (!empty($notifications)) {
 														<a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
 													</li>
 													<li class="nav-item dropdown">
+														<a href="{{ route('twilio.account_logs') }}">Twilio Account Logs</a>
+													</li>
+													<li class="nav-item dropdown">
 														<a class="dropdown-item" href="{{ url('twilio/getChats') }}">SMS</a>
 													</li>
 													<li class="nav-item dropdown">
 														<a class="dropdown-item" href="{{ route('twilio.erp_logs') }}">Twilio ERP Logs</a>
+													</li>
+                                                    <li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('get.python.log') }}">Python Site Logs</a>
 													</li>
 												</ul>
 											</li>
@@ -1657,6 +1681,9 @@ if (!empty($notifications)) {
                                                         <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('cashflow.hubstuff.log') }}">Hubstuff Command Log</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{ url('monetary-account') }}">Monetary Account</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
@@ -1676,6 +1703,9 @@ if (!empty($notifications)) {
                                                     </li>
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{url('magento-admin-settings')}}">Magento Admin Settings</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{route('auto.refresh.index')}}">Auto Refresh page</a>
@@ -1972,6 +2002,7 @@ if (!empty($notifications)) {
 
                                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                         <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
+                                                        <a class="dropdown-item" href="{{ route('development.flagtask') }}">Flag Tasks</a>
                                                         <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
                                                         <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
                                                         <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>

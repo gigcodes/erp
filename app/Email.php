@@ -48,4 +48,10 @@ class Email extends Model
   public function remarks(){
     return $this->hasMany(EmailRemark::class);
   }
+
+  public function category() {
+    
+    return $this->belongsTo(EmailCategory::class,  'email_category_id', 'id');
+    
+  }
 }

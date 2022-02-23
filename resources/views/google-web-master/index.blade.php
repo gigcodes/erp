@@ -32,7 +32,7 @@
 </div>
 
 <div id="accounts" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg"style="max-width: 100%;width: 90%;">
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title">Google Client Apps</span></h4>
@@ -109,16 +109,18 @@
 	<div class="col-md-12">
 		<div id="exTab2" >
 		<ul class="nav nav-tabs">
-			<li class="{{ request('logs_per_page') || request('crawls_per_page') ? '' : 'active' }}"><a  href="#search_analytics" data-toggle="tab">Search Analytics</a></li>
+			<li class="{{ request('logs_per_page') || request('crawls_per_page') || request('webmaster_logs_per_page') ? '' : 'active' }}"><a  href="#search_analytics" data-toggle="tab">Search Analytics</a></li>
 			<li class="{{ request('logs_per_page') ? 'active' : '' }}"><a href="#sites_logs" data-toggle="tab">Sites Logs</a></li>
-			<li class="{{ request('crawls_per_page') ? 'active' : '' }}"><a href="#site_crawls" data-toggle="tab">Site crawls</a></li> 
+			<li class="{{ request('crawls_per_page') ? 'active' : '' }}"><a href="#site_crawls" data-toggle="tab">Site crawls</a></li>
+			<li class="{{ request('webmaster_logs_per_page') ? 'active' : '' }}"><a href="#webmaster_logs" data-toggle="tab">Auth Logs</a></li>
+ 
 		</ul>
 		</div>
 	</div>
     {{-- <div class="row"> --}}
 
 		<div class="tab-content" >
-			<div class="tab-pane {{ request('logs_per_page') || request('crawls_per_page') ? '' : 'active' }}" id="search_analytics"> 
+			<div class="tab-pane {{ request('logs_per_page') || request('crawls_per_page') || request('webmaster_logs_per_page') ? '' : 'active' }}" id="search_analytics"> 
 				<div class="row">
 					<div class="col-md-12">
 						<h2 class="page-heading">Google Search Analytics</h2>
@@ -376,7 +378,7 @@
 												<div class="modal-body">
 													<div class="form-group">
 														<label for="frequency">Error's</label>
-														<a href="https://search.google.com/search-console/index?resource_id={{$site->sites}}" target="_blank">{{ $site->crawls }}</a>
+														<a href="https://search.google.com/search-console/index?resource_id={{$site->sites}}" target="_blank">{{ $site->crawls ? $site->crawls : 0 }}</a>
 													</div>
 												</div>
 												<div class="modal-footer">
@@ -436,6 +438,55 @@
 						</table>
 					</div>
 					{{ $logs->links() }}
+				</div>
+			</div>
+
+			<div class="tab-pane {{ request('webmaster_logs_per_page') ? 'active' : '' }}" id="webmaster_logs" >
+				<div class="row">
+					<div class="col-md-12">
+						<h2 class="page-heading">Auth Logs</h2>
+					</div>
+					<div class="col-12">
+					<div class="pull-left"></div>
+
+					<div class="pull-right">
+						<div class="form-group">
+						&nbsp;
+						</div>
+					</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-12">
+					
+						<table id="table" class="table table-striped table-bordered">
+							<thead>
+								<tr>
+									<th>S.N</th>
+									<th>User Name</th>
+									<th>Name</th>
+									<th>Status</th>
+									<th>Description</th>
+								
+								</tr>
+							</thead>
+							<tbody>
+								@foreach ($webmaster_logs as $key=> $log ) 
+								<tr>
+								<td>{{$log->id}}</td>
+								<td>{{$log->user_name}}</td>
+								<td>{{$log->name}}</td>
+								<td>{{$log->status}}</td>
+								<td>{{$log->message}}</td>
+								
+								</tr>
+
+								@endforeach
+							</tbody>
+						</table>
+					</div>
+					{{ $webmaster_logs->links() }}
 				</div>
 			</div>
 		</div>

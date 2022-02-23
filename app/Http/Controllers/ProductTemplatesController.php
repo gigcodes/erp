@@ -691,4 +691,51 @@ class ProductTemplatesController extends Controller
         $template_logs=ProductTemplateLog::paginate(15);
         return view("product-template.logs", compact('template_logs'));
     }
+
+    public function loginstance(Request $request)
+    {
+      
+
+        $url = env("PYTHON_PRODUCT_TEMPLATES")."/api/get-logs";
+        $date=($request->date!='')?\Carbon\Carbon::parse($request->date)->format('m-d-Y'):'';
+     //   echo $url;exit;
+     \Log::info("Payment_Template_loginstance -->".$url);
+     if(!empty($date)){
+        $data = ['date'=>$date];
+     }else{
+        return response()->json([
+            'type'=>'error',
+            'response' =>'Please select Date'
+                  ], 200);
+     }
+
+     
+        $data = json_encode($data);
+        
+     \Log::info("Payment_Template_loginstance -->".$data);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'accept: application/json'));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        $result1 = curl_exec($ch);
+        \log::info($result1);
+        $result = explode("\n",$result1);
+        \log::info($result);
+        if(count($result)>1){
+            return response()->json([
+                'type'=>'success',
+                'response' => view('instagram.hashtags.partials.get_status', compact('result'))->render()
+            ], 200); 
+         
+        }else{
+            return response()->json([
+            'type'=>'error',
+            'response' =>($result[0]=='')?'Please select Date':"Product Template for $date is  not found"
+            ], 200);
+         
+        }
+
+        
+    }
 }

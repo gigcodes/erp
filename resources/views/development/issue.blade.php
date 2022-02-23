@@ -346,9 +346,26 @@
 
             $(".estimate-date").each(function() {
                 // ...
-                $(this).datepicker({
-                    dateformat: 'yyyy-mm-dd'
-                });
+                $(this).datetimepicker({
+                    format: 'YYYY-MM-DD HH:mm'
+                }).on('dp.change', function(e){
+                   // alert("dddd");
+                    var formatedValue = e.date.format(e.date._f);
+                   // alert(formatedValue);
+                     let issueId = $(this).data('id');
+                //     alert(issueId);
+                        let estimate_date_ = $("#estimate_date_" + issueId).val();
+                        $.ajax({
+                            url: "{{action('DevelopmentController@saveEstimateDate')}}",
+                            data: {
+                                estimate_date : formatedValue,
+                                issue_id: issueId
+                            },
+                            success: function () {
+                                toastr["success"]("Estimate Date updated successfully!", "Message");
+                            }
+                        });
+                    });
             });
       
             $('#estimate_date_picker').datepicker({
@@ -735,12 +752,12 @@
 
         });
 
-        $(document).on('keyup', '.estimate-date-update', function () {
+       /* $(document).on('keyup', '.estimate-date-update', function () {
             if (event.keyCode != 13) {
                 return;
             }
             let issueId = $(this).data('id');
-            alert(issueId);
+       //     alert(issueId);
             let estimate_date_ = $("#estimate_date_" + issueId).val();
             $.ajax({
                 url: "{{action('DevelopmentController@saveEstimateDate')}}",
@@ -753,7 +770,7 @@
                 }
             });
 
-        });
+        });*/
 
         $(document).on('click', '.show-time-history', function() {
             var data = $(this).data('history');

@@ -8,11 +8,11 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Add New Task</h4>
             </div>
-            <form action="{{ route('development.store') }}" method="POST" enctype="multipart/form-data">
+            <form id="frmaddnewtask" action="{{ route('development.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
                     @if(auth()->user()->checkPermission('development-list'))
-                        <div class="form-group">
+                        <div class="form-group col-md-6">
                             <strong>Assigned To:</strong>
                             <select class="form-control" name="assigned_to" required>
                                 @foreach ($users as $key => $obj)
@@ -26,7 +26,7 @@
                         </div>
                     @endif
 
-                    <div class="form-group">
+                    <div class="form-group col-md-6">
                         <label for="repository_id">Repository:</label>
                         <br>
                         <select style="width:100%" class="form-control select2" id="repository_id" name="repository_id">
@@ -48,7 +48,7 @@
                         @endif
                     </div> -->
 
-                    <div class="form-group">
+                    <div class="form-group col-md-6">
                         <label for="module_id">Module:</label>
                         <br>
                         <select style="width:100%" class="form-control" id="module_id" name="module_id" required>
@@ -76,7 +76,7 @@
                         @endif
                     </div> -->
 
-                    <div class="form-group">
+                    <div class="form-group col-md-6">
                         <label for="priority">Type:</label>
                         <select class="form-control" name="task_type_id" id="task_type_id" required>
                             @foreach($tasksTypes as $taskType)
@@ -89,7 +89,7 @@
                         @endif
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group pl-4 pr-4">
                         <strong>Subject:</strong>
                         <input type="text" class="form-control" name="subject" value="{{ old('subject') }}" />
                         </select>
@@ -99,7 +99,7 @@
                         @endif
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group pl-4 pr-4">
                         <strong>Task:</strong>
                         <textarea class="form-control" name="task" rows="8" cols="80" required>{{ old('task') }}</textarea>
                         </select>
@@ -119,7 +119,7 @@
                         @endif
                     </div> -->
 
-                    <div class="form-group">
+                    <div class="form-group col-md-3">
                         <strong>Status:</strong>
                         <select class="form-control" name="status" required>
                             <!-- <option value="Planned" {{ old('status') == 'Planned' ? 'selected' : '' }}>Planned</option>
@@ -135,7 +135,7 @@
                         @endif
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group col-md-4">
                         <strong>Is Milestone ?:</strong>
                         <select id="is_milestone" class="form-control" name="is_milestone" required>
                             <option value="0" {{ old('is_milestone') == 0 ? 'selected' : '' }}>No</option>
@@ -147,7 +147,7 @@
                         @endif
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group col-md-4">
                         <strong>No of milestone:</strong>
                         <input type="number" class="form-control" id="no_of_milestone" name="no_of_milestone" value="{{ old('no_of_milestone') }}" />
                         </select>
@@ -157,9 +157,9 @@
                         @endif
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-secondary">Add</button>
+                <div class="mb-4"style="text-align: center;">
+                    <button type="button" class="btn btn-default " data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-secondary ">Add</button>
                 </div>
             </form>
         </div>

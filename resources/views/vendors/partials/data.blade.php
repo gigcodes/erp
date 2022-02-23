@@ -15,7 +15,7 @@
             @endforeach
         </select>
     </td>
-    <td class="expand-row-msg" data-name="category" data-id="{{$vendor->id}}">
+    <td class="expand-row-msg Website-task" data-name="category" data-id="{{$vendor->id}}">
         <span class="show-short-category-{{$vendor->id}}">
             @if(isset($vendor->category->title))
             {{ str_limit($vendor->category->title, 7, '..')}}
@@ -61,17 +61,19 @@
 
     </td>
     <td class="expand-row-msg" data-name="phone" data-id="{{$vendor->id}}">
-        <span class="show-short-phone-{{$vendor->id}}">{{ str_limit($vendor->phone, 8, '..')}}</span>
-        <span style="word-break:break-all;" class="show-full-phone-{{$vendor->id}} hidden">{{$vendor->phone}}</span>
-        @if ($vendor->status == 1)
-          <button type="button" class="btn btn-xs vendor-update-status-icon" id="btn_vendorstatus_{{ $vendor->id }}" title="On" data-id="{{ $vendor->id }}" id="do_not_disturb"><i class="fa fa-ban"></i></button>
-          <input type="hidden" name="hdn_vendorstatus" id="hdn_vendorstatus_{{ $vendor->id }}" value="false" />  
-        @else
-          <button type="button" class="btn btn-xs vendor-update-status-icon" id="btn_vendorstatus_{{ $vendor->id }}" title="Off" data-id="{{ $vendor->id }}" id="do_not_disturb"><i class="fa fa-ban"></i></button>
-          <input type="hidden" name="hdn_vendorstatus" id="hdn_vendorstatus_{{ $vendor->id }}" value="true" />
-        @endif
+        <div class="d-flex">
+            <span class="show-short-phone-{{$vendor->id}} Website-task">{{ str_limit($vendor->phone, 8, '..')}}</span>
+            <span style="word-break:break-all;" class="show-full-phone-{{$vendor->id}} Website-task hidden" >{{$vendor->phone}}</span>
+            @if ($vendor->status == 1)
+              <button type="button" class="btn btn-xs vendor-update-status-icon" id="btn_vendorstatus_{{ $vendor->id }}" title="On" data-id="{{ $vendor->id }}" id="do_not_disturb" style="margin-top: -2px;"><i class="fa fa-ban"></i></button>
+              <input type="hidden" name="hdn_vendorstatus" id="hdn_vendorstatus_{{ $vendor->id }}" value="false" />  
+            @else
+              <button type="button" class="btn btn-xs vendor-update-status-icon" id="btn_vendorstatus_{{ $vendor->id }}" title="Off" data-id="{{ $vendor->id }}" id="do_not_disturb" style="margin-top: -2px;"><i class="fa fa-ban"></i></button>
+              <input type="hidden" name="hdn_vendorstatus" id="hdn_vendorstatus_{{ $vendor->id }}" value="true" />
+            @endif
+        </div>
     </td>
-    <td class="expand-row-msg" data-name="email" data-id="{{$vendor->id}}">
+    <td class="expand-row-msg Website-task" data-name="email" data-id="{{$vendor->id}}">
         <span class="show-short-email-{{$vendor->id}}">{{ str_limit($vendor->email, 10, '..')}}</span>
         <span style="word-break:break-all;" class="show-full-email-{{$vendor->id}} hidden">{{$vendor->email}}</span>
     </td>
@@ -81,14 +83,14 @@
     <td class="table-hover-cell p-0 pt-1 pl-1 {{ $vendor->message_status == 0 ? 'text-danger' : '' }}">
         <div class="row">
             <div class="col-md-8 form-inline cls_remove_rightpadding">
-                <div class="row cls_textarea_subbox">
-                    <div class="col-md-10 cls_remove_rightpadding">
+                <div class="d-flex cls_textarea_subbox" style="justify-content: space-between;">
+                    
                         <textarea rows="1" class="form-control quick-message-field cls_quick_message" id="messageid_{{ $vendor->id }}" name="message" placeholder="Message"></textarea>
-                    </div>
-                    <div class="col-md-2 cls_remove_allpadding">
+                 
+                   
                         <button class="btn btn-sm btn-xs send-message1 mt-1" data-vendorid="{{ $vendor->id }}"><i class="fa fa-paper-plane"></i></button>
                         <button type="button" class="btn btn-xs load-communication-modal m-0 mt-1" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><i class="fa fa-comments"></i></button>
-                    </div>
+                    
                 </div>
             </div>
             <div class="col-md-4">
@@ -123,38 +125,14 @@
                 </div>        
             </div> 
         </div>
-        <div class="row cls_mesg_box mt-1">
-            <div class="col-md-12">
-                <div class="col-md-12 expand-row">
-                @if(isset($vendor->chat_messages[0]))
-                    <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}">
-                    {{ strlen($vendor->chat_messages[0]->message) > 30 ? substr($vendor->chat_messages[0]->message, 0, 30) . '...' : $vendor->chat_messages[0]->message }}
-                    </span>
-                    <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}">
-                      {{ $vendor->chat_messages[0]->message }}
-                    </span>
-                @endif
-                @if(isset($vendor->message))
-                    <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}">
-                    {{ strlen($vendor->message) > 30 ? substr($vendor->message, 0, 30) . '...' : $vendor->message }}
-                    </span>
-                    <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}">
-                      {{ $vendor->message }}
-                    </span>
-                @else
-                    <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}"></span>
-                    <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}"></span>
-                @endif
-                </div>
-            </div>
-        </div>
+        
     </td>
 
 
 
     <td>
         <div class="cls_action_btn">
-            <a href="{{ route('vendors.show', $vendor->id) }}" class="btn btn-image" href=""><img src="<?php echo $base_url;?>/images/view.png"/></a>
+            <a href="{{ route('vendors.show', $vendor->id) }}" class="btn btn-image" href=""><img src="<?php echo $base_url;?>/images/view.png"/style="color: gray;"></a>
 			
 			@php 
 			$iconReminderColor = '';

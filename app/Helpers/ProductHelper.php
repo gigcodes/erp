@@ -14,6 +14,7 @@ use App\StoreWebsiteBrand;
 use App\ProductPushErrorLog;
 use App\SystemSizeManager;
 use App\Helpers\ProductHelper;
+use App\PushToMagentoCondition;
         
 class ProductHelper extends Model
 {
@@ -730,15 +731,18 @@ class ProductHelper extends Model
         }
 
         // Check for price range
-        if (((int)$product->price < 62.5 || (int)$product->price > 5000) && !$product->isCharity()) {
-            // Log info
-            //LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency', $storeWebsiteId);
-            if(!$log) {
-               $log = LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency', $storeWebsiteId);
-            }
-            ProductPushErrorLog::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'error',$storeWebsiteId,null,null,$log->id);
-            // Return false
-            return false;
+		$priceRangeCheck = PushToMagentoCondition::where(['condition'=>'price_range_check', 'status'=>1])->first();
+		if($priceRangeCheck != null) {
+			if (((int)$product->price < 62.5 || (int)$product->price > 5000) && !$product->isCharity()) {
+				// Log info
+				//LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency', $storeWebsiteId);
+				if(!$log) {
+				   $log = LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency', $storeWebsiteId);
+				}
+				ProductPushErrorLog::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'error',$storeWebsiteId,null,null,$log->id);
+				// Return false
+				return false;
+			}
         }
 
         // Return
@@ -871,7 +875,7 @@ class ProductHelper extends Model
 
         $category = $product->category;
         
-        $storeCategories = StoreWebsiteCategory::where('category_id',$category)->where("remote_id",">",0)->get();
+        $storeCategories = StoreWebsiteCategory::where('category_id',$category)->where("remote_id",">",0)->get(); 
         $websiteArray = [];
         foreach ($storeCategories as $storeCategory) {
             $storeBrands = StoreWebsiteBrand::where('brand_id',$brand)->where("magento_value",">",0)->where('store_website_id',$storeCategory->store_website_id)->get();
@@ -970,5 +974,15 @@ class ProductHelper extends Model
 
         return [];
     }
+	
+	public static function getTopParent($categoryId)
+    {
+        $category = Category::find($categoryId);
+        if($category->parent_id == 0) {
+			return $newCat = $category->title;
+        } else {
+			return ProductHelper::getTopParent($category->parent_id);
+		}
+	}
 
 }
