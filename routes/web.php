@@ -3490,6 +3490,7 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
         Route::post('/{id}/update', 'PlanController@update')->name('plan.update');
         Route::get('/delete/{id}', 'PlanController@delete')->name('plan.delete');
         Route::get('/{id}/plan-action', 'PlanController@planAction');
+        Route::get('/{id}/plan-action-addons', 'PlanController@planActionAddOn');
         Route::post('/plan-action/store', 'PlanController@planActionStore');
         Route::post('/plan-action/solutions-store', 'PlanController@planSolutionsStore');
         Route::get('/plan-action/solutions-get/{id}', 'PlanController@planSolutionsGet');
