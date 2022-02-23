@@ -70,9 +70,26 @@
             </td>
 			
 			<td colspan=2>
-			<table class="assign">	
+			<table class="assign">	 
 				@foreach($category->assignedTo as $assignedTo)   
-					<tr><td width="32%">{{$assignedTo['assigned_to_name']}}</td>
+					<tr>
+                        <td width="32%">
+						
+							  @if(auth()->user()->isAdmin())
+							<select class="form-control assign-user" data-id="{{$assignedTo['id']}}"  name="master_user_id">
+                                <option value="">Select...</option>
+                                @foreach($users_all as $value)
+                                    @if( $assignedTo['assigned_to_name'] == $value->name  )
+                                        <option value="{{$value->id }}" selected>{{ $value->name }}</option>
+                                    @else
+                                         <option value="{{$value->id }}">{{ $value->name }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+							@else
+							{{$assignedTo['assigned_to_name']}}
+							@endif
+						</td>
 					<td class="pt-2">
                           <div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1 msg">
                               <?php
@@ -189,6 +206,7 @@
                 @endphp
                 <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task pd-5" data-id="@if($site){{ $site->id }}@endif" data-title="@if($site){{ $websitenamestr.' '.$site->title }}@endif"><img style="width:12px !important;" src="/images/add.png" /></button>
                 <button style="padding-left: 0;float: right;padding-right:0px;" type="button" class="btn pt-1 btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="@if($site){{ $site->id }}@endif"><i class="fa fa-info-circle"></i></button>
+                <button style="padding-left: 0;float: right;padding-right:0px;" type="button" class="btn pt-1 btn-image d-inline tasks-relation" title="Show task relation" data-id="@if($site){{ $site->id }}@endif"><i class="fa fa-dashboard"></i></button>
                 @endif
                 <button class="btn btn-image d-inline create-quick-task pd-5">
                     <span>
@@ -204,6 +222,8 @@
                 <button type="button" data-site-id="@if($site){{ $site->id }}@endif" class="btn btn-status-histories-get pd-5" title="Status History">
                     <i class="fa fa-empire" aria-hidden="true"></i>
                 </button>
+				
+				
 
                 <?php echo Form::select("status", ["" => "-- Select --"] + $allStatus, $site->status , [
                     "class" => "form-control save-item-select width-auto globalSelect2",

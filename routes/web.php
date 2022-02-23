@@ -195,6 +195,27 @@ Route::prefix('category-messages')->middleware('auth')->group(function () {
     Route::resource('category', 'CustomerCategoryController');
 });
 
+Route::prefix('seo')->middleware('auth')->group(function () {
+    Route::get('/', 'SeoToolController@index')->name('seo-tool');
+    Route::get('/search', 'SeoToolController@searchSeoFilter')->name('seo-tool-search');
+    Route::post('tool/save', 'SeoToolController@saveTool')->name('save.seo-tool');
+   // Route::post('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');
+    Route::get('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');
+    Route::get('domain-report/{id}/{type?}/{viewId?}/{viewTypeName?}', 'DetailsController@domainDetails')->name('domain-details');
+    Route::post('domain-report/search/{id?}/{type?}/{viewId?}/{viewTypeName?}', 'DetailsController@domainDetailsSearch')->name('domain-details-search');
+    Route::get('domain-report/{id}/{type}', 'DetailsController@domainDetails');
+	Route::get('compitetors-details/{id}', 'SeoToolController@compitetorsDetails')->name('compitetors-details');
+	Route::get('site-audit-details/{id}/{viewId?}/{viewTypeName?}', 'DetailsController@siteAudit')->name('site-audit-details');
+	Route::get('compitetorsdetails/{id}', 'DetailsController@compitetorsDetails')->name('compitetorsdetails');
+	Route::get('backlink-details/{id}/{viewId?}/{viewTypeName?}', 'DetailsController@backlinkDetails')->name('backlink-details');
+    Route::post('backlink-details/search/{id}/{viewId?}/{viewTypeName?}', 'DetailsController@backlinkDetailsSearch')->name('backlink-details-search');
+	Route::get('site-audit/{projectId}', 'SeoToolController@siteAudit');
+    Route::post('site-audit/search/{projectId}/{viewId?}/{viewTypeName?}', 'DetailsController@siteAuditSearch');
+	Route::get('project-list', 'SeoToolController@projectList');
+	Route::post('save-keyword', 'SeoToolController@saveKeyword');
+});
+
+
 Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Crop Reference
     Route::get('crop-references', 'CroppedImageReferenceController@index');
@@ -860,6 +881,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('bluckAction', 'EmailController@bluckAction')->name('bluckAction');
     Route::any('syncroniseEmail', 'EmailController@syncroniseEmail')->name('syncroniseEmail');
     Route::post('changeStatus', 'EmailController@changeStatus')->name('changeStatus');
+    Route::post('change-email-category', 'EmailController@changeEmailCategory')->name('changeEmailCategory');
 
     Route::get('email-remark', 'EmailController@getRemark')->name('email.getremark');
     Route::post('email-remark', 'EmailController@addRemark')->name('email.addRemark');
@@ -1425,9 +1447,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 	
     Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
     Route::get('development/flagtask', 'DevelopmentController@flagtask')->name('development.flagtask');
+    Route::post('development/gettasktimemessage', 'DevelopmentController@gettasktimemessage')->name('development.gettasktimemessage');
+    Route::post('development/getlogtasktimemessage', 'DevelopmentController@getlogtasktimemessage')->name('development.getlogtasktimemessage');
+
     Route::get('development/automatic/tasks', 'DevelopmentController@automaticTasks')->name('development.automatic.tasks');
  
     Route::post('save/task/message', 'DevelopmentController@saveTaskMessage')->name('development.taskmessage');
+    Route::post('save/tasktime/message', 'DevelopmentController@saveTaskTimeMessage')->name('development.tasktimemessage');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
@@ -1984,6 +2010,8 @@ Route::post('/brand-review/store', '\App\Http\Controllers\Api\v1\BrandReviewCont
 
 Route::prefix('livechat')->group(function () {
     Route::post('/attach-image', 'LiveChatController@attachImage')->name('live-chat.attach.image');
+    Route::post('/get-livechat-coupon-code', 'LiveChatController@getLiveChatCouponCode')->name('get-livechat-coupon-code');
+    Route::post('/send-livechat-coupon-code', 'LiveChatController@sendLiveChatCouponCode')->name('send-livechat-coupon-code');
 });
 
 /* ---------------------------------------------------------------------------------- */
@@ -2614,6 +2642,8 @@ Route::middleware('auth')->group(function () {
 //Routes for flows
 Route::group(['middleware' => 'auth', 'prefix' => 'flow'], function () {
     Route::get('/list', 'FlowController@index')->name('flow.index');
+    Route::get('/conditionlist', 'FlowController@conditionlist')->name('flow.conditionlist');
+    Route::get('/conditionliststatus', 'FlowController@conditionListStatus')->name('flow.conditionliststatus'); 
     Route::get('/scheduled-emails', 'FlowController@allScheduleEmails')->name('flow.schedule-emails');
     Route::get('/scheduled-messages', 'FlowController@allScheduleMessages')->name('flow.schedule-messages');
     Route::post('/update-email', 'FlowController@updateEmail')->name('flow.update-email');
@@ -2808,6 +2838,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function () {
     Route::any('/delete-rules/{id}', 'CouponController@deleteCouponCodeRuleById')->name('delete-rules');
 
     Route::post('/quick-coupon-code-rules', 'CouponController@shortCutFroCreateCoupn')->name('quick.couponcode.store');
+    Route::post('/send-coupons', 'CouponController@sendCoupons')->name('coupons.send');
+    Route::get('log-coupon-code-rule-ajax', 'CouponController@logCouponCodeRuleAjax')->name('couponcoderule.log.ajax');
 });
 
 Route::middleware('auth')->group(function () {

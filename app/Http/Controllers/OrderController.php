@@ -334,9 +334,10 @@ class OrderController extends Controller
 
         $statusFilterList = $statusFilterList->leftJoin("order_statuses as os", "os.id", "orders.order_status_id")
             ->where("order_status", "!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"), "os.status as order_status", "swo.website_id")->get()->toArray();
+        
         $totalOrders = sizeOf($orders->get());
         $orders_array = $orders->paginate(10);
-
+        
         $quickreply = Reply::where('model', 'Order')->get();
 
         $duty_shipping = array();
@@ -364,6 +365,7 @@ class OrderController extends Controller
 
         }
         $orderStatusList = OrderStatus::all();
+       
         //return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
         return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault', 'duty_shipping', 'orderStatusList'));
     }
@@ -2693,14 +2695,14 @@ class OrderController extends Controller
 
     public function statusChange(Request $request)
     {
-        $id = $request->get("id");
-        $status = $request->get("status");
-        $custom_email_content = $request->get("custom_email_content");
-        $to_mail_address = $request->get("to_mail");
-        $from_mail_address = $request->get("from_mail");
-        $order_via = $request->order_via;
-
-        if (!empty($id) && !empty($status)) {
+       
+        
+          $id = $request->get("id");
+          $status = $request->get("status");
+          $message = $request->get('message');
+          $sendmessage = $request->get("sendmessage");
+          $order_via = $request->order_via;
+            if (!empty($id) && !empty($status)) {
             $order = \App\Order::where("id", $id)->first();
             $statuss = OrderStatus::where("id", $status)->first();
 
@@ -2716,7 +2718,7 @@ class OrderController extends Controller
                 $history->new_status = $status;
                 $history->user_id = Auth::user()->id;
                 $history->save();
-
+                
                 if (in_array('email', $order_via)) {
                     if (isset($request->sendmessage) && $request->sendmessage == '1') {
                         //Sending Mail on changing of order status
@@ -2785,12 +2787,7 @@ class OrderController extends Controller
 
                     } else {
                         $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
-                        if ($from_mail_address != '') {
-                            $emailClass->fromMailer = $from_mail_address;
-                        }
-                        if ($to_mail_address != '') {
-                            $order->customer->email = $to_mail_address;
-                        }
+
                         $storeWebsiteOrder = $order->storeWebsiteOrder;
                         $email = Email::create([
                             'model_id' => $order->id,
@@ -2798,7 +2795,8 @@ class OrderController extends Controller
                             'from' => $emailClass->fromMailer,
                             'to' => $order->customer->email,
                             'subject' => $emailClass->subject,
-                            'message' => $custom_email_content,
+                            
+                            //'message' => $custom_email_content,
                             // 'message'          => $emailClass->render(),
                             'template' => 'order-status-update',
                             'additional_data' => $order->id,
@@ -4223,6 +4221,24 @@ class OrderController extends Controller
             $html .= '</tr>';
         }
         return response()->json(['html' => $html, 'success' => true], 200);
+
+    }
+
+    public function syncTransaction(Request $request) 
+    {
+        $order_id = $request->get('order_id');
+        $transaction_id = $request->get('transaction_id');
+        $order = Order::where('order_id', $order_id)->first();
+        $message  = "Issue in order";
+        $success= false;
+        if($order) {
+            $order->transaction_id = $transaction_id;
+            $order->save();
+            $message = "Transaction id updated successfully";
+            $success=true;
+        }
+        
+        return response()->json(['message' => $message, 'success' => $success], 200);
 
     }
 

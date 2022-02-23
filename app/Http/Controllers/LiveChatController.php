@@ -1336,6 +1336,11 @@ class LiveChatController extends Controller
             $query = $query->where('tickets.type_of_inquiry', 'LIKE', '%' . $request->serach_inquiry_type . '%');
         }
 
+        // Use for search by source tof ticket 
+        if ($request->search_source != "") {
+            $query = $query->where('tickets.source_of_ticket', 'LIKE', '%' . $request->search_source . '%');
+        }
+
         if ($request->status_id != '') {
             $query = $query->where('status_id', $request->status_id);
         }
@@ -1350,7 +1355,7 @@ class LiveChatController extends Controller
         }
 
         $data = $query->orderBy('date', 'DESC')->paginate($pageSize)->appends(request()->except(['page']));
-
+        
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('livechat.partials.ticket-list', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize)->render(),
@@ -1866,6 +1871,75 @@ class LiveChatController extends Controller
         }else{
             return response()->json(['message' => 'Credit log not found', 'code' => 500, 'status' => 'failed']);
         } 
+    }
+
+    /*
+    * getLiveChatCouponCode : Get coupon code according to store website
+    */
+    public function getLiveChatCouponCode(Request $request){
+        if($request->ajax()){
+            $customer = Customer::find($request->get("customer_id"));
+            $couponsData = \App\CouponCodeRules::where('store_website_id', $customer->store_website_id)->where('coupon_code', '!=', '')->where('is_active',1)->get()->toArray();
+            if($couponsData){
+                return response()->json([
+                    'data' => $couponsData
+                ], 200);
+            }
+            return response()->json([
+                'data' => []
+            ], 200);
+        }
+
+    }
+
+     /*
+    * Send mail method
+    */
+    public function sendLiveChatCouponCode(Request $request)
+    {
+        $ruleId = $request->rule_id;
+        $couponCodeRule = \App\CouponCodeRules::find($ruleId);
+        $customerId = $request->customer_id;
+        $customerData = Customer::find($customerId);
+        \App\CouponCodeRuleLog::create([
+            'rule_id' => $ruleId,
+            'coupon_code' => $couponCodeRule->coupon_code,
+            'log_type' => 'send_to_user_intiate',
+            'message' => 'Sending coupon mail to '.$customerData->email,
+        ]);
+        $emailAddress = \App\EmailAddress::where('store_website_id', $couponCodeRule->store_website_id)->first();
+        $mailData['receiver_email']   = $customerData->email;
+        $mailData['sender_email']     = $emailAddress->from_address;
+        $mailData['coupon']           = $couponCodeRule->coupon_code;
+        $mailData['model_id']         = $ruleId;
+        $mailData['model_class']      = CouponCodeRules::class;
+        $mailData['store_website_id'] = $couponCodeRule->store_website_id;
+        $emailClass = (new \App\Mail\AddCoupon($mailData))->build();
+        $email = \App\Email::create([
+            'model_id'         => $ruleId,
+            'model_type'       => CouponCodeRules::class,
+            'from'             => $emailAddress->from_address,
+            'to'               => $customerData->email,
+            'subject'          => $emailClass->subject,
+            'message'          => $emailClass->render(),
+            'template'         => 'coupons',
+            'additional_data'  => '',
+            'status'           => 'pre-send',
+            'store_website_id' => $couponCodeRule->store_website_id,
+            'is_draft'         => 0,
+        ]);
+
+        \App\Jobs\SendEmail::dispatch($email);
+        \App\CouponCodeRuleLog::create([
+            'rule_id' => $ruleId,
+            'coupon_code' => $couponCodeRule->coupon_code,
+            'log_type' => 'send_mail',
+            'message' => 'Mail was sent to '.$customerData->email,
+        ]);
+
+        return response()->json([
+            'message' => 'coupon send successully'
+        ], 200);
     }
 
 }

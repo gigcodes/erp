@@ -98,6 +98,7 @@ class ReferaFriend extends Controller
         $referFriendData = [];
         $referFriendData = $request->all();
         $referFriendData['store_website_id'] = $storeweb->id;
+        $referFriendData['status'] = 'initialize';
         $success = ReferFriend::create($referFriendData);
         if (!is_null($success)) {
             $last_insert_id = $success->id;
@@ -140,6 +141,7 @@ class ReferaFriend extends Controller
                 'log' => 'error',
                 'message' => 'Referral Program not found'
             ));
+            ReferFriend::where('id', $data['refer_log_id'])->update(array('status' => 'Error: Referral Program Not Found'));
             $message = $this->generate_erp_response("coupon.failed.refferal_program", $data['store_website_id'], $default = 'refferal program for website does not exists !', request('lang_code'));
             return response()->json(
                 [
@@ -183,21 +185,22 @@ class ReferaFriend extends Controller
         }
         //$queryString1 = http_build_query($referrer_coupondata);
         //$queryString2 = http_build_query($referee_coupondata);
-        try {
+        Coupon::create($referrer_coupondata);
+        $referreSuccess = Coupon::create($referee_coupondata);
+        if($referreSuccess){
+            LogReferalCoupon::create(array(
+                'refer_friend_id' => $data['refer_log_id'],
+                'log' => 'success',
+                'message' => 'Coupon created succssfully'
+            ));
+            ReferFriend::where('id', $data['refer_log_id'])->update(array('status' => 'Success: Coupon Created Successfully'));
+            try {
             //$url1 = 'https://devsite.sololuxury.com/contactcustom/index/createCoupen?' . $queryString1;
             //$response1 = $httpClient->get($url1);
 
             //$url2 = 'https://devsite.sololuxury.com/contactcustom/index/createCoupen?' . $queryString2;
             //$response2 = $httpClient->get($url2);
 
-            Coupon::create($referrer_coupondata);
-            $referreSuccess = Coupon::create($referee_coupondata);
-            if($referreSuccess){
-                LogReferalCoupon::create(array(
-                    'refer_friend_id' => $data['refer_log_id'],
-                    'log' => 'success',
-                    'message' => 'Coupon created succssfully'
-                ));
                 $referlink = $data['website'].'/register?uuid='.$data['uuid'];
                 $mailData['referee_email'] = $data['referee_email'];
                 $mailData['referrer_email'] = $data['referrer_email'];
@@ -214,7 +217,23 @@ class ReferaFriend extends Controller
                     'log' => 'success',
                     'message' => 'Mail Send Successfully'
                 ));
-
+                ReferFriend::where('id', $data['refer_log_id'])->update(array('status' => 'Success: Coupon Created & Mailed'));
+                $message = $this->generate_erp_response("refera.friend.success", 0, $default = 'refferal created successfully', request('lang_code'));
+                return response()->json([
+                    'status' => 'success',
+                    'message' => $message,
+                    'referrer_code' => $referrer_coupon,
+                    //'referee_code' => $referee_coupon,
+                    'referrer_email' => $data['referrer_email'],
+                    'referee_email' => $data['referee_email']
+                ], 200);
+            } catch (Exception $e) {
+                LogReferalCoupon::create(array(
+                    'refer_friend_id' => $data['refer_log_id'],
+                    'log' => 'exception',
+                    'message' => 'Mail not sent. Error => '.$e->getMessage()
+                ));
+                ReferFriend::where('id', $data['refer_log_id'])->update(array('status' => 'Exception: Coupon Created But Mailed Not Sent'));
                 $message = $this->generate_erp_response("refera.friend.success", 0, $default = 'refferal created successfully', request('lang_code'));
                 return response()->json([
                     'status' => 'success',
@@ -225,38 +244,19 @@ class ReferaFriend extends Controller
                     'referee_email' => $data['referee_email']
                 ], 200);
             }
+        }else{
             LogReferalCoupon::create(array(
                 'refer_friend_id' => $data['refer_log_id'],
                 'log' => 'error',
                 'message' => 'Unable to create a coupon'
             ));
+            ReferFriend::where('id', $data['refer_log_id'])->update(array('status' => 'Error: Coupon Not Created'));
             $message = $this->generate_erp_response("coupon.failed", $data['store_website_id'], $default = 'Unable to create coupon', request('lang_code'));
             return response()->json([
                 'status' => 'failed',
                 'message' => $message,
             ], 500);
-            /* return response()->json([
-                'status' => 'success',
-                'message' => 'refferal created successfully',
-                'referrer_body' => $response1->getBody(),
-                'referee_body' => $response2->getBody(),
-                'referrer_code' => $response1->getStatusCode(),
-                'referee_code' => $response2->getStatusCode(),
-                'referrer_url' => $url1,
-                'referee_url' => $url2
-            ], 200); */
-        } catch (Exception $e) {
-            LogReferalCoupon::create(array(
-                'refer_friend_id' => $data['refer_log_id'],
-                'log' => 'exception',
-                'message' => $e->getMessage()
-            ));
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'Unable to create coupon',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        }  
     }
 
     /**

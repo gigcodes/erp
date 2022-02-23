@@ -1301,6 +1301,7 @@ if (!empty($notifications)) {
                                                     <a class="dropdown-item" href="{{ action('ArticleController@index') }}">Article Approval</a>
                                                     <a class="dropdown-item" href="{{ action('ProductController@getSupplierScrappingInfo') }}">Supplier Scrapping Info</a>
                                                     <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">New Dev Task Planner</a>
+                                                    <a class="dropdown-item" href="{{ route('seo-tool') }}">Semrush details</a>
                                                 </li>
                                             </ul>
                                 </li>

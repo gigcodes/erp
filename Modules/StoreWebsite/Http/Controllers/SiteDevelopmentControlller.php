@@ -78,7 +78,7 @@ class SiteDevelopmentController extends Controller
         } else {
             $categories->orderBy('title', 'asc');
         }
-        $categories = $categories->paginate(Setting::get('pagination'));
+        $categories = $categories->paginate(10);
 
         foreach ($categories as $category) {
             $finalArray = [];
@@ -133,12 +133,9 @@ class SiteDevelopmentController extends Controller
             ->get();
 
         $allUsers = User::select('id', 'name')->get();
-
+        $users_all = $allUsers;
         $users = User::select('id', 'name')->whereIn('id', $userIDs)->get();
         $store_websites = StoreWebsite::pluck("title","id")->toArray();
-    
-
-
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
                 'tbody' => view('storewebsite::site-development.partials.data', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites'))->render(),
@@ -146,7 +143,7 @@ class SiteDevelopmentController extends Controller
             ], 200);
         }
 
-        return view('storewebsite::site-development.index', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites', 'designDevCategories'));
+        return view('storewebsite::site-development.index', compact('input', 'masterCategories', 'categories', 'users','users_all', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites', 'designDevCategories'));
     }
 
     public function SendTask(Request $request)
@@ -958,6 +955,16 @@ class SiteDevelopmentController extends Controller
         return response()->json(["code" => 200, "taskStatistics" => $merged]);
 
     }
+	
+	 public function taskRelation($site_developement_id)
+    {
+      
+        $othertask = Task::where('site_developement_id', $site_developement_id)->select('id', 'parent_task_id')->get();;
+       
+        return response()->json(["code" => 200, "othertask" => $othertask]);
+
+    }
+	
     public function deleteDevTask(Request $request)
     {
 

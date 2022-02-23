@@ -9,6 +9,7 @@ use App\TaskAttachment;
 use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redirect;
@@ -45,6 +46,7 @@ use Storage;
 use App\MeetingAndOtherTime;
 use App\Helpers\HubstaffTrait;
 use App\ChatMessage;
+use App\LogChatMessage;
 use App\Helpers\MessageHelper;
 use App\HubstaffHistory;
 use App\UserRate;
@@ -1011,7 +1013,9 @@ class DevelopmentController extends Controller
     {
         $users = Helpers::getUserArray(User::orderBy('name')->get());
         $title = 'Automatic Task List';
-        $task =  Task::with('timeSpent')->where('is_flow_task', '1'); 
+        $task =  Task::leftJoin('site_developments', 'site_developments.id', 'tasks.site_developement_id')
+		->leftJoin('store_websites', 'store_websites.id', 'site_developments.website_id')
+		->with('timeSpent')->where('is_flow_task', '1'); 
       
         if ((int) $request->get('assigned_to') > 0) {
             $task = $task->where('tasks.assign_to', $request->get('assigned_to'));
@@ -1028,7 +1032,7 @@ class DevelopmentController extends Controller
     
         $task = $task->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, task_id, message  FROM `chat_messages` where task_id > 0 ' . $whereTaskCondition . ' GROUP BY task_id ) m_max'), 'm_max.task_id', '=', 'tasks.id');
         $task = $task->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
-        $task = $task->select("tasks.*", "chat_messages.message");
+        $task = $task->select("tasks.*", "chat_messages.message", "store_websites.title as website_title");
         
         if (!auth()->user()->isReviwerLikeAdmin()) {
           $task = $task->where(function ($query) use ($request) {
@@ -1202,14 +1206,85 @@ class DevelopmentController extends Controller
             "task_statuses"=>$task_statuses
         ]);
     }
+    public function gettasktimemessage(request $request)
+    {
+        $id = $request->input('id');
+        $html = '';
+        $chatmessages = ChatMessage::where('task_id', $id)->where('task_time_reminder',1)->orwhere('developer_task_id', $id)->get();
+        $i = 1;
+        if (count($chatmessages) > 0) {
+            foreach ($chatmessages as $history) {
+                $html .= '<tr>';
+                $html .= '<td>' . $i . '</td>';
+                $html .= '<td>' . $history->message . '</td>';
+                $html .= '<td>' . $history->created_at . '</td>';
+                $html .= '</tr>';
 
-	public function saveTaskMessage(Request $request) {
+                $i++;
+            }
+            return response()->json(['html' => $html, 'success' => true], 200);
+        }
+         else {
+            $html .= '<tr>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '</tr>';
+        }
+        return response()->json(['html' => $html, 'success' => true], 200);
+
+    }
+    public function getlogtasktimemessage(request $request)
+    {
+        $id = $request->input('id');
+        $html = '';
+        $chatmessages = LogChatMessage::where('task_id', $id)->where('task_time_reminder',1)->get();
+        $i = 1;
+        if (count($chatmessages) > 0) {
+            foreach ($chatmessages as $history) {
+                $html .= '<tr>';
+                $html .= '<td>' . $i . '</td>';
+                $html .= '<td>' . $history->log_case_id . '</td>';
+                $html .= '<td>' . $history->message . '</td>';
+                $html .= '<td>' . $history->log_msg . '</td>';
+                $html .= '<td>' . $history->created_at . '</td>';
+                $html .= '</tr>';
+
+                $i++;
+            }
+            return response()->json(['html' => $html, 'success' => true], 200);
+        }
+         else {
+            $html .= '<tr>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '</tr>';
+        }
+        return response()->json(['html' => $html, 'success' => true], 200);
+
+    }
+
+	public function saveTaskMessage(Request $request) 
+    {
 		$input = $request->input();
-		TaskMessage::updateOrCreate(['id'=>$input['id']], $input);
-		return response()->json([
-		  'success'
-		]);
+        TaskMessage::updateOrCreate(['id'=>$input['id']], $input);
+        return response()->json([
+          'success'
+        ]);
 	}
+    public function saveTaskTimeMessage(Request $request) {
+        $est_time_message['message'] = $request->est_time_message;
+        $est_date_message['message'] = $request->est_date_message;
+        $overdue_time_date_message['message'] = $request->overdue_time_date_message;
+
+        TaskMessage::updateOrCreate(['message_type'=>'est_time_message','frequency'=>$request->frequency], $est_time_message);
+        TaskMessage::updateOrCreate(['message_type'=>'est_date_message','frequency'=>$request->frequency], $est_date_message);
+        TaskMessage::updateOrCreate(['message_type'=>'overdue_time_date_message','frequency'=>$request->frequency], $overdue_time_date_message);
+        return response()->json(['success']);
+    }
 
 
     public function summaryList1(Request $request)
