@@ -52,10 +52,10 @@
                     </div>
                     <div id="checkboxes">
                         <label for="select_all">
-                        <input type="checkbox" id="select_all" checked />Select All</label>
+                        <input type="checkbox" id="select_all" <?php echo (!isset($_GET['devCheckboxs'])) ? 'checked':"" ?> />Select All</label>
                         @foreach ($alldevs as $k => $_dev)
                             <label for="{{ $k }}">
-                            <input type="checkbox" value="{{ $k }}" id="{{ $k }}" class="devCheckbox" name="devCheckboxs[]" checked />{{ $_dev }}</label>
+                            <input type="checkbox" value="{{ $k }}" id="{{ $k }}" class="devCheckbox" name="devCheckboxs[]" <?php  if(isset($_GET['devCheckboxs'])) { echo (in_array($k,$_GET['devCheckboxs'])) ? 'checked' : ""; } else { echo 'checked'; } ?> />{{ $_dev }}</label>
                         @endforeach
                     </div>
                 </div>
@@ -101,7 +101,22 @@
                                         <i class="fa fa-tasks"></i>
                                     </button>
                                 </td>
+                                <?php
+                                if(isset($_GET['devCheckboxs']))
+                                {
+                                ?>
+                                <td width="5%" class="Website-task"> 
+                                    {{ $brand->multiBrandTask($brand->id,$_GET['devCheckboxs'])->assignedUser->name}}
+                                </td>
+                                <?php
+                                }
+                                else
+                                {
+                                    ?>   
                                 <td width="5%" class="Website-task">{{ ($brand->singleBrandTask)? $brand->singleBrandTask->assignedUser->name : 'N/A' }}</td>
+                                <?php 
+                                }
+                            ?>
                             </tr>
                         @endforeach
                 </table>

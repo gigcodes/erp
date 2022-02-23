@@ -1,13 +1,13 @@
 
 <?php   $special_task = \App\Task::find($issue->id); ?>
 <tr style="color:grey;">
-    <td style="display:table-cell;vertical-align: baseline;">
+   <td style="display:table-cell;vertical-align: baseline;">
     {{ $issue->id }}
     </td>
-    <td class="Website-task" style="vertical-align: baseline;">    
+   <td class="Website-task" style="vertical-align: baseline;">    
        {{ $issue->task_subject }}
     </td>
-       <td>
+   <td>
         <div class="d-flex">
      <!--   <label for="" style="font-size: 12px;">Assigned To :</label>-->
         <select class="form-control assign-task-user select2" data-id="{{$issue->id}}" name="assign_to" id="user_{{$issue->id}}">
@@ -25,19 +25,20 @@
    <!--     <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>-->
     </div>
     </td>
-     <td  style="vertical-align: baseline;">
+    <td  style="vertical-align: baseline;">
      @if (isset($special_task->timeSpent) && $special_task->timeSpent->task_id > 0)
             {{ formatDuration($special_task->timeSpent->tracked) }}
 
             <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history_task" title="Show tracked time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
         @endif
     </td>
-    <td  style="vertical-align: baseline;">
+        <td  style="vertical-align: baseline;">
    {{ $issue->approximate }}
 
    <button type="button" class="btn btn-xs show-time-history-task" title="Show History" data-id="{{$issue->id}}" data-user_id="{{$issue->assign_to}}" style="background: none;"><i class="fa fa-info-circle"></i></button>
     </td>
-    <td  style="vertical-align: baseline;">
+
+     <td  style="vertical-align: baseline;">
         <div class="d-flex">
         {{ $issue->due_date }}
         <span> 2021-12-07 00:00:00</span>
@@ -45,7 +46,7 @@
        </div>
     </td>
 
-    <td class="communication-td devtask-com"style="border-bottom: none;">
+   <td class="communication-td devtask-com"style="border-bottom: none;">
     <!-- class="expand-row" -->
   
    
@@ -69,7 +70,8 @@
          </div> 
     </span>
 </div>
-    </td>    
+    </td> 
+
     <td>
        <div class="d-flex">                         
     <select id="master_user_id" class="form-control change-task-status select2" data-id="{{$issue->id}}" name="master_user_id" id="user_{{$issue->id}}">
@@ -94,21 +96,11 @@
          @endif
      </div>
     </td>
- 
-</tr>
-
->is_flagged == 1)
-         <button type="button" class="btn pr-0 btn-image flag-task pd-5" data-type="task" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}"style="filter: grayscale(1);"></button>
-         @else
-         <button type="button" class="btn btn-image flag-task pd-5" data-type="task" data-id="{{ $issue->id }}"><img src="{{asset('images/unflagged.png')}}"/ style="filter: grayscale(1);"></button>
-         @endif
-     </div>
-    </td>
-        <td>
-        <button type="button" title="Task Time history" class="btn tasktime-history-btn  pull-left" data-id="{{$issue->id}}" style="background:none;">
-          <i class="fa fa-history"></i>
-      </button>
-    </td>
+<td style="vertical-align: initial;">
+    <i class="fa fa-comments-o" aria-hidden="true"></i>
+    <i class="fa fa-history" aria-hidden="true"></i>
+</td>
+    
  
 </tr>
 
