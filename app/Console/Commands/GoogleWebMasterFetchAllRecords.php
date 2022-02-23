@@ -18,6 +18,7 @@ use App\GoogleClientNotification;
 use App\GoogleClientAccountMail;
 use Google_Service_Oauth2;
 use Http;
+use config;
 
 
 class GoogleWebMasterFetchAllRecords extends Command{
@@ -172,7 +173,9 @@ class GoogleWebMasterFetchAllRecords extends Command{
                 redirect()->route('googlewebmaster.get-access-token');
             }
             
-            $google_keys=explode(',',env('GOOGLE_CLIENT_MULTIPLE_KEYS'));
+            $GOOGLE_CLIENT_MULTIPLE_KEYS = config('google.GOOGLE_CLIENT_MULTIPLE_KEYS');
+
+            $google_keys=explode(',',$GOOGLE_CLIENT_MULTIPLE_KEYS);
             //$token = $request->session()->get('token');
             foreach($google_keys as $google_key){
 

@@ -261,7 +261,6 @@
                         <th width="5%"><input type="checkbox" onchange="checkAll(this)" name="chk[]"></th>
                         <th width="7%">ID</th>
                         <th width="5%">Website</th>
-                        <th width="5%">Parent Task</th>
                         <th width="9%">Subject</th>
                         <th width="12%">Assigned To</th>
                         <th width="8%">Tracked Time</th>

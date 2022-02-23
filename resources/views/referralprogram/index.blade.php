@@ -39,14 +39,14 @@
                         </div>
                     </div>
             </div>
-            <div class="pull-right">
+            <div class="pull-right pr-4">
                 <a class="btn btn-secondary" href="{{ route('referralprograms.add') }}">+</a>
             </div>
         </div>
     </div>
 
     @include('partials.flash_messages')
-
+<div class="p-4">
     <div class="table-responsive">
         <table class="table table-bordered" id="Referrals-table">
               <thead>
@@ -65,7 +65,7 @@
             </tbody>
         </table>
     </div>
-
+</div>
     {!! $data->render() !!}
 
 
