@@ -3159,6 +3159,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('twilio/get_website_wise_key_data', 'TwilioController@getTwilioKeyData')->name('twilio.get_website_wise_key_data');
     Route::get('twilio/erp/logs', 'TwilioController@twilioErpLogs')->name('twilio.erp_logs');
     Route::get('twilio/account-logs', 'TwilioController@twilioAccountLogs')->name('twilio.account_logs');
+    Route::get('twilio/conditions', 'TwilioController@getConditions')->name('twilio.conditions');
+    Route::get('twilio/conditions/status/update', 'TwilioController@updateConditionStatus')->name('twilio.condition.update');
+
+
 
     /**
      * Watson account management

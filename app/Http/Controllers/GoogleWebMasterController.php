@@ -36,10 +36,10 @@ class GoogleWebMasterController extends Controller{
 
         $logs=Activity::where('log_name','v3_sites')->orWhere('log_name','v3_search_analytics')->latest()->paginate(Setting::get('pagination'),['*'],'logs_per_page');
         $webmaster_logs = WebmasterLog::paginate(Setting::get('pagination'),['*'],'webmaster_logs_per_page');
-
+        $site_submit_history = WebsiteStoreViewsWebmasterHistory::paginate(Setting::get('pagination'),['*'],'history_per_page');
      
 
-        $SearchAnalytics=new GoogleSearchAnalytics;
+        $SearchAnalytics = new GoogleSearchAnalytics;
 
         $devices=$SearchAnalytics->select('device')->where('device','!=',null)->groupBy('device')->orderBy('device','asc')->get();
 
@@ -88,7 +88,7 @@ class GoogleWebMasterController extends Controller{
 
        // echo '<pre>';print_r($sitesData->toArray());die;
 
-        return view('google-web-master/index', compact('getSites','sitesData','sites','request','devices','countries','logs', 'webmaster_logs'));
+        return view('google-web-master/index', compact('getSites','sitesData','sites','request','devices','countries','logs', 'webmaster_logs', 'site_submit_history'));
     }
 
 
