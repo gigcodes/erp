@@ -17,6 +17,10 @@ use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Auth;
+use App\Customer;
+use App\Mail\AddCoupon;
+use App\CouponCodeRuleLog;
 
 class CouponController extends Controller
 {
@@ -52,8 +56,9 @@ class CouponController extends Controller
             $websites           = Website::whereIn('platform_id', explode(',', $rules->website_ids))->where('store_website_id', $rules->store_website_id)->pluck('name')->toArray();
             $rules->website_ids = implode(',', $websites);
         }
+        $customers = Customer::where('email','!=','')->get();
 
-        return view('coupon.index', compact('coupons', 'websites', 'website_stores', 'rule_lists', 'store_websites'));
+        return view('coupon.index', compact('coupons', 'websites', 'website_stores', 'rule_lists', 'store_websites', 'customers'));
     }
 
     public function loadData()
@@ -514,7 +519,14 @@ class CouponController extends Controller
             $local_rules->discount_qty          = $request->discount_qty;
             $local_rules->apply_to_shipping     = $request->apply_to_shipping;
             $local_rules->simple_free_shipping  = 0;
+            $local_rules->created_by            = Auth::User()->id;
             if ($local_rules->save()) {
+                CouponCodeRuleLog::create([
+                    'rule_id' => $local_rules->id,
+                    'coupon_code' => $local_rules->coupon_code,
+                    'log_type' => 'store_success',
+                    'message' => 'Rule id is created',
+                ]);
                 if(!empty($request->store_labels)) {
                     foreach ($request->store_labels as $key => $label) {
                         $store_view_value                = new WebsiteStoreViewValue();
@@ -807,6 +819,12 @@ class CouponController extends Controller
         $local_rules->apply_to_shipping     = $request->apply_to_shipping;
         $local_rules->simple_free_shipping  = 0;
         if ($local_rules->save()) {
+            CouponCodeRuleLog::create([
+                'rule_id' => $local_rules->id,
+                'coupon_code' => $local_rules->coupon_code,
+                'log_type' => 'update_success',
+                'message' => 'Rule id is updated',
+            ]);
             WebsiteStoreViewValue::where('rule_id', $request->rule_id)->delete();
             if(!empty($request->store_labels)) {
                 foreach ($request->store_labels as $key => $label) {
@@ -858,6 +876,13 @@ class CouponController extends Controller
         // if(isset($result->missing_items) && !empty($result->missing_items)){
         //     return response()->json(['type' => 'error','message' => $result->message,'data' => $result],200);
         // }
+
+        CouponCodeRuleLog::create([
+            'rule_id' => $coupon->rule_id,
+            'coupon_code' => $local_rules->coupon_code,
+            'log_type' => 'delete_success',
+            'message' => 'Rule id is deleted',
+        ]);
 
         return response()->json(['type' => "success", 'data' => [], 'message' => "Coupon deleted successfully"], 200);
     }
@@ -1032,6 +1057,72 @@ class CouponController extends Controller
         return response()->json(['type' => "success", 'data' => $result, 'message' => "Added successfully"], 200);
         
         
+    }
+
+    /*
+    * Send mail method
+    */
+    public function sendCoupons(Request $request)
+    {
+        $ruleId = $request->send_rule_id;
+        $couponCodeRule = CouponCodeRules::find($ruleId);
+        $customerId = $request->customer;
+        $customerData = Customer::find($customerId);
+        CouponCodeRuleLog::create([
+            'rule_id' => $ruleId,
+            'coupon_code' => $couponCodeRule->coupon_code,
+            'log_type' => 'send_to_user_intiate',
+            'message' => 'Sending coupon mail to '.$customerData->email,
+        ]);
+        $emailAddress = \App\EmailAddress::where('store_website_id', $couponCodeRule->store_website_id)->first();
+        $mailData['receiver_email']   = $customerData->email;
+        $mailData['sender_email']     = $emailAddress->from_address;
+        $mailData['coupon']           = $couponCodeRule->coupon_code;
+        $mailData['model_id']         = $ruleId;
+        $mailData['model_class']      = CouponCodeRules::class;
+        $mailData['store_website_id'] = $couponCodeRule->store_website_id;
+        $emailClass = (new AddCoupon($mailData))->build();
+        $email = \App\Email::create([
+            'model_id'         => $ruleId,
+            'model_type'       => CouponCodeRules::class,
+            'from'             => $emailAddress->from_address,
+            'to'               => $customerData->email,
+            'subject'          => $emailClass->subject,
+            'message'          => $emailClass->render(),
+            'template'         => 'coupons',
+            'additional_data'  => '',
+            'status'           => 'pre-send',
+            'store_website_id' => $couponCodeRule->store_website_id,
+            'is_draft'         => 0,
+        ]);
+
+        \App\Jobs\SendEmail::dispatch($email);
+        CouponCodeRuleLog::create([
+            'rule_id' => $ruleId,
+            'coupon_code' => $couponCodeRule->coupon_code,
+            'log_type' => 'send_mail',
+            'message' => 'Mail was sent to '.$customerData->email,
+        ]);
+
+        return redirect()->route('coupons.index')->with('success','Email is send to the user');
+    }
+
+    /*
+    * logCouponCodeRuleAjax : Return log of rule logs
+    */
+    public function logCouponCodeRuleAjax(Request $request){
+        if($request->ajax()){
+            $log = CouponCodeRuleLog::where("rule_id",$request->get("id"))->get()->toArray();
+            if($log){
+                return response()->json([
+                    'data' => $log
+                ], 200);
+            }
+            return response()->json([
+                'data' => []
+            ], 200);
+        }
+
     }
     
 }
