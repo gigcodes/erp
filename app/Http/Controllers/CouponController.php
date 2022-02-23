@@ -19,7 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
 use App\Customer;
-use App\Mail\AddCoupon;
+use App\Mails\AddCoupon;
 use App\CouponCodeRuleLog;
 
 class CouponController extends Controller
