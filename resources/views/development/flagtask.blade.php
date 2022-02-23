@@ -233,7 +233,7 @@
     @include('partials.flash_messages')
     <div class="infinite-scroll">
         <div class="table-responsive mt-3">
-            <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;">
+            <table class="table table-bordered table-striped" id="reply_history_div" style="table-layout:fixed;margin-bottom:0px;">
                 <thead>
                     <tr>
                          <th width="7%">ID</th>
