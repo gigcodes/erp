@@ -135,8 +135,8 @@ class TwilioController extends FindByNumberController
     {
 //        return response()->json(['agent' => \Auth::check()]);
 
-$conditionsWithIds = TwilioCondition::where('status', 1)->pluck('id', 'condition')->toArray();
-$conditions = array_keys($conditionsWithIds);
+        $conditionsWithIds = TwilioCondition::where('status', 1)->pluck('id', 'condition')->toArray();
+        $conditions = array_keys($conditionsWithIds);
 
         if (\Auth::check()) {
             $user = \Auth::user();
@@ -157,7 +157,7 @@ $conditions = array_keys($conditionsWithIds);
 
                 $devices = TwilioCredential::where('status',1)->whereNotNull('twiml_app_sid')->where('id',$twilio_active_credential->twilio_credential_id)->get();
 
-                if($devices)
+                if($devices && in_array('devices', $conditions))
                 {
                     $agent = 'customer_call_agent_'.$user_id;
 
