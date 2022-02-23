@@ -39,3 +39,4 @@ class CreateLogStoreWebsiteUsersTable extends Migration
     {
         Schema::dropIfExists('log_store_website_users');
     }
+}

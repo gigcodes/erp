@@ -84,18 +84,23 @@ class BrandController extends Controller
         // ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on"),\DB::raw("LOWER(trim(brands.name)) as lower_brand"), \DB::raw('COUNT(p.id) as total_products')])
         // ->groupBy("brands.id")
         // ->orderBy('total_products',"desc")->whereNull('brands.deleted_at');
-       
+           
+
+
+
         $brands = Brand::leftJoin("products as p", "p.brand", "brands.id")
         ->select(["brands.*",\DB::raw("LOWER(trim(brands.name)) as lower_brand"), \DB::raw('COUNT(p.id) as total_products')])
         ->groupBy("brands.id")
         ->orderBy('total_products', "desc")->with('singleBrandTask')->whereNull('brands.deleted_at');
 
+
+
         if($devCheckboxs){
-            foreach($request->get("devCheckboxs") as $devCheckbox){
-                $brands->whereHas('brandTask', function ($q) use ($devCheckbox) {
-                    $q->where('assigned_to', $devCheckbox);
+            /* foreach($request->get("devCheckboxs") as $devCheckbox){*/
+                $brands->whereHas('brandTask', function ($q) use ($devCheckboxs) {
+                    $q->whereIn('assigned_to', $devCheckboxs);
                 });
-            }
+            /*}*/
         }
 
         $keyword = request('keyword');
@@ -105,9 +110,20 @@ class BrandController extends Controller
             });
         }
 
+
+        $brands = $brands->paginate(Setting::get('pagination'));
+
+
         //Developers
+
+        $allbrands = Brand::leftJoin("products as p", "p.brand", "brands.id")
+        ->select(["brands.*",\DB::raw("LOWER(trim(brands.name)) as lower_brand"), \DB::raw('COUNT(p.id) as total_products')])
+        ->groupBy("brands.id")
+        ->orderBy('total_products', "desc")->with('singleBrandTask')->whereNull('brands.deleted_at');
+
+
         $alldevs = [];
-        $developers = $brands->get();
+        $developers = $allbrands->get();
         if ($developers) {
             foreach ($developers as $_developer) {
                 if ($_developer->singleBrandTask) {
@@ -115,8 +131,6 @@ class BrandController extends Controller
                 }
             }
         }
-
-        $brands = $brands->paginate(Setting::get('pagination'));
 
 
         $filters = $request->all();
