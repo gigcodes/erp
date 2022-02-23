@@ -489,16 +489,10 @@ class ScheduleEmails extends Command
 						$leads = $leads->select('developer_tasks.id', 'developer_tasks.scraper_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->orderBy('developer_tasks.id','desc')->first();
 
 					}  
-					$lead_new = array();
-					if($leads) {
-						$leaddata = $leads->toArray();
-						$leaddata['modalType'] = $modalType;
-					    $lead_new[0] = $leaddata;
-   
-					}
+					
 									
 					foreach ($flowActiosnNew as $flowActionNew) {
-						$this->doProcess($flowActionNew, $modalType, $lead_new, $store_website_id, $created_date, $flow_log_id, 'user',$allflowconditions);
+						$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date, $flow_log_id, 'user',$allflowconditions);
 					}
 				}
 			} elseif ($flowAction['condition'] == 'check_scrapper_error_logs') {
