@@ -133,7 +133,7 @@ class PushToMagento implements ShouldQueue
 								$this->log->save();
 								return false;
 							}
-							ProductPushErrorLog::log('', $product->id, 'Size chart is needed for push product', 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_size_chart_exists']);
+							ProductPushErrorLog::log('', $product->id, 'Size chart is needed for push product for topParent: '.$topParent, 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_size_chart_exists']);
 						}
 					}
 

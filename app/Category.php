@@ -8,6 +8,7 @@ use seo2websites\MagentoHelper\MagentoHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Nestable\NestableTrait;
+use App\Helpers\ProductHelper;
 
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
@@ -313,7 +314,7 @@ class Category extends Model
 
         // Set empty category tree for holding categories
         $categoryTree = [];
-    
+     $topParent = ProductHelper::getTopParent($category->id);
 
         // Continue only if category is not null
         if ( $categoryInstance !== NULL && $categoryMulti) {
