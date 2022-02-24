@@ -21,6 +21,7 @@ use App\SemrushKeyword;
 use App\SemrushTag;
 use App\KeywordTag;
 use Carbon\Carbon;
+use DB;
 
 class SeoToolController extends Controller
 {
@@ -47,11 +48,52 @@ class SeoToolController extends Controller
 				$backlinkreports[$websiteId]['nofollows_num'] = $this->restyle_text($backlinkreport['nofollows_num']);
 			}
 		}
-		
-		
-		return view('seo-tools.index', compact('keywords', 'websites', 'siteAudits', 'domainOverview', 'backlinkreports'));
+		return view('seo-tools.index', compact('websites', 'siteAudits', 'domainOverview', 'backlinkreports'));
     }
-	
+
+	/**
+	 * This function is used to search for SEO filter
+	 *
+	 * @param Request $request
+	 * @return JsonResponse
+	 */
+	public function searchSeoFilter(Request $request) 
+	{
+		try {
+			$search_website = [];
+			if($request->search_website !='') {
+				$search_website = ['website', 'LIKE','%'.$request->search_website.'%'];
+			}
+			$websites = StoreWebsite::where([['id', '!=', ''], $search_website])->pluck('website', 'id');
+			$siteAudits = $domainOverview = $backlinkreports = [];
+			foreach($websites as $websiteId=> $website) { 
+				$siteAuditDetail = SiteAudit::where(['store_website_id'=>$websiteId])->orderBy('id', 'desc')->first();
+				if($siteAuditDetail != null) {
+					$siteAudits[$websiteId]['errors'] = $siteAuditDetail['errors'];
+					$siteAudits[$websiteId]['warnings'] = $siteAuditDetail['warnings'];
+					$siteAudits[$websiteId]['pages_crawled'] = $siteAuditDetail['pages_crawled'];
+				}
+				$overview = DomainOverview::where(['store_website_id'=>$websiteId, 'tool_id'=> 1])->orderBy('id', 'desc')->first();
+				if($overview != null) {
+					$domainOverview[$websiteId]['organic_keywords'] = $this->restyle_text($overview['organic_keywords']);
+					$domainOverview[$websiteId]['organic_traffic'] = $this->restyle_text($overview['organic_traffic']);
+					$domainOverview[$websiteId]['organic_cost'] = $this->restyle_text($overview['organic_cost']);
+				}
+				$backlinkreport = BacklinkOverview::where(['store_website_id'=>$websiteId, 'tool_id'=> 1])->orderBy('id', 'desc')->first();
+				if($backlinkreport != null) {
+					$backlinkreports[$websiteId]['ascore'] = $this->restyle_text($backlinkreport['ascore']);
+					$backlinkreports[$websiteId]['follows_num'] = $this->restyle_text($backlinkreport['follows_num']);
+					$backlinkreports[$websiteId]['nofollows_num'] = $this->restyle_text($backlinkreport['nofollows_num']);
+				}
+			}
+			return response()->json([
+				'tbody' => view('seo-tools.index-search', compact('websites', 'siteAudits', 'domainOverview', 'backlinkreports'))->render(),
+			], 200);
+		} catch (\Exception $e) {
+			return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+		}
+    }
+
 	public function restyle_text($input) {
 		$input = number_format($input);
 		$input_count = substr_count($input, ',');

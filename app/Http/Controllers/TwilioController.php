@@ -70,6 +70,7 @@ use App\ChatbotQuestion;
 use App\TwilioAccountLog;
 use App\TwilioWebhookError;
 use Validator;
+use App\TwilioCondition;
 
 /**
  * Class TwilioController - active record
@@ -135,6 +136,9 @@ class TwilioController extends FindByNumberController
     {
 //        return response()->json(['agent' => \Auth::check()]);
 
+        $conditionsWithIds = TwilioCondition::where('status', 1)->pluck('id', 'condition')->toArray();
+        $conditions = array_keys($conditionsWithIds);
+
         if (\Auth::check()) {
             $user = \Auth::user();
             $user_id = $user->id;
@@ -143,7 +147,7 @@ class TwilioController extends FindByNumberController
 
             $check_is_agent = TwilioAgent::where('user_id', $user_id)->first();
 
-            if($check_is_agent)
+            if($check_is_agent  && in_array('check_is_agent', $conditions))
             {
 
                 $twilio_active_credential = StoreWebsiteTwilioNumber::join('twilio_active_numbers','twilio_active_numbers.id','store_website_twilio_numbers.twilio_active_number_id')
@@ -153,7 +157,8 @@ class TwilioController extends FindByNumberController
 				 Log::channel('customerDnd')->info('twilio_active_credential ==> '.$twilio_active_credential->twilio_credential_id);
 
                 $devices = TwilioCredential::where('status',1)->whereNotNull('twiml_app_sid')->where('id',$twilio_active_credential->twilio_credential_id)->get();
-                if($devices)
+
+                if($devices && in_array('devices', $conditions))
                 {
                     $agent = 'customer_call_agent_'.$user_id;
                     if ($devices->count()){
@@ -296,6 +301,9 @@ class TwilioController extends FindByNumberController
 	 
 	public function ivr(Request $request)
     {
+        $conditionsWithIds = TwilioCondition::where('status', 1)->pluck('id', 'condition')->toArray();
+        $conditions = array_keys($conditionsWithIds);
+
 		$number = $request->get("From");
 		$call_sid = $request->get("CallSid");
 		$account_sid = $request->get("AccountSid");
@@ -322,7 +330,7 @@ class TwilioController extends FindByNumberController
         $storewebsitetwiliono = StoreWebsiteTwilioNumber::where('store_website_id', '=', $store_website_id)->get();
 
         $twilio_active_number=[];
-        if(!empty($storewebsitetwiliono))
+        if(!empty($storewebsitetwiliono) && in_array('storewebsitetwiliono', $conditions))
         {
             foreach ($storewebsitetwiliono as $val) {
                 $twilio_active_number[$val->id] = $val->twilio_active_number_id;
@@ -331,7 +339,7 @@ class TwilioController extends FindByNumberController
 
         $twilio_number_site_wise = implode(",",$twilio_active_number);
 
-        if($twilio_number_site_wise != '')
+        if($twilio_number_site_wise != '' && in_array('twilio_number_site_wise', $conditions))
             $get_numbers = TwilioActiveNumber::select('phone_number')->whereIn('id',$twilio_active_number)->get();
         else
             $get_numbers = TwilioActiveNumber::select('phone_number')->where('status','in-use')->get();
@@ -341,7 +349,7 @@ class TwilioController extends FindByNumberController
         Log::channel('customerDnd')->info(' Number From :: >> '.$request->get("Called"));
         $call_from = TwilioActiveNumber::where('phone_number',$request->get("Called"))->first();
 		  
-        if($call_from)
+        if($call_from && in_array('call_from', $conditions))
         {
             $storewebsitetwiliono_data = StoreWebsiteTwilioNumber::where('twilio_active_number_id', '=', $call_from->id)->first();
         }else {
@@ -368,7 +376,7 @@ class TwilioController extends FindByNumberController
         // $response = new Twiml();
         //Log::channel('customerDnd')->info(' context >> '.$object->is_blocked);
 
-        if($store_website_id != 0) {
+        if($store_website_id != 0 && in_array('store_website_id', $conditions)) {
             $time_store_web_id = $store_website_id;
 		}
         else {
@@ -378,7 +386,7 @@ class TwilioController extends FindByNumberController
      	$sitewise_time = TwilioSitewiseTime::where('store_website_id',$time_store_web_id)->first();
 
         $time = Carbon::now();
-        if($sitewise_time){ 
+        if($sitewise_time && in_array('sitewise_time', $conditions)){ 
             $start_time = $sitewise_time->start_time;
             $start_hrs = explode(":",$start_time);
             $end_time = $sitewise_time->end_time;
@@ -425,12 +433,12 @@ class TwilioController extends FindByNumberController
             // } else {
 
 
-            if($call_with_agent == 1){
+            if($call_with_agent == 1 && in_array('call_with_agent', $conditions)){
 
                TwilioLog::create(['log'=>'::: Call with Agent :::', 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
 			   //Log::channel('customerDnd')->info('::: Call with Agent :::');
 
-                if($morning != '' && $evening != '' && !$time->between($morning, $evening, true))  
+                if(in_array('morning', $conditions) && in_array('evening', $conditions) && $morning != '' && $evening != '' &&  !$time->between($morning, $evening, true))  
                 {
                    TwilioLog::create(['log'=>' End work >> ', 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
 			       //Log::channel('customerDnd')->info(' End work >> ');
@@ -520,7 +528,7 @@ class TwilioController extends FindByNumberController
                         TwilioLog::create(['log'=>'500 agent id >>'.$client['agent_id'].' &  is_available >>'.$is_available.'  & is_online >> '.$is_online, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
 			            //Log::channel('customerDnd')->info('agent id >>'.$client['agent_id'].' &  is_available >>'.$is_available.'  & is_online >> '.$is_online);
                         
-                        if($is_available == 0 && $is_online)
+                        if($is_available == 0 && $is_online && in_array('is_available', $conditions) && in_array('is_online', $conditions))
                         {
 
                             TwilioLog::create(['log'=>' client >> '.$client['agent_name_id'], 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
@@ -528,7 +536,7 @@ class TwilioController extends FindByNumberController
 
                             // Add Agent Entry - START
                             $check_agent = AgentCallStatus::where('agent_id',$client['agent_id'])->where('agent_name_id',$client['agent_name_id'])->first();
-                            if ($check_agent === null) {
+                            if ($check_agent === null && in_array('check_agent', $conditions)) {
                                 // user doesn't exist in AgentCallStatus - Insert Query for Add Agent User
                                 $params_insert_agent = [
                                     'agent_id' => $client['agent_id'],
@@ -546,7 +554,7 @@ class TwilioController extends FindByNumberController
                             
                             $check_agent_available = AgentCallStatus::where('agent_id',$client['agent_id'])->where('agent_name_id',$client['agent_name_id'])->where('twilio_no','!=',"")->first();
 
-                            if ($check_agent_available != null) {
+                            if ($check_agent_available != null && in_array('check_agent_available', $conditions)) {
                                 if($check_agent_available->status == 0)
                                     $is_available = 1;
                             }else{
@@ -556,7 +564,7 @@ class TwilioController extends FindByNumberController
                             TwilioLog::create(['log'=>' is_available >> '.$is_available, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
 							//Log::channel('customerDnd')->info(' is_available >> '.$is_available);
 
-                            if($is_available == 1)
+                            if($is_available == 1 && in_array('is_available', $conditions))
                             {
                                 $dial = $response->dial('',[
                                     'record' => 'true',
@@ -592,7 +600,7 @@ class TwilioController extends FindByNumberController
                     }
 
 
-                    if($is_available == 0)
+                    if($is_available == 0 && in_array('is_available', $conditions))
                     {
 						//.json_encode($check_agent_available)
                         TwilioLog::create(['log'=>' Not Available ---- >>579 ', 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
@@ -623,7 +631,7 @@ class TwilioController extends FindByNumberController
                         ]);
                         //Call waiting - END
 
-                        if(isset($storewebsitetwiliono_data->message_busy) && $storewebsitetwiliono_data->message_busy != '')
+                        if(isset($storewebsitetwiliono_data->message_busy)  && in_array('message_busy', $conditions) && $storewebsitetwiliono_data->message_busy != '')
                             $response->Say($storewebsitetwiliono_data->message_busy);
                         else
                             $response->Say("Greetings & compliments of the day from solo luxury. the largest online shopping destination where your class meets authentic luxury for your essential pleasures. Your call will be answered shortly.");
@@ -680,7 +688,7 @@ class TwilioController extends FindByNumberController
 
             if($aa == 1)
             {
-                if($morning != '' && $evening != '' && !$time->between($morning, $evening, true))  
+                if($morning != '' && in_array('morning', $conditions) && $evening != '' && in_array('evening', $conditions) && !$time->between($morning, $evening, true))  
                 {
                     TwilioLog::create(['log'=>' End work >> ', 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
 					//Log::channel('customerDnd')->info(' End work >> ');
@@ -708,7 +716,7 @@ class TwilioController extends FindByNumberController
                     
                     //Call History - END
 
-                    if(isset($storewebsitetwiliono_data->end_work_message) && $storewebsitetwiliono_data->end_work_message != '')
+                    if(isset($storewebsitetwiliono_data->end_work_message) && in_array('end_work_message', $conditions) && $storewebsitetwiliono_data->end_work_message != '')
                         $response->say($storewebsitetwiliono_data->end_work_message);
                     else
                         $response->play('https://'.$request->getHost() . "/end_work_ring.mp3");
@@ -788,7 +796,7 @@ class TwilioController extends FindByNumberController
 
                     if($count == 4)
                     {
-                        if(isset($storewebsitetwiliono_data->message_not_available) && $storewebsitetwiliono_data->message_not_available != '')
+                        if(isset($storewebsitetwiliono_data->message_not_available) && in_array('message_not_available', $conditions) && $storewebsitetwiliono_data->message_not_available != '')
                             $response->say($storewebsitetwiliono_data->message_not_available);
                         else
                             $response->say('Thanks for your patience, Our All Lines are bussy. Please leave a message');
@@ -828,7 +836,7 @@ class TwilioController extends FindByNumberController
                         $is_online = $user_details->isOnline();
                         // dd($is_online);
 
-                        if($is_available == 0 && $is_online)
+                        if($is_available == 0 && $is_online && in_array('is_available', $conditions) && in_array('is_online', $conditions))
                         {
 
                             TwilioLog::create(['log'=>' client >> '.$client['agent_name_id'], 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
@@ -854,7 +862,7 @@ class TwilioController extends FindByNumberController
                             
                             $check_agent_available = AgentCallStatus::where('agent_id',$client['agent_id'])->where('agent_name_id',$client['agent_name_id'])->where('twilio_no','!=',"")->first();
 
-                            if ($check_agent_available != null) {
+                            if ($check_agent_available != null && in_array('check_agent_available', $conditions)) {
                                 if($check_agent_available->status == 0)
                                     $is_available = 1;
                             }else{
@@ -864,7 +872,7 @@ class TwilioController extends FindByNumberController
                             TwilioLog::create(['log'=>' is_available >> '.$is_available, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
 							//Log::channel('customerDnd')->info(' is_available >> '.$is_available);
 
-                            if($is_available == 1 )
+                            if($is_available == 1 && in_array('is_available', $conditions))
                             {
                                 $dial = $response->dial('',[
                                     'record' => 'true',
@@ -906,7 +914,7 @@ class TwilioController extends FindByNumberController
                         }
                     }
 
-                    if($is_available == 0)
+                    if($is_available == 0 && in_array('is_available', $conditions))
                     {
                     
                         TwilioLog::create(['log'=>' Not Available ---- >>893 ', 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
@@ -948,7 +956,7 @@ class TwilioController extends FindByNumberController
 
                         
 
-                        if(isset($storewebsitetwiliono_data->message_busy) && $storewebsitetwiliono_data->message_busy != '')
+                        if(isset($storewebsitetwiliono_data->message_busy) && in_array('message_busy', $conditions) && $storewebsitetwiliono_data->message_busy != '')
                             $response->Say($storewebsitetwiliono_data->message_busy);
                         else
                             $response->Say("Greetings & compliments of the day from solo luxury. the largest online shopping destination where your class meets authentic luxury for your essential pleasures. Your call will be answered shortly.");
@@ -1214,7 +1222,9 @@ class TwilioController extends FindByNumberController
     {
         $response = new VoiceResponse();
         Log::channel('customerDnd')->info('twilio_call_menu_response...'.$request);
-     		
+     	
+        $conditionsWithIds = TwilioCondition::where('status', 1)->pluck('id', 'condition')->toArray();
+        $conditions = array_keys($conditionsWithIds);
 
         $number = $request->get("From");
         $to = $request->get("To");
@@ -1235,14 +1245,14 @@ class TwilioController extends FindByNumberController
             TwilioLog::create(['log'=> 'Workflow Log '. $e->getMessage(),'account_sid'=> 0,'call_sid'=> 0, 'phone'=> 0 ]);
         }
 
-        if($call_from)
+        if($call_from && in_array('call_from', $conditions))
         {
             $storewebsitetwiliono_data = StoreWebsiteTwilioNumber::where('twilio_active_number_id', '=', $call_from->id)->first();
         }else{
             $storewebsitetwiliono_data = [];
         }
 
-        if($store_website_id != 0)
+        if($store_website_id != 0 && in_array('store_website_id', $conditions))
             $time_store_web_id = $store_website_id;
         else
             $time_store_web_id = $storewebsitetwiliono_data->store_website_id;
@@ -1484,11 +1494,14 @@ class TwilioController extends FindByNumberController
 
         // $order_data = Customer::where('phone', '=', $number)->first();
 
+        $conditionsWithIds = TwilioCondition::where('status', 1)->pluck('id', 'condition')->toArray();
+        $conditions = array_keys($conditionsWithIds);
+
         $order_data = Order::where('order_id', $selectedOption)->first();
 
         $option = ($request->get("sel_option") != null ? 1 : 0);
 
-        if($order_data && $option == 1)
+        if($order_data && $option == 1 && in_array('order_data', $conditions))
         {
             Log::channel('customerDnd')->info('Order Data Match'.json_encode($order_data));
             Log::channel('customerDnd')->info('Option :: > '.$request->get("sel_option"));
@@ -1497,13 +1510,13 @@ class TwilioController extends FindByNumberController
 
                 $order_pro = OrderProduct::where('order_id',$order_data->id)->first();
 
-                if($order_pro){
+                if($order_pro && in_array('order_pro', $conditions)){
 
                     Log::channel('customerDnd')->info('order_product_id ::  '.$order_pro->id);
 
                     $return_exchange_pro = ReturnExchangeProduct::where('order_product_id',$order_pro->id)->first();
 
-                    if($return_exchange_pro){
+                    if($return_exchange_pro && in_array('return_exchange_pro', $conditions)){
                     Log::channel('customerDnd')->info('return_exchange_pro  return_exchange_id::  '.$return_exchange_pro->return_exchange_id);
 
                     Log::channel('customerDnd')->info('return_exchange_pro  status_id::  '.$return_exchange_pro->status_id);
@@ -1511,7 +1524,7 @@ class TwilioController extends FindByNumberController
 
                     $order_status = '';
 
-                    if($return_exchange_pro && $return_exchange_pro->return_exchange_id != null && $return_exchange_pro->return_exchange_id != ''){
+                    if($return_exchange_pro && in_array('return_exchange_pro', $conditions) && $return_exchange_pro->return_exchange_id != null && $return_exchange_pro->return_exchange_id != ''){
                         $return_exchange = ReturnExchange::where('id',$return_exchange_pro->return_exchange_id)->first();
 
                         $returnexchangestatus = ReturnExchangeStatus::where('id',$return_exchange->status)->first();
@@ -1530,7 +1543,7 @@ class TwilioController extends FindByNumberController
                     
                         return $response;
                     }
-                    else if($return_exchange_pro && $return_exchange_pro->status_id != null && $return_exchange_pro->status_id != ''){
+                    else if($return_exchange_pro && in_array('return_exchange_pro', $conditions) && $return_exchange_pro->status_id != null && $return_exchange_pro->status_id != ''){
 
                         $returnexchangestatus = ReturnExchangeStatus::where('id',$return_exchange_pro->status_id)->first();
 
@@ -1569,7 +1582,7 @@ class TwilioController extends FindByNumberController
                 }
             }
         }
-        else if($order_data && $option == 0){
+        else if($order_data && $option == 0 && in_array('order_data', $conditions)){
             Log::channel('customerDnd')->info('Order Data Match'.json_encode($order_data));
             $order_status = '';
             if($order_data->order_status_id != null)
@@ -1770,6 +1783,9 @@ class TwilioController extends FindByNumberController
     {
         Log::channel('customerDnd')->info('Call Status: = ' . $request->get("CallStatus"));
 
+        $conditionsWithIds = TwilioCondition::where('status', 1)->pluck('id', 'condition')->toArray();
+        $conditions = array_keys($conditionsWithIds);
+
         $number = $request->get("PhoneNumber");
         Log::channel('customerDnd')->info('Call SID: ' . $request->get("CallSid"));
         $context = $request->get("context");
@@ -1810,7 +1826,7 @@ class TwilioController extends FindByNumberController
 
         $check_agent = AgentCallStatus::where('agent_id',$user_id)->where('agent_name_id',$agent_name_id)->first();
 
-        if ($check_agent != null) {
+        if ($check_agent != null  && in_array('check_agent', $conditions)) {
             AgentCallStatus::where('agent_id', $user_id)
             ->where('agent_name_id', $agent_name_id)
             ->where('status', '0')
@@ -1872,6 +1888,8 @@ class TwilioController extends FindByNumberController
 
     public function change_agent_status(Request $request)
     {
+        $conditionsWithIds = TwilioCondition::where('status', 1)->pluck('id', 'condition')->toArray();
+        $conditions = array_keys($conditionsWithIds);
         if ($request->get("status") !== null && \Auth::check()) {
 
             $user = \Auth::user();
@@ -1885,7 +1903,7 @@ class TwilioController extends FindByNumberController
             // $agent_name_id = 'customer_call_agent_6';
 
             $check_agent = AgentCallStatus::where('agent_id',$user_id)->where('agent_name_id',$agent_name_id)->first();
-            if ($check_agent != null) {
+            if ($check_agent != null && in_array('check_agent', $conditions)) {
                 AgentCallStatus::where('agent_id', $user_id)
                 ->where('agent_name_id', $agent_name_id)
                 ->where('status', $current_status)
@@ -1898,7 +1916,7 @@ class TwilioController extends FindByNumberController
             $status = $request->get("status");
             $agent_name_id = 'customer_call_agent_'.$user_id;
             $check_agent = AgentCallStatus::where('agent_id',$user_id)->where('agent_name_id',$agent_name_id)->first();
-            if ($check_agent != null) {
+            if ($check_agent != null && in_array('check_agent', $conditions)) {
                 AgentCallStatus::where('agent_id', $user_id)
                 ->where('agent_name_id', $agent_name_id)
                 ->where('status', $current_status)
@@ -1941,6 +1959,8 @@ class TwilioController extends FindByNumberController
     {
         $user = \Auth::user();
         $user_id = $user->id;
+        $conditionsWithIds = TwilioCondition::where('status', 1)->pluck('id', 'condition')->toArray();
+        $conditions = array_keys($conditionsWithIds);
         Log::channel('customerDnd')->info('change_agent_call_status  >>' );
         // $user_id = $request->get("authid");
         $current_status = ($request->get("status") == 1 ? 0 : 1);
@@ -1950,7 +1970,7 @@ class TwilioController extends FindByNumberController
         Log::channel('customerDnd')->info('agent_name_id >>> '.$agent_name_id);
         $check_agent = AgentCallStatus::where('agent_id',$user_id)->where('agent_name_id',$agent_name_id)->first();
         Log::channel('customerDnd')->info('check_agent >>> '.$check_agent);
-        if ($check_agent != null) {
+        if ($check_agent != null && in_array('check_agent', $conditions)) {
             Log::channel('customerDnd')->info('id >>> '.$check_agent->id);
             AgentCallStatus::where('agent_id', $user_id)
             ->where('agent_name_id', $agent_name_id)
@@ -2386,6 +2406,8 @@ class TwilioController extends FindByNumberController
             $request->merge(['status'=>'missed']);
             $this->eventsFromFront($request);
         } 
+        $conditionsWithIds = TwilioCondition::where('status', 1)->pluck('id', 'condition')->toArray();
+        $conditions = array_keys($conditionsWithIds);
         // $response = new Twiml();
         $response = new VoiceResponse();
         $callStatus = $request->input('DialCallStatus');
@@ -2410,7 +2432,7 @@ class TwilioController extends FindByNumberController
 
             $check_customer = Customer::where('phone', 'LIKE', str_replace('+', '', $request->input('Caller')))->first();
 
-            if(!$check_customer)
+            if(!$check_customer && in_array('check_customer', $conditions))
             {
                 $get_twilio_active_number = TwilioActiveNumber::where('phone_number',$request->input('Called'))->first();
                 $store_web_twilio_no = StoreWebsiteTwilioNumber::where('twilio_active_number_id',$get_twilio_active_number->id)->first();
@@ -2473,7 +2495,10 @@ class TwilioController extends FindByNumberController
         Log::channel('customerDnd')->info('Current Outgoing Call Status ' . $callStatus);
         // Log::channel('customerDnd')->info($request->all());
 
-        if ($callStatus == 'busy' || $callStatus == 'no-answer') {
+        $conditionsWithIds = TwilioCondition::where('status', 1)->pluck('id', 'condition')->toArray();
+        $conditions = array_keys($conditionsWithIds);
+
+        if ($callStatus == 'busy' || $callStatus == 'no-answer' && in_array('callStatus', $conditions)) {
             if ($customer = Customer::where('phone', $request->phone_number)->first()) {
                 $params = [
                     'number' => NULL,
@@ -2502,7 +2527,7 @@ class TwilioController extends FindByNumberController
             // $agent_name_id = 'customer_call_agent_6';
 
             $check_agent = AgentCallStatus::where('agent_name_id',$agent_name_id)->first();
-            if ($check_agent != null) {
+            if ($check_agent != null && in_array('check_agent', $conditions)) {
                 AgentCallStatus::where('agent_name_id', $agent_name_id)
                 ->where('status', $current_status)
                 ->update(['status' => $status]);
@@ -2511,7 +2536,7 @@ class TwilioController extends FindByNumberController
 
         if ($customer = Customer::where('phone', 'LIKE', str_replace('+91', '', $request->phone_number))->first()) {
 
-            if($callStatus == null || $callStatus == '')
+            if($callStatus == null || $callStatus == '' && in_array('callStatus', $conditions))
                 $callStatus = 'missed';
 
             $params = [
@@ -2627,10 +2652,13 @@ class TwilioController extends FindByNumberController
 
         $store_websites = StoreWebsite::LeftJoin('twilio_sitewise_times as tst','tst.store_website_id','store_websites.id')->select('store_websites.*','tst.start_time','tst.end_time')->orderBy('store_websites.website', 'ASC')->get();
 
+        $conditionsWithIds = TwilioCondition::where('status', 1)->pluck('id', 'condition')->toArray();
+        $conditions = array_keys($conditionsWithIds);
+
         $twilio_key_options_data = TwilioKeyOption::get();
         $twilio_key_arr = array();
 
-        if($twilio_key_options_data)
+        if($twilio_key_options_data && in_array('twilio_key_options_data', $conditions))
         {
             foreach($twilio_key_options_data as $key => $value){
                 $twilio_key_arr[$value->key]['option'] = $value->description;
@@ -2879,6 +2907,8 @@ class TwilioController extends FindByNumberController
 
     public function assignTwilioNumberToStoreWebsite(Request $request)
     {
+        $conditionsWithIds = TwilioCondition::where('status', 1)->pluck('id', 'condition')->toArray();
+        $conditions = array_keys($conditionsWithIds);
         //check if same no. assigned to some store website
         try {
             // StoreWebsiteTwilioNumber::where('twilio_active_number_id', '=', $request->twilio_number_id)
@@ -2890,7 +2920,7 @@ class TwilioController extends FindByNumberController
                                     // ->where('twilio_credentials_id','=',$request->credential_id)
                                     ->first();
 
-            if($check_rec)
+            if($check_rec && in_array('check_rec', $conditions))
             {
                 if($check_rec->store_website_id == $request->store_website_id && $check_rec->twilio_credentials_id != $request->credential_id )
                 {
@@ -3274,8 +3304,10 @@ class TwilioController extends FindByNumberController
         $check_this_action = TwilioKeyOption::where('website_store_id',$request->get("website_store_id"))
         ->where('description',$request->get("option"))
         ->first();
+        $conditionsWithIds = TwilioCondition::where('status', 1)->pluck('id', 'condition')->toArray();
+        $conditions = array_keys($conditionsWithIds);
 
-        if($check_this_action && $request->get("up_id") == 0 ){
+        if($check_this_action && $request->get("up_id") == 0 && in_array('check_this_action', $conditions)){
             return new JsonResponse(['status' => 0, 'message' => 'This Option Alreday Set in Another Key']);
         }else{
             $call_history = TwilioKeyOption::updateOrCreate([
@@ -3776,5 +3808,26 @@ class TwilioController extends FindByNumberController
         $accountLogs = TwilioAccountLog::paginate(50);
         
         return view('twilio.account_logs', compact('accountLogs'));
+    }
+
+
+    public function getConditions(Request $request) {
+        $drConditions = TwilioCondition::all();
+        if (($request->condition && $request->condition != null) && ($request->description && $request->description != null)){
+            $conditions = TwilioCondition::where('condition',$request->condition)->where('description','LIKE','%'.$request->description.'%')->get();
+        }elseif ($request->description && $request->description  != null) {
+            $conditions = TwilioCondition::where('description','LIKE','%'.$request->description.'%')->get();
+        }elseif ($request->condition && $request->condition != null) {
+            $conditions = TwilioCondition::where('condition',$request->condition)->get();
+        }else{
+            $conditions = TwilioCondition::all();
+        }
+        return view('twilio.conditions', compact('conditions','drConditions'));
+    }
+    
+    public function updateConditionStatus(Request $request) {
+        $input = $request->input();
+        TwilioCondition::where('id', $input['id'])->update(['status'=>$input['status']]);
+        return 'Status Updated';
     }
 } 

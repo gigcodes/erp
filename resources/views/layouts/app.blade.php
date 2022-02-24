@@ -728,10 +728,10 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('flow.index') }}">Flows</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('flow.schedule-emails') }}">Emails</a>
+                                            <a class="dropdown-item" href="{{ route('flow.schedule-emails') }}">Scheduled Emails</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('flow.schedule-messages') }}">Messages</a>
+                                            <a class="dropdown-item" href="{{ route('flow.schedule-messages') }}">Scheduled Messages</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1301,6 +1301,7 @@ if (!empty($notifications)) {
                                                     <a class="dropdown-item" href="{{ action('ArticleController@index') }}">Article Approval</a>
                                                     <a class="dropdown-item" href="{{ action('ProductController@getSupplierScrappingInfo') }}">Supplier Scrapping Info</a>
                                                     <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">New Dev Task Planner</a>
+                                                    <a class="dropdown-item" href="{{ route('seo-tool') }}">Semrush details</a>
                                                 </li>
                                             </ul>
                                 </li>
@@ -1505,6 +1506,9 @@ if (!empty($notifications)) {
                         <li class="nav-item dropdown">
                             <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast messages</a>
                         </li>
+                        <li class="nav-item dropdown">
+                            <a class="dropdown-item" href="{{route('plan.index')}}">Plan</a>
+                        </li>
                     </ul>
                     <div>
                         <div id="nav-dotes"  class="nav-item dropdown dots mr-3 ml-3">
@@ -1702,6 +1706,9 @@ if (!empty($notifications)) {
                                                     </li>
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{url('magento-admin-settings')}}">Magento Admin Settings</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{route('auto.refresh.index')}}">Auto Refresh page</a>

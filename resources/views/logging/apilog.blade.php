@@ -48,14 +48,17 @@
    </div>
 </div>
 <div class="mt-3 col-md-12">
+   <div style="max-width: 100%;margin: 0 auto;overflow: auto;">
    <table class="table table-bordered table-striped" id="log-table">
       <thead>
          <tr>
             <th width="10%">ID</th>
             <th width="10%">IP</th>
+            <th width="5%">Controller</th>
+            <th width="5%">Method</th>
             <th width="10%">Method</th>
-            <th width="25%">URL</th>
-            <th width="20%">Request</th>
+            <th width="15%">URL</th>
+            <th width="15%">Request</th>
             <th width="5%">Status Code</th>
             <th width="5%">Time Taken</th>
             <th width="10%">Created At</th>
@@ -64,11 +67,13 @@
          <tr>
             <th width="10%"><input type="text" class="search form-control tbInput" name="id" id="filename"></th>
             <th width="10%"><input type="text" class="search form-control tbInput" id="log" name="ip"></th>
+            <th width="5%"><input type="text" class="search form-control tbInput" id="api_name" name="api_name"></th>
+            <th width="5%"></th>
             <th width="10%"><input type="text" name="method" class="search form-control tbInput" id="website"></th>
-            <th width="10%"><input type="text" name="url" class="search form-control tbInput" id="moduleName"></th>
-            <th></th>
+            <th width="15%"><input type="text" name="url" class="search form-control tbInput" id="moduleName"></th>
+            <th width="15%"></th>
             <!--  <th width="10%"><input type="text" class="search form-control" id="controllerName"></th> -->
-            <th width="10%">
+            <th width="5%">
               <select name="status" class="search form-control tbInput" id="action">
                 <option value="">Select Status Code</option>
                 @foreach($status_codes as $status_code)
@@ -77,8 +82,8 @@
               </select>
               <!-- <input type="text" name="status" class="search form-control tbInput" id="action"> -->
             </th>
-            <th></th>
-            <th>
+            <th width="5%"></th>
+            <th width="10%">
                <div class='input-group' id='log-created-date'>
                   <input type='text' class="form-control" name="created_at" value="" placeholder="Date" autocomplete="off" />
                   <span class="input-group-addon">
@@ -86,7 +91,7 @@
                   </span>
                </div>
             </th>
-            <th></th>
+            <th width="10%"></th>
             <!-- <th> <div class='input-group' id='created-date'>
                <input type='text' class="form-control " name="phone_date" value="" placeholder="Date" id="created_date" />
                    <span class="input-group-addon">
@@ -107,6 +112,7 @@
          @include('logging.partials.apilogdata')
       </tbody>
    </table>
+   </div>
 </div>
 <div class="modal fade" id="api_response_modal" role="dialog" style="display: none;">
    <div class="modal-dialog modal-lg">

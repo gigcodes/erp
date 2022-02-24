@@ -10,7 +10,8 @@ var page = {
         page.config.mainUrl = page.config.baseUrl + "/store-website/brand";
         
         page.config.bodyView.on("click",".push-brand",function(e) {
-            page.pushBrand($(this));
+			e.preventDefault();
+			 //page.pushBrand();
         });
 
         
@@ -22,7 +23,7 @@ var page = {
         });
 
     },
-    pushBrand : function(ele) {
+    pushBrand : function(ele) { console.log(ele);
         var brand = ele.data("brand");
         var store = ele.data("sw");
         var _z = {
@@ -40,10 +41,10 @@ var page = {
                 $("#loading-image").hide();
             }
         }
-        this.sendAjax(_z, "doneAjax",ele);
+        this.sendAjax(_z, "afterPushBrand",ele);
 
     },
-    doneAjax :function(response,ele) {
+    afterPushBrand :function(response,ele) {
         $("#loading-image").hide();
         if(response.code == 200) {
             toastr["success"](response.message,"");

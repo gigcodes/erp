@@ -39,6 +39,9 @@
             <tr>
                 <th style="width:7%">ID</th>
                 <th width="10%">Flow Name</th>
+                <th width="10%">Model</th>
+                <th width="10%">Website</th>
+                <th width="10%">Description</th>
                 <th width="25%">Message</th>
                 <th width="10%">LogCreated</th>
                 <th width="10%">Action</th>
@@ -46,7 +49,10 @@
             <tr>
                 <th style="width:7%"></th>
                 <th width="10%"><input type="text" name="flow_name" class="search form-control" id="flow_name"></th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
                 <th width="10%"><input type="text"  name="message" class="search form-control" id="message"></th>
+                <th>&nbsp;</th>
                 <th> <div class='input-group' id='log-created-date1'>
                         <input type='text' class="form-control " name="created_at" value="" placeholder="Date" id="created-date" />
                             <span class="input-group-addon">
@@ -75,7 +81,6 @@
             <div class="modal-body">
               <table class="table table-bordered table-hover" style="table-layout:fixed;">
                 <thead>
-                    
                   <th style="width:10%">Flow Action</th>
                   <th style="width:20%">Modal Type </th>
                   <th style="width:20%">Leads</th>

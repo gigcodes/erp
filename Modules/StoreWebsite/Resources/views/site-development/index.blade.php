@@ -638,6 +638,40 @@
         </div>
     </div>
 </div>
+<div id="confirmMessageModal"  class="modal fade" role="dialog">
+  <div class="modal-dialog">
+	<form>
+	<?php echo csrf_field(); ?>
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Choose Assignee</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+    
+
+        <div class="modal-body">
+			<div class="form-group">
+			
+				<label for="task_asssigned_to">Assigned to</label>
+				<select name="task_asssigned_to" id="task_asssigned_to"  class="form-control" aria-placeholder="Select Assigned" style="float: left">
+				@foreach($allUsers as $user)
+							<option value="{{$user->id}}">{{$user->name}}</option>
+							@endforeach               
+                </select>
+				                 
+	        </div>
+		</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary confirm-messge-button1">Send</button>
+        </div>
+		</form>
+    </div>
+
+  </div>
+</div>
 
 @endsection
 
@@ -647,6 +681,85 @@
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
 <script type="text/javascript">
+
+$(document).on('change', '.assign-user', function () {
+            let id = $(this).attr('data-id');
+            let userId = $(this).val();
+            if (userId == '') {
+                return;
+            }
+            $.ajax({
+                url: "{{route('task.AssignTaskToUser')}}",
+                data: {
+                    user_id: userId,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("User assigned successfully!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
+                }
+            });
+
+        });
+	 $("#user_id").select2({
+		ajax: {
+			url: '{{ route('user-search') }}',
+			dataType: 'json',
+			data: function(params) {
+				return {
+					q: params.term, // search term
+				};
+			},
+			processResults: function(data, params) {
+				params.page = params.page || 1;
+				return {
+					results: data,
+					pagination: {
+						more: (params.page * 30) < data.total_count
+					}
+				};
+			},
+		},
+		placeholder: "Select User",
+		allowClear: true,
+		minimumInputLength: 2,
+		width: '100%',
+	});
+	$(document).on('click', '.confirm-messge-button1', function (e) {   
+		 e.preventDefault();
+		 if($("#task_asssigned_to").val()!=""){
+			 var copy_from_website=$('#copy_from_website').val();
+			$("#confirmMessageModal").modal("hide");
+			$.ajax({
+				url: '{{ route('site-development.copy.task') }}',
+				type: 'POST',
+				dataType: 'json',
+				data: {
+					copy_from_website: copy_from_website,
+					copy_to_website: {{$website->id}},
+					"_token": "{{ csrf_token() }}",
+					task_asssigned_to:$("#task_asssigned_to").val(),
+				},
+				beforeSend: function() {
+					$("#loading-image").show();
+				},
+			}).done(function(data) {
+				$("#loading-image").hide();
+				toastr["success"](data.messages);
+				setTimeout(function(){ refreshPage(); }, 2000);
+			}).fail(function(data) {
+				$('#masterCategorySingle').val('')
+				console.log(data)
+				console.log("error");
+			});
+		}
+		
+		//}
+	 });
+
 	function createTasks() {
 		var text = $('#task_category').val()
 		if (text === '') {
@@ -676,37 +789,18 @@
 		}
 	}
 	function copyTasksFromWebsite() {
-		var copy_from_website = $('#copy_from_website').val()
+		var copy_from_website = $('#copy_from_website').val();
 		if (copy_from_website === '') {
 			alert('Please select website');
 		} else {
-			$.ajax({
-					url: '{{ route('site-development.copy.task') }}',
-					type: 'POST',
-					dataType: 'json',
-					data: {
-						copy_from_website: copy_from_website,
-						copy_to_website: {{$website->id}},
-						"_token": "{{ csrf_token() }}"
-					},
-					beforeSend: function() {
-						$("#loading-image").show();
-					},
-				}).done(function(data) {
-					$("#loading-image").hide();
-					toastr["success"](data.messages);
-					setTimeout(function(){ refreshPage(); }, 2000);
-				}).fail(function(data) {
-					$('#masterCategorySingle').val('')
-					console.log(data)
-					console.log("error");
-				});
+			$("#confirmMessageModal").modal("show");
+			
 		}
 	}
 
 	$("#change_website").change(function(){
 		var websiteUrl='';
-		websiteUrl="{{route('site-development.index')}}/"+$(this).val()+"/"+location.search;
+		websiteUrl="{{route('site-development.index')}}/"+$(this).val();
 		window.location=websiteUrl;
 	});
 	$('.assign-to.select2').select2({
@@ -1801,7 +1895,38 @@
 		});
 	});
 </script>
-<script>
+<script> 
+$(document).on("click", ".tasks-relation", function() { alert('called');
+		var $this = $(this);
+		var site_id = $(this).data("id");
+		$.ajax({
+			type: 'get',
+			url: 'task/relation/' + site_id,
+			dataType: "json",
+			beforeSend: function() {
+				$("#loading-image").show();
+			},
+			success: function(data) {
+				$("#dev_task_statistics").modal("show");
+				var table = '<div class="table-responsive">'+
+					'<table class="table table-bordered table-striped">'+
+						'<tr><th width="4%">Task Id</th><th width="4%">Parent Task</th></tr>';
+				for (var i = 0; i < data.othertask.length; i++) {
+					table = table + '<tr><td>' + data.othertask[i].id + '</td><td>#' + data.othertask[i].parent_task_id + '</td></tr>';
+				}
+				table = table + '</table></div>';
+				$("#loading-image").hide();
+				$(".modal").css("overflow-x", "hidden");
+				$(".modal").css("overflow-y", "auto");
+				$("#dev_task_statistics_content").html(table);
+			},
+			error: function(error) {
+				console.log(error);
+				$("#loading-image").hide();
+			}
+		});
+	});
+	
 	$(document).on("click", ".count-dev-customer-tasks", function() {
 
 		var $this = $(this);
@@ -1851,6 +1976,7 @@
 
 
 	});
+	
 	$(document).on('click', '.expand-row-msg', function () {
 		var name = $(this).data('name');
 		var id = $(this).data('id');

@@ -6,6 +6,7 @@ use App\Flow;
 use App\FlowAction;
 use App\FlowMessage;
 use App\FlowPath;
+use App\FlowCondition;
 use App\FlowType;
 use App\Http\Controllers\Controller;
 use App\StoreWebsite;
@@ -24,15 +25,47 @@ class FlowController extends Controller
             ->select('store_websites.title', 'flows.*')->get();
         $websites = StoreWebsite::pluck('title', 'id')->toArray();
         return view('flow.index', compact('flows', 'websites'));
+    } 
+	
+    public function conditionlist()
+    {
+        /*$flowconditions = FlowCondition::leftJoin('flows', 'flows.id', '=', 'flow_conditions.flow_id')
+						->select('flow_conditions.id as id','flows.flow_name','flow_conditions.condition_name','flow_conditions.message','flow_conditions.condition_name','flow_conditions.status')
+						->get();*/
+						
+		$flowconditions = FlowCondition::select('flow_conditions.*')->get();
+        return view('flow.conditionlist', compact('flowconditions'));
     }
+	
+    public function conditionListStatus(Request $request)
+    {
+        $flowcondition = FlowCondition::find($request->get('id'));
 
+        if($flowcondition->status == 0)
+        {
+            $status = 1;
+        }
+        if($flowcondition->status == 1)
+        {
+            $status = 0;
+        }
+
+        $updateflowcondition = FlowCondition::find($request->get('id'));
+        $updateflowcondition->status = $status;
+        $updateflowcondition->update();
+        return response()->json(['status' => 'success','status'=>$status]);
+    }
+    
     public function allScheduleMessages()
     {
 
         $current_date = Carbon::now()->format('Y-m-d H:i:s');
         //Chats and Whatsapp
-        $messages = \App\ChatMessage::where('scheduled_at', '>', $current_date);
+        $messages = \App\ChatMessage::where('scheduled_at', '>', $current_date)->where('flow_exit',1)
+		->leftJoin('customers', 'customers.id', 'chat_messages.customer_id')
+		->leftJoin('users', 'users.id', 'chat_messages.user_id');
         $types = ['0' => 'Whatsapp', '3' => 'SMS'];
+        $is_queues = ['1' => 'Yes','0' => 'No'];
         if (request()->message) {
             $messages->where('message', 'LIKE', '%' . request()->message . '%');
         }
@@ -41,12 +74,17 @@ class FlowController extends Controller
             $messages->where('message_application_id', 'LIKE', '%' . request()->message_application_id . '%');
         }
 
-        $messages = $messages->paginate(10);
+        if (request()->is_queue) {
+            $messages->where('is_queue', request()->is_queue);
+        }
+
+        $messages = $messages->select('chat_messages.*', 'customers.name', 'users.name as user_name')->orderBy('chat_messages.id', 'desc')->paginate(20);
+        //$messages = $messages->orderBy('chat_messages.id', 'desc')->paginate(20);
 
 		$message = request()->message;
 		$type = request()->message_application_id;
 
-        return view('flow.scheduled-messages', compact('messages','types','message','type'));
+        return view('flow.scheduled-messages', compact('messages','types','message','type','is_queues'));
     }
 
     public function allScheduleEmails(Request $request)
