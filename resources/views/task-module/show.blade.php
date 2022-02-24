@@ -2074,7 +2074,7 @@ input.cmn-toggle-round + label {
                 $("#message_confirm_text").html(message);
                 $("#confirm_task_id").val(task_id);
                 $("#confirm_message").val(message);
-                $("#confirm_status").val(1);
+                $("#confirm_status").val(2);
                 $("#confirmMessageModal").modal();
             }
         });
