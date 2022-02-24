@@ -18,6 +18,7 @@
 			  { "width": "70px", "targets": 5 },
 			  { "width": "70px", "targets": 6 },
 			  { "width": "70px", "targets": 7 }
+			  ]
         });
     });
 
