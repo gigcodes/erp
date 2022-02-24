@@ -67,7 +67,7 @@
 								{{$reservedCall->email}}
 							</td>
                             <td>
-                                {{$reservedCall->storeWebsite->website || ''}}
+                                {{$reservedCall->storeWebsite->website ?? ''}}
                             </td>
 							<td>
 								{{$reservedCall->from}}
