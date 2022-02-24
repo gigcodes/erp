@@ -2211,6 +2211,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('influencers/history', 'HashtagController@history')->name('influencers.index.history');
     Route::post('influencers/reply/add', 'HashtagController@addReply')->name('influencers.reply.add');
     Route::post('influencers/reply/delete', 'HashtagController@deleteReply')->name('influencers.reply.delete');
+    Route::post('influencers', 'HashtagController@changeCronSetting')->name('instagram.change.mailing');
 
     Route::get('comments', 'InstagramController@getComments');
     Route::post('comments', 'InstagramController@postComment');
@@ -2780,6 +2781,11 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('facebook-broadcast', 'BroadcastController@facebook');
 
     Route::get('mailinglist', 'MailinglistController@index')->name('mailingList');
+    Route::get('mailinglist-log', 'MailinglistController@getlog')->name('mailingList.log');
+    Route::get('mailinglist-flowlog', 'MailinglistController@flowlog')->name('mailingList.flowlog');
+    Route::get('mailinglist-customerlog', 'MailinglistController@customerlog')->name('mailingList.customerlog');
+    
+  //  Route::get('mailinglist-flowlog', 'MailinglistController@flowlog')->name('mailingList.flowlog');
     Route::get('mailinglist/{id}', 'MailinglistController@show')->name('mailingList.single');
 
     Route::get('mailinglist/edit/{id}', 'MailinglistController@edit')->name('mailingList.edit');
@@ -3654,7 +3660,10 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
 
 
 });
-Route::get('command', function () {
+Route::get('command', function () {	
+// \Artisan::call('migrate');
+    \Artisan::call('create-mailinglist-influencers');
+
 
     \Artisan::call('migrate');
   //   \Artisan::call('HubstuffActivity:Command');
