@@ -142,11 +142,12 @@ class TwilioController extends FindByNumberController
         if (\Auth::check()) {
             $user = \Auth::user();
             $user_id = $user->id;
+            TwilioLog::create(['log'=>'Log user '. json_encode($user->toArray())]);
             // $agent = str_replace('-', '_', str_slug($user->name));
             // $agent = 'yogesh';
 
             $check_is_agent = TwilioAgent::where('user_id', $user_id)->first();
-            TwilioLog::create(['log'=>'Check is Agent '. json_encode($check_is_agent->toArray())]);;
+            TwilioLog::create(['log'=>'Check is Agent '. json_encode($check_is_agent->toArray())]);
             if($check_is_agent  && in_array('check_is_agent', $conditions))
             {
 
@@ -159,11 +160,13 @@ class TwilioController extends FindByNumberController
                 
                 $devices = TwilioCredential::where('status',1)->whereNotNull('twiml_app_sid')->where('id',$twilio_active_credential->twilio_credential_id)->get();
                 TwilioLog::create(['log'=>'devices ==> '.json_encode($devices->toArray())]);
-                
+
                 if($devices && in_array('devices', $conditions))
                 {
                     $agent = 'customer_call_agent_'.$user_id;
+                    TwilioLog::create(['log'=>'Agents ==> ' . $agent]);
                     if ($devices->count()){
+                        TwilioLog::create(['log'=>'Device Count ==> ' . $agent]);
                         $tokens=[];
                         foreach ($devices as $device){
                             $capability = new ClientToken($device->account_id, $device->auth_token);
