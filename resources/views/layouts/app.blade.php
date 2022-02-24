@@ -1506,6 +1506,9 @@ if (!empty($notifications)) {
                         <li class="nav-item dropdown">
                             <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast messages</a>
                         </li>
+                        <li class="nav-item dropdown">
+                            <a class="dropdown-item" href="{{route('plan.index')}}">Plan</a>
+                        </li>
                     </ul>
                     <div>
                         <div id="nav-dotes"  class="nav-item dropdown dots mr-3 ml-3">

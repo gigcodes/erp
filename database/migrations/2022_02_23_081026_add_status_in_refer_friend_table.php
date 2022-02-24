@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddIsReviewedInChatMessagesTable extends Migration
+class AddStatusInReferFriendTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,9 @@ class AddIsReviewedInChatMessagesTable extends Migration
      */
     public function up()
     {
-        Schema::table('chat_messages', function (Blueprint $table) {
-            $table->boolean('is_reviewed')->nullable();
+        Schema::table('refer_friend', function (Blueprint $table) {
+            //
+            $table->string('status')->default('')->after("store_website_id");
         });
     }
 
@@ -25,8 +26,9 @@ class AddIsReviewedInChatMessagesTable extends Migration
      */
     public function down()
     {
-        Schema::table('chat_messages', function (Blueprint $table) {
+        Schema::table('refer_friend', function (Blueprint $table) {
             //
+            $table->dropColumn('status');
         });
     }
 }

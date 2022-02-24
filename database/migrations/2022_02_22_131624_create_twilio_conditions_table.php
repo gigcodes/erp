@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddIsReviewedInChatMessagesTable extends Migration
+class CreateTwilioConditionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,12 @@ class AddIsReviewedInChatMessagesTable extends Migration
      */
     public function up()
     {
-        Schema::table('chat_messages', function (Blueprint $table) {
-            $table->boolean('is_reviewed')->nullable();
+        Schema::create('twilio_conditions', function (Blueprint $table) {
+            $table->increments('id');
+			$table->string('condition');
+			$table->longText('description');
+			$table->boolean('status')->default(true);
+            $table->timestamps();
         });
     }
 
@@ -25,8 +29,6 @@ class AddIsReviewedInChatMessagesTable extends Migration
      */
     public function down()
     {
-        Schema::table('chat_messages', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('twilio_conditions');
     }
 }

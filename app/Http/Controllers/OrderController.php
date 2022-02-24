@@ -2695,14 +2695,14 @@ class OrderController extends Controller
 
     public function statusChange(Request $request)
     {
-        $id = $request->get("id");
-        $status = $request->get("status");
-        $custom_email_content = $request->get("custom_email_content");
-        $to_mail_address = $request->get("to_mail");
-        $from_mail_address = $request->get("from_mail");
-        $order_via = $request->order_via;
-
-        if (!empty($id) && !empty($status)) {
+       
+        
+          $id = $request->get("id");
+          $status = $request->get("status");
+          $message = $request->get('message');
+          $sendmessage = $request->get("sendmessage");
+          $order_via = $request->order_via;
+            if (!empty($id) && !empty($status)) {
             $order = \App\Order::where("id", $id)->first();
             $statuss = OrderStatus::where("id", $status)->first();
 
@@ -2718,7 +2718,7 @@ class OrderController extends Controller
                 $history->new_status = $status;
                 $history->user_id = Auth::user()->id;
                 $history->save();
-
+                
                 if (in_array('email', $order_via)) {
                     if (isset($request->sendmessage) && $request->sendmessage == '1') {
                         //Sending Mail on changing of order status
@@ -2787,12 +2787,7 @@ class OrderController extends Controller
 
                     } else {
                         $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
-                        if ($from_mail_address != '') {
-                            $emailClass->fromMailer = $from_mail_address;
-                        }
-                        if ($to_mail_address != '') {
-                            $order->customer->email = $to_mail_address;
-                        }
+
                         $storeWebsiteOrder = $order->storeWebsiteOrder;
                         $email = Email::create([
                             'model_id' => $order->id,
@@ -2800,7 +2795,8 @@ class OrderController extends Controller
                             'from' => $emailClass->fromMailer,
                             'to' => $order->customer->email,
                             'subject' => $emailClass->subject,
-                            'message' => $custom_email_content,
+                            
+                            //'message' => $custom_email_content,
                             // 'message'          => $emailClass->render(),
                             'template' => 'order-status-update',
                             'additional_data' => $order->id,
