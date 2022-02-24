@@ -121,7 +121,7 @@
         <div class="col-md-12 expand-col dis-none" style="padding:0px;">
             <br>
             <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>
-            <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
+            <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" data-lead="1"  name="master_user_id" id="user_{{$task->id}}">
                 <option value="">Select...</option>
                 <?php $masterUser = isset($task->master_user_id) ? $task->master_user_id : 0; ?>
                 @foreach($users as $id=>$name)

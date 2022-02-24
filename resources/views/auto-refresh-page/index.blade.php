@@ -13,9 +13,9 @@
                 <div class="col-md-2">
                     <input name="term" type="text" class="form-control" value="{{ request('term') }}" placeholder="Enter keyword" id="term">
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                    <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
-                   <button class="btn btn-secondary btn-create-auto-refresh-page">Create Auto Refresh Page</button>
+                   <button class="btn custom-button btn-secondary btn-create-auto-refresh-page">Create Auto Refresh Page</button>
                 </div>
             </div>
         </form>
@@ -43,22 +43,24 @@
         
     </div>
 </div>
+<div class="col-md-12">
 <div class="table-responsive mt-3">
-    <table class="table table-bordered" id="category-table">
+    <table class="table table-bordered" id="category-table"style="table-layout: fixed;">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Page</th>
-                <th>Time</th>
-                <th>User</th>
-                <th>Created At</th>
-                <th>Action</th>
+                <th width="1%">ID</th>
+                <th width="3%">Page</th>
+                <th width="2%">Time</th>
+                <th width="3%">User</th>
+                <th width="1.5%">Created At</th>
+                <th width="1%">Action</th>
             </tr>
         </thead>
         <tbody>
              @include('auto-refresh-page.partials.data')
         </tbody>
     </table>
+</div>
 </div>
 {!! $pages->appends(Request::except('page'))->links() !!}
 
@@ -68,25 +70,25 @@
         <form action="/system/auto-refresh/create" method="post">
             {{ csrf_field() }}
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Create Auto Refresh Page</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <div class="mt-5" >
+                    <h5 class="modal-title" id="exampleModalLabel"style="text-align: center;"style="text-align: center;">Create Auto Refresh Page</h5>
+                    <button type="button" class="close mr-3 " data-dismiss="modal" aria-label="Close"style="margin-top:-19px">
                       <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="row" id="createsizeform">
-                        <div class="col-md-10">
-                            <label for="create-page">Page Url</label>
+                        <div class="col-md-6">
+                            
                             <input type="text" class="form-control nav-link" id="create-page" name="page" placeholder="Page Url" style="margin-top : 1%;">
                         </div>
-                        <div class="col-md-10">
-                            <label for="create-time">Time (in second)</label>
+                        <div class="col-md-6">
+                          
                             <input type="text" class="form-control nav-link" id="create-time" name="time" placeholder="Time" style="margin-top : 1%;">
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="ml-3 mb-4"style="text-align: center;">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-secondary">Save changes</button>
                 </div>

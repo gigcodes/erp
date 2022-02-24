@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Mails\Manual\TicketCreate;
 use App\Tickets;
+use App\ChatMessage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -201,6 +202,17 @@ class TicketController extends Controller
         if ($request->ticket_id != null) {
             $tickets->where('ticket_id', $request->ticket_id);
         }
+        if(isset($request->action) && $request->action == "send_messsage"){
+            $ticket = Tickets::where('source_of_ticket', $request->website)->where("ticket_id",$request->ticket_id)->first();
+            $params['message'] =$request->get('message');
+            $params['message_en'] = $request->get('message');
+            $params['ticket_id'] = $ticket->id;
+            $params['user_id'] = 6;
+            $params['approved'] = 1;
+            $params['status'] = 2;
+            $chat_message = ChatMessage::create($params);
+
+        }
         $per_page = '';
         if (!empty($request->per_page)) {
             $per_page = $request->per_page;
@@ -209,6 +221,18 @@ class TicketController extends Controller
         if (empty($tickets)) {
             $message = $this->generate_erp_response("ticket.send.failed", 0, $default = 'Tickets not found for customer !', request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message], 404);
+        }
+        foreach ($tickets as $ticket){
+            $replies = [];
+            $messages = \App\ChatMessage::where("ticket_id",$ticket->id)->select("id","message","created_at","user_id")->latest()->get();
+            foreach($messages as $message){
+                $message->send_by = "Admin";
+                if($message->user_id==6){
+                    $message->send_by = "Customer";
+                }
+                $replies[]=$message;
+            }
+            $ticket->messages=$replies;
         }
         return response()->json(['status' => 'success', 'tickets' => $tickets], 200);
     }

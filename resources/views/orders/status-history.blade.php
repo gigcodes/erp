@@ -1,10 +1,38 @@
 @extends('layouts.app')
 
 @section('content')
-
+<?php $base_url = URL::to('/');?>
 <div class="row">
   <div class="col-lg-12 margin-tb">
     <h2 class="page-heading">Order/Refund Status Messages</h2>
+      <div class="pull-left cls_filter_box">
+          <form class="form-inline" action="{{ route('order.status.messages') }}" method="GET">
+              <div class="form-group ml-3 cls_filter_inputbox">
+                  <label for="with_archived">Search Order/Refund No.</label>
+                  <input name="order_id" type="text" class="form-control" placeholder="Search" id="order-search" data-allow-clear="true">
+              </div>
+              <div class="form-group ml-3 cls_filter_inputbox">
+                  <label for="with_archived">Search Customer Name</label>
+                  <input name="customer_name" type="text" class="form-control" placeholder="Search" id="customer-name" data-allow-clear="true">
+              </div>
+              <div class="form-group ml-3 cls_filter_inputbox">
+                <label for="with_archived">Order Status</label>
+                  <select data-placeholder="Order Status" name="flt_order_status" class="form-control select2">
+                  <optgroup label="Order Status">
+                    <option value="">Select Order Status</option>
+                    @foreach ($order_status_list as $id => $status)
+                    <option value="{{ $id }}">{{ $status }}</option>
+                    @endforeach
+                  </optgroup>
+                </select>
+              </div>
+              <div class="form-group ml-3 cls_filter_inputbox">
+                  <label for="with_archived">Estimate Delivery Date</label>
+                  <input name="flt_estimate_date" type="date" class="form-control" placeholder="Select Date" id="flt_estimate_date" data-allow-clear="true">
+              </div>
+              <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+          </form>
+      </div>
   </div>
 </div>
 
@@ -52,8 +80,10 @@
               @endif
             </div>
           </td>
-          <td><input type="text" rows="1" style="width: 87%;display: inline-block;vertical-align: inherit;" class="form-control quick-message-field" name="message" placeholder="Message">
-          <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message" data-orderid="{{ $order_n_refund->id }}" data-customerid="{{ $order_n_refund->customer_id }}"><img src="/images/filled-sent.png"/></button></td>
+          <td>
+            <input type="text" rows="1" style="width: 87%;display: inline-block;vertical-align: inherit;" class="form-control quick-message-field" name="message" placeholder="Message">
+            <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message" data-orderid="{{ $order_n_refund->id }}" data-customerid="{{ $order_n_refund->customer_id }}"><img src="/images/filled-sent.png"/></button>
+          </td>
           <td>
             <div class="row">
     <div class="col-md-12">
@@ -61,12 +91,24 @@
          $chatMessage = Illuminate\Support\Facades\DB::table('chat_messages')->where('chat_messages.order_id','=', $order_n_refund->id)->where('chat_messages.message','!=', '')->orderBy("created_at", "DESC")->first();
          @endphp
          @if($chatMessage)
-         {{ substr($chatMessage->message,0,40) }}... <button type="button" class="btn btn-xs btn-secondary approve-messages review-btn" data-id="{{ $chatMessage->id }}"><i class="fa fa-check" aria-hidden="true"></i></button>
+         {{ substr($chatMessage->message,0,40) }}... 
+         @if($chatMessage->is_reviewed == 0)
+         <button type="button" title="Please review this" class="btn btn-xs btn-secondary approve-messages review-btn" data-id="{{ $chatMessage->id }}"><i class="fa fa-check" aria-hidden="true"></i></button>
+         @endif
          @endif
        </div>
           </td>
           <td>{{ $order_n_refund->estimated_delivery_date }}</td>
           <td>
+
+            <button type="button" class="btn pr-0 btn-image order-flag pd-5" data-type="order_status" data-id="{{ $order_n_refund->id }}" data-flag="{{ $order_n_refund->is_flag }}">
+              @if($order_n_refund->is_flag == 0)
+                <img src="/images/unflagged.png">
+              @else
+                <img src="/images/flagged.png">
+              @endif
+            </button>
+
             <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="order" data-id="{{$order_n_refund->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
 
             <!-- START - Purpose : Go To Direct Mail -  DEVTASK-18283 -->
@@ -112,13 +154,30 @@
                             <strong>Message:</strong>
                         </div>
                         <div class="col-md-8">
-                        <div class="form-group">
-                          <textarea cols="45" class="form-control" id="order-template-status-tpl" name="message"></textarea>
-                        </div>
+                            <div class="form-group">
+                              <textarea cols="45" class="form-control" id="order-template-status-tpl" name="message"></textarea>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                    <div class="col-md-12">
+                      <div class="col-md-2">
+                      <div class="form-group">
+                          <div class="checkbox">
+                                                    <label><input class="msg_platform msg_platform_del" type="checkbox" value="email" id="del_date_email">Email</label>  
+                          </div>
+                          <div class="checkbox">
+                                                   <label><input class="msg_platform msg_platform_del" type="checkbox" value="sms">SMS</label>
+                          </div>
+                              
+                      </div>
+                      </div>
+                          
+                    </div>
+                    
+                   
+                
+        </div>
+      </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-secondary update-status-with-message">With Message</button>
@@ -126,8 +185,7 @@
             </div>
         </form>
       </div>
-    </div>
-</div>
+
 <div id="order-status-map" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -252,6 +310,10 @@
     });
   $(document).on("click",".update-status-with-message",function(e) {
           e.preventDefault();
+          var selected_array = [];
+          $('.msg_platform_del:checkbox:checked').each(function() {
+            selected_array.push($(this).val());
+          });
           $.ajax({
             url: "/order/change-status",
             type: "GET",
@@ -261,6 +323,8 @@
               status : $("#order-status-id-status-tpl").val(),
               sendmessage:'1',
               message:$("#order-template-status-tpl").val(),
+              order_via:selected_array,
+
             },
             beforeSend: function() {
               $("#loading-image").show();
@@ -277,6 +341,10 @@
 
       $(document).on("click",".update-status-without-message",function(e) {
           e.preventDefault();
+          var selected_array = [];
+          $('.msg_platform_del:checkbox:checked').each(function() {
+            selected_array.push($(this).val());
+          });
           $.ajax({
             url: "/order/change-status",
             type: "GET",
@@ -286,6 +354,7 @@
               status : $("#order-status-id-status-tpl").val(),
               sendmessage:'0',
               message:$("#order-template-status-tpl").html(),
+              order_via:selected_array,
             },
             beforeSend: function() {
               $("#loading-image").show();
@@ -300,5 +369,40 @@
           });
       });
 
+
+  $(document).on('click', '.order-flag', function () {
+            var id = $(this).data('id');
+            var thiss = $(this);
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('order.status.flag') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: id
+                },
+                beforeSend: function () {
+                    $(thiss).text('Changing');
+                }
+            }).done(function (response) {
+                if (response.is_flagged == 1) {
+                    // var badge = $('<span class="badge badge-secondary">Flagged</span>');
+                    //
+                    // $(thiss).parent().append(badge);
+                    $(thiss).html('<img src="/images/flagged.png" />');
+                } else {
+                    $(thiss).html('<img src="/images/unflagged.png" />');
+                    // $(thiss).parent().find('.badge').remove();
+                }
+
+                // $(thiss).remove();
+            }).fail(function (response) {
+                $(thiss).html('<img src="/images/unflagged.png" />');
+
+                alert('Could not flag!');
+
+                console.log(response);
+            });
+        });
   </script>
 @endsection

@@ -89,7 +89,7 @@ var getHtml = function(response) {
         else {
             fullHtml = fullHtml + '<tr class="in-background filter-message reviewed_msg" data-message="'+message.message+'">'; 
         }
-        fullHtml = fullHtml + '<td style="width:5%"><input data-id="'+message.id+'" data-message="'+message.message+'" type="checkbox" class="click-to-clipboard" /></td>';
+        fullHtml = fullHtml + '<td style="width:5%"><input data-object_type_id="'+message.object_type_id+'" data-id="'+message.id+'" data-message="'+message.message+'" type="checkbox" class="click-to-clipboard" /></td>';
         var fromMsg = '';
         // Check for attached media (ERP attached media)
         if (currentChatParams.data.load_attached == 1 && message.mediaWithDetails && message.mediaWithDetails.length > 0) {
@@ -232,7 +232,7 @@ var getHtml = function(response) {
                image_url = message.media[0].image;
            }
         }
-        button += '&nbsp;<button title="Search Product Image" data-media-url="\''+image_url+'\'" data-id="'+message.id+'" class="btn btn-xs btn-secondary search-image"><i class="fa fa-search" aria-hidden="true"></i></button>';
+        button += '&nbsp;<button title="Search Product Image" data-media-url="\''+image_url+'\'" data-id="'+message.id+'" data-object_type_id="'+message.object_type_id+'" class="btn btn-xs btn-secondary search-image"><i class="fa fa-search" aria-hidden="true"></i></button>';
 
         if(message.type == "developer_task" ) {
             if (message.status == 0) {
@@ -389,8 +389,9 @@ $(document).on('click', '.load-communication-modal', function () {
     if(typeof $(this).data('limit') != "undefined") {
         limit = $(this).data('limit');
     }
+    var base_url ="http://localhost/erp_local/public";
     thiss.parent().find('.td-full-container').toggleClass('hidden');
-	currentChatParams.url = "/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages";
+	currentChatParams.url =  base_url+"/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages";
     currentChatParams.data = {
         limit: limit,
         load_all: load_all,

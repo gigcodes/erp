@@ -41,6 +41,8 @@ class StoreWebsitePage extends Model
         'store_website_id',
         'language',
         'is_pushed',
+		'is_latest_version_translated',
+		'is_latest_version_pushed'
     ];
 
     public function storeWebsite()

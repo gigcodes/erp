@@ -48,6 +48,15 @@
                   </select>
                </div>
             </div>
+			 <div class="col-md-4">
+               <div class="form-group">
+                  <label for="sale_old_products">Sale PreOwned Products</label>
+                    <select name="sale_old_products" class="form-control">
+					   <option value="0" {{if data.sale_old_products==0}} SELECTED {{/if}} > No </option>
+					   <option value="1" {{if data.sale_old_products==1}} SELECTED {{/if}} > Yes </option>
+                    </select>
+               </div>
+            </div>
             <div class="col-md-4">
                <div class="form-group">
                   <label for="description">Description</label>
@@ -140,6 +149,12 @@
             </div>
             <div class="col-md-4">
                <div class="form-group">
+                  <label for="instagram">Product Markup %</label>
+                  <input type="number" name="product_markup" onkeyup="this.value = fnc(this.value, 0, 100)" value="{{if data}}{{:data.product_markup}}{{/if}}" class="form-control" id="product_markup" placeholder="Enter product markup">
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
                   <label for="instagram">Instagram</label>
                   <input type="text" name="instagram" value="{{if data}}{{:data.instagram}}{{/if}}" class="form-control" id="instagram" placeholder="Enter instagram profile">
                </div>
@@ -160,6 +175,36 @@
                <div class="form-group">
                   <label for="cropping_size">Cropping size</label>
                   <input type="text" name="cropping_size" value="{{if data}}{{:data.cropping_size}}{{/if}}" class="form-control" id="cropping_size" placeholder="Enter Cropping size">
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="logo_color">Logo Color</label>
+                  <input type="text" name="logo_color" value="{{if data}}{{:data.logo_color}}{{/if}}" class="form-control" id="logo_color" placeholder="Enter Logo Color">
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="logo_border_color">Logo Border Color</label>
+                  <input type="text" name="logo_border_color" value="{{if data}}{{:data.logo_border_color}}{{/if}}" class="form-control" id="logo_border_color" placeholder="Enter Logo Border Color">
+               </div>
+            </div>
+             <div class="col-md-4">
+               <div class="form-group">
+                  <label for="text_color"> Text Color</label>
+                  <input type="text" name="text_color" value="{{if data}}{{:data.text_color}}{{/if}}" class="form-control" id="text_color" placeholder="Enter Text Color">
+               </div>
+            </div>
+             <div class="col-md-4">
+               <div class="form-group">
+                  <label for="border_color">Border Color</label>
+                  <input type="text" name="border_color" value="{{if data}}{{:data.border_color}}{{/if}}" class="form-control" id="border_color" placeholder="Enter Border Color">
+               </div>
+            </div>
+             <div class="col-md-4">
+               <div class="form-group">
+                  <label for="border_thickness">Border Thickness</label>
+                  <input type="text" name="border_thickness" value="{{if data}}{{:data.border_thickness}}{{/if}}" class="form-control" id="border_thickness" placeholder="Enter Border Thickness">
                </div>
             </div>
             <div class="col-md-4">
@@ -290,6 +335,9 @@
                         <i class="fa fa-trash" aria-hidden="true"></i>
                         </button>
                         {{/if}}
+                        <a href="<?php echo url('/store-website/log-website-users/'); ?>/{{>prop.store_website_id}}" type="button" title="Website user history" class="btn btn-sm" style="border:1px solid">
+                          <i class="fa fa-history aria-hidden="true""></i>
+                        </a>
                      </div>
                   </div>
                </div>
@@ -347,6 +395,9 @@
                         <button type="button" data-id="" class="btn btn-delete-magento-user btn-sm" style="border:1px solid">
                         <i class="fa fa-trash" aria-hidden="true"></i>
                         </button>
+                        <a href="<?php echo url('/store-website/log-website-users/'); ?>/{{:data.id}}" type="button" title="Website user history" class="btn btn-sm" style="border:1px solid">
+                          <i class="fa fa-history aria-hidden="true""></i>
+                        </a>
                      </div>
                   </div>
                </div>
@@ -436,4 +487,5 @@
 	   </div>
    </div>
 </form>  	
+
 </script>

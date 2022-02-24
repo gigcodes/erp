@@ -62,6 +62,7 @@ class StoreWebsite extends Model
         'updated_at',
         'magento_url',
         'stage_magento_url',
+        'product_markup',
         'dev_magento_url',
         'magento_username',
         'magento_password',
@@ -92,7 +93,14 @@ class StoreWebsite extends Model
 		'semrush_project_id',
         'send_in_blue_account',
         'send_in_blue_api',
-        'send_in_blue_smtp_email_api'
+        'send_in_blue_smtp_email_api',
+        'logo_color',  
+        'logo_border_color',  
+        'text_color',   
+        'border_color',   
+        'border_thickness',
+        'sale_old_products',
+        'website_address'
 
     ];
 

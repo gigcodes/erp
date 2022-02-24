@@ -22,10 +22,12 @@
 
     </style>
     <div class="row">
-        <div class="col-lg-12 margin-tb">
+        <div class="col-md-12 ">
             <h2 class="page-heading">Brand Size Chart List </h2>
-            <div class="pull-left">
-            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 pr-5">
             <div class="pull-right">
                 <a class="btn btn-secondary" href="{{ route('brand/create/size/chart') }}">+</a>
             </div>
@@ -37,10 +39,10 @@
             <p>{{ $message }}</p>
         </div>
     @endif
-
+   
     <div class="row">
-        <div class="col-12">
-            <div id="exTab1" class="container">	
+        <div class="col-md-12 pl-5 pr-5">
+            <div id="exTab1" >	
                 <ul  class="nav nav-pills">
                     @forelse ($storeWebsite as $key => $item)
                         <li class="@if($loop->first) active @endif">
@@ -99,6 +101,7 @@
             </div>
         </div>
     </div>
+
 @endsection
 @section('scripts')
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>

@@ -164,7 +164,56 @@
     width: calc(100% - 26px) !important;
 }
 
-    </style>
+/*start toggle button*/
+ .cmn-toggle {
+    position: absolute;
+    margin-left: -9999px;
+    visibility: hidden;
+  }
+  .cmn-toggle + label {
+    display: block;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    user-select: none;
+  }
+input.cmn-toggle-round + label {
+    padding: 2px;
+    width: 40px;
+    height: 20px;
+    background-color: #dddddd;
+    border-radius: 60px;
+}
+  input.cmn-toggle-round + label:before,
+  input.cmn-toggle-round + label:after {
+    display: block;
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    bottom: 1px;
+    content: "";
+  }
+  input.cmn-toggle-round + label:before {
+    right: 1px;
+    background-color: #f1f1f1;
+    border-radius: 60px;
+    transition: background 0.4s;
+  }
+  input.cmn-toggle-round + label:after {
+    width:18px;
+    background-color: #fff;
+    border-radius: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    transition: margin 0.4s;
+  }
+  input.cmn-toggle-round:checked + label:before {
+    background-color: #333333;
+  }
+  input.cmn-toggle-round:checked + label:after {
+    margin-left: 20px;
+  }
+  /*end toggle button*/
+</style>
 @endsection
 
 @section('large_content')
@@ -181,7 +230,7 @@
     @include('task-module.partials.modal-task-view')
     @include('task-module.partials.modal-whatsapp-group')
     @include('task-module.partials.modal-task-bell')
-
+    @include('task-module.partials.modal-chat')
     @include('partials.flash_messages')
 
     <div class="row">
@@ -417,11 +466,12 @@
                 </div>
                 @endif
                 <div class="row">
-                    <div class="col-xs-12 col-md-4" id="recurring-task" style="display: none;">
+                    <div class="col-xs-12 col-md-4" id="recurring-task"  style="display:none;">
                         <div class="row">
                             <div class="col-xs-12 col-md-6">
                                 <div class="form-group">
                                     <select name="recurring_type" class="form-control input-sm">
+                                        <option value="">Select</option>
                                         <option value="EveryHour">EveryHour</option>
                                         <option value="EveryDay">EveryDay</option>
                                         <option value="EveryWeek">EveryWeek</option>
@@ -1327,6 +1377,34 @@
     @include("development.partials.time-history-modal")
     @include("task-module.partials.tracked-time-history")
     @include("development.partials.user_history_modal")
+
+    <div id="recurring-history-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Sl no</th>
+                                    <th>Log case id</th>
+                                    <th>Message</th>
+                                    <th>Log msg </th>
+                                    <th>Date/Time</th>
+                                </tr>
+                            </thead>
+                            <tbody class="recurring-history-list-view">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @section('scripts')
@@ -1908,7 +1986,7 @@
                     $('#appointment-container').hide();
 
                     if (!isAdmin)
-                        $('select[name="task_asssigned_to"]').html(`<option value="${current_userid}">${ current_username }</option>`);
+                        $('select[name="task_asssigned_to"]').html('<option value="${current_userid}">${ current_username }</option>');
 
                     $('#recurring-task').show();
                 } else if ($(".is_statutory").val() == 2) {
@@ -1992,10 +2070,35 @@
             }else{
                 var message = $('#getMsg'+task_id).val();
             }
-            alert(message)
+            if(message!=""){
+                $("#message_confirm_text").html(message);
+                $("#confirm_task_id").val(task_id);
+                $("#confirm_message").val(message);
+                $("#confirm_status").val(1);
+                $("#confirmMessageModal").modal();
+            }
+        });
+        $(document).on('click', '.confirm-messge-button', function () {   
+            
+            var thiss = $(this);
+            var data = new FormData();
+            var task_id = $("#confirm_task_id").val();
+            var message = $("#confirm_message").val();
+            var status = $("#confirm_status").val();
+
+        //    alert(message)
             data.append("task_id", task_id);
             data.append("message", message);
-            data.append("status", 1);
+            data.append("status", status);
+
+           // var checkedValue = $('.send_message_recepients:checked').val();
+            var checkedValue = [];
+            var i=0;
+            $('.send_message_recepients:checked').each(function () {
+                checkedValue[i++] = $(this).val();
+            });   
+            data.append("send_message_recepients",checkedValue); 
+          //  console.log(checkedValue);
 
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
@@ -2012,8 +2115,10 @@
                             $(thiss).attr('disabled', true);
                         }
                     }).done(function (response) {
+
                         $(thiss).siblings('input').val('');
                         $('#getMsg'+task_id).val('');
+                        $('#confirmMessageModal').modal('hide');
 
                         if (cached_suggestions) {
                             suggestions = JSON.parse(cached_suggestions);
@@ -2048,6 +2153,7 @@
 
                         $(thiss).attr('disabled', false);
                     }).fail(function (errObj) {
+                        $('#confirmMessageModal').modal('hide');
                         $(thiss).attr('disabled', false);
 
                         alert("Could not send message");
@@ -2104,7 +2210,7 @@
             var date = $(this).siblings().find('.due_date_cls').val();
             if (date != '') {
                 $.ajax({
-                        url: '/task/update/due_date',
+                        url: "{{route('task.update.due_date')}}",
                         type: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
@@ -3724,8 +3830,61 @@ $(document).on("click",".btn-save-documents",function(e){
             });
             $('#user_history_modal').modal('show');
         });
-
-        
+        $(document).on('click','.cmn-toggle',function()
+        {
+            let id = $(this).attr('task-id');
+            var showstatus = "";
+            $.ajax({
+                url: "{{route('task.CommunicationTaskStatus')}}",
+                data: {
+                    task_id: id
+                },
+                success: function (response) {
+                    if(response.communication_status == 1)
+                    {
+                        $('#getMsg'+id).prop("readonly", true); 
+                        $('#sendMsg'+id).prop("readonly", true); 
+                        showstatus = "Off";
+                    }
+                    if(response.communication_status == 0)
+                    {
+                        $('#getMsg'+id).prop("readonly", false); 
+                        $('#sendMsg'+id).prop("readonly", false); 
+                        showstatus = "On";
+                    }
+                    toastr["success"]("Communication message status is "+showstatus+" successfully", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
+                }
+            });
+        });
+        $(document).on('click','.recurring-history-btn',function()
+        {
+            var task_id = $(this).data('id');
+            console.log(task_id);
+            $.ajax({
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('task.recurringHistory') }}",
+                data: {
+                    task_id:task_id,
+                },
+            }).done(response => {
+                $('#recurring-history-modal').find('.recurring-history-list-view').html('');
+                if(response.success==true)
+                {
+                    $('#recurring-history-modal').find('.recurring-history-list-view').html(response.html);
+                    $('#recurring-history-modal').modal('show');
+                }
+            }).fail(function(response) 
+            {
+                alert('Could not fetch payments');
+            });
+        });
 
     </script>
 @endsection

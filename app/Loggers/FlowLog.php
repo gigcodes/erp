@@ -19,6 +19,7 @@ class FlowLog extends Model
         // Return
         return $flowlog;
     }
+    
     public function messages()
     {
         return $this->hasMany('App\Loggers\FlowLogMessages');

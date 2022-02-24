@@ -32,7 +32,7 @@
 </div>
 
 <div id="accounts" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg"style="max-width: 100%;width: 90%;">
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title">Google Client Apps</span></h4>
@@ -109,16 +109,19 @@
 	<div class="col-md-12">
 		<div id="exTab2" >
 		<ul class="nav nav-tabs">
-			<li class="{{ request('logs_per_page') || request('crawls_per_page') ? '' : 'active' }}"><a  href="#search_analytics" data-toggle="tab">Search Analytics</a></li>
+			<li class="{{ request('logs_per_page') || request('crawls_per_page') || request('webmaster_logs_per_page') || request('history_per_page')  ? '' : 'active' }}"><a  href="#search_analytics" data-toggle="tab">Search Analytics</a></li>
 			<li class="{{ request('logs_per_page') ? 'active' : '' }}"><a href="#sites_logs" data-toggle="tab">Sites Logs</a></li>
-			<li class="{{ request('crawls_per_page') ? 'active' : '' }}"><a href="#site_crawls" data-toggle="tab">Site crawls</a></li> 
+			<li class="{{ request('crawls_per_page') ? 'active' : '' }}"><a href="#site_crawls" data-toggle="tab">Site crawls</a></li>
+			<li class="{{ request('webmaster_logs_per_page') ? 'active' : '' }}"><a href="#webmaster_logs" data-toggle="tab">Auth Logs</a></li>
+			<li class="{{ request('history_per_page') ? 'active' : '' }}"><a href="#site_submit_history" data-toggle="tab">Site submit history</a></li>
+ 
 		</ul>
 		</div>
 	</div>
     {{-- <div class="row"> --}}
 
 		<div class="tab-content" >
-			<div class="tab-pane {{ request('logs_per_page') || request('crawls_per_page') ? '' : 'active' }}" id="search_analytics"> 
+			<div class="tab-pane {{ request('logs_per_page') || request('crawls_per_page') || request('webmaster_logs_per_page') || request('history_per_page') ? '' : 'active' }}" id="search_analytics"> 
 				<div class="row">
 					<div class="col-md-12">
 						<h2 class="page-heading">Google Search Analytics</h2>
@@ -350,8 +353,7 @@
 					<thead>
 					
 						<span><a class="btn btn-secondary pull-right m-2" href="{{route('googlewebmaster.get.records')}}"> Refresh Record</a></span>
-						<span><button class="btn btn-secondary pull-right m-2 site-history" > Site submit history </button></span>
-						<span><button class="btn btn-secondary btn-xs site-history"  > Site submit history </button></span>
+						<span><a class="btn btn-secondary pull-right m-2" href="{{route('googlewebmaster.submit.site.webmaster')}}"> Submit Sites</a></span>
 						<tr>
 							<th>S.N</th>
 							<th>Site URL</th>
@@ -376,7 +378,7 @@
 												<div class="modal-body">
 													<div class="form-group">
 														<label for="frequency">Error's</label>
-														<a href="https://search.google.com/search-console/index?resource_id={{$site->sites}}" target="_blank">{{ $site->crawls }}</a>
+														<a href="https://search.google.com/search-console/index?resource_id={{$site->sites}}" target="_blank">{{ $site->crawls ? $site->crawls : 0 }}</a>
 													</div>
 												</div>
 												<div class="modal-footer">
@@ -438,6 +440,100 @@
 					{{ $logs->links() }}
 				</div>
 			</div>
+
+			<div class="tab-pane {{ request('webmaster_logs_per_page') ? 'active' : '' }}" id="webmaster_logs" >
+				<div class="row">
+					<div class="col-md-12">
+						<h2 class="page-heading">Auth Logs</h2>
+					</div>
+					<div class="col-12">
+					<div class="pull-left"></div>
+
+					<div class="pull-right">
+						<div class="form-group">
+						&nbsp;
+						</div>
+					</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-12">
+					
+						<table id="table" class="table table-striped table-bordered">
+							<thead>
+								<tr>
+									<th>S.N</th>
+									<th>User Name</th>
+									<th>Name</th>
+									<th>Status</th>
+									<th>Description</th>
+								
+								</tr>
+							</thead>
+							<tbody>
+								@foreach ($webmaster_logs as $key=> $log ) 
+								<tr>
+								<td>{{$log->id}}</td>
+								<td>{{$log->user_name}}</td>
+								<td>{{$log->name}}</td>
+								<td>{{$log->status}}</td>
+								<td>{{$log->message}}</td>
+								
+								</tr>
+
+								@endforeach
+							</tbody>
+						</table>
+					</div>
+					{{ $webmaster_logs->links() }}
+				</div>
+			</div>
+
+			<div class="tab-pane {{ request('history_per_page') ? 'active' : '' }}" id="site_submit_history" >
+				<div class="row">
+					<div class="col-md-12">
+						<h2 class="page-heading">Site submit history</h2>
+					</div>
+					<div class="col-12">
+					<div class="pull-left"></div>
+
+					<div class="pull-right">
+						<div class="form-group">
+						&nbsp;
+						</div>
+					</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-12">
+					
+						<table id="table" class="table table-striped table-bordered">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>Log</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach ($site_submit_history as $key=> $history ) 
+								<tr>
+								<td>{{$history->id}}</td>
+								<td>{{$history->log}}</td>
+								<td><button class="btn btn-secondary btn-xs re-submit-site" data-id="{{$history->website_store_views_id}}" title="Re-submit"> <i class="fa fa-refresh"></i></button></td>
+								
+								</tr>
+
+								@endforeach
+							</tbody>
+						</table>
+					</div>
+					{{ $site_submit_history->links() }}
+				</div>
+			</div>
+
 		</div>
 
         
@@ -549,41 +645,6 @@
 				}
 				$("#accounts").find(".show-list-records").html(t);
 				$("#accounts").modal("show");
-				btn.prop('disabled',false);
-			},
-			error: function (){
-				btn.prop('disabled',false);
-				toastr['error']('Something went wrong', 'Error');
-			}
-		});
-	});
-	 	
-	$(document).on("click",".site-history",function(e) {
-        e.preventDefault();
-		var id = $(this).data("id");
-		var btn = $(this);
-		$.ajax({
-			url: '/googlewebmaster/get-site-submit-hitory',
-			type: 'GET',
-			dataType: 'json',
-			beforeSend: function () {
-				btn.prop('disabled',true);
-			},
-			success: function(result){
-				if(result.code == 200) {
-					var t = '';
-					$.each(result.data,function(k,v) {
-						t += `<tr><td>`+v.website_store_views_id+`</td>`;
-						t += `<td>`+v.log+`</td>`;
-						t += '<td><button class="btn btn-secondary btn-xs re-submit-site" data-id="'+v.website_store_views_id+'" title="Re-submit"> <i class="fa fa-refresh"></i></button></td>';
-						t += `<td>`+v.created_at+`</td></tr>`;
-					});
-					if( t == '' ){
-						t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
-					}
-				}
-				$("#category-history-modal").find(".show-list-records").html(t);
-				$("#category-history-modal").modal("show");
 				btn.prop('disabled',false);
 			},
 			error: function (){

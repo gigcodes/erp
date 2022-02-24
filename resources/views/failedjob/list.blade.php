@@ -4,7 +4,7 @@
 
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Failed Jobs / Queues({{$count}})</h2>
+            <h2 class="page-heading">Failed Jobssss / Queues({{$count}})</h2>
         </div>
     </div>
 
@@ -88,7 +88,7 @@
                                         {{ $item->time }}
                                     </td>
                                     <td>
-                                        <button data-toggle="modal" data-target="#detail_modal" class="btn btn-primary job-details" data-id="{{ $item}}"><i class="fa fa-eye"></i></button>
+                                        <button data-toggle="modal" data-target="#detail_modal" class="btn btn-primary custom-button job-details" data-id="{{ $item}}"><i class="fa fa-eye"></i></button>
                                         <a onclick="return confirm('Are you sure you want to delete job ?')" href="{{ route('failedjobs.delete',[$item->id]) }}">
                                             <button class="btn btn-danger"><i class="fa fa-trash"></i></button>
                                         </a>

@@ -424,6 +424,7 @@ class ChatMessagesController extends Controller
                 $messages[] = [
                     'id' => $chatMessage->id,
                     'type' => $request->object,
+                    'object_type_id' => $request->object_id,
                     'sop_name' => @$sopdata->name,
                     'sop_category' => @$sopdata->category,
                     'sop_content' => @$sopdata->content,
@@ -507,13 +508,14 @@ class ChatMessagesController extends Controller
         if ($message) {
             $message->update(['is_reviewed' => 1]);
             return response()->json([
-                'message' => 'Successful',
+                'message' => 'Review Successful',
             ], 200);
         }
         return response()->json([
             'message' => 'Error',
         ], 500);
     }
+
     public function downloadChatMessages(request $request)
     {
         $file = $request->filename;

@@ -42,6 +42,7 @@ use Response;
 use App\Hubstaff\HubstaffActivity;
 use App\Sop;
 use App\TaskUserHistory;
+use App\LogChatMessage;
 
 
 class TaskModuleController extends Controller
@@ -157,7 +158,7 @@ class TaskModuleController extends Controller
             if ($request->filter_by == 2) {
                 $isCompleteWhereClose = ' AND is_completed IS NOT NULL AND is_verified IS NULL ';
             }
-            
+           
             $data['task']['pending'] = DB::select('
 			SELECT tasks.*
 
@@ -1095,7 +1096,7 @@ class TaskModuleController extends Controller
     }
 
 
-    private function createHubstaffTask(string $taskSummary, ?int $hubstaffUserId, int $projectId, bool $shouldRetry = true)
+    public function createHubstaffTask(string $taskSummary, ?int $hubstaffUserId, int $projectId, bool $shouldRetry = true)
     {
         $tokens = $this->getTokens();
         // echo '<pre>';print_r($tokens);
@@ -2428,11 +2429,17 @@ class TaskModuleController extends Controller
        
         if($request->get("lead") == '1'){
             $old_id=$issue->master_user_id;
+            if (!$old_id) {
+                $old_id = 0;
+            }
             $issue->master_user_id = $masterUserId;
             $task_type="leaddeveloper";
 
         } else {
             $old_id=$issue->second_master_user_id;
+            if (!$old_id) {
+                $old_id = 0;
+            }
             $issue->second_master_user_id = $masterUserId;
             $task_type="second_leaddeveloper";
         }
@@ -2450,7 +2457,7 @@ class TaskModuleController extends Controller
         }
         $message = "#" . $issue->id . ". " . $issue->task_subject . ". " . $issue->task_details;
         $summary = substr($message, 0, 200);
-      /*$hubstaffTaskId = $this->createHubstaffTask(
+      $hubstaffTaskId = $this->createHubstaffTask(
             $summary,
             $hubstaffUserId,
             $hubstaff_project_id
@@ -2466,11 +2473,11 @@ class TaskModuleController extends Controller
             $task->hubstaff_project_id = $hubstaff_project_id;
             $task->summary = $message;
             $task->save();
-        }*/
+        }
         $taskUser = new TaskUserHistory;
         $taskUser->model = 'App\Task';
         $taskUser->model_id = $issue->id;
-        $taskUser->old_id = $old_id;
+        $taskUser->old_id = ($old_id=="")?0:$old_id;
         $taskUser->new_id = $masterUserId;
         $taskUser->user_type = $task_type;
         $taskUser->updated_by = Auth::user()->name;
@@ -2958,10 +2965,19 @@ class TaskModuleController extends Controller
    	    try {
 
    	    	$task=Task::find($request->task_id);
+               $old_status = $task->status;
 
    	    	$task->status=$request->status;
 
    	    	$task->save();
+               DeveloperTaskHistory::create([
+                'developer_task_id' => $request->task_id,
+                'model' => 'App\Task',
+                'attribute' => "task_status",
+                'old_value' => $old_status,
+                'new_value' => $task->status,
+                'user_id' => Auth::id(),
+            ]);
 
 			if($task->status == 1){
 				
@@ -3014,6 +3030,8 @@ class TaskModuleController extends Controller
 						'by_command'        => 4,
 						'task_id'           => $task->id,
 					]);
+                    
+                      
                    
 				} 
 				
@@ -3097,16 +3115,108 @@ class TaskModuleController extends Controller
 
   		return response()->json(["code" => 500 , "message" => "Please select atleast one task"]);
   }
+    public function CommunicationTaskStatus(Request $request)
+    {
+        $task = Task::find($request->get('task_id'));
 
+        if($task->communication_status == 0)
+        {
+            $status = 1;
+        }
+        if($task->communication_status == 1)
+        {
+            $status = 0;
+        }
+
+        $updatetask = Task::find($request->get('task_id'));
+        $updatetask->communication_status = $status;
+        $updatetask->update();
+        return response()->json(['status' => 'success','communication_status'=>$status]);
+    }
+    public function recurringHistory(request $request)
+    {
+        $task_id = $request->input('task_id');
+        $html = '';
+        $chatData = LogChatMessage::where('task_id', $task_id)->where('task_time_reminder',0)
+            ->orderBy('id', 'DESC')
+            ->get();
+        $i = 1;
+        if (count($chatData) > 0) {
+            foreach ($chatData as $history) {
+                $html .= '<tr>';
+                $html .= '<td>' . $i . '</td>';
+                $html .= '<td>' . $history->log_case_id . '</td>';
+                $html .= '<td>' . $history->message . '</td>';
+                $html .= '<td>' . $history->log_msg . '</td>';
+                $html .= '<td>' . $history->created_at . '</td>';
+                $html .= '</tr>';
+
+                $i++;
+            }
+            return response()->json(['html' => $html, 'success' => true], 200);
+        } else {
+            $html .= '<tr>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '</tr>';
+        }
+        return response()->json(['html' => $html, 'success' => true], 200);
+
+    }
     public function AssignTaskToUser(Request $request){
         $task = Task::find($request->get('issue_id'));
         $old_id = $task->assign_to;
         if (!$old_id) {
             $old_id = 0;
-        }
+        }else{
+            DB::delete('delete from task_users where task_id = ? AND user_id = ? AND type = ?', array($task->id,$old_id, User::class));
+     }
         $task->assign_to = $request->get('user_id');
         $task->save();
+    //    $task->users()->attach([$request->input('assign_to') => ['type' => User::class]]);
 
+
+             
+        //   $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+      $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
+        $assignedUser = HubstaffMember::where('user_id', $request->input('user_id'))->first();
+        // $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
+      
+        $hubstaffUserId = null;
+        if ($assignedUser) {
+            $hubstaffUserId = $assignedUser->hubstaff_user_id;
+        }
+        if ($task->is_statutory != 1) {
+            $message = "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details;
+        } else {
+            $message = $task->task_subject . ". " . $task->task_details;
+        }
+
+        $taskSummery = substr($message, 0, 200);
+              
+      
+        $hubstaffTaskId = $this->createHubstaffTask(
+            $taskSummery,
+            $hubstaffUserId,
+            $hubstaff_project_id
+        );
+      
+        if ($hubstaffTaskId) {
+            $task->hubstaff_task_id = $hubstaffTaskId;
+            $task->save();
+        }
+        if ($hubstaffUserId) {
+            $task = new HubstaffTask();
+            $task->hubstaff_task_id = $hubstaffTaskId;
+            $task->project_id = $hubstaff_project_id;
+            $task->hubstaff_project_id = $hubstaff_project_id;
+            $task->summary = $message;
+            $task->save();
+        }
         
         $taskUser = new TaskUserHistory;
         $taskUser->model = 'App\Task';
@@ -3166,7 +3276,16 @@ class TaskModuleController extends Controller
     }
     public function getUserHistory(Request $request)
     {
-        $users = TaskUserHistory::where('model', 'App\Task')->where('model_id', $request->id)->get();
+            if(isset($request->type)){
+                if($request->type == "developer"){
+                    $users = TaskUserHistory::where('model', 'App\DeveloperTask')->where('model_id', $request->id)->get();
+                }else{
+                    $users = TaskUserHistory::where('model', 'App\Task')->where('model_id', $request->id)->get();
+                }
+        }else{
+            $users = TaskUserHistory::where('model', 'App\Task')->where('model_id', $request->id)->get();
+
+        }
         
         foreach ($users as $u) {
             $old_name = null;
@@ -3184,6 +3303,27 @@ class TaskModuleController extends Controller
             'users' => $users
         ], 200);
     }
+    public function getSiteDevelopmentTask(Request $request){
 
+        $site_developement_id = \App\SiteDevelopment::where("website_id",$request->site_id)->pluck("id");
+    //    dd($site_developement_id);
+        $merged=[];
+        if(!empty($site_developement_id)){
+            $taskStatistics['Devtask'] = DeveloperTask::whereIn('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select();
+
+            $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->whereIn('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+            $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+            $taskStatistics = $query->get();
+          //  print_r($taskStatistics);
+            $othertask = Task::whereIn('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
+            $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->whereIn('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+            $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+            $othertaskStatistics = $query1->get();
+            $merged = $othertaskStatistics->merge($taskStatistics);
+        }
+     //   return view('task-module.partials.site-development-task', compact('merged'));
+
+        return response()->json(["code" => 200, "taskStatistics" => $merged]);
+    }
    
 }

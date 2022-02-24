@@ -174,6 +174,12 @@
                                 value="{{ isset($search_phone_no) ? $search_phone_no : '' }}"
                                 placeholder="Phone No." id="search_phone_no">
                     </div>
+                    <div class="col-md-2 pl-3 pr-0">
+                        <input name="search_source" type="text" class="form-control"
+                                value="{{ isset($search_source) ? $search_source : '' }}"
+                                placeholder="Source." id="search_source">
+                    </div>
+                    
                     <!-- <div class="col-md-2">
                         <input name="search_category" type="text" class="form-control"
                                 value="{{ isset($search_category) ? $search_category : '' }}"
@@ -241,6 +247,8 @@
 
     @include('livechat.partials.model-email')
     @include('livechat.partials.model-assigned')
+    @include('livechat.partials.modal_ticket_send_option')
+    
 
 
     <div id="AddStatusModal" class="modal fade" role="dialog">
@@ -536,7 +544,8 @@ function opnMsg(email) {
     });
 
     function submitSearch(){
-                src = "{{url('whatsapp/pollTicketsCustomer')}}";
+                //src = "{{url('whatsapp/pollTicketsCustomer')}}";
+                src = "{{url('livechat/tickets')}}";
                 term = $('#term').val();
                 erp_user = 152;
                 serach_inquiry_type = $('#serach_inquiry_type').val();
@@ -548,6 +557,7 @@ function opnMsg(email) {
                 status_id = $('#status_id').val();
                 date = $('#date').val();
                 users_id = $('#users_id').val();
+                search_source = $('#search_source').val();
                 $.ajax({
                     url: src,
                     dataType: "json",
@@ -562,25 +572,22 @@ function opnMsg(email) {
                         status_id : status_id,
                         date : date,
                         users_id : users_id,
-
+                        search_source : search_source
                     },
                     beforeSend: function () {
                         $("#loading-image").show();
                     },
-
                 }).done(function (message) {
                     $("#loading-image").hide();
                     //location.reload();
                     //alert(ticket_id);
                     $('#ticket').val(ticket_id);
-
+                    $('#content_data').html(message.tbody);
                     var rendered = renderMessage(message, tobottom);
-
                 }).fail(function (jqXHR, ajaxOptions, thrownError) {
                     alert('No response from server');
                 });
-
-            }
+    }
 
     function resetSearch(){
         $("#loading-image").hide();
@@ -715,8 +722,86 @@ function opnMsg(email) {
                 }
             });
         }
-
         $(document).on('click', '.send-message1', function () {
+           
+           var thiss = $(this);
+           var data = new FormData();
+           var ticket_id = $(this).data('ticketid');
+           var message = $("#messageid_"+ticket_id).val();
+           if(message!=""){
+               $("#message_confirm_text").html(message);
+               $("#confirm_ticket_id").val(ticket_id);
+               $("#confirm_message").val(message);
+               $("#confirm_status").val(1);
+               $("#confirmMessageModal").modal();
+           }
+       });
+       $(document).on('click', '.confirm-messge-button', function () {
+            var thiss = $(this);
+            var data = new FormData();
+        //    var ticket_id = $(this).data('ticketid');
+        //    var message = $("#messageid_"+ticket_id).val();
+            var ticket_id = $("#confirm_ticket_id").val();
+            var message = $("#confirm_message").val();
+            var status = $("#confirm_status").val();
+
+            data.append("ticket_id", ticket_id);
+            data.append("message", message);
+            data.append("status", 1);
+
+            var checkedValue = [];
+            var i=0;
+            $('.send_message_recepients:checked').each(function () {
+                checkedValue[i++] = $(this).val();
+            });   
+            data.append("send_ticket_options",checkedValue); 
+          //  alert(data);
+
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: BASE_URL+'/whatsapp/sendMessage/ticket',
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function (response) {
+                        //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
+                        $('#confirmMessageModal').modal('hide');
+                        if(message.length > 30)
+                        {
+                            var res_msg = message.substr(0, 27)+"...";
+                            $("#message-chat-txt-"+ticket_id).html(res_msg);
+                            $("#message-chat-fulltxt-"+ticket_id).html(message);
+                        }
+                        else
+                        {
+                            $("#message-chat-txt-"+ticket_id).html(message);
+                            $("#message-chat-fulltxt-"+ticket_id).html(message);
+                        }
+
+                        $("#messageid_"+ticket_id).val('');
+
+                        $(thiss).attr('disabled', false);
+                    }).fail(function (errObj) {
+                        $(thiss).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
+
+
+        $(document).on('click', '.send-message1_bk', function () {
             var thiss = $(this);
             var data = new FormData();
             var ticket_id = $(this).data('ticketid');

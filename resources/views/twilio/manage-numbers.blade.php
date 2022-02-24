@@ -133,7 +133,7 @@
                                         <input type="text" class="form-control" name="end_work_message" id="end_work_message_1" value="{{ @ $number->assigned_stores->end_work_message }}"/>
                                     </td>
                                     <td colspan="3">
-                                        <button class="btn btn-sm btn-image save-number-to-store" id="save_1"><img src="/images/filled-sent.png" style="cursor: default;"></button>
+                                        <button class="btn btn-sm btn-image save-number-to-store" id="save_1" data-number-id="{{ @ $number->id }}"><img src="/images/filled-sent.png" style="cursor: default;"></button>
                                     </td>
 
                                 </tr>
@@ -142,10 +142,12 @@
                                         <label>Select Agent</label>
                                         <div class="input-group">
                                             <select class="form-control" id="agent_1">
-                                                <option value="">Select agent</option>
+                                                <option value="">Select agent</option> 
                                                 @if(isset($customer_role_users))
                                                     @foreach($customer_role_users as $user)
-                                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+														@if(isset($user->user))
+															<option value="{{ $user->user->id }}">{{ $user->user->name }}</option>
+														@endif
                                                     @endforeach
                                                 @endif
                                             </select>
@@ -154,7 +156,6 @@
                                     <td colspan="3">
                                         <button class="btn btn-sm btn-image call_forwarding_save" id="forward_1"><img src="/images/filled-sent.png" style="cursor: default;"></button>
                                     </td>
-
                                 </tr>
                             @endforeach
                         @endif
@@ -698,7 +699,7 @@
                     method: 'POST',
                     data: {
                         '_token' : "{{ csrf_token() }}",
-                        'twilio_number_id' : num_id,
+                        'twilio_number_id' : $(this).data('number-id'),
                         'store_website_id' : $('#store_website_'+num_id).val(),
                         'message_available' : $('#message_available_'+num_id).val(),
                         'message_not_available' : $('#message_not_available_'+num_id).val(),
