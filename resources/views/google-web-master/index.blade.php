@@ -353,6 +353,7 @@
 					<thead>
 					
 						<span><a class="btn btn-secondary pull-right m-2" href="{{route('googlewebmaster.get.records')}}"> Refresh Record</a></span>
+						<span><a class="btn btn-secondary pull-right m-2" href="{{route('googlewebmaster.submit.site.webmaster')}}"> Submit Sites</a></span>
 						<tr>
 							<th>S.N</th>
 							<th>Site URL</th>
