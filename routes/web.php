@@ -1908,6 +1908,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 Route::get('twilio/token', 'TwilioController@createToken');
 Route::post('twilio/ivr', 'TwilioController@ivr')->name('ivr');
+Route::get('twilio/webhook-error', 'TwilioController@webhookError');
+Route::post('twilio/workspace/assignment', 'TwilioController@workspaceEvent');
+Route::post('twilio/assignment-task', 'TwilioController@assignmentTask');
+Route::post('twilio/call-status', 'TwilioController@callStatus');
+Route::post('twilio/wait-url', 'TwilioController@waitUrl')->name('waiturl');
 Route::post('twilio/gatherAction', 'TwilioController@gatherAction');
 Route::post('twilio/incoming', 'TwilioController@incomingCall');
 Route::post('twilio/outgoing', 'TwilioController@outgoingCall');
@@ -1929,6 +1934,8 @@ Route::post('twilio/change_agent_status', 'TwilioController@change_agent_status'
 Route::post('twilio/change_agent_call_status', 'TwilioController@change_agent_call_status')->name('change_agent_call_status');
 Route::post('twilio/add_number', 'TwilioController@addNumber')->name('add_number');
 Route::post('twilio/update_number_status', 'TwilioController@updateNumberStatus')->name('update_number_status');
+Route::post('twilio/remove_waiting_call', 'TwilioController@removeWaitingCalls')->name('remove_waiting_calls');
+Route::post('twilio/get-waiting-call-list', 'TwilioController@getWaitingCallList')->name('waiting_calls_list');
 Route::post('twilio/leave_message_rec', 'TwilioController@leave_message_rec')->name('leave_message_rec');
 Route::any('twilio/completed', 'TwilioController@completed')->name('completed');
 Route::any('twilio/saverecording', 'TwilioController@saveRecording')->name('saveRecording');
@@ -3113,6 +3120,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('twilio/set_twilio_key_option', 'TwilioController@setTwilioKey')->name('twilio.set_twilio_key_options');
     Route::get('twilio/get_website_wise_key_data', 'TwilioController@getTwilioKeyData')->name('twilio.get_website_wise_key_data');
     Route::get('twilio/erp/logs', 'TwilioController@twilioErpLogs')->name('twilio.erp_logs');
+    Route::get('twilio/webhook-error/logs', 'TwilioController@twilioWebhookErrorLogs')->name('twilio.webhook.error.logs');
     Route::get('twilio/account-logs', 'TwilioController@twilioAccountLogs')->name('twilio.account_logs');
 
     /**
