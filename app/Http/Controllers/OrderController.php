@@ -2409,7 +2409,7 @@ class OrderController extends Controller
         $getnumbers = \App\TwilioCurrentCall::select('number')->where(['status'=>1])->get()->toArray();
         $users = \App\Customer::select('id')->whereIn('phone', $getnumbers)->get()->toArray();
 
-        $reservedCalls = \App\TwilioCallWaiting::leftJoin("customers as c", "c.phone", \DB::raw('REPLACE(twilio_call_waitings.from, "+", "")'))->orderBy("twilio_call_waitings.created_at", "desc")
+        $reservedCalls = \App\TwilioCallWaiting::with('storeWebsite')->leftJoin("customers as c", "c.phone", \DB::raw('REPLACE(twilio_call_waitings.from, "+", "")'))->orderBy("twilio_call_waitings.created_at", "desc")
         ->select(["twilio_call_waitings.*", "c.name", "c.email"])->get();
         $allleads=[];
         $orders = (new \App\Order())->newQuery()->with('customer')->leftJoin("store_website_orders as swo","swo.order_id","orders.id")
