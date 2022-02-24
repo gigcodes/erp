@@ -163,41 +163,6 @@
     @include("development.partials.pull-request-history-modal")
     @include("development.partials.lead_time-history-modal")
     @include("development.partials.development-reminder-modal")
-
-    <div id="confirmMessageModal"  class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Confirm Message</h4>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <div id="message_confirm_text"></div>
-            <input name="task_id" id="confirm_task_id" type="hidden"/>
-            <input name="message" id="confirm_message" type="hidden"/>
-            <input name="status" id="confirm_status" type="hidden" value="2" />
-          </div>
-          <div class="form-group">
-            <p>Send to Following</p>
-            <input checked="checked" name="send_message_recepients[]" class="send_message_recepients"  type="checkbox" value="assign_by">Assign By
-              <input checked="checked" name="send_message_recepients[]"  class="send_message_recepients" type="checkbox" value="assigned_to">Developer
-              <input checked="checked" name="send_message_recepients[]" class="send_message_recepients" type="checkbox" value="master_user_id">Lead
-              <input checked="checked" name="send_message_recepients[]" class="send_message_recepients"  type="checkbox" value="to_team_lead">Team Lead
-              <input checked="checked" name="send_message_recepients[]" class="send_message_recepients"  type="checkbox" value="to_tester">Tester
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-secondary confirm-messge-button">Send</button>
-        </div>
-    </div>
-
-  </div>
-</div>
 @endsection
 @section('scripts')
 
@@ -536,7 +501,7 @@
 
 
 
-       /* $(document).on('click', '.send-message-open', function (event) {
+        $(document).on('click', '.send-message-open', function (event) {
             var textBox = $(this).closest(".expand-row").find(".send-message-textbox");
             var sendToStr  = $(this).closest(".expand-row").find(".send-message-number").val();
             var add_autocomplete  = $(this).closest(".expand-row").find("[name=add_to_autocomplete]").is(':checked') ;
@@ -586,7 +551,7 @@
                     $(self).removeAttr('disabled', true);
                 }
             });
-        });*/
+        });
 
         $(document).on('change', '.set-responsible-user', function () {
             let id = $(this).attr('data-id');
@@ -1584,89 +1549,5 @@
             });
             $('#user_history_modal').modal('show');
         });
-        $(document).on('click', '.send-message-open', function(event) {
-            var textBox = $(this).closest(".expand-row").find(".send-message-textbox");
-            var sendToStr  = $(this).closest(".expand-row").find(".send-message-number").val();
-            var add_autocomplete  = $(this).closest(".expand-row").find("[name=add_to_autocomplete]").is(':checked') ;
-            
-            let issueId = textBox.attr('data-id');
-            let message = textBox.val();
-            if (message == '') {
-                return;
-            }
-
-            let self = textBox;
-            if(message)
-            {
-                $("#message_confirm_text").html(message);
-                $("#confirmMessageModal").modal("show");
-                $("#confirm_task_id").attr('value',issueId);
-                $("#confirm_message").attr('value',message);
-            }
-        });
-         $(document).on('click', '.confirm-messge-button', function () {   
-            
-            var thiss = $(this);
-            var data = new FormData();
-            var issueId = $("#confirm_task_id").val();
-            var message = $("#confirm_message").val();
-            var status = $("#confirm_status").val();
-
-        //    alert(message)
-            data.append("issue_id", issueId);
-            data.append("message", message);
-            data.append("status", status);
-
-            var checkedValue = [];
-            var i=0;
-            $('.send_message_recepients:checked').each(function () {
-                checkedValue[i++] = $(this).val();
-            });   
-            data.append("sendTo",checkedValue); 
-
-            if (message.length > 0) {
-                if (!$(thiss).is(':disabled')) {
-                    $.ajax({
-                        url: "{{ action('WhatsAppController@sendMessage', 'issue') }}",
-                        type: 'POST',
-                        "dataType": 'json',  // what to expect back from the PHP script, if anything
-                        "cache": false,
-                        "contentType": false,
-                        "processData": false,
-                        "data": data,
-                        beforeSend: function () {
-                            $("#loading-image").show();//Purpose : Show loader - DEVTASK-4359
-                            $("#send_message_"+issueId).attr('disabled', true);
-                        }
-                    }).done(function (response) {
-                     
-                        $('#confirmMessageModal').modal('hide');
-
-                        $("#loading-image").hide();//Purpose : Hide loader - DEVTASK-4359
-                        toastr["success"]("Message sent successfully!", "Message");
-                        if(response.message) {
-                            var created_at = response.message.created_at;
-                            var message = response.message.message;
-                        }
-                        else {
-                            var created_at = '';
-                            var message = '';
-                        }
-                        $('#message_list_' + issueId).append('<li>' + created_at + " : " + message + '</li>');
-                        $("#send_message_"+issueId).removeAttr('disabled', true);
-                        $("#send_message_"+issueId).val('');
-
-                    }).fail(function (errObj) {
-                        $("#loading-image").hide();//Purpose : Hide loader - DEVTASK-4359
-                        alert('There was an error sending the message...');
-                        $("#send_message_"+issueId).removeAttr('disabled', true);
-                    });
-                }
-            } else {
-                alert('Please enter a message first');
-            }
-        });
-
-
     </script>
 @endsection
