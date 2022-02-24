@@ -166,6 +166,7 @@ class TwilioController extends FindByNumberController
                     $agent = 'customer_call_agent_'.$user_id;
                     TwilioLog::create(['log'=>'Agents ==> ' . $agent]);
                     if ($devices->count()){
+                        TwilioLog::create(['log'=>'Device Count ==> ' . $agent]);
                         $tokens=[];
                         foreach ($devices as $device){
                             $capability = new ClientToken($device->account_id, $device->auth_token);
