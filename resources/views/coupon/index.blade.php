@@ -674,23 +674,37 @@ form label.required:after{
                 <tr>
                     <th width="2%">ID</th>
                     <th width="15%">Rule</th>
-                    <th width="10%">Copupon Code</th>
+                    <th width="10%">Coupon Code</th>
                     <th width="25%">Websites</th>
                     <th width="6%">Start</th>
                     <th width="6%">End</th>
+                    <th width="10%">Created By</th>
                     <th width="5%">Status</th>
+                    <th width="10%">Action</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($rule_lists as $rule_list)
-                    <tr data-id="{{ $rule_list->id }}" data-coupon-type="{{ $rule_list->coupon_type }}" onClick="displayCouponCodeModal(this);">
+                    <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $rule_list->name }}</td>
                             <td>{{ $rule_list->coupon_code }}</td>
                             <td class="Website-task">{{ $rule_list->website_ids }}</td>
                             <td>{{ $rule_list->from_date }}</td>
                             <td>{{ $rule_list->to_date }}</td>
+                            <td>@if($rule_list->users)
+                                    {{$rule_list->users->name}}
+                                @endif
+                            </td>
                             <td>{{ $rule_list->is_active == 1 ? "Active" : "InActive" }}</td>
+                            <td>
+                            <button type="button" class="btn btn-image p-1" data-id="{{ $rule_list->id }}" data-coupon-type="{{ $rule_list->coupon_type }}" onClick="displayCouponCodeModal(this);"><i class="fa fa-edit"></i></button>
+                            <button type="button" class="btn btn-image view_error p-1" data-toggle="modal" data-id="{{ $rule_list->id }}"><i class="fa fa-eye"></i></button>   
+                            @if($rule_list->coupon_code != '')
+                                <button type="button" class="btn btn-image set-rule p-1" data-toggle="modal" data-target="#sendCouponModal" data-id="{{ $rule_list->id }}"><i class="fa fa-envelope"></i></button>
+                            @endif
+                            
+                            </td>
                     </tr>
                 @endforeach
             </tbody>
@@ -716,6 +730,72 @@ form label.required:after{
         </table>
     </div>
 </div>
+<div id="sendCouponModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Send Coupon Code</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ route('coupons.send') }}" method="post">
+                    <?php echo csrf_field(); ?>
+                    <input type="hidden" name="send_rule_id" id="send_rule_id">
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <strong>Customer</strong>
+                        </div>
+                        <div class="form-group col-md-9">
+                            <select class="form-control select-multiple" id="customer" name="customer" style="width: 100%" required>
+                                <option value="">Select Customer</option>
+                              @foreach ($customers as $customer)
+                                <option value="{{$customer->id}}">{{$customer->name}}</option>
+                              @endforeach
+                            </select>
+                        </div>
+                    </div>  
+                    <div class="form-group">
+                        <button class="btn btn-secondary send-mail">Send</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="view_error" class="modal fade" role="dialog" data-backdrop="static">
+        <div class="modal-dialog" style="max-width: 700px !important;">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form action="{{ url('logging/assign') }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h4 class="modal-title">View Logs</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            <th>Index</th>
+                            <th>Time</th>
+                            <th>Coupon Code</th>
+                            <th>Log</th>
+                            <th>Message</th>
+                        </tr>
+                        <tbody class="content">
+                            
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default close-setting" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -1376,5 +1456,73 @@ form label.required:after{
             }
         });
     }
+    $('.select-multiple').select2();
+
+    $('.set-rule').click(function(){
+        $('#send_rule_id').val($(this).data('id'));
+    });
+
+    $(document).on('click','.view_error',function(event){
+      event.preventDefault();
+      $.ajax({
+            url: '{{ route("couponcoderule.log.ajax") }}',
+            dataType: "json",
+            data: {
+                id: $(this).data('id')
+            },
+            beforeSend: function () {
+                $("#loading-image-preview").show();
+            },
+        }).done(function (data) {
+            $("#loading-image-preview").hide();
+            var $html = '';
+            if(data.data.length > 0){
+                $.each(data.data, function(i, item) {
+                  $html += '<tr>';
+                  $html += '<td>'+parseInt(i+1)+'</td>';
+                  $html += '<td>'+item.created_at+'</td>';
+                  $html += '<td>'+item.coupon_code+'</td>';
+                  $html += '<td>'+item.log_type+'</td>';
+                  $html += '<td>'+wordWrap(item.message, 50)+'</td>';
+                  $html += '</tr>';
+              });
+            }
+            $('#view_error table tbody.content').html($html);
+            $('#view_error').modal('show');
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            $("#loading-image-preview").hide();
+        });
+      
+  });
+
+function wordWrap(str, maxWidth) {
+    var newLineStr = "\n"; done = false; res = '';
+    while (str.length > maxWidth) {                 
+        found = false;
+        // Inserts new line at first whitespace of the line
+        for (i = maxWidth - 1; i >= 0; i--) {
+            if (testWhite(str.charAt(i))) {
+                res = res + [str.slice(0, i), newLineStr].join('');
+                str = str.slice(i + 1);
+                found = true;
+                break;
+            }
+        }
+        // Inserts new line at maxWidth position, the word is too long to wrap
+        if (!found) {
+            res += [str.slice(0, maxWidth), newLineStr].join('');
+            str = str.slice(maxWidth);
+        }
+
+    }
+
+    return res + str;
+}
+
+function testWhite(x) {
+    var white = new RegExp(/^\s$/);
+    return white.test(x.charAt(0));
+};
+
 </script>
 @endsection

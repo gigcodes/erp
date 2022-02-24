@@ -103,6 +103,7 @@ Route::prefix('googlewebmaster')->middleware('auth')->group(function () {
 
     Route::get('get-site-submit-hitory', 'GoogleWebMasterController@getSiteSubmitHitory')->name('googlewebmaster.get.history');
     Route::post('re-submit-site', 'GoogleWebMasterController@ReSubmitSiteToWebmaster')->name('googlewebmaster.re-submit.site.webmaster');
+    Route::get('submit-site', 'GoogleWebMasterController@SubmitSiteToWebmaster')->name('googlewebmaster.submit.site.webmaster');
     Route::get('get-access-token', 'GoogleWebMasterController@googleLogin')->name('googlewebmaster.get-access-token');
     Route::get('/index', 'GoogleWebMasterController@index')->name('googlewebmaster.index');
 
@@ -1943,6 +1944,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 Route::get('twilio/token', 'TwilioController@createToken');
 Route::post('twilio/ivr', 'TwilioController@ivr')->name('ivr');
+Route::get('twilio/webhook-error', 'TwilioController@webhookError');
+Route::post('twilio/workspace/assignment', 'TwilioController@workspaceEvent');
+Route::post('twilio/assignment-task', 'TwilioController@assignmentTask');
+Route::post('twilio/call-status', 'TwilioController@callStatus');
+Route::post('twilio/wait-url', 'TwilioController@waitUrl')->name('waiturl');
 Route::post('twilio/gatherAction', 'TwilioController@gatherAction');
 Route::post('twilio/incoming', 'TwilioController@incomingCall');
 Route::post('twilio/outgoing', 'TwilioController@outgoingCall');
@@ -1964,6 +1970,8 @@ Route::post('twilio/change_agent_status', 'TwilioController@change_agent_status'
 Route::post('twilio/change_agent_call_status', 'TwilioController@change_agent_call_status')->name('change_agent_call_status');
 Route::post('twilio/add_number', 'TwilioController@addNumber')->name('add_number');
 Route::post('twilio/update_number_status', 'TwilioController@updateNumberStatus')->name('update_number_status');
+Route::post('twilio/remove_waiting_call', 'TwilioController@removeWaitingCalls')->name('remove_waiting_calls');
+Route::post('twilio/get-waiting-call-list', 'TwilioController@getWaitingCallList')->name('waiting_calls_list');
 Route::post('twilio/leave_message_rec', 'TwilioController@leave_message_rec')->name('leave_message_rec');
 Route::any('twilio/completed', 'TwilioController@completed')->name('completed');
 Route::any('twilio/saverecording', 'TwilioController@saveRecording')->name('saveRecording');
@@ -2010,6 +2018,8 @@ Route::post('/brand-review/store', '\App\Http\Controllers\Api\v1\BrandReviewCont
 
 Route::prefix('livechat')->group(function () {
     Route::post('/attach-image', 'LiveChatController@attachImage')->name('live-chat.attach.image');
+    Route::post('/get-livechat-coupon-code', 'LiveChatController@getLiveChatCouponCode')->name('get-livechat-coupon-code');
+    Route::post('/send-livechat-coupon-code', 'LiveChatController@sendLiveChatCouponCode')->name('send-livechat-coupon-code');
 });
 
 /* ---------------------------------------------------------------------------------- */
@@ -2201,6 +2211,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('influencers/history', 'HashtagController@history')->name('influencers.index.history');
     Route::post('influencers/reply/add', 'HashtagController@addReply')->name('influencers.reply.add');
     Route::post('influencers/reply/delete', 'HashtagController@deleteReply')->name('influencers.reply.delete');
+    Route::post('influencers', 'HashtagController@changeCronSetting')->name('instagram.change.mailing');
 
     Route::get('comments', 'InstagramController@getComments');
     Route::post('comments', 'InstagramController@postComment');
@@ -2770,6 +2781,11 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('facebook-broadcast', 'BroadcastController@facebook');
 
     Route::get('mailinglist', 'MailinglistController@index')->name('mailingList');
+    Route::get('mailinglist-log', 'MailinglistController@getlog')->name('mailingList.log');
+    Route::get('mailinglist-flowlog', 'MailinglistController@flowlog')->name('mailingList.flowlog');
+    Route::get('mailinglist-customerlog', 'MailinglistController@customerlog')->name('mailingList.customerlog');
+    
+  //  Route::get('mailinglist-flowlog', 'MailinglistController@flowlog')->name('mailingList.flowlog');
     Route::get('mailinglist/{id}', 'MailinglistController@show')->name('mailingList.single');
 
     Route::get('mailinglist/edit/{id}', 'MailinglistController@edit')->name('mailingList.edit');
@@ -2836,6 +2852,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function () {
     Route::any('/delete-rules/{id}', 'CouponController@deleteCouponCodeRuleById')->name('delete-rules');
 
     Route::post('/quick-coupon-code-rules', 'CouponController@shortCutFroCreateCoupn')->name('quick.couponcode.store');
+    Route::post('/send-coupons', 'CouponController@sendCoupons')->name('coupons.send');
+    Route::get('log-coupon-code-rule-ajax', 'CouponController@logCouponCodeRuleAjax')->name('couponcoderule.log.ajax');
 });
 
 Route::middleware('auth')->group(function () {
@@ -3154,7 +3172,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('twilio/set_twilio_key_option', 'TwilioController@setTwilioKey')->name('twilio.set_twilio_key_options');
     Route::get('twilio/get_website_wise_key_data', 'TwilioController@getTwilioKeyData')->name('twilio.get_website_wise_key_data');
     Route::get('twilio/erp/logs', 'TwilioController@twilioErpLogs')->name('twilio.erp_logs');
+    Route::get('twilio/webhook-error/logs', 'TwilioController@twilioWebhookErrorLogs')->name('twilio.webhook.error.logs');
     Route::get('twilio/account-logs', 'TwilioController@twilioAccountLogs')->name('twilio.account_logs');
+    Route::get('twilio/conditions', 'TwilioController@getConditions')->name('twilio.conditions');
+    Route::get('twilio/conditions/status/update', 'TwilioController@updateConditionStatus')->name('twilio.condition.update');
+
+
 
     /**
      * Watson account management
@@ -3486,6 +3509,7 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
         Route::post('/{id}/update', 'PlanController@update')->name('plan.update');
         Route::get('/delete/{id}', 'PlanController@delete')->name('plan.delete');
         Route::get('/{id}/plan-action', 'PlanController@planAction');
+        Route::get('/{id}/plan-action-addons', 'PlanController@planActionAddOn');
         Route::post('/plan-action/store', 'PlanController@planActionStore');
         Route::post('/plan-action/solutions-store', 'PlanController@planSolutionsStore');
         Route::get('/plan-action/solutions-get/{id}', 'PlanController@planSolutionsGet');
@@ -3636,7 +3660,10 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
 
 
 });
-Route::get('command', function () {
+Route::get('command', function () {	
+// \Artisan::call('migrate');
+    \Artisan::call('create-mailinglist-influencers');
+
 
     \Artisan::call('migrate');
   //   \Artisan::call('HubstuffActivity:Command');

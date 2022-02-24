@@ -99,7 +99,7 @@
 		var set_status = '';
 		console.log("Token : "+token);
 		console.log("Agent : "+agent);
-		device = new Twilio.Device(token, {debug: true, allowIncomingWhileBusy: true, audioConstraints: {
+		device = new Twilio.Device(token, {debug: true, audioConstraints: {
 			mandatory: { 
 				googAutoGainControl: false 
 			} 

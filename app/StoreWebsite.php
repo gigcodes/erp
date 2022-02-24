@@ -91,6 +91,9 @@ class StoreWebsite extends Model
         'is_price_override',
         'repository_id',
 		'semrush_project_id',
+        'send_in_blue_account',
+        'send_in_blue_api',
+        'send_in_blue_smtp_email_api',
         'logo_color',  
         'logo_border_color',  
         'text_color',   
@@ -98,6 +101,7 @@ class StoreWebsite extends Model
         'border_thickness',
         'sale_old_products',
         'website_address'
+
     ];
 
     const DB_CONNECTION = [

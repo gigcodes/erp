@@ -67,6 +67,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
         
     </style>
 @endsection
+
         <div class="row">
             <div class="col-lg-12 margin-tb p-0">
                 <h2 class="page-heading">Live Chat</h2>
@@ -203,6 +204,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                         <a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="Technology" onclick="openPopupTechnology(<?php echo $chatId->id;?>)" >
                                             <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
                                         </a>
+                                        <button type="button" class="btn btn-image send-coupon p-1" data-toggle="modal" data-id="{{ $chatId->id }}" data-customerid="{{ $customer->id }}" ><i class="fa fa-envelope"></i></button>
 
 
                                             
@@ -473,6 +475,37 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 </form>
             </div>
         </div>
+<div id="sendCouponModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Send Coupon Code</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="customer_id" id="customer_id">
+                <input type="hidden" name="type" value="livechat">
+                <div class="form-row">
+                    <div class="form-group col-md-3">
+                        <strong>Coupon</strong>
+                    </div>
+                    <div class="form-group col-md-9">
+                        <select class="form-control select-multiple" id="coupon" name="coupon" style="width: 100%">
+                            <option value="">Select Coupon</option>
+                        </select>
+                    </div>
+                </div>  
+                <div class="form-group">
+                    <button class="btn btn-secondary send-mail">Send</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
@@ -483,6 +516,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/jquery.validate.min.js"></script>
     <!-- New Coupon -->
     <script>
+    $('.select-multiple').select2();
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -756,6 +790,69 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
 
             $('#quick_replies').on("change", function(){
                 $('.message_textarea').text($(this).val());
+            });
+
+            $('.send-coupon').on("click", function () {
+                var id = $(this).data('id');
+                var customer_id = $(this).data('customerid');
+                $("#customer_id").val(customer_id);
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('get-livechat-coupon-code') }}",
+                    dataType: 'json',
+                    beforeSend: function () {
+                    $("#loading-image-preview").show();
+                    },
+                    data: {
+                        '_token': "{{ csrf_token() }}",
+                        'chatid': id,
+                        'customer_id' : customer_id,
+                    }
+                }).done(function (data) {
+                    console.log(data)
+                    $("#loading-image-preview").hide();
+                    var option_html = "<option value=''>Select coupon</option>";
+                    if(data.data.length > 0){
+                        
+                        for(i=0; i < data.data.length; i++){
+                            option_html += "<option value='"+data.data[i].id+ "'>"+data.data[i].coupon_code+"</option>";
+                        }
+                        $("#coupon").html(option_html);
+                        $("#sendCouponModal").modal('show');
+                    }else{
+                        $("#coupon").html(option_html);
+                        alert('coupons not available');
+                    }  
+                })
+            });
+
+            $('.send-mail').on("click", function () {
+                var customer_id = $("#customer_id").val();
+                var rule_id = $("#coupon").val();
+                if(rule_id != ''){
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{ route('send-livechat-coupon-code') }}",
+                        dataType: 'json',
+                        beforeSend: function () {
+                            $("#loading-image-preview").show();
+                        },
+                        data: {
+                            '_token': "{{ csrf_token() }}",
+                            'rule_id': rule_id,
+                            'customer_id' : customer_id,
+                        }
+                    }).done(function (data) {
+                        console.log(data.message);
+                        $("#loading-image-preview").hide();
+                        alert(data.message);
+                        $("#sendCouponModal").modal('hide');
+                    })
+                }else{
+                    alert('coupons not selected');
+                }
+                
             });
     </script>
 @endsection

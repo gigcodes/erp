@@ -49,13 +49,14 @@
                     <tr>
                     <th>Customer Name</th>
                     <th>Customer Email</th>
+                    <th>Store Website</th>
                     <th>From</th>
                     <th>To</th>
                     <th>Call Time</th>
                     <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="waiting-calls-table-body">
                     
                     @foreach($reservedCalls as $reservedCall)
                         <tr>
@@ -65,6 +66,9 @@
 							<td>
 								{{$reservedCall->email}}
 							</td>
+                            <td>
+                                {{$reservedCall->storeWebsite->website ?? ''}}
+                            </td>
 							<td>
 								{{$reservedCall->from}}
 							</td>
@@ -193,9 +197,43 @@
 $(".call__answer").click(function(){
     const fromNumber = $(this).data('from-number');
     const toNumber = $(this).data('to-number');
-  $.get(`https://erpdev3.theluxuryunlimited.com/twilio/accept?From=${fromNumber}&To=${toNumber}`, function(data, status){
+  $.get(`https://erpdev7.theluxuryunlimited.com/twilio/accept?From=${fromNumber}&To=${toNumber}`, function(data, status){
     console.log("Data: " + "\nStatus: ");
   });
 });
+
+setInterval(() => {
+    $.ajax({
+        url: '/twilio/get-waiting-call-list',
+        type: 'POST',
+        dataType: 'json',
+        headers: {
+            'X-CSRF-TOKEN':$('meta[name=csrf-token]').val()
+        },
+        success: function(res) {
+            let table = $("#waiting-calls-table-body");
+            table.empty()
+            if(res.calls.length > 0) {
+                let tableAppend = '';
+                res.calls.forEach((value) => {
+                    tableAppend += `<tr>
+                    <td>${value.name || ''}</td>
+                    <td>${value.email || ''}</td>
+                    <td>${(value.store_website) ? value.store_website.website : ''}</td>
+                    <td>${value.from || ''}</td>
+                    <td>${value.to || ''}</td>
+                    <td>${value.created_at || ''}</td>
+                    <td>
+                    <a class="call__answer" data-from-number="${value.from}" data-to-number="${value.to}">Accept</a>
+                    <a class="call__canceled">Reject</a>
+                    </td>
+                    </tr>`;
+                })
+
+                table.append(tableAppend)
+            }
+        }
+    })
+}, 2000);
 </script>
 @endsection
