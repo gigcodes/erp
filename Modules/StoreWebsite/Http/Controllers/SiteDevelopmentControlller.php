@@ -37,10 +37,19 @@ class SiteDevelopmentController extends Controller
         $designDevCategories = SiteDevelopmentMasterCategory::where('title', 'Design')->orWhere('title', 'Functionality')->pluck('title', 'id')->toArray();
         //Getting Website Details
         $website = StoreWebsite::find(1);
+
         if($id!='all') {
             $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id' , 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC limit 1) as site_development_id'));
         } else {
-            $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id ORDER BY created_at DESC limit 1) as site_development_id'));
+//            $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id ORDER BY created_at DESC limit 1) as site_development_id'));
+        $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,MAX(site_developments.id) as site_development_id,website_id'))
+            ->GroupBy(DB::raw('site_developments.website_id, site_developments.site_development_category_id'));
+
+        $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', 'site_dev.site_development_id')
+            ->joinSub($site_dev, 'site_dev', function ($join)
+            {
+                $join->on('site_development_categories.id', '=', 'site_dev.site_development_category_id');
+            });
         }
         
 
@@ -108,7 +117,11 @@ class SiteDevelopmentController extends Controller
             $categories->orderBy('title', 'asc');
         }
         $categories = $categories->paginate(10);
-        
+//        $categories = $categories->get();
+//        foreach ($categories as $cat) {
+//            echo $cat->site_development_id." ";
+//        }
+//dd();
         foreach ($categories as $category) {
             $finalArray = [];
             $site_developement_id = $category->site_development_id;
