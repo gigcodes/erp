@@ -146,13 +146,14 @@
 							<div class="form-group" style="margin-right:10px;">
 								<?php /* <label for="keyword">Search keyword:</label> */?>
 								<?php //echo Form::text("k", request("k"), ["class" => "form-control", "placeholder" => "Search keyword", "id" => "enter-keyword"]) ?>
+
 								<select class="form-control globalSelect2" name="k" id="k">
 									<option selected value=''>Please Select</option>
-									 @foreach($categories as $key=>$all_cat) 
-									 @if(request()->k==$all_cat->title) 
-										<option selected value="{{$all_cat->title}}">{{$all_cat->title}}</option>
+									 @foreach($filter_category as $key => $all_cat)
+									 @if(request()->k == $all_cat)
+										<option selected value="{{$all_cat}}">{{$all_cat}}</option>
 									 @else 
-										<option  value="{{$all_cat->title}}">{{$all_cat->title}}</option>
+										<option  value="{{$all_cat}}">{{$all_cat}}</option>
 									 @endif
 									
 									@endforeach
@@ -218,6 +219,7 @@
 						<tr>
 							<th width="4%">S No</th>
 							<th width="15%"></th>
+							<th width="15%">Website</th>
 							<th width="12%">Master Category</th>
 							<th width="12%">Remarks</th>
 							<th width="12%">Assign To</th>
