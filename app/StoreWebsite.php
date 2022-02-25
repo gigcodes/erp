@@ -192,4 +192,14 @@ class StoreWebsite extends Model
     {
         return self::where("website_source","magento")->pluck("website", "id")->toArray();
     }
+
+    function getSiteDevelopment($id, $category_id)
+    {
+        $self = self::class;
+        $data = \App\SiteDevelopment::where(['site_development_category_id'=> $category_id, 'website_id' => $id])->first();
+        if(!empty($data) && $data->status !== 0){
+            return true;
+        }
+        return false;
+    }
 }

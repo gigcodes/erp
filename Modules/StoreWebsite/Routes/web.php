@@ -313,5 +313,9 @@ Route::prefix('country-group')->group(function () {
         Route::get('delete', 'CountryGroupController@delete')->name('store-website.country-group.delete');
     });
 });
+
+Route::prefix('site-assets')->group(function () {
+    Route::get('/', 'SiteAssetController@index')->name('site-asset.index');
+ }); 
 });
 
