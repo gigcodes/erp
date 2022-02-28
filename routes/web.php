@@ -1975,6 +1975,7 @@ Route::post('twilio/get-waiting-call-list', 'TwilioController@getWaitingCallList
 Route::post('twilio/leave_message_rec', 'TwilioController@leave_message_rec')->name('leave_message_rec');
 Route::any('twilio/completed', 'TwilioController@completed')->name('completed');
 Route::any('twilio/saverecording', 'TwilioController@saveRecording')->name('saveRecording');
+Route::post('twilio/update-reservation-status', 'TwilioController@updateReservationStatus')->name('update_reservation_status');
 
 Route::get(
     '/twilio/hangup',
