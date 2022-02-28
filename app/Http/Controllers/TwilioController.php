@@ -1109,10 +1109,11 @@ class TwilioController extends FindByNumberController
         $task = clone $twilio;
 
         if($request->get('EventType') == "reservation.created") {
+
             $workerAttributes = json_decode($request->get('WorkerAttributes'));
+            $agentId = str_replace("client:customer_call_agent_","",$workerAttributes->contact_uri);
             
-            $agentId = str_replace("client:customer_call_agent_","",$workerAttributes->client_uri);
-            
+            TwilioLog::create(['log' => 'Reservation Created for Agent ' . $agentId, 'account_sid'=>0 , 'call_sid'=>0 , 'phone'=>0 ]); 
             TwilioDequeueCall::updateOrCreate([
                 'agent_id' => $agentId,
             ], [
