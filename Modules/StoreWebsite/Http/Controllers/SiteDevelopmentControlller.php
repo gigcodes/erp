@@ -22,6 +22,7 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\TaskCategory;
+use App\StoreWebsiteImage;
 
 use App\Http\Controllers\TaskModuleController;
 
@@ -1023,5 +1024,49 @@ class SiteDevelopmentController extends Controller
         return response()->json(['message' => "Status updated successfully", 'status' => $allStatus, 'site' => $site]);
     }
 
+    public function checkSiteAsset(Request $request)
+    {
+        $checkSite = SiteDevelopment::find($request->siteDevelopmentId);
+        if(!empty($checkSite)){
+            return response()->json(["code" => 200, "status" => $checkSite->is_site_asset]);
+        }else{
+            return response()->json(["code" => 404, "status" => 'Data Not Found']);
+        }
+        
+    }
+
+    public function setSiteAsset(Request $request)
+    {
+        $checkSite = SiteDevelopment::find($request->siteDevelopmentId);
+        if(!empty($checkSite)){
+            $checkSite->is_site_asset = $request->status;
+            $checkSite->save();
+            return response()->json(["code" => 200, "status" => "Data Updated Successully"]);
+        }else{
+            return response()->json(["code" => 404, "status" => 'Site Development Data Not Found']);
+        }
+        
+    }
+
+    public function saveSiteAssetData(Request $request)
+    {
+        if($request->ajax()){
+            $data = array(
+                'store_website_id' => $request->siteDevelopmentId,
+                'category_id' => $request->categoryId,
+                'media_id' => $request->media_id,
+                'media_type' => $request->media_type,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            );
+            $id = StoreWebsiteImage::create($data);
+            if($id){
+                return response()->json(["code" => 200, "status" => "Data Updated Successully"]);
+            }
+            return response()->json(["code" => 500, "status" => "Unable to store"]);
+        }
+        return response()->json(["code" => 404, "status" => 'Method Invocation is invalid']);
+        
+    }
     
 }
