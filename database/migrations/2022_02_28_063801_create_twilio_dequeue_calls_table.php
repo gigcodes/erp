@@ -14,7 +14,7 @@ class CreateTwilioDequeueCallsTable extends Migration
     public function up()
     {
         Schema::create('twilio_dequeue_calls', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->unsignedBigInteger('agent_id');
             $table->string('account_sid');
             $table->string('workspace_sid');
