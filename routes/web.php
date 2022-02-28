@@ -3561,6 +3561,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
 Route::get('chatbot-message-log', 'ChatbotMessageLogsController@index')->name('chatbot.messages.logs');
+Route::get('chatbot-type-error-log', 'ChatbotTypeErrorLogController@index')->name('chatbot.type.error.log');
 Route::post('pushwaston', 'ChatbotMessageLogsController@pushwaston');
 
 Route::get('sync-to-watson', 'ChatbotMessageLogsController@pushQuickRepliesToWaston');

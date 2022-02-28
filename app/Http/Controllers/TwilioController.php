@@ -71,7 +71,7 @@ use App\TwilioAccountLog;
 use App\TwilioWebhookError;
 use Validator;
 use App\TwilioCondition;
-
+use App\ChatbotTypeErrorLog;
 /**
  * Class TwilioController - active record
  * 
@@ -1464,6 +1464,13 @@ class TwilioController extends FindByNumberController
 				   'Invalid Input '.$recordedText,
 					['voice' => 'alice', 'language' => 'en-GB']
 				);
+                ChatbotTypeErrorLog::create(
+                    ['store_website_id'=> $storewebsitetwiliono_data->store_website_id, 
+                     'chatbot_id'=> $reply->id,
+                     'phone_number'=> ($request->input("From") ?? 0), 
+                     'type_error'=> 'Invalid Input '.$recordedText]
+                );
+
 			} else {
 				$response->Say(
 				   str_replace('_', ' ', $reply),
