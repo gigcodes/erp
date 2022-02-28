@@ -532,6 +532,37 @@
         });
     });
 
+$('.save_twilio_greeting_message').on("click", function(e){
+    var message = $('#welcome_message').val();
+    var website_id = $('.store_website_twilio_key').val();
+   
+    if(message == '')
+    {
+        toastr['error']('Please enter message');
+        return false;
+    }
+
+    $.ajax({
+        type: "POST",
+        url: "{{ route('twilio.set_twilio_greeting_message') }}",  
+        data: {
+            _token: "{{csrf_token()}}",
+            welcome_message:message,
+            website_store_id:website_id
+        },
+        success: function (response) {
+            if(response.status == 1){
+                toastr['success'](response.message);
+            }else if(response.status == 0){
+                toastr['error'](response.message);
+            }
+        },
+        error: function (response) { 
+            
+        }
+    }); 
+});
+
     $('#twilio_key_option_modal').on('hidden.bs.modal', function () {
         $(".store_website_twilio_key_data").addClass("d-none");
         $("#welcome_message_div").addClass("d-none");
