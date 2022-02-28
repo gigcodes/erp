@@ -1473,11 +1473,17 @@ class TwilioController extends FindByNumberController
 					   'Invalid Input '.$recordedText,
 						['voice' => 'alice', 'language' => 'en-GB']
 					);
+					TwilioLog::create(
+						['log'=>'Speech - '.$recordedText.'<br> Response - Invalid input', 'account_sid'=> ($request->input("AccountSid") ?? 0),'call_sid'=>($request->input("CallSid") ?? 0), 'phone'=>($request->input("From") ?? 0), 'type'=>'speech']
+					);
 				} else {
-					$questions = ChatbotQuestion::where('category_id', catId)->pluck()->toArray();
+					$questions = ChatbotQuestion::where('category_id', $catId)->pluck()->toArray();
 					$response->Say(
 					   'Please choose from below sub options '.str_replace('_', ' ', implode('  ', $questions)),
 						['voice' => 'alice', 'language' => 'en-GB']
+					);
+					TwilioLog::create(
+						['log'=>'Speech - '.$recordedText.'<br> Response - '. json_encode($questions), 'account_sid'=> ($request->input("AccountSid") ?? 0),'call_sid'=>($request->input("CallSid") ?? 0), 'phone'=>($request->input("From") ?? 0), 'type'=>'speech']
 					);
 				}
 				
@@ -1486,10 +1492,11 @@ class TwilioController extends FindByNumberController
 				   str_replace('_', ' ', $reply),
 					['voice' => 'alice', 'language' => 'en-GB']
 				);
+				TwilioLog::create(
+					['log'=>'Speech - '.$recordedText.'<br> Response - '. $reply, 'account_sid'=> ($request->input("AccountSid") ?? 0),'call_sid'=>($request->input("CallSid") ?? 0), 'phone'=>($request->input("From") ?? 0), 'type'=>'speech']
+				);
 			}
-			TwilioLog::create(
-				['log'=>'Speech - '.$recordedText.'<br> Response - '. $reply, 'account_sid'=> ($request->input("AccountSid") ?? 0),'call_sid'=>($request->input("CallSid") ?? 0), 'phone'=>($request->input("From") ?? 0), 'type'=>'speech']
-			);
+			
 			$response->redirect(route('ivr', ['count'=>2], false));				
 			return $response;
 		}
