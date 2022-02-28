@@ -36,9 +36,12 @@ class SiteDevelopmentController extends Controller
         $masterCategories = SiteDevelopmentMasterCategory::pluck('title', 'id')->toArray();
         $designDevCategories = SiteDevelopmentMasterCategory::where('title', 'Design')->orWhere('title', 'Functionality')->pluck('title', 'id')->toArray();
         //Getting Website Details
-        $website = StoreWebsite::find(1);
+//        $website = StoreWebsite::find(1);
+        $website = null;
 
         if($id!='all') {
+            $website = StoreWebsite::find($id);
+
             $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id' , 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC limit 1) as site_development_id'),'store_websites.website');
         } else {
 //            $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id ORDER BY created_at DESC limit 1) as site_development_id'));

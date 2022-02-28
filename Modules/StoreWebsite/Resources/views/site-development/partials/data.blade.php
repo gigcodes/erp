@@ -7,7 +7,7 @@
     @endphp 
 	 @foreach($categories as $key => $category) 
     <?php
-    $site = $category->getDevelopment($category->id, $website->id, $category->site_development_id);//
+    $site = $category->getDevelopment($category->id, isset($website) ? $website->id : null, $category->site_development_id);//
 
     if ($isAdmin || $hasSiteDevelopment || ($site && $site->developer_id == $userId)) {
     ?>
@@ -24,15 +24,15 @@
               <div style="display: flex;float: right">  <button onclick="editCategory({{$category->id}})" style="background-color: transparent;border: 0;margin-top:0px;" class="pl-0"><i class="fa fa-edit"></i></button>
 
 
-                <!-- <input class="fa-ignore-category" type="checkbox" data-onstyle="secondary" data-category-id="{{$category->id}}" data-site-id="@if($website) {{ $website->id }} @endif" <?php echo (request('status') == 'ignored') ? "checked" : "" ?>
+                <!-- <input class="fa-ignore-category" type="checkbox" data-onstyle="secondary" data-category-id="{{$category->id}}" data-site-id="{{ isset($website) ? $website->id : '' }}" <?php echo (request('status') == 'ignored') ? "checked" : "" ?>
                 data-on="Allow" data-off="Disallow"
                 data-toggle="toggle" data-width="90"> -->
                 @if(request('status') == 'ignored')
-                <button style="padding:0px;" type="button" class="btn btn-image fa-ignore-category pl-0 mt-0" data-category-id="{{$category->id}}" data-site-id="@if($website) {{ $website->id }} @endif" data-status="1">
+                <button style="padding:0px;" type="button" class="btn btn-image fa-ignore-category pl-0 mt-0" data-category-id="{{$category->id}}" data-site-id="{{ isset($website) ? $website->id : '' }}" data-status="1">
                     <i class="fa fa-ban" aria-hidden="true" style="color:red;"></i>
                 </button>
                 @else
-                <button style="padding:0px;" type="button" class="btn btn-image fa-ignore-category pl-0" data-category-id="{{$category->id}}" data-site-id="@if($website) {{ $website->id }} @endif" data-status="0">
+                <button style="padding:0px;" type="button" class="btn btn-image fa-ignore-category pl-0" data-category-id="{{$category->id}}" data-site-id="{{ isset($website) ? $website->id : '' }}" data-status="0">
                     <i class="fa fa-ban" aria-hidden="true"></i>
                 </button>
                 @endif
@@ -55,7 +55,7 @@
             </td>
 			<td class="pt-0 pr-2">
 				<div class="col-md-12 mb-1 p-0 d-flex  pt-2 mt-1">
-					 <input style="margin-top: 0px;width:auto !important;" type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="remark_{{$key}}" data-catId="{{ $category->id }}" data-siteId="@if($site){{ $site->id }}@endif" data-websiteId="@if($website) {{ $website->id }} @endif" >
+					 <input style="margin-top: 0px;width:auto !important;" type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="remark_{{$key}}" data-catId="{{ $category->id }}" data-siteId="@if($site){{ $site->id }}@endif" data-websiteId="{{ isset($website) ? $website->id : '' }}" >
 					 <div style="margin-top: 0px;" class="d-flex p-0">
 						<button class="btn pr-0 btn-xs btn-image " onclick="saveRemarks({{$key}})"><img src="/images/filled-sent.png" /></button>
 					 </div>
@@ -129,7 +129,7 @@
 			</td> 
 		
             <td style="display:none;">
-                <input type="hidden" id="website_id" value="@if($website) {{ $website->id }} @endif">
+                <input type="hidden" id="website_id" value="{{ isset($website) ? $website->id : ''}}">
                 <input style="margin-top: 0;" type="text" class="form-control save-item" data-category="{{ $category->id }}" data-type="title" value="@if($site){{ $site->title }}@endif" data-site="@if($site){{ $site->id }}@endif">
                 <form>
                     <label class="radio-inline">
@@ -184,14 +184,14 @@
             </td>
            
             <td class="pt-1">
-                <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-upload pd-5">
+                <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="{{ isset($website) ? $website->id : '' }} " class="btn btn-file-upload pd-5">
                     <i class="fa fa-upload" aria-hidden="true"></i>
                 </button>
                 @if($site)
-                <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-list pd-5">
+                <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="{{ isset($website) ? $website->id : '' }}" class="btn btn-file-list pd-5">
                     <i class="fa fa-list" aria-hidden="true"></i>
                 </button>
-                <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-store-development-remark pd-5">
+                <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="{{ isset($website) ? $website->id : '' }}" class="btn btn-store-development-remark pd-5">
                     <i class="fa fa-comment" aria-hidden="true"></i>
                 </button>
                 <button type="button" title="Artwork status history" class="btn artwork-history-btn pd-5" data-id="@if($site){{ $site->id }}@endif">
