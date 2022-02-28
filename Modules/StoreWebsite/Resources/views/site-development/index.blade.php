@@ -773,7 +773,6 @@ $(document).on('change', '.assign-user', function () {
 		 if($("#task_asssigned_to").val()!=""){
 			 var copy_from_website=$('#copy_from_website').val();
 			 var copy_to_website=$('#select_website_for_task_assign_id').val();
-			 alert(copy_to_website);
 			$("#confirmMessageModal").modal("hide");
 			$.ajax({
 				url: '{{ route('site-development.copy.task') }}',
