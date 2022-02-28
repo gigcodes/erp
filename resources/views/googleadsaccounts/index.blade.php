@@ -47,7 +47,7 @@
     <form method="get" action="/google-campaigns/ads-account/create">
         <button type="submit" class="float-right custom-button btn  custom-button mb-3">New Account</button>
     </form>
-    <button type="button" class="float-right custom-button btn mb-3 mr-3" data-toggle="modal" data-target="#refreshTokenModal">Generate Refresh Token</button>
+    <button type="button" class="float-right custom-button btn mb-3 mr-3" data-toggle="modal" data-target="#refreshTokenModal">Generate Access/Refresh Token</button>
 
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="adsaccount-table">
@@ -92,7 +92,7 @@
             <form action="{{ route('googleadsaccount.refresh_token') }}" method="POST">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Generate Refresh Token</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Generate Access/Refresh Token</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                     </button>

@@ -17,14 +17,24 @@
 <div class="container " style="max-width: 100%;width: 100%;">
     <div class="row">
     <div class="col-md-12 p-0">
-    <h4 class="page-heading">Google AdWords Account Refresh Token </h4>
+    <h4 class="page-heading">Google AdWords Account Access/Refresh Token </h4>
     </div>
     </div>
     <div class="pull-left">
         <div class="form-group">
             <div class="row"> 
                 <div class="col-md-12">
-                    Please update this refresh token <strong style="color: #0037ff">{{ $refresh_token }}</strong> details in adsapi_php.ini file with client id & client secret key received from google cloud console.
+                    Please update these tokens details in adsapi_php.ini file with client id & client secret key received from google cloud console.
+                </div>
+            </div>
+            <div class="row"> 
+                <div class="col-md-12">
+                    Refresh Token is <strong style="color: #0037ff">{{ $refresh_token }}</strong> 
+                </div>
+            </div>
+            <div class="row"> 
+                <div class="col-md-12">
+                    Access token is <strong style="color: #0037ff">{{ $access_token }}</strong>
                 </div>
             </div>
             <div class="row mt-4"> 

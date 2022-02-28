@@ -191,9 +191,9 @@ class GoogleAdsAccountController extends Controller
             $authToken = $oauth2->fetchAuthToken(); 
             Session::forget('client_secret');
             Session::forget('client_id');
-            return view('googleadsaccounts.view_refresh_token',['refresh_token'=>$authToken['refresh_token']]);
+            return view('googleadsaccounts.view_token',['refresh_token'=>$authToken['refresh_token'], 'access_token' => $authToken['access_token']]);
         }else{
-            return redirect('/google-campaigns/ads-account')->with('message','Unable to Get Referesh Token ');
+            return redirect('/google-campaigns/ads-account')->with('message','Unable to Get Tokens ');
         }
 
     }
