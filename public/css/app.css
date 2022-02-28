@@ -11471,10 +11471,16 @@ table.table-striped-custom tbody tr td {
 }
 #app{
     overflow: hidden;
+}
 #reply_history_div tbody tr:hover .Website-task, #quick-reply-list tbody tr:hover .Website-task{
     overflow: visible;
     white-space: normal;
     word-break: break-all;
+}
+tbody tr:hover .Website-task{
+    overflow: visible !important;
+    white-space: normal !important;
+    word-break: break-all; 
 }
 
 #app{
