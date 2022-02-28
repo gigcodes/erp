@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
 use stdClass;
+use Google\Auth\CredentialsLoader;
+use Google\Auth\OAuth2;
+use Session;
 
 class GoogleAdsAccountController extends Controller
 {
@@ -120,5 +123,78 @@ class GoogleAdsAccountController extends Controller
         $googleadsAc->fill($accountArray);
         $googleadsAc->save();
         return redirect()->to('/google-campaigns/ads-account')->with('actSuccess', 'GoogleAdwords account details added successfully');
+    }
+
+    /*
+    * used to get google refresh token for ads
+    */
+    public function refreshToken(Request $request){
+        $google_redirect_url = route('googleadsaccount.get-refresh-token');
+
+        $PRODUCTS = [
+            ['AdWords API', config('google.GOOGLE_ADS_WORDS_API_SCOPE')],
+            ['Ad Manager API', config('google.GOOGLE_ADS_MANAGER_API_SCOPE')],
+            ['AdWords API and Ad Manager API', config('google.GOOGLE_ADS_WORDS_API_SCOPE') . ' '
+                . config('google.GOOGLE_ADS_MANAGER_API_SCOPE')]
+        ];
+
+        $client_id = $request->client_id;
+        $client_secret = $request->client_secret;
+        Session::put('client_id', $client_id);
+        Session::put('client_secret', $client_secret);
+        
+
+        $api = intval(2);
+
+        $scopes = $PRODUCTS[$api][1];
+
+        $oauth2 = new OAuth2( 
+            [
+                'authorizationUri' => config('google.GOOGLE_ADS_AUTHORIZATION_URI'),
+                'redirectUri' => $google_redirect_url,
+                'tokenCredentialUri' => CredentialsLoader::TOKEN_CREDENTIAL_URI,
+                'clientId' => $client_id,
+                'clientSecret' => $client_secret,
+                'scope' => $scopes
+            ]
+        );
+        
+        header('Location: '.$oauth2->buildFullAuthorizationUri());
+    }
+
+    /*
+    * Refresh token Redirect API
+    */
+    public function getRefreshToken(Request $request){
+        $google_redirect_url = route('googleadsaccount.get-refresh-token');
+        $api = intval(2);
+        $PRODUCTS = [
+            ['AdWords API', config('google.GOOGLE_ADS_WORDS_API_SCOPE')],
+            ['Ad Manager API', config('google.GOOGLE_ADS_MANAGER_API_SCOPE')],
+            ['AdWords API and Ad Manager API', config('google.GOOGLE_ADS_WORDS_API_SCOPE') . ' '
+                . config('google.GOOGLE_ADS_MANAGER_API_SCOPE')]
+        ];
+        $scopes = $PRODUCTS[$api][1];
+        $oauth2 = new OAuth2( 
+            [
+                'authorizationUri' => config('google.GOOGLE_ADS_AUTHORIZATION_URI'),
+                'redirectUri' => $google_redirect_url,
+                'tokenCredentialUri' => CredentialsLoader::TOKEN_CREDENTIAL_URI,
+                'clientId' => Session::get('client_id'),
+                'clientSecret' => Session::get('client_secret'),
+                'scope' => $scopes
+            ]
+        );
+        if($request->code) {
+            $code = $request->code;  
+            $oauth2->setCode($code);
+            $authToken = $oauth2->fetchAuthToken(); 
+            Session::forget('client_secret');
+            Session::forget('client_id');
+            return view('googleadsaccounts.view_refresh_token',['refresh_token'=>$authToken['refresh_token']]);
+        }else{
+            return redirect('/google-campaigns/ads-account')->with('message','Unable to Get Referesh Token ');
+        }
+
     }
 }
