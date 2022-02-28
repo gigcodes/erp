@@ -71,6 +71,7 @@ use App\TwilioAccountLog;
 use App\TwilioWebhookError;
 use Validator;
 use App\TwilioCondition;
+use App\TwilioDequeueCall;
 
 /**
  * Class TwilioController - active record
@@ -1104,6 +1105,23 @@ class TwilioController extends FindByNumberController
         $activity = clone $twilio;
         $task = clone $twilio;
 
+        if($request->get('EventType') == "reservation.created") {
+            $workerAttributes = json_decode($request->get('WorkerAttributes'));
+            
+            $agentId = str_replace("client:customer_call_agent_","",$workerAttributes->client_uri);
+            
+            TwilioDequeueCall::updateOrCreate([
+                'agent_id' => $agentId,
+            ], [
+                'account_sid' => $request->get('AccountSid'),
+                'workspace_sid' => $request->get('WorkspaceSid'),
+                'taskqueue_sid' => $request->get('TaskQueueSid'),
+                'worker_sid' => $request->get('WorkerSid'),
+                'task_sid' => $request->get('TaskSid'),
+                'reservation_sid' => $request->get('ReservationSid'),
+            ]);
+        }
+
         if($request->get('EventType') == "reservation.canceled" || $request->get('EventType') == "reservation.rejected") {        
             TwilioCallWaiting::where("call_sid",json_decode($request->get("TaskAttributes"))->call_sid)->delete();
         }
@@ -1162,6 +1180,25 @@ class TwilioController extends FindByNumberController
         
         return response($dequeueInstructionJson)
             ->header('Content-Type', 'application/json');
+    }
+
+    public function updateReservationStatus(Request $request)
+    {
+        TwilioLog::create(['log' => "Incoming Call Reject by Agent ". $request->get('authid'), 'account_sid'=>0 , 'call_sid'=>0 , 'phone'=>0 ]);
+        $agent = TwilioDequeueCall::where('agent_id', Auth::id())->first();
+        $cred = TwilioCredential::where('account_id', $agent->account_sid)->first();
+    
+        $twilio = new Client($cred->account_id, $cred->auth_token);
+
+        $reservation = $twilio->taskrouter->v1->workspaces($agent->workspace_sid)
+                                      ->tasks($agent->task_sid)
+                                      ->reservations($agent->reservation_sid)
+                                      ->update([
+                                          "reservationStatus" => "rejected"
+                                          ]
+                                        );
+                                        
+        TwilioLog::create(['log' => "Task Reservation Rejected by ". $reservation->workerName . " >>> " . json_encode($agent->toArray()), 'account_sid'=>0 , 'call_sid'=>0 , 'phone'=>0 ]);
     }
 
     public function waitUrl(Request $request)

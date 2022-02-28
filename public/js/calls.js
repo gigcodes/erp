@@ -326,6 +326,17 @@
 						},
 					})
 
+					$.ajax({
+						url: '/twilio/update-reservation-status',
+						type: 'POST',
+						dataType: 'json',
+						data: {
+							_token: "{{ csrf_token() }}",
+							authid : auth_id,
+							number : conn.parameters.From,
+						},
+					})
+
 					conn.reject();
 				});
 			});
