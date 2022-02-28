@@ -235,3 +235,4 @@ wiseboutique.js
 wok.js
 coccole.js
 Da-LInea.js
+13metriquadri.js
