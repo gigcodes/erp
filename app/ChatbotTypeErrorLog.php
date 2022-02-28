@@ -19,5 +19,15 @@ class ChatbotTypeErrorLog extends Model
      * @SWG\Property(property="created_at",type="datetime")
      * @SWG\Property(property="updated_at",type="datetime")
      */
-    protected $fillable = ['store_website_id', 'chatbot_id', 'phone_number', 'type_error', 'created_at', 'updated_at'];
+    protected $fillable = ['id','store_website_id', 'chatbot_id', 'phone_number', 'type_error', 'created_at', 'updated_at'];
+
+    public function storeWebsite()
+    {
+        return $this->hasOne(StoreWebsite::class, 'store_website_id', "id");
+    }
+
+    public function chatbotQuestionName() 
+    {
+        return $this->hasOne(ChatbotQuestion::class, "chatbot_id", "id");
+    }
 }

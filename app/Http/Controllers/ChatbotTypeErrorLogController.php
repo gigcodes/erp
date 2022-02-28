@@ -15,13 +15,16 @@ class ChatbotTypeErrorLogController extends Controller
     public function index(request $request)
     {
         $query = ChatbotTypeErrorLog::query();
+        $query =  $query->select('chatbot_type_error_logs.id AS chatId', 'chatbot_type_error_logs.type_error', 'store_websites.website','chatbot_type_error_logs.phone_number', 'chatbot_questions.value');
+        $query =  $query->leftJoin('store_websites', 'store_websites.id', '=', 'chatbot_type_error_logs.store_website_id');
+        $query =  $query->leftJoin('chatbot_questions', 'chatbot_questions.id', '=', 'chatbot_type_error_logs.chatbot_id');
         if($request->id){
-			$query = $query->where('id', $request->id);
+			$query = $query->where('chatbot_type_error_logs.id', $request->id);
 		}
         if($request->type != null) {
-            $query = $query->where('type', $request->type);
+            $query = $query->where('chatbot_type_error_logs.type_error', $request->type);
         }
-		$data = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
+		$data = $query->orderBy('chatbot_type_error_logs.id', 'asc')->paginate(25)->appends(request()->except(['page']));
 		if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('chatboat-type-error-log.index_ajax', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
@@ -29,7 +32,7 @@ class ChatbotTypeErrorLogController extends Controller
                 'count' => $data->total(),
             ], 200);
         }
-        $data = [];
+        
 		return view('chatboat-type-error-log.index', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5);
     }
 

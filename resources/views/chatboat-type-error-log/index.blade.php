@@ -72,23 +72,46 @@
       <table id="magento_list_tbl_895" class="table table-bordered table-hover">
         <thead>
           <th >ID</th>
+          <th>Type</th>
           <th>Store Website id</th>
           <th>Chatbot id</th>
           <th>Phone Number</th>
+          
         </thead>
         <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
+          
           @foreach($data as $item)
-            <tr id="tr_{{$item->id}}">
-              <td>{{ $item->id }}</td>
-              <td>{{$item->store_website_id}} </td>
-              <td>{{$item->chatbot_id}}</td>
+            <tr id="tr_{{$item->chatId}}">
+              <td>{{ $item->chatId }}</td>
+              <td>{{$item->type_error}}</td>
+              <td>{{$item->website}} </td>
+              <td>{{$item->value}}</td>
               <td>{{$item->phone_number}}</td>
+              {{-- <td>
+                {!! Form::open(['method' => 'GET','route' => ['chatbot.type.error.log'],'style'=>'display:inline']) !!}
+                <input type="hidden" value="{{$item->chatId}}" name="id">
+                <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
+                {!! Form::close() !!}
+                <a href="javascript:;" class="btn btn-image get-details" data-id="{{$item->chatId}}"><img src="/images/view.png" style="cursor: nwse-resize;"></a>
+            </td> --}}
             </tr>
           @endforeach
+          
         </tbody>
       </table>
+      {!! $data->render() !!}
     </div>   
    </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+      <div class="alert alert-success" id="alert-msg" style="display: none;">
+          <p></p>
+      </div>
+  </div>
+</div>
+<div class="col-md-12 margin-tb" id="page-view-result">
+
 </div>
 @endsection
 
@@ -104,6 +127,12 @@ $.ajaxSetup({
 	}
 
 </script>
-
+<script src="/js/jquery-ui.js"></script>
+<script type="text/javascript">
+  page.init({
+      bodyView : $("#common-page-layout"),
+      baseUrl : "<?php echo url("/"); ?>"
+  });
+</script>
 
 @endsection
