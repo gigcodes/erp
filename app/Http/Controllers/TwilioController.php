@@ -72,6 +72,7 @@ use App\TwilioWebhookError;
 use Validator;
 use App\TwilioCondition;
 use App\ChatbotCategory;
+use App\ReplyCategory;
 
 /**
  * Class TwilioController - active record
@@ -300,7 +301,7 @@ class TwilioController extends FindByNumberController
      */
 	 
 	public function ivr(Request $request)
-    {
+    {  
         $conditionsWithIds = TwilioCondition::where('status', 1)->pluck('id', 'condition')->toArray();
         $conditions = array_keys($conditionsWithIds);
 
@@ -309,8 +310,7 @@ class TwilioController extends FindByNumberController
 		$account_sid = $request->get("AccountSid");
 		TwilioLog::create(['log'=>'Call received.', 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
         //Log::channel('customerDnd')->info('Showing user profile for IVR: ');
-		
-        $count = $request->get("count");
+		 $count = $request->get("count");
         $call_with_agent = ($request->get("call_with_agent") != null ? $request->get("call_with_agent") : 0);
 
         TwilioLog::create(['log'=>'Call with agent:'.$call_with_agent, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
@@ -325,7 +325,11 @@ class TwilioController extends FindByNumberController
 		Log::channel('customerDnd')->info('object:: '.$object);
         
         $store_website_id = (isset($object->store_website_id) ? $object->store_website_id : 0 );
-
+		$welcomeMessage = StoreWebsite::where('id', $store_website_id)->pluck('twilio_greeting_message')->first();
+		if($welcomeMessage == null) {
+			$welcomeMessage = "Welcome";
+		}
+       
         TwilioLog::create(['log'=>'call received on store_website_id: '.$store_website_id, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
         //Log::channel('customerDnd')->info('store_website_id: '.$store_website_id);
 
@@ -636,7 +640,7 @@ class TwilioController extends FindByNumberController
                         if(isset($storewebsitetwiliono_data->message_busy)  && in_array('message_busy', $conditions) && $storewebsitetwiliono_data->message_busy != '')
                             $response->Say($storewebsitetwiliono_data->message_busy);
                         else
-                            $response->Say("Greetings & compliments of the day from solo luxury. the largest online shopping destination where your class meets authentic luxury for your essential pleasures. Your call will be answered shortly.");
+                           $response->Say($welcomeMessage);
 
                         $count++;
                         TwilioLog::create(['log'=>'call attempt count '.$count, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
@@ -659,7 +663,7 @@ class TwilioController extends FindByNumberController
 						'action' => route('twilio_call_menu_response', [], false)
 					]
 				);
-				$categories= ChatbotCategory::pluck('name')->toArray();
+				$categories= ReplyCategory::where('parent_id', 51)->pluck('name')->toArray();
 				
                 $in_message = 'Hello Please Speak any keyword on which you need information like Delivery or Shipping to hear 
 				more options about it listen to the following options  '.implode('  ', $categories);
@@ -964,7 +968,7 @@ class TwilioController extends FindByNumberController
                         if(isset($storewebsitetwiliono_data->message_busy) && in_array('message_busy', $conditions) && $storewebsitetwiliono_data->message_busy != '')
                             $response->Say($storewebsitetwiliono_data->message_busy);
                         else
-                            $response->Say("Greetings & compliments of the day from solo luxury. the largest online shopping destination where your class meets authentic luxury for your essential pleasures. Your call will be answered shortly.");
+                            $response->Say($welcomeMessage);
 
                         // $dial = $response->dial('',[
                         //     'record' => 'true',
@@ -1459,16 +1463,24 @@ class TwilioController extends FindByNumberController
 				//$recUrl = "https://erpdev3.theluxuryunlimited.com/audios/audio-file.flac"; 
 				$recordedText = (new CallBusyMessage)->convertSpeechToText($recUrl);
 			}
-			$reply = ChatbotQuestion::where(\DB::raw('lower(value)'), 'like', strtolower($recordedText))
-					->orWhere(\DB::raw('lower(value)'),'like', str_replace(' ', '_',strtolower($recordedText)))
-					->pluck('suggested_reply')->first();			
+			$catId = \App\ReplyCategory::where(\DB::raw('lower(name)'), 'like', strtolower($recordedText))
+					->orWhere(\DB::raw('lower(name)'),'like', str_replace(' ', '_',strtolower($recordedText)))
+					->where('parent_id', 51)
+					->pluck('id')->first();			
 			$response = new VoiceResponse();
 			
-			if($reply == '' || $reply == null) {
-				$catId = ChatbotCategory::where(\DB::raw('lower(name)'), 'like', strtolower($recordedText))
-					->orWhere(\DB::raw('lower(name)'),'like', str_replace(' ', '_',strtolower($recordedText)))
-					->pluck('id')->first();
-				if($catId == '' || $catId == null) {
+			if($catId == '' || $catId == null) {
+			   $reply = \App\ReplyCategory::join("replies","reply_categories.id","replies.category_id")
+						->leftJoin("store_websites","store_websites.id","replies.store_website_id")
+						->where("model","Store Website")
+						->where("replies.store_website_id", $store_website_id)
+						->where(function ($query) use($recordedText) {
+							$query->where(\DB::raw('lower(name)'), 'like', strtolower($recordedText))
+							->orWhere(\DB::raw('lower(name)'),'like', str_replace(' ', '_',strtolower($recordedText)));
+						})
+						->pluck("replies.reply")->first();
+
+				if($reply == '' || $reply == null) {
 					$response->Say(
 					   'Invalid Input '.$recordedText,
 						['voice' => 'alice', 'language' => 'en-GB']
@@ -1477,23 +1489,24 @@ class TwilioController extends FindByNumberController
 						['log'=>'Speech - '.$recordedText.'<br> Response - Invalid input', 'account_sid'=> ($request->input("AccountSid") ?? 0),'call_sid'=>($request->input("CallSid") ?? 0), 'phone'=>($request->input("From") ?? 0), 'type'=>'speech']
 					);
 				} else {
-					$questions = ChatbotQuestion::where('category_id', $catId)->pluck()->toArray();
+					//$questions = ChatbotQuestion::where('category_id', $catId)->pluck()->toArray();
 					$response->Say(
-					   'Please choose from below sub options '.str_replace('_', ' ', implode('  ', $questions)),
+					   $reply,
 						['voice' => 'alice', 'language' => 'en-GB']
 					);
 					TwilioLog::create(
-						['log'=>'Speech - '.$recordedText.'<br> Response - '. json_encode($questions), 'account_sid'=> ($request->input("AccountSid") ?? 0),'call_sid'=>($request->input("CallSid") ?? 0), 'phone'=>($request->input("From") ?? 0), 'type'=>'speech']
+						['log'=>'Speech - '.$recordedText.'<br> Response - '. $reply, 'account_sid'=> ($request->input("AccountSid") ?? 0),'call_sid'=>($request->input("CallSid") ?? 0), 'phone'=>($request->input("From") ?? 0), 'type'=>'speech']
 					);
 				}
 				
 			} else { 
+				$secondLevelCats = ReplyCategory::where('parent_id', $catId)->pluck('name')->toArray();
 				$response->Say(
-				   str_replace('_', ' ', $reply),
-					['voice' => 'alice', 'language' => 'en-GB']
+				    'Please choose from below sub options '.str_replace('_', ' ', implode('  ', $secondLevelCats)),
+					[ 'voice' => 'alice', 'language' => 'en-GB']
 				);
 				TwilioLog::create(
-					['log'=>'Speech - '.$recordedText.'<br> Response - '. $reply, 'account_sid'=> ($request->input("AccountSid") ?? 0),'call_sid'=>($request->input("CallSid") ?? 0), 'phone'=>($request->input("From") ?? 0), 'type'=>'speech']
+					['log'=>'Speech - '.$recordedText.'<br> Response - '. json_encode($secondLevelCats), 'account_sid'=> ($request->input("AccountSid") ?? 0),'call_sid'=>($request->input("CallSid") ?? 0), 'phone'=>($request->input("From") ?? 0), 'type'=>'speech']
 				);
 			}
 			
@@ -3352,13 +3365,20 @@ class TwilioController extends FindByNumberController
         }
     }
 
+   public function saveTwilioGreetingMessage(Request $request)
+    {
+        StoreWebsite::where('id', $request->get("website_store_id"))->update(['twilio_greeting_message'=>$request->get("welcome_message")]);
+		return new JsonResponse(['status' => 1, 'message' => 'Greeting message Set Successfully']);
+    }
+
+
     public function getTwilioKeyData(Request $request) {
 
         $keydata = TwilioKeyOption::where('website_store_id',$request->website_store_id)->get();
         $web_id = $request->website_store_id;
 
         $twilio_key_arr = array();
-
+		$html = "";
         if($keydata)
         {
             foreach($keydata as $key => $value){
@@ -3369,8 +3389,10 @@ class TwilioController extends FindByNumberController
             }
             
        
-            return view('twilio.twilio_key_data', compact('twilio_key_arr','web_id'));
-        }
+            $html = view('twilio.twilio_key_data', compact('twilio_key_arr','web_id'))->render();//dd( $html);
+		}
+		$greetingMessage = StoreWebsite::where('id', $request->website_store_id)->pluck('twilio_greeting_message')->first();
+		return ['html'=>$html, 'welcome_message'=>$greetingMessage];
     }
 
     public function setTwilioWorkSpace(Request $request){ 
@@ -3812,7 +3834,10 @@ class TwilioController extends FindByNumberController
 		if(isset($input['log'])) {
 			$twilioLogs = $twilioLogs->where('log', 'like', '%'. $input['log'].'%');
 		}
-		$twilioLogs = $twilioLogs->paginate(20);		
+		$twilioLogs = $twilioLogs->paginate(20);	
+
+	    $recordedText = "International delivery";
+				
 	    return view('twilio.erp_logs', compact('twilioLogs','input'));
     }
 	
