@@ -1265,7 +1265,9 @@ class TwilioController extends FindByNumberController
         $response = new VoiceResponse();
         if($count == 2) {
             $response->say('All agent are Busy. Please wait for your turn.');
-            $response->play(url('twilio-queue-music.mp3'));
+            // $response->play(url('twilio-queue-music.mp3'));
+            $response->play('https://twilio.theluxuryunlimited.com/twilio-queue-music.mp3');
+
             $count++;
             $response->redirect(route('waiturl', ['count' => $count], false));
         } else if ($count == 3) {
@@ -1293,7 +1295,8 @@ class TwilioController extends FindByNumberController
             );
         } else if($count == 4) {
             // $response->play('http://com.twilio.sounds.music.s3.amazonaws.com/MARKOVICHAMP-Borghestral.mp3');
-            $response->play(url('twilio-queue-music.mp3'));
+            // $response->play(url('twilio-queue-music.mp3'));
+            $response->play('https://twilio.theluxuryunlimited.com/twilio-queue-music.mp3');
 
             $response->redirect(route('waiturl', ['count' => $count], false));
 
@@ -1301,7 +1304,8 @@ class TwilioController extends FindByNumberController
             $response->say('Thanks for leave a message, We will contact you soon');
             $response->hangup();
         } else {
-            $response->play(url('twilio-queue-music.mp3'));
+            // $response->play(url('twilio-queue-music.mp3'));
+            $response->play('https://twilio.theluxuryunlimited.com/twilio-queue-music.mp3');
             $count++;
             $response->redirect(route('waiturl', ['count' => $count], false));
         }
