@@ -124,15 +124,32 @@
                                         <label>Message when agent not available</label>
                                         <input type="text" class="form-control" name="message_not_available" id="message_not_available_1" value="{{ @$number->assigned_stores->message_not_available }}"/>
                                     </td>
-                                    <td colspan="3">
+                                    <td colspan="1">
                                         <label>Message when agent is busy</label>
                                         <input type="text" class="form-control" name="message_busy" id="message_busy_1" value="{{ @ $number->assigned_stores->message_busy }}"/>
                                     </td>
-                                    <td colspan="4">
+                                    <td colspan="2">
                                         <label>Message when Working Hours is Over</label>
                                         <input type="text" class="form-control" name="end_work_message" id="end_work_message_1" value="{{ @ $number->assigned_stores->end_work_message }}"/>
                                     </td>
-                                    <td colspan="3">
+									
+									<td colspan="2">
+                                        <label>Category Menu Message</label>
+                                        <input type="text" class="form-control" name="category_menu_message" id="category_menu_message_1" value="{{ @ $number->assigned_stores->category_menu_message }}"/>
+                                    </td>
+									
+									<td colspan="2">
+                                        <label>Sub Category Menu Message</label>
+                                        <input type="text" class="form-control" name="sub_category_menu_message" id="sub_category_menu_message_1" value="{{ @ $number->assigned_stores->sub_category_menu_message }}"/>
+                                    </td>
+									
+									
+									<td colspan="2">
+                                        <label>Message if Speech Response not available</label>
+                                        <input type="text" class="form-control" name="speech_response_not_available_message" id="speech_response_not_available_message_1" value="{{ @ $number->assigned_stores->speech_response_not_available_message }}"/>
+                                    </td>
+									
+                                    <td colspan="1">
                                         <button class="btn btn-sm btn-image save-number-to-store" id="save_1" data-number-id="{{ @ $number->id }}"><img src="/images/filled-sent.png" style="cursor: default;"></button>
                                     </td>
 
@@ -332,6 +349,14 @@
 						<label>Assignment Callback Url</label>
 							<input type="text" class="form-control " name="assignment_callback_url" placeholder="Assignment Callback Url"/>
 						</div>
+						<div class="col-md-2">
+                        <label>Task TimeOut</label>
+                            <input type="number" class="form-control " name="task_timeout" value="300"/>
+                        </div>
+                        <div class="col-md-2">
+                        <label>Worker Reservation TimeOut</label>
+                            <input type="number" class="form-control " name="worker_reservation_timeout" value="120"/>
+                        </div>
 						<div class="Twilio_Workflow_Model_btn"><button type="submit" class="btn btn-secondary">Create</button></div>
 					</form>
                 </div>
@@ -343,6 +368,8 @@
                             <th scope="col" class="text-center">Workflow Name</th>
                             <th scope="col" class="text-center">Fallback url</th>
                             <th scope="col" class="text-center">Callback url</th>
+                            <th scope="col" class="text-center">Task TimeOut</th>
+                            <th scope="col" class="text-center">Worker Reservation TimeOut</th>
                             <th scope="col" class="text-center">Action</th>
                         </tr>
                     </thead>
@@ -354,7 +381,16 @@
                                 <td>{{$val->workflow_name}}</td>
                                 <td>{{$val->fallback_assignment_callback_url}}</td>
                                 <td>{{$val->assignment_callback_url}}</td>
-                                <td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('delete-twilio-workflow')}}" data-id="{{$val->id}}" aria-hidden="true"></i></td>
+                                <td>
+                                    <input type="number" class="time-timeout-{{$val->id}}" value="{{$val->task_timeout}}">
+                                </td>
+                                <td>
+                                    <input type="number" class="worker-reservation-timeout-{{$val->id}}" value="{{$val->worker_reservation_timeout}}">
+                                </td>
+                                <td>
+                                    <i style="cursor: pointer;" class="fa fa-edit trigger-edit" data-route="{{route('edit-twilio-workflow')}}" data-id="{{$val->id}}" aria-hidden="true"></i>
+                                    <i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('delete-twilio-workflow')}}" data-id="{{$val->id}}" aria-hidden="true"></i>
+                                </td>
                            </tr>
                             @endforeach
                         @endif
@@ -558,6 +594,33 @@
 				
 			});
 		});
+
+        $('.trigger-edit').on('click', function(e) {
+			var id = $(this).attr('data-id');
+            var taskTimeout = $(`.time-timeout-${id}`).val();
+            var workerReservationTimeout = $(`.worker-reservation-timeout-${id}`).val();
+            e.preventDefault(); 
+			var option = { _token: "{{ csrf_token() }}", id:id, taskTimeout:taskTimeout, workerReservationTimeout:workerReservationTimeout};
+			var route = $(this).attr('data-route');
+			$("#loading-image").show();
+			$.ajax({
+				type: 'post',
+				url: route,
+				data: option,
+				success: function(response) {
+					$("#loading-image").hide();
+					if(response.code == 200) {
+                        toastr["success"](response.message); 
+                    }else if(response.statusCode == 500){
+                        toastr["error"](response.message);
+                    }
+				},
+				error: function(data) {
+					$("#loading-image").hide();
+					alert('An error occurred.');
+				}
+			});
+        });
 	
 		$('.trigger-delete').on('click', function(e) {
 			var id = $(this).attr('data-id');
@@ -643,7 +706,10 @@
                             html += '<td>'+response.data.workflow_name+'</td>';
                             html += '<td>'+response.data.fallback_assignment_callback_url+'</td>';
                             html += '<td>'+response.data.assignment_callback_url+'</td>';
-                            html += '<td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'" data-id="'+response.data.id+'" data-route="{{route('delete-twilio-workflow')}}" aria-hidden="true"></i></td>';
+                            html += '<td>'+response.data.task_timeout+'</td>';
+                            html += '<td>'+response.data.worker_reservation_timeout+'</td>';
+                            html += '<td><i style="cursor: pointer;" class="fa fa-edit trigger-edit" data-id="'+response.data.id+'" data-id="'+response.data.id+'" data-route="{{route('edit-twilio-workflow')}}" aria-hidden="true"></i>';
+                            html += '<i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'" data-id="'+response.data.id+'" data-route="{{route('delete-twilio-workflow')}}" aria-hidden="true"></i></td>';
                             html += '</tr>';
                             $('.workflow_list').append(html);
 						}else if(data.type == "taskQueueList") { 
@@ -705,6 +771,9 @@
                         'message_not_available' : $('#message_not_available_'+num_id).val(),
                         'message_busy' : $('#message_busy_'+num_id).val(),
                         'end_work_message' : $('#end_work_message_'+num_id).val(),
+                        'category_menu_message' : $('#category_menu_message_'+num_id).val(),
+                        'sub_category_menu_message' : $('#sub_category_menu_message_'+num_id).val(),
+                        'speech_response_not_available_message' : $('#speech_response_not_available_message_'+num_id).val(),
                         'credential_id' : credential_id,
                         "workspace_sid" :$('#workspace_sid_'+num_id).val()
                     }
