@@ -332,6 +332,14 @@
 						<label>Assignment Callback Url</label>
 							<input type="text" class="form-control " name="assignment_callback_url" placeholder="Assignment Callback Url"/>
 						</div>
+						<div class="col-md-2">
+                        <label>Task TimeOut</label>
+                            <input type="number" class="form-control " name="task_timeout" value="300"/>
+                        </div>
+                        <div class="col-md-2">
+                        <label>Worker Reservation TimeOut</label>
+                            <input type="number" class="form-control " name="worker_reservation_timeout" value="120"/>
+                        </div>
 						<div class="Twilio_Workflow_Model_btn"><button type="submit" class="btn btn-secondary">Create</button></div>
 					</form>
                 </div>
@@ -343,6 +351,8 @@
                             <th scope="col" class="text-center">Workflow Name</th>
                             <th scope="col" class="text-center">Fallback url</th>
                             <th scope="col" class="text-center">Callback url</th>
+                            <th scope="col" class="text-center">Task TimeOut</th>
+                            <th scope="col" class="text-center">Worker Reservation TimeOut</th>
                             <th scope="col" class="text-center">Action</th>
                         </tr>
                     </thead>
@@ -354,7 +364,16 @@
                                 <td>{{$val->workflow_name}}</td>
                                 <td>{{$val->fallback_assignment_callback_url}}</td>
                                 <td>{{$val->assignment_callback_url}}</td>
-                                <td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('delete-twilio-workflow')}}" data-id="{{$val->id}}" aria-hidden="true"></i></td>
+                                <td>
+                                    <input type="number" class="time-timeout-{{$val->id}}" value="{{$val->task_timeout}}">
+                                </td>
+                                <td>
+                                    <input type="number" class="worker-reservation-timeout-{{$val->id}}" value="{{$val->worker_reservation_timeout}}">
+                                </td>
+                                <td>
+                                    <i style="cursor: pointer;" class="fa fa-edit trigger-edit" data-route="{{route('edit-twilio-workflow')}}" data-id="{{$val->id}}" aria-hidden="true"></i>
+                                    <i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('delete-twilio-workflow')}}" data-id="{{$val->id}}" aria-hidden="true"></i>
+                                </td>
                            </tr>
                             @endforeach
                         @endif
@@ -558,6 +577,33 @@
 				
 			});
 		});
+
+        $('.trigger-edit').on('click', function(e) {
+			var id = $(this).attr('data-id');
+            var taskTimeout = $(`.time-timeout-${id}`).val();
+            var workerReservationTimeout = $(`.worker-reservation-timeout-${id}`).val();
+            e.preventDefault(); 
+			var option = { _token: "{{ csrf_token() }}", id:id, taskTimeout:taskTimeout, workerReservationTimeout:workerReservationTimeout};
+			var route = $(this).attr('data-route');
+			$("#loading-image").show();
+			$.ajax({
+				type: 'post',
+				url: route,
+				data: option,
+				success: function(response) {
+					$("#loading-image").hide();
+					if(response.code == 200) {
+                        toastr["success"](response.message); 
+                    }else if(response.statusCode == 500){
+                        toastr["error"](response.message);
+                    }
+				},
+				error: function(data) {
+					$("#loading-image").hide();
+					alert('An error occurred.');
+				}
+			});
+        });
 	
 		$('.trigger-delete').on('click', function(e) {
 			var id = $(this).attr('data-id');
@@ -643,7 +689,10 @@
                             html += '<td>'+response.data.workflow_name+'</td>';
                             html += '<td>'+response.data.fallback_assignment_callback_url+'</td>';
                             html += '<td>'+response.data.assignment_callback_url+'</td>';
-                            html += '<td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'" data-id="'+response.data.id+'" data-route="{{route('delete-twilio-workflow')}}" aria-hidden="true"></i></td>';
+                            html += '<td>'+response.data.task_timeout+'</td>';
+                            html += '<td>'+response.data.worker_reservation_timeout+'</td>';
+                            html += '<td><i style="cursor: pointer;" class="fa fa-edit trigger-edit" data-id="'+response.data.id+'" data-id="'+response.data.id+'" data-route="{{route('edit-twilio-workflow')}}" aria-hidden="true"></i>';
+                            html += '<i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'" data-id="'+response.data.id+'" data-route="{{route('delete-twilio-workflow')}}" aria-hidden="true"></i></td>';
                             html += '</tr>';
                             $('.workflow_list').append(html);
 						}else if(data.type == "taskQueueList") { 
