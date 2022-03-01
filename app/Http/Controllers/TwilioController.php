@@ -71,6 +71,7 @@ use App\TwilioAccountLog;
 use App\TwilioWebhookError;
 use Validator;
 use App\TwilioCondition;
+use App\ChatbotTypeErrorLog;
 use App\ChatbotCategory;
 use App\ReplyCategory;
 use App\TwilioDequeueCall;
@@ -1581,6 +1582,17 @@ class TwilioController extends FindByNumberController
 					   $in_message.$recordedText,
 						['voice' => 'alice', 'language' => 'en-GB']
 					);
+					
+					ChatbotTypeErrorLog::create(
+                    [
+					 'store_website_id'=> $storewebsitetwiliono_data->store_website_id, 
+                     'call_sid'=>  $CallSid,
+                     'phone_number'=> ($request->input("From") ?? 0), 
+                     'type_error'=> $recordedText,
+					 'is_active'=>1
+					]
+                );
+					
 					TwilioLog::create(
 						['log'=>'Speech - '.$recordedText.'<br> Response - Invalid input', 'account_sid'=> ($request->input("AccountSid") ?? 0),'call_sid'=>($request->input("CallSid") ?? 0), 'phone'=>($request->input("From") ?? 0), 'type'=>'speech']
 					);
@@ -1606,6 +1618,10 @@ class TwilioController extends FindByNumberController
 				    $in_message.str_replace('_', ' ', implode('  ', $secondLevelCats)),
 					[ 'voice' => 'alice', 'language' => 'en-GB']
 				);
+
+              
+
+		
 				TwilioLog::create(
 					['log'=>'Speech - '.$recordedText.'<br> Response - '. json_encode($secondLevelCats), 'account_sid'=> ($request->input("AccountSid") ?? 0),'call_sid'=>($request->input("CallSid") ?? 0), 'phone'=>($request->input("From") ?? 0), 'type'=>'speech']
 				);

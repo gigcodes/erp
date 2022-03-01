@@ -1937,6 +1937,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/drafted-products/delete', 'ProductController@deleteDraftedProducts');
     Route::post('/drafted-products/addtoquicksell', 'ProductController@addDraftProductsToQuickSell');
     Route::post('/drafted-products/send-lead-price', 'ProductController@sendLeadPrice');
+	Route::get('chatbot-type-error-log', 'ChatbotTypeErrorLogController@index')->name('chatbot.type.error.log');
 
 });
 
