@@ -159,11 +159,12 @@
                             </form>
                         @if (auth()->user()->isAdmin())
 
-                            <img src="http://cdn.onlinewebfonts.com/svg/img_108143.png" class="mt-3" style="width:20px; height:20px;" alt="Permission request">
+                            <img src="http://cdn.onlinewebfonts.com/svg/img_108143.png" class="mt-3 permission-request" style="width:20px; height:20px;" alt="Permission request">
 
-                            <img src="https://e7.pngegg.com/pngimages/287/966/png-clipart-computer-icons-erp-icon-computer-network-business.png"class="mt-2 ml-4" style="width:35px; height:25px;"  alt="ERP IPs">
-                            <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg" class="mt-2 ml-4" style="width:35px; height:25px;" alt="Permission request" alt=" ERP IPs">
-                            <img src="https://www.kindpng.com/picc/m/391-3916045_task-management-task-management-icon-hd-png-download.png" class="mt-2 ml-4" style="width:31px; height:25px;" alt="Permission request" alt="All user task" >
+                            <img src="https://e7.pngegg.com/pngimages/287/966/png-clipart-computer-icons-erp-icon-computer-network-business.png" class="mt-2 ml-4 erp-request" style="width:35px; height:25px;"  alt="ERP IPs">
+                            <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg" class="mt-2 ml-4 system-request" style="width:35px; height:25px;" alt="Permission request" alt=" ERP IPs" data-toggle="modal"
+                                data-target="#system-request">
+                            <img src="https://www.kindpng.com/picc/m/391-3916045_task-management-task-management-icon-hd-png-download.png" class="mt-2 ml-4 today-history" style="width:31px; height:25px;" alt="Permission request" alt="All user task" >
                         @endif
                     </div>
                     </div>
