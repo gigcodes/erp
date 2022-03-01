@@ -508,13 +508,14 @@ class ChatMessagesController extends Controller
         if ($message) {
             $message->update(['is_reviewed' => 1]);
             return response()->json([
-                'message' => 'Successful',
+                'message' => 'Review Successful',
             ], 200);
         }
         return response()->json([
             'message' => 'Error',
         ], 500);
     }
+
     public function downloadChatMessages(request $request)
     {
         $file = $request->filename;

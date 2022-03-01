@@ -97,6 +97,17 @@ class Supplier extends Model
     {
         return $this->belongsToMany('App\Product', 'product_suppliers', 'supplier_id', 'product_id');
     }
+
+    public function myproducts()
+    {
+        return $this->hasMany('App\Product', 'supplier_id', 'id');
+    }
+
+    public function histories()
+    {
+        return $this->hasMany('App\InventoryStatusHistory', 'supplier_id', 'id');
+    }
+    
     public function lastProduct()
     {
         return $this->hasOne('App\Product', 'supplier_id', 'id')->latest();

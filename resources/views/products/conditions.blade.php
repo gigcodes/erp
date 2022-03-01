@@ -44,8 +44,9 @@
                 <tr>
                     <th width="10%">#</th>
                     <th width="20%">Condition</th>
-                    <th width="60%">Description</th>
+                    <th width="50%">Description</th>
                     <th width="10%">Action</th>
+                    <th width="10%">Upteam Action</th>
                 </tr>
                 @foreach($conditions as $i=>$condition)
                     <tr>
@@ -53,11 +54,14 @@
                         <td width="20%">
                             {{ $condition['condition'] }}
                         </td>
-                        <td width="60%">
+                        <td width="50%">
                            {{ $condition['description'] }}
                         </td>
                         <td width="10%"> 
                             {{Form::select('status', [1=>'Enable', 0=>'Disable'], $condition['status'], array('class'=>'form-control status', 'data-id'=>$condition['id']))}}
+                        </td>
+                        <td width="10%"> 
+                            {{Form::select('upteam_status', [1=>'Enable', 0=>'Disable'], $condition['upteam_status'], array('class'=>'form-control upteamstatus', 'data-id'=>$condition['id']))}}
                         </td>
                     </tr>
                 @endforeach
@@ -76,6 +80,16 @@
               method: 'GET'
             }).done(function(response) {
               alert('Status Updated');
+            });
+        });
+        $( ".upteamstatus" ).change(function() {
+            var upteam_status = $(this).val();
+            var id = $(this).data('id');
+            $.ajax({
+              url: '{{ url("products/conditions/upteamstatus/update") }}'+'?id='+id+'&upteam_status='+upteam_status,
+              method: 'GET'
+            }).done(function(response) {
+              alert('Upteam Status Updated');
             });
         });
     </script>

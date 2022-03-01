@@ -91,12 +91,17 @@ class StoreWebsite extends Model
         'is_price_override',
         'repository_id',
 		'semrush_project_id',
+        'send_in_blue_account',
+        'send_in_blue_api',
+        'send_in_blue_smtp_email_api',
         'logo_color',  
         'logo_border_color',  
         'text_color',   
         'border_color',   
         'border_thickness',
-        'sale_old_products'
+        'sale_old_products',
+        'website_address',
+		'twilio_greeting_message'
     ];
 
     const DB_CONNECTION = [

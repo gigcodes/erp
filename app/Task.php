@@ -188,14 +188,14 @@ class Task extends Model {
         $message = '';
         $assignedUserId = 0;
        
-	    if (isset($request['task_asssigned_from'])) {
+	    if (isset($request['task_asssigned_from'])) { 
             $data["assign_from"] = $request['task_asssigned_from'];
         } else {
 			$data['assign_from'] = Auth::id();
 		}
        
         $data['status'] = 3;
-        
+        $task = 0;
         $taskType = $request['task_type'];
 
         if (isset($request['parent_task_id'])) {
@@ -330,6 +330,7 @@ class Task extends Model {
                 $hubtask->save();
             }
         }
+		return $task;
         return response()->json(["code" => 200, "data" => [], "message" => "Your quick task has been created!"]);
     }
 }

@@ -1795,8 +1795,8 @@ class ProductController extends Controller
             //code...
             // Get product by ID
             $product = Product::find($id);
-            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-            if(!empty($websiteArrays)) {
+            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id); 
+            if(!empty($websiteArrays)) { 
                 $storeWebsites = \App\StoreWebsite::whereIn("id",$websiteArrays)->get();
                 foreach($storeWebsites as $website) {
                     if ($website) {
@@ -1929,7 +1929,7 @@ class ProductController extends Controller
                 //check for hscode
                 $hsCode = $product->hsCode($product->category, $product->composition);
                 $hsCode = true;
-                if ($hsCode) {
+                //if ($hsCode) {
                     // If we have a product, push it to Magento
                     if ($product !== null) {
                         // Dispatch the job to the queue
@@ -1964,18 +1964,18 @@ class ProductController extends Controller
                         $product->isUploaded = 1;
                         $product->save();
                         // Return response
-                        // return response()->json([
-                        //     'result' => 'queuedForDispatch',
-                        //     'status' => 'listed'
-                        // ]);
+                         return response()->json([
+                             'result' => 'queuedForDispatch',
+                             'status' => 'listed'
+                         ]);
                     }
-                }
+                //}
 
-                $msg = 'Hs Code not found of product id ' . $id . '. Parameters where category_id: ' . $product->category . ' and composition: ' . $product->composition;
+               /* $msg = 'Hs Code not found of product id ' . $id . '. Parameters where category_id: ' . $product->category . ' and composition: ' . $product->composition;
 
                 $logId = LogListMagento::log($product->id, $msg, 'info');
                 ProductPushErrorLog::log("", $product->id, $msg, 'error', $logId->store_website_id, "", "", $logId->id);
-                $this->updateLogUserId($logId);
+                $this->updateLogUserId($logId);*/
 
                 // Return error response by default
                 // return response()->json([
@@ -3882,7 +3882,11 @@ class ProductController extends Controller
         $products = Product::orderBy('updated_at', 'DESC');
 
         if ($request->get('product_id') != '') {
-            // $products = Product::where('id',$request->get('product_id'))->get();
+             $products = $products->where('id',$request->get('product_id'));
+        }
+        if($request->get('sku') !='')
+        {
+            $products = $products->where('sku',$request->get('sku'));
         }
         if ($request->get('select_date') != '') {
             $date = $request->get('select_date');
@@ -3896,7 +3900,7 @@ class ProductController extends Controller
             $statusarray = [2, 4, 9, 15, 20, 33, 35, 36, 38, 39, 40];
         }
 
-        $products = $products->whereHas('productstatushistory', function ($query) use ($date, $statusarray, $request) {
+        /*$products = $products->whereHas('productstatushistory', function ($query) use ($date, $statusarray, $request) {
             $query->whereDate('created_at', $date);
             $query->whereIn('new_status', $statusarray);
             if ($request->get('product_id') != '') {
@@ -3908,7 +3912,7 @@ class ProductController extends Controller
             if ($request->get('product_id') != '') {
                 $query->where('product_id', $request->get('product_id'));
             }
-        }]);
+        }]);*/
 
         $products_count = $products->count();
 
@@ -4749,6 +4753,11 @@ class ProductController extends Controller
         $input = $request->input();
         PushToMagentoCondition::where('id', $input['id'])->update(['status'=>$input['status']]);
         return 'Status Updated';
+    }
+    public function updateConditionUpteamStatus(Request $request) {
+        $input = $request->input();
+        PushToMagentoCondition::where('id', $input['id'])->update(['upteam_status'=>$input['upteam_status']]);
+        return 'Upteam Status Updated';
     }
 
     public function getPreListProducts()

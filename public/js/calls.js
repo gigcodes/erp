@@ -99,7 +99,7 @@
 		var set_status = '';
 		console.log("Token : "+token);
 		console.log("Agent : "+agent);
-		device = new Twilio.Device(token, {debug: true, allowIncomingWhileBusy: true, audioConstraints: {
+		device = new Twilio.Device(token, {debug: true, audioConstraints: {
 			mandatory: { 
 				googAutoGainControl: false 
 			} 
@@ -323,6 +323,17 @@
 							authid : auth_id,
 							number : conn.parameters.From,
 							status: 0,
+						},
+					})
+
+					$.ajax({
+						url: '/twilio/update-reservation-status',
+						type: 'POST',
+						dataType: 'json',
+						data: {
+							_token: "{{ csrf_token() }}",
+							authid : auth_id,
+							number : conn.parameters.From,
 						},
 					})
 

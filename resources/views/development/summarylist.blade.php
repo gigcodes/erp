@@ -157,14 +157,23 @@
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
     </div>
+
+    @include('partials.flash_messages')
+
+    <p style="font-size:16px;text-align:left;margin-top: 10px;font-weight:bold;">Quick Dev Task</p>
+    @if (auth()->user()->isReviwerLikeAdmin())
+                <a href="javascript:" class="btn custom-button mt-3"style="height: 35px;" id="newTaskModalBtn" data-toggle="modal"
+                    data-target="#newTaskModal">Add New Dev Task </a>
+            @endif
+                
     <div class="row" style="margin-top:13px ;margin-bottom:11px;float: left;">
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/'); ?>
-
+          
             <div class="pull-left cls_filter_box">
                 <form class="form-inline" action="{{ route('development.summarylist') }}" method="GET">
 
-                    <p style="font-size:16px;text-align:left;margin-top: 10px;font-weight:bold;">Quick Dev Task</p>
+                  
                     <div class="col-md-2 pd-sm pd-rt">
                         <input type="text" style="width:100%;" name="subject" id="subject_query"
                             placeholder="Issue Id / Subject" class="form-control"
@@ -180,7 +189,7 @@
                         </select>
                     </div>
                     @if (auth()->user()->isReviwerLikeAdmin())
-                        <div class="col-md-2 pd-sm pd-rt">
+                        <div class="col-md-2 pd-sm">
                             <select class="form-control" name="assigned_to" id="assigned_to">
                                 <option value="">Assigned To</option>
                                 @foreach ($users as $id => $user)
@@ -199,8 +208,17 @@
                             
                         </select>
                     </div>
-                    <div class="col-md-2 pd-sm pd-rt status-selection">
+                    <div class="col-md-2">
+                            <select class="form-control" name="unread_messages" id="unread_messages">
+                                <option value="">Filter By Messages</option>
+                                    <option {{ $request->get('unread_messages') == "unread" ? 'selected' : '' }}
+                                        value="unread">Unread</option>
+                               
+                            </select>
+                        </div>
+                    <div class="col-md-2 pd-sm status-selection">
                         <?php echo Form::select('task_status[]', $statusList, request()->get('task_status', array_values($statusList)), ['class' => 'form-control multiselect', 'multiple' => true]); ?>
+                       
                     </div>
 
 
@@ -210,17 +228,13 @@
                        
                     
                 </form>
-                @if (auth()->user()->isReviwerLikeAdmin())
-                <a href="javascript:" class="btn custom-button mt-3"style="height: 35px;" id="newTaskModalBtn" data-toggle="modal"
-                    data-target="#newTaskModal">Add New Dev Task </a>
-            @endif
-                
+              
             </div>
         </div>
 
     </div>
 
-    @include('partials.flash_messages')
+  
     <div class="infinite-scroll">
         <div class="table-responsive mt-3">
             <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;">
@@ -237,27 +251,16 @@
                 </thead>
 
                 <tbody id="vendor-body">
-                    <?php
-                    $isReviwerLikeAdmin = auth()
-                        ->user()
-                        ->isReviwerLikeAdmin();
-                    $userID = Auth::user()->id;
-                    ?>
-                    @foreach ($issues as $key => $issue)
-                        @if ($isReviwerLikeAdmin)
-                            @include("development.partials.summarydata")
-                        @elseif($issue->created_by == $userID || $issue->master_user_id == $userID ||
-                            $issue->assigned_to == $userID)
-                            @include("development.partials.developer-row-view")
-                        @endif
-                    @endforeach
+                  
+                    @include("development.partials.summarydatas")
+                   
 
 
                 </tbody>
             </table>
         </div>
         <?php echo $issues->appends(request()->except('page'))->links(); ?>
-
+        <img class="infinite-scroll-products-loader center-block" src="{{env('APP_URL')}}/images/loading.gif" alt="Loading..." style="display: none" />
     </div>
     @include("development.partials.upload-document-modal")
     @include("partials.plain-modal")
@@ -1588,6 +1591,54 @@
                 }
             });
         });
+        $(document).on('submit', '#frmaddnewtask', function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var actionUrl = form.attr('action');
+            
+            $.ajax({
+                type: "POST",
+                url: actionUrl,
+                data: form.serialize(), // serializes the form's elements.
+                success: function(data)
+                {
+                    toastr['success']('Task added successfully!!', 'success');
+                    loadMoreProducts();
+                    $('#newTaskModal').modal('hide');
+
+                }
+            });
+        });
+        var isLoadingProducts = false;
+        function loadMoreProducts() {
+             var $loader = $('.infinite-scroll-products-loader');
+            $.ajax({
+                url: '{{route("development.summarylist")}}',
+                type: 'GET',
+                beforeSend: function() {
+                    $loader.show();
+                   
+                }
+            })
+            .done(function(data) {
+                // console.log(data);
+                if('' === data.trim())
+                    return;
+
+                $loader.hide();
+
+                $('#vendor-body').html(data);
+
+                isLoadingProducts = false;
+            })
+            .fail(function(jqXHR, ajaxOptions, thrownError) {
+                console.error('something went wrong');
+
+                isLoadingProducts = false;
+            });
+        }
+
+        
 
     </script>
 @endsection
