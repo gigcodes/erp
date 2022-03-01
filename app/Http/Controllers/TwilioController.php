@@ -529,7 +529,7 @@ class TwilioController extends FindByNumberController
 
                         $recordurl = 'https://'.$request->getHost() . "/twilio/storerecording";
 
-                        $response->say('Please leave a message at the beep. Press the star key when finished.');
+                        //$response->say('Please leave a message at the beep. Press the star key when finished.');
 
                         $response->record(
                             [	
@@ -700,8 +700,14 @@ class TwilioController extends FindByNumberController
 				);
 				$categories= ReplyCategory::where('parent_id', 51)->pluck('name')->toArray();
 				
-                $in_message = 'Hello Please Speak any keyword on which you need information like Delivery or Shipping to hear 
-				more options about it listen to the following options  '.implode('  ', $categories);
+				if(isset($storewebsitetwiliono_data->category_menu_message) && $storewebsitetwiliono_data->category_menu_message != '')
+                     $in_message = $storewebsitetwiliono_data->category_menu_message;
+                else
+					$in_message = 'Hello Please Speak any keyword on which you need information like Delivery or Shipping to hear 
+				more options about it listen to the following options  '
+
+				
+                $in_message .= implode('  ', $categories);
                 if($key_data){
                     
                     foreach($key_data as $kk => $vv){
@@ -1555,8 +1561,13 @@ class TwilioController extends FindByNumberController
 						->pluck("replies.reply")->first();
 
 				if($reply == '' || $reply == null) {
+					if(isset($storewebsitetwiliono_data->speech_response_not_available_message) && $storewebsitetwiliono_data->speech_response_not_available_message != '')
+                        $in_message = $storewebsitetwiliono_data->speech_response_not_available_message;
+					else
+						$in_message = 'Invalid Input  '
+				
 					$response->Say(
-					   'Invalid Input '.$recordedText,
+					   $in_message.$recordedText,
 						['voice' => 'alice', 'language' => 'en-GB']
 					);
 					TwilioLog::create(
@@ -1575,8 +1586,13 @@ class TwilioController extends FindByNumberController
 				
 			} else { 
 				$secondLevelCats = ReplyCategory::where('parent_id', $catId)->pluck('name')->toArray();
+				if(isset($storewebsitetwiliono_data->sub_category_menu_message) && $storewebsitetwiliono_data->sub_category_menu_message != '')
+                     $in_message = $storewebsitetwiliono_data->sub_category_menu_message;
+                else
+					$in_message = 'Please choose from below sub options  '
+				
 				$response->Say(
-				    'Please choose from below sub options '.str_replace('_', ' ', implode('  ', $secondLevelCats)),
+				    $in_message.str_replace('_', ' ', implode('  ', $secondLevelCats)),
 					[ 'voice' => 'alice', 'language' => 'en-GB']
 				);
 				TwilioLog::create(
@@ -3068,7 +3084,10 @@ class TwilioController extends FindByNumberController
                 'message_available' => $request->message_available,
                 'message_not_available' => $request->message_not_available,
                 'end_work_message' => $request->end_work_message,
-                'message_busy' => $request->message_busy
+                'message_busy' => $request->message_busy,
+                'category_menu_message' => $request->category_menu_message,
+                'sub_category_menu_message' => $request->sub_category_menu_message,
+                'speech_response_not_available_message' => $request->speech_response_not_available_message,
             ]);
 
             // $assign_number = StoreWebsiteTwilioNumber::create([

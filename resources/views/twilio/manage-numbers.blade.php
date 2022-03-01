@@ -124,15 +124,32 @@
                                         <label>Message when agent not available</label>
                                         <input type="text" class="form-control" name="message_not_available" id="message_not_available_1" value="{{ @$number->assigned_stores->message_not_available }}"/>
                                     </td>
-                                    <td colspan="3">
+                                    <td colspan="1">
                                         <label>Message when agent is busy</label>
                                         <input type="text" class="form-control" name="message_busy" id="message_busy_1" value="{{ @ $number->assigned_stores->message_busy }}"/>
                                     </td>
-                                    <td colspan="4">
+                                    <td colspan="2">
                                         <label>Message when Working Hours is Over</label>
                                         <input type="text" class="form-control" name="end_work_message" id="end_work_message_1" value="{{ @ $number->assigned_stores->end_work_message }}"/>
                                     </td>
-                                    <td colspan="3">
+									
+									<td colspan="2">
+                                        <label>Category Menu Message</label>
+                                        <input type="text" class="form-control" name="category_menu_message" id="category_menu_message_1" value="{{ @ $number->assigned_stores->category_menu_message }}"/>
+                                    </td>
+									
+									<td colspan="2">
+                                        <label>Sub Category Menu Message</label>
+                                        <input type="text" class="form-control" name="sub_category_menu_message" id="sub_category_menu_message_1" value="{{ @ $number->assigned_stores->sub_category_menu_message }}"/>
+                                    </td>
+									
+									
+									<td colspan="2">
+                                        <label>Message if Speech Response not available</label>
+                                        <input type="text" class="form-control" name="speech_response_not_available_message" id="speech_response_not_available_message_1" value="{{ @ $number->assigned_stores->speech_response_not_available_message }}"/>
+                                    </td>
+									
+                                    <td colspan="1">
                                         <button class="btn btn-sm btn-image save-number-to-store" id="save_1" data-number-id="{{ @ $number->id }}"><img src="/images/filled-sent.png" style="cursor: default;"></button>
                                     </td>
 
@@ -705,6 +722,9 @@
                         'message_not_available' : $('#message_not_available_'+num_id).val(),
                         'message_busy' : $('#message_busy_'+num_id).val(),
                         'end_work_message' : $('#end_work_message_'+num_id).val(),
+                        'category_menu_message' : $('#category_menu_message_'+num_id).val(),
+                        'sub_category_menu_message' : $('#sub_category_menu_message_'+num_id).val(),
+                        'speech_response_not_available_message' : $('#speech_response_not_available_message_'+num_id).val(),
                         'credential_id' : credential_id,
                         "workspace_sid" :$('#workspace_sid_'+num_id).val()
                     }
