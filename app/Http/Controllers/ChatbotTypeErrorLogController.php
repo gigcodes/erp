@@ -13,11 +13,11 @@ class ChatbotTypeErrorLogController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(request $request)
-    {
+    { 
         $query = ChatbotTypeErrorLog::query();
-        $query =  $query->select('chatbot_type_error_logs.id AS chatId', 'chatbot_type_error_logs.type_error', 'store_websites.website','chatbot_type_error_logs.phone_number', 'chatbot_questions.value');
+        $query =  $query->select('chatbot_type_error_logs.id AS chatId','chatbot_type_error_logs.call_sid', 'chatbot_type_error_logs.type_error', 'store_websites.website','chatbot_type_error_logs.phone_number');
         $query =  $query->leftJoin('store_websites', 'store_websites.id', '=', 'chatbot_type_error_logs.store_website_id');
-        $query =  $query->leftJoin('chatbot_questions', 'chatbot_questions.id', '=', 'chatbot_type_error_logs.chatbot_id');
+       // $query =  $query->leftJoin('chatbot_questions', 'chatbot_questions.id', '=', 'chatbot_type_error_logs.chatbot_id');
         if($request->id){
 			$query = $query->where('chatbot_type_error_logs.id', $request->id);
 		}
@@ -76,9 +76,7 @@ class ChatbotTypeErrorLogController extends Controller
      */
     public function edit($id)
     {
-        $affiliates = Affiliates::find($id);
-
-        return response()->json(["code" => 200 , "data" => $affiliates]);
+       
     }
 
     /**

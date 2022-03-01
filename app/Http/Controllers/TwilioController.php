@@ -1582,6 +1582,17 @@ class TwilioController extends FindByNumberController
 					   $in_message.$recordedText,
 						['voice' => 'alice', 'language' => 'en-GB']
 					);
+					
+					ChatbotTypeErrorLog::create(
+                    [
+					 'store_website_id'=> $storewebsitetwiliono_data->store_website_id, 
+                     'call_sid'=>  $CallSid,
+                     'phone_number'=> ($request->input("From") ?? 0), 
+                     'type_error'=> $recordedText,
+					 'is_active'=>1
+					]
+                );
+					
 					TwilioLog::create(
 						['log'=>'Speech - '.$recordedText.'<br> Response - Invalid input', 'account_sid'=> ($request->input("AccountSid") ?? 0),'call_sid'=>($request->input("CallSid") ?? 0), 'phone'=>($request->input("From") ?? 0), 'type'=>'speech']
 					);
@@ -1608,12 +1619,7 @@ class TwilioController extends FindByNumberController
 					[ 'voice' => 'alice', 'language' => 'en-GB']
 				);
 
-                ChatbotTypeErrorLog::create(
-                    ['store_website_id'=> $storewebsitetwiliono_data->store_website_id, 
-                     'chatbot_id'=> $reply->id,
-                     'phone_number'=> ($request->input("From") ?? 0), 
-                     'type_error'=> 'Invalid Input '.$recordedText]
-                );
+              
 
 		
 				TwilioLog::create(

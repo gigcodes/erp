@@ -15,10 +15,11 @@ class CreateChatbotTypeErrorLogsTable extends Migration
     {
         Schema::create('chatbot_type_error_logs', function (Blueprint $table) {
             $table->increments('id');
-			$table->integer('store_website_id')->index()->nullabel();
-            $table->integer('chatbot_id')->index()->nullabel();
+			$table->integer('store_website_id')->index()->nullable();
+            $table->string('call_sid')->nullable();
 			$table->string('phone_number')->nullable();
             $table->string('type_error')->nullable();
+		    $table->boolean('is_active')->default(1);
 			$table->timestamps();
         });
     }

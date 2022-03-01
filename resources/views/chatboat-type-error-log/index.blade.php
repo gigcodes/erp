@@ -72,9 +72,9 @@
       <table id="magento_list_tbl_895" class="table table-bordered table-hover">
         <thead>
           <th >ID</th>
-          <th>Type</th>
-          <th>Store Website id</th>
-          <th>Chatbot id</th>
+          <th>Missing word</th>
+          <th>Store Website</th>
+          <th>Call sid</th>
           <th>Phone Number</th>
           
         </thead>
@@ -85,7 +85,7 @@
               <td>{{ $item->chatId }}</td>
               <td>{{$item->type_error}}</td>
               <td>{{$item->website}} </td>
-              <td>{{$item->value}}</td>
+              <td>{{$item->call_sid}}</td>
               <td>{{$item->phone_number}}</td>
               {{-- <td>
                 {!! Form::open(['method' => 'GET','route' => ['chatbot.type.error.log'],'style'=>'display:inline']) !!}
