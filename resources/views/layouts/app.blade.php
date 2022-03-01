@@ -123,6 +123,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script type="text/javascript" src="https://media.twiliocdn.com/sdk/js/client/v1.14/twilio.min.js"></script>
+    <script src="https://sdk.twilio.com/js/taskrouter/v1.21/taskrouter.min.js"></script>
 
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.0.5/dist/js/tabulator.min.js"></script>
 

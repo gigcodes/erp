@@ -75,6 +75,7 @@ use App\ChatbotTypeErrorLog;
 use App\ChatbotCategory;
 use App\ReplyCategory;
 use App\TwilioDequeueCall;
+use Twilio\Jwt\TaskRouter\WorkerCapability;
 
 
 /**
@@ -156,7 +157,7 @@ class TwilioController extends FindByNumberController
 
                 $twilio_active_credential = StoreWebsiteTwilioNumber::join('twilio_active_numbers','twilio_active_numbers.id','store_website_twilio_numbers.twilio_active_number_id')
                 ->where('store_website_twilio_numbers.store_website_id',$check_is_agent->store_website_id)
-                ->select('twilio_active_numbers.twilio_credential_id')
+                ->select('twilio_active_numbers.twilio_credential_id', 'twilio_active_numbers.workspace_sid')
                 ->first(); 
 				 Log::channel('customerDnd')->info('twilio_active_credential ==> '.$twilio_active_credential->twilio_credential_id);
                 
@@ -167,6 +168,7 @@ class TwilioController extends FindByNumberController
                     $agent = 'customer_call_agent_'.$user_id;
                     if ($devices->count()){
                         $tokens=[];
+                        $workers=[];
                         foreach ($devices as $device){
                             $capability = new ClientToken($device->account_id, $device->auth_token);
                             // $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
@@ -176,8 +178,14 @@ class TwilioController extends FindByNumberController
                             $expiresIn = (3600 * 1);
                             $token = $capability->generateToken();
                             $tokens[]=$token;
+
+                            $capability = new WorkerCapability($device->account_id, $device->auth_token, $twilio_active_credential->workspace_sid, 'WKfd76880c09a386144b28eee95888e7ce');
+                            $capability->allowFetchSubresources();
+                            $capability->allowActivityUpdates();
+                            $capability->allowReservationUpdates();
+                            $workers[] = $capability->generateToken();
                         }
-                        return response()->json(['twilio_tokens' => $tokens, 'agent' => $agent]);
+                        return response()->json(['twilio_tokens' => $tokens, 'workers' => $workers, 'agent' => $agent]);
         
                     }
                     return response()->json(['empty' => true]);
