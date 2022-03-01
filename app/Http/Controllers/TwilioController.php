@@ -704,7 +704,7 @@ class TwilioController extends FindByNumberController
                      $in_message = $storewebsitetwiliono_data->category_menu_message;
                 else
 					$in_message = 'Hello Please Speak any keyword on which you need information like Delivery or Shipping to hear 
-				more options about it listen to the following options  '
+				more options about it listen to the following options  ';
 
 				
                 $in_message .= implode('  ', $categories);
@@ -1564,7 +1564,7 @@ class TwilioController extends FindByNumberController
 					if(isset($storewebsitetwiliono_data->speech_response_not_available_message) && $storewebsitetwiliono_data->speech_response_not_available_message != '')
                         $in_message = $storewebsitetwiliono_data->speech_response_not_available_message;
 					else
-						$in_message = 'Invalid Input  '
+						$in_message = 'Invalid Input  ';
 				
 					$response->Say(
 					   $in_message.$recordedText,
@@ -1589,7 +1589,7 @@ class TwilioController extends FindByNumberController
 				if(isset($storewebsitetwiliono_data->sub_category_menu_message) && $storewebsitetwiliono_data->sub_category_menu_message != '')
                      $in_message = $storewebsitetwiliono_data->sub_category_menu_message;
                 else
-					$in_message = 'Please choose from below sub options  '
+					$in_message = 'Please choose from below sub options  ';
 				
 				$response->Say(
 				    $in_message.str_replace('_', ' ', implode('  ', $secondLevelCats)),
