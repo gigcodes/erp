@@ -256,15 +256,21 @@
             @csrf
             <div class="modal-body">
                  <div class="website-pag mb-2">
-                <strong>Store Website:</strong>
-                <select class="form-control store_website_twilio_key "style="width: 60% !important; margin-left:10px;" name="store_website_twilio_key">
-                    <option value="">Select</option>
-                    @foreach($store_websites as $key => $value)
-                        <option value="{{$value->id}}" >{{$value->website}}</option>
-                    @endforeach
-                </select>
-                </div>
+					<strong>Store Website:</strong>
+					<select class="form-control store_website_twilio_key "style="width: 60% !important; margin-left:10px;" name="store_website_twilio_key">
+						<option value="">Select</option>
+						@foreach($store_websites as $key => $value)
+							<option value="{{$value->id}}" >{{$value->website}}</option>
+						@endforeach
+					</select>
+				</div>
+			    <div class="website-pag mb-2 d-none" id="welcome_message_div">
+					<strong>Greeting Message</strong>
+					<input type="text" name="welcome_message" id="welcome_message" class="form-control" style="width: 60% !important; margin-left:10px;">
+					 <a href="#" class="btn btn-secondary save_twilio_greeting_message">Save</a>
+				</div>
                 <div class="table-responsive store_website_twilio_key_data d-none">
+					
                     <table class="table table-bordered table-hover" style="table-layout:fixed;">
                         <thead>
                         <tr>
@@ -502,6 +508,7 @@
     $('.store_website_twilio_key').on("change", function(e){
         
         $(".store_website_twilio_key_data").removeClass("d-none");
+        $("#welcome_message_div").removeClass("d-none");
         var website_id = $('.store_website_twilio_key').val();
 
         $.ajax({
@@ -516,7 +523,8 @@
             },
             success: function (response) {
                $('.twilio_key_ajax_data').html('');
-               $('.twilio_key_ajax_data').html(response);
+               $('.twilio_key_ajax_data').html(response.html);
+			   $('#welcome_message').val(response.welcome_message);
             },
             error: function (response) { 
                 
@@ -524,8 +532,40 @@
         });
     });
 
+$('.save_twilio_greeting_message').on("click", function(e){
+    var message = $('#welcome_message').val();
+    var website_id = $('.store_website_twilio_key').val();
+   
+    if(message == '')
+    {
+        toastr['error']('Please enter message');
+        return false;
+    }
+
+    $.ajax({
+        type: "POST",
+        url: "{{ route('twilio.set_twilio_greeting_message') }}",  
+        data: {
+            _token: "{{csrf_token()}}",
+            welcome_message:message,
+            website_store_id:website_id
+        },
+        success: function (response) {
+            if(response.status == 1){
+                toastr['success'](response.message);
+            }else if(response.status == 0){
+                toastr['error'](response.message);
+            }
+        },
+        error: function (response) { 
+            
+        }
+    }); 
+});
+
     $('#twilio_key_option_modal').on('hidden.bs.modal', function () {
         $(".store_website_twilio_key_data").addClass("d-none");
+        $("#welcome_message_div").addClass("d-none");
     });
 </script>
 @endsection

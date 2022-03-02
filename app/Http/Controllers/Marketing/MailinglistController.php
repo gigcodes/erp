@@ -16,6 +16,9 @@ use App\Http\Controllers\Controller;
 use App\MailinglistTemplate;
 use App\EmailEvent;
 use Validator;
+use  App\Loggers\MailinglistIinfluencersLogs;
+use App\Setting;
+
 
 class MailinglistController extends Controller
 {
@@ -24,9 +27,10 @@ class MailinglistController extends Controller
      */
     public function index()
     {		
-		$services = Service::all();
+		$services = Service::pluck("name","id");
         $list = Mailinglist::paginate(15);
         $websites = StoreWebsite::select('id','title')->orderBy('id','desc')->get();
+
         return view('marketing.mailinglist.index', compact('services', 'list','websites'));
     }
 
@@ -71,18 +75,21 @@ class MailinglistController extends Controller
             'name'=>'required',
             'subject'=>'required',
         ];
+
         $validation = Validator::make($request->all(), $rules);
         if ($validation->fails())
         {
             return array('status'=>false, 'messages'=>$validation->getMessageBag());
         }
         $website_id = $request->website_id;
+        $store_website = StoreWebsite::Where('id'  , $website_id )->first();
         //Find Service 
         $service = Service::find($request->service_id);
 
         if($service){
           
             if (strpos(strtolower($service->name), strtolower('SendInBlue')) !== false) {
+                $api_key=($store_website->send_in_blue_api !="")?$store_website->send_in_blue_api: config('env.SEND_IN_BLUE_API');
                 $curl = curl_init();
                 $data = [
                     "folderId" => 1,
@@ -100,7 +107,7 @@ class MailinglistController extends Controller
                     CURLOPT_POSTFIELDS => json_encode($data),
                     CURLOPT_HTTPHEADER => array(
                         // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                        "api-key: ".config('env.SEND_IN_BLUE_API'),
+                        "api-key: ".$api_key,
                         "Content-Type: application/json"
                     ),
                 ));
@@ -118,6 +125,8 @@ class MailinglistController extends Controller
                     'website_id' => $website_id,
                     'service_id' => $request->service_id,
                     'remote_id' => $res->id,
+                    'send_in_blue_api'=>$store_website->send_in_blue_api,
+                    'send_in_blue_account'=>$store_website->send_in_blue_account,
                 ]);
             
             }
@@ -346,6 +355,7 @@ class MailinglistController extends Controller
     {
         //getting mailing list 
         $list = Mailinglist::where('remote_id',$id)->first();
+       
 
         if($list->service && isset($list->service->name) ){
             if($list->service->name == 'AcelleMail'){
@@ -407,6 +417,9 @@ class MailinglistController extends Controller
             }    
         }
         
+        $website = \App\StoreWebsite::where('id',$list->website_id)->first();
+        $api_key=(isset($website->send_in_blue_api) &&  $website->send_in_blue_api !="")?$website->send_in_blue_api: config('env.SEND_IN_BLUE_API');
+
 
         $curl = curl_init();
         $data = [
@@ -426,7 +439,7 @@ class MailinglistController extends Controller
             CURLOPT_POSTFIELDS => json_encode($data),
             CURLOPT_HTTPHEADER => array(
                 // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                "api-key: ".config('env.SEND_IN_BLUE_API'),
+                "api-key: ".$api_key,
                 "Content-Type: application/json"
             ),
         ));
@@ -448,7 +461,7 @@ class MailinglistController extends Controller
                     CURLOPT_CUSTOMREQUEST => "DELETE",
                     CURLOPT_HTTPHEADER => array(
                         // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                        "api-key: ".config('env.SEND_IN_BLUE_API'),
+                        "api-key: ".$api_key,
                         "Content-Type: application/json"
                     ),
                 ));
@@ -469,7 +482,7 @@ class MailinglistController extends Controller
                     CURLOPT_POSTFIELDS => json_encode($data),
                     CURLOPT_HTTPHEADER => array(
                         // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                        "api-key: ".config('env.SEND_IN_BLUE_API'),
+                        "api-key: ".$api_key,
                         "Content-Type: application/json"
                     ),
                 ));
@@ -501,6 +514,10 @@ class MailinglistController extends Controller
      */
     public function delete($id, $email)
     {
+        $mailinglist = Mailinglist::find($id);
+        $website = \App\StoreWebsite::where('id',$mailinglist->website_id)->first();
+        $api_key=(isset($website->send_in_blue_api) &&  $website->send_in_blue_api !="")?$website->send_in_blue_api: config('env.SEND_IN_BLUE_API');
+
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => "https://api.sendinblue.com/v3/contacts/" . $email,
@@ -513,7 +530,7 @@ class MailinglistController extends Controller
             CURLOPT_CUSTOMREQUEST => "DELETE",
             CURLOPT_HTTPHEADER => array(
                 // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                "api-key: ".config('env.SEND_IN_BLUE_API'),
+                "api-key: ".$api_key,
                 "Content-Type: application/json"
             ),
         ));
@@ -527,7 +544,7 @@ class MailinglistController extends Controller
             return redirect()->back()->withErrors($res->message);
         } else {
             $customer = Customer::where('email', $email)->first();
-            $mailinglist = Mailinglist::find($id);
+          
             $mailinglist->listCustomers()->detach($customer->id);
 
             return response()->json(['status' => 'success']);
@@ -542,6 +559,10 @@ class MailinglistController extends Controller
     {
         //getting mailing list 
         $list = Mailinglist::where('remote_id',$id)->first();
+        $website = \App\StoreWebsite::where('id',$list->website_id)->first();
+        $api_key=(isset($website->send_in_blue_api) &&  $website->send_in_blue_api !="")?$website->send_in_blue_api: config('env.SEND_IN_BLUE_API');
+
+        
         
         if($list->service && isset($list->service->name) ){
             if($list->service->name == 'AcelleMail'){
@@ -577,7 +598,7 @@ class MailinglistController extends Controller
                     CURLOPT_CUSTOMREQUEST => "DELETE",
                     CURLOPT_HTTPHEADER => array(
                         // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                        "api-key: ".config('env.SEND_IN_BLUE_API'),
+                        "api-key: ".$api_key,
                         "Content-Type: application/json"
                     ),
                 ));
@@ -627,6 +648,11 @@ class MailinglistController extends Controller
     {
         $email = $request->email;
         $id = $request->id;
+        $mailinglist = Mailinglist::find($id);
+        $website = \App\StoreWebsite::where('id',$mailinglist->website_id)->first();
+        $api_key=(isset($website->send_in_blue_api) &&  $website->send_in_blue_api !="")?$website->send_in_blue_api: config('env.SEND_IN_BLUE_API');
+
+           
         $curl = curl_init();
         $data = [
             "email" => $email,
@@ -645,7 +671,7 @@ class MailinglistController extends Controller
             CURLOPT_POSTFIELDS => json_encode($data),
             CURLOPT_HTTPHEADER => array(
                 // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                "api-key: ".config('env.SEND_IN_BLUE_API'),
+                "api-key: ".$api_key,
                 "Content-Type: application/json"
             ),
         ));
@@ -667,7 +693,7 @@ class MailinglistController extends Controller
                     CURLOPT_CUSTOMREQUEST => "DELETE",
                     CURLOPT_HTTPHEADER => array(
                         // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                        "api-key: ".config('env.SEND_IN_BLUE_API'),
+                        "api-key: ".$api_key,
                         "Content-Type: application/json"
                     ),
                 ));
@@ -688,7 +714,7 @@ class MailinglistController extends Controller
                     CURLOPT_POSTFIELDS => json_encode($data),
                     CURLOPT_HTTPHEADER => array(
                         // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                        "api-key: ".config('env.SEND_IN_BLUE_API'),
+                        "api-key: ".$api_key,
                         "Content-Type: application/json"
                     ),
                 ));
@@ -699,7 +725,6 @@ class MailinglistController extends Controller
                     return response()->json(['status' => 'error']);
                 }
                 $customer = Customer::where('email', $email)->first();
-                $mailinglist = Mailinglist::find($id);
                 \DB::table('list_contacts')->where('customer_id', $customer->id)->delete();
                 $mailinglist->listCustomers()->attach($customer->id);
 
@@ -747,6 +772,7 @@ class MailinglistController extends Controller
 	}
 	
 	public function sendAutoEmails() {
+
 		$mailing_templates = MailinglistTemplate::where('auto_send', 1)->where('duration', '>', 0)->get();
 		foreach($mailing_templates as $mailing_item) { 
 			$now = Carbon::now();
@@ -765,11 +791,45 @@ class MailinglistController extends Controller
 				->whereNotIn('list_contacts.id', $spamedListContactIds)->whereNotNull('list_contacts.id')
 				->select('mailinglists.id as mailingListId', 'customers.id as customerId', 'customers.email', 'customers.name', 'list_contacts.id as list_contact_id')->get();
 				foreach($mailingLists as $mailingList) {
-					(new Mailinglist)->sendAutoEmails($mailingList, $mailing_item);
+                    $service = Service::find($mailingList->service_id)
+					(new Mailinglist)->sendAutoEmails($mailingList, $mailing_item,$service);
 				}
 			}
 		}
 	}
-	
+    public function getlog(Request $request)
+    {
+      
+
+            $paginate = (Setting::get('pagination') * 10);
+            $logs     = \App\Loggers\MailinglistIinfluencersDetailLogs::orderby('id', 'desc')->paginate($paginate);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('marketing.mailinglist.partials.logdata', compact('logs'))->render(),
+                'links' => (string) $logs->render(),
+                'count' => $logs->total(),
+            ], 200);
+        }
+
+        return view('marketing.mailinglist.log', compact('logs'));
+    }
+    public function flowlog(Request $request)
+    {
+        $paginate = (Setting::get('pagination') * 10);
+        $logs     = \App\Loggers\MailinglistIinfluencersLogs::orderby('id', 'desc')->paginate($paginate);
+
+        return view('marketing.mailinglist.flowlog', compact('logs'));
+    }
+    public function customerlog(Request $request)
+    {
+        $paginate = (Setting::get('pagination') * 10);
+        $customers=\App\Customer::pluck("email","id")->toArray();
+        $mailists=\App\Mailinglist::pluck("name","id")->toArray();
+        $logs     = \App\MaillistCustomerHistory::orderby('id', 'desc')->paginate($paginate);
+
+        return view('marketing.mailinglist.customerlog', compact('logs','customers','mailists'));
+    }
+
 	
 }
