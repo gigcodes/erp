@@ -30,7 +30,8 @@ class ReferFriend extends Model
     'referee_email',
     'referee_phone',
     'website',
-    'store_website_id'
+    'store_website_id',
+    'status'
     ];
     protected $table='refer_friend';
 }

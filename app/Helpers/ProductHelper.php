@@ -875,7 +875,7 @@ class ProductHelper extends Model
 
         $category = $product->category;
         
-        $storeCategories = StoreWebsiteCategory::where('category_id',$category)->where("remote_id",">",0)->get();
+        $storeCategories = StoreWebsiteCategory::where('category_id',$category)->where("remote_id",">",0)->get(); 
         $websiteArray = [];
         foreach ($storeCategories as $storeCategory) {
             $storeBrands = StoreWebsiteBrand::where('brand_id',$brand)->where("magento_value",">",0)->where('store_website_id',$storeCategory->store_website_id)->get();

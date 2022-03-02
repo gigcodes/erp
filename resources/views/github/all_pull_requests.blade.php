@@ -24,6 +24,15 @@
     #pull-request-table_filter {
         text-align: right;
     }
+	
+	table{
+  margin: 0 auto;
+  width: 100%;
+  clear: both;
+  border-collapse: collapse;
+  table-layout: fixed; // ***********add this
+  word-wrap:break-word; // ***********and this
+}
 </style>
 
 <div class="row">
@@ -54,42 +63,42 @@
             @endif
         @endif
     </div>
-    <div class="text-left">
+    <div class="text-left pl-5">
         <a class="btn btn-sm btn-secondary" href="/github/repos/231925646/deploy?branch=master&pull_only=1">Deploy ERP Master</a>
         <a class="btn btn-sm btn-secondary" href="/github/repos/231925646/deploy?branch=master&composer=true&pull_only=1">Deploy ERP Master + Composer</a>
     </div>
 </div>
 
-<div class="container">
-    <table id="pull-request-table" class="table table-bordered">
+<div class="container" style="max-width: 100%;width: 100%;">
+    <table id="pull-request-table" class="table table-bordered" style="table-layout: fixed;">
         <thead>
             <tr>
-                <th>Repository</th>
-                <th>Number</th>
-                <th>Title</th>
-                <th>Branch</th>
-                <th>User</th>
-                <th>Updated At</th>
-                <th>Deploy</th>
-                <th>Actions</th>
+                <th style="width:7% !important;">Repository</th>
+                <th style="width:10% !important;">Number</th>
+                <th style="width:13% !important;">Title</th>
+                <th style="width:10% !important;">Branch</th>
+                <th style="width:10% !important;">User</th>
+                <th style="width:10% !important;">Updated At</th>
+                <th style="width:13% !important;">Deploy</th>
+                <th style="width:9% !important;">Actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($pullRequests as $pullRequest)
+           @foreach($pullRequests as $pullRequest)
             <tr>
-                <td>{{$pullRequest['repository']['name']}}
-                <td>{{$pullRequest['id']}}</td>
-                <td>{{$pullRequest['title']}}</td>
-                <td>{{$pullRequest['source']}}</td>
-                <td>{{$pullRequest['username']}}</td>
-                <td>{{date('Y-m-d H:i:s', strtotime($pullRequest['updated_at']))}}</td>
-                <td>
+                <td class="Website-task">{{$pullRequest['repository']['name']}}
+                <td class="Website-task">{{$pullRequest['id']}}</td>
+                <td class="Website-task">{{$pullRequest['title']}}</td>
+                <td class="Website-task">{{$pullRequest['source']}}</td>
+                <td class="Website-task">{{$pullRequest['username']}}</td>
+                <td class="Website-task">{{date('Y-m-d H:i:s', strtotime($pullRequest['updated_at']))}}</td>
+                <td >
                     <a class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$pullRequest['repository']['id'].'/deploy?branch='.urlencode($pullRequest['source'])) }}">Deploy</a>
                     @if($pullRequest['repository']['name'] == "erp")
                         <a style="margin-top: 5px;" class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$pullRequest['repository']['id'].'/deploy?branch='.urlencode($pullRequest['source'])) }}&composer=true">Deploy + Composer</a>
                     @endif
                 </td>
-                <td>
+                <td style="width:10%;">
                     {{-- <div>
                         <a class="btn btn-sm btn-secondary" href="{{url('/github/repos/'.$pullRequest['repository']['id'].'/branch/merge?source=master&destination='.urlencode($pullRequest['source']))}}">
                             Merge from master

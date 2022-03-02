@@ -47,7 +47,9 @@ class Mailinglist extends Model
 	public function sendAutoEmails($mailingList, $mailing_item, $service) { 
 		$mailing_item->customer = $mailingList;
 		$emailClass = (new \App\Mail\MailingListMails($mailing_item))->build(); 
-		
+		$website = \App\StoreWebsite::where('id',$mailingList->website_id)->first();
+		$api_key=(isset($website->send_in_blue_smtp_email_api) &&  $website->send_in_blue_smtp_email_api !="")?$website->send_in_blue_smtp_email_api: getenv('SEND_IN_BLUE_SMTP_EMAIL_API');
+
 		if (strpos(strtolower($service->name), strtolower('SendInBlue')) !== false) { 
 			//if(!empty($mailing_item['static_template'])) { 
 				$emailEvent = EmailEvent::create(["list_contact_id"=>$mailingList->list_contact_id, 'template_id'=> $mailing_item->id]);

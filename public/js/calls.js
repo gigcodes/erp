@@ -94,16 +94,73 @@
 		bMute = false;
 	}
 
-	function loadTwilioDevice(token,agent) { console.log('97');
+	function loadTwilioDevice(token,worker_token, agent) { console.log('97');
 		const $confirmModal = $('#receive-call-popup');
 		var set_status = '';
 		console.log("Token : "+token);
+		console.log("Worker Token : "+worker_token);
 		console.log("Agent : "+agent);
-		device = new Twilio.Device(token, {debug: true, allowIncomingWhileBusy: true, audioConstraints: {
+		device = new Twilio.Device(token, {debug: true, audioConstraints: {
 			mandatory: { 
 				googAutoGainControl: false 
 			} 
 		} });
+
+		const worker = new Twilio.TaskRouter.Worker(worker_token);
+		console.log("device: " + device);
+		console.log("worker: " + worker);
+		
+		worker.on("ready", function(agent) {
+			showActivityStatus(agent)			
+		});
+
+		worker.on("reservation.timeout", function(reservation) {
+			$confirmModal.modal("hide");     
+			showError("Reservation timeout occurred")          
+		});
+
+		worker.on("reservation.canceled", function(reservation) {
+			$confirmModal.modal("hide");     
+			showError("Caller Hang-up")          
+		});
+
+		worker.on("activity.update", (agent) => {
+			showActivityStatus(agent)			
+		});
+
+		showActivityStatus = (agent) => {
+			worker.activities.fetch(
+				(error, activityList) => {
+					if(error) {
+						console.log(error.code);
+						console.log(error.message);
+						return;
+					}
+					let activity;
+					if(agent.available) {
+						activity = activityList.data.find((item) => {
+							console.log(item.friendlyName)
+							return item.friendlyName == "Offline";
+						});
+					} else {
+						activity = activityList.data.find((item) => {
+							return item.friendlyName == "Available";
+						});
+					}
+					$(".worker-activity").html(agent.activityName);
+					$(".worker-activity-toggle").html(activity.friendlyName);
+					$(".worker-activity-toggle").attr("data-activity-sid", activity.sid);
+				}	
+			);
+		}
+
+		$(document).on('click','.worker-activity-toggle', () => {
+			const sid = $('.worker-activity-toggle').attr('data-activity-sid');
+			if(sid) {
+				worker.update({"ActivitySid":sid});
+			}
+		})
+
 		// Twilio.Device.setup(token, {debug: true});
 		device.on('ready', function () {
 			$("*[data-twilio-call]").each(function () {
@@ -326,6 +383,17 @@
 						},
 					})
 
+					$.ajax({
+						url: '/twilio/update-reservation-status',
+						type: 'POST',
+						dataType: 'json',
+						data: {
+							_token: "{{ csrf_token() }}",
+							authid : auth_id,
+							number : conn.parameters.From,
+						},
+					})
+
 					conn.reject();
 				});
 			});
@@ -384,7 +452,7 @@
 			if (!result.empty) {
 				console.log("Received Twilio Token - agent " + result.agent);
 				for (var i in result.twilio_tokens) if (result.twilio_tokens.hasOwnProperty(i)) {
-					loadTwilioDevice(result.twilio_tokens[i],result.agent);
+					loadTwilioDevice(result.twilio_tokens[i],result.workers[i],result.agent);
 				}
 			} else {
 				console.log("Not Twilio Token - agent or auth user");

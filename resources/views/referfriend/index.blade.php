@@ -56,6 +56,7 @@
                 <th>Referee Email</th>
                 <th>Referee Phone</th>
                 <th>Website</th>
+                <th>Status</th>
                 <th>Date</th>
                 <th>Action</th>
             </tr>
@@ -70,7 +71,7 @@
     <div id="view_error" class="modal fade" role="dialog" data-backdrop="static">
         <div class="modal-dialog">
             <!-- Modal content-->
-            <div class="modal-content">
+            <div class="modal-content" style="min-width: 707px !important;">
                 <div class="modal-header">
                     <h4 class="modal-title">View Logs</h4>
                 </div>

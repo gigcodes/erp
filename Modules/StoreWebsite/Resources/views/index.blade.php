@@ -19,7 +19,7 @@
 		<div class="row">
 			<div class="col col-md-9">
 				<div class="row">
-					<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action">
+					<button style="display: inline-block;" class="btn pl-5 btn-sm btn-image btn-add-action">
 						<img src="/images/add.png" style="cursor: default;">
 					</button>
 					<button style="display: inline-block;" class="btn btn-sm ml-5 btn-secondary open-store-magento-user-lising">
@@ -35,7 +35,6 @@
 						<div class="row">
 							<div class="col">
 								<div class="form-group">
-									<label for="keyword">Keyword:</label>
 									<?php echo Form::text("keyword", request("keyword"), ["class" => "form-control", "placeholder" => "Enter keyword"]) ?>
 								</div>
 								<div class="form-group">

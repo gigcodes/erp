@@ -69,6 +69,10 @@ class MailinglistEmailController extends Controller
         $mailing_item->html = $data['html'];
 
         $list = Mailinglist::find($data['mailinglist_id']);
+        $website = \App\StoreWebsite::where('id',$list->website_id)->first();
+        $api_key=(isset($website->send_in_blue_api) &&  $website->send_in_blue_api !="")?$website->send_in_blue_api: config('env.SEND_IN_BLUE_API');
+
+
 
         if($list->service){
             if($list->service && isset($list->service->name) ){
@@ -119,7 +123,7 @@ class MailinglistEmailController extends Controller
                         CURLOPT_POSTFIELDS => json_encode($data),
                         CURLOPT_HTTPHEADER => array(
                             // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                            "api-key: ".config('env.SEND_IN_BLUE_API'),
+                            "api-key: ".$api_key,
                             "Content-Type: application/json"
                         ),
                     ));

@@ -339,4 +339,8 @@ class Customer extends Model
     {
         return $this->hasOne(\App\CustomerBasket::class, 'customer_id', 'id');
     }
+    public function maillistCustomerHistory()
+    {
+       return  $this->hasOne(\App\MaillistCustomerHistory::class,'customer_id','id');
+    }
 }
