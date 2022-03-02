@@ -248,7 +248,13 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <input type="text" class="form-control twilio_worker_name" name="twilio_worker_name" placeholder="Worker Name"/>
+                        {{-- <input type="text" class="form-control twilio_worker_name" name="twilio_worker_name" placeholder="Worker Name"/> --}}
+                        <select class="form-control worker_user_id" name="worker_user_id">
+                            <option value="0">Select User</option>
+                            @foreach($twilio_user_list as $value)
+                            <option value="{{ $value->id }}">{{ $value->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                    
                     <div class="col-md-3">
@@ -835,7 +841,8 @@
 
             $('.create_twilio_worker').on("click", function(){
                 var workspace_id = $('.worker_workspace_id').val();
-                var worker_name = $('.twilio_worker_name').val();
+                // var worker_name = $('.twilio_worker_name').val();
+                var user_id = $('.worker_user_id').val();
                 var worker_phone = $('.worker_phone').val();
 
                 $.ajax({
@@ -843,7 +850,8 @@
                     type: 'POST',
                     data : {
                         workspace_id: workspace_id,
-                        worker_name: worker_name,
+                        // worker_name: worker_name,
+                        user_id: user_id,
                         worker_phone: worker_phone,
                         account_id: '{{ $account_id }}',
                         _token : "{{ csrf_token() }}"
