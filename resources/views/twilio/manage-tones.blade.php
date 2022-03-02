@@ -10,18 +10,18 @@
     </div>
     
     <div class="row">
-        <div class="col-md-12">
-            <div class="col-md-1">#</div>
-            <div class="col-md-1">Store Website</div>
-            <div class="col-md-3">End work ring</div>
-            <div class="col-md-3">Intro ring</div>
-            <div class="col-md-3">Busy ring</div>
-            <div class="col-md-1">Action</div>
-        </div>    
+        <div class="col-md-12" style="padding:12px">
+            <div class="col-md-1"><strong>#</strong></div>
+            <div class="col-md-1"><strong>Store Website</strong></div>
+            <div class="col-md-3"><strong>End work ring</strong></div>
+            <div class="col-md-3"><strong>Intro ring</strong></div>
+            <div class="col-md-3"><strong>Busy ring</strong></div>
+            <div class="col-md-1"><strong>Action</strong></div>
+        </div> 
            
            
 			    @foreach($twilioMessageTones as $i=>$twilioMessageTone)
-                    <div class="col-md-12">
+                    <div class="col-md-12" style="padding:12px">
 						{{ Form::open(array('url'=>url('twilio/save-message-tone'), 'files'=>true, 'class'=>'ajax-submit'))}}
 							<div class="col-md-1">{{ $i+1 }} {{Form::hidden('store_website_id', $twilioMessageTone['websiteId']) }}</div>
 							<div class="col-md-1">{{ $twilioMessageTone->website }}</div>
@@ -51,7 +51,7 @@
 							</div>
 							<div class="col-md-1"><button class="btn btn-secondary" type="submit" >Save</button></div>
 						</form>
-					</div>   
+					</div> 
                 @endforeach
         </div>
     </div>
