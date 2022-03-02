@@ -3178,7 +3178,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('twilio/account-logs', 'TwilioController@twilioAccountLogs')->name('twilio.account_logs');
     Route::get('twilio/conditions', 'TwilioController@getConditions')->name('twilio.conditions');
     Route::get('twilio/conditions/status/update', 'TwilioController@updateConditionStatus')->name('twilio.condition.update');
-
+	Route::post('twilio/save-message-tone', 'TwilioController@saveMessageTone')->name('twilio.save_tone');
+	Route::get('twilio/message-tones', 'TwilioController@viewMessageTones')->name('twilio.view_tone');
+    
 
 
     /**
