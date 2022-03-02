@@ -250,7 +250,6 @@
 					</tbody>
 				</table>
 				</div>
-				<!-- {{ $categories->appends(request()->capture()->except('page','pagination') + ['pagination' => true])->render() }} -->
 			</div>
 		</div>
 	</div>

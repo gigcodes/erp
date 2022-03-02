@@ -122,7 +122,7 @@ class SiteDevelopmentController extends Controller
         $filter_category = clone $categories;
 
         //main data listing
-        $categories = $categories->paginate(10);
+        $categories = $categories->get();
 
         //for filtration category
         $filter_category = $filter_category->get();
