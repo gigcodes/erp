@@ -1646,6 +1646,9 @@ if (!empty($notifications)) {
 														<a href="{{ route('twilio.account_logs') }}">Twilio Account Logs</a>
 													</li>
 													<li class="nav-item dropdown">
+														<a href="{{ route('twilio.view_tone') }}">Twilio Message Tones</a>
+													</li>
+													<li class="nav-item dropdown">
 														<a class="dropdown-item" href="{{ url('twilio/getChats') }}">SMS</a>
 													</li>
 													<li class="nav-item dropdown">
