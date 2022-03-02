@@ -55,7 +55,8 @@ class TwilioActiveNumber extends Model
          'bundle_sid',
          'uri',
          'status',
-         'workspace_sid'
+         'workspace_sid',
+         'workflow_sid'
     ];
 
     public function assigned_stores()
