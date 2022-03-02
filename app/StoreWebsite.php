@@ -192,4 +192,13 @@ class StoreWebsite extends Model
     {
         return self::where("website_source","magento")->pluck("website", "id")->toArray();
     }
+
+    function getSiteAssetData($id, $category_id, $mediatype)
+    {
+        $data = \App\StoreWebsiteImage::where(['category_id'=> $category_id, 'store_website_id' => $id, 'media_type'=> $mediatype])->first();
+        if(!empty($data)){
+            return true;
+        }
+        return false;
+    }
 }
