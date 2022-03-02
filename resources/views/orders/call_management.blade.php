@@ -21,8 +21,9 @@
     Call Management
     <div class="margin-tb" style="flex-grow: 1;">
         <div class="pull-right ">
-            <div class="d-flex justify-content-between  mx-3">
-				
+            <div class="d-flex align-items-center justify-content-between  mx-3">
+				<div class="worker-activity">Offline</div>
+                <button class="button worker-activity-toggle ml-3">Available</button>
             </div>
         </div>
     </div>

@@ -80,11 +80,13 @@ class TaskModuleController extends Controller
 
         $categoryWhereClause = '';
         $category = '';
-        $request->category = $request->category ? $request->category : 1;
+       // $request->category = $request->category ? $request->category : 1;
         if ($request->category != '') {
-            if ($request->category != 1) {
-                $categoryWhereClause = "AND category = $request->category";
-                $category = $request->category;
+			   $categoryWhereClause = "AND category = $request->category";
+               $category = $request->category;
+            /*if ($request->category != 1) {
+               $categoryWhereClause = "AND category = $request->category";
+               $category = $request->category;
             } else {
                 $category_condition  = implode(',', $activeCategories);
                 if ($category_condition != '' || $category_condition != null) {
@@ -93,7 +95,7 @@ class TaskModuleController extends Controller
                 } else {
                     $categoryWhereClause = "";
                 }
-            }
+            }*/
         }
 
         $term = $request->term ?? "";

@@ -1937,6 +1937,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/drafted-products/delete', 'ProductController@deleteDraftedProducts');
     Route::post('/drafted-products/addtoquicksell', 'ProductController@addDraftProductsToQuickSell');
     Route::post('/drafted-products/send-lead-price', 'ProductController@sendLeadPrice');
+	Route::get('chatbot-type-error-log', 'ChatbotTypeErrorLogController@index')->name('chatbot.type.error.log');
 
 });
 
@@ -3204,6 +3205,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('create-twilio-workflow', 'TwilioController@createTwilioWorkflow')->name('create-twilio-workflow');
     Route::delete('delete-twilio-workflow', 'TwilioController@deleteTwilioWorkflow')->name('delete-twilio-workflow');
+    Route::post('edit-twilio-workflow', 'TwilioController@editTwilioWorkflow')->name('edit-twilio-workflow');
 
     Route::post('create-twilio-activity', 'TwilioController@createTwilioActivity')->name('create-twilio-activity');
     Route::delete('delete-twilio-activity', 'TwilioController@deleteTwilioActivity')->name('delete-twilio-activity');
