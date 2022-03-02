@@ -178,6 +178,7 @@
 							</div>
 							<div class="form-group">
 								<?php /* <label for="button">&nbsp;</label> */?>
+								<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
 									<img src="{{env('APP_URL')}}/images/send.png" style="cursor: default;width: 16px;">
 								</button>
 							</div>
@@ -842,7 +843,7 @@ $(document).on('change', '.assign-user', function () {
 
 	$("#change_website").change(function(){
 		var websiteUrl='';
-		websiteUrl="{{route('site-development.index')}}/"+$(this).val();
+		websiteUrl="{{route('site-development.index')}}/"+$(this).val()+'?k='+$('#k').val();
 		window.location=websiteUrl;
 	});
 	$('.assign-to.select2').select2({
