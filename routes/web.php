@@ -3203,6 +3203,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('twilio/assign-number', 'TwilioController@assignTwilioNumberToStoreWebsite')->name('assign-number-to-store-website');
     Route::post('twilio/call-forward', 'TwilioController@twilioCallForward')->name('manage-twilio-call-forward');
 
+    Route::post('twilio/get-workflow-list', 'TwilioController@getWorkflowList')->name('get-workflow-list');
+
     Route::post('create-twilio-workflow', 'TwilioController@createTwilioWorkflow')->name('create-twilio-workflow');
     Route::delete('delete-twilio-workflow', 'TwilioController@deleteTwilioWorkflow')->name('delete-twilio-workflow');
     Route::post('edit-twilio-workflow', 'TwilioController@editTwilioWorkflow')->name('edit-twilio-workflow');

@@ -1308,11 +1308,19 @@ class TwilioController extends FindByNumberController
 
             $task->taskrouter->v1->workspaces($request->get('WorkspaceSid'))
                     ->tasks($request->get('TaskSid'))
-                    ->delete();
+                    ->update([
+                        'assignmentStatus' => 'completed'
+                    ]);
         }
 
         if($request->get('EventType') == "task.canceled") {
             TwilioCallWaiting::where("call_sid",json_decode($request->get("TaskAttributes"))->call_sid)->delete();
+
+            $task->calls(json_decode($request->get("TaskAttributes"))->call_sid)
+               ->update([
+                            "twiml" => "<Response><Say>Currently, We are getting too much inquiry, we will contact you soon. Good Bye</Say><Leave/></Response>"
+                        ]
+               );
         }
     }
 
@@ -1434,8 +1442,7 @@ class TwilioController extends FindByNumberController
         try {
 
             $call_from = TwilioActiveNumber::where('phone_number',$request->get("Called"))->first();
-            $workspace = TwilioWorkspace::where('workspace_sid', $call_from->workspace_sid)->first();
-            $workflow = TwilioWorkflow::where('twilio_workspace_id', $workspace->id)->first();
+            $workflow = TwilioWorkflow::where('workflow_sid', $call_from->workflow_sid)->first();
             
             // Create Twilio Log
             $inputArray = $workflow;
@@ -1487,7 +1494,7 @@ class TwilioController extends FindByNumberController
                     'status'    => 0
                 ]);
 
-                $response->enqueue(null, ['workflowSid' => $workflow->workflow_sid, 'waitUrl' => route('waiturl', [], false)])->task('{"type":"support"}', ['timeout' => $workflow->task_timeout]);
+                $response->enqueue(null, ['workflowSid' => $call_from->workflow_sid, 'waitUrl' => route('waiturl', [], false)])->task('{"type":"support"}', ['timeout' => $workflow->task_timeout]);
                 TwilioLog::create(['log'=> 'Enqueue Log '. (string)$response,'account_sid'=> 0,'call_sid'=> 0, 'phone'=> 0 ]);
         		
                 return \Response::make((string)$response, '200')->header('Content-Type', 'text/xml');
@@ -3175,6 +3182,23 @@ class TwilioController extends FindByNumberController
         }
     }
 
+    public function getWorkflowList(Request $request)
+    {
+        try {
+            $workspace = TwilioWorkspace::where('workspace_sid', $request->workspace_sid)->firstOrFail();
+
+            $workflows = TwilioWorkflow::where('twilio_workspace_id', $workspace->id)->where('deleted', 0)->get();
+            
+            return response()->json([
+                'workflows' => $workflows
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Please select valid Workflow'
+            ], 500);
+        }
+    }
+
     public function assignTwilioNumberToStoreWebsite(Request $request)
     {
         $conditionsWithIds = TwilioCondition::where('status', 1)->pluck('id', 'condition')->toArray();
@@ -3207,6 +3231,7 @@ class TwilioController extends FindByNumberController
             $number_details = TwilioActiveNumber::where('id',$request->twilio_number_id)->first();
             if($number_details) {
                 $number_details->workspace_sid = $request->workspace_sid;
+                $number_details->workflow_sid = $request->workflow_sid;
                 $number_details->save();
             }
 
