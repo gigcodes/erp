@@ -75,7 +75,10 @@ use App\ChatbotTypeErrorLog;
 use App\ChatbotCategory;
 use App\ReplyCategory;
 use App\TwilioDequeueCall;
+
+use App\TwilioMessageTone;
 use Twilio\Jwt\TaskRouter\WorkerCapability;
+
 
 
 /**
@@ -341,6 +344,19 @@ class TwilioController extends FindByNumberController
 		Log::channel('customerDnd')->info('object:: '.$object);
         
         $store_website_id = (isset($object->store_website_id) ? $object->store_website_id : 0 );
+		
+		$messageTones = TwilioMessageTone::where('store_website_id', $store_website_id)->first();
+		
+		$endworkRing = 'https://'.$request->getHost() . "/end_work_ring.mp3";
+		$introRing = 'https://'.$request->getHost() . "/intro_ring.mp3";
+		 
+		if(isset($messageTones['end_work_ring']) and $messageTones['end_work_ring'] != null) {
+			$endworkRing  = url('twilio/'.$messageTones['end_work_ring']);
+		}
+		
+		if(isset($messageTones['intro_ring']) and $messageTones['intro_ring'] != null) {
+			$introRing  = url('twilio/'.$messageTones['intro_ring']);
+		}
 
 		$welcomeMessage = StoreWebsite::where('id', $store_website_id)->pluck('twilio_greeting_message')->first();
 		if($welcomeMessage == null) {
@@ -495,7 +511,7 @@ class TwilioController extends FindByNumberController
                     if(isset($storewebsitetwiliono_data->end_work_message) && $storewebsitetwiliono_data->end_work_message != '')
                         $response->Say($storewebsitetwiliono_data->end_work_message);
                     else
-                        $response->play('https://'.$request->getHost() . "/end_work_ring.mp3");
+                        $response->play($endworkRing);
                 }else{
 
 
@@ -700,7 +716,7 @@ class TwilioController extends FindByNumberController
                 if(isset($storewebsitetwiliono_data->message_available) && $storewebsitetwiliono_data->message_available != '')
                     $response->say($storewebsitetwiliono_data->message_available);
                 else
-                    $response->play('https://'.$request->getHost() . "/intro_ring.mp3");//$response->play(\Config::get("app.url") . "/intro_ring.mp3");
+                    $response->play($introRing);//$response->play(\Config::get("app.url") . "/intro_ring.mp3");
 
 				$gather = $response->gather(
 					[
@@ -782,7 +798,7 @@ class TwilioController extends FindByNumberController
                     if(isset($storewebsitetwiliono_data->end_work_message) && in_array('end_work_message', $conditions) && $storewebsitetwiliono_data->end_work_message != '')
                         $response->say($storewebsitetwiliono_data->end_work_message);
                     else
-                        $response->play('https://'.$request->getHost() . "/end_work_ring.mp3");
+                        $response->play($endworkRing);
                     
                     // $response->play(\Config::get("app.url") . "end_work_ring.mp3");
                 }else {
@@ -794,7 +810,7 @@ class TwilioController extends FindByNumberController
                         if(isset($storewebsitetwiliono_data->message_available) && $storewebsitetwiliono_data->message_available != '')
                             $response->say($storewebsitetwiliono_data->message_available);
                         else
-                            $response->play('https://'.$request->getHost() . "/intro_ring.mp3");//$response->play(\Config::get("app.url") . "/intro_ring.mp3");
+                            $response->play($introRing);//$response->play(\Config::get("app.url") . "/intro_ring.mp3");
 
 
                         $gather = $response->gather(
@@ -4050,4 +4066,35 @@ class TwilioController extends FindByNumberController
         TwilioCondition::where('id', $input['id'])->update(['status'=>$input['status']]);
         return 'Status Updated';
     }
+	
+	public function saveMessageTone(Request $request) { 
+		 $rules = [
+            'end_work_ring' => 'mimes:mp3',
+            'intro_ring' => 'mimes:mp3',
+            'busy_ring' => 'mimes:mp3'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json(['status' => 'failed', 'errors' => $validator->errors(), 'statusCode'=>400]);
+        }
+		$input = $request->input();
+		$files = $request->files;
+		$params['store_website_id'] = $input['store_website_id'];
+			
+		foreach ($files as $key=>$file) {
+            $fileName = $file->getClientOriginalName();
+            $fileNameArray[] = $fileName;
+
+            $params[$key] = $params['store_website_id'].$key.$fileName;
+            $file->move(public_path('twilio'), $params[$key]);
+        }
+		TwilioMessageTone::updateOrCreate(['store_website_id'=>$params['store_website_id']], $params);
+		return response()->json(['status' => 'success', 'message' => "Message tones updated", 'statusCode'=>200]);
+	}
+	
+	public function viewMessageTones() {
+		$twilioMessageTones = StoreWebsite::leftJoin('twilio_message_tones', 'twilio_message_tones.store_website_id','store_websites.id')
+		->select('twilio_message_tones.*', 'store_websites.title as website','store_websites.id as websiteId')->get();
+		return view('twilio.manage-tones', compact('twilioMessageTones'));
+	}
 } 
