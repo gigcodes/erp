@@ -1443,9 +1443,6 @@ class TwilioController extends FindByNumberController
 
             $call_from = TwilioActiveNumber::where('phone_number',$request->get("Called"))->first();
             $workflow = TwilioWorkflow::where('workflow_sid', $call_from->workflow_sid)->first();
-
-            $workspace = TwilioWorkspace::where('workspace_sid', $call_from->workspace_sid)->first();
-            $workflow = TwilioWorkflow::where('twilio_workspace_id', $workspace->id)->first();
             
             // Create Twilio Log
             $inputArray = $workflow;
