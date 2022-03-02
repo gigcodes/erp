@@ -762,7 +762,7 @@
                 }else{
                     counter_one = 1;
                     $('.hidden_row_'+row_id).show();
-                })
+                }
                 changeWorkflow($(this).attr('data-workspace-sid'), $(this).attr('data-workflow-sid'))
             });
 
