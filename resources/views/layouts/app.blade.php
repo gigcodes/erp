@@ -123,6 +123,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script type="text/javascript" src="https://media.twiliocdn.com/sdk/js/client/v1.14/twilio.min.js"></script>
+    <script src="https://sdk.twilio.com/js/taskrouter/v1.21/taskrouter.min.js"></script>
 
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.0.5/dist/js/tabulator.min.js"></script>
 
@@ -927,6 +928,9 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
                                             <a class="dropdown-item" href="/marketing/services">Mailing Service</a>
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList.log') }}">Mailinglist Log</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList.flowlog') }}">Mailinglist Flow Log</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList.customerlog') }}">Customer Mailinglist Log</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
                                             <a class="dropdown-item" href="/mail-templates/mailables">Mailables</a>
@@ -1349,6 +1353,9 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.type.error.log')}}">Call Journey</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1506,6 +1513,9 @@ if (!empty($notifications)) {
                         <li class="nav-item dropdown">
                             <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast messages</a>
                         </li>
+                        <li class="nav-item dropdown">
+                            <a class="dropdown-item" href="{{route('plan.index')}}">Plan</a>
+                        </li>
                     </ul>
                     <div>
                         <div id="nav-dotes"  class="nav-item dropdown dots mr-3 ml-3">
@@ -1638,6 +1648,9 @@ if (!empty($notifications)) {
 													</li>
 													<li class="nav-item dropdown">
 														<a href="{{ route('twilio.account_logs') }}">Twilio Account Logs</a>
+													</li>
+													<li class="nav-item dropdown">
+														<a href="{{ route('twilio.view_tone') }}">Twilio Message Tones</a>
 													</li>
 													<li class="nav-item dropdown">
 														<a class="dropdown-item" href="{{ url('twilio/getChats') }}">SMS</a>

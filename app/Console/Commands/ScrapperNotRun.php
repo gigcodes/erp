@@ -41,7 +41,7 @@ class ScrapperNotRun extends Command
      */
     public function handle()
     {
-        $scraper_process = ScraperProcess::where("scraper_name", "!=", "")->orderBy('started_at', 'DESC')->get()->unique('scraper_id');
+        $scraper_process = ScraperProcess::where("scraper_name", "!=", "")->orderBy('scraper_id', 'DESC')->groupBy('scraper_id')->get();
         $scraper_proc = [];
         foreach ($scraper_process as $key => $sp) {
             $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $sp->started_at);
@@ -54,8 +54,9 @@ class ScrapperNotRun extends Command
         $scrapers = Scraper::where("scraper_name", "!=", "")->whereNotIn('id', $scraper_proc)->get();
         foreach ($scrapers as $scrapperDetails) {
             $hasAssignedIssue = \App\DeveloperTask::where("scraper_id", $scrapperDetails->id)
-                ->whereNotNull("assigned_to")->where("is_resolved", 0)->first();
-            if ($hasAssignedIssue != null) {
+                //->whereNotNull("assigned_to")
+				->where("is_resolved", 0)->orderBy('id', 'desc')->first();
+            if ($hasAssignedIssue != null and $hasAssignedIssue->assigned_to != null) {
                 $userName = \App\User::where('id', $hasAssignedIssue->assigned_to)->pluck('name')->first();
                 $requestData = new Request();
                 $requestData->setMethod('POST');

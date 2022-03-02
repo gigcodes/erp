@@ -1795,8 +1795,8 @@ class ProductController extends Controller
             //code...
             // Get product by ID
             $product = Product::find($id);
-            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-            if(!empty($websiteArrays)) {
+            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id); 
+            if(!empty($websiteArrays)) { 
                 $storeWebsites = \App\StoreWebsite::whereIn("id",$websiteArrays)->get();
                 foreach($storeWebsites as $website) {
                     if ($website) {
@@ -1929,7 +1929,7 @@ class ProductController extends Controller
                 //check for hscode
                 $hsCode = $product->hsCode($product->category, $product->composition);
                 $hsCode = true;
-                if ($hsCode) {
+                //if ($hsCode) {
                     // If we have a product, push it to Magento
                     if ($product !== null) {
                         // Dispatch the job to the queue
@@ -1964,18 +1964,18 @@ class ProductController extends Controller
                         $product->isUploaded = 1;
                         $product->save();
                         // Return response
-                        // return response()->json([
-                        //     'result' => 'queuedForDispatch',
-                        //     'status' => 'listed'
-                        // ]);
+                         return response()->json([
+                             'result' => 'queuedForDispatch',
+                             'status' => 'listed'
+                         ]);
                     }
-                }
+                //}
 
-                $msg = 'Hs Code not found of product id ' . $id . '. Parameters where category_id: ' . $product->category . ' and composition: ' . $product->composition;
+               /* $msg = 'Hs Code not found of product id ' . $id . '. Parameters where category_id: ' . $product->category . ' and composition: ' . $product->composition;
 
                 $logId = LogListMagento::log($product->id, $msg, 'info');
                 ProductPushErrorLog::log("", $product->id, $msg, 'error', $logId->store_website_id, "", "", $logId->id);
-                $this->updateLogUserId($logId);
+                $this->updateLogUserId($logId);*/
 
                 // Return error response by default
                 // return response()->json([

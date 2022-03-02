@@ -11471,10 +11471,16 @@ table.table-striped-custom tbody tr td {
 }
 #app{
     overflow: hidden;
+}
 #reply_history_div tbody tr:hover .Website-task, #quick-reply-list tbody tr:hover .Website-task{
     overflow: visible;
     white-space: normal;
     word-break: break-all;
+}
+tbody tr:hover .Website-task{
+    overflow: visible !important;
+    white-space: normal !important;
+    word-break: break-all; 
 }
 
 #app{
@@ -11513,13 +11519,15 @@ overflow-x: hidden !important;
 #app{
     overflow: hidden !important;
 }
+.btn.btn-edit-template{
+    padding: 1px 0px;
+}
 .selectbox{
     width: 100px !important;
 }
 .show-product-information{
     color: black;
 }
-
 .custom-checkbox input[type="checkbox"]{
     position: absolute;
     width: 15px;
@@ -11557,6 +11565,5 @@ overflow-x: hidden !important;
 }
 .custom-checkbox input[type="checkbox"]:checked + label:after{
     opacity: 1;
-
-
 }
+

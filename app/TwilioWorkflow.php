@@ -14,6 +14,8 @@ class TwilioWorkflow extends Model
 	'workflow_sid', 
 	'deleted',
 	'fallback_assignment_callback_url',
-	'assignment_callback_url'
+	'assignment_callback_url',
+	'task_timeout',
+	'worker_reservation_timeout'
     ];
 }

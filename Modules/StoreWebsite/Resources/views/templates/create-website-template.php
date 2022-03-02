@@ -65,6 +65,24 @@
             </div>
             <div class="col-md-4">
                <div class="form-group">
+                  <label for="description">Send Blue Account</label>
+                  <input type="text" name="send_in_blue_account" value="{{if data}}{{:data.send_in_blue_account}}{{/if}}" class="form-control" id="send_in_blue_account" placeholder="Enter Send Blue Account">
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="description">Send Blue API</label>
+                  <input type="text" name="send_in_blue_api" value="{{if data}}{{:data.send_in_blue_api}}{{/if}}" class="form-control" id="send_in_blue_api" placeholder="Enter Send in Blue APi">
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="description">Send Blue SMTP Email API</label>
+                  <input type="text" name="send_in_blue_smtp_email_api" value="{{if data}}{{:data.send_in_blue_smtp_email_api}}{{/if}}" class="form-control" id="send_in_blue_sms_email_api" placeholder="Enter Send in Blue SMTP Mail APi">
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
                   <label for="remote_software">Remote software</label>
                   <input type="text" name="remote_software" value="{{if data}}{{:data.remote_software}}{{/if}}" class="form-control" id="remote_software" placeholder="Enter Remotesoftware">
                </div>

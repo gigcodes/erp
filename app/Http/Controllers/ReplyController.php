@@ -222,7 +222,7 @@ class ReplyController extends Controller
         $replies = \App\ReplyCategory::join("replies","reply_categories.id","replies.category_id")
         ->leftJoin("store_websites as sw","sw.id","replies.store_website_id")
         ->where("model","Store Website")
-        ->select(["replies.*","sw.website","reply_categories.name as category_name","reply_categories.parent_id","reply_categories.id as reply_cat_id"]);
+        ->select(["replies.*","sw.website", "reply_categories.intent_id","reply_categories.name as category_name","reply_categories.parent_id","reply_categories.id as reply_cat_id"]);
 
         if($storeWebsite > 0) {
            $replies = $replies->where("replies.store_website_id",$storeWebsite);

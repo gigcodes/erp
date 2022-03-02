@@ -11,4 +11,8 @@ class CouponCodeRules extends Model
     public function store_labels(){
         return $this->hasMany('App\WebsiteStoreViewValue','rule_id');
     }
+
+    public function users(){
+        return $this->belongsTo(User::class,'created_by','id');
+    }
 }

@@ -18,9 +18,10 @@
             </td>        
             <td>
                 @include("storewebsite::site-development.partials.edit-modal")
-
+                @include("storewebsite::site-development.partials.site-asset-modal")
                 {{ $category->title }}
 
+                <div style="display: flex; float: right">  <button onclick="checkAsset({{$category->id}}, {{ $category->site_development_id }})" style="background-color: transparent;border: 0; margin-top:0px;" class="p-2" title="Set this category in site assets for this website"><i class="fa fa-info-circle"></i></button></div>
               <div style="display: flex;float: right">  <button onclick="editCategory({{$category->id}})" style="background-color: transparent;border: 0;margin-top:0px;" class="pl-0"><i class="fa fa-edit"></i></button>
 
 
@@ -206,7 +207,7 @@
                     $websitenamestr = ($website) ? $website->title : "";
                 @endphp
                 <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task pd-5" data-id="@if($site){{ $site->id }}@endif" data-title="@if($site){{ $websitenamestr.' '.$site->title }}@endif"><img style="width:12px !important;" src="/images/add.png" /></button>
-                <button style="padding-left: 0;float: right;padding-right:0px;" type="button" class="btn pt-1 btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="@if($site){{ $site->id }}@endif"><i class="fa fa-info-circle"></i></button>
+                <button style="padding-left: 0;float: right;padding-right:0px;" type="button" class="btn pt-1 btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="@if($site){{ $site->id }}@endif" data-category="{{$category->id}}"><i class="fa fa-info-circle"></i></button>
                 <button style="padding-left: 0;float: right;padding-right:0px;" type="button" class="btn pt-1 btn-image d-inline tasks-relation" title="Show task relation" data-id="@if($site){{ $site->id }}@endif"><i class="fa fa-dashboard"></i></button>
                 @endif
                 <button class="btn btn-image d-inline create-quick-task pd-5">
