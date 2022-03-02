@@ -1354,7 +1354,7 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('chatbot.type.error.log')}}">Type Logs</a>
+                                            <a class="dropdown-item" href="{{route('chatbot.type.error.log')}}">Call Journey</a>
                                         </li>
                                     </ul>
                                 </li>
