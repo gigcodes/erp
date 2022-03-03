@@ -178,8 +178,8 @@ class TwilioController extends FindByNumberController
                             $capability->allowClientOutgoing($device->twiml_app_sid);
                             
                             $capability->allowClientIncoming($agent);
-                            $expiresIn = (3600 * 1);
-                            $token = $capability->generateToken();
+                            $expiresIn = (3600 * 8);
+                            $token = $capability->generateToken($expiresIn);
                             $tokens[]=$token;
 
                             $twilioWorkspace = TwilioWorkspace::where('workspace_sid', $twilio_active_credential->workspace_sid)->firstOrFail();
@@ -189,7 +189,7 @@ class TwilioController extends FindByNumberController
                             $capability->allowFetchSubresources();
                             $capability->allowActivityUpdates();
                             $capability->allowReservationUpdates();
-                            $workers[] = $capability->generateToken();
+                            $workers[] = $capability->generateToken($expiresIn);
                         }
                         return response()->json(['twilio_tokens' => $tokens, 'workers' => $workers, 'agent' => $agent]);
         
