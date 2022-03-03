@@ -1316,12 +1316,16 @@ class TwilioController extends FindByNumberController
         if($request->get('EventType') == "task.canceled") {
             TwilioCallWaiting::where("call_sid",json_decode($request->get("TaskAttributes"))->call_sid)->delete();
 
-            $task->calls(json_decode($request->get("TaskAttributes"))->call_sid)
-               ->update([
-                            "twiml" => "<Response><Say>Currently, We are getting too much inquiry, we will contact you soon. Good Bye</Say><Leave/></Response>"
-                        ]
-               );
+            if($request->get('EventType') != "hangup") {
+                $task->calls(json_decode($request->get("TaskAttributes"))->call_sid)
+                ->update([
+                    "twiml" => "<Response><Say>Currently, We are getting too much inquiry, we will contact you soon. Good Bye</Say><Leave/></Response>"
+                    ]
+                );
+            }
         }
+
+        return response()->json([], 204);
     }
 
     public function assignmentTask(Request $request)
