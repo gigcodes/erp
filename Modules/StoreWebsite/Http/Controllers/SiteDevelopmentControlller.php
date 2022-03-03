@@ -45,20 +45,20 @@ class SiteDevelopmentController extends Controller
 
             $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id' , 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC limit 1) as site_development_id'),'store_websites.website');
         } else {
-//            $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id ORDER BY created_at DESC limit 1) as site_development_id'));
-        $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,MAX(site_developments.id) as site_development_id,website_id'))
+            $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', 'store_websites.website', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id ORDER BY created_at DESC limit 1) as site_development_id'));
+         /*$site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,MAX(site_developments.id) as site_development_id,website_id'))
             ->GroupBy(DB::raw('site_developments.website_id, site_developments.site_development_category_id'));
 
-        $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', 'site_dev.site_development_id','store_websites.website')
-            ->joinSub($site_dev, 'site_dev', function ($join)
+        $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', 'site_dev.site_development_id','store_websites.website');
+           ->joinSub($site_dev, 'site_dev', function ($join)
             {
                 $join->on('site_development_categories.id', '=', 'site_dev.site_development_category_id');
-            });
+            });*/
         }
         
 
         if ($request->k != null) {
-            $categories = $categories->where("site_development_categories.title", "like", "%" . $request->k . "%");
+            $categories = $categories->where("site_development_categories.title",  $request->k);
         }
         if($id!='all') { 
             $ignoredCategory = \App\SiteDevelopmentHiddenCategory::where("store_website_id", $id)->pluck("category_id")->toArray();
@@ -73,7 +73,7 @@ class SiteDevelopmentController extends Controller
         } else {
             $categories = $categories->whereNotIn('site_development_categories.id', $ignoredCategory);
         }
-
+	
         //$categories = $categories->paginate(Setting::get('pagination'));
         // $categories = $categories->paginate(20);
 
@@ -103,9 +103,10 @@ class SiteDevelopmentController extends Controller
            
         }
         if($id!='all') {
-        $categories->groupBy('site_development_categories.id');
-
-        }
+			$categories->groupBy('site_development_categories.id');
+        } else{
+			$categories->groupBy('site_developments.website_id', 'site_development_categories.id');
+		}
 
         if ($request->order) {
             if ($request->order == 'title') {
@@ -119,16 +120,14 @@ class SiteDevelopmentController extends Controller
         }
 
         //for filtration category clone category data qurery
-        $filter_category = clone $categories;
+       
 
         //main data listing
-        $categories = $categories->get();
-
-        //for filtration category
-        $filter_category = $filter_category->get();
-
+        $categories = $categories->paginate(25);
+		
+      
         //get filter category data
-        $filter_category = $filter_category->pluck('title')->unique();
+        $filter_category = SiteDevelopmentCategory::pluck('title')->toArray();
 
         foreach ($categories as $category) {
             $finalArray = [];

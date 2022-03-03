@@ -3,7 +3,7 @@
     $isHod = auth()->user()->hasRole('HOD of CRM');
     $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
     $userId = auth()->user()->id;
-    //$pagrank = $categories->perPage() * ($categories->currentPage()- 1) + 1;
+    $pagrank = $categories->perPage() * ($categories->currentPage()- 1) + 1;
     @endphp 
 	 @foreach($categories as $key => $category) 
     <?php
@@ -14,7 +14,7 @@
 
         <tr>
             <td>
-                {{ $key+1  }} 
+                {{ $pagrank++  }}
             </td>        
             <td>
                 @include("storewebsite::site-development.partials.edit-modal")
