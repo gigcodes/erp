@@ -82,7 +82,7 @@
                                     <td>{{ @$number->assigned_stores->store_website->title }}</td>
                                     <td>{{ $number->status }}</td>
                                     <td>
-                                        <a href="javascript:void(0);" type="button" id="1" class="btn btn-image open_row">
+                                        <a href="javascript:void(0);" type="button" id="1" data-workspace-sid="{{ $number->workspace_sid }}" data-workflow-sid="{{ $number->workflow_sid }}" class="btn btn-image open_row">
                                             <img src="/images/forward.png" style="cursor: default;" width="2px;">
                                         </a>
                                         <a href="javascript:void(0);" class="call_forwarding btn d-inline btn-image" data-attr="1" title="Call Forwarding" ><img src="/images/remark.png" style="cursor: default;"></a>
@@ -111,6 +111,16 @@
                                                 @if(isset($workspace))
                                                     @foreach($workspace as $wsp)
                                                         <option value="{{ $wsp->workspace_sid }}"@if($number->workspace_sid == $wsp->workspace_sid) selected @endif>{{ $wsp->workspace_name }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        </div>
+                                        <label>Workflow:</label>
+                                        <div class="input-group">
+                                            <select class="form-control change-workflow" id="workflow_sid_1">
+                                                @if(isset($workflow))
+                                                    @foreach($workflow as $wsp)
+                                                        <option value="{{ $wsp->workflow_sid }}" @if($number->workflow_sid == $wsp->workflow_sid) selected @endif>{{ $wsp->workflow_name }}</option>
                                                     @endforeach
                                                 @endif
                                             </select>
@@ -753,6 +763,7 @@
                     counter_one = 1;
                     $('.hidden_row_'+row_id).show();
                 }
+                changeWorkflow($(this).attr('data-workspace-sid'), $(this).attr('data-workflow-sid'))
             });
 
             
@@ -781,12 +792,13 @@
                         'sub_category_menu_message' : $('#sub_category_menu_message_'+num_id).val(),
                         'speech_response_not_available_message' : $('#speech_response_not_available_message_'+num_id).val(),
                         'credential_id' : credential_id,
-                        "workspace_sid" :$('#workspace_sid_'+num_id).val()
+                        "workspace_sid" :$('#workspace_sid_'+num_id).val(),
+                        "workflow_sid" :$('#workflow_sid_'+num_id).val()
                     }
                 }).done(function(response){
                     if(response.status == 1){
                         toastr['success'](response.message);
-
+                        location.reload();
                     }else{
                         toastr['error'](response.message);
 
@@ -906,6 +918,27 @@
                 
             });
 
+            $(".change-workspace").on("change", function() {
+                changeWorkflow($(this).val(), null)
+            })
+
+            function changeWorkflow(workspace, workflow) {
+                $.ajax({
+                    url: "{{ route('get-workflow-list') }}",
+                    type: 'POST',
+                    data : {
+                        _token :  "{{ csrf_token() }}",
+                        workspace_sid : workspace,
+                    },
+                    success: (res) => {
+                        let html = '';
+                        res.workflows.forEach((item) => {
+                            html += `<option value="${item.workflow_sid}" ${item.workflow_sid == workflow ? 'selected' : ''}>${item.workflow_name}</option>`
+                        })
+                        $('.change-workflow').html(html)
+                    }
+                })
+            }
 
             $('.delete_worker').on("click", function(){
                 var id = $(this).attr('data-id');
