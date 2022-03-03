@@ -45,8 +45,10 @@ class SiteDevelopmentController extends Controller
 
             $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id' , 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC limit 1) as site_development_id'),'store_websites.website');
         } else {
+			    // $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id' , 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC limit 1) as site_development_id'),'store_websites.website');
+       
 //            $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id ORDER BY created_at DESC limit 1) as site_development_id'));
-        $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,MAX(site_developments.id) as site_development_id,website_id'))
+        $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'))
             ->GroupBy(DB::raw('site_developments.website_id, site_developments.site_development_category_id'));
 
         $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', 'site_dev.site_development_id','store_websites.website')
@@ -58,7 +60,7 @@ class SiteDevelopmentController extends Controller
         
 
         if ($request->k != null) {
-            $categories = $categories->where("site_development_categories.title", "like", "%" . $request->k . "%");
+            $categories = $categories->where("site_development_categories.title", "like", $request->k );
         }
         if($id!='all') { 
             $ignoredCategory = \App\SiteDevelopmentHiddenCategory::where("store_website_id", $id)->pluck("category_id")->toArray();
@@ -84,8 +86,10 @@ class SiteDevelopmentController extends Controller
                     ->where('site_developments.website_id', $id);
             });
         } else {
-            $categories->join('site_developments', function ($q) use ($id) {
-                    $q->on('site_developments.site_development_category_id', '=', 'site_development_categories.id');
+			$ids = StoreWebsite::pluck('id')->toArray();
+            $categories->join('site_developments', function ($q) use ($ids) {
+                    $q->on('site_developments.site_development_category_id', '=', 'site_development_categories.id')
+					->whereIn('site_developments.website_id', $ids);
             });
         }
         $categories->join('store_websites', function ($q) {
@@ -107,8 +111,7 @@ class SiteDevelopmentController extends Controller
         }else{
 			//$categories->groupBy('site_developments.website_id', 'site_development_categories.id');
 		}
-        if($id == 'all') {
-			if ($request->order) {
+        if ($request->order) {
 				if ($request->order == 'title') {
 					$categories->orderBy('site_development_categories.title', 'asc');
 				} else if ($request->order == 'communication') {
@@ -118,9 +121,6 @@ class SiteDevelopmentController extends Controller
 			} else {
 				$categories->orderBy('title', 'asc');
 			}
-		} else{
-			$categories->orderBy('website_id', 'asc');
-		}
       
         //main data listing
         $categories = $categories->paginate(25);
@@ -198,7 +198,7 @@ class SiteDevelopmentController extends Controller
         $store_websites = StoreWebsite::pluck("title","id")->toArray();
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
-                'tbody' => view('storewebsite::site-development.partials.data', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites'))->render(),
+                'tbody' => view('storewebsite::site-development.partials.data', compact('input', 'masterCategories', 'categories', 'users', 'website', 'users_all','allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites'))->render(),
                 'links' => (string) $categories->render(),
             ], 200);
         }
