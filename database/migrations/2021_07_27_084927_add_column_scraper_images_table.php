@@ -28,5 +28,10 @@ class AddColumnScraperImagesTable extends Migration
     public function down()
     {
         //
+        Schema::table('scraper_imags',function(Blueprint $table) {
+            $table->dropField('coordinates');
+            $table->dropField('height');
+            $table->dropField('width');
+        });
     }
 }

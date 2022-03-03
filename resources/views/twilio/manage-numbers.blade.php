@@ -931,7 +931,7 @@
                         workspace_sid : workspace,
                     },
                     success: (res) => {
-                        let html = '';
+                        let html = '<option>Select Workflow</option>';
                         res.workflows.forEach((item) => {
                             html += `<option value="${item.workflow_sid}" ${item.workflow_sid == workflow ? 'selected' : ''}>${item.workflow_name}</option>`
                         })
