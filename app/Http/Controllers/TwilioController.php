@@ -1441,7 +1441,6 @@ class TwilioController extends FindByNumberController
         $CallSid = $request->get("CallSid");
   	    
         list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
-
         $store_website_id = (isset($object->store_website_id) ? $object->store_website_id : 0 );
         try {
 
@@ -1497,8 +1496,11 @@ class TwilioController extends FindByNumberController
                     'store_website_id' => $store_website_id,
                     'status'    => 0
                 ]);
-
-                $response->enqueue(null, ['workflowSid' => $call_from->workflow_sid, 'waitUrl' => route('waiturl', [], false)])->task('{"type":"support"}', ['timeout' => $workflow->task_timeout]);
+                $priority = $object->is_priority ?? 0;
+                $task = [
+                    'type' => $priority
+                ];
+                $response->enqueue(null, ['workflowSid' => $call_from->workflow_sid, 'waitUrl' => route('waiturl', [], false)])->task(json_encode($task), ['priority' => $priority , 'timeout' => $workflow->task_timeout]);
                 TwilioLog::create(['log'=> 'Enqueue Log '. (string)$response,'account_sid'=> 0,'call_sid'=> 0, 'phone'=> 0 ]);
         		
                 return \Response::make((string)$response, '200')->header('Content-Type', 'text/xml');
@@ -3769,7 +3771,7 @@ class TwilioController extends FindByNumberController
 
             $worker = $twilio->taskrouter->v1->workspaces($workspace_data->workspace_sid)->workers->create($user->name, 
                             ['attributes'=>json_encode([
-                                    "type" => "support",
+                                    "customer_value" => [0],
                                     "phone" => $request->worker_phone,
                                     "contact_uri" => "client:customer_call_agent_". $user->id
                                 ]),
@@ -3859,8 +3861,16 @@ class TwilioController extends FindByNumberController
             $workflow = $twilio->taskrouter->v1->workspaces($workspace_data->workspace_sid)->workflows->create($workflow_name,
 			 json_encode([
                             "task_routing" => [
-                                "default_filter" => [
-                                    "queue" => $task_queue_sid
+                                "filters" => [
+                                    [
+                                        "expression" => "1==1",
+                                        "targets" => [
+                                            [
+                                                "queue" => $task_queue_sid,
+                                                "expression" => "task.type IN worker.customer_value"
+                                            ]
+                                        ]
+                                    ]
                                 ]
                             ]
                         ]), [
