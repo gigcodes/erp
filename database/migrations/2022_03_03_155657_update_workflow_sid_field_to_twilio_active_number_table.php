@@ -14,7 +14,7 @@ class UpdateWorkflowSidFieldToTwilioActiveNumberTable extends Migration
     public function up()
     {
         Schema::table('twilio_active_numbers', function (Blueprint $table) {
-            $table->string('workflow_sid')->nullable();
+            $table->string('workflow_sid')->nullable()->change();
         });
     }
 
@@ -26,7 +26,7 @@ class UpdateWorkflowSidFieldToTwilioActiveNumberTable extends Migration
     public function down()
     {
         Schema::table('twilio_active_numbers', function (Blueprint $table) {
-            $table->string('workflow_sid');
+            $table->string('workflow_sid')->nullable(false)->change();
         });
     }
 }
