@@ -3033,6 +3033,55 @@ class TwilioController extends FindByNumberController
         }
     }
 
+    public function manageNumbersPopup($id)
+    {
+        try {
+            $account_id = $id;
+            //get account details
+            $check_account = TwilioCredential::where(['id' => $id])->where('twiml_app_sid','!=',null)->firstOrFail();
+            $numbers = TwilioActiveNumber::where('twilio_credential_id', '=', $id)->with('assigned_stores.store_website')->get();
+		    $store_websites = StoreWebsite::all();
+            $customer_role_users = RoleUser::where(['role_id' => 1])->with('user')->get();
+            $workspace = TwilioWorkspace::where('twilio_credential_id', '=', $id)->where('deleted',0)->get();
+            $twilio_user_list = User::LeftJoin('twilio_agents','user_id','users.id')->select('users.*','twilio_agents.status')->orderBy('users.name', 'ASC')->get();
+            // $worker = TwilioWorker::where('twilio_credential_id', '=', $id)->where('deleted',0)->get();
+
+            $worker = TwilioWorker::join('twilio_workspaces','twilio_workspaces.id','twilio_workers.twilio_workspace_id')
+            ->where('twilio_workers.twilio_credential_id', '=', $id)
+            ->where('twilio_workers.deleted',0)
+            ->select('twilio_workspaces.workspace_name','twilio_workers.*')
+            ->get();
+			
+			$activities = TwilioActivity::join('twilio_workspaces','twilio_workspaces.id','twilio_activities.twilio_workspace_id')
+            ->where('twilio_activities.twilio_credential_id', '=', $id)
+            ->where('twilio_activities.deleted',0)
+            ->select('twilio_workspaces.workspace_name','twilio_activities.*')
+            ->get();
+			foreach($activities as $activity) {
+				if($activity['availability'] == 1) {
+					$activity['availability'] = 'True';
+				} else {
+					$activity['availability'] = 'False';
+				}
+			}
+           $workflows = TwilioWorkflow::join('twilio_workspaces','twilio_workspaces.id','twilio_workflows.twilio_workspace_id')
+            ->where('twilio_workflows.twilio_credential_id', '=', $id)
+            ->where('twilio_workflows.deleted',0)
+            ->select('twilio_workspaces.workspace_name','twilio_workflows.*')
+            ->get();
+			
+			$taskqueue = TwilioTaskQueue::join('twilio_workspaces','twilio_workspaces.id','twilio_task_queue.twilio_workspace_id')
+            ->where('twilio_task_queue.twilio_credential_id', '=', $id)
+            ->where('twilio_task_queue.deleted',0)
+            ->select('twilio_workspaces.workspace_name','twilio_task_queue.*')
+            ->get();
+             
+            return view('twilio.manage-numbers-list', compact('numbers', 'store_websites', 'customer_role_users','account_id','workspace', 'worker', 'activities', 'workflows', 'taskqueue', 'twilio_user_list'));
+        }catch(\Exception $e) {
+            return redirect()->back()->with('error',$e->getMessage());
+        }
+    }
+
     public function manageNumbers($id)
     {
         try {
@@ -3081,7 +3130,6 @@ class TwilioController extends FindByNumberController
             return redirect()->back()->with('error',$e->getMessage());
         }
     }
-
 
     public function getTwilioActiveNumbers($account_id)
     {

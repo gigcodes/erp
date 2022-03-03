@@ -243,6 +243,14 @@
     </div>
 
 
+    <div class="modal fade" id="twilio_key_option_modal_popup" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            
+            <div class="modal-content" class="twilio_key_ajax_data_popup">
+            </div>
+        </div>
+    </div>
+    
     <div class="modal fade" id="twilio_key_option_modal" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -511,25 +519,46 @@
         $("#welcome_message_div").removeClass("d-none");
         var website_id = $('.store_website_twilio_key').val();
 
+        
         $.ajax({
             type: "GET",
-            url: "{{ route('twilio.get_website_wise_key_data') }}",  
+            url: "{{ route('twilio.manage.numbers.popup') }}/"+website_id,  
             data: {
                 _token: "{{csrf_token()}}",
-                website_store_id:website_id,
+                id:website_id,
             },
             beforeSend : function() {
                 
             },
             success: function (response) {
-               $('.twilio_key_ajax_data').html('');
-               $('.twilio_key_ajax_data').html(response.html);
-			   $('#welcome_message').val(response.welcome_message);
+               $('.twilio_key_ajax_data_popup').html('');
+               $('.twilio_key_ajax_data_popup').html(response);
+			   //$('#welcome_message').val(response.welcome_message);
             },
             error: function (response) { 
                 
             }
         });
+
+        // $.ajax({
+        //     type: "GET",
+        //     url: "{{ route('twilio.get_website_wise_key_data') }}",  
+        //     data: {
+        //         _token: "{{csrf_token()}}",
+        //         website_store_id:website_id,
+        //     },
+        //     beforeSend : function() {
+                
+        //     },
+        //     success: function (response) {
+        //        $('.twilio_key_ajax_data').html('');
+        //        $('.twilio_key_ajax_data').html(response.html);
+		// 	   $('#welcome_message').val(response.welcome_message);
+        //     },
+        //     error: function (response) { 
+                
+        //     }
+        // });
     });
 
 $('.save_twilio_greeting_message').on("click", function(e){
