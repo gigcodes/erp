@@ -179,17 +179,18 @@ class TwilioController extends FindByNumberController
                             $capability->allowClientOutgoing($device->twiml_app_sid);
                             
                             $capability->allowClientIncoming($agent);
-                            $expiresIn = (3600 * 1);
-                            $token = $capability->generateToken();
+                            $expiresIn = (3600 * 8);
+                            $token = $capability->generateToken($expiresIn);
                             $tokens[]=$token;
 
-                            $twilioWorker = TwilioWorker::where('user_id', $user_id)->firstOrFail();
+                            $twilioWorkspace = TwilioWorkspace::where('workspace_sid', $twilio_active_credential->workspace_sid)->firstOrFail();
+                            $twilioWorker = TwilioWorker::where('user_id', $user_id)->where('twilio_workspace_id', $twilioWorkspace->id)->firstOrFail();
 
                             $capability = new WorkerCapability($device->account_id, $device->auth_token, $twilio_active_credential->workspace_sid, $twilioWorker->worker_sid);
                             $capability->allowFetchSubresources();
                             $capability->allowActivityUpdates();
                             $capability->allowReservationUpdates();
-                            $workers[] = $capability->generateToken();
+                            $workers[] = $capability->generateToken($expiresIn);
                         }
                         return response()->json(['twilio_tokens' => $tokens, 'workers' => $workers, 'agent' => $agent]);
         
@@ -1314,10 +1315,19 @@ class TwilioController extends FindByNumberController
                     ]);
         }
 
+        if($request->get('EventType') == "reservation.timeout")
+        {
+            $twilio->calls(json_decode($request->get("TaskAttributes"))->worker_call_sid)
+               ->update([
+                            "status" => "canceled"
+                        ]
+               );
+        }
+
         if($request->get('EventType') == "task.canceled") {
             TwilioCallWaiting::where("call_sid",json_decode($request->get("TaskAttributes"))->call_sid)->delete();
 
-            if($request->get('EventType') != "hangup") {
+            if($request->get('Reason') != "hangup") {
                 $task->calls(json_decode($request->get("TaskAttributes"))->call_sid)
                 ->update([
                     "twiml" => "<Response><Say>Currently, We are getting too much inquiry, we will contact you soon. Good Bye</Say><Leave/></Response>"
@@ -1442,7 +1452,6 @@ class TwilioController extends FindByNumberController
         $CallSid = $request->get("CallSid");
   	    
         list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
-
         $store_website_id = (isset($object->store_website_id) ? $object->store_website_id : 0 );
         try {
 
@@ -1498,8 +1507,12 @@ class TwilioController extends FindByNumberController
                     'store_website_id' => $store_website_id,
                     'status'    => 0
                 ]);
-
-                $response->enqueue(null, ['workflowSid' => $call_from->workflow_sid, 'waitUrl' => route('waiturl', [], false)])->task('{"type":"support"}', ['timeout' => $workflow->task_timeout]);
+                // $priority = $object->is_priority ?? 0;
+                $priority = $number == "+917698438429" ? 1 : 0 ;
+                $task = [
+                    'type' => $priority
+                ];
+                $response->enqueue(null, ['workflowSid' => $call_from->workflow_sid, 'waitUrl' => route('waiturl', [], false)])->task(json_encode($task), ['priority' => $priority , 'timeout' => $workflow->task_timeout]);
                 TwilioLog::create(['log'=> 'Enqueue Log '. (string)$response,'account_sid'=> 0,'call_sid'=> 0, 'phone'=> 0 ]);
         		
                 return \Response::make((string)$response, '200')->header('Content-Type', 'text/xml');
@@ -3830,7 +3843,7 @@ class TwilioController extends FindByNumberController
 
             $worker = $twilio->taskrouter->v1->workspaces($workspace_data->workspace_sid)->workers->create($user->name, 
                             ['attributes'=>json_encode([
-                                    "type" => "support",
+                                    "customer_value" => [0],
                                     "phone" => $request->worker_phone,
                                     "contact_uri" => "client:customer_call_agent_". $user->id
                                 ]),
@@ -3920,8 +3933,16 @@ class TwilioController extends FindByNumberController
             $workflow = $twilio->taskrouter->v1->workspaces($workspace_data->workspace_sid)->workflows->create($workflow_name,
 			 json_encode([
                             "task_routing" => [
-                                "default_filter" => [
-                                    "queue" => $task_queue_sid
+                                "filters" => [
+                                    [
+                                        "expression" => "1==1",
+                                        "targets" => [
+                                            [
+                                                "queue" => $task_queue_sid,
+                                                "expression" => "task.type IN worker.customer_value"
+                                            ]
+                                        ]
+                                    ]
                                 ]
                             ]
                         ]), [
