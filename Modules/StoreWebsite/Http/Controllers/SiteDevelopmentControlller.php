@@ -45,20 +45,20 @@ class SiteDevelopmentController extends Controller
 
             $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id' , 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC limit 1) as site_development_id'),'store_websites.website');
         } else {
-            $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', 'store_websites.website', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id ORDER BY created_at DESC limit 1) as site_development_id'));
-         /*$site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,MAX(site_developments.id) as site_development_id,website_id'))
+//            $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id ORDER BY created_at DESC limit 1) as site_development_id'));
+        $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,MAX(site_developments.id) as site_development_id,website_id'))
             ->GroupBy(DB::raw('site_developments.website_id, site_developments.site_development_category_id'));
 
-        $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', 'site_dev.site_development_id','store_websites.website');
-           ->joinSub($site_dev, 'site_dev', function ($join)
+        $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', 'site_dev.site_development_id','store_websites.website')
+            ->joinSub($site_dev, 'site_dev', function ($join)
             {
                 $join->on('site_development_categories.id', '=', 'site_dev.site_development_category_id');
-            });*/
+            });
         }
         
 
         if ($request->k != null) {
-            $categories = $categories->where("site_development_categories.title",  $request->k);
+            $categories = $categories->where("site_development_categories.title", "like", "%" . $request->k . "%");
         }
         if($id!='all') { 
             $ignoredCategory = \App\SiteDevelopmentHiddenCategory::where("store_website_id", $id)->pluck("category_id")->toArray();
@@ -73,7 +73,7 @@ class SiteDevelopmentController extends Controller
         } else {
             $categories = $categories->whereNotIn('site_development_categories.id', $ignoredCategory);
         }
-	
+
         //$categories = $categories->paginate(Setting::get('pagination'));
         // $categories = $categories->paginate(20);
 
@@ -104,28 +104,30 @@ class SiteDevelopmentController extends Controller
         }
         if($id!='all') {
 			$categories->groupBy('site_development_categories.id');
-        } else{
-			$categories->groupBy('site_developments.website_id', 'site_development_categories.id');
+        }else{
+			//$categories->groupBy('site_developments.website_id', 'site_development_categories.id');
 		}
-
-        if ($request->order) {
-            if ($request->order == 'title') {
-                $categories->orderBy('site_development_categories.title', 'asc');
-            } else if ($request->order == 'communication') {
-                $categories = $categories->leftJoin('store_development_remarks', 'store_development_remarks.store_development_id', '=', 'site_developments.id');
-                $categories = $categories->orderBy('store_development_remarks.created_at', 'DESC');
-            }
-        } else {
-            $categories->orderBy('title', 'asc');
-        }
-
-        //for filtration category clone category data qurery
-       
-
+        if($id == 'all') {
+			if ($request->order) {
+				if ($request->order == 'title') {
+					$categories->orderBy('site_development_categories.title', 'asc');
+				} else if ($request->order == 'communication') {
+					$categories = $categories->leftJoin('store_development_remarks', 'store_development_remarks.store_development_id', '=', 'site_developments.id');
+					$categories = $categories->orderBy('store_development_remarks.created_at', 'DESC');
+				}
+			} else {
+				$categories->orderBy('title', 'asc');
+			}
+		} else{
+			$categories->orderBy('website_id', 'asc');
+		}
+      
         //main data listing
         $categories = $categories->paginate(25);
-		
+
+        //for filtration category
       
+
         //get filter category data
         $filter_category = SiteDevelopmentCategory::pluck('title')->toArray();
 
