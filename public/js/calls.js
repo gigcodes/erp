@@ -217,7 +217,7 @@
 			showError("Error in Twilio Device");
 		});
 
-		device.on('connect', function (conn) {
+		device.on('connect',  (conn) => {
 			console.log("twilio device connected ", conn);
 			currentCallSid = conn.parameters.CallSid;
 			showNotifTimer("Call with " + remotePhoneNumber);
