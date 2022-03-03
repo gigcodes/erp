@@ -1314,6 +1314,15 @@ class TwilioController extends FindByNumberController
                     ]);
         }
 
+        if($request->get('EventType') == "reservation.timeout")
+        {
+            $twilio->calls(json_decode($request->get("TaskAttributes"))->worker_call_sid)
+               ->update([
+                            "status" => "canceled"
+                        ]
+               );
+        }
+
         if($request->get('EventType') == "task.canceled") {
             TwilioCallWaiting::where("call_sid",json_decode($request->get("TaskAttributes"))->call_sid)->delete();
 
