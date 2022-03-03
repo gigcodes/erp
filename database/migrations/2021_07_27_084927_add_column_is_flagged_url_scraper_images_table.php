@@ -17,7 +17,6 @@ class AddColumnIsFlaggedUrlScraperImagesTable extends Migration
         Schema::table('scraper_imags',function($table){
         
             $table->integer('is_flaged_url')->index()->nullable();
-            $table->index('url');
             
         });
     }
@@ -29,6 +28,8 @@ class AddColumnIsFlaggedUrlScraperImagesTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('scraper_imags',function(Blueprint $table) {
+            $table->dropField('is_flaged_url');
+        });
     }
 }
