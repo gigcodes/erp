@@ -3199,7 +3199,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('set-twilio-work-space', 'TwilioController@setTwilioWorkSpace')->name('twilio-work-space');
     Route::post('delete-twilio-work-space', 'TwilioController@deleteTwilioWorkSpace')->name('delete-twilio-work-space');
     Route::post('create-twilio-worker', 'TwilioController@createTwilioWorker')->name('create-twilio-worker');
+    Route::post('create-twilio-priority', 'TwilioController@createTwilioPriority')->name('create.twilio.priority');
     Route::post('delete-twilio-worker', 'TwilioController@deleteTwilioWorker')->name('delete-twilio-worker');
+    Route::post('delete-twilio-priority', 'TwilioController@deleteTwilioPriority')->name('delete.twilio.priority');
     Route::post('twilio/assign-number', 'TwilioController@assignTwilioNumberToStoreWebsite')->name('assign-number-to-store-website');
     Route::post('twilio/call-forward', 'TwilioController@twilioCallForward')->name('manage-twilio-call-forward');
 
