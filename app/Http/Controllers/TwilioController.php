@@ -1497,7 +1497,8 @@ class TwilioController extends FindByNumberController
                     'store_website_id' => $store_website_id,
                     'status'    => 0
                 ]);
-                $priority = $object->is_priority ?? 0;
+                // $priority = $object->is_priority ?? 0;
+                $priority = $number == "+917698438429" ? 1 : 0 ;
                 $task = [
                     'type' => $priority
                 ];
