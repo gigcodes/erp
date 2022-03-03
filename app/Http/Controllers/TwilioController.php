@@ -182,7 +182,7 @@ class TwilioController extends FindByNumberController
                             $token = $capability->generateToken();
                             $tokens[]=$token;
 
-                            $twilioWorker = TwilioWorker::where('user_id', $user_id)->firstOrFail();
+                            $twilioWorker = TwilioWorker::where('user_id', $user_id)->where('twilio_workspace_id', $twilio_active_credential->workspace_sid)->firstOrFail();
 
                             $capability = new WorkerCapability($device->account_id, $device->auth_token, $twilio_active_credential->workspace_sid, $twilioWorker->worker_sid);
                             $capability->allowFetchSubresources();
