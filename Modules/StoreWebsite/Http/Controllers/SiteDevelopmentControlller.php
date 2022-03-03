@@ -86,10 +86,9 @@ class SiteDevelopmentController extends Controller
                     ->where('site_developments.website_id', $id);
             });
         } else {
-			$ids = StoreWebsite::pluck('id')->toArray();
-            $categories->join('site_developments', function ($q) use ($ids) {
-                    $q->on('site_developments.site_development_category_id', '=', 'site_development_categories.id')
-					->whereIn('site_developments.website_id', $ids);
+			$categories->join('site_developments', function ($q) {
+                    $q->on('site_developments.site_development_category_id', '=', 'site_development_categories.id');
+					//->whereIn('site_developments.website_id', $ids);
             });
         }
         $categories->join('store_websites', function ($q) {
