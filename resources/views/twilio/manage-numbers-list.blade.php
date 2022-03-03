@@ -1,12 +1,12 @@
-    <div class="row" xmlns="http://www.w3.org/1999/html">
+    <div class="" xmlns="http://www.w3.org/1999/html">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Manage Twilio Numbers</h2>
         </div>
     </div>
     @include('partials.flash_messages')
-    <div class="row  no-gutters mt-3">
+    <div class="col-lg-12  no-gutters mt-3">
         <div class="col-md-12 col-sm-12">
-            <div class="table-responsive">
+            <div class="">
                 <div class="">
                     <table class="table table-bordered table-hover">
                         <thead>
@@ -101,27 +101,21 @@
                                         <label>Message when Working Hours is Over</label>
                                         <input type="text" class="form-control" name="end_work_message" id="end_work_message_1" value="{{ @ $number->assigned_stores->end_work_message }}"/>
                                     </td>
-									
 									<td colspan="2">
                                         <label>Category Menu Message</label>
                                         <input type="text" class="form-control" name="category_menu_message" id="category_menu_message_1" value="{{ @ $number->assigned_stores->category_menu_message }}"/>
                                     </td>
-									
 									<td colspan="2">
                                         <label>Sub Category Menu Message</label>
                                         <input type="text" class="form-control" name="sub_category_menu_message" id="sub_category_menu_message_1" value="{{ @ $number->assigned_stores->sub_category_menu_message }}"/>
                                     </td>
-									
-									
 									<td colspan="2">
                                         <label>Message if Speech Response not available</label>
                                         <input type="text" class="form-control" name="speech_response_not_available_message" id="speech_response_not_available_message_1" value="{{ @ $number->assigned_stores->speech_response_not_available_message }}"/>
                                     </td>
-									
                                     <td colspan="1">
                                         <button class="btn btn-sm btn-image save-number-to-store" id="save_1" data-number-id="{{ @ $number->id }}"><img src="/images/filled-sent.png" style="cursor: default;"></button>
                                     </td>
-
                                 </tr>
                                 <tr class="call_forwarding_1" style="display:none;">
                                     <td colspan="3">
@@ -147,7 +141,6 @@
                         @endif
                         </tbody>
                     </table>
-
                 </div>
             </div>
         </div>
@@ -157,54 +150,52 @@
     <div class="modal fade" id="workspaceModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content ">
-            <div class="modal-header">
-                <h5 class="modal-title">Twilio WorkSpace</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                {{-- @if(count($workspace) <= 0) --}}
-                <div class="row">
-					{{ Form::open(array('url'=>route('twilio-work-space'), 'id'=>'save-workspace')) }}
-						<div class="col-md-4">
-							<input type="text" class="form-control" name="workspace_name" placeholder="Enter Workespace Name"/>
-						</div>
-						<div class="col-md-4">
-							<input type="text" class="form-control" name="callback_url" placeholder="Enter Callback Name" />
-						</div>
-						<div class="col-md-4">
-							<input type="hidden" name="account_id" value="{{ $account_id}}">
-							<button type="submit" class="btn btn-secondary create_twilio_workspace">Create Twilio Workspace</button>
-						</div>
-					</form>
+                <div class="modal-header">
+                    <h5 class="modal-title">Twilio WorkSpace</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                {{-- @endif --}}
-
-                <table class="table table-bordered table-hover mt-5">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="text-center">Workspace Name</th>
-                            <th scope="col" class="text-center">Workspace Sid</th>
-                            <th scope="col" class="text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-center">
-                        @foreach($workspace as $key => $val)
-                        <tr class="row_{{$val->id}}">
-                            <td>{{$val->workspace_name}}</td>
-                            <td>{{$val->workspace_sid}}</td>
-                            <td><i style="cursor: pointer;" class="fa fa-trash delete_workspace" data-id="{{$val->id}}" aria-hidden="true"></i></td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                
-            </div>
-            <!-- <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-            </div> -->
+                <div class="modal-body">
+                    {{-- @if(count($workspace) <= 0) --}}
+                    <div class="row">
+                        {{ Form::open(array('url'=>route('twilio-work-space'), 'id'=>'save-workspace')) }}
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="workspace_name" placeholder="Enter Workespace Name"/>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="callback_url" placeholder="Enter Callback Name" />
+                            </div>
+                            <div class="col-md-4">
+                                <input type="hidden" name="account_id" value="{{ $account_id}}">
+                                <button type="submit" class="btn btn-secondary create_twilio_workspace">Create Twilio Workspace</button>
+                            </div>
+                        </form>
+                    </div>
+                    {{-- @endif --}}
+                    <table class="table table-bordered table-hover mt-5">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="text-center">Workspace Name</th>
+                                <th scope="col" class="text-center">Workspace Sid</th>
+                                <th scope="col" class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center">
+                            @foreach($workspace as $key => $val)
+                            <tr class="row_{{$val->id}}">
+                                <td>{{$val->workspace_name}}</td>
+                                <td>{{$val->workspace_sid}}</td>
+                                <td><i style="cursor: pointer;" class="fa fa-trash delete_workspace" data-id="{{$val->id}}" aria-hidden="true"></i></td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <!-- <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div> -->
             </div>
         </div>
     </div>
@@ -214,69 +205,68 @@
     <div class="modal fade" id="workerModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content ">
-            <div class="modal-header">
-                <h5 class="modal-title">Twilio Worker</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                {{-- @if(count($workspace) <= 0) --}}
-                <div class="row">
-                    <div class="col-md-3">    
-                        <select class="form-control worker_workspace_id" id="">
-                            <option value="">Select Workspace</option>
-                            @if(isset($workspace))
-                                @foreach($workspace as $val)
-                                    <option value="{{ $val->id }}" >{{ $val->workspace_name }}</option>
+                <div class="modal-header">
+                    <h5 class="modal-title">Twilio Worker</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {{-- @if(count($workspace) <= 0) --}}
+                    <div class="row">
+                        <div class="col-md-3">    
+                            <select class="form-control worker_workspace_id" id="">
+                                <option value="">Select Workspace</option>
+                                @if(isset($workspace))
+                                    @foreach($workspace as $val)
+                                        <option value="{{ $val->id }}" >{{ $val->workspace_name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            {{-- <input type="text" class="form-control twilio_worker_name" name="twilio_worker_name" placeholder="Worker Name"/> --}}
+                            <select class="form-control worker_user_id" name="worker_user_id">
+                                <option value="0">Select User</option>
+                                @foreach($twilio_user_list as $value)
+                                <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    
+                        <div class="col-md-3">
+                            <input type="text" class="form-control worker_phone" name="worker_phone" placeholder="Worker Phone Number"/>
+                        </div>
+
+                        <a class="ml-2" >
+                            <button type="button" class="btn btn-secondary create_twilio_worker">Create</button>
+                        </a>
+                    </div>
+                    {{-- @endif --}}
+
+                    <table class="table table-bordered table-hover mt-5">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="text-center">Workspace Name</th>
+                                <th scope="col" class="text-center">Worker Name</th>
+                                <th scope="col" class="text-center">Worker Phone</th>
+                                <th scope="col" class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center worker_list">
+                            @if($worker)
+                                @foreach($worker as $key => $val)
+                                <tr class="worker_row_{{$val->id}}">
+                                    <td>{{$val->workspace_name}}</td>
+                                    <td>{{$val->worker_name}}</td>
+                                    <td>{{$val->worker_phone}}</td>
+                                    <td><i style="cursor: pointer;" class="fa fa-trash delete_worker" data-id="{{$val->id}}" aria-hidden="true"></i></td>
+                                </tr>
                                 @endforeach
                             @endif
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        {{-- <input type="text" class="form-control twilio_worker_name" name="twilio_worker_name" placeholder="Worker Name"/> --}}
-                        <select class="form-control worker_user_id" name="worker_user_id">
-                            <option value="0">Select User</option>
-                            @foreach($twilio_user_list as $value)
-                            <option value="{{ $value->id }}">{{ $value->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                   
-                    <div class="col-md-3">
-                        <input type="text" class="form-control worker_phone" name="worker_phone" placeholder="Worker Phone Number"/>
-                    </div>
-
-                    <a class="ml-2" >
-                        <button type="button" class="btn btn-secondary create_twilio_worker">Create</button>
-                    </a>
+                        </tbody>
+                    </table>
                 </div>
-                {{-- @endif --}}
-
-                <table class="table table-bordered table-hover mt-5">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="text-center">Workspace Name</th>
-                            <th scope="col" class="text-center">Worker Name</th>
-                            <th scope="col" class="text-center">Worker Phone</th>
-                            <th scope="col" class="text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-center worker_list">
-                        @if($worker)
-                            @foreach($worker as $key => $val)
-                            <tr class="worker_row_{{$val->id}}">
-                                <td>{{$val->workspace_name}}</td>
-                                <td>{{$val->worker_name}}</td>
-                                <td>{{$val->worker_phone}}</td>
-                                <td><i style="cursor: pointer;" class="fa fa-trash delete_worker" data-id="{{$val->id}}" aria-hidden="true"></i></td>
-                            </tr>
-                            @endforeach
-                        @endif
-                    </tbody>
-                </table>
-                
-            </div>
             </div>
         </div>
     </div>
@@ -285,94 +275,93 @@
     <div class="modal fade" id="workflowModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content ">
-            <div class="modal-header">
-                <h5 class="modal-title">Twilio Workflow Model</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-					{{ Form::open(array('url'=>route('create-twilio-workflow'), 'id'=>'create-twilio-workflow', 'class'=>'ajax-submit')) }}
-						<div class="col-md-4">
-						<label>Select Workspace</label>
-							<select class="form-control workflow_workspace_id" name="workspace_id">
-								<option value="">Select Workspace</option>
-								@if(isset($workspace))
-									@foreach($workspace as $val)
-										<option value="{{ $val->id }}" >{{ $val->workspace_name }}</option>
-									@endforeach
-								@endif
-							</select>
-						</div>
-						<div class="col-md-4">
-						<label>Task Queue Name</label>
-							<select class="form-control" name="task_queue" id="task_queue">
-								   
-							</select>
-						</div>
-						<div class="col-md-4">
-						<label>Workflow Name</label>
-							<input type="hidden" name="account_id" value="{{ $account_id}}">
-							<input type="text" class="form-control " name="workflow_name" placeholder="Workflow Name"/>
-						</div>
-						<div class="col-md-4">
-						<label>Fallback Assignment</label>
-							<input type="text" class="form-control " name="fallback_assignment_callback_url" placeholder="Fallback Assignment Callback Url"/>
-						</div>
-						<div class="col-md-4">
-						<label>Assignment Callback Url</label>
-							<input type="text" class="form-control " name="assignment_callback_url" placeholder="Assignment Callback Url"/>
-						</div>
-						<div class="col-md-2">
-                        <label>Task TimeOut</label>
-                            <input type="number" class="form-control " name="task_timeout" value="300"/>
-                        </div>
-                        <div class="col-md-2">
-                        <label>Worker Reservation TimeOut</label>
-                            <input type="number" class="form-control " name="worker_reservation_timeout" value="120"/>
-                        </div>
-						<div class="Twilio_Workflow_Model_btn"><button type="submit" class="btn btn-secondary">Create</button></div>
-					</form>
+                <div class="modal-header">
+                    <h5 class="modal-title">Twilio Workflow Model</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
+                <div class="modal-body">
+                    <div class="row">
+                        {{ Form::open(array('url'=>route('create-twilio-workflow'), 'id'=>'create-twilio-workflow', 'class'=>'ajax-submit')) }}
+                            <div class="col-md-4">
+                            <label>Select Workspace</label>
+                                <select class="form-control workflow_workspace_id" name="workspace_id">
+                                    <option value="">Select Workspace</option>
+                                    @if(isset($workspace))
+                                        @foreach($workspace as $val)
+                                            <option value="{{ $val->id }}" >{{ $val->workspace_name }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                            <label>Task Queue Name</label>
+                                <select class="form-control" name="task_queue" id="task_queue">
+                                    
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                            <label>Workflow Name</label>
+                                <input type="hidden" name="account_id" value="{{ $account_id}}">
+                                <input type="text" class="form-control " name="workflow_name" placeholder="Workflow Name"/>
+                            </div>
+                            <div class="col-md-4">
+                            <label>Fallback Assignment</label>
+                                <input type="text" class="form-control " name="fallback_assignment_callback_url" placeholder="Fallback Assignment Callback Url"/>
+                            </div>
+                            <div class="col-md-4">
+                            <label>Assignment Callback Url</label>
+                                <input type="text" class="form-control " name="assignment_callback_url" placeholder="Assignment Callback Url"/>
+                            </div>
+                            <div class="col-md-2">
+                            <label>Task TimeOut</label>
+                                <input type="number" class="form-control " name="task_timeout" value="300"/>
+                            </div>
+                            <div class="col-md-2">
+                            <label>Worker Reservation TimeOut</label>
+                                <input type="number" class="form-control " name="worker_reservation_timeout" value="120"/>
+                            </div>
+                            <div class="Twilio_Workflow_Model_btn"><button type="submit" class="btn btn-secondary">Create</button></div>
+                        </form>
+                    </div>
 
-                <table class="table table-bordered table-hover mt-5">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="text-center">Workspace Name</th>
-                            <th scope="col" class="text-center">Workflow Name</th>
-                            <th scope="col" class="text-center">Fallback url</th>
-                            <th scope="col" class="text-center">Callback url</th>
-                            <th scope="col" class="text-center">Task TimeOut</th>
-                            <th scope="col" class="text-center">Worker Reservation TimeOut</th>
-                            <th scope="col" class="text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-center workflow_list">
-                        @if($workflows)
-                            @foreach($workflows as $key => $val)
-                            <tr class="worker_row_{{$val->id}}">
-                                <td>{{$val->workspace_name}}</td>
-                                <td>{{$val->workflow_name}}</td>
-                                <td>{{$val->fallback_assignment_callback_url}}</td>
-                                <td>{{$val->assignment_callback_url}}</td>
-                                <td>
-                                    <input type="number" class="time-timeout-{{$val->id}}" value="{{$val->task_timeout}}">
-                                </td>
-                                <td>
-                                    <input type="number" class="worker-reservation-timeout-{{$val->id}}" value="{{$val->worker_reservation_timeout}}">
-                                </td>
-                                <td>
-                                    <i style="cursor: pointer;" class="fa fa-edit trigger-edit" data-route="{{route('edit-twilio-workflow')}}" data-id="{{$val->id}}" aria-hidden="true"></i>
-                                    <i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('delete-twilio-workflow')}}" data-id="{{$val->id}}" aria-hidden="true"></i>
-                                </td>
-                           </tr>
-                            @endforeach
-                        @endif
-                    </tbody>
-                </table>
-                
-            </div>
+                    <table class="table table-bordered table-hover mt-5">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="text-center">Workspace Name</th>
+                                <th scope="col" class="text-center">Workflow Name</th>
+                                <th scope="col" class="text-center">Fallback url</th>
+                                <th scope="col" class="text-center">Callback url</th>
+                                <th scope="col" class="text-center">Task TimeOut</th>
+                                <th scope="col" class="text-center">Worker Reservation TimeOut</th>
+                                <th scope="col" class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center workflow_list">
+                            @if($workflows)
+                                @foreach($workflows as $key => $val)
+                                <tr class="worker_row_{{$val->id}}">
+                                    <td>{{$val->workspace_name}}</td>
+                                    <td>{{$val->workflow_name}}</td>
+                                    <td>{{$val->fallback_assignment_callback_url}}</td>
+                                    <td>{{$val->assignment_callback_url}}</td>
+                                    <td>
+                                        <input type="number" class="time-timeout-{{$val->id}}" value="{{$val->task_timeout}}">
+                                    </td>
+                                    <td>
+                                        <input type="number" class="worker-reservation-timeout-{{$val->id}}" value="{{$val->worker_reservation_timeout}}">
+                                    </td>
+                                    <td>
+                                        <i style="cursor: pointer;" class="fa fa-edit trigger-edit" data-route="{{route('edit-twilio-workflow')}}" data-id="{{$val->id}}" aria-hidden="true"></i>
+                                        <i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('delete-twilio-workflow')}}" data-id="{{$val->id}}" aria-hidden="true"></i>
+                                    </td>
+                            </tr>
+                                @endforeach
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -381,62 +370,61 @@
     <div class="modal fade" id="activityModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content ">
-            <div class="modal-header">
-                <h5 class="modal-title">Twilio Activities</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-					{{ Form::open(array('url'=>route('create-twilio-activity'), 'id'=>'create-twilio-activity', 'class'=>'ajax-submit')) }}
-						<div class="col-md-4">
-							<select class="form-control worker_workspace_id" name="workspace_id">
-								<option value="">Select Workspace</option>
-								@if(isset($workspace))
-									@foreach($workspace as $val)
-										<option value="{{ $val->id }}" >{{ $val->workspace_name }}</option>
-									@endforeach
-								@endif
-							</select>
-						</div>
-						
-						<div class="col-md-3">
-							<input type="text" class="form-control " name="activity_name" placeholder="Activity Name"/>
-						</div>
-						<div class="col-md-3">
-							<input type="radio" name="availability" value="1" checked/> True
-							<input type="radio" name="availability" value="0"/> False
-							<input type="hidden" name="account_id" value="{{ $account_id}}">
-						</div>
-						<button type="submit" class="btn btn-secondary">Create</button>
-					</form>
+                <div class="modal-header">
+                    <h5 class="modal-title">Twilio Activities</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
+                <div class="modal-body">
+                    <div class="row">
+                        {{ Form::open(array('url'=>route('create-twilio-activity'), 'id'=>'create-twilio-activity', 'class'=>'ajax-submit')) }}
+                            <div class="col-md-4">
+                                <select class="form-control worker_workspace_id" name="workspace_id">
+                                    <option value="">Select Workspace</option>
+                                    @if(isset($workspace))
+                                        @foreach($workspace as $val)
+                                            <option value="{{ $val->id }}" >{{ $val->workspace_name }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <input type="text" class="form-control " name="activity_name" placeholder="Activity Name"/>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="radio" name="availability" value="1" checked/> True
+                                <input type="radio" name="availability" value="0"/> False
+                                <input type="hidden" name="account_id" value="{{ $account_id}}">
+                            </div>
+                            <button type="submit" class="btn btn-secondary">Create</button>
+                        </form>
+                    </div>
 
-                <table class="table table-bordered table-hover mt-5">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="text-center">Workspace Name</th>
-                            <th scope="col" class="text-center">Activity Name</th>
-                            <th scope="col" class="text-center">Availabilty</th>
-                            <th scope="col" class="text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-center activities_list">
-                        @if($activities)
-                            @foreach($activities as $key => $val)
-                            <tr class="activity_row_{{$val->id}}">
-                                <td>{{$val->workspace_name}}</td>
-                                <td>{{$val->activity_name}}</td>
-                                <td>{{$val->availability}}</td>
-                                <td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('delete-twilio-activity')}}" data-id="{{$val->id}}" aria-hidden="true"></i></td>
+                    <table class="table table-bordered table-hover mt-5">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="text-center">Workspace Name</th>
+                                <th scope="col" class="text-center">Activity Name</th>
+                                <th scope="col" class="text-center">Availabilty</th>
+                                <th scope="col" class="text-center">Action</th>
                             </tr>
-                            @endforeach
-                        @endif
-                    </tbody>
-                </table>
-                
-            </div>
+                        </thead>
+                        <tbody class="text-center activities_list">
+                            @if($activities)
+                                @foreach($activities as $key => $val)
+                                <tr class="activity_row_{{$val->id}}">
+                                    <td>{{$val->workspace_name}}</td>
+                                    <td>{{$val->activity_name}}</td>
+                                    <td>{{$val->availability}}</td>
+                                    <td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('delete-twilio-activity')}}" data-id="{{$val->id}}" aria-hidden="true"></i></td>
+                                </tr>
+                                @endforeach
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -526,7 +514,6 @@
                         @endif
                     </tbody>
                 </table>
-                
             </div>
             </div>
         </div>
@@ -553,7 +540,6 @@
 					var option2 = '<option value="'+index+'">'+value+'</option>';
 					$('#reservation_activity_id').append(option2);
 				});
-				
 			});
 		});
 		
@@ -599,7 +585,6 @@
 	
 		$('.trigger-delete').on('click', function(e) {
 			var id = $(this).attr('data-id');
-			//console.log($(this).closest('tr')); $(this).closest('tr').remove();
 			e.preventDefault(); 
 			var option = { _token: "{{ csrf_token() }}", _method: 'DELETE', id:id };
 			var route = $(this).attr('data-route');
@@ -702,7 +687,6 @@
 						setTimeout(function(){
                           location.reload();
                         }, 1000);
- 
 					}
 				},
 				done:function(data) {
@@ -728,10 +712,8 @@
 			
             $('.save-number-to-store').on("click", function(){
                 var pathname = window.location.pathname;
-
                 path_arr = pathname.split('/');
                 var credential_id = path_arr[path_arr.length-1];
-
                 var selected_no = $(this).attr('id');
                 selected_no = selected_no.split('_');
                 var num_id = selected_no[1];
@@ -796,8 +778,6 @@
                         }
                     });
                 });
-
-
             });
 
             $('.delete_workspace').on("click", function(){
@@ -825,7 +805,6 @@
                         toastr["error"]("Oops, something went wrong");
                     }
                 });
-                
             });
 
             $('.create_twilio_worker').on("click", function(){
@@ -872,13 +851,11 @@
                         toastr["error"]("Oops, something went wrong");
                     }
                 });
-                
             });
 
 
             $('.delete_worker').on("click", function(){
                 var id = $(this).attr('data-id');
-
                 $.ajax({
                     url: "{{ route('delete-twilio-worker') }}",
                     type: 'POST',
@@ -904,8 +881,6 @@
                         toastr["error"]("Oops, something went wrong");
                     }
                 });
-                
             });
-
         });
     </script>

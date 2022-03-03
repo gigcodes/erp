@@ -3,12 +3,17 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Manage Twilio Accounts
-
                     <div class="pull-right">
+                        <button type="button" class="btn btn-secondary mr-2 twilio_key_option_popup" data-toggle="modal" data-target="#twilio_key_option_modal_popup" style="background: #fff !important;
+                        border: 1px solid #ddd !important;
+                        color: #757575 !important;">Twillio Key options </button>
+                    </div>
+
+                    {{-- <div class="pull-right">
                         <button type="button" class="btn btn-secondary mr-2 twilio_key_option" data-toggle="modal" data-target="#twilio_key_option_modal" style="background: #fff !important;
                         border: 1px solid #ddd !important;
                         color: #757575 !important;">Twilio Key Options</button>
-                    </div>
+                    </div> --}}
 
                     <div class="pull-right">
                         <button type="button" class="btn btn-secondary mr-2 twilio_working_hours" data-toggle="modal" data-target="#twilio_working_hours" style="background: #fff !important;
@@ -243,10 +248,30 @@
     </div>
 
 
-    <div class="modal fade" id="twilio_key_option_modal_popup" tabindex="-1" role="dialog"  aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            
-            <div class="modal-content" class="twilio_key_ajax_data_popup">
+    <div class="modal fade col col-lg-12" id="twilio_key_option_modal_popup" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="" role="document">
+                    
+            <div class="modal-content "  style="overflow-x: auto;">
+                <div class="website-pag mb-2 row">
+					<div class="col col-lg-6  modal-header" style="margin: 0 auto;">
+                        <h5 class="modal-title" ><strong>Store Website:</strong></h5>
+                        <select class="form-control search_store_website_id "style="width: 60% !important; margin-left:10px;" name="search_store_website_id">
+                            <option value="">Select</option>
+                            @foreach($all_accounts as $accounts)
+                                <option value="{{$accounts->id}}" >{{$accounts->twilio_email}}</option>
+                            @endforeach
+                        </select>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <br/>
+                    <div class=" col col-lg-12  " >
+                        <div class="twilio_key_ajax_data_popup" >
+
+                        </div>
+                    </div>
+				</div>
             </div>
         </div>
     </div>
@@ -511,15 +536,35 @@
     //     });
         
     // });
-
-
+    
     $('.store_website_twilio_key').on("change", function(e){
-        
         $(".store_website_twilio_key_data").removeClass("d-none");
         $("#welcome_message_div").removeClass("d-none");
         var website_id = $('.store_website_twilio_key').val();
+        $.ajax({
+            type: "GET",
+            url: "{{ route('twilio.get_website_wise_key_data') }}",  
+            data: {
+                _token: "{{csrf_token()}}",
+                website_store_id:website_id,
+            },
+            beforeSend : function() {
+                
+            },
+            success: function (response) {
+               $('.twilio_key_ajax_data').html('');
+               $('.twilio_key_ajax_data').html(response.html);
+			   $('#welcome_message').val(response.welcome_message);
+            },
+            error: function (response) { 
+                
+            }
+        });
+    });
 
-        
+    // 
+    $('.search_store_website_id').on("change", function(e){
+        var website_id = $('.search_store_website_id').val();
         $.ajax({
             type: "GET",
             url: "{{ route('twilio.manage.numbers.popup') }}/"+website_id,  
@@ -531,6 +576,7 @@
                 
             },
             success: function (response) {
+                //console.log(response);
                $('.twilio_key_ajax_data_popup').html('');
                $('.twilio_key_ajax_data_popup').html(response);
 			   //$('#welcome_message').val(response.welcome_message);
@@ -539,26 +585,6 @@
                 
             }
         });
-
-        // $.ajax({
-        //     type: "GET",
-        //     url: "{{ route('twilio.get_website_wise_key_data') }}",  
-        //     data: {
-        //         _token: "{{csrf_token()}}",
-        //         website_store_id:website_id,
-        //     },
-        //     beforeSend : function() {
-                
-        //     },
-        //     success: function (response) {
-        //        $('.twilio_key_ajax_data').html('');
-        //        $('.twilio_key_ajax_data').html(response.html);
-		// 	   $('#welcome_message').val(response.welcome_message);
-        //     },
-        //     error: function (response) { 
-                
-        //     }
-        // });
     });
 
 $('.save_twilio_greeting_message').on("click", function(e){

@@ -3040,9 +3040,14 @@ class TwilioController extends FindByNumberController
         }
     }
 
+    /**
+     * This function is use to getting detail for selected email address from the Twilio number
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
     public function manageNumbersPopup($id)
     {
-        try {
+       try {
             $account_id = $id;
             //get account details
             $check_account = TwilioCredential::where(['id' => $id])->where('twiml_app_sid','!=',null)->firstOrFail();
@@ -3082,10 +3087,11 @@ class TwilioController extends FindByNumberController
             ->where('twilio_task_queue.deleted',0)
             ->select('twilio_workspaces.workspace_name','twilio_task_queue.*')
             ->get();
-             
+            
+              
             return view('twilio.manage-numbers-list', compact('numbers', 'store_websites', 'customer_role_users','account_id','workspace', 'worker', 'activities', 'workflows', 'taskqueue', 'twilio_user_list'));
         }catch(\Exception $e) {
-            return redirect()->back()->with('error',$e->getMessage());
+            return $e->getMessage();//redirect()->back()->with('error',$e->getMessage());
         }
     }
 
