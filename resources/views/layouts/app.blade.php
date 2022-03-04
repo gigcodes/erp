@@ -936,6 +936,7 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="/mail-templates/mailables">Mailables</a>
                                             <a class="dropdown-item" href="{{ route('emailleads') }}">Email Leads</a>
                                             <a class="dropdown-item" href="{{ url('twillio')}}">Messages</a>
+                                            <a class="dropdown-item" href="{{ url('email-data-extraction')}}">Auto Email Records</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1622,6 +1623,9 @@ if (!empty($notifications)) {
                                             </li>
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ url('/store-website-product-prices') }}">Store website product price</a>
+                                            </li>
+											 <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/site-assets') }}">Site assets</a>
                                             </li>
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('list.daily-push-log') }}">Magento Daily Product Push Log</a>
