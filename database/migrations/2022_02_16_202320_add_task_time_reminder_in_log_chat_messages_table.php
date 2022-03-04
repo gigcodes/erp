@@ -15,6 +15,7 @@ class AddTaskTimeReminderInLogChatMessagesTable extends Migration
     {
         Schema::table('log_chat_messages', function (Blueprint $table) {
             $table->integer('task_time_reminder')->default(0)->after('log_msg')->index();
+            
         });
     }
 
