@@ -137,8 +137,11 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                         </div>
                                     </td>
                                     <td class="cls_remove ">
+                                        @php
+                                            $chat_last_message=\App\ChatMessage::where('customer_id', $chatId->customer_id)->where('message_application_id', 2)->orderBy("id", "desc")->first();
+                                        @endphp
                                         <div class="typing-indicator" id="typing-indicator">{{isset($chat_last_message)?$chat_last_message->message:''}}</div>
-                                         
+
 
                                         <div class="row quick">
                                             <div class="col-md-4 cls_remove_rightpadding">
@@ -150,7 +153,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                     <a href="/attachImages/live-chat/{{ @$customer->id }}" class="ml-2 mt-2 mr-2 btn-xs text-dark"><i class="fa fa-paperclip"></i></a>
                                                     <a class="mt-2 btn-xs text-dark send_msg_btn" href="javascript:;" data-id="{{ @$customer->id }}"><i class="fa fa-location-arrow"></i></a>
                                                 </div>
-                                            </div>                                          
+                                            </div>
                                         </div>
                                         <div class="row cls_quick_reply_box">
                                             <div class="col-md-4 cls_remove_rightpadding">
@@ -207,14 +210,14 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                         <button type="button" class="btn btn-image send-coupon p-1" data-toggle="modal" data-id="{{ $chatId->id }}" data-customerid="{{ $customer->id }}" ><i class="fa fa-envelope"></i></button>
 
 
-                                            
+
                                             <div class="modal fade" id="GeneralInfo<?php echo $chatId->id ?>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
                                                             <h4 class="modal-title" id="myModalLabel">General Info</h4>
                                                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                                            
+
                                                         </div>
                                                         <div class="modal-body">
                                                             <div id="liveChatCustomerInfo">Comming Soon General Info Data</div>
@@ -232,7 +235,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                         <div class="modal-header">
                                                             <h4 class="modal-title" id="myModalLabel">Visited Pages</h4>
                                                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                                            
+
                                                         </div>
                                                         <div class="modal-body">
                                                             <div id="liveChatVisitedPages">Comming Soon Visited Pages Data</div>
@@ -250,7 +253,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                         <div class="modal-header">
                                                             <h4 class="modal-title" id="myModalLabel">Additional info</h4>
                                                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                                            
+
                                                         </div>
                                                         <div class="modal-body">
                                                             <div class="line-spacing" id="liveChatAdditionalInfo">Comming Soon Additional info Data</div>
@@ -268,7 +271,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                         <div class="modal-header">
                                                             <h4 class="modal-title" id="myModalLabel">Technology</h4>
                                                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                                            
+
                                                         </div>
                                                         <div class="modal-body">
                                                             <div class="line-spacing" id="liveChatTechnology">Comming Soon Technology Data</div>
@@ -285,12 +288,12 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                    </tr>
                                 <?php $srno++;?>
                             @endforeach
-                        @endif   
+                        @endif
                     </tbody>
                 </table>
             </div>
         </div>
-    
+
         <!-- ADD COUPON MODAL -->
         <div class="modal fade" id="couponModal" tabindex="-1" role="dialog" aria-labelledby="couponModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
@@ -311,7 +314,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                     <div class="panel-heading" role="tab" id="headingOne">
                                         <h4 class="panel-title">
                                         <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                        Coupon Information 
+                                        Coupon Information
                                         </a>
                                         </h4>
                                     </div>
@@ -321,7 +324,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                             <input type="hidden" name="uses_per_coupon" id="use_per_coupon" value="1" class="form-control" />
                                             <input type="hidden" name="priority" value="Default"  />
                                             <input type="hidden" class="form-control" name="store_labels[0]" value="Quck Created Coupon" />
-                                            
+
                                             <input type="hidden" name="uses_per_coupon" value="1" />
                                             <input type="hidden" name="priority" value="1" />
                                             <input type="hidden" name="coupon_qty" value="1" />
@@ -333,8 +336,8 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                             <input type="hidden" name="discount_qty" value="1" />
                                             <input type="hidden" name="discount_step" value="1" />
                                             <input type="hidden" name="apply_to_shipping" value="true" />
-                                            <input type="hidden" name="stop_rules_processing" value="true" />                                            
-                                            
+                                            <input type="hidden" name="stop_rules_processing" value="true" />
+
                                             <div class="form-group row">
                                                 <label for="code" class="col-sm-3 col-form-label required">Rule Name</label>
                                                 <div class="col-sm-8">
@@ -410,7 +413,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                     @endif
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="form-group row">
                                                 <label for="start" class="col-sm-3 col-form-label">Start</label>
                                                 <div class="col-sm-8">
@@ -439,7 +442,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                     @endif
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="form-group row">
                                                 <label for="start" class="col-sm-3 col-form-label ">Apply</label>
                                                 <div class="col-sm-8">
@@ -495,7 +498,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                             <option value="">Select Coupon</option>
                         </select>
                     </div>
-                </div>  
+                </div>
                 <div class="form-group">
                     <button class="btn btn-secondary send-mail">Send</button>
                 </div>
@@ -524,7 +527,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
     });
     $(document).ready(function() {
         $('#start').datetimepicker({
-            format: 'YYYY-MM-DD HH:mm',            
+            format: 'YYYY-MM-DD HH:mm',
         });
         $('#expiration').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
@@ -551,7 +554,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
               $("#loading-image-preview").show();
             },
             success : function (response){
-              $("#loading-image-preview").hide();  
+              $("#loading-image-preview").hide();
                 if(response.type == "success"){
                     $('.websites').html("");
                     $('.websites').append(response.data);
@@ -563,12 +566,12 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
             error : function (xhr, status, error){
               $("#loading-image-preview").hide();
               var err = eval("(" + xhr.responseText + ")");
-              toastr['error'](err, 'error'); 
+              toastr['error'](err, 'error');
             }
         });
     }
     $('.save-button').on('click',function(){
-        
+
         if($('#coupon-form').valid()){
             let formData = $('#coupon-form').serializeArray();
 
@@ -577,7 +580,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 if(n['name'] == "website_ids"){
                     indexed_array[n['name']] = $('.websites').val();
                 }else if(n['name'] == "customer_groups"){
-                    indexed_array[n['name']] = $('.customers').val(); 
+                    indexed_array[n['name']] = $('.customers').val();
                 }else{
                      if(n['value'] != "") {
                         indexed_array[n['name']] = n['value'];
@@ -588,7 +591,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
             if($("#disable_coupon_code").is(":checked")) {
                 indexed_array["auto_generate"] = true;
             }
-            
+
             $.ajax({
                 url : "{{ route('quick.couponcode.store') }}",
                 type : "POST",
@@ -599,21 +602,21 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 success : function (response){
                     $("#loading-image-preview").hide();
                     if(response.type == "error"){
-                        toastr['error'](response.message, 'error'); 
+                        toastr['error'](response.message, 'error');
                         return false;
                     }else if(response.type == "success"){
-                      toastr['success'](response.message, 'success'); 
+                      toastr['success'](response.message, 'success');
                       location.reload();
                     }
                 },
                 error : function (xhr, status, error){
                   $("#loading-image-preview").hide();
                   var err = eval("(" + xhr.responseText + ")");
-                  toastr['error'](err, 'error'); 
+                  toastr['error'](err, 'error');
                 }
             });
         }
-        
+
     });
     </script>
     <script>
@@ -632,10 +635,10 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 url: "{{ route('livechat.send.message') }}",
                 type: 'POST',
                 dataType: 'json',
-                data: { 
+                data: {
                     id : customerID ,
                     message : message.val(),
-                   _token: "{{ csrf_token() }}" 
+                   _token: "{{ csrf_token() }}"
                 }
             }).done(function(data) {
                 getLastMessage(customerID,$this,message.val());

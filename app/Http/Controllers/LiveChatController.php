@@ -860,7 +860,6 @@ class LiveChatController extends Controller
         if (session()->has('chat_customer_id')) {
             $chatId = session()->get('chat_customer_id');
             $chat_message = ChatMessage::where('customer_id', $chatId)->where('message_application_id', 2)->orderBy("id", "desc")->get();
-            $chat_last_message = $chat_message[0];
             //getting customer name from chat
             $customer = Customer::findorfail($chatId);
             $name = $customer->name;
@@ -887,14 +886,13 @@ class LiveChatController extends Controller
                 }
             }
             $count = CustomerLiveChat::where('seen', 0)->count();
-            return view('livechat.chatMessages', compact('message', 'name', 'customerInital', 'store_websites', 'website_stores','chat_last_message'));
+            return view('livechat.chatMessages', compact('message', 'name', 'customerInital', 'store_websites', 'website_stores'));
         } else {
             $count = 0;
             $message = '';
             $customerInital = '';
             $name = '';
-            $chat_last_message = '';
-            return view('livechat.chatMessages', compact('message', 'name', 'customerInital', 'store_websites', 'website_stores','chat_last_message'));
+            return view('livechat.chatMessages', compact('message', 'name', 'customerInital', 'store_websites', 'website_stores'));
         }
     }
 
