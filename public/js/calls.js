@@ -262,7 +262,7 @@
 		device.on('incoming', function (conn) {
 
 			console.log("------------incoming------------");
-			$.getJSON("/twilio/current-call-number",  function(res) {
+			$.getJSON("/order/current-call-number",  function(res) {
 				$.getJSON("/twilio/getLeadByNumber?number=" + res.number, function (data) {
 
 					const $buttonForAnswer = $('.call__answer'),
