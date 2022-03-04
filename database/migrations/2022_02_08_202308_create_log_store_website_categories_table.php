@@ -13,7 +13,7 @@ class CreateLogStoreWebsiteCategoriesTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('log_store_website_categories')) {
+        //if (!Schema::hasTable('log_store_website_categories')) {
             Schema::create('log_store_website_categories', function (Blueprint $table) {
                 $table->increments('id');
                 $table->String('log_case_id');
@@ -23,7 +23,7 @@ class CreateLogStoreWebsiteCategoriesTable extends Migration
                 $table->String('description');
                 $table->timestamps();
             });
-        }
+       // }
     }
 
     /**
