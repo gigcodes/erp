@@ -1665,6 +1665,9 @@ if (!empty($notifications)) {
                                                     <li class="nav-item dropdown">
 														<a class="dropdown-item" href="{{ route('get.python.log') }}">Python Site Logs</a>
 													</li>
+                                                    <li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('twilio.get_website_wise_key_data_options') }}">Twilio Key Options</a>
+													</li>
 												</ul>
 											</li>
 										</ul>

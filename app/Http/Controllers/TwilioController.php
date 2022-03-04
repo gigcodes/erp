@@ -3058,6 +3058,61 @@ class TwilioController extends FindByNumberController
         }
     }
 
+    /**
+     * This function is use to getting detail for selected email address from the Twilio number
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function manageNumbersPopup($id)
+    {
+       try {
+            $account_id = $id;
+            //get account details
+            $check_account = TwilioCredential::where(['id' => $id])->where('twiml_app_sid','!=',null)->firstOrFail();
+            $numbers = TwilioActiveNumber::where('twilio_credential_id', '=', $id)->with('assigned_stores.store_website')->get();
+		    $store_websites = StoreWebsite::all();
+            $customer_role_users = RoleUser::where(['role_id' => 1])->with('user')->get();
+            $workspace = TwilioWorkspace::where('twilio_credential_id', '=', $id)->where('deleted',0)->get();
+            $twilio_user_list = User::LeftJoin('twilio_agents','user_id','users.id')->select('users.*','twilio_agents.status')->orderBy('users.name', 'ASC')->get();
+            // $worker = TwilioWorker::where('twilio_credential_id', '=', $id)->where('deleted',0)->get();
+
+            $worker = TwilioWorker::join('twilio_workspaces','twilio_workspaces.id','twilio_workers.twilio_workspace_id')
+            ->where('twilio_workers.twilio_credential_id', '=', $id)
+            ->where('twilio_workers.deleted',0)
+            ->select('twilio_workspaces.workspace_name','twilio_workers.*')
+            ->get();
+			
+			$activities = TwilioActivity::join('twilio_workspaces','twilio_workspaces.id','twilio_activities.twilio_workspace_id')
+            ->where('twilio_activities.twilio_credential_id', '=', $id)
+            ->where('twilio_activities.deleted',0)
+            ->select('twilio_workspaces.workspace_name','twilio_activities.*')
+            ->get();
+			foreach($activities as $activity) {
+				if($activity['availability'] == 1) {
+					$activity['availability'] = 'True';
+				} else {
+					$activity['availability'] = 'False';
+				}
+			}
+           $workflows = TwilioWorkflow::join('twilio_workspaces','twilio_workspaces.id','twilio_workflows.twilio_workspace_id')
+            ->where('twilio_workflows.twilio_credential_id', '=', $id)
+            ->where('twilio_workflows.deleted',0)
+            ->select('twilio_workspaces.workspace_name','twilio_workflows.*')
+            ->get();
+			
+			$taskqueue = TwilioTaskQueue::join('twilio_workspaces','twilio_workspaces.id','twilio_task_queue.twilio_workspace_id')
+            ->where('twilio_task_queue.twilio_credential_id', '=', $id)
+            ->where('twilio_task_queue.deleted',0)
+            ->select('twilio_workspaces.workspace_name','twilio_task_queue.*')
+            ->get();
+            
+              
+            return view('twilio.manage-numbers-list', compact('numbers', 'store_websites', 'customer_role_users','account_id','workspace', 'worker', 'activities', 'workflows', 'taskqueue', 'twilio_user_list'));
+        }catch(\Exception $e) {
+            return $e->getMessage();//redirect()->back()->with('error',$e->getMessage());
+        }
+    }
+
     public function manageNumbers($id)
     {
         try {
@@ -3111,7 +3166,6 @@ class TwilioController extends FindByNumberController
             return redirect()->back()->with('error',$e->getMessage());
         }
     }
-
 
     public function getTwilioActiveNumbers($account_id)
     {
@@ -3678,6 +3732,34 @@ class TwilioController extends FindByNumberController
 		}
 		$greetingMessage = StoreWebsite::where('id', $request->website_store_id)->pluck('twilio_greeting_message')->first();
 		return ['html'=>$html, 'welcome_message'=>$greetingMessage];
+    }
+
+    public function getTwilioKeyDataOptions(Request $request) {
+
+        $store_websites = StoreWebsite::LeftJoin('twilio_sitewise_times as tst','tst.store_website_id','store_websites.id')->select('store_websites.*','tst.start_time','tst.end_time')->orderBy('store_websites.website', 'ASC')->get();
+        
+        $web_id = $request->website_store_id;
+        
+        $twilio_key_arr = array();
+		$html = "";
+        //if($keydata)
+
+        //{
+        foreach($store_websites AS $store_website_data) {
+            $keydata = TwilioKeyOption::where('website_store_id',$store_website_data->id)->get();
+            
+            foreach($keydata as $key => $value){
+                $twilio_key_arr[$store_website_data->id][$value->key]['option'] = $value->description;
+                $twilio_key_arr[$store_website_data->id][$value->key]['desc'] = $value->details;
+                $twilio_key_arr[$store_website_data->id][$value->key]['message'] = $value->message;
+                $twilio_key_arr[$store_website_data->id][$value->key]['id'] = $value->id;
+            }
+        }
+       
+          return view('twilio.twilio_key_data_options', compact('twilio_key_arr','web_id', 'store_websites'))->render();//dd( $html);
+		//}
+		//$greetingMessage = StoreWebsite::where('id', $request->website_store_id)->pluck('twilio_greeting_message')->first();
+		//return ['html'=>$html, 'welcome_message'=>$greetingMessage];
     }
 
     public function setTwilioWorkSpace(Request $request){ 
