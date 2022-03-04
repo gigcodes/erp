@@ -75,6 +75,7 @@ use App\ChatbotTypeErrorLog;
 use App\ChatbotCategory;
 use App\ReplyCategory;
 use App\TwilioDequeueCall;
+use App\TwilioPriority;
 
 use App\TwilioMessageTone;
 use Twilio\Jwt\TaskRouter\WorkerCapability;
@@ -178,17 +179,18 @@ class TwilioController extends FindByNumberController
                             $capability->allowClientOutgoing($device->twiml_app_sid);
                             
                             $capability->allowClientIncoming($agent);
-                            $expiresIn = (3600 * 1);
-                            $token = $capability->generateToken();
+                            $expiresIn = (3600 * 8);
+                            $token = $capability->generateToken($expiresIn);
                             $tokens[]=$token;
 
-                            $twilioWorker = TwilioWorker::where('user_id', $user_id)->firstOrFail();
+                            $twilioWorkspace = TwilioWorkspace::where('workspace_sid', $twilio_active_credential->workspace_sid)->firstOrFail();
+                            $twilioWorker = TwilioWorker::where('user_id', $user_id)->where('twilio_workspace_id', $twilioWorkspace->id)->firstOrFail();
 
                             $capability = new WorkerCapability($device->account_id, $device->auth_token, $twilio_active_credential->workspace_sid, $twilioWorker->worker_sid);
                             $capability->allowFetchSubresources();
                             $capability->allowActivityUpdates();
                             $capability->allowReservationUpdates();
-                            $workers[] = $capability->generateToken();
+                            $workers[] = $capability->generateToken($expiresIn);
                         }
                         return response()->json(['twilio_tokens' => $tokens, 'workers' => $workers, 'agent' => $agent]);
         
@@ -1313,10 +1315,19 @@ class TwilioController extends FindByNumberController
                     ]);
         }
 
+        if($request->get('EventType') == "reservation.timeout")
+        {
+            $twilio->calls(json_decode($request->get("TaskAttributes"))->worker_call_sid)
+               ->update([
+                            "status" => "canceled"
+                        ]
+               );
+        }
+
         if($request->get('EventType') == "task.canceled") {
             TwilioCallWaiting::where("call_sid",json_decode($request->get("TaskAttributes"))->call_sid)->delete();
 
-            if($request->get('EventType') != "hangup") {
+            if($request->get('Reason') != "hangup") {
                 $task->calls(json_decode($request->get("TaskAttributes"))->call_sid)
                 ->update([
                     "twiml" => "<Response><Say>Currently, We are getting too much inquiry, we will contact you soon. Good Bye</Say><Leave/></Response>"
@@ -1441,7 +1452,6 @@ class TwilioController extends FindByNumberController
         $CallSid = $request->get("CallSid");
   	    
         list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
-
         $store_website_id = (isset($object->store_website_id) ? $object->store_website_id : 0 );
         try {
 
@@ -1497,8 +1507,12 @@ class TwilioController extends FindByNumberController
                     'store_website_id' => $store_website_id,
                     'status'    => 0
                 ]);
-
-                $response->enqueue(null, ['workflowSid' => $call_from->workflow_sid, 'waitUrl' => route('waiturl', [], false)])->task('{"type":"support"}', ['timeout' => $workflow->task_timeout]);
+                // $priority = $object->is_priority ?? 0;
+                $priority = $number == "+917698438429" ? 1 : 0 ;
+                $task = [
+                    'type' => $priority
+                ];
+                $response->enqueue(null, ['workflowSid' => $call_from->workflow_sid, 'waitUrl' => route('waiturl', [], false)])->task(json_encode($task), ['priority' => $priority , 'timeout' => $workflow->task_timeout]);
                 TwilioLog::create(['log'=> 'Enqueue Log '. (string)$response,'account_sid'=> 0,'call_sid'=> 0, 'phone'=> 0 ]);
         		
                 return \Response::make((string)$response, '200')->header('Content-Type', 'text/xml');
@@ -3111,6 +3125,11 @@ class TwilioController extends FindByNumberController
             $workspace = TwilioWorkspace::where('twilio_credential_id', '=', $id)->where('deleted',0)->get();
             $twilio_user_list = User::LeftJoin('twilio_agents','user_id','users.id')->select('users.*','twilio_agents.status')->orderBy('users.name', 'ASC')->get();
             // $worker = TwilioWorker::where('twilio_credential_id', '=', $id)->where('deleted',0)->get();
+            
+            $priority = TwilioPriority::where('twilio_priorities.account_id', '=', $id)
+            ->where('twilio_priorities.deleted_at',null)
+            ->select('twilio_priorities.*')
+            ->get();
 
             $worker = TwilioWorker::join('twilio_workspaces','twilio_workspaces.id','twilio_workers.twilio_workspace_id')
             ->where('twilio_workers.twilio_credential_id', '=', $id)
@@ -3142,7 +3161,7 @@ class TwilioController extends FindByNumberController
             ->select('twilio_workspaces.workspace_name','twilio_task_queue.*')
             ->get();
              
-            return view('twilio.manage-numbers', compact('numbers', 'store_websites', 'customer_role_users','account_id','workspace', 'worker', 'activities', 'workflows', 'taskqueue', 'twilio_user_list'));
+            return view('twilio.manage-numbers', compact('numbers', 'store_websites', 'customer_role_users','account_id','workspace', 'worker', 'priority', 'activities', 'workflows', 'taskqueue', 'twilio_user_list'));
         }catch(\Exception $e) {
             return redirect()->back()->with('error',$e->getMessage());
         }
@@ -3775,6 +3794,58 @@ class TwilioController extends FindByNumberController
         return new JsonResponse(['code' => 200, 'message' => 'Workspace deleted successfully']);
     }
 
+    public function createTwilioPriority(Request $request){
+        $validator = Validator::make($request->all(), [
+            'priority_no' => 'required',
+            'priority_name' => 'required',
+            'account_id' => 'required'
+        ]);
+		
+		if ($validator->fails()) {  
+			$errors = $validator->getMessageBag();
+			$errors = $errors->toArray();
+			$message = '';
+			foreach($errors as $error) {
+				$message .= $error[0].'<br>';
+			}
+            return response()->json(['status' => 'failed', 'statusCode'=>500,'message' => $message]);
+        }
+
+        $accountId =  $request->account_id;
+        $priorityNo = $request->priority_no;
+        $priorityName = $request->priority_name;
+        
+        $check_name = TwilioPriority::where('priority_no',$priorityNo)->where('account_id',$accountId)->where('twilio_priorities.deleted_at',null)->first();
+
+        if($check_name) {
+            return new JsonResponse(['status' => 'failed', 'statusCode'=>500, 'message' => 'This Priority Number already exists']);
+        } else{
+
+            $priority_latest = TwilioPriority::create([
+                'priority_no' => $priorityNo,
+                'account_id' => $accountId,
+                'priority_name' => $priorityName,
+             ]);
+             $priority_latest_record = TwilioPriority::where('twilio_priorities.account_id',$accountId)
+             ->where('twilio_priorities.deleted_at',null)
+             ->where('twilio_priorities.id',$priority_latest->id)
+             ->select('twilio_priorities.*')
+             ->first();
+             
+			return response()->json(['status' => 'success', 'statusCode'=>200,'message' => 'Priority Created successfully', 'data' => $priority_latest_record]);
+        }
+    }
+
+    public function deleteTwilioPriority(Request $request){
+        $priority_id = $request->priority_id;
+
+        $getdata = TwilioPriority::where('id', $priority_id)->first();
+     
+        TwilioPriority::where('id',$priority_id)->update(['deleted_at'=> date('Y-m-d H:i:s')]);
+
+        return new JsonResponse(['code' => 200, 'message' => 'Priority deleted successfully']);
+    }
+
     public function createTwilioWorker(Request $request){
 		$validator = Validator::make($request->all(), [
             'workspace_id' => 'required',
@@ -3823,7 +3894,7 @@ class TwilioController extends FindByNumberController
 
             $worker = $twilio->taskrouter->v1->workspaces($workspace_data->workspace_sid)->workers->create($user->name, 
                             ['attributes'=>json_encode([
-                                    "type" => "support",
+                                    "customer_value" => [0],
                                     "phone" => $request->worker_phone,
                                     "contact_uri" => "client:customer_call_agent_". $user->id
                                 ]),
@@ -3913,8 +3984,16 @@ class TwilioController extends FindByNumberController
             $workflow = $twilio->taskrouter->v1->workspaces($workspace_data->workspace_sid)->workflows->create($workflow_name,
 			 json_encode([
                             "task_routing" => [
-                                "default_filter" => [
-                                    "queue" => $task_queue_sid
+                                "filters" => [
+                                    [
+                                        "expression" => "1==1",
+                                        "targets" => [
+                                            [
+                                                "queue" => $task_queue_sid,
+                                                "expression" => "task.type IN worker.customer_value"
+                                            ]
+                                        ]
+                                    ]
                                 ]
                             ]
                         ]), [

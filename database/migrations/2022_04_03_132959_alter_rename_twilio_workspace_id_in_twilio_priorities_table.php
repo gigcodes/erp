@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddColumnScraperImagesTable extends Migration
+class AlterRenameTwilioWorkspaceIdInTwilioprioritiesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class AddColumnScraperImagesTable extends Migration
      */
     public function up()
     {
-        Schema::table('scraper_imags',function($table){
-            $table->string('url')->index('url')->nullable();
-            $table->date('scrap_date');
+        Schema::table('twilio_priorities', function (Blueprint $table) {
+            $table->renameColumn('twilio_workspace_id', 'account_id');
         });
     }
 
@@ -26,9 +25,8 @@ class AddColumnScraperImagesTable extends Migration
      */
     public function down()
     {
-        Schema::table('scraper_imags',function(Blueprint $table) {
-            $table->dropField('url');
-            $table->dropField('scrap_date');
+        Schema::table('twilio_priorities', function (Blueprint $table) {
+            $table->renameColumn('account_id', 'twilio_workspace_id');
         });
     }
 }
