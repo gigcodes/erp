@@ -404,7 +404,6 @@ class LiveChatController extends Controller
 
     public function sendMessage(Request $request)
     {
-
         $chatId = $request->id;
         $message = $request->message;
         $customerDetails = Customer::find($chatId);
@@ -461,7 +460,8 @@ class LiveChatController extends Controller
             return response()->json([
                 'status' => 'errors',
             ]);
-        } else {
+        }
+        else {
             $response = json_decode($response);
 
             if (isset($response->error)) {
@@ -655,6 +655,7 @@ class LiveChatController extends Controller
         $threadId = $customer->thread;
 
         $messages = ChatMessage::where('customer_id', $chatId)->where('message_application_id', 2)->get();
+
         //getting customer name from chat
         $customer = Customer::findorfail($chatId);
         $name = $customer->name;
@@ -724,6 +725,16 @@ class LiveChatController extends Controller
             'status' => 'success',
             'data' => array('id' => $chatId, 'count' => $count, 'message' => $messagess, 'name' => $name, 'customerInfo' => $customerInfo, 'threadId' => $threadId, 'customerInital' => $customerInital, 'store_website_id' => $store_website_id),
         ]);
+    }
+    public function getLastChats(Request $request){
+        $chatId = $request->id;
+        $messages = ChatMessage::where('customer_id', $chatId)->where('message_application_id', 2)->orderBy('id','desc')->first();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $messages
+        ]);
+
     }
 
     public function getChatMessagesWithoutRefresh()
@@ -849,6 +860,7 @@ class LiveChatController extends Controller
         if (session()->has('chat_customer_id')) {
             $chatId = session()->get('chat_customer_id');
             $chat_message = ChatMessage::where('customer_id', $chatId)->where('message_application_id', 2)->orderBy("id", "desc")->get();
+            $chat_last_message = $chat_message[0];
             //getting customer name from chat
             $customer = Customer::findorfail($chatId);
             $name = $customer->name;
@@ -875,13 +887,14 @@ class LiveChatController extends Controller
                 }
             }
             $count = CustomerLiveChat::where('seen', 0)->count();
-            return view('livechat.chatMessages', compact('message', 'name', 'customerInital', 'store_websites', 'website_stores'));
+            return view('livechat.chatMessages', compact('message', 'name', 'customerInital', 'store_websites', 'website_stores','chat_last_message'));
         } else {
             $count = 0;
             $message = '';
             $customerInital = '';
             $name = '';
-            return view('livechat.chatMessages', compact('message', 'name', 'customerInital', 'store_websites', 'website_stores'));
+            $chat_last_message = '';
+            return view('livechat.chatMessages', compact('message', 'name', 'customerInital', 'store_websites', 'website_stores','chat_last_message'));
         }
     }
 

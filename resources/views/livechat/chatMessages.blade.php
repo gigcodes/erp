@@ -137,7 +137,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                         </div>
                                     </td>
                                     <td class="cls_remove ">
-                                        <div class="typing-indicator" id="typing-indicator"></div>
+                                        <div class="typing-indicator" id="typing-indicator">{{isset($chat_last_message)?$chat_last_message->message:''}}</div>
                                          
 
                                         <div class="row quick">
@@ -148,7 +148,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                             <div class="col-md-2">
                                                 <div class="input-group-append">
                                                     <a href="/attachImages/live-chat/{{ @$customer->id }}" class="ml-2 mt-2 mr-2 btn-xs text-dark"><i class="fa fa-paperclip"></i></a>
-                                                    <a class="mt-2 btn-xs text-dark" href="javascript:;" data-id="{{ @$customer->id }}"><i class="fa fa-location-arrow"></i></a>
+                                                    <a class="mt-2 btn-xs text-dark send_msg_btn" href="javascript:;" data-id="{{ @$customer->id }}"><i class="fa fa-location-arrow"></i></a>
                                                 </div>
                                             </div>                                          
                                         </div>
@@ -624,7 +624,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                openChatBox(true);
         }
 
-        $(document).on("click",".send_btn",function(){
+        $(document).on("click",".send_msg_btn",function(){
             var $this = $(this);
             var customerID = $this.data("id");
             var message = $this.closest("td").find(".message_textarea");
@@ -638,12 +638,28 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                    _token: "{{ csrf_token() }}" 
                 }
             }).done(function(data) {
+                getLastMessage(customerID,$this,message.val());
                 message.val('');
             }).fail(function() {
                 alert('Chat Not Active');
             });
         });
+        function getLastMessage(customerID,$this,message) {
+            $.ajax({
+                url: "{{ route('livechat.last.message') }}",
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    id : customerID ,
+                    _token: "{{ csrf_token() }}"
+                }
+            }).done(function(data) {
+                if(data.status=="success"){
+                    $this.closest("td").find(".typing-indicator").text(data.data.message);
+                }
 
+            });
+        }
         function openPopupGeneralInfo(id)
         {
             $('#GeneralInfo'+id).modal('show');
