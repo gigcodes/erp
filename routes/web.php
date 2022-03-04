@@ -3702,6 +3702,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
 
 
 });
+Route::get('test', 'ScrapController@listCron');
 Route::get('command', function () {	
 // \Artisan::call('migrate');
     \Artisan::call('create-mailinglist-influencers');

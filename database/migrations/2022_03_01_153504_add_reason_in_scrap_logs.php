@@ -3,9 +3,8 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
 
-class AlterRenameTwilioWorkspaceIdInTwilioPrioritiesTable extends Migration
+class AddReasonInScrapLogs extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +13,9 @@ class AlterRenameTwilioWorkspaceIdInTwilioPrioritiesTable extends Migration
      */
     public function up()
     {
-		DB::select("ALTER TABLE twilio_priorities CHANGE twilio_workspace_id account_id INT(11)");
+        Schema::table('scrap_logs', function (Blueprint $table) {
+            $table->string('reason')->after('log_messages')->nullable();
+        });
     }
 
     /**
@@ -24,8 +25,8 @@ class AlterRenameTwilioWorkspaceIdInTwilioPrioritiesTable extends Migration
      */
     public function down()
     {
-        Schema::table('twilio_priorities', function (Blueprint $table) {
-            $table->renameColumn('account_id', 'twilio_workspace_id');
+        Schema::table('scrap_logs', function (Blueprint $table) {
+            $table->dropColumn('reason');
         });
     }
 }
