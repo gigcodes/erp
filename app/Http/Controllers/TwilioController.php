@@ -3071,10 +3071,9 @@ class TwilioController extends FindByNumberController
             $twilio_user_list = User::LeftJoin('twilio_agents','user_id','users.id')->select('users.*','twilio_agents.status')->orderBy('users.name', 'ASC')->get();
             // $worker = TwilioWorker::where('twilio_credential_id', '=', $id)->where('deleted',0)->get();
             
-            $priority = TwilioPriority::join('twilio_workspaces','twilio_workspaces.id','twilio_priorities.twilio_workspace_id')
-            ->where('twilio_priorities.twilio_workspace_id', '=', $id)
+            $priority = TwilioPriority::where('twilio_priorities.account_id', '=', $id)
             ->where('twilio_priorities.deleted_at',null)
-            ->select('twilio_workspaces.workspace_name','twilio_priorities.*')
+            ->select('twilio_priorities.*')
             ->get();
 
             $worker = TwilioWorker::join('twilio_workspaces','twilio_workspaces.id','twilio_workers.twilio_workspace_id')
@@ -3742,10 +3741,10 @@ class TwilioController extends FindByNumberController
     }
 
     public function createTwilioPriority(Request $request){
-		$validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'priority_no' => 'required',
             'priority_name' => 'required',
-            'workspace_id' => 'required'
+            'account_id' => 'required'
         ]);
 		
 		if ($validator->fails()) {  
@@ -3758,27 +3757,25 @@ class TwilioController extends FindByNumberController
             return response()->json(['status' => 'failed', 'statusCode'=>500,'message' => $message]);
         }
 
-        $workspaceId =  $request->workspace_id;
+        $accountId =  $request->account_id;
         $priorityNo = $request->priority_no;
         $priorityName = $request->priority_name;
         
-        $check_name = TwilioPriority::where('priority_name',$priorityName)->where('twilio_workspace_id',$workspaceId)->where('twilio_priorities.deleted_at',null)->first();
+        $check_name = TwilioPriority::where('priority_no',$priorityNo)->where('account_id',$accountId)->where('twilio_priorities.deleted_at',null)->first();
 
         if($check_name) {
-            return new JsonResponse(['status' => 'failed', 'statusCode'=>500, 'message' => 'This Priority already exists']);
+            return new JsonResponse(['status' => 'failed', 'statusCode'=>500, 'message' => 'This Priority Number already exists']);
         } else{
 
             $priority_latest = TwilioPriority::create([
                 'priority_no' => $priorityNo,
-                'twilio_workspace_id' => $workspaceId,
+                'account_id' => $accountId,
                 'priority_name' => $priorityName,
              ]);
-            
-             $priority_latest_record = TwilioPriority::join('twilio_workspaces','twilio_workspaces.id','twilio_priorities.twilio_workspace_id')
-             ->where('twilio_priorities.twilio_workspace_id',$workspaceId)
+             $priority_latest_record = TwilioPriority::where('twilio_priorities.account_id',$accountId)
              ->where('twilio_priorities.deleted_at',null)
              ->where('twilio_priorities.id',$priority_latest->id)
-             ->select('twilio_workspaces.workspace_name','twilio_priorities.*')
+             ->select('twilio_priorities.*')
              ->first();
              
 			return response()->json(['status' => 'success', 'statusCode'=>200,'message' => 'Priority Created successfully', 'data' => $priority_latest_record]);
