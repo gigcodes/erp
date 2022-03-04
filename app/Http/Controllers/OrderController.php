@@ -52,6 +52,7 @@ use App\StoreWebsite;
 use App\StoreWebsiteOrder;
 use App\Store_order_status;
 use App\Task;
+use App\TwilioDequeueCall;
 use App\User;
 use App\Waybill;
 use App\waybillTrackHistories;
@@ -2405,31 +2406,58 @@ class OrderController extends Controller
     }
 
     public function callManagement(Request $request){
-
-        $getnumbers = \App\TwilioCurrentCall::select('number')->where(['status'=>1])->get()->toArray();
-        $users = \App\Customer::select('id')->whereIn('phone', $getnumbers)->get()->toArray();
-
+        
         $reservedCalls = \App\TwilioCallWaiting::with('storeWebsite')->leftJoin("customers as c", "c.phone", \DB::raw('REPLACE(twilio_call_waitings.from, "+", "")'))->orderBy("twilio_call_waitings.created_at", "desc")
         ->select(["twilio_call_waitings.*", "c.name", "c.email"])->get();
-        $allleads=[];
-        $orders = (new \App\Order())->newQuery()->with('customer')->leftJoin("store_website_orders as swo","swo.order_id","orders.id")
-        ->leftJoin("order_products as op","op.order_id","orders.id")
-        ->leftJoin("products as p","p.id","op.product_id")
-        ->leftJoin("brands as b","b.id","p.brand")->groupBy("orders.id")
-        ->whereIn('customer_id',$users)
-        ->select(["orders.*",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"])->orderBy('created_at','desc')->limit(5)->get();
-        $allleads[] = $this->getLeadsInformation($users);
-        if ($orders->count()){
-            foreach ($orders as &$value){
-                $value->storeWebsite = $value->storeWebsiteOrder ? ($value->storeWebsiteOrder->storeWebsite??'N/A') : 'N/A';
-                $value->order_date =  Carbon::parse($value->order_date)->format('d-m-y');
-                $totalBrands = explode(",",$value->brand_name_list);
-                $value->brand_name_list = (count($totalBrands) > 1) ? "Multi" : $value->brand_name_list;
-                $value->status = \App\Helpers\OrderHelper::getStatusNameById($value->order_status_id);
-            }
-        }
 
-        return view('orders.call_management', compact('reservedCalls','allleads','orders'));
+        return view('orders.call_management', compact('reservedCalls'));
+    }
+
+    public function getCurrentCallNumber()
+    {
+        $getnumber = TwilioDequeueCall::where('agent_id', Auth::id())->first();
+
+        return response()->json([
+            'number' => $getnumber->caller
+        ]);
+    }
+
+    public function getCurrentCallInformation()
+    {
+        try {
+            // $getnumbers = \App\TwilioCurrentCall::select('number')->where(['status'=>1])->get()->toArray();
+            $getnumber = TwilioDequeueCall::where('agent_id', Auth::id())->first();
+
+            $users = \App\Customer::select('id')->where('phone', str_replace("+","", $getnumber->caller))->get()->toArray();
+            
+            $allleads=[];
+            $orders = (new \App\Order())->newQuery()->with('customer')->leftJoin("store_website_orders as swo","swo.order_id","orders.id")
+            ->leftJoin("order_products as op","op.order_id","orders.id")
+            ->leftJoin("products as p","p.id","op.product_id")
+            ->leftJoin("brands as b","b.id","p.brand")->groupBy("orders.id")
+            ->whereIn('customer_id',$users)
+            ->select(["orders.*",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"])->orderBy('created_at','desc')->limit(5)->get();
+            $allleads[] = $this->getLeadsInformation($users);
+            if ($orders->count()){
+                foreach ($orders as &$value){
+                    $value->storeWebsite = $value->storeWebsiteOrder ? ($value->storeWebsiteOrder->storeWebsite??'N/A') : 'N/A';
+                    $value->order_date =  Carbon::parse($value->order_date)->format('d-m-y');
+                    $totalBrands = explode(",",$value->brand_name_list);
+                    $value->brand_name_list = (count($totalBrands) > 1) ? "Multi" : $value->brand_name_list;
+                    $value->status = \App\Helpers\OrderHelper::getStatusNameById($value->order_status_id);
+                }
+            }  
+            
+            return response()->json([
+                'all_leads' => $allleads,
+                'orders' => $orders
+            ]);
+        }catch(\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
+        }
+        
     }
 
     private function getLeadsInformation($ids){

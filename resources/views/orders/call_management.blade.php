@@ -21,9 +21,9 @@
     Call Management
     <div class="margin-tb" style="flex-grow: 1;">
         <div class="pull-right ">
-            <div class="d-flex align-items-center justify-content-between  mx-3">
-				<div class="worker-activity">Offline</div>
-                <button class="button worker-activity-toggle ml-3">Available</button>
+            <div class="d-flex align-items-center justify-content-between mx-3">
+                <a href="javascript:void(0)" style="font-size:13px;text-decoration:underline;margin-right:16px" class="worker-activity-toggle ml-3"></a>
+				<div class="alert py-1 px-4 text-sm mb-0 worker-activity" style="font-size:13px;">Status Loading...</div>
             </div>
         </div>
     </div>
@@ -54,7 +54,6 @@
                     <th>From</th>
                     <th>To</th>
                     <th>Call Time</th>
-                    <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="waiting-calls-table-body">
@@ -77,10 +76,6 @@
 								{{$reservedCall->to}}
 							</td>
 							<td>{{$reservedCall->created_at}}</td>
-							<td>
-								<a class="call__answer" data-from-number="{{ $reservedCall->from }}" data-to-number="{{ $reservedCall->to }}">Accept</a>
-								<a class="call__canceled">Reject</a>
-							</td>
                         </tr>
                     @endforeach
                     
@@ -95,94 +90,48 @@
                 <h3>Orders</h3>
                 <div class="table-responsive">
                 <table class="table table-bordered">
-                    <tr>
-                        <th style="width: 10%">Customer Name</th>
-                        <th style="width: 8%">Customer Email</th>
-                        <th style="width: 10%">Order ID</th>
-                        <th style="width: 10%">Client Name</th>
-                        <th style="width: 10%">Store Website</th>
-                        <th style="width: 10%">Order Status</th>
-                        <th style="width: 8%">Order Created Date</th>
-                    </tr>
+                    <thead>
 
-                    @foreach($orders as $_order)
-                    <tr>
-                    <td>
-                        {{@$_order->customer->name}}
-                    </td>
-                    <td>
-                        {{@$_order->customer->email}}
-                    </td>
-                    <td>
-                        {{@$_order->order_id}}
-                    </td>
-                    <td>
-                        {{@$_order->client_name}}
-                    </td>
-                    <td>
-                        {{@$_order->storeWebsite->website}}
-                    </td>
-                    <td>
-                        {{@$_order->order_status}}
-                    </td>
-                    <td>{{@$_order->created_at}}</td>
-                    </tr>
-                @endforeach
+                        <tr>
+                            <th style="width: 10%">Customer Name</th>
+                            <th style="width: 8%">Customer Email</th>
+                            <th style="width: 10%">Order ID</th>
+                            <th style="width: 10%">Client Name</th>
+                            <th style="width: 10%">Store Website</th>
+                            <th style="width: 10%">Order Status</th>
+                            <th style="width: 8%">Order Created Date</th>
+                        </tr>
+                    </thead>
+                
+                    <tbody class="current_call_orders">
+                    </tbody>
                 </table>
             </div>
             <div class="col-md-12">
                 <h3>Leads</h3>
                 <div class="table-responsive">
                 <table class="table table-bordered">
-                    <tr>
-                        <th width="2%">ID</th>
-                        <th width="4%">Lead ID</th>
-                        <th width="2%">Customer Name</th>
-                        <th width="2%">Color</th>
-                        <th width="2%">Size</th>
-                        <th width="2%">Min Price</th>
-                        <th width="2%">Max Price</th>
-                        <th width="2%">Brand Segment</th>
-                        <th width="2%">Gender</th>
-                        <th width="2%">Quantity</th>
-                        <th width="2%">Product Name</th>
-                        <th width="2%">Category</th>
-                        <th width="2%">Brand</th>
-                        <th width="2%">Status</th>
-                    </tr>
-
-                    @foreach($allleads as $leads)
-                        @foreach($leads as $_lead)
+                    <thead>
                         <tr>
-                        <td>
-                            {{@$_lead->id}}
-                        </td>
-                        <td>
-                            {{@$_lead->lead_status_id}}
-                        </td>
-                        <td>
-                            {{@$_lead->customer_name}}
-                        </td>
-                        <td>
-                            {{@$_lead->color}}
-                        </td>
-                        <td>
-                            {{@$_lead->size}}
-                        </td>
-                        <td>
-                            {{@$_lead->min_price}}
-                        </td>
-                        <td>{{@$_lead->max_price}}</td>
-                        <td>{{@$_lead->brand_segment}}</td>
-                        <td>{{@$_lead->gender}}</td>
-                        <td>{{@$_lead->qty}}</td>
-                        <td>{{@$_lead->product_name}}</td>
-                        <td>{{@$_lead->cat_title}}</td>
-                        <td>{{@$_lead->brand_name}}</td>
-                        <td>{{@$_lead->status_name}}</td>
+                            <th width="2%">ID</th>
+                            <th width="4%">Lead ID</th>
+                            <th width="2%">Customer Name</th>
+                            <th width="2%">Color</th>
+                            <th width="2%">Size</th>
+                            <th width="2%">Min Price</th>
+                            <th width="2%">Max Price</th>
+                            <th width="2%">Brand Segment</th>
+                            <th width="2%">Gender</th>
+                            <th width="2%">Quantity</th>
+                            <th width="2%">Product Name</th>
+                            <th width="2%">Category</th>
+                            <th width="2%">Brand</th>
+                            <th width="2%">Status</th>
                         </tr>
-                      @endforeach
-                    @endforeach
+                    </thead>
+
+                    <tbody class="current_call_all_leads">
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -195,14 +144,6 @@
 
 @section('scripts')
 <script>
-$(".call__answer").click(function(){
-    const fromNumber = $(this).data('from-number');
-    const toNumber = $(this).data('to-number');
-  $.get(`https://erpdev7.theluxuryunlimited.com/twilio/accept?From=${fromNumber}&To=${toNumber}`, function(data, status){
-    console.log("Data: " + "\nStatus: ");
-  });
-});
-
 setInterval(() => {
     $.ajax({
         url: '/twilio/get-waiting-call-list',
@@ -224,10 +165,6 @@ setInterval(() => {
                     <td>${value.from || ''}</td>
                     <td>${value.to || ''}</td>
                     <td>${value.created_at || ''}</td>
-                    <td>
-                    <a class="call__answer" data-from-number="${value.from}" data-to-number="${value.to}">Accept</a>
-                    <a class="call__canceled">Reject</a>
-                    </td>
                     </tr>`;
                 })
 
