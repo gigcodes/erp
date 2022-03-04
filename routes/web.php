@@ -1939,6 +1939,35 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/drafted-products/send-lead-price', 'ProductController@sendLeadPrice');
 	Route::get('chatbot-type-error-log', 'ChatbotTypeErrorLogController@index')->name('chatbot.type.error.log');
 
+    //emails_extraction
+    Route::resource('email-data-extraction', 'EmailDataExtractionController');
+    Route::prefix('email-data-extraction')->group(function () {
+        Route::get('/replyMail/{id}', 'EmailDataExtractionController@replyMail');
+        Route::post('/replyMail', 'EmailDataExtractionController@submitReply')->name('email-data-extraction.submit-reply');
+
+        Route::get('/forwardMail/{id}', 'EmailDataExtractionController@forwardMail');
+        Route::post('/forwardMail', 'EmailDataExtractionController@submitForward')->name('email-data-extraction.submit-forward');
+
+        Route::post('/resendMail/{id}', 'EmailDataExtractionController@resendMail');
+        Route::put('/{id}/mark-as-read', 'EmailDataExtractionController@markAsRead');
+        Route::post('/{id}/excel-import', 'EmailDataExtractionController@excelImporter');
+        Route::post('/{id}/get-file-status', 'EmailDataExtractionController@getFileStatus');
+        
+        Route::get('/events/{originId}', 'EmailDataExtractionController@getEmailEvents');
+        Route::get('/emaillog/{emailId}', 'EmailDataExtractionController@getEmailLogs');
+
+        Route::get('/order_data/{email?}', 'EmailDataExtractionController@index'); //Purpose : Add Route -  DEVTASK-18283
+        Route::post('/platform-update', 'EmailDataExtractionController@platformUpdate');
+
+        Route::post('/update_email', 'EmailDataExtractionController@updateEmail');
+
+        Route::post('/bluckAction', 'EmailDataExtractionController@bluckAction')->name('email-data-extraction.bluckAction');
+        Route::post('/changeStatus', 'EmailDataExtractionController@changeStatus')->name('email-data-extraction.changeStatus');
+        Route::post('/change-email-category', 'EmailDataExtractionController@changeEmailCategory')->name('email-data-extraction.changeEmailCategory');
+
+        Route::get('/email-remark', 'EmailDataExtractionController@getRemark')->name('email-data-extraction.getremark');
+        Route::post('/email-remark', 'EmailDataExtractionController@addRemark')->name('email-data-extraction.addRemark');
+    });
 });
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
