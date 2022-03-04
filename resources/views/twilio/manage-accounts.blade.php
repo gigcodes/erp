@@ -3,17 +3,23 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Manage Twilio Accounts
-                    <div class="pull-right">
+                    {{-- <div class="pull-right">
                         <button type="button" class="btn btn-secondary mr-2 twilio_key_option_popup" data-toggle="modal" data-target="#twilio_key_option_modal_popup" style="background: #fff !important;
                         border: 1px solid #ddd !important;
                         color: #757575 !important;">Twillio Key options </button>
-                    </div>
+                    </div> --}}
 
                     {{-- <div class="pull-right">
                         <button type="button" class="btn btn-secondary mr-2 twilio_key_option" data-toggle="modal" data-target="#twilio_key_option_modal" style="background: #fff !important;
                         border: 1px solid #ddd !important;
                         color: #757575 !important;">Twilio Key Options</button>
                     </div> --}}
+                    
+                    <div class="pull-right">
+                        <a href="{{route('twilio.get_website_wise_key_data_options')}}" class="btn  mr-2 twilio_key_option">
+                            Twilio Key Options
+                        </a>
+                    </div>
 
                     <div class="pull-right">
                         <button type="button" class="btn btn-secondary mr-2 twilio_working_hours" data-toggle="modal" data-target="#twilio_working_hours" style="background: #fff !important;

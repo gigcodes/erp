@@ -3734,6 +3734,34 @@ class TwilioController extends FindByNumberController
 		return ['html'=>$html, 'welcome_message'=>$greetingMessage];
     }
 
+    public function getTwilioKeyDataOptions(Request $request) {
+
+        $store_websites = StoreWebsite::LeftJoin('twilio_sitewise_times as tst','tst.store_website_id','store_websites.id')->select('store_websites.*','tst.start_time','tst.end_time')->orderBy('store_websites.website', 'ASC')->get();
+        
+        $web_id = $request->website_store_id;
+        
+        $twilio_key_arr = array();
+		$html = "";
+        //if($keydata)
+
+        //{
+        foreach($store_websites AS $store_website_data) {
+            $keydata = TwilioKeyOption::where('website_store_id',$store_website_data->id)->get();
+            
+            foreach($keydata as $key => $value){
+                $twilio_key_arr[$store_website_data->id][$value->key]['option'] = $value->description;
+                $twilio_key_arr[$store_website_data->id][$value->key]['desc'] = $value->details;
+                $twilio_key_arr[$store_website_data->id][$value->key]['message'] = $value->message;
+                $twilio_key_arr[$store_website_data->id][$value->key]['id'] = $value->id;
+            }
+        }
+       
+          return view('twilio.twilio_key_data_options', compact('twilio_key_arr','web_id', 'store_websites'))->render();//dd( $html);
+		//}
+		//$greetingMessage = StoreWebsite::where('id', $request->website_store_id)->pluck('twilio_greeting_message')->first();
+		//return ['html'=>$html, 'welcome_message'=>$greetingMessage];
+    }
+
     public function setTwilioWorkSpace(Request $request){ 
 		$validator = Validator::make($request->all(), [
             'workspace_name' => 'required',
