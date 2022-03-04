@@ -1393,9 +1393,7 @@ class LiveChatController extends Controller
 
     public function createCredits(Request $request)
     {
-
         $data = [];
-
         $customer_id = $request->credit_customer_id;
         $credit = $request->credit;
         $type = $request->credit_type;
@@ -1425,8 +1423,7 @@ class LiveChatController extends Controller
 
         
         if ($customer) {
-           
-           
+            
             if ($customer->store_website_id != null and $customer->platform_id != null) {
                 $websiteDetails = StoreWebsite::where('id', $customer->store_website_id)->select('magento_url', 'api_token')->first();
                 if ($websiteDetails != null and $websiteDetails['magento_url'] != null and $websiteDetails['api_token'] != null and $request->credit > 0) {

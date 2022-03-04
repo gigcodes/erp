@@ -115,7 +115,7 @@ $statuses = \App\ticketStatuses::all();
             
             $.ajax({
                 type: "POST",
-                url: window.location.origin + '/livechat/create-credit',
+                url: window.location.origin + '/index.php/livechat/create-credit',
                 data: $('#credit_form').serialize(), // serializes the form's elements.
                 success: function (data)
                 {
@@ -124,7 +124,9 @@ $statuses = \App\ticketStatuses::all();
                         $('#credit_form').trigger("reset");
                         $('#create-customer-credit-modal').modal('toggle');
                     }else{
-                        alert(data[0]);
+                        //console.log(data[0]);
+                        var msg = JSON.parse(JSON.parse(data[0]));
+                        alert(msg.message);
                     }
                 }, error: function (jqXHR, exception) {
                     var msg = '';
@@ -153,7 +155,7 @@ $statuses = \App\ticketStatuses::all();
             $("#show-customer-current-credits-modal-label").text('');
             $.ajax({
                 type: "GET",
-                url: window.location.origin + '/livechat/get-credits-data',
+                url: window.location.origin + '/index.php/livechat/get-credits-data',
                 data: {customer_id: $(this).attr('data-customer_id')},
                 success: function (response)
                 {
