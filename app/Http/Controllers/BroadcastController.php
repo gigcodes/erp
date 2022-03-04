@@ -63,7 +63,7 @@ class BroadcastController extends Controller
     {
        
         // return $request->all();
-        $data = \App\BroadcastMessageNumber::where(['broadcast_message_id'=>$request->id])->orderBy('id', 'desc')->limit(1)->get();
+        $data = \App\BroadcastMessageNumber::where(['broadcast_message_id'=>$request->id])->orderBy('id', 'desc')->groupBy('type_id')->get();
         
         $params = [];
         $message = [];
