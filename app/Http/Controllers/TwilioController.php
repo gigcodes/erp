@@ -1265,11 +1265,8 @@ class TwilioController extends FindByNumberController
                 'worker_sid' => $request->get('WorkerSid'),
                 'task_sid' => $request->get('TaskSid'),
                 'reservation_sid' => $request->get('ReservationSid'),
+                'caller' => json_decode($request->get("TaskAttributes"))->caller,
             ]);
-        }
-
-        if($request->get('EventType') == "reservation.canceled" || $request->get('EventType') == "reservation.rejected") {        
-            TwilioCallWaiting::where("call_sid",json_decode($request->get("TaskAttributes"))->call_sid)->delete();
         }
 
         if($request->get('EventType') == "reservation.accepted") {        
@@ -1315,7 +1312,7 @@ class TwilioController extends FindByNumberController
                     ]);
         }
 
-        if($request->get('EventType') == "reservation.timeout")
+        if($request->get('EventType') == "reservation.timeout" || $request->get('EventType') == "reservation.canceled")
         {
             $twilio->calls(json_decode($request->get("TaskAttributes"))->worker_call_sid)
                ->update([
@@ -1507,10 +1504,9 @@ class TwilioController extends FindByNumberController
                     'store_website_id' => $store_website_id,
                     'status'    => 0
                 ]);
-                // $priority = $object->is_priority ?? 0;
-                $priority = $number == "+917698438429" ? 1 : 0 ;
+                $priority = $object->is_priority ?? 0;
                 $task = [
-                    'type' => $priority
+                    'type' => (string)$priority
                 ];
                 $response->enqueue(null, ['workflowSid' => $call_from->workflow_sid, 'waitUrl' => route('waiturl', [], false)])->task(json_encode($task), ['priority' => $priority , 'timeout' => $workflow->task_timeout]);
                 TwilioLog::create(['log'=> 'Enqueue Log '. (string)$response,'account_sid'=> 0,'call_sid'=> 0, 'phone'=> 0 ]);
@@ -3798,6 +3794,7 @@ class TwilioController extends FindByNumberController
             // 'worker_name' => 'required',
             'user_id' => 'required|not_in:0',
             'worker_phone' => 'required',
+            'worker_priority' => 'required'
         ]);
 		
 		if ($validator->fails()) {  
@@ -3809,7 +3806,7 @@ class TwilioController extends FindByNumberController
 			}
             return response()->json(['status' => 'failed', 'statusCode'=>500,'message' => $message]);
         }
-
+        
         $workspace_id = $request->workspace_id;
         $twilio_credential_id = $request->account_id;
         $user_id = $request->user_id;
@@ -3840,7 +3837,7 @@ class TwilioController extends FindByNumberController
 
             $worker = $twilio->taskrouter->v1->workspaces($workspace_data->workspace_sid)->workers->create($user->name, 
                             ['attributes'=>json_encode([
-                                    "customer_value" => [0],
+                                    "customer_value" => $request->worker_priority,
                                     "phone" => $request->worker_phone,
                                     "contact_uri" => "client:customer_call_agent_". $user->id
                                 ]),
@@ -3853,6 +3850,7 @@ class TwilioController extends FindByNumberController
                 'twilio_workspace_id' => $workspace_id,
                 'worker_name' => $user->name,
                 'user_id' => $user->id,
+                'priority' => json_encode($request->worker_priority),
                 'worker_sid' => $worker->sid,
                 'worker_phone' => $request->worker_phone,
              ]);

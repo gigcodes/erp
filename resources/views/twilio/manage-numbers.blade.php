@@ -340,6 +340,14 @@
                             @endforeach
                         </select>
                     </div>
+                    
+                    <div class="col-md-3">
+                        <select class="form-control worker_priority" name="worker_priority" multiple>
+                            @foreach($priority as $key => $val)
+                            <option value="{{$val->priority_no}}">{{$val->priority_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
                    
                     <div class="col-md-3">
                         <input type="text" class="form-control worker_phone" name="worker_phone" placeholder="Worker Phone Number"/>
@@ -974,6 +982,7 @@
                 // var worker_name = $('.twilio_worker_name').val();
                 var user_id = $('.worker_user_id').val();
                 var worker_phone = $('.worker_phone').val();
+                var worker_priority = $('.worker_priority').val();
 
                 $.ajax({
                     url: "{{ route('create-twilio-worker') }}",
@@ -983,6 +992,7 @@
                         // worker_name: worker_name,
                         user_id: user_id,
                         worker_phone: worker_phone,
+                        worker_priority: worker_priority,
                         account_id: '{{ $account_id }}',
                         _token : "{{ csrf_token() }}"
                     },
