@@ -36,43 +36,41 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <div class="pull-left">
-                <h2> Supplier Category Permission To Users</h2>
-            </div>
+                <h2 class="page-heading"> Supplier Category Permission To Users</h2>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-lg-12 margin-tb">
+        <div class="col-lg-12 margin-tb ">
             <div class="alert alert-success" id="success_alert" style="display: none;">
                 <p></p>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12">
+    <div class="row pl-5 pr-5">
+        <div class="col-xs-12 col-sm-12 col-md-12 ">
             <div class="form-group">
-                <div class="table-wrapper-scroll-y my-custom-scrollbar">
+                <div class="table-wrapper-scroll-y my-custom-scrollbar" style="overflow: hidden;">
 
                     <table id="permission_table" class="table table-striped table-bordered table-sm" cellspacing="0"
-                           width="100%">
+                           width="100%" style="table-layout: fixed;">
                         <thead>
                         <tr>
-                            <th>Sr</th>
-                            <th>Users </th>
+                            <th width="1%">Sr</th>
+                            <th width="3%">Users </th>
                             @foreach($categories as $category)
-                                <th>{{ $category->name }}</th>
+                                <th width="3%">{{ $category->name }}</th>
                             @endforeach
                         </tr>
                         </thead>
                         <tbody>
                         @foreach($users as $user)
                             <tr>
-                                <td>{{++$i }}</td>
-                                <td><a href="{{ url("/users/$user->id/edit") }}">{{ $user->name }} ({{ count($user->permissions) }})</a></td>
+                                <td style="padding: 0px 6px;">{{++$i }}</td>
+                                <td style="padding: 0px 6px;"><a style="color: black;" href="{{ url("/users/$user->id/edit") }}" >{{ $user->name }} ({{ count($user->permissions) }})</a></td>
                                 @foreach($categories as $category)
-                                    <td>
+                                    <td style="padding: 0px 6px;">
                                         @if(in_array($category->id, $user->supplierCategoryPermission->pluck('id')->toArray()))
                                             <input type="checkbox" name="permission_check" checked class="permission-check" data-user-id="{{$user->id}}" data-category-id="{{$category->id}}">
                                         @else
