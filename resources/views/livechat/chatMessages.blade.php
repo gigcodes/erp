@@ -578,7 +578,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
 					$('#chat_body').append("<tr>No Logs Found</tr>");
 				}
             });
-			$('#chat_logs').modal(show'');
+			$('#chat_logs').modal('show');
 		}
     $(document).ready(function() {
         $('#start').datetimepicker({
