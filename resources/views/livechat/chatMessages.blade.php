@@ -523,7 +523,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <table>
+                <table class="table table-bordered table-hover">
 			        <thead>
                         <th>Date</th>
                         <th>Thread</th>

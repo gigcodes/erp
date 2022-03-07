@@ -459,6 +459,7 @@ class LiveChatController extends Controller
         $err = curl_error($curl);
 
         curl_close($curl);
+		LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'log'=>"Token used ".\Cache::get('key')]);
 		LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'log'=>$response]);
             
 		if ($err) {
