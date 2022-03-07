@@ -408,7 +408,7 @@ class LiveChatController extends Controller
         $chatId = $request->id;
         $message = $request->message;
         $customerDetails = Customer::find($chatId);
-		LiveChatLog::create(['customer_id'=>$chatId, 'log'=>"Customer details fetched"]);
+		//LiveChatLog::create(['customer_id'=>$chatId, 'log'=>"Customer details fetched"]);
         
         $language = $customerDetails->language;
         if ($language != null) {
@@ -427,9 +427,9 @@ class LiveChatController extends Controller
 
         if ($customer != null) {
             $thread = $customer->thread;
-			LiveChatLog::create(['customer_id'=>$chatId, 'thread'=>$thread, 'log'=>"Customer live chat found"]);        
+			LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'log'=>"Customer live chat found"]);        
         } else {
-			LiveChatLog::create(['customer_id'=>$chatId, 'log'=>"Customer live chat not available"]);
+			//LiveChatLog::create(['customer_id'=>$chatId, 'log'=>"Customer live chat not available"]);
             return response()->json([
                 'status' => 'errors',
             ]);
@@ -459,10 +459,10 @@ class LiveChatController extends Controller
         $err = curl_error($curl);
 
         curl_close($curl);
-		LiveChatLog::create(['customer_id'=>$chatId, 'thread'=>$thread, 'log'=>$response]);
+		LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'log'=>$response]);
             
 		if ($err) {
-            LiveChatLog::create(['customer_id'=>$chatId, 'thread'=>$thread, 'log'=>$err]);
+            LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'log'=>$err]);
             return response()->json([
                 'status' => 'errors',
             ]);
@@ -471,7 +471,7 @@ class LiveChatController extends Controller
             $response = json_decode($response);
 			    
             if (isset($response->error)) {
-				LiveChatLog::create(['customer_id'=>$chatId, 'thread'=>$thread, 'log'=>$response->error->message]);
+				LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'log'=>$response->error->message]);
                 return response()->json([
                     'status' => 'errors ' . @$response->error->message,
                 ]);
