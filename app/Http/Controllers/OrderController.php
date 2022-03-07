@@ -52,6 +52,7 @@ use App\StoreWebsite;
 use App\StoreWebsiteOrder;
 use App\Store_order_status;
 use App\Task;
+use App\TwilioAgent;
 use App\TwilioDequeueCall;
 use App\User;
 use App\Waybill;
@@ -2427,6 +2428,7 @@ class OrderController extends Controller
         try {
             // $getnumbers = \App\TwilioCurrentCall::select('number')->where(['status'=>1])->get()->toArray();
             $getnumber = TwilioDequeueCall::where('agent_id', Auth::id())->first();
+            $agent = TwilioAgent::where('user_id', Auth::id())->first();
 
             $users = \App\Customer::select('id')->where('phone', str_replace("+","", $getnumber->caller))->get()->toArray();
             
@@ -2435,6 +2437,7 @@ class OrderController extends Controller
             ->leftJoin("order_products as op","op.order_id","orders.id")
             ->leftJoin("products as p","p.id","op.product_id")
             ->leftJoin("brands as b","b.id","p.brand")->groupBy("orders.id")
+            ->where('orders.store_id',$agent->store_website_id)
             ->whereIn('customer_id',$users)
             ->select(["orders.*",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"])->orderBy('created_at','desc')->limit(5)->get();
             $allleads[] = $this->getLeadsInformation($users);

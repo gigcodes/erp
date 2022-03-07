@@ -26,6 +26,7 @@ use Illuminate\Http\Request;
 use Mail;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\LiveChatLog;
 
 class LiveChatController extends Controller
 {
@@ -407,12 +408,13 @@ class LiveChatController extends Controller
         $chatId = $request->id;
         $message = $request->message;
         $customerDetails = Customer::find($chatId);
+		//LiveChatLog::create(['customer_id'=>$chatId, 'log'=>"Customer details fetched"]);
+        
         $language = $customerDetails->language;
         if ($language != null) {
             $message = TranslationHelper::translate('en', $language, $message);
-        }
-
-        if (isset($request->messageId)) {
+		}
+		if (isset($request->messageId)) {
             $chatMessages = ChatMessage::where('id', $request->messageId)->first();
             if ($chatMessages != null) {
                 $chatMessages->approved = 1;
@@ -425,7 +427,9 @@ class LiveChatController extends Controller
 
         if ($customer != null) {
             $thread = $customer->thread;
+			LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'log'=>"Customer live chat found"]);        
         } else {
+			//LiveChatLog::create(['customer_id'=>$chatId, 'log'=>"Customer live chat not available"]);
             return response()->json([
                 'status' => 'errors',
             ]);
@@ -455,16 +459,20 @@ class LiveChatController extends Controller
         $err = curl_error($curl);
 
         curl_close($curl);
-
-        if ($err) {
+		LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'log'=>"Token used ".\Cache::get('key')]);
+		LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'log'=>$response]);
+            
+		if ($err) {
+            LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'log'=>$err]);
             return response()->json([
                 'status' => 'errors',
             ]);
         }
         else {
             $response = json_decode($response);
-
+			    
             if (isset($response->error)) {
+				LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'log'=>$response->error->message]);
                 return response()->json([
                     'status' => 'errors ' . @$response->error->message,
                 ]);
@@ -851,6 +859,11 @@ class LiveChatController extends Controller
             ]);
         }
     }
+	
+	public function getChatLogs($customerId) {
+		$logs = LiveChatLog::where('customer_id', $customerId)->orderBy('id', 'desc')->get();
+		return $logs;
+	}
 
     public function getLiveChats()
     {

@@ -207,6 +207,10 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                         <a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="Technology" onclick="openPopupTechnology(<?php echo $chatId->id;?>)" >
                                             <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
                                         </a>
+										
+										<a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="Chat Logs" onclick="openChatLogs(<?php echo $chatId->id;?>)" >
+                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                        </a>
                                         <button type="button" class="btn btn-image send-coupon p-1" data-toggle="modal" data-id="{{ $chatId->id }}" data-customerid="{{ $customer->id }}" ><i class="fa fa-envelope"></i></button>
 
 
@@ -509,6 +513,32 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
         </div>
     </div>
 </div>
+
+<div id="chat_logs" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Chat Logs</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered table-hover">
+			        <thead>
+                        <th>Date</th>
+                        <th>Thread</th>
+                        <th>Log</th>
+                    </thead>
+					<tbody id="chat_body">
+					</tbody>
+			    </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
@@ -525,6 +555,35 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
+	function openChatLogs(chatId)
+    {
+            $('#chat_body').html("");
+            var store_website_id = $('#selected_customer_store').val();            
+            $.ajax({
+                url: "{{ url('livechat/getLiveChats/logs') }}"+'/'+chatId,
+                type: 'GET',
+                dataType: 'json',
+				beforeSend: function () {
+				  $("#loading-image-preview").show();
+				},
+            }).done(function(data){
+				$("#loading-image-preview").hide();
+                var logs = data;
+				if(logs != null) {
+					logs.forEach(function (log) {
+                        $('#chat_body').append(
+						"<tr><td>"+log.created_at+"</td>"+
+							"<td>"+log.thread+"</td>"+
+							"<td>"+log.log+"</td></tr>"
+						);
+                    });
+				} else{
+					$('#chat_body').append("<tr>No Logs Found</tr>");
+				}
+            });
+			$('#chat_logs').modal('show');
+	}
+	
     $(document).ready(function() {
         $('#start').datetimepicker({
             format: 'YYYY-MM-DD HH:mm',
@@ -679,6 +738,9 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
         {
             $('#Technology'+id).modal('show');   
         }
+		
+        
+		
         function getLiveChats(id){
             // Close the connection, if open.
             if (websocket.readyState === WebSocket.OPEN) {

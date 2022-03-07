@@ -469,7 +469,7 @@
 					orderHtml += '<td>' + item.customer.email + '</td>';
 					orderHtml += '<td>' + item.order_id + '</td>';
 					orderHtml += '<td>' + item.client_name + '</td>';
-					orderHtml += '<td>' + item.storeWebsite.website + '</td>';
+					orderHtml += '<td>' + (item.storeWebsite.website || '') + '</td>';
 					orderHtml += '<td>' + item.order_status + '</td>';
 					orderHtml += '<td>' + item.created_at + '</td>';
 				})
