@@ -2467,9 +2467,9 @@ if (!empty($notifications)) {
                                 @php
                                 $chatIds = \App\CustomerLiveChat::with('customer')->orderBy('seen','asc')
                                 ->orderBy('status','desc')
-                                ->get();
+                                ->get(); 
                                 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
-                                @endphp
+                                @endphp 
                                 <ul class="contacts" id="customer-list-chat">
                                     @foreach ($chatIds as $chatId)
                                         @php
