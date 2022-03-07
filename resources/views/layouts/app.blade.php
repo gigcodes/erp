@@ -745,6 +745,7 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=unapproved">Customers - unapproved</a>
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=Refund+to+be+processed">Customers - refund</a>
                                             <a class="dropdown-item" href="{{ action('VisitorController@index') }}">Livechat Visitor Logs</a>
+                                            <a class="dropdown-item" href="{{ url('livechat/setting') }}">Livechat Setting</a>
                                             <a class="dropdown-item" href="{{ action('ProductController@attachedImageGrid') }}">Attach Images</a>
                                             <a class="dropdown-item" href="{{ action('ProductController@suggestedProducts') }}">Sent Images</a>
                                             <a class="dropdown-item" href="{{ route('chat.dndList') }}">DND Manage</a>
