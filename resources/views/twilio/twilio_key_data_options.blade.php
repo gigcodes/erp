@@ -16,8 +16,19 @@
         <th class="text-center">9</th>
 
     </tr>
-    
+    <?php $web_site_id = isset($web_site_id) ? $web_site_id : ''; ?>
     @foreach ($store_websites as $store_web_data)
+        @if($web_site_id)
+            <tr>
+                <td colspan="10">
+                    <span class="" id="welcome_message_div">
+                        <strong style="float: left;"> Greeting Message : </strong> &nbsp;
+                        <input type="text" name="welcome_message" id="welcome_message" class="form-control" style="float: left;width: 50% !important; margin-left:10px;" />&nbsp;&nbsp;
+                        <a href="#"  style="float: left; margin-left:10px;" class="btn btn-secondary save_twilio_greeting_message">Save</a> 
+                    </span>
+                </td>
+            </tr>
+        @endif
         <tr>
             <td>{{$store_web_data->website}}</td>
             <td>
@@ -225,6 +236,37 @@
         },
         beforeSend : function() {
             
+        },
+        success: function (response) {
+            if(response.status == 1){
+                toastr['success'](response.message);
+            }else if(response.status == 0){
+                toastr['error'](response.message);
+            }
+        },
+        error: function (response) { 
+            
+        }
+    }); 
+});
+
+$('.save_twilio_greeting_message').on("click", function(e){
+    var message = $('#welcome_message').val();
+    var website_id = $('.store_website_twilio_key').val();
+   
+    if(message == '')
+    {
+        toastr['error']('Please enter message');
+        return false;
+    }
+
+    $.ajax({
+        type: "POST",
+        url: "{{ route('twilio.set_twilio_greeting_message') }}",  
+        data: {
+            _token: "{{csrf_token()}}",
+            welcome_message:message,
+            website_store_id:website_id
         },
         success: function (response) {
             if(response.status == 1){
