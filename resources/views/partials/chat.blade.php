@@ -408,9 +408,6 @@ const instance_1 = AccountsSDK.init({
 			}catch{
 
 			}	
-			
-			
-			//console.log("License number: " + data.license);
 		}
 	}
 });
