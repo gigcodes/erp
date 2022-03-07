@@ -556,9 +556,8 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
         }
     });
 	function openChatLogs(chatId)
-        {
-            var category_id = $(this).val();
-			$('#chat_body').html("");
+    {
+            $('#chat_body').html("");
             var store_website_id = $('#selected_customer_store').val();            
             $.ajax({
                 url: "{{ url('livechat/getLiveChats/logs') }}"+'/'+chatId,
@@ -579,7 +578,8 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
 				}
             });
 			$('#chat_logs').modal('show');
-		}
+	}
+	
     $(document).ready(function() {
         $('#start').datetimepicker({
             format: 'YYYY-MM-DD HH:mm',
