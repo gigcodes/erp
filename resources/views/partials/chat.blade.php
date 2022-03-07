@@ -384,7 +384,7 @@ const instance_1 = AccountsSDK.init({
 	 response_type: "token",
 	onIdentityFetched: (error, data) => {
 		if (error){
-			console.log(error)
+			alert(error)
 		} 
 		if (data) {
 			console.log("User authorized!");
