@@ -562,8 +562,12 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
             $.ajax({
                 url: "{{ url('livechat/getLiveChats/logs') }}"+'/'+chatId,
                 type: 'GET',
-                dataType: 'json'
+                dataType: 'json',
+				beforeSend: function () {
+				  $("#loading-image-preview").show();
+				},
             }).done(function(data){
+				$("#loading-image-preview").hide();
                 var logs = data;
 				if(logs != null) {
 					logs.forEach(function (log) {
