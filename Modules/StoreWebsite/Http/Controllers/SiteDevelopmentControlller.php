@@ -51,7 +51,7 @@ class SiteDevelopmentController extends Controller
         $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'))
             ->GroupBy(DB::raw('site_developments.website_id, site_developments.site_development_category_id'));
 
-        $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', 'site_dev.site_development_id','store_websites.website')
+        $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_dev.website_id', 'site_dev.site_development_id','store_websites.website')
             ->joinSub($site_dev, 'site_dev', function ($join)
             {
                 $join->on('site_development_categories.id', '=', 'site_dev.site_development_category_id');
@@ -85,15 +85,20 @@ class SiteDevelopmentController extends Controller
                     $q->on('site_developments.site_development_category_id', '=', 'site_development_categories.id')
                     ->where('site_developments.website_id', $id);
             });
+            $categories->join('store_websites', function ($q) {
+                $q->on('store_websites.id', '=', 'site_developments.website_id');
+            });
         } else {
 			$categories->join('site_developments', function ($q) {
-                    $q->on('site_developments.site_development_category_id', '=', 'site_development_categories.id');
+                    $q->on('site_developments.id', '=', 'site_dev.site_development_id');
+//                    $q->on('site_developments.site_development_category_id', '=', 'site_development_categories.id');
 					//->whereIn('site_developments.website_id', $ids);
             });
+            $categories->join('store_websites', function ($q) {
+                $q->on('store_websites.id', '=', 'site_dev.website_id');
+            });
         }
-        $categories->join('store_websites', function ($q) {
-            $q->on('store_websites.id', '=', 'site_developments.website_id');
-        });
+
        
         /* Status filter */
         if ($request->status) {
@@ -144,6 +149,7 @@ class SiteDevelopmentController extends Controller
             $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
             $othertaskStatistics = $query1->get();
             $merged = $othertaskStatistics->merge($taskStatistics);
+
             foreach ($merged as $m) {
                 /*if($m['task_type'] == 'task' ) {
                 $object = Task::find($m['id']);
