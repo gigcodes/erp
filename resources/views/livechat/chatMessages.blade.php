@@ -555,6 +555,31 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
+	function openChatLogs(chatId)
+        {
+            var category_id = $(this).val();
+			$('#chat_body').html("");
+            var store_website_id = $('#selected_customer_store').val();            
+            $.ajax({
+                url: "{{ url('livechat/getLiveChats/logs') }}"+'/'+chatId,
+                type: 'GET',
+                dataType: 'json'
+            }).done(function(data){
+                var logs = data;
+				if(logs != null) {
+					logs.forEach(function (log) {
+                        $('#chat_body').append(
+						"<tr><td>"+log.created_at+"</td>"+
+							"<td>"+log.thread+"</td>"+
+							"<td>"+log.log+"</td></tr>"
+						);
+                    });
+				} else{
+					$('#chat_body').append("<tr>No Logs Found</tr>");
+				}
+            });
+			$('#chat_logs').modal(show'');
+		}
     $(document).ready(function() {
         $('#start').datetimepicker({
             format: 'YYYY-MM-DD HH:mm',
@@ -710,31 +735,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
             $('#Technology'+id).modal('show');   
         }
 		
-        function openChatLogs(chatId)
-        {
-            var category_id = $(this).val();
-			$('#chat_body').html("");
-            var store_website_id = $('#selected_customer_store').val();            
-            $.ajax({
-                url: "{{ url('livechat/getLiveChats/logs') }}"+'/'+chatId,
-                type: 'GET',
-                dataType: 'json'
-            }).done(function(data){
-                var logs = data;
-				if(logs != null) {
-					logs.forEach(function (log) {
-                        $('#chat_body').append(
-						"<tr><td>"+log.created_at+"</td>"+
-							"<td>"+log.thread+"</td>"+
-							"<td>"+log.log+"</td></tr>"
-						);
-                    });
-				} else{
-					$('#chat_body').append("<tr>No Logs Found</tr>");
-				}
-            });
-			$('#chat_logs').modal(show'');
-		}
+        
 		
         function getLiveChats(id){
             // Close the connection, if open.
