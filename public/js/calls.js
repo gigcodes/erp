@@ -271,6 +271,7 @@
 
 					if (data.found) {
 						let information = data.data
+						let id = information.customer.id;
 						let name = information.customer.name;
 						let number = information.customer.phone;
 						let email = information.customer.email ;
@@ -291,6 +292,9 @@
 						$('#receive-call-popup .modal-body').html(string)
 						$('.call__to').html(conn.customParameters.get('phone'))
 						$accordionTables.html(accordion_data)
+
+						getCurrentCallInformation();
+						getReturnAndExchangeInformation(id);
 
 					} else {
 						let number = data.number;
@@ -345,8 +349,6 @@
 								},
 							})
 						}, 2000);
-
-						getCurrentCallInformation();
 
 						conn.accept();
 					});
@@ -454,6 +456,18 @@
 				emptyCurrentCallInformation();
 			}
 		});
+	}
+
+	function getReturnAndExchangeInformation(id)
+	{
+		$.ajax({
+			url : '/erp-customer/order/return-summary/' + id,
+			method : 'GET',
+			success: function(res) {
+				$('.current_call_return_and_exchange').html(res)
+				$('.current_call_return_and_exchange tr td:first-child, .current_call_return_and_exchange tr td:last-child').remove();
+			}
+		})
 	}
 
 	function getCurrentCallInformation() {
