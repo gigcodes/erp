@@ -89,52 +89,76 @@
             <div class="col-md-12">
                 <h3>Orders</h3>
                 <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead>
+                    <table class="table table-bordered">
+                        <thead>
 
-                        <tr>
-                            <th style="width: 10%">Customer Name</th>
-                            <th style="width: 8%">Customer Email</th>
-                            <th style="width: 10%">Order ID</th>
-                            <th style="width: 10%">Client Name</th>
-                            <th style="width: 10%">Store Website</th>
-                            <th style="width: 10%">Order Status</th>
-                            <th style="width: 8%">Order Created Date</th>
-                        </tr>
-                    </thead>
-                
-                    <tbody class="current_call_orders">
-                    </tbody>
-                </table>
+                            <tr>
+                                <th style="width: 10%">Customer Name</th>
+                                <th style="width: 8%">Customer Email</th>
+                                <th style="width: 10%">Order ID</th>
+                                <th style="width: 10%">Client Name</th>
+                                <th style="width: 10%">Store Website</th>
+                                <th style="width: 10%">Order Status</th>
+                                <th style="width: 8%">Order Created Date</th>
+                            </tr>
+                        </thead>
+                    
+                        <tbody class="current_call_orders">
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="col-md-12">
                 <h3>Leads</h3>
                 <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th width="2%">ID</th>
-                            <th width="4%">Lead ID</th>
-                            <th width="2%">Customer Name</th>
-                            <th width="2%">Color</th>
-                            <th width="2%">Size</th>
-                            <th width="2%">Min Price</th>
-                            <th width="2%">Max Price</th>
-                            <th width="2%">Brand Segment</th>
-                            <th width="2%">Gender</th>
-                            <th width="2%">Quantity</th>
-                            <th width="2%">Product Name</th>
-                            <th width="2%">Category</th>
-                            <th width="2%">Brand</th>
-                            <th width="2%">Status</th>
-                        </tr>
-                    </thead>
-
-                    <tbody class="current_call_all_leads">
-                    </tbody>
-                </table>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="2%">ID</th>
+                                <th width="4%">Lead ID</th>
+                                <th width="2%">Customer Name</th>
+                                <th width="2%">Color</th>
+                                <th width="2%">Size</th>
+                                <th width="2%">Min Price</th>
+                                <th width="2%">Max Price</th>
+                                <th width="2%">Brand Segment</th>
+                                <th width="2%">Gender</th>
+                                <th width="2%">Quantity</th>
+                                <th width="2%">Product Name</th>
+                                <th width="2%">Category</th>
+                                <th width="2%">Brand</th>
+                                <th width="2%">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="current_call_all_leads">
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+            <div class="col-md-12">
+                <h3>Return and Exchange</h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="2%">ID</th>
+                                <th width="2%">Customer Name</th>
+                                <th width="2%">Product Name</th>
+                                <th width="2%">Type</th>
+                                <th width="2%">Refund Amount</th>
+                                <th width="2%">Reason for Refund</th>
+                                <th width="2%">Status</th>
+                                <th width="2%">Pickup Address</th>
+                                <th width="2%">Remarks</th>
+                                <th width="2%">Created At</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="current_call_return_and_exchange">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
