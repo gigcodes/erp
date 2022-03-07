@@ -3070,6 +3070,7 @@ class TwilioController extends FindByNumberController
             $priority = TwilioPriority::where('twilio_priorities.account_id', '=', $id)
             ->where('twilio_priorities.deleted_at',null)
             ->select('twilio_priorities.*')
+            ->orderBy('twilio_priorities.priority_no')
             ->get();
 
             $worker = TwilioWorker::join('twilio_workspaces','twilio_workspaces.id','twilio_workers.twilio_workspace_id')
