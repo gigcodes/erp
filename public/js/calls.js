@@ -469,13 +469,13 @@
 		let orderHtml = '';
 		orders.forEach((item) => {
 			orderHtml += '<tr>';
-			orderHtml += '<td>' + item.customer.name + '</td>';
-			orderHtml += '<td>' + item.customer.email + '</td>';
-			orderHtml += '<td>' + item.order_id + '</td>';
-			orderHtml += '<td>' + item.client_name + '</td>';
-			orderHtml += '<td>' + (item.storeWebsite.website || '') + '</td>';
-			orderHtml += '<td>' + item.order_status + '</td>';
-			orderHtml += '<td>' + item.created_at + '</td>';
+			orderHtml += '<td>' + (item.customer.name || 'N/A') + '</td>';
+			orderHtml += '<td>' + (item.customer.email || 'N/A') + '</td>';
+			orderHtml += '<td>' + (item.order_id || 'N/A') + '</td>';
+			orderHtml += '<td>' + (item.client_name || 'N/A') + '</td>';
+			orderHtml += '<td>' + (item.storeWebsite.website || 'N/A') + '</td>';
+			orderHtml += '<td>' + (item.order_status || 'N/A') + '</td>';
+			orderHtml += '<td>' + (item.created_at || 'N/A') + '</td>';
 		})
 		$(".current_call_orders").html(orderHtml);
 
@@ -483,20 +483,20 @@
 		let allLeadsHtml = '';
 		leads.forEach((item) => {
 			allLeadsHtml += '<tr>';
-			allLeadsHtml += '<td>' + item.id + '</td>';
-			allLeadsHtml += '<td>' + item.lead_status_id + '</td>';
-			allLeadsHtml += '<td>' + item.customer_name + '</td>';
-			allLeadsHtml += '<td>' + item.color + '</td>';
-			allLeadsHtml += '<td>' + item.size + '</td>';
-			allLeadsHtml += '<td>' + item.min_price + '</td>';
-			allLeadsHtml += '<td>' + item.max_price + '</td>';
-			allLeadsHtml += '<td>' + item.brand_segment + '</td>';
-			allLeadsHtml += '<td>' + item.gender + '</td>';
-			allLeadsHtml += '<td>' + item.qty + '</td>';
-			allLeadsHtml += '<td>' + item.product_name + '</td>';
-			allLeadsHtml += '<td>' + item.cat_title + '</td>';
-			allLeadsHtml += '<td>' + item.brand_name + '</td>';
-			allLeadsHtml += '<td>' + item.status_name + '</td>';
+			allLeadsHtml += '<td>' + (item.id || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.lead_status_id || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.customer_name || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.color || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.size || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.min_price || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.max_price || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.brand_segment || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.gender  || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.qty  || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.product_name  || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.cat_title  || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.brand_name  || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.status_name  || 'N/A') + '</td>';
 			allLeadsHtml += '</tr>';
 		})
 		$(".current_call_all_leads").html(allLeadsHtml);
@@ -505,16 +505,16 @@
 		let exchangeTable = '';
 		exchange.forEach((item) => {
 			exchangeTable += '<tr>';
-			exchangeTable += '<td>' + item.id + '</td>';
-			exchangeTable += '<td>' + item.customer_name + '</td>';
-			exchangeTable += '<td>' + item.name + '</td>';
-			exchangeTable += '<td>' + item.type + '</td>';
-			exchangeTable += '<td>' + item.refund_amount + '</td>';
-			exchangeTable += '<td>' + item.reason_for_refund + '</td>';
-			exchangeTable += '<td>' + item.status_name + '</td>';
-			exchangeTable += '<td>' + item.pickup_address + '</td>';
-			exchangeTable += '<td>' + item.remarks + '</td>';
-			exchangeTable += '<td>' + item.created_at + '</td>';
+			exchangeTable += '<td>' + (item.id  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.customer_name  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.name  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.type  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.refund_amount  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.reason_for_refund  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.status_name  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.pickup_address  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.remarks  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.created_at  || 'N/A') + '</td>';
 			exchangeTable += '</tr>';
 		})
 		$('.current_call_return_and_exchange').html(exchangeTable);
@@ -533,10 +533,10 @@
 				res.data.forEach((item, index) => {
 					ticketData += '<tr>';
 					ticketData += '<td>' + (parseInt(index) + 1) + '</td>';
-					ticketData += '<td>' + item.subject + '</td>';
-					ticketData += '<td>' + item.message + '</td>';
-					ticketData += '<td>' + item.ticket_status.name + '</td>';
-					ticketData += '<td>' + item.created_at + '</td>';
+					ticketData += '<td>' + (item.subject || 'N/A') + '</td>';
+					ticketData += '<td>' + (item.message || 'N/A') + '</td>';
+					ticketData += '<td>' + (item.ticket_status.name || 'N/A') + '</td>';
+					ticketData += '<td>' + (item.created_at || 'N/A') + '</td>';
 					ticketData += '</tr>';
 				})
 				$(".current_call_ticket_data").html(ticketData);
@@ -558,10 +558,10 @@
 				res.data.forEach((item, index) => {
 					creditData += '<tr>';
 					creditData += '<td>' + (parseInt(index) + 1) + '</td>';
-					creditData += '<td>' + item.used_credit + '</td>';
-					creditData += '<td>' + item.used_in + '</td>';
-					creditData += '<td>' + item.type.name + '</td>';
-					creditData += '<td>' + item.created_at + '</td>';
+					creditData += '<td>' + (item.used_credit || 'N/A') + '</td>';
+					creditData += '<td>' + (item.used_in || 'N/A') + '</td>';
+					creditData += '<td>' + (item.type.name|| 'N/A') + '</td>';
+					creditData += '<td>' + (item.created_at || 'N/A') + '</td>';
 					creditData += '</tr>';
 				})
 				$(".current_call_credit_data").html(creditData);
