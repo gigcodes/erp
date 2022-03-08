@@ -2417,6 +2417,9 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
 Route::resource('quick-reply', 'QuickReplyController')->middleware('auth');
 Route::resource('social-tags', 'SocialTagsController')->middleware('auth');
 
+//Route::get('customer/credit/logs/{id?}', 'CustomerController@creditLog')->middleware('auth');
+Route::get('customer/credit/histories/{id?}', 'CustomerController@creditHistory')->middleware('auth');
+
 Route::get('test', 'WhatsAppController@getAllMessages');
 
 Route::middleware('auth')->group(function () {
