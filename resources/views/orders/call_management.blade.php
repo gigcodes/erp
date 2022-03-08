@@ -130,6 +130,11 @@
     </div>
     <div class="col-md-6">
         <h3>Current call information</h3>
+        <ul class="d-none customer-call-information" style="margin-left: -1.5rem !important;">
+            <li class="mx-4">Name : <b class="customer-call-name"></b> </li>
+            <li class="mx-4">Email : <b class="customer-call-mail"></b> </li>
+            <li class="mx-4">Phone : <b class="customer-call-number"></b> <button class="btn btn-xs btn-image load-customer-chat-button"><img src="/images/chat.png" alt=""></button> </li>
+        </ul>
         <div class="table-responsive">
             <div class="col-md-12">
                 <h3>Orders</h3>
@@ -207,7 +212,21 @@
         </div>
     </div>
 
+    <div id="customer-call-chat-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Chat History</h4>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
 
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 @endsection
 
