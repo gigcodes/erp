@@ -293,8 +293,13 @@
 						$('.call__to').html(conn.customParameters.get('phone'))
 						$accordionTables.html(accordion_data)
 
-						getCurrentCallInformation();
-						getReturnAndExchangeInformation(id);
+						$(".customer-call-name").html(name)
+						$(".customer-call-mail").html(email)
+						$(".customer-call-number").html(number)
+						$(".load-customer-chat-button").attr("data-id", id);
+						$(".customer-call-information").removeClass("d-none");
+
+						getCurrentCallInformation(information.orders, information.leads, information.exchanges_return);
 						getTicketData(id);
 						getCreditData(id);
 					} else {
@@ -459,65 +464,60 @@
 		});
 	}
 
-	function getCurrentCallInformation() {
-		$.ajax({
-			url: "/order/current-call-management",
-			method: 'GET',
-			success: function(res) {
-				$(".current_call_orders").empty();
-				let orderHtml = '';
-				res.orders.forEach((item) => {
-					orderHtml += '<tr>';
-					orderHtml += '<td>' + item.customer.name + '</td>';
-					orderHtml += '<td>' + item.customer.email + '</td>';
-					orderHtml += '<td>' + item.order_id + '</td>';
-					orderHtml += '<td>' + item.client_name + '</td>';
-					orderHtml += '<td>' + (item.storeWebsite.website || '') + '</td>';
-					orderHtml += '<td>' + item.order_status + '</td>';
-					orderHtml += '<td>' + item.created_at + '</td>';
-				})
-				$(".current_call_orders").html(orderHtml);
-
-				$(".current_call_all_leads").empty();
-				let allLeadsHtml = '';
-				res.all_leads.forEach((lead) => {
-					lead.forEach((item) => {
-						allLeadsHtml += '<tr>';
-						allLeadsHtml += '<td>' + item.id + '</td>';
-						allLeadsHtml += '<td>' + item.lead_status_id + '</td>';
-						allLeadsHtml += '<td>' + item.customer_name + '</td>';
-						allLeadsHtml += '<td>' + item.color + '</td>';
-						allLeadsHtml += '<td>' + item.size + '</td>';
-						allLeadsHtml += '<td>' + item.min_price + '</td>';
-						allLeadsHtml += '<td>' + item.max_price + '</td>';
-						allLeadsHtml += '<td>' + item.brand_segment + '</td>';
-						allLeadsHtml += '<td>' + item.gender + '</td>';
-						allLeadsHtml += '<td>' + item.qty + '</td>';
-						allLeadsHtml += '<td>' + item.product_name + '</td>';
-						allLeadsHtml += '<td>' + item.cat_title + '</td>';
-						allLeadsHtml += '<td>' + item.brand_name + '</td>';
-						allLeadsHtml += '<td>' + item.status_name + '</td>';
-						allLeadsHtml += '</tr>';
-					})
-				})
-				$(".current_call_all_leads").html(allLeadsHtml);
-			},
-			error: function() {
-				showError("Couldn't fetch order Details'")
-			}
+	function getCurrentCallInformation(orders, leads, exchange) {
+		$(".current_call_orders").empty();
+		let orderHtml = '';
+		orders.forEach((item) => {
+			orderHtml += '<tr>';
+			orderHtml += '<td>' + item.customer.name + '</td>';
+			orderHtml += '<td>' + item.customer.email + '</td>';
+			orderHtml += '<td>' + item.order_id + '</td>';
+			orderHtml += '<td>' + item.client_name + '</td>';
+			orderHtml += '<td>' + (item.storeWebsite.website || '') + '</td>';
+			orderHtml += '<td>' + item.order_status + '</td>';
+			orderHtml += '<td>' + item.created_at + '</td>';
 		})
-	}
+		$(".current_call_orders").html(orderHtml);
 
-	function getReturnAndExchangeInformation(id)
-	{
-		$.ajax({
-			url : '/erp-customer/order/return-summary/' + id,
-			method : 'GET',
-			success: function(res) {
-				$('.current_call_return_and_exchange').html(res)
-				$('.current_call_return_and_exchange tr td:first-child, .current_call_return_and_exchange tr td:last-child').remove();
-			}
+		$(".current_call_all_leads").empty();
+		let allLeadsHtml = '';
+		leads.forEach((item) => {
+			allLeadsHtml += '<tr>';
+			allLeadsHtml += '<td>' + item.id + '</td>';
+			allLeadsHtml += '<td>' + item.lead_status_id + '</td>';
+			allLeadsHtml += '<td>' + item.customer_name + '</td>';
+			allLeadsHtml += '<td>' + item.color + '</td>';
+			allLeadsHtml += '<td>' + item.size + '</td>';
+			allLeadsHtml += '<td>' + item.min_price + '</td>';
+			allLeadsHtml += '<td>' + item.max_price + '</td>';
+			allLeadsHtml += '<td>' + item.brand_segment + '</td>';
+			allLeadsHtml += '<td>' + item.gender + '</td>';
+			allLeadsHtml += '<td>' + item.qty + '</td>';
+			allLeadsHtml += '<td>' + item.product_name + '</td>';
+			allLeadsHtml += '<td>' + item.cat_title + '</td>';
+			allLeadsHtml += '<td>' + item.brand_name + '</td>';
+			allLeadsHtml += '<td>' + item.status_name + '</td>';
+			allLeadsHtml += '</tr>';
 		})
+		$(".current_call_all_leads").html(allLeadsHtml);
+
+		$('.current_call_return_and_exchange').empty();
+		let exchangeTable = '';
+		exchange.forEach((item) => {
+			exchangeTable += '<tr>';
+			exchangeTable += '<td>' + item.id + '</td>';
+			exchangeTable += '<td>' + item.customer_name + '</td>';
+			exchangeTable += '<td>' + item.name + '</td>';
+			exchangeTable += '<td>' + item.type + '</td>';
+			exchangeTable += '<td>' + item.refund_amount + '</td>';
+			exchangeTable += '<td>' + item.reason_for_refund + '</td>';
+			exchangeTable += '<td>' + item.status_name + '</td>';
+			exchangeTable += '<td>' + item.pickup_address + '</td>';
+			exchangeTable += '<td>' + item.remarks + '</td>';
+			exchangeTable += '<td>' + item.created_at + '</td>';
+			exchangeTable += '</tr>';
+		})
+		$('.current_call_return_and_exchange').html(exchangeTable);
 	}
 
 	function getTicketData(id) {
@@ -569,6 +569,53 @@
 		})
 	}
 
+	$(document).on("click", ".load-customer-chat-button", function() {
+		const customer_id = $(this).attr("data-id");
+		getCustomerChatHistory(customer_id)
+	})
+
+	function getCustomerChatHistory(customer_id)
+	{
+		$("#loading-image").show();
+		$.ajax({
+			url : `/chat-messages/customer/${customer_id}/loadMoreMessages`,
+			method : "GET",
+			data: {
+				limit: 100,
+				load_all: 1,
+				load_attached: 1,
+				load_type: "text_with_incoming_img"
+			},
+			success: function(res) {
+				const messages = res.messages;
+				$("#loading-image").hide();
+				$("#customer-call-chat-history .modal-body").empty();
+				if (messages.length > 0) {
+
+				    $(messages).each(function(key, value) {
+				        $("#customer-call-chat-history .modal-body").append(`
+				        <table class="table table-bordered">
+				            <tr>
+				                <td style="width:50%">${value.message}</td>
+				                <td style="width:50%">From ${value.sendBy} To ${value.sendTo} On ${value.datetime}</td>
+				            </tr>    
+				        </table>
+				        `)
+				    })
+				} else {
+				    $("#customer-call-chat-history .modal-body").append(`
+				        <table class="table table-bordered">
+				            <tr>
+				                <td colspan="2">No conversations found</td>
+				            </tr>    
+				        </table>
+				        `)
+				}
+				$("#customer-call-chat-history").modal('show');
+			}
+		})
+	}
+
 	function emptyCurrentCallInformation()
 	{
 		$(".current_call_orders").empty();
@@ -577,6 +624,11 @@
 		$(".current_call_credit_data").empty();
 		$(".current_call_ticket_data").empty();
 		$(".remaining_credit").html(0);
+		$(".customer-call-name").empty();
+		$(".customer-call-mail").empty();
+		$(".customer-call-number").empty();
+		$(".load-customer-chat-button").attr("data-id", 0);
+		$(".customer-call-information").addClass("d-none");
 	}
 
 	function initializeTwilio() {
