@@ -295,7 +295,8 @@
 
 						getCurrentCallInformation();
 						getReturnAndExchangeInformation(id);
-
+						getTicketData(id);
+						getCreditData(id);
 					} else {
 						let number = data.number;
 						$('#receive-call-popup .modal-body').html("Incoming call from: <span style='color:#2727b8;'>" + number + "</span> would you like to answer call?")
@@ -458,18 +459,6 @@
 		});
 	}
 
-	function getReturnAndExchangeInformation(id)
-	{
-		$.ajax({
-			url : '/erp-customer/order/return-summary/' + id,
-			method : 'GET',
-			success: function(res) {
-				$('.current_call_return_and_exchange').html(res)
-				$('.current_call_return_and_exchange tr td:first-child, .current_call_return_and_exchange tr td:last-child').remove();
-			}
-		})
-	}
-
 	function getCurrentCallInformation() {
 		$.ajax({
 			url: "/order/current-call-management",
@@ -519,10 +508,75 @@
 		})
 	}
 
+	function getReturnAndExchangeInformation(id)
+	{
+		$.ajax({
+			url : '/erp-customer/order/return-summary/' + id,
+			method : 'GET',
+			success: function(res) {
+				$('.current_call_return_and_exchange').html(res)
+				$('.current_call_return_and_exchange tr td:first-child, .current_call_return_and_exchange tr td:last-child').remove();
+			}
+		})
+	}
+
+	function getTicketData(id) {
+		$.ajax({
+			url: '/livechat/get-tickets-data',
+			method : 'GET',
+			data : {
+				customer_id: id 
+			},
+			success: function(res) {				
+				$(".current_call_ticket_data").empty();
+				let ticketData = '';
+				res.data.forEach((item, index) => {
+					ticketData += '<tr>';
+					ticketData += '<td>' + (parseInt(index) + 1) + '</td>';
+					ticketData += '<td>' + item.subject + '</td>';
+					ticketData += '<td>' + item.message + '</td>';
+					ticketData += '<td>' + item.ticket_status.name + '</td>';
+					ticketData += '<td>' + item.created_at + '</td>';
+					ticketData += '</tr>';
+				})
+				$(".current_call_ticket_data").html(ticketData);
+			}
+		})
+	}
+
+	function getCreditData(id) {
+		$.ajax({
+			url: '/livechat/get-credits-data',
+			method : 'GET',
+			data : {
+				customer_id: id 
+			},
+			success: function(res) {				
+				$(".remaining_credit").html(res.currentcredit)
+				$(".current_call_credit_data").empty();
+				let creditData = '';
+				res.data.forEach((item, index) => {
+					creditData += '<tr>';
+					creditData += '<td>' + (parseInt(index) + 1) + '</td>';
+					creditData += '<td>' + item.used_credit + '</td>';
+					creditData += '<td>' + item.used_in + '</td>';
+					creditData += '<td>' + item.type.name + '</td>';
+					creditData += '<td>' + item.created_at + '</td>';
+					creditData += '</tr>';
+				})
+				$(".current_call_credit_data").html(creditData);
+			}
+		})
+	}
+
 	function emptyCurrentCallInformation()
 	{
 		$(".current_call_orders").empty();
 		$(".current_call_all_leads").empty();
+		$(".current_call_return_and_exchange").empty();
+		$(".current_call_credit_data").empty();
+		$(".current_call_ticket_data").empty();
+		$(".remaining_credit").html(0);
 	}
 
 	function initializeTwilio() {
