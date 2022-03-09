@@ -1339,17 +1339,16 @@ class TwilioController extends FindByNumberController
             TwilioCallWaiting::where("call_sid",json_decode($request->get("TaskAttributes"))->call_sid)->delete();
             $action_url = $request->getSchemeAndHttpHost().'/twilio/cancel-task-record';
             $recording_action_url = $request->getSchemeAndHttpHost().'/twilio/store-cancel-task-record';
-
+            
             if($request->get('Reason') != "hangup") {
                 $task->calls(json_decode($request->get("TaskAttributes"))->call_sid)
                 ->update([
                     'twiml' => '<Response>
                     <Say>Currently, we are getting too much inquiry, Please leave a message at the beep. Press the star key when finished.</Say>
-                    <<Record action="' . $action_url . '" recordingStatusCallback="'. $recording_action_url .'" method="POST" finishOnKey="*"/>
+                    <Record action="' . $action_url . '" recordingStatusCallback="'. $recording_action_url .'" method="POST" finishOnKey="*"/>
                     </Response>'
                     ]
                 );
-                
             }
         }
 
