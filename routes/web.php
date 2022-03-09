@@ -2009,6 +2009,10 @@ Route::any('twilio/completed', 'TwilioController@completed')->name('completed');
 Route::any('twilio/saverecording', 'TwilioController@saveRecording')->name('saveRecording');
 Route::post('twilio/update-reservation-status', 'TwilioController@updateReservationStatus')->name('update_reservation_status');
 
+Route::get('twilio/reject-call-twiml', 'TwilioController@rejectIncomingCallTwiml')->name('twilio.reject_call_twiml');
+Route::post('twilio/cancel-task-record', 'TwilioController@canceldTaskRecord')->name('twilio.cancel_task_record');
+Route::post('twilio/store-cancel-task-record', 'TwilioController@storeCanceldTaskRecord')->name('twilio.store_cancel_task_record');
+
 Route::get(
     '/twilio/hangup',
     [
@@ -3219,8 +3223,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('twilio/conditions/status/update', 'TwilioController@updateConditionStatus')->name('twilio.condition.update');
 	Route::post('twilio/save-message-tone', 'TwilioController@saveMessageTone')->name('twilio.save_tone');
 	Route::get('twilio/message-tones', 'TwilioController@viewMessageTones')->name('twilio.view_tone');
-    
-
+    Route::get('twilio/reject-incoming-call', 'TwilioController@rejectIncomingCall')->name('twilio.reject_incoming_call');
 
     /**
      * Watson account management
