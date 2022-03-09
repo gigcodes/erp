@@ -2529,8 +2529,8 @@ class OrderController extends Controller
 
             if (is_numeric($value['twilio_call_sid'])) {
                 # code...
-                $formatted_phone = str_replace('+91', '', $value['twilio_call_sid']);
-                $customer_array = Customer::with('storeWebsite', 'orders')->where('phone', 'LIKE', "%$formatted_phone%")->get()->toArray();
+                $formatted_phone = str_replace('+', '', $value['twilio_call_sid']);
+                $customer_array = Customer::with('storeWebsite', 'orders')->where('phone', $formatted_phone)->get()->toArray();
 
                 if ($value['aget_user_id'] != '') {
                     $user_data = User::where('id', $value['aget_user_id'])->first();
