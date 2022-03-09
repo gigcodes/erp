@@ -1361,33 +1361,53 @@ class TwilioController extends FindByNumberController
         $response->say("We will contact you soon, Good bye");
         $response->hangup();
         return \Response::make((string)$response, '200')->header('Content-Type', 'text/xml');
-
     }
 
     public function storeCanceldTaskRecord(Request $request)
     {
-        $customer = Customer::where('phone', str_replace('+', '', $request->get("From")))->first();
-
-        $params = [
-            'twilio_call_sid' => $request->get("From"),
+        CallBusyMessage::updateOrCreate([
+            'caller_sid' => $request->get("CallSid")
+        ],[
             'message' => 'Missed Call',
-            'caller_sid' => $request->get("CallSid"),
-            'customer_id' => $customer->id ?? null
-        ];
-
-        CallBusyMessage::create($params);
-
-        $params = [
+            'twilio_call_sid' => $request->get("Caller"),
+        ]);
+        
+        CallRecording::updateOrCreate([
+            'callsid' => $request->get("CallSid")
+        ],[
             'recording_url' => $request->get("RecordingUrl"),
             'twilio_call_sid' => $request->get("CallSid"),
-            'callsid' => $request->get("CallSid")
-        ];
+        ]);   
+    }
 
-        CallRecording::create($params);   
+    public function storeCompleteTaskRecord(Request $request)
+    {
+        if($request->get("CallStatus") == "completed") {
+
+            $agentId = str_replace("client:customer_call_agent_","", $request->get("To"));
+            
+            $dequeue = TwilioDequeueCall::where('agent_id', $agentId)->first();
+            
+            CallBusyMessage::updateOrCreate([
+                'caller_sid' => $dequeue->call_sid
+            ],[
+                'message' => 'Completed',
+                'twilio_call_sid' => $dequeue->caller
+            ]);
+
+            CallRecording::updateOrCreate([
+                'callsid' => $dequeue->call_sid
+            ],[
+                'recording_url' => $request->get("RecordingUrl"),
+                'twilio_call_sid' => $dequeue->call_sid,
+            ]);   
+        }
     }
 
     public function assignmentTask(Request $request)
     {
+        $recording_action_url = $request->getSchemeAndHttpHost().'/twilio/store-complete-task-record';
+
         // Create Twilio Log
         $inputArray = $request->all();
         $this->createTwilioLog($request, $inputArray, 'Task ');
@@ -1395,6 +1415,7 @@ class TwilioController extends FindByNumberController
         $dequeueInstructionModel = new \stdClass;
         $dequeueInstructionModel->instruction = "dequeue";
         $dequeueInstructionModel->record = "record-from-answer";
+        $dequeueInstructionModel->status_callback_url = $recording_action_url;
 
         $dequeueInstructionJson = json_encode($dequeueInstructionModel);
         
