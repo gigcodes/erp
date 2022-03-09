@@ -1265,7 +1265,21 @@ class TwilioController extends FindByNumberController
                 'worker_sid' => $request->get('WorkerSid'),
                 'task_sid' => $request->get('TaskSid'),
                 'reservation_sid' => $request->get('ReservationSid'),
+                'call_sid' => json_decode($request->get("TaskAttributes"))->call_sid,
                 'caller' => json_decode($request->get("TaskAttributes"))->caller,
+            ]);
+
+            $taskAttributes = json_decode($request->get('TaskAttributes'));
+            
+            TwilioCallData::updateOrCreate([
+                'call_sid' => ($taskAttributes->call_sid ?? 0),
+            ], [
+                'call_sid' => ($taskAttributes->call_sid ?? 0),
+                'account_sid' => ($taskAttributes->account_sid ?? 0),
+                'from' => ($taskAttributes->caller ?? 0),
+                'to' => ($taskAttributes->called ?? 0),
+                'call_data' => 'client',
+                'aget_user_id' => str_replace("client:customer_call_agent_","",$workerAttributes->contact_uri)
             ]);
         }
 
@@ -1323,17 +1337,48 @@ class TwilioController extends FindByNumberController
 
         if($request->get('EventType') == "task.canceled") {
             TwilioCallWaiting::where("call_sid",json_decode($request->get("TaskAttributes"))->call_sid)->delete();
-
+            $action_url = $request->getSchemeAndHttpHost().'/twilio/cancel-task-record';
             if($request->get('Reason') != "hangup") {
                 $task->calls(json_decode($request->get("TaskAttributes"))->call_sid)
                 ->update([
-                    "twiml" => "<Response><Say>Currently, We are getting too much inquiry, we will contact you soon. Good Bye</Say><Leave/></Response>"
+                    'twiml' => '<Response>
+                    <Say>Currently, we are getting too much inquiry, Please leave a message at the beep. Press the star key when finished.</Say>
+                    <Record action="' . $action_url . '" method="POST" finishOnKey="*"/>
+                    </Response>'
                     ]
                 );
+                
             }
         }
 
         return response()->json([], 204);
+    }
+
+    public function canceldTaskRecord(Request $request)
+    {
+        $customer = Customer::where('phone', str_replace('+', '', $request->get("From")))->first();
+
+        $params = [
+            'twilio_call_sid' => $request->get("From"),
+            'message' => 'Missed Call',
+            'caller_sid' => $request->get("CallSid"),
+            'customer_id' => $customer->id ?? null
+        ];
+
+        CallBusyMessage::create($params);
+
+        $params = [
+            'recording_url' => $request->get("RecordingUrl"),
+            'twilio_call_sid' => $request->get("CallSid"),
+            'callsid' => $request->get("CallSid")
+        ];
+
+        CallRecording::create($params);
+        $response = new VoiceResponse();
+        $response->say("We will contact you soon, Good bye");
+        $response->hangup();
+        return \Response::make((string)$response, '200')->header('Content-Type', 'text/xml');
+
     }
 
     public function assignmentTask(Request $request)
@@ -1375,6 +1420,21 @@ class TwilioController extends FindByNumberController
         $inputArray = $agent->toArray();
         $this->createTwilioLog($request, $inputArray, "Task Reservation Rejected by ". $reservation->workerName);                                
         //TwilioLog::create(['log' => "Task Reservation Rejected by ". $reservation->workerName . " >>> " . json_encode($agent->toArray()), 'account_sid'=>0 , 'call_sid'=>0 , 'phone'=>0 ]);
+    }
+
+    public function rejectIncomingCall(Request $request)
+    {
+        $agent = TwilioDequeueCall::where('agent_id', Auth::id())->first();
+        $cred = TwilioCredential::where('account_id', $agent->account_sid)->first();
+
+        $twilio = new Client($cred->account_id, $cred->auth_token);        
+        $twilio->taskrouter->v1->workspaces($agent->workspace_sid)
+                                    ->tasks($agent->task_sid)
+                                    ->update([
+                                        'assignmentStatus' => 'canceled'
+                                            ]
+                                        );
+
     }
 
     public function waitUrl(Request $request)

@@ -267,6 +267,7 @@
 
 					const $buttonForAnswer = $('.call__answer'),
 						$buttonForCancelledCall = $('.call__canceled'),
+						$buttonForRejectCall = $('.call__reject'),
 						$accordionTables = $('#accordionTables');
 
 					if (data.found) {
@@ -410,6 +411,21 @@
 
 						conn.reject();
 					});
+
+					$buttonForRejectCall.off().one('click', function () {
+						sendTwilioEvents({
+							status: 'reject',
+							From:  conn.parameters.From,
+							To: conn.customParameters.get('phone'),
+							CallSid: conn.parameters.CallSid,
+							AccountSid: conn.parameters.AccountSid
+						})
+						
+						$.ajax({
+							url : "/twilio/reject-incoming-call",
+							method: 'GET'
+						})
+					})
 				});
 			});
 		});

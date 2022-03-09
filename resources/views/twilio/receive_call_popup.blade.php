@@ -12,7 +12,8 @@
             <div id="accordionTables"></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-success call__answer" data-dismiss="modal">ANSWER</button>
-                <button type="button" class="btn btn-danger call__canceled" data-dismiss="modal">REJECT</button>
+                <button type="button" class="btn btn-danger call__reject" data-dismiss="modal">REJECT</button>
+                <button type="button" class="btn btn-info call__canceled" data-dismiss="modal">REDIRECT</button>
             </div>
         </div>
     </div>
