@@ -1389,6 +1389,7 @@ class TwilioController extends FindByNumberController
         //TwilioLog::create(['log' => 'Task ' . json_encode($request->all()), 'account_sid'=>0 , 'call_sid'=>0 , 'phone'=>0 ]);
         $dequeueInstructionModel = new \stdClass;
         $dequeueInstructionModel->instruction = "dequeue";
+        $dequeueInstructionModel->record = "record-from-answer";
 
         $dequeueInstructionJson = json_encode($dequeueInstructionModel);
         
