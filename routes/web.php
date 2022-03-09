@@ -2011,6 +2011,7 @@ Route::post('twilio/update-reservation-status', 'TwilioController@updateReservat
 
 Route::get('twilio/reject-call-twiml', 'TwilioController@rejectIncomingCallTwiml')->name('twilio.reject_call_twiml');
 Route::post('twilio/cancel-task-record', 'TwilioController@canceldTaskRecord')->name('twilio.cancel_task_record');
+Route::post('twilio/store-cancel-task-record', 'TwilioController@storeCanceldTaskRecord')->name('twilio.store_cancel_task_record');
 
 Route::get(
     '/twilio/hangup',

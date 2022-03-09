@@ -1338,12 +1338,14 @@ class TwilioController extends FindByNumberController
         if($request->get('EventType') == "task.canceled") {
             TwilioCallWaiting::where("call_sid",json_decode($request->get("TaskAttributes"))->call_sid)->delete();
             $action_url = $request->getSchemeAndHttpHost().'/twilio/cancel-task-record';
+            $recording_action_url = $request->getSchemeAndHttpHost().'/twilio/store-cancel-task-record';
+
             if($request->get('Reason') != "hangup") {
                 $task->calls(json_decode($request->get("TaskAttributes"))->call_sid)
                 ->update([
                     'twiml' => '<Response>
                     <Say>Currently, we are getting too much inquiry, Please leave a message at the beep. Press the star key when finished.</Say>
-                    <Record action="' . $action_url . '" method="POST" finishOnKey="*"/>
+                    <<Record action="' . $action_url . '" recordingStatusCallback="'. $recording_action_url .'" method="POST" finishOnKey="*"/>
                     </Response>'
                     ]
                 );
@@ -1355,6 +1357,15 @@ class TwilioController extends FindByNumberController
     }
 
     public function canceldTaskRecord(Request $request)
+    {
+        $response = new VoiceResponse();
+        $response->say("We will contact you soon, Good bye");
+        $response->hangup();
+        return \Response::make((string)$response, '200')->header('Content-Type', 'text/xml');
+
+    }
+
+    public function storeCanceldTaskRecord(Request $request)
     {
         $customer = Customer::where('phone', str_replace('+', '', $request->get("From")))->first();
 
@@ -1373,12 +1384,7 @@ class TwilioController extends FindByNumberController
             'callsid' => $request->get("CallSid")
         ];
 
-        CallRecording::create($params);
-        $response = new VoiceResponse();
-        $response->say("We will contact you soon, Good bye");
-        $response->hangup();
-        return \Response::make((string)$response, '200')->header('Content-Type', 'text/xml');
-
+        CallRecording::create($params);   
     }
 
     public function assignmentTask(Request $request)
