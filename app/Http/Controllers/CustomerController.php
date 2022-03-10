@@ -9,6 +9,7 @@ use App\ChatMessage;
 use App\CommunicationHistory;
 use App\Complaint;
 use App\CreditHistory;
+use App\CreditLog;
 use App\Customer;
 use App\CustomerPriorityPoint;
 use App\CustomerAddressData;
@@ -61,6 +62,54 @@ class CustomerController extends Controller
     public function __construct()
     {
         // $this->middleware('permission:customer');
+    }
+
+    /**
+     * This function is use for getting data from the credit history data
+     * 
+     * @param $id int
+     *  @return $htlm
+     */
+    public function creditHistory($id) {
+        $custHosData = CreditHistory::where('customer_id', $id)->get();
+        $html = '';
+        foreach($custHosData AS $key => $val) {
+            $html .= "<tr>";
+            $html .= "<td>".$val->id."</td>";
+            $html .= "<td>".$val->used_credit."</td>";
+            $html .= "<td>".$val->used_in."</td>";
+            $html .= "<td>".$val->type."</td>";
+            $html .= "<td>".date('d-m-Y', strtotime($val->created_at))."</td>";
+            $html .= "</tr>";
+        }
+        if($html)
+            return $html;
+        else 
+            return "No record found";
+    }
+
+    /**
+     * This function is use for getting data from the credit log data
+     * 
+     * @param $id int
+     *  @return $htlm
+     */
+    public function creditLog($id) {
+        $custHosData = CreditLog::where('customer_id', $id)->get();
+        $html = '';
+        foreach($custHosData AS $key => $val) {
+            $html .= "<tr>";
+            $html .= "<td>".date('d-m-Y', strtotime($val->created_at))."</td>";
+            $html .= "<td>".$val->request."</td>";
+            $html .= "<td>".$val->response."</td>";
+            $html .= "<td>".$val->status."</td>";
+            $html .= "<td>".$val->id."</td>";
+            $html .= "</tr>";
+        }
+        if($html)
+            return $html;
+        else 
+            return "No record found";
     }
 
     /**
