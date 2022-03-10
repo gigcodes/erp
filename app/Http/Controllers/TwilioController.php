@@ -74,6 +74,7 @@ use App\TwilioCondition;
 use App\ChatbotTypeErrorLog;
 use App\ChatbotCategory;
 use App\ReplyCategory;
+use App\TwilioCallStatistic;
 use App\TwilioDequeueCall;
 use App\TwilioPriority;
 
@@ -525,6 +526,24 @@ class TwilioController extends FindByNumberController
         //Log::channel('customerDnd')->info(' key_wise_option :: >> '.json_encode($key_wise_option));
 
         $response = new VoiceResponse();
+
+        $customerInfo = Customer::where('phone', str_replace('+','', $request->get('Caller')))->first();
+        $twilioCredentials = TwilioCredential::where('account_id', $request->get('AccountSid'))->first();
+        $twilioActive = TwilioActiveNumber::where('phone_number', $request->get('Called'))->first();
+        
+        TwilioCallStatistic::updateOrCreate([
+            'call_sid' => $request->get('CallSid'),
+        ],[
+            'account_sid' => $request->get('AccountSid'),
+            'customer_id' => $customerInfo->id ?? null,
+            'customer_website_id' => $customerInfo->store_website_id ?? null,
+            'twilio_credentials_id' => $twilioCredentials->id ?? null,
+            'twilio_number_website_id' => $twilioActive->assigned_stores->store_website_id ?? null,
+            'customer_number' => $request->get('Caller'),
+            'twilio_number' => $request->get('Called'),
+            'customer_country' => $request->get('CallerCountry'),
+            'twilio_number_country' => $request->get('CalledCountry'),
+        ]);
 
         // $saturday = Carbon::now()->endOfWeek()->subDay();
         // $sunday = Carbon::now()->endOfWeek();
@@ -1249,6 +1268,7 @@ class TwilioController extends FindByNumberController
         $twilio = new Client($cred->account_id, $cred->auth_token);
         $activity = clone $twilio;
         $task = clone $twilio;
+        $call = clone $twilio;
 
         if($request->get('EventType') == "reservation.created") {
 
@@ -1324,6 +1344,16 @@ class TwilioController extends FindByNumberController
                     ->update([
                         'assignmentStatus' => 'completed'
                     ]);
+
+            $call = $call->calls(json_decode($request->get("TaskAttributes"))->call_sid)->fetch();
+
+            $callStatistic = TwilioCallStatistic::where('call_sid', $call->sid)->first();
+            if($callStatistic) {
+                $callStatistic->update([
+                    'call_duration' => $call->duration ?? 0,
+                    'call_costing' => $call->price ?? 0
+                ]);
+            }
         }
 
         if($request->get('EventType') == "reservation.timeout" || $request->get('EventType') == "reservation.canceled")
@@ -1350,6 +1380,16 @@ class TwilioController extends FindByNumberController
                     ]
                 );
             }
+
+            $call = $call->calls(json_decode($request->get("TaskAttributes"))->call_sid)->fetch();
+
+            $callStatistic = TwilioCallStatistic::where('call_sid', $call->sid)->first();
+            if($callStatistic) {
+                $callStatistic->update([
+                    'call_duration' => $call->duration ?? 0,
+                    'call_costing' => $call->price ?? 0
+                ]);
+            }
         }
 
         return response()->json([], 204);
@@ -1365,19 +1405,35 @@ class TwilioController extends FindByNumberController
 
     public function storeCanceldTaskRecord(Request $request)
     {
-        CallBusyMessage::updateOrCreate([
-            'caller_sid' => $request->get("CallSid")
-        ],[
-            'message' => 'Missed Call',
-            'twilio_call_sid' => $request->get("Caller"),
-        ]);
-        
-        CallRecording::updateOrCreate([
-            'callsid' => $request->get("CallSid")
-        ],[
-            'recording_url' => $request->get("RecordingUrl"),
-            'twilio_call_sid' => $request->get("CallSid"),
-        ]);   
+        if(isset($request->RecordingSource) && $request->RecordingSource == 'RecordVerb') {
+            $dequeue = TwilioDequeueCall::where('call_sid', $request->CallSid)->first();
+
+            CallBusyMessage::updateOrCreate([
+                'caller_sid' => $request->get("CallSid")
+            ],[
+                'message' => 'Missed Call',
+                'twilio_call_sid' => $dequeue->caller,
+            ]);
+            
+            CallRecording::updateOrCreate([
+                'callsid' => $request->get("CallSid")
+            ],[
+                'recording_url' => $request->get("RecordingUrl"),
+                'twilio_call_sid' => $request->get("CallSid"),
+            ]);   
+
+            $cred = TwilioCredential::where('account_id', $request->get('AccountSid'))->first();
+            $twilio = new Client($cred->account_id, $cred->auth_token);
+            $call = $twilio->calls($request->get('CallSid'))->fetch();
+
+            $callStatistic = TwilioCallStatistic::where('call_sid', $call->sid)->first();
+            if($callStatistic) {
+                $callStatistic->update([
+                    'call_duration' => $call->duration ?? 0,
+                    'call_costing' => $call->price ?? 0
+                ]);
+            }
+        }
     }
 
     public function storeCompleteTaskRecord(Request $request)
