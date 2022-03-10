@@ -156,7 +156,7 @@ class TwilioController extends FindByNumberController
             // $agent = str_replace('-', '_', str_slug($user->name));
             // $agent = 'yogesh';
 
-            $check_is_agent = TwilioAgent::where('user_id', $user_id)->first();
+            $check_is_agent = TwilioAgent::where('user_id', $user_id)->where('status', 1)->first();
             if($check_is_agent  && in_array('check_is_agent', $conditions))
             {
 
@@ -4039,7 +4039,7 @@ class TwilioController extends FindByNumberController
         
         $user = User::find($user_id);
 
-        $check_name = TwilioWorker::where('user_id',$user_id)->where('twilio_workspace_id',$workspace_id)->first();
+        $check_name = TwilioWorker::where('user_id',$user_id)->where('twilio_workspace_id',$workspace_id)->where('deleted', 0)->first();
 
         if($check_name) {
             return new JsonResponse(['status' => 'failed', 'statusCode'=>500, 'message' => 'This Worker already exists']);
