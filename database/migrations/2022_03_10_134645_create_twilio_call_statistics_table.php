@@ -25,7 +25,7 @@ class CreateTwilioCallStatisticsTable extends Migration
             $table->string('twilio_number', 20)->nullable();
             $table->string('customer_country', 20)->nullable();
             $table->string('twilio_number_country', 20)->nullable();
-            $table->integer('call_duration', 20)->default(0);
+            $table->integer('call_duration')->default(0);
             $table->float('call_costing',8,5)->default(0);
             $table->timestamps();
         });
