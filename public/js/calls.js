@@ -96,6 +96,57 @@
 
 	function loadTwilioDevice(token,worker_token, agent) { console.log('97');
 		const $confirmModal = $('#receive-call-popup');
+
+
+		// This code is for Demo purpose only, it remove after Call Management UI finish
+		// Demo Code Start
+		$.getJSON("/twilio/getLeadByNumber?number=+971545889192", function (data) {
+
+			const $buttonForAnswer = $('.call__answer'),
+				$buttonForCancelledCall = $('.call__canceled'),
+				$buttonForRejectCall = $('.call__reject'),
+				$accordionTables = $('#accordionTables');
+			if (data.found) {
+				let information = data.data
+				let id = information.customer.id;
+				let name = information.customer.name;
+				let number = information.customer.phone;
+				let email = information.customer.email ;
+				let accordion_data = '';
+				if (information.leads_total){
+					accordion_data = get_leads_table_data(information.leads,information.leads_total)
+				}
+				if (information.orders_total){
+					accordion_data += get_orders_table_data(information.orders,information.orders_total)
+				}
+				if (information.exchanges_return_total){
+					accordion_data += get_exchanges_return_table_data(information.exchanges_return,information.exchanges_return_total)
+				}
+				let string = "Name :<span style='color: #2f2fe7'> " + name + " </span><br>Phone :<span style='color: #3939e2'>+971545889192</span>"
+				if (email){
+					string += "<br>Email :<span style='color: #3939e2'>"+email+"</span>"
+				}
+				$('#receive-call-popup .modal-body').html(string)
+				$('.call__to').html("+971545889192")
+				$accordionTables.html(accordion_data)
+
+				$(".customer-call-name").html(name)
+				$(".customer-call-mail").html(email)
+				$(".customer-call-number").html(number)
+				$(".load-customer-chat-button").attr("data-id", id);
+				$(".customer-call-information").removeClass("d-none");
+
+				getCurrentCallInformation(information.orders, information.leads, information.exchanges_return);
+				getTicketData(id);
+				getCreditData(id);
+			} else {
+				let number = data.number;
+				$('#receive-call-popup .modal-body').html("Incoming call from: <span style='color:#2727b8;'>" + number + "</span> would you like to answer call?")
+				$('.call__to').html('+971545889192')
+			}
+		}); 
+		// Demo Code End 
+
 		var set_status = '';
 		console.log("Token : "+token);
 		console.log("Worker Token : "+worker_token);
