@@ -1365,19 +1365,23 @@ class TwilioController extends FindByNumberController
 
     public function storeCanceldTaskRecord(Request $request)
     {
-        CallBusyMessage::updateOrCreate([
-            'caller_sid' => $request->get("CallSid")
-        ],[
-            'message' => 'Missed Call',
-            'twilio_call_sid' => $request->get("Caller"),
-        ]);
-        
-        CallRecording::updateOrCreate([
-            'callsid' => $request->get("CallSid")
-        ],[
-            'recording_url' => $request->get("RecordingUrl"),
-            'twilio_call_sid' => $request->get("CallSid"),
-        ]);   
+        if(isset($request->RecordingSource) && $request->RecordingSource == 'RecordVerb') {
+            $dequeue = TwilioDequeueCall::where('call_sid', $request->CallSid)->first();
+
+            CallBusyMessage::updateOrCreate([
+                'caller_sid' => $request->get("CallSid")
+            ],[
+                'message' => 'Missed Call',
+                'twilio_call_sid' => $dequeue->caller,
+            ]);
+            
+            CallRecording::updateOrCreate([
+                'callsid' => $request->get("CallSid")
+            ],[
+                'recording_url' => $request->get("RecordingUrl"),
+                'twilio_call_sid' => $request->get("CallSid"),
+            ]);   
+        }
     }
 
     public function storeCompleteTaskRecord(Request $request)
