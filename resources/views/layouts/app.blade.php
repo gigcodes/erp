@@ -753,6 +753,7 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ url('chatbot-message-log') }}">Chatbot Message Log</a>
                                             <a class="dropdown-item" href="{{ url('customers/accounts') }}">Store website customer</a>
                                             <a class="dropdown-item" href="{{ route('product.customer-reviews') }}" >Customer Reviews</a>
+                                            <a class="dropdown-item" href="{{ route('customer.priority.points') }}" >Customer Priority</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
@@ -1356,7 +1357,7 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('chatbot.type.error.log')}}">Call Journey</a>
+                                            <a class="dropdown-item" href="{{route('chatbot.type.error.log')}}">Journey</a>
                                         </li>
                                     </ul>
                                 </li>

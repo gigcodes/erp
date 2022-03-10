@@ -14,7 +14,7 @@ class AddPriorityFieldToCustomersTable extends Migration
     public function up()
     {
         Schema::table('customers', function (Blueprint $table) {
-            $table->string('priority')->defult('0');
+            $table->string('priority')->defult('1');
         });
     }
 
