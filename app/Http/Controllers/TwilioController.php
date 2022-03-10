@@ -543,6 +543,7 @@ class TwilioController extends FindByNumberController
             'twilio_number' => $request->get('Called'),
             'customer_country' => $request->get('CallerCountry'),
             'twilio_number_country' => $request->get('CalledCountry'),
+            'direction' => TwilioCallStatistic::DIRECTION[$request->get('Direction')]
         ]);
 
         // $saturday = Carbon::now()->endOfWeek()->subDay();
