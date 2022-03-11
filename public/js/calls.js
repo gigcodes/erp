@@ -268,6 +268,7 @@
 					const $buttonForAnswer = $('.call__answer'),
 						$buttonForCancelledCall = $('.call__canceled'),
 						$buttonForRejectCall = $('.call__reject'),
+						$buttonForBlockCall = $('.call__block'),
 						$accordionTables = $('#accordionTables');
 
 					if (data.found) {
@@ -423,6 +424,13 @@
 						
 						$.ajax({
 							url : "/twilio/reject-incoming-call",
+							method: 'GET'
+						})
+					})
+
+					$buttonForBlockCall.off().one('click', function () {
+						$.ajax({
+							url : "/twilio/block-incoming-call",
 							method: 'GET'
 						})
 					})
