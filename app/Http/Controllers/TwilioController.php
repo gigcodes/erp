@@ -1678,9 +1678,20 @@ class TwilioController extends FindByNumberController
                     'store_website_id' => $store_website_id,
                     'status'    => 0
                 ]);
-                $priority = $object->is_priority ?? 0;
+                $priority = 0;
+                $tasknumber = 0;
+                if($object) {
+                    if($object->do_not_disturb) {
+                        $priority = 0;
+                        $tasknumber = -1;
+                    } else {
+                        $priority = $object->is_priority;
+                        $tasknumber = $object->is_priority;
+                    }
+                }
+
                 $task = [
-                    'type' => (string)$priority
+                    'type' => (string)$tasknumber
                 ];
                 $response->enqueue(null, ['workflowSid' => $call_from->workflow_sid, 'waitUrl' => route('waiturl', [], false)])->task(json_encode($task), ['priority' => $priority , 'timeout' => $workflow->task_timeout]);
                 TwilioLog::create(['log'=> 'Enqueue Log '. (string)$response,'account_sid'=> 0,'call_sid'=> 0, 'phone'=> 0 ]);
