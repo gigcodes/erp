@@ -1975,7 +1975,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 
 Route::get('twilio/token', 'TwilioController@createToken');
-Route::post('twilio/ivr', 'TwilioController@ivr')->name('ivr');
+Route::post('twilio/ivr', 'TwilioController@ivr')->name('ivr')->middleware('twilio.voice.validate');
 Route::get('twilio/webhook-error', 'TwilioController@webhookError');
 Route::post('twilio/workspace/assignment', 'TwilioController@workspaceEvent');
 Route::post('twilio/assignment-task', 'TwilioController@assignmentTask');
@@ -2008,6 +2008,12 @@ Route::post('twilio/leave_message_rec', 'TwilioController@leave_message_rec')->n
 Route::any('twilio/completed', 'TwilioController@completed')->name('completed');
 Route::any('twilio/saverecording', 'TwilioController@saveRecording')->name('saveRecording');
 Route::post('twilio/update-reservation-status', 'TwilioController@updateReservationStatus')->name('update_reservation_status');
+
+Route::get('twilio/reject-call-twiml', 'TwilioController@rejectIncomingCallTwiml')->name('twilio.reject_call_twiml');
+Route::post('twilio/cancel-task-record', 'TwilioController@canceldTaskRecord')->name('twilio.cancel_task_record');
+Route::post('twilio/store-cancel-task-record', 'TwilioController@storeCanceldTaskRecord')->name('twilio.store_cancel_task_record');
+Route::post('twilio/store-complete-task-record', 'TwilioController@storeCompleteTaskRecord')->name('twilio.store_complete_task_record');
+
 
 Route::get(
     '/twilio/hangup',
@@ -2417,6 +2423,9 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
 
 Route::resource('quick-reply', 'QuickReplyController')->middleware('auth');
 Route::resource('social-tags', 'SocialTagsController')->middleware('auth');
+
+//Route::get('customer/credit/logs/{id?}', 'CustomerController@creditLog')->middleware('auth');
+Route::get('customer/credit/histories/{id?}', 'CustomerController@creditHistory')->middleware('auth');
 
 Route::get('test', 'WhatsAppController@getAllMessages');
 
@@ -3202,6 +3211,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('twilio/add-account', 'TwilioController@addAccount')->name('twilio-add-account');
     Route::get('twilio/delete-account/{id}', 'TwilioController@deleteAccount')->name('twilio-delete-account');
     Route::get('twilio/manage-numbers/{id}', 'TwilioController@manageNumbers')->name('twilio-manage-numbers');
+    Route::get('twilio/manage-all-numbers/{id?}', 'TwilioController@manageAllNumbers')->name('twilio.manage.all.numbers');
     Route::get('twilio/manage-numbers-popup/{id?}', 'TwilioController@manageNumbersPopup')->name('twilio.manage.numbers.popup');
     Route::post('twilio/add_user', 'TwilioController@manageUsers')->name('twilio.add_user');
     Route::post('twilio/set_website_time', 'TwilioController@setWebsiteTime')->name('twilio.set_website_time');
@@ -3209,7 +3219,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('twilio/set_twilio_key_option', 'TwilioController@setTwilioKey')->name('twilio.set_twilio_key_options');
     Route::post('twilio/greeting_message', 'TwilioController@saveTwilioGreetingMessage')->name('twilio.set_twilio_greeting_message');
     Route::get('twilio/get_website_wise_key_data', 'TwilioController@getTwilioKeyData')->name('twilio.get_website_wise_key_data');
-    Route::get('twilio/get_website_wise_key_data_options', 'TwilioController@getTwilioKeyDataOptions')->name('twilio.get_website_wise_key_data_options');
+    Route::get('twilio/get_website_wise_key_data_options/{web_site_id?}', 'TwilioController@getTwilioKeyDataOptions')->name('twilio.get_website_wise_key_data_options');
     Route::get('twilio/erp/logs', 'TwilioController@twilioErpLogs')->name('twilio.erp_logs');
     Route::get('twilio/webhook-error/logs', 'TwilioController@twilioWebhookErrorLogs')->name('twilio.webhook.error.logs');
     Route::get('twilio/account-logs', 'TwilioController@twilioAccountLogs')->name('twilio.account_logs');
@@ -3217,8 +3227,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('twilio/conditions/status/update', 'TwilioController@updateConditionStatus')->name('twilio.condition.update');
 	Route::post('twilio/save-message-tone', 'TwilioController@saveMessageTone')->name('twilio.save_tone');
 	Route::get('twilio/message-tones', 'TwilioController@viewMessageTones')->name('twilio.view_tone');
-    
-
+    Route::get('twilio/reject-incoming-call', 'TwilioController@rejectIncomingCall')->name('twilio.reject_incoming_call');
+    Route::get('twilio/block-incoming-call', 'TwilioController@blockIncomingCall')->name('twilio.block_incoming_call');
 
     /**
      * Watson account management

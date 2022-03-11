@@ -11,23 +11,25 @@
             padding: 5px 8px 0 !important;
 
         }
-        #customer_order_details{
+
+        #customer_order_details {
             padding: 10px 0 !important;
         }
 
     </style>
 
-<h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">
-    Call Management
-    <div class="margin-tb" style="flex-grow: 1;">
-        <div class="pull-right ">
-            <div class="d-flex align-items-center justify-content-between mx-3">
-                <a href="javascript:void(0)" style="font-size:13px;text-decoration:underline;margin-right:16px" class="worker-activity-toggle ml-3"></a>
-				<div class="alert py-1 px-4 text-sm mb-0 worker-activity" style="font-size:13px;">Status Loading...</div>
+    <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">
+        Call Management
+        <div class="margin-tb" style="flex-grow: 1;">
+            <div class="pull-right ">
+                <div class="d-flex align-items-center justify-content-between mx-3">
+                    <a href="javascript:void(0)" style="font-size:13px;text-decoration:underline;margin-right:16px"
+                        class="worker-activity-toggle ml-3"></a>
+                    <div class="alert py-1 px-4 text-sm mb-0 worker-activity" style="font-size:13px;">Status Loading...</div>
+                </div>
             </div>
         </div>
-    </div>
-</h2>
+    </h2>
 
 
 
@@ -38,53 +40,101 @@
         </div>
     @endif
 
-      
-     
+
+
 
 
     <div class="col-md-6">
-        <h3>All waiting calls</h3>
-        <div class="table-responsive">
-            <table id="show-ordres-table" class="table table-bordered table-hover" style="table-layout:fixed;">
-                <thead class="reserved-calls">
-                    <tr>
-                    <th>Customer Name</th>
-                    <th>Customer Email</th>
-                    <th>Store Website</th>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Call Time</th>
-                    </tr>
-                </thead>
-                <tbody id="waiting-calls-table-body">
-                    
-                    @foreach($reservedCalls as $reservedCall)
+        <div class="col-md-12">
+            <h3>All waiting calls</h3>
+            <div class="table-responsive">
+                <table id="show-ordres-table" class="table table-bordered table-hover" style="table-layout:fixed;">
+                    <thead class="reserved-calls">
                         <tr>
-							<td>
-								{{$reservedCall->name}}
-							</td>
-							<td>
-								{{$reservedCall->email}}
-							</td>
-                            <td>
-                                {{$reservedCall->storeWebsite->website ?? ''}}
-                            </td>
-							<td>
-								{{$reservedCall->from}}
-							</td>
-							<td>
-								{{$reservedCall->to}}
-							</td>
-							<td>{{$reservedCall->created_at}}</td>
+                            <th>Customer Name</th>
+                            <th>Customer Email</th>
+                            <th>Store Website</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Call Time</th>
                         </tr>
-                    @endforeach
-                    
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody id="waiting-calls-table-body">
+
+                        @foreach ($reservedCalls as $reservedCall)
+                            <tr>
+                                <td>
+                                    {{ $reservedCall->name }}
+                                </td>
+                                <td>
+                                    {{ $reservedCall->email }}
+                                </td>
+                                <td>
+                                    {{ $reservedCall->storeWebsite->website ?? '' }}
+                                </td>
+                                <td>
+                                    {{ $reservedCall->from }}
+                                </td>
+                                <td>
+                                    {{ $reservedCall->to }}
+                                </td>
+                                <td>{{ $reservedCall->created_at }}</td>
+                            </tr>
+                        @endforeach
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <div class="col-md-12">
+            <h3>Ticket</h3>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th width="2%">#</th>
+                            <th width="2%">Subject</th>
+                            <th width="2%">Message</th>
+                            <th width="2%">Status</th>
+                            <th width="2%">Created At</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="current_call_ticket_data">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <h3>Credit</h3>
+            <p>Remaining Credit : <strong class="remaining_credit">0</strong> </p>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th width="2%">#</th>
+                            <th width="2%">Credit</th>
+                            <th width="2%">Add/Deduction From</th>
+                            <th width="2%">Transaction Type</th>
+                            <th width="2%">Created At</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="current_call_credit_data">
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     <div class="col-md-6">
         <h3>Current call information</h3>
+        <ul class="d-none customer-call-information" style="margin-left: -1.5rem !important;">
+            <li class="mx-4">Name : <b class="customer-call-name"></b> </li>
+            <li class="mx-4">Email : <b class="customer-call-mail"></b> </li>
+            <li class="mx-4">Phone : <b class="customer-call-number"></b> <button class="btn btn-xs btn-image load-customer-chat-button"><img src="/images/chat.png" alt=""></button> </li>
+        </ul>
         <div class="table-responsive">
             <div class="col-md-12">
                 <h3>Orders</h3>
@@ -102,7 +152,7 @@
                                 <th style="width: 8%">Order Created Date</th>
                             </tr>
                         </thead>
-                    
+
                         <tbody class="current_call_orders">
                         </tbody>
                     </table>
@@ -162,27 +212,41 @@
         </div>
     </div>
 
-    
+    <div id="customer-call-chat-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Chat History</h4>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 @endsection
 
 @section('scripts')
-<script>
-setInterval(() => {
-    $.ajax({
-        url: '/twilio/get-waiting-call-list',
-        type: 'POST',
-        dataType: 'json',
-        headers: {
-            'X-CSRF-TOKEN':$('meta[name=csrf-token]').val()
-        },
-        success: function(res) {
-            let table = $("#waiting-calls-table-body");
-            table.empty()
-            if(res.calls.length > 0) {
-                let tableAppend = '';
-                res.calls.forEach((value) => {
-                    tableAppend += `<tr>
+    <script>
+        setInterval(() => {
+            $.ajax({
+                url: '/twilio/get-waiting-call-list',
+                type: 'POST',
+                dataType: 'json',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name=csrf-token]').val()
+                },
+                success: function(res) {
+                    let table = $("#waiting-calls-table-body");
+                    table.empty()
+                    if (res.calls.length > 0) {
+                        let tableAppend = '';
+                        res.calls.forEach((value) => {
+                            tableAppend += `<tr>
                     <td>${value.name || ''}</td>
                     <td>${value.email || ''}</td>
                     <td>${(value.store_website) ? value.store_website.website : ''}</td>
@@ -190,12 +254,12 @@ setInterval(() => {
                     <td>${value.to || ''}</td>
                     <td>${value.created_at || ''}</td>
                     </tr>`;
-                })
+                        })
 
-                table.append(tableAppend)
-            }
-        }
-    })
-}, 2000);
-</script>
+                        table.append(tableAppend)
+                    }
+                }
+            })
+        }, 2000);
+    </script>
 @endsection

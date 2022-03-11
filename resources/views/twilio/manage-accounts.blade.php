@@ -9,17 +9,17 @@
                         color: #757575 !important;">Twillio Key options </button>
                     </div> --}}
 
-                    {{-- <div class="pull-right">
+                    <div class="pull-right">
                         <button type="button" class="btn btn-secondary mr-2 twilio_key_option" data-toggle="modal" data-target="#twilio_key_option_modal" style="background: #fff !important;
                         border: 1px solid #ddd !important;
                         color: #757575 !important;">Twilio Key Options</button>
-                    </div> --}}
+                    </div>
                     
-                    <div class="pull-right">
+                    {{-- <div class="pull-right">
                         <a href="{{route('twilio.get_website_wise_key_data_options')}}" class="btn  mr-2 twilio_key_option">
                             Twilio Key Options
                         </a>
-                    </div>
+                    </div> --}}
 
                     <div class="pull-right">
                         <button type="button" class="btn btn-secondary mr-2 twilio_working_hours" data-toggle="modal" data-target="#twilio_working_hours" style="background: #fff !important;
@@ -70,6 +70,9 @@
                                         </a>
                                         <a href="{{ route('twilio-manage-numbers', $accounts->id) }}" type="button" class="btn btn-image">
                                             <img src="/images/forward.png" style="cursor: default;" width="2px;">
+                                        </a>
+                                        <a href="{{ route('twilio.manage.all.numbers', $accounts->id) }}" type="button" class="btn btn-image">
+                                            All <img src="/images/forward.png" style="cursor: default;" width="2px;">
                                         </a>
                                     </td>
                                 </tr>
@@ -544,9 +547,13 @@
     // });
     
     $('.store_website_twilio_key').on("change", function(e){
+        var website_id = $('.store_website_twilio_key').val();
+        var rerirect_URL = "{{route('twilio.get_website_wise_key_data_options')}}/"+website_id;
+        $('#twilio_key_option_modal').modal('toggle');
+        window.open(rerirect_URL);
         $(".store_website_twilio_key_data").removeClass("d-none");
         $("#welcome_message_div").removeClass("d-none");
-        var website_id = $('.store_website_twilio_key').val();
+        
         $.ajax({
             type: "GET",
             url: "{{ route('twilio.get_website_wise_key_data') }}",  
