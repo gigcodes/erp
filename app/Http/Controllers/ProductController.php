@@ -4246,8 +4246,21 @@ class ProductController extends Controller
      */
     public function sendNowCustomerAttachImages(Request $request)
     {
-        $request->pdf_file_name = !empty($request->pdf_file_name) ? $request->pdf_file_name : "";
-        app('App\Http\Controllers\WhatsAppController')->sendMessage($request, 'customer');
+        $requestData = new Request();
+        $requestData->setMethod('POST');
+            $requestData->request->add([
+                '_token'          => $request->_token,
+                'send_pdf'        => $request->send_pdf,
+                'pdf_file_name'   => $request->pdf_file_name,
+                'images'          => $request->images,
+                'image'           => $request->image,
+                'screenshot_path' => $request->screenshot_path,
+                'message'         => $request->message,
+                'customer_id'     => $request->customer_id,
+                'status'          => $request->status,
+                'type'          => $request->type,
+            ]);
+        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 
         $json = request()->get("json", false);
         if ($json) {
