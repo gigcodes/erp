@@ -29,6 +29,7 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
         <thead>
           <tr>
             <th>Website</th>
+            <th>Base Points</th>
             <th>Lead Points</th>
             <th>Order Points</th>
             <th>Refund Points</th>
@@ -40,12 +41,9 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
   
         <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
           @foreach ($custPriority as $c) 
-          @php
-          $cust_web_name = \App\StoreWebsite::where('id',$c->store_website_id)->get();
-          
-          @endphp
             <tr>
-              <td>{{ $cust_web_name[0]->website}}</td>
+              <td>{{ $c->website}}</td>
+              <td>{{ $c->website_base_priority }}</td>
               <td>{{ $c->lead_points }}</td>
               <td>{{ $c->order_points }}</td>
               <td>{{ $c->refund_points }}</td>
@@ -82,6 +80,12 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
                                     @endforeach
                                 </select>
                               </div>
+                          </div>
+                          <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Base Points</label>
+                                <input type="number" id="website_base_priority" name="website_base_priority" class="form-control form-control-sm" step="0.1" value="1" max="10"/>
+                            </div>
                           </div>
                           <div class="col-md-12">
                             <div class="form-group">
@@ -153,6 +157,7 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
                    if(data.code == 200)  {
                     var res = data.data.custPriority[0];
                       if(res) {
+                        $("#website_base_priority").val(res.website_base_priority);
                         $("#lead_points").val(res.lead_points);
                         $("#order_points").val(res.order_points);
                         $("#refund_points").val(res.refund_points);

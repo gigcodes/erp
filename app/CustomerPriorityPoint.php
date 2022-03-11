@@ -24,6 +24,7 @@ class CustomerPriorityPoint extends Model
 
     protected $fillable = [
         'store_website_id',
+        'website_base_priority',
         'lead_points',
         'order_points',
         'refund_points',

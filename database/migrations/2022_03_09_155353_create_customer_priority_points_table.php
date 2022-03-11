@@ -16,6 +16,7 @@ class CreateCustomerPriorityPointsTable extends Migration
         Schema::create('customer_priority_points', function (Blueprint $table) {
             $table->increments('id');
 			$table->integer('store_website_id')->index()->nullable();
+            $table->string('website_base_priority')->default(0);
             $table->string('lead_points')->default(0);
             $table->string('order_points')->default(0);
             $table->string('refund_points')->default(0);
