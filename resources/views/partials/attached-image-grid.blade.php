@@ -221,7 +221,7 @@
     </div> -->
     @php
         $action = url('whatsapp/updateAndCreate/');
-
+    
         if ($model_type == 'images') {
             $action =  route('image.grid.attach');
         } else if ($model_type == 'customers') {
@@ -285,6 +285,7 @@
                             <option>Select queue</option>
                             <option value="1">in Queue</option>
                             <option value="0">Send later</option>
+                            <option value="2">Send now</option>
                         </select>
                     </div>
                 </div>
@@ -352,7 +353,7 @@
     <script src="/js/bootstrap-multiselect.min.js"></script>
     <script src="/js/jquery.jscroll.min.js"></script>
     <script>
-
+            
             $('.customer-search').select2({
                 width: "100%"
             });
@@ -691,7 +692,7 @@
             var customer_id = $(this).data('id');
             var suggestedproductid = $(this).data('suggestedproductid');
             $.ajax({
-                url: '/attached-images-grid/get-products/attach/'+suggestedproductid+'/'+customer_id,
+                url: '/index.php/attached-images-grid/get-products/attach/'+suggestedproductid+'/'+customer_id,
                 data: $('#searchForm').serialize(),
                 dataType: 'html',
             }).done(function (data) {
