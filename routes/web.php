@@ -1978,7 +1978,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 
 Route::get('twilio/token', 'TwilioController@createToken');
-Route::post('twilio/ivr', 'TwilioController@ivr')->name('ivr');
+Route::post('twilio/ivr', 'TwilioController@ivr')->name('ivr')->middleware('twilio.voice.validate');
 Route::get('twilio/webhook-error', 'TwilioController@webhookError');
 Route::post('twilio/workspace/assignment', 'TwilioController@workspaceEvent');
 Route::post('twilio/assignment-task', 'TwilioController@assignmentTask');
@@ -2016,6 +2016,7 @@ Route::get('twilio/reject-call-twiml', 'TwilioController@rejectIncomingCallTwiml
 Route::post('twilio/cancel-task-record', 'TwilioController@canceldTaskRecord')->name('twilio.cancel_task_record');
 Route::post('twilio/store-cancel-task-record', 'TwilioController@storeCanceldTaskRecord')->name('twilio.store_cancel_task_record');
 Route::post('twilio/store-complete-task-record', 'TwilioController@storeCompleteTaskRecord')->name('twilio.store_complete_task_record');
+
 
 Route::get(
     '/twilio/hangup',
@@ -3228,6 +3229,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('twilio/save-message-tone', 'TwilioController@saveMessageTone')->name('twilio.save_tone');
 	Route::get('twilio/message-tones', 'TwilioController@viewMessageTones')->name('twilio.view_tone');
     Route::get('twilio/reject-incoming-call', 'TwilioController@rejectIncomingCall')->name('twilio.reject_incoming_call');
+    Route::get('twilio/block-incoming-call', 'TwilioController@blockIncomingCall')->name('twilio.block_incoming_call');
 
     /**
      * Watson account management
