@@ -74,6 +74,7 @@ use App\TwilioCondition;
 use App\ChatbotTypeErrorLog;
 use App\ChatbotCategory;
 use App\ReplyCategory;
+use App\TwilioCallBlock;
 use App\TwilioCallStatistic;
 use App\TwilioDequeueCall;
 use App\TwilioPriority;
@@ -1288,6 +1289,7 @@ class TwilioController extends FindByNumberController
                 'reservation_sid' => $request->get('ReservationSid'),
                 'call_sid' => json_decode($request->get("TaskAttributes"))->call_sid,
                 'caller' => json_decode($request->get("TaskAttributes"))->caller,
+                'called' => json_decode($request->get("TaskAttributes"))->called,
             ]);
 
             $taskAttributes = json_decode($request->get('TaskAttributes'));
@@ -1519,6 +1521,34 @@ class TwilioController extends FindByNumberController
                                             ]
                                         );
 
+    }
+
+    public function blockIncomingCall()
+    {
+        $call = TwilioDequeueCall::where('agent_id', Auth::id())->first();
+        $cred = TwilioCredential::where('account_id', $call->account_sid)->first();
+
+        $customerInfo = Customer::where('phone', str_replace('+','', $call->caller))->first();
+        $twilioCredentials = TwilioCredential::where('account_id', $call->account_sid)->first();
+        $twilioActive = TwilioActiveNumber::where('phone_number', $call->called)->first();
+
+        TwilioCallBlock::create([
+            'user_agent_id' => $call->agent_id,
+            'customer_id' => $customerInfo->id ?? null,
+            'twilio_credentials_id' => $twilioCredentials->id ?? null,
+            'customer_website_id' => $customerInfo->store_website_id ?? null,
+            'twilio_number_website_id' => $twilioActive->assigned_stores->store_website_id ?? null,
+            'customer_number' => $call->caller ?? null,
+            'twilio_number' => $call->called ?? null
+        ]);
+
+        $twilio = new Client($cred->account_id, $cred->auth_token);
+
+        $twilio->calls($call->call_sid)
+                ->update([
+                    "status" => "completed"
+                    ]
+                );
     }
 
     public function waitUrl(Request $request)
