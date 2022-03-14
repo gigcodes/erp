@@ -1023,7 +1023,12 @@ class LiveChatController extends Controller
                 } else {
                     // echo "SUCSESS:<BR>";
                     // print_r($response);
-                    $returnVal = $response->customers[0];
+					if(isset($response->customers[0])) {
+						$returnVal = $response->customers[0];
+					} else{
+						$returnVal = false;
+					}
+                    
                 }
             }
         }
