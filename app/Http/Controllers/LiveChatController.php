@@ -42,10 +42,8 @@ class LiveChatController extends Controller
         // \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".$request->getContent());
 
         $receivedJson = json_decode($request->getContent());
-		$chatDetails = $receivedJson->payload;
-                //Chat Details
-        $threadId = $chatDetails->chat_id;
-
+		
+		$threadId = "";
         if (isset($receivedJson->event_type)) {
             // \Log::channel('chatapi')->info('--1111 >>');
             \Log::channel('chatapi')->debug(': ChatApi' . "\nMessage :" . '--event_type >>');
