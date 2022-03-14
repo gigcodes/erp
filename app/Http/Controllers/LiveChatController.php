@@ -50,7 +50,7 @@ class LiveChatController extends Controller
          
         if (isset($receivedJson->event_type)) {
 			$eventType = $receivedJson->event_type;
-			LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=> json_encode($receivedJson)]);      
+			LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=> 'Chat started.']);      
         
             // \Log::channel('chatapi')->info('--1111 >>');
             \Log::channel('chatapi')->debug(': ChatApi' . "\nMessage :" . '--event_type >>');
@@ -187,7 +187,7 @@ class LiveChatController extends Controller
 
                     // Create chat message
                     $chatMessage = ChatMessage::create($params);
-					LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=>"Message saved in chat messages."]);      
+					LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$chatId, 'event_type'=>$eventType, 'log'=>"Message saved in chat messages."]);      
             
                     //STRAT - Purpose : Add record in chatbotreplay - DEVTASK-18280
                     if ($messageStatus != 2) {
@@ -410,6 +410,8 @@ class LiveChatController extends Controller
                     $customerLiveChat->seen = 1;
                     $customerLiveChat->update();
                 }
+				LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$chatId, 'event_type'=>$eventType, 'log'=>"Chat thread closed ".]);      
+                       
             }
         }
 
