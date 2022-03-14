@@ -206,7 +206,7 @@ class LiveChatController extends Controller
 
                     // if customer found then send reply for it
                     if (!empty($customerDetails) && $message != '') {
-                       LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType'customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=>"Message sent to watson ".$message]);      
+                       LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=>"Message sent to watson ".$message]);      
                        WatsonManager::sendMessage($customerDetails, $message, '', $message_application_id);
                     }
 
