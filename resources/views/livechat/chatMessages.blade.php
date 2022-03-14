@@ -105,6 +105,7 @@
                 <th style="width: 5%;">Email</th>
                 <th style="width: 5%;">Ph Number</th>
                 <th style="width: 10%;">Trans Language</th>
+                <th style="width: 5%;">Language</th>
                 <th style="width: 20%;">Communication</th>
                 <th style="width: 27%;"></th>
                 <th style="width: 8.5%;">Actions</th>
@@ -138,21 +139,26 @@
                                         </span>
                         </td>
                         <td><?php echo $customer->phone;?></td>
+                        @php
+                            $path = storage_path('/');
+                            $content = File::get($path."languages.json");
+                            $language = json_decode($content, true);
+                            $lang='';
+                        @endphp
                         <td>
-                            @php
-                                $path = storage_path('/');
-                                $content = File::get($path."languages.json");
-                                $language = json_decode($content, true);
-                            @endphp
                             <div class="selectedValue">
                                 <select id="autoTranslate" style="width: 100% !important" class="form-control auto-translate">
                                     <option value="">Translation Language</option>
                                     @foreach ($language as $key => $value)
+                                        @if($value==$customer->language)
+                                            @php $lang=$key; @endphp
+                                        @endif
                                         <option value="{{$value}}">{{$key}}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </td>
+                        <td>{{$lang??''}}</td>
                         <td class="cls_remove ">
                             @php
                                 $chat_last_message=\App\ChatMessage::where('customer_id', $chatId->customer_id)->where('message_application_id', 2)->orderBy("id", "desc")->first();

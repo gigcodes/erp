@@ -142,6 +142,12 @@ class LiveChatController extends Controller
 
                     $customerDetails = Customer::find($customerLiveChat->customer_id);
                     $language = $customerDetails->language;
+                    /**
+                     * create log if language is not english
+                     */
+                    if($language!='en' && $language!=null){
+                        LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$chatId, 'log'=>"Live chat language changed to ".$language]);
+                    }
                     if ($language == null) {
                         $translate = new TranslateClient([
                             // 'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
