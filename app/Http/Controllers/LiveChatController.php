@@ -44,7 +44,10 @@ class LiveChatController extends Controller
         $receivedJson = json_decode($request->getContent());
 		
 		$threadId = "";
+		    
         if (isset($receivedJson->event_type)) {
+			LiveChatLog::create(['customer_id'=>0, 'thread'=>$threadId, 'event_type'=>$receivedJson->event_type, 'log'=> $receivedJson]);      
+        
             // \Log::channel('chatapi')->info('--1111 >>');
             \Log::channel('chatapi')->debug(': ChatApi' . "\nMessage :" . '--event_type >>');
             //When customer Starts chat
@@ -869,6 +872,11 @@ class LiveChatController extends Controller
         $logs = LiveChatLog::where('customer_id', $customerId)->orderBy('id', 'desc')->get();
         return $logs;
     } 
+
+	public function getAllChatEventLogs() {
+        $logs = LiveChatEventLog::orderBy('id', 'desc')->paginate(30);
+        return view('livechat.eventLogs', compact('logs'));
+    }
 
 	public function getChatEventLogs($customerId) {
         $logs = LiveChatEventLog::where('customer_id', $customerId)->orderBy('id', 'desc')->get();

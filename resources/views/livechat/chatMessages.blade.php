@@ -87,6 +87,7 @@
         <h2 class="page-heading">Live Chat</h2>
         <div class="pull-right">
             <div style="text-align: right; margin-bottom: 10px;">
+                <a href="{{url('livechat/getLiveChats/eventlogs')}}" class="btn btn-xs btn-secondary">Live Chat Log</a>
                 <button type="button" class="btn btn-xs btn-secondary" onclick="createCoupon()">New Coupon</button>
                 <span>&nbsp;</span>
             </div>
