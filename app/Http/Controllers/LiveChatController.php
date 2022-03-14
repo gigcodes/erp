@@ -46,11 +46,11 @@ class LiveChatController extends Controller
 		$eventType = "";
 		$threadId = "";
 		$customerId = 0;
-		LiveChatEventLog::create(['customer_id'=>0, 'thread'=>$threadId, 'event_type'=>'', 'log'=> $receivedJson]);      
+		LiveChatEventLog::create(['customer_id'=>0, 'thread'=>$threadId, 'event_type'=>'', 'log'=> json_encode($receivedJson)]);      
          
         if (isset($receivedJson->event_type)) {
 			$eventType = $receivedJson->event_type;
-			LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=> $receivedJson]);      
+			LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=> json_encode($receivedJson)]);      
         
             // \Log::channel('chatapi')->info('--1111 >>');
             \Log::channel('chatapi')->debug(': ChatApi' . "\nMessage :" . '--event_type >>');
