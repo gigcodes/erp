@@ -44,7 +44,8 @@ class LiveChatController extends Controller
         $receivedJson = json_decode($request->getContent());
 		
 		$threadId = "";
-		    
+		LiveChatLog::create(['customer_id'=>0, 'thread'=>$threadId, 'event_type'=>'', 'log'=> $receivedJson]);      
+         
         if (isset($receivedJson->event_type)) {
 			LiveChatLog::create(['customer_id'=>0, 'thread'=>$threadId, 'event_type'=>$receivedJson->event_type, 'log'=> $receivedJson]);      
         
@@ -182,7 +183,7 @@ class LiveChatController extends Controller
 
                     // Create chat message
                     $chatMessage = ChatMessage::create($params);
-					LiveChatLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>$receivedJson->event_type, 'log'=>"Message saved in chat messages."]);      
+					LiveChatLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'', 'log'=>"Message saved in chat messages."]);      
             
                     //STRAT - Purpose : Add record in chatbotreplay - DEVTASK-18280
                     if ($messageStatus != 2) {
