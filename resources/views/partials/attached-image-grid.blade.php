@@ -384,12 +384,6 @@
     <script src="/js/bootstrap-multiselect.min.js"></script>
     <script src="/js/jquery.jscroll.min.js"></script>
     <script>
-        // $('#sugIdAll').on('click', function(e) {
-        //     //let isChecked = $('#takenBefore').is(':checked');
-        //     debugger;
-        //     $('input[name=sugId]').attr('checked', true).triggerHandler('click');
-        // });
-
         $(function(){
             $('#sugIdAll').click(function(){
                 var idchecked = $('input:checkbox').not(this).prop('checked', this.checked);
