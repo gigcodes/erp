@@ -3351,6 +3351,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/attached-images-grid/forward-products', 'ProductController@forwardProducts'); //
     Route::post('/attached-images-grid/resend-products/{suggested_products_id}', 'ProductController@resendProducts'); //
     Route::get('/attached-images-grid/get-products/{type}/{suggested_products_id}/{customer_id}', 'ProductController@getCustomerProducts');
+    Route::get('/suggestedProduct/delete/{ids?}', 'ProductController@deleteSuggestedProduct')->name("suggestedProduct.delete");
+    Route::get('/suggested/product/log', 'ProductController@getSuggestedProductLog')->name("suggestedProduct.log");
 });
 
 //referfriend
