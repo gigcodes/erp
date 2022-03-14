@@ -27,6 +27,7 @@ use Mail;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\LiveChatLog;
+use App\LiveChatEventLog;
 
 class LiveChatController extends Controller
 {
@@ -41,8 +42,16 @@ class LiveChatController extends Controller
         // \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".$request->getContent());
 
         $receivedJson = json_decode($request->getContent());
-
+		
+		$eventType = "";
+		$threadId = "";
+		$customerId = 0;
+		LiveChatEventLog::create(['customer_id'=>0, 'thread'=>$threadId, 'event_type'=>'', 'log'=> json_encode($receivedJson)]);      
+         
         if (isset($receivedJson->event_type)) {
+			$eventType = $receivedJson->event_type;
+			LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=> 'Chat started.']);      
+        
             // \Log::channel('chatapi')->info('--1111 >>');
             \Log::channel('chatapi')->debug(': ChatApi' . "\nMessage :" . '--event_type >>');
             //When customer Starts chat
@@ -96,7 +105,8 @@ class LiveChatController extends Controller
                     $customer->language = 'en';
                     $customer->save();
                 }
-
+				$customerId = $customer->id;
+				LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=>"Customer details found"]);      
             }
         }
 
@@ -116,7 +126,7 @@ class LiveChatController extends Controller
 
                 //Check if customer which has this id
                 $customerLiveChat = CustomerLiveChat::where('thread', $chatId)->first();
-
+	           
                 //update to not seen
                 if ($customerLiveChat != null) {
                     $customerLiveChat->seen = 0;
@@ -177,7 +187,8 @@ class LiveChatController extends Controller
 
                     // Create chat message
                     $chatMessage = ChatMessage::create($params);
-
+					LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$chatId, 'event_type'=>$eventType, 'log'=>"Message saved in chat messages."]);      
+            
                     //STRAT - Purpose : Add record in chatbotreplay - DEVTASK-18280
                     if ($messageStatus != 2) {
                         \App\ChatbotReply::create([
@@ -195,7 +206,8 @@ class LiveChatController extends Controller
 
                     // if customer found then send reply for it
                     if (!empty($customerDetails) && $message != '') {
-                        WatsonManager::sendMessage($customerDetails, $message, '', $message_application_id);
+                       LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=>"Message sent to watson ".$message]);      
+                       WatsonManager::sendMessage($customerDetails, $message, '', $message_application_id);
                     }
 
                 }
@@ -398,6 +410,8 @@ class LiveChatController extends Controller
                     $customerLiveChat->seen = 1;
                     $customerLiveChat->update();
                 }
+				LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$chatId, 'event_type'=>$eventType, 'log'=>"Chat thread closed ".]);      
+                       
             }
         }
 
@@ -864,6 +878,16 @@ class LiveChatController extends Controller
     public function getChatLogs($customerId) {
         $logs = LiveChatLog::where('customer_id', $customerId)->orderBy('id', 'desc')->get();
         return $logs;
+    } 
+
+	public function getAllChatEventLogs() {
+        $logs = LiveChatEventLog::orderBy('id', 'desc')->paginate(30);
+        return view('livechat.eventLogs', compact('logs'));
+    }
+
+	public function getChatEventLogs($customerId) {
+        $logs = LiveChatEventLog::where('customer_id', $customerId)->orderBy('id', 'desc')->get();
+        return $logs;
     }
 
     public function getLiveChats()
@@ -1001,7 +1025,12 @@ class LiveChatController extends Controller
                 } else {
                     // echo "SUCSESS:<BR>";
                     // print_r($response);
-                    $returnVal = $response->customers[0];
+					if(isset($response->customers[0])) {
+						$returnVal = $response->customers[0];
+					} else{
+						$returnVal = false;
+					}
+                    
                 }
             }
         }
