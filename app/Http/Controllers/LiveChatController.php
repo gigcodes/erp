@@ -43,11 +43,14 @@ class LiveChatController extends Controller
 
         $receivedJson = json_decode($request->getContent());
 		
+		$eventType = "";
 		$threadId = "";
-		LiveChatLog::create(['customer_id'=>0, 'thread'=>$threadId, 'event_type'=>'', 'log'=> $receivedJson]);      
+		$customerId = 0;
+		LiveChatEventLog::create(['customer_id'=>0, 'thread'=>$threadId, 'event_type'=>'', 'log'=> $receivedJson]);      
          
         if (isset($receivedJson->event_type)) {
-			LiveChatLog::create(['customer_id'=>0, 'thread'=>$threadId, 'event_type'=>$receivedJson->event_type, 'log'=> $receivedJson]);      
+			$eventType = $receivedJson->event_type;
+			LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=> $receivedJson]);      
         
             // \Log::channel('chatapi')->info('--1111 >>');
             \Log::channel('chatapi')->debug(': ChatApi' . "\nMessage :" . '--event_type >>');
@@ -102,7 +105,8 @@ class LiveChatController extends Controller
                     $customer->language = 'en';
                     $customer->save();
                 }
-				LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$threadId, 'event_type'=>$receivedJson->event_type, 'log'=>"Customer details found"]);      
+				$customerId = $customer->id;
+				LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=>"Customer details found"]);      
             }
         }
 
@@ -183,7 +187,7 @@ class LiveChatController extends Controller
 
                     // Create chat message
                     $chatMessage = ChatMessage::create($params);
-					LiveChatLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'', 'log'=>"Message saved in chat messages."]);      
+					LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=>"Message saved in chat messages."]);      
             
                     //STRAT - Purpose : Add record in chatbotreplay - DEVTASK-18280
                     if ($messageStatus != 2) {
@@ -202,7 +206,7 @@ class LiveChatController extends Controller
 
                     // if customer found then send reply for it
                     if (!empty($customerDetails) && $message != '') {
-                       LiveChatLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>$receivedJson->event_type, 'log'=>"Message sent to watson ".$message]);      
+                       LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType'customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=>"Message sent to watson ".$message]);      
                        WatsonManager::sendMessage($customerDetails, $message, '', $message_application_id);
                     }
 
