@@ -4254,6 +4254,29 @@ class OrderController extends Controller
         return response()->json(['html' => $html, 'success' => true], 200);
 
     }
+    
+    public function cancelTransaction(Request $request) 
+    {
+        $order_id = $request->get('order_id');
+        $order = \App\Order::where("id", $order_id)->first();
+        
+
+        $storeWebsiteOrder = StoreWebsiteOrder::where('order_id', $order_id)->first();
+        //print_r($storeWebsiteOrder);
+            if ($storeWebsiteOrder) {
+                $website = StoreWebsite::find($storeWebsiteOrder->website_id);
+               
+                if ($website) {
+                    
+                            $magentoHelper = new MagentoHelperv2;
+                            $result = $magentoHelper->cancelTransaction($order, $website);
+                            
+                            return response()->json(['message' => $result, 'success' => true], 200);
+                       
+                }
+                //$storeWebsiteOrder->update(['order_id', $status]);
+            }
+    }
 
     public function syncTransaction(Request $request) 
     {
