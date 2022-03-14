@@ -793,7 +793,7 @@
             var customer_id = $(this).data('id');
             var suggestedproductid = $(this).data('suggestedproductid');
             $.ajax({
-                url: '/index.php/attached-images-grid/get-products/attach/'+suggestedproductid+'/'+customer_id,
+                url: '/attached-images-grid/get-products/attach/'+suggestedproductid+'/'+customer_id,
                 data: $('#searchForm').serialize(),
                 dataType: 'html',
             }).done(function (data) {
