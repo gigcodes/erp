@@ -2036,6 +2036,7 @@ Route::post('exotel/recordingCallback', 'ExotelController@recordingCallback');
 
 Route::post('livechat/incoming', 'LiveChatController@incoming');
 Route::post('livechat/getChats', 'LiveChatController@getChats')->name('livechat.get.message');
+Route::post('livechat/getCustomerInfo', 'LiveChatController@customerInfo')->name('livechat.get.customerInfo');
 Route::post('livechat/getLastChats', 'LiveChatController@getLastChats')->name('livechat.last.message');
 Route::post('livechat/getChatsWithoutRefresh', 'LiveChatController@getChatMessagesWithoutRefresh')->name('livechat.message.withoutrefresh');
 Route::post('livechat/sendMessage', 'LiveChatController@sendMessage')->name('livechat.send.message');
