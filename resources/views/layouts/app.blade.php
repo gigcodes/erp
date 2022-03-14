@@ -1355,9 +1355,6 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
                                         </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('chatbot.type.error.log')}}">Call Journey</a>
-                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1766,6 +1763,10 @@ if (!empty($notifications)) {
 
                                                         <li class="nav-item dropdown">
                                                             <a class="dropdown-item" href="{{route('twilio-speech-to-text-logs')}}">Twilio Speech to text Logs</a>
+                                                        </li>
+
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('chatbot.type.error.log')}}">Twilio Chat Bot Not Recognised</a>
                                                         </li>
                                                     </ul>
                                                 </li>
