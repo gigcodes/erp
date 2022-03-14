@@ -850,7 +850,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/addNewReply', 'OrderController@addNewReply')->name('order.addNewReply');
     Route::post('order/get-customer-address', 'OrderController@getCustomerAddress')->name('order.customer.address');
     Route::get('order/charity-order', 'OrderController@charity_order');
+    Route::post('order/cancel-transaction', 'OrderController@cancelTransaction')->name('order.canceltransaction');
+    
     Route::resource('order', 'OrderController');
+    
+    
+    
     Route::post('order/payment-history', 'OrderController@paymentHistory')->name('order.paymentHistory');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
