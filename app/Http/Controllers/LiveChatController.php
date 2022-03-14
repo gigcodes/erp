@@ -302,8 +302,13 @@ class LiveChatController extends Controller
                 } else {
                     $userEmail = null;
                 }
+                try {
+                    $text = $chat->thread->events[1]->text;
+                } catch (\Exception $e) {
+                    LiveChatEventLog::create(['customer_id'=>0, 'thread'=>'debug', 'event_type'=>$chat->thread->events, 'log'=>"Debug test"]);
+                    $text = 'Error';    
+                }
 
-                $text = $chat->thread->events[1]->text;
                 $userName = $chat->users[0]->name;
                 /*$translate = new TranslateClient([
                 'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
