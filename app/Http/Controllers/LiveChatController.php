@@ -27,6 +27,7 @@ use Mail;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\LiveChatLog;
+use App\LiveChatEventLog;
 
 class LiveChatController extends Controller
 {
@@ -41,6 +42,9 @@ class LiveChatController extends Controller
         // \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".$request->getContent());
 
         $receivedJson = json_decode($request->getContent());
+		$chatDetails = $receivedJson->payload;
+                //Chat Details
+        $threadId = $chatDetails->chat_id;
 
         if (isset($receivedJson->event_type)) {
             // \Log::channel('chatapi')->info('--1111 >>');
@@ -96,7 +100,7 @@ class LiveChatController extends Controller
                     $customer->language = 'en';
                     $customer->save();
                 }
-
+				LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$threadId, 'event_type'=>$receivedJson->event_type, 'log'=>"Customer details found"]);      
             }
         }
 
@@ -116,7 +120,7 @@ class LiveChatController extends Controller
 
                 //Check if customer which has this id
                 $customerLiveChat = CustomerLiveChat::where('thread', $chatId)->first();
-
+	           
                 //update to not seen
                 if ($customerLiveChat != null) {
                     $customerLiveChat->seen = 0;
@@ -177,7 +181,8 @@ class LiveChatController extends Controller
 
                     // Create chat message
                     $chatMessage = ChatMessage::create($params);
-
+					LiveChatLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>$receivedJson->event_type, 'log'=>"Message saved in chat messages."]);      
+            
                     //STRAT - Purpose : Add record in chatbotreplay - DEVTASK-18280
                     if ($messageStatus != 2) {
                         \App\ChatbotReply::create([
@@ -195,7 +200,8 @@ class LiveChatController extends Controller
 
                     // if customer found then send reply for it
                     if (!empty($customerDetails) && $message != '') {
-                        WatsonManager::sendMessage($customerDetails, $message, '', $message_application_id);
+                       LiveChatLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>$receivedJson->event_type, 'log'=>"Message sent to watson ".$message]);      
+                       WatsonManager::sendMessage($customerDetails, $message, '', $message_application_id);
                     }
 
                 }
@@ -863,6 +869,11 @@ class LiveChatController extends Controller
 
     public function getChatLogs($customerId) {
         $logs = LiveChatLog::where('customer_id', $customerId)->orderBy('id', 'desc')->get();
+        return $logs;
+    } 
+
+	public function getChatEventLogs($customerId) {
+        $logs = LiveChatEventLog::where('customer_id', $customerId)->orderBy('id', 'desc')->get();
         return $logs;
     }
 

@@ -243,6 +243,10 @@
                                 <a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="Chat Logs" onclick="openChatLogs(<?php echo $chatId->id;?>)" >
                                     <i class="fa fa-info-circle" aria-hidden="true"></i>
                                 </a>
+
+                                <a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="Chat Logs" onclick="openChatEventLogs(<?php echo $chatId->id;?>)" >
+                                    <i class="fa fa-history" aria-hidden="true"></i>
+                                </a>
                                 <button type="button" class="btn btn-image send-coupon p-1" data-toggle="modal" data-id="{{ $chatId->id }}" data-customerid="{{ $customer->id }}" ><i class="fa fa-envelope"></i></button>
 
 
@@ -500,6 +504,34 @@
     </div>
 </div>
 
+<div id="chat_event_logs" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Chat Logs</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                    <th>Date</th>
+                    <th>Event type</th>
+                    <th>Thread</th>
+                    <th>Log</th>
+                    </thead>
+                    <tbody id="chat_event_body">
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div id="chat-list-history-con" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -632,6 +664,35 @@
                 }
             });
             $('#chat_logs').modal('show');
+        }
+function openChatEventLogs(chatId)
+        {
+            $('#chat_event_body').html("");
+            var store_website_id = $('#selected_customer_store').val();
+            $.ajax({
+                url: "{{ url('livechat/getLiveChats/eventlogs') }}"+'/'+chatId,
+                type: 'GET',
+                dataType: 'json',
+                beforeSend: function () {
+                    $("#loading-image-preview").show();
+                },
+            }).done(function(data){
+                $("#loading-image-preview").hide();
+                var logs = data;
+                if(logs != null) {
+                    logs.forEach(function (log) {
+                        $('#chat_event_body').append(
+                            "<tr><td>"+log.created_at+"</td>"+
+                            "<tr><td>"+log.event_type+"</td>"+
+                            "<td>"+log.thread+"</td>"+
+                            "<td>"+log.log+"</td></tr>"
+                        );
+                    });
+                } else{
+                    $('#chat_event_body').append("<tr>No Logs Found</tr>");
+                }
+            });
+            $('#chat_event_logs').modal('show');
         }
 
         $(document).ready(function() {
