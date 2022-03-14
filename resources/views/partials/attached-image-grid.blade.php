@@ -394,35 +394,40 @@
         });
             
         $('.delete-all-record').on('click', function(e) {
+
             var val = [];
             $('input[name="sugId[]"]:checkbox:checked').each(function(i, elem) {
                 val[i] = $(this).val();
             });
+
             if(val.length == 0) {
-                alert("Please select any one row you want to delete");
+                alert("Please select any one row you want to delete record!!!");
+                //confirm('Please select any letestrecord records?')
             } else {
-                //console.log(val);
-                e.preventDefault();
-                var ids = val.toString();;
-                $.ajax({
-                    url: '{{route("suggestedProduct.delete")}}/'+ids,
-                    type:"get",
-                    data: { 
-                            "_token": $('meta[name="csrf-token"]').attr('content'),
-                            ids : ids
-                            },
-                    dataType: 'json',
-                }).done(function (response) {
-                    if(response.code == 200) {
-                        toastr['success'](response.message);
-                        location.reload();
-                    }else{
-                        errorMessage = response.message ? response.message : 'Record not found!';
-                        toastr['error'](errorMessage);
-                    }        
-                }).fail(function (response) {
-                    toastr['error'](response.message);
-                });
+                if(confirm('Are you sure really want to Delete records?')) {
+                    e.preventDefault();
+                    var ids = val.toString();
+                    $.ajax({
+                        url: '{{route("suggestedProduct.delete")}}/'+ids,
+                        type:"get",
+                        data: { 
+                                "_token": $('meta[name="csrf-token"]').attr('content'),
+                                ids : ids
+                                },
+                        dataType: 'json',
+                    }).done(function (response) {
+                        if(response.code == 200) {
+                            toastr['success'](response.message);
+                            location.reload();
+                        }else{
+                            errorMessage = response.message ? response.message : 'Record not found!';
+                            toastr['error'](errorMessage);
+                        }        
+                    }).fail(function (response) {
+                        toastr['error'](response.message);
+                    });
+                }
+
             }
         });
 
