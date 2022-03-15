@@ -13,6 +13,7 @@
             <tr>
                 <th>Date</th>
                 <th>Event type</th>
+                <th>Customer</th>
                 <th>Thread</th>
                 <th>Log</th>
             </tr>
@@ -22,6 +23,7 @@
 					<tr>
 						<td> {{$log['created_at']}} </td>
 						<td> {{$log['event_type']}} </td>
+						<td> {{$log['customer_name']}} </td>
 						<td> {{$log['thread']}} </td>
 						<td> {{$log['log']}} </td>
 					</tr>

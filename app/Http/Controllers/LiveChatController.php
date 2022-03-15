@@ -303,18 +303,8 @@ class LiveChatController extends Controller
                 } else {
                     $userEmail = null;
                 }
-                try {
-                    $text = $chat->thread->events[1]->text;
-                } catch (\Exception $e) {
-                    LiveChatEventLog::create(['customer_id'=>0, 'thread'=>$chatId, 'event_type'=>"incoming_chat", 'log'=>"incoming chat error ".$e." <br>data ".json_encode($chat->thread->events)]);
-                    $text = 'Error';    
-                }
-
-                $userName = $chat->users[0]->name;
-                /*$translate = new TranslateClient([
-                'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
-                ]);*/
-                //$result = $translate->detectLanguage($text);
+				$userName = $chat->users[0]->name;
+                
                 $customer_language = 'en'; //$result['languageCode'];
                 $websiteId = null;
                 try {
@@ -403,6 +393,19 @@ class LiveChatController extends Controller
                     $customerChatId->save();
 
                 }
+				try {
+                    $text = $chat->thread->events[1]->text;
+					 LiveChatEventLog::create(['customer_id'=>$customer->id, 'thread'=>$chatId, 'event_type'=>"incoming_chat", 'log'=>"incoming chat error ".$e." <br>data ".json_encode($chat->thread->events[1])]);
+                } catch (\Exception $e) {
+                    LiveChatEventLog::create(['customer_id'=>$customer->id, 'thread'=>$chatId, 'event_type'=>"incoming_chat", 'log'=>"incoming chat error ".$e." <br>data ".json_encode($chat->thread->events[1])]);
+                    $text = 'Error';    
+                }
+
+              
+                /*$translate = new TranslateClient([
+                'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
+                ]);*/
+                //$result = $translate->detectLanguage($text);
             }
 
             if ($receivedJson->action == 'thread_closed') {
@@ -416,7 +419,7 @@ class LiveChatController extends Controller
                     $customerLiveChat->seen = 1;
                     $customerLiveChat->update();
                 }
-				LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$chatId, 'event_type'=>'thread_closed', 'log'=>"Chat thread closed "]);      
+				LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$chatId, 'event_type'=>'thread_closed', 'log'=>"Chat thread closed "]);      
                        
             }
         }
@@ -888,7 +891,8 @@ class LiveChatController extends Controller
     } 
 
 	public function getAllChatEventLogs() {
-        $logs = LiveChatEventLog::orderBy('id', 'desc')->paginate(30);
+        $logs = LiveChatEventLog::leftJoin('customers', 'customers.id', 'live_chat_event_logs.customer_id')
+		->whereNotNull('customer_id')->where('customer_id', '<>', 0)->orderBy('live_chat_event_logs.id', 'desc')->select('live_chat_event_logs.*', 'customers.name as customer_name')->paginate(30);
         return view('livechat.eventLogs', compact('logs'));
     }
 
