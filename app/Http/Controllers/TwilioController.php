@@ -4571,6 +4571,113 @@ class TwilioController extends FindByNumberController
 	    return view('twilio.speech_to_text_logs', compact('twilioLogs','input'));
 	}
 
+    /**
+     * This function is use for list of Twilio call block
+     * 
+     * @param Request $request
+     * @return view
+     */
+    public function callBlocks(Request $request) 
+    {
+		try {
+            $input = $request->input();
+            $twilioCallBlocks = TwilioCallBlock::select('twilio_call_blocks.customer_id', 'twilio_call_blocks.id', 'twilio_call_blocks.twilio_credentials_id', 'twilio_call_blocks.customer_website_id', 'twilio_call_blocks.twilio_number_website_id', 'twilio_call_blocks.customer_number', 'twilio_call_blocks.twilio_number', 'twilio_call_blocks.created_at', 'c.name AS customerName', 'tc.twilio_email', 'sw.website AS customerWebsite', 'swtc.website AS twWebsite')
+            ->leftjoin("customers AS c", "c.id", "twilio_call_blocks.customer_id")
+            ->leftjoin("twilio_credentials AS tc", "tc.id", "twilio_call_blocks.twilio_credentials_id")
+            ->leftjoin("store_websites AS sw", "sw.id", "twilio_call_blocks.customer_website_id")
+            ->leftjoin("store_websites AS swtc", "swtc.id", "twilio_call_blocks.twilio_number_website_id")
+            ->orderBy('twilio_call_blocks.id', 'desc');
+            
+            if(isset($input['search_twilio_number'])) {
+                $twilioCallBlocks = $twilioCallBlocks->where('twilio_call_blocks.twilio_number', 'like', '%'. $input['search_twilio_number'].'%');
+            }
+            if(isset($input['search_customer_number'])) {
+                $twilioCallBlocks = $twilioCallBlocks->where('twilio_call_blocks.customer_number', 'like', '%'. $input['search_customer_number'].'%');
+            }
+            $twilioCallBlocks = $twilioCallBlocks->paginate(20);		
+            //$twilioCallBlocks = $twilioCallBlocks->get();		
+            //dd($twilioCallBlocks);
+            return view('twilio.twilio-call-block   ', compact('twilioCallBlocks','input'));
+        } catch(\Exception $e) {
+            return redirect()->back()->with('error','please try again');
+        }
+	}
+
+    /**
+     * This funcrtion is use for delete Call block
+     * @param Request $request
+     * 
+     * @return JsonResponse
+     */
+    public function deleteCallBlocks(Request $request, $ids="") 
+    {
+        try {
+            $idArr = explode(",",$request->ids);
+            $callBlock = TwilioCallBlock::whereIn("id", $idArr)->delete();
+            if($callBlock!=0) {
+                return response()->json(['code' => 200, 'message' => 'Successfully Deleted']);   
+            }
+            return response()->json(['code' => 500, 'message' => "Please select any record"]);   
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);   
+        }
+    }
+
+    /**
+     * This function is use for list of Twilio call Statistic
+     * 
+     * @param Request $request
+     * @return view
+     */
+    public function callStatistic(Request $request) 
+    {
+		try {
+            $input = $request->input();
+            $twilioCallStatistic = TwilioCallStatistic::select('twilio_call_statistics.id', 'twilio_call_statistics.account_sid', 'twilio_call_statistics.call_sid', 'twilio_call_statistics.customer_website_id', 'twilio_call_statistics.twilio_number_website_id', 'twilio_call_statistics.customer_number', 'twilio_call_statistics.twilio_number', 'twilio_call_statistics.created_at', 'c.name AS customerName', 'tc.twilio_email', 'sw.website AS customerWebsite', 'swtc.website AS twWebsite')
+            ->leftjoin("customers AS c", "c.id", "twilio_call_statistics.customer_id")
+            ->leftjoin("twilio_credentials AS tc", "tc.id", "twilio_call_statistics.twilio_credentials_id")
+            ->leftjoin("store_websites AS sw", "sw.id", "twilio_call_statistics.customer_website_id")
+            ->leftjoin("store_websites AS swtc", "swtc.id", "twilio_call_statistics.twilio_number_website_id")
+            ->orderBy('twilio_call_statistics.id', 'desc');
+            
+            if(isset($input['search_account_sid'])) {
+                $twilioCallStatistic = $twilioCallStatistic->where('twilio_call_statistics.account_sid', 'like', '%'. $input['search_account_sid'].'%');
+            }
+            if(isset($input['search_twilio_number'])) {
+                $twilioCallStatistic = $twilioCallStatistic->where('twilio_call_statistics.twilio_number', 'like', '%'. $input['search_twilio_number'].'%');
+            }
+            if(isset($input['search_customer_number'])) {
+                $twilioCallStatistic = $twilioCallStatistic->where('twilio_call_statistics.customer_number', 'like', '%'. $input['search_customer_number'].'%');
+            }
+            $twilioCallStatistic = $twilioCallStatistic->paginate(20);		
+            //$twilioCallBlocks = $twilioCallBlocks->get();		
+            //dd($twilioCallBlocks);
+            return view('twilio.twilio-call-statistic', compact('twilioCallStatistic','input'));
+        } catch(\Exception $e) {
+            return redirect()->back()->with('error','please try again');
+        }
+	}
+
+     /**
+     * This funcrtion is use for delete Call block
+     * @param Request $request
+     * 
+     * @return JsonResponse
+     */
+    public function deleteCallStatistic(Request $request) 
+    {
+        try {
+            $idArr = explode(",",$request->ids);
+            $callStatistic = TwilioCallStatistic::whereIn("id", $idArr)->delete();
+            if($callStatistic!=0) {
+                return response()->json(['code' => 200, 'message' => 'Successfully Deleted']);   
+            }
+            return response()->json(['code' => 500, 'message' => "Please select any record"]);   
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);   
+        }
+    }
+
     public function twilioAccountLogs()
     {
         $accountLogs = TwilioAccountLog::paginate(50);
