@@ -154,6 +154,9 @@
         .status-selection .multiselect {
             width: 100%;
         }
+.data-tb-custom td:nth-child(3) {
+    display: flex;
+}
 
     </style>
 @endsection
@@ -206,8 +209,25 @@
                         </div>
                    
                     <div class="col-md-2 pd-sm pd-rt status-selection">
-                        <?php echo Form::select('task_status[]', $statusList, request()->get('task_status', array_values($statusList)), ['class' => 'form-control pr-0 multiselect', 'multiple' => true]); ?>
+                        <?php 
+                        if(isset($_GET['task_status']))
+                        {
+                            echo Form::select('task_status[]', $statusList, request()->get('task_status', array_values($statusList)), ['class' => 'form-control pr-0 multiselect', 'multiple' => true]);
+                        }
+                        else
+                        {
+                            echo Form::select('task_status[]', $statusList, 0, ['class' => 'form-control pr-0 multiselect', 'multiple' => true]);
+                        }
+                    ?>
+                    </div>
+                    <div class="col-md-2 pd-sm pd-rt status-selection">
+                        <input type="checkbox" name="empty_estimated_time" value="1" {{ $request->get('empty_estimated_time') == 1 ? 'checked' : '' }} >Empty Estimated Time & Date
                     </div> 
+                    <div class="col-md-2 pd-sm pd-rt status-selection">
+                        <input type="checkbox" name="time_is_overdue" value="1" {{ $request->get('time_is_overdue') == 1 ? 'checked' : '' }} >Time is overdue
+                    </div> 
+                    
+
                     <div class='input-group date mr-3 ml-3 col-md-1' id='datetimepicker'>
                          <input name="delivery_date" type='text' class="form-control" placeholder="Search Delivery Date" id="delivery_date" style="width: 156px !important;">
                          <span class="input-group-addon">
@@ -232,12 +252,12 @@
 
     @include('partials.flash_messages')
     <div class="infinite-scroll">
-        <div class="table-responsive mt-3">
+        <div class="table-responsive mt-3 data-tb-custom">
             <table class="table table-bordered table-striped" id="reply_history_div" style="table-layout:fixed;margin-bottom:0px;">
                 <thead>
                     <tr>
-                         <th width="7%">ID</th>
-                        <th width="8%">Subject</th>
+                         <th max-width="4%">ID</th>
+                        <th width="10%">Subject</th>
                         <th width="11%">Assigned To</th>
                         <th width="10%">Tracked Time</th>
                         <th width="10%">Estimated Time</th>

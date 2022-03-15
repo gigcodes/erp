@@ -40,8 +40,8 @@
         </div>
     </div>
     <div class="row  no-gutters mt-3">
-        <div class="col-md-12 col-sm-12">
-            <div class="table-responsive">
+        <div class="col-md-12 col-sm-12" style="overflow-x: auto;" >
+            <div class="">
                 <div class="">
                     <table class="table table-bordered table-hover">
                         <thead>
@@ -268,7 +268,7 @@
                 {{-- @if(count($workspace) <= 0) --}}
                 <div class="row">
                     <div class="col-md-3">
-                        <input type="hidden" class="form-control priority_workspace_id" name="priority_workspace_id" value="{{ $account_id }}"/>
+                        <input type="hidden" class="form-control account_id" id="account_id" name="account_id" value="{{ $account_id }}"/>
                         <input type="number" class="form-control priority_no" name="priority_no" placeholder="Priority Number"/>
                     </div>
                    
@@ -285,7 +285,6 @@
                 <table class="table table-bordered table-hover mt-5">
                     <thead>
                         <tr>
-                            <th scope="col" class="text-center">Workspace Name</th>
                             <th scope="col" class="text-center">Priority No</th>
                             <th scope="col" class="text-center">Priority Name</th>
                             <th scope="col" class="text-center">Action</th>
@@ -295,7 +294,6 @@
                         @if($priority)
                             @foreach($priority as $key => $val)
                             <tr class="priority_row_{{$val->id}}">
-                                <td>{{$val->workspace_name}}</td>
                                 <td>{{$val->priority_no}}</td>
                                 <td>{{$val->priority_name}}</td>
                                 <td><i style="cursor: pointer;" class="fa fa-trash delete_twilio_priority" data-id="{{$val->id}}" aria-hidden="true"></i></td>
@@ -339,6 +337,14 @@
                             <option value="0">Select User</option>
                             @foreach($twilio_user_list as $value)
                             <option value="{{ $value->id }}">{{ $value->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <select class="form-control worker_priority" name="worker_priority" multiple>
+                            @foreach($priority as $key => $val)
+                            <option value="{{$val->priority_no}}">{{$val->priority_name}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -933,7 +939,7 @@
             $('.create_twilio_priority').on("click", function(){
                 var priority_no = $('.priority_no').val();
                 var priority_name = $('.priority_name').val();
-                var workspace_id = $('.priority_workspace_id').val();
+                var account_id = $('#account_id').val();
                 
                 $.ajax({
                     url: "{{ route('create.twilio.priority') }}",
@@ -941,7 +947,7 @@
                     data : {
                         priority_no : priority_no,
                         priority_name : priority_name,
-                        workspace_id : workspace_id,
+                        account_id : account_id,
                         _token : "{{ csrf_token() }}"
                     },
                     beforeSend: function() {
@@ -952,7 +958,6 @@
                         if(response.statusCode == 200) {
                             toastr["success"](response.message);
                             var html = '<tr class="priority_row_'+response.data.id+'">';
-                            html += '<td>'+response.data.workspace_name+'</td>';
                             html += '<td>'+response.data.priority_no+'</td>';
                             html += '<td>'+response.data.priority_name+'</td>';
                             html += '<td><i style="cursor: pointer;" class="fa fa-trash delete_twilio_priority" data-id="'+response.data.id+'" aria-hidden="true"></i></td>';
@@ -977,6 +982,7 @@
                 // var worker_name = $('.twilio_worker_name').val();
                 var user_id = $('.worker_user_id').val();
                 var worker_phone = $('.worker_phone').val();
+                var worker_priority = $('.worker_priority').val();
 
                 $.ajax({
                     url: "{{ route('create-twilio-worker') }}",
@@ -986,6 +992,7 @@
                         // worker_name: worker_name,
                         user_id: user_id,
                         worker_phone: worker_phone,
+                        worker_priority: worker_priority,
                         account_id: '{{ $account_id }}',
                         _token : "{{ csrf_token() }}"
                     },

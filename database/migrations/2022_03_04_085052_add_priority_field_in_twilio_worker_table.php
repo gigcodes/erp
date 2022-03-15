@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddTaskTimeReminderInLogChatMessagesTable extends Migration
+class AddPriorityFieldInTwilioWorkerTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddTaskTimeReminderInLogChatMessagesTable extends Migration
      */
     public function up()
     {
-        Schema::table('log_chat_messages', function (Blueprint $table) {
-            $table->integer('task_time_reminder')->default(0)->after('log_msg')->index();
+        Schema::table('twilio_workers', function (Blueprint $table) {
+            $table->string('priority')->after('user_id');
         });
     }
 
@@ -25,8 +25,8 @@ class AddTaskTimeReminderInLogChatMessagesTable extends Migration
      */
     public function down()
     {
-        Schema::table('log_chat_messages', function (Blueprint $table) {
-            $table->dropColumn(['task_time_reminder']);
+        Schema::table('twilio_workers', function (Blueprint $table) {
+            $table->dropColumn('priority');
         });
     }
 }
