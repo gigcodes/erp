@@ -162,6 +162,7 @@ class MagentoOrderHandleHelper extends Model
                                     'color'         => isset($splitted_sku[1]) ? $splitted_sku[1] : $skuAndColor['sku'],
                                     'created_at'    => $order->created_at,
                                     'updated_at'    => $order->created_at,
+                                    'item_id'       => $item->item_id,
                                 )
                             );
 
