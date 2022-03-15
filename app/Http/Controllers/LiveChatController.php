@@ -20,6 +20,7 @@ use App\TicketStatuses;
 use App\User;
 use App\Website;
 use App\WebsiteStore;
+use Carbon\Carbon;
 use DB;
 use Google\Cloud\Translate\TranslateClient;
 use Illuminate\Http\Request;
@@ -735,6 +736,7 @@ class LiveChatController extends Controller
             'data' => array('id' => $chatId, 'count' => $count, 'message' => $messagess, 'name' => $name, 'customerInfo' => $customerInfo, 'threadId' => $threadId, 'customerInital' => $customerInital, 'store_website_id' => $store_website_id),
         ]);
     }
+
     public function getLastChats(Request $request){
         $chatId = $request->id;
         $messages = ChatMessage::where('customer_id', $chatId)->where('message_application_id', 2)->orderBy('id','desc')->first();
@@ -866,10 +868,58 @@ class LiveChatController extends Controller
         return $logs;
     }
 
-    public function getLiveChats()
+    public function getLiveChats(Request $request)
     {
         $store_websites = StoreWebsite::all();
         $website_stores = WebsiteStore::with('storeView')->get();
+        $chatIds = CustomerLiveChat::query();
+
+        if ($request->search_keyword != "") {
+            $q=$request->search_keyword;
+            $chatIds->whereHas('customer', function ($query) use ($q){
+                        $query->where('name', 'LIKE', '%' . $q . '%');
+            })
+                ->orWhere('website', 'LIKE', '%' . $q . '%')
+                ->orWhereHas('customer', function ($query) use ($q){
+                    $query->where('phone', 'LIKE', '%' . $q . '%');
+                })->orWhereHas('customer', function ($query) use ($q){
+                    $query->where('email', 'LIKE', '%' . $q . '%');
+                });
+        }
+        if ($request->term != "") {
+            $q=$request->term;
+            $chatIds->whereHas('customer', function ($query) use ($q){
+                $query->where('name', 'LIKE', '%' . $q . '%');
+            });
+        }
+        if ($request->website_name != "") {
+            $q=$request->website_name;
+
+            $chatIds->where('website', 'LIKE', '%' . $q . '%');
+        }
+        if ($request->date != "") {
+            $q=$request->date;
+            $chatIds->whereDate('created_at', Carbon::parse($q)->format('Y-m-d'));
+        }
+        if ($request->search_email != "") {
+            $q=$request->search_email;
+            $chatIds->whereHas('customer', function ($query) use ($q){
+                $query->where('email', 'LIKE', '%' . $q . '%');
+            });
+        }
+        if ($request->phone_no != "") {
+            $q=$request->phone_no;
+            $chatIds->whereHas('customer', function ($query) use ($q){
+                $query->where('phone', 'LIKE', '%' . $q . '%');
+            });
+        }
+        $chatIds=$chatIds->latest()->orderBy('seen','asc')->orderBy('status','desc')->get();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('livechat.partials.chat-list', compact('chatIds'))->with('i', ($request->input('page', 1) - 1) * 1)->render(),
+            ], 200);
+        }
 
         if (session()->has('chat_customer_id')) {
             $chatId = session()->get('chat_customer_id');
@@ -900,13 +950,13 @@ class LiveChatController extends Controller
                 }
             }
             $count = CustomerLiveChat::where('seen', 0)->count();
-            return view('livechat.chatMessages', compact('message', 'name', 'customerInital', 'store_websites', 'website_stores'));
+            return view('livechat.chatMessages', compact('chatIds','message', 'name', 'customerInital', 'store_websites', 'website_stores'));
         } else {
             $count = 0;
             $message = '';
             $customerInital = '';
             $name = '';
-            return view('livechat.chatMessages', compact('message', 'name', 'customerInital', 'store_websites', 'website_stores'));
+            return view('livechat.chatMessages', compact('chatIds','message', 'name', 'customerInital', 'store_websites', 'website_stores'));
         }
     }
 
