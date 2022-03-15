@@ -415,7 +415,7 @@ class LiveChatController extends Controller
                     $customerLiveChat->seen = 1;
                     $customerLiveChat->update();
                 }
-				LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$chatId, 'event_type'=>$eventType, 'log'=>"Chat thread closed "]);      
+				LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$chatId, 'event_type'=>'thread_closed', 'log'=>"Chat thread closed "]);      
                        
             }
         }
