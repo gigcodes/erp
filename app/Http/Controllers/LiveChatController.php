@@ -51,18 +51,20 @@ class LiveChatController extends Controller
 		if(isset($receivedJson->payload->chat)) {
 			$chat = $receivedJson->payload->chat;
             $threadId = $chat->id;
-			if(isset($chat->thread->properties->routing->start_url)) {
-				$websiteURL = self::getDomain($chat->thread->properties->routing->start_url);
+			
+		} else if(isset($receivedJson->payload->chat_id)) {
+			$threadId = $receivedJson->payload->chat_id;
+		}
+		
+		    if(isset($receivedJson->payload->chat->thread->properties->routing->start_url)) {
+				$websiteURL = self::getDomain($receivedJson->payload->chat->thread->properties->routing->start_url);
 				$website = \App\StoreWebsite::where("website", "like", "%" . $websiteURL . "%")->first();
 				if ($website) {
 					$websiteId = $website->id;
 				}
 			} else{
-				$websiteId = LiveChatEventLog::whereNotNull('store_website_id')->where('store_website_id', '<>', 0)->pluck('store_website_id')->first();
+				$websiteId = LiveChatEventLog::where('thread',$threadId)->whereNotNull('store_website_id')->where('store_website_id', '<>', 0)->pluck('store_website_id')->first();
 			}
-		} else if(isset($receivedJson->payload->chat_id)) {
-			$threadId = $receivedJson->payload->chat_id;
-		}
 		LiveChatEventLog::create(['customer_id'=>0, 'thread'=>$threadId, 'event_type'=>'', 'store_website_id'=>$websiteId, 'log'=> json_encode($receivedJson)]);      
          
         if (isset($receivedJson->event_type)) {
