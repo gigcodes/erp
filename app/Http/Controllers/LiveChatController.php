@@ -50,8 +50,7 @@ class LiveChatController extends Controller
          
         if (isset($receivedJson->event_type)) {
 			$eventType = $receivedJson->event_type;
-			LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=> 'Chat started.']);      
-        
+			
             // \Log::channel('chatapi')->info('--1111 >>');
             \Log::channel('chatapi')->debug(': ChatApi' . "\nMessage :" . '--event_type >>');
             //When customer Starts chat
@@ -106,7 +105,7 @@ class LiveChatController extends Controller
                     $customer->save();
                 }
 				$customerId = $customer->id;
-				LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=>"Customer details found"]);      
+				LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=>"entered in chat started condition"]);      
             }
         }
 
@@ -184,10 +183,11 @@ class LiveChatController extends Controller
                         'user_id' => $userID,
                         'message_application_id' => $message_application_id,
                     ];
-
+				    LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$chatId, 'event_type'=>'incoming_event', 'log'=>"Entered in incoming_event message condition"]);      
+            
                     // Create chat message
                     $chatMessage = ChatMessage::create($params);
-					LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$chatId, 'event_type'=>$eventType, 'log'=>"Message saved in chat messages."]);      
+					LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$chatId, 'event_type'=>'incoming_event', 'log'=>"Message saved in chat messages."]);      
             
                     //STRAT - Purpose : Add record in chatbotreplay - DEVTASK-18280
                     if ($messageStatus != 2) {
@@ -206,7 +206,7 @@ class LiveChatController extends Controller
 
                     // if customer found then send reply for it
                     if (!empty($customerDetails) && $message != '') {
-                       LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=>"Message sent to watson ".$message]);      
+                       LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$chatId, 'event_type'=>'incoming_event', 'log'=>"Message sent to watson ".$message]);      
                        WatsonManager::sendMessage($customerDetails, $message, '', $message_application_id);
                     }
 
@@ -305,7 +305,7 @@ class LiveChatController extends Controller
                 try {
                     $text = $chat->thread->events[1]->text;
                 } catch (\Exception $e) {
-                    LiveChatEventLog::create(['customer_id'=>0, 'thread'=>'debug', 'event_type'=>$chat->thread->events, 'log'=>"Debug test"]);
+                    LiveChatEventLog::create(['customer_id'=>0, 'thread'=>$chatId, 'event_type'=>"incoming_chat", 'log'=>"incoming chat ".$e]);
                     $text = 'Error';    
                 }
 
@@ -346,7 +346,7 @@ class LiveChatController extends Controller
                         $onlyThreadCheck = CustomerLiveChat::where('thread', $chatId)->first();
                         if ($onlyThreadCheck) {
                             $onlyThreadCheck->thread = null;
-                            $chatID->seen = 1;
+                            $onlyThreadCheck->seen = 1;
                             $onlyThreadCheck->save();
                         }
 
