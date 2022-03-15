@@ -2871,6 +2871,13 @@ class OrderController extends Controller
                         if ($magento_status) {
                             $magentoHelper = new MagentoHelperv2;
                             $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value);
+                            /**
+                             *check if response has error
+                             */
+                            $response=$result->getData();
+                            if(isset($response) && isset($response->status) && $response->status==false){
+                                return response()->json(['Sucess' => false, 'error' => $response->error]);
+                            }
                         }
                     }
                 }
