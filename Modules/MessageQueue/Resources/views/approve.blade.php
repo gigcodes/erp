@@ -143,7 +143,7 @@
 		<button type="button" class="delete-all-record btn btn-xs btn-secondary my-3 mx-4" id="select-all-product">Delete All</button>
 	</div>
 </div>
-<div class="row">
+<div class="row row mt-3 mx-3">
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
