@@ -850,7 +850,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/addNewReply', 'OrderController@addNewReply')->name('order.addNewReply');
     Route::post('order/get-customer-address', 'OrderController@getCustomerAddress')->name('order.customer.address');
     Route::get('order/charity-order', 'OrderController@charity_order');
+    Route::post('order/cancel-transaction', 'OrderController@cancelTransaction')->name('order.canceltransaction');
+    
     Route::resource('order', 'OrderController');
+    
+    
+    
     Route::post('order/payment-history', 'OrderController@paymentHistory')->name('order.paymentHistory');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
@@ -2039,6 +2044,7 @@ Route::post('exotel/recordingCallback', 'ExotelController@recordingCallback');
 
 Route::post('livechat/incoming', 'LiveChatController@incoming');
 Route::post('livechat/getChats', 'LiveChatController@getChats')->name('livechat.get.message');
+Route::post('livechat/getCustomerInfo', 'LiveChatController@customerInfo')->name('livechat.get.customerInfo');
 Route::post('livechat/getLastChats', 'LiveChatController@getLastChats')->name('livechat.last.message');
 Route::post('livechat/getChatsWithoutRefresh', 'LiveChatController@getChatMessagesWithoutRefresh')->name('livechat.message.withoutrefresh');
 Route::post('livechat/sendMessage', 'LiveChatController@sendMessage')->name('livechat.send.message');
@@ -2049,6 +2055,8 @@ Route::post('livechat/check-new-chat', 'LiveChatController@checkNewChat')->name(
 
 Route::get('livechat/getLiveChats', 'LiveChatController@getLiveChats')->name('livechat.get.chats');
 Route::get('livechat/getLiveChats/logs/{chatId}', 'LiveChatController@getChatLogs')->name('livechat.get.chatlogs');
+Route::get('livechat/getLiveChats/eventlogs', 'LiveChatController@getAllChatEventLogs')->name('livechat.event.logs');
+Route::get('livechat/getLiveChats/eventlogs/{chatId}', 'LiveChatController@getChatEventLogs')->name('livechat.event.chatlogs');
 
 Route::get('livechat/getorderdetails', 'LiveChatController@getorderdetails')->name('livechat.getorderdetails');
 
@@ -2920,6 +2928,8 @@ Route::middleware('auth')->group(function () {
     Route::post('approve/review', 'ProductController@approveReview')->name('product.click-approve');
 
     Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');
+    Route::post('attachImages/whatsapp', 'ProductController@sendNowCustomerAttachImages')->name('attachImages.whatsapp');
+    
 });
 
 Route::group(['middleware' => 'auth'], function () {
@@ -3097,7 +3107,8 @@ Route::prefix('google-campaigns')->middleware('auth')->group(function () {
     Route::post('/ads-account/create', 'GoogleAdsAccountController@createGoogleAdsAccount')->name('googleadsaccount.createAdsAccount');
     Route::get('/ads-account/update/{id}', 'GoogleAdsAccountController@editeGoogleAdsAccountPage')->name('googleadsaccount.updatePage');
     Route::post('/ads-account/update', 'GoogleAdsAccountController@updateGoogleAdsAccount')->name('googleadsaccount.updateAdsAccount');
-
+    Route::post('/refresh-token', 'GoogleAdsAccountController@refreshToken')->name('googleadsaccount.refresh_token');
+    Route::get('/get-refresh-token', 'GoogleAdsAccountController@getRefreshToken')->name('googleadsaccount.get-refresh-token');
     Route::prefix('{id}')->group(function () {
         Route::prefix('adgroups')->group(function () {
             Route::get('/', 'GoogleAdGroupController@index')->name('adgroup.index');
@@ -3213,6 +3224,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('twilio/add-account', 'TwilioController@addAccount')->name('twilio-add-account');
     Route::get('twilio/delete-account/{id}', 'TwilioController@deleteAccount')->name('twilio-delete-account');
     Route::get('twilio/manage-numbers/{id}', 'TwilioController@manageNumbers')->name('twilio-manage-numbers');
+    Route::get('twilio/manage-all-numbers/{id?}', 'TwilioController@manageAllNumbers')->name('twilio.manage.all.numbers');
     Route::get('twilio/manage-numbers-popup/{id?}', 'TwilioController@manageNumbersPopup')->name('twilio.manage.numbers.popup');
     Route::post('twilio/add_user', 'TwilioController@manageUsers')->name('twilio.add_user');
     Route::post('twilio/set_website_time', 'TwilioController@setWebsiteTime')->name('twilio.set_website_time');
@@ -3220,7 +3232,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('twilio/set_twilio_key_option', 'TwilioController@setTwilioKey')->name('twilio.set_twilio_key_options');
     Route::post('twilio/greeting_message', 'TwilioController@saveTwilioGreetingMessage')->name('twilio.set_twilio_greeting_message');
     Route::get('twilio/get_website_wise_key_data', 'TwilioController@getTwilioKeyData')->name('twilio.get_website_wise_key_data');
-    Route::get('twilio/get_website_wise_key_data_options', 'TwilioController@getTwilioKeyDataOptions')->name('twilio.get_website_wise_key_data_options');
+    Route::get('twilio/get_website_wise_key_data_options/{web_site_id?}', 'TwilioController@getTwilioKeyDataOptions')->name('twilio.get_website_wise_key_data_options');
     Route::get('twilio/erp/logs', 'TwilioController@twilioErpLogs')->name('twilio.erp_logs');
     Route::get('twilio/webhook-error/logs', 'TwilioController@twilioWebhookErrorLogs')->name('twilio.webhook.error.logs');
     Route::get('twilio/account-logs', 'TwilioController@twilioAccountLogs')->name('twilio.account_logs');

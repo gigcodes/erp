@@ -4209,29 +4209,69 @@ class ProductController extends Controller
 
     public function queueCustomerAttachImages(Request $request)
     {
-        $data['_token'] = $request->_token;
-        $data['send_pdf'] = $request->send_pdf;
-        $data['pdf_file_name'] = !empty($request->pdf_file_name) ? $request->pdf_file_name : "";
-        $data['images'] = $request->images;
-        $data['image'] = $request->image;
-        $data['screenshot_path'] = $request->screenshot_path;
-        $data['message'] = $request->message;
-        $data['customer_id'] = $request->customer_id;
-        $data['status'] = $request->status;
-        $data['type'] = $request->type;
-        \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
+        // This condition is use for send now no whatsapp
+        if($request->is_queue == 2) {
+            return $this->sendNowCustomerAttachImages($request);
+        } else {
+            $data['_token'] = $request->_token;
+            $data['send_pdf'] = $request->send_pdf;
+            $data['pdf_file_name'] = !empty($request->pdf_file_name) ? $request->pdf_file_name : "";
+            $data['images'] = $request->images;
+            $data['image'] = $request->image;
+            $data['screenshot_path'] = $request->screenshot_path;
+            $data['message'] = $request->message;
+            $data['customer_id'] = $request->customer_id;
+            $data['status'] = $request->status;
+            $data['type'] = $request->type;
+            \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
+
+            $json = request()->get("json", false);
+
+            if ($json) {
+                return response()->json(["code" => 200, 'message' => 'Message Send later Queue']);
+            }
+            if ($request->get('return_url')) {
+                return redirect($request->get('return_url'));
+            }
+
+            return redirect()->route('customer.post.show', $request->customer_id)->withSuccess('Message Send For Queue');
+        }
+    }
+
+    /**
+     * This function is use for send now image on whatsapp
+     * 
+     * @param Request $request
+     * @return type JsonResponse
+     */
+    public function sendNowCustomerAttachImages(Request $request)
+    {
+        $requestData = new Request();
+        $requestData->setMethod('POST');
+            $requestData->request->add([
+                '_token'          => $request->_token,
+                'send_pdf'        => $request->send_pdf,
+                'pdf_file_name'   => $request->pdf_file_name,
+                'images'          => $request->images,
+                'image'           => $request->image,
+                'screenshot_path' => $request->screenshot_path,
+                'message'         => $request->message,
+                'customer_id'     => $request->customer_id,
+                'status'          => $request->status,
+                'type'          => $request->type,
+            ]);
+        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 
         $json = request()->get("json", false);
-
         if ($json) {
-            return response()->json(["code" => 200]);
+            return response()->json(["code" => 200, 'message' => 'Message Send Now on whatsapp']);
         }
         if ($request->get('return_url')) {
             return redirect($request->get('return_url'));
         }
-
-        return redirect()->route('customer.post.show', $request->customer_id)->withSuccess('Message Send For Queue');
+        return redirect()->route('customer.post.show', $request->customer_id)->withSuccess('Message Send Now on whatsapp');
     }
+
 
     public function cropImage(Request $request)
     {
