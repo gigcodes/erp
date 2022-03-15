@@ -136,7 +136,7 @@ $srno=1;
                     <a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="Chat Logs" onclick="openChatLogs(<?php echo $chatId->id;?>)" >
                         <i class="fa fa-info-circle" aria-hidden="true"></i>
                     </a>
-					<a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="Chat Logs" onclick="openChatEventLogs(<?php echo $chatId->id;?>)" >
+					<a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="Chat Logs Event" onclick="openChatEventLogs('<?php echo $chatId->thread;?>')" >
                         <i class="fa fa-history" aria-hidden="true"></i>
                     </a>
                     <button type="button" class="btn btn-image send-coupon p-1" data-toggle="modal" data-id="{{ $chatId->id }}" data-customerid="{{ $customer->id }}" ><i class="fa fa-envelope"></i></button>
