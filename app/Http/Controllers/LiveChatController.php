@@ -377,7 +377,7 @@ class LiveChatController extends Controller
                     $onlyThreadCheck = CustomerLiveChat::where('thread', $chatId)->first();
                     if ($onlyThreadCheck) {
                         $onlyThreadCheck->thread = null;
-                        $chatID->seen = 1;
+                        $onlyThreadCheck->seen = 1;
                         $onlyThreadCheck->save();
                     }
 
