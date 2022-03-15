@@ -1183,6 +1183,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer/credit', 'CustomerController@storeCredit');
     Route::get('customer/credit/logs/{id}', 'LiveChatController@customerCreditLogs');
     Route::get('customer/credit-repush/{id}', 'LiveChatController@creditRepush');
+    Route::get('customer/priority-points', 'CustomerController@customerPriorityPoints')->name('customer.priority.points');
+    Route::get('customer/add-priority-points', 'CustomerController@addCustomerPriorityPoints')->name('customer.add.priority.points');
+    Route::get('customer/get-priority-points/{id?}', 'CustomerController@getCustomerPriorityPoints')->name('customer.get.priority.points');
     Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');
     Route::get('customer/test', 'CustomerController@customerstest');
     Route::post('customer/reminder', 'CustomerController@updateReminder');
