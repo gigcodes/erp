@@ -47,13 +47,21 @@ class LiveChatController extends Controller
 		$eventType = "";
 		$threadId = "";
 		$customerId = 0;
+		$websiteId = 0;
 		if(isset($receivedJson->payload->chat)) {
 			$chat = $receivedJson->payload->chat;
             $threadId = $chat->id;
+			if(isset($chat->thread->properties->routing->start_url)) {
+				$websiteURL = self::getDomain($chat->thread->properties->routing->start_url);
+				$website = \App\StoreWebsite::where("website", "like", "%" . $websiteURL . "%")->first();
+				if ($website) {
+					$websiteId = $website->id;
+				}
+			}
 		} else if(isset($receivedJson->payload->chat_id)) {
 			$threadId = $receivedJson->payload->chat_id;
 		}
-		LiveChatEventLog::create(['customer_id'=>0, 'thread'=>$threadId, 'event_type'=>'', 'log'=> json_encode($receivedJson)]);      
+		LiveChatEventLog::create(['customer_id'=>0, 'thread'=>$threadId, 'event_type'=>'', 'store_website_id'=>$websiteId, 'log'=> json_encode($receivedJson)]);      
          
         if (isset($receivedJson->event_type)) {
 			$eventType = $receivedJson->event_type;
@@ -112,7 +120,7 @@ class LiveChatController extends Controller
                     $customer->save();
                 }
 				$customerId = $customer->id;
-				LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'event_type'=>$eventType, 'log'=>"entered in chat started condition"]);      
+				LiveChatEventLog::create(['customer_id'=>$customerId, 'thread'=>$threadId, 'store_website_id'=>$websiteId, 'event_type'=>$eventType, 'log'=>"entered in chat started condition"]);      
             }
         }
 
@@ -190,11 +198,11 @@ class LiveChatController extends Controller
                         'user_id' => $userID,
                         'message_application_id' => $message_application_id,
                     ];
-				    LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$chatId, 'event_type'=>'incoming_event', 'log'=>"Entered in incoming_event message condition"]);      
+				    LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'store_website_id'=>$websiteId, 'thread'=>$chatId, 'event_type'=>'incoming_event', 'log'=>"Entered in incoming_event message condition"]);      
             
                     // Create chat message
                     $chatMessage = ChatMessage::create($params);
-					LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$chatId, 'event_type'=>'incoming_event', 'log'=>"Message saved in chat messages."]);      
+					LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'store_website_id'=>$websiteId, 'thread'=>$chatId, 'event_type'=>'incoming_event', 'log'=>"Message saved in chat messages."]);      
             
                     //STRAT - Purpose : Add record in chatbotreplay - DEVTASK-18280
                     if ($messageStatus != 2) {
@@ -213,7 +221,7 @@ class LiveChatController extends Controller
 
                     // if customer found then send reply for it
                     if (!empty($customerDetails) && $message != '') {
-                       LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$chatId, 'event_type'=>'incoming_event', 'log'=>"Message sent to watson ".$message]);      
+                       LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'store_website_id'=>$websiteId, 'thread'=>$chatId, 'event_type'=>'incoming_event', 'log'=>"Message sent to watson ".$message]);      
                        WatsonManager::sendMessage($customerDetails, $message, '', $message_application_id);
                     }
 
@@ -401,9 +409,9 @@ class LiveChatController extends Controller
                 }
 				try {
                     $text = $chat->thread->events[1]->text;
-					 LiveChatEventLog::create(['customer_id'=>$customer->id, 'thread'=>$chatId, 'event_type'=>"incoming_chat", 'log'=>"incoming chat error ".$e." <br>data ".json_encode($chat->thread->events[1])]);
+					 LiveChatEventLog::create(['customer_id'=>$customer->id, 'store_website_id'=>$websiteId, 'thread'=>$chatId, 'event_type'=>"incoming_chat", 'log'=>"incoming chat error ".$e." <br>data ".json_encode($chat->thread->events[1])]);
                 } catch (\Exception $e) {
-                    LiveChatEventLog::create(['customer_id'=>$customer->id, 'thread'=>$chatId, 'event_type'=>"incoming_chat", 'log'=>"incoming chat error ".$e." <br>data ".json_encode($chat->thread->events[1])]);
+                    LiveChatEventLog::create(['customer_id'=>$customer->id, 'store_website_id'=>$websiteId, 'thread'=>$chatId, 'event_type'=>"incoming_chat", 'log'=>"incoming chat error ".$e." <br>data ".json_encode($chat->thread->events[1])]);
                     $text = 'Error';    
                 }
 
@@ -425,7 +433,7 @@ class LiveChatController extends Controller
                     $customerLiveChat->seen = 1;
                     $customerLiveChat->update();
                 }
-				LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$chatId, 'event_type'=>'thread_closed', 'log'=>"Chat thread closed "]);      
+				LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'store_website_id'=>$websiteId, 'thread'=>$chatId, 'event_type'=>'thread_closed', 'log'=>"Chat thread closed "]);      
                        
             }
         }
@@ -898,7 +906,8 @@ class LiveChatController extends Controller
 
 	public function getAllChatEventLogs() {
         $logs = LiveChatEventLog::leftJoin('customers', 'customers.id', 'live_chat_event_logs.customer_id')
-		->whereNotNull('customer_id')->where('customer_id', '<>', 0)->orderBy('live_chat_event_logs.id', 'desc')->select('live_chat_event_logs.*', 'customers.name as customer_name')->paginate(30);
+		->leftJoin('store_websites', 'store_websites.id', 'live_chat_event_logs.store_website_id')
+		->whereNotNull('customer_id')->where('customer_id', '<>', 0)->orderBy('live_chat_event_logs.id', 'desc')->select('live_chat_event_logs.*', 'customers.name as customer_name', 'store_websites.title as website')->paginate(30);
         return view('livechat.eventLogs', compact('logs'));
     }
 
