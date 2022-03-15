@@ -305,7 +305,7 @@ class LiveChatController extends Controller
                 try {
                     $text = $chat->thread->events[1]->text;
                 } catch (\Exception $e) {
-                    LiveChatEventLog::create(['customer_id'=>0, 'thread'=>$chatId, 'event_type'=>"incoming_chat", 'log'=>"incoming chat ".$e]);
+                    LiveChatEventLog::create(['customer_id'=>0, 'thread'=>$chatId, 'event_type'=>"incoming_chat", 'log'=>"incoming chat error ".$e." <br>data ".json_encode($chat->thread->events)]);
                     $text = 'Error';    
                 }
 
