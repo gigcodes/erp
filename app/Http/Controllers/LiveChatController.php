@@ -47,6 +47,12 @@ class LiveChatController extends Controller
 		$eventType = "";
 		$threadId = "";
 		$customerId = 0;
+		if(isset($receivedJson->payload->chat)) {
+			$chat = $receivedJson->payload->chat;
+            $threadId = $chat->id;
+		} else if(isset($receivedJson->payload->chat_id)) {
+			$threadId = $receivedJson->payload->chat_id;
+		}
 		LiveChatEventLog::create(['customer_id'=>0, 'thread'=>$threadId, 'event_type'=>'', 'log'=> json_encode($receivedJson)]);      
          
         if (isset($receivedJson->event_type)) {
