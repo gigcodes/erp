@@ -573,6 +573,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('settings/update', 'SettingController@update');
     Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');
     Route::resource('settings', 'SettingController');
+	
+	Route::get('conversion/rates', 'ConversionRateController@index');
+	Route::post('conversion/rate/update', 'ConversionRateController@update');
 
     Route::get('category/child-categories', 'CategoryController@childCategory')->name('category.child-category');
     Route::get('category/edit-category', 'CategoryController@childEditCategory')->name('category.child-edit-category');
