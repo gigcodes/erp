@@ -81,6 +81,25 @@ class MessageQueueController extends Controller
 
     }
 
+    /**
+     * This funcrtion is use for delete records
+     * @param Request $request
+     * 
+     * @return JsonResponse
+     */
+    public function deleteMessageQueue(Request $request) {
+        try {
+            $idArr = explode(",",$request->ids);
+            $chatMess = ChatMessage::whereIn("id", $idArr)->delete();
+            if($chatMess!=0) {
+                return response()->json(['code' => 200, 'message' => 'Successfully Deleted']);   
+            }
+            return response()->json(['code' => 500, 'message' => "Please select any record"]);   
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);   
+        }
+    }
+
 
     public function message_counter()
     {

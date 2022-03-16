@@ -11,6 +11,7 @@ use App\Complaint;
 use App\CreditHistory;
 use App\CreditLog;
 use App\Customer;
+use App\CustomerPriorityPoint;
 use App\CustomerAddressData;
 use App\Email;
 use App\EmailAddress;
@@ -3124,5 +3125,73 @@ class CustomerController extends Controller
         }
 
     }
+
+    /**
+     * This function is use for get all proirity data
+     *
+     * @param Request $request
+     * @param [int] $id
+     * @return Jsonresponse
+     */
+    public function customerPriorityPoints(Request $request) 
+    {
+        $custPriority = CustomerPriorityPoint::leftjoin('store_websites', 'store_websites.id', 'customer_priority_points.store_website_id')->get(
+        ['customer_priority_points.store_website_id',
+        'customer_priority_points.website_base_priority',
+        'customer_priority_points.lead_points',
+        'customer_priority_points.order_points',
+        'customer_priority_points.refund_points',
+        'customer_priority_points.ticket_points',
+        'customer_priority_points.return_points',
+        'store_websites.website']);
+        
+        $storeWebsite = StoreWebsite::all();
+        
+        return view('customers.customer_priority_point', compact('storeWebsite', 'custPriority'));
+    }
+
+    /**
+     * This function is use for get proirity data
+     *
+     * @param [int] $id
+     * @return Jsonresponse
+     */
+    public function getCustomerPriorityPoints($webSiteId) 
+    {
+        try {
+            $custPriority = CustomerPriorityPoint::where('store_website_id', $webSiteId)->get();
+            if ($custPriority) {
+               return response()->json(["code" => 200 ,"data" => compact('custPriority') , "message" => "Priority listed successfully"]);
+            }
+            return response()->json(["code" => 500 ,"data" => [] , "message" => "Sorry there is no Website exist"]);
+        } catch (\Exception $exception) {
+            return response()->json(["code" => 500 ,"data" => [] , "message" => $exception->getMessage()]);
+        }
+    }
+
+    /**
+     * This function is use for save proirity data
+     *
+     * @param Request $request
+     * @return Jsonresponse
+     */
+    public function addCustomerPriorityPoints(Request $request) 
+    {
+        $custPri = CustomerPriorityPoint::updateOrCreate([
+            'store_website_id'   => $request->get('store_website_id'),
+        ],
+        [
+            'website_base_priority' => $request->get('website_base_priority'),
+            'store_website_id'      => $request->get('store_website_id'),
+            'lead_points'           => $request->get('lead_points'),
+            'refund_points'         => $request->get('refund_points'),
+            'order_points'          => $request->get("order_points"),
+            'ticket_points'         => $request->get('ticket_points'),
+            'return_points'         => $request->get('return_points'),
+        ]);
+
+        return response()->json(['message' => "Record added successfully", 'code' => 200, 'data' => $custPri, 'status' => 'success']);
+    }
+
 
 }

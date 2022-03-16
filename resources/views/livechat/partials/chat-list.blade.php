@@ -31,6 +31,7 @@ $srno=1;
                                         </span>
             </td>
             <td><?php echo $customer->phone;?></td>
+
             @php
                 $path = storage_path('/');
                 $content = File::get($path."languages.json");
@@ -38,19 +39,24 @@ $srno=1;
                 $lang='';
             @endphp
             <td>
+
                 <div class="selectedValue">
                     <select id="autoTranslate" style="width: 100% !important" class="form-control auto-translate">
                         <option value="">Translation Language</option>
                         @foreach ($language as $key => $value)
+
                             @if($value==$customer->language)
                                 @php $lang=$key; @endphp
                             @endif
+
                             <option value="{{$value}}">{{$key}}</option>
                         @endforeach
                     </select>
                 </div>
             </td>
+
             <td>{{$lang??''}}</td>
+
             <td class="cls_remove ">
                 @php
                     $chat_last_message=\App\ChatMessage::where('customer_id', $chatId->customer_id)->where('message_application_id', 2)->orderBy("id", "desc")->first();
@@ -76,6 +82,7 @@ $srno=1;
                         </div>
                     </div>
                 </div>
+
                 {{--                <div onclick="getLiveChats('{{ $customer->id }}')" class="card-body msg_card_body" style="display: none;" id="live-message-recieve">--}}
                 {{--                    @if(isset($message) && !empty($message))--}}
                 {{--                        @foreach($message as $msg)--}}
@@ -83,6 +90,7 @@ $srno=1;
                 {{--                        @endforeach--}}
                 {{--                    @endif--}}
                 {{--                </div>--}}
+
             </td>
             <td class="chat-div">
 
@@ -141,7 +149,9 @@ $srno=1;
                     <a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="Chat Logs" onclick="openChatLogs(<?php echo $chatId->id;?>)" >
                         <i class="fa fa-info-circle" aria-hidden="true"></i>
                     </a>
-                    <a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="Chat Logs Event" onclick="openChatEventLogs('<?php echo $chatId->thread;?>')" >
+
+					<a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="Chat Logs Event" onclick="openChatEventLogs('<?php echo $chatId->thread;?>')" >
+
                         <i class="fa fa-history" aria-hidden="true"></i>
                     </a>
                     <button type="button" class="btn btn-image send-coupon p-1" data-toggle="modal" data-id="{{ $chatId->id }}" data-customerid="{{ $customer->id }}" ><i class="fa fa-envelope"></i></button>
