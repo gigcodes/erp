@@ -1725,6 +1725,9 @@ if (!empty($notifications)) {
                                                         <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{url('conversion/rates')}}">Currency Conversion Rate</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{url('magento-admin-settings')}}">Magento Admin Settings</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
@@ -1769,6 +1772,12 @@ if (!empty($notifications)) {
 
                                                         <li class="nav-item dropdown">
                                                             <a class="dropdown-item" href="{{route('chatbot.type.error.log')}}">Twilio Chat Bot Not Recognised</a>
+                                                        </li>
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('twilio.call.blocks')}}">Twilio Call Blocks</a>
+                                                        </li>
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('twilio.call.statistic')}}">Twilio Call Statistic</a>
                                                         </li>
                                                     </ul>
                                                 </li>
