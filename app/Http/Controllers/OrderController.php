@@ -41,6 +41,7 @@ use App\OrderReport;
 use App\OrderStatus;
 use App\OrderStatus as OrderStatuses;
 use App\OrderStatusHistory;
+use App\OrderErrorLog;
 use App\Product;
 use App\Refund;
 use App\Reply;
@@ -4228,7 +4229,33 @@ class OrderController extends Controller
 
     }
 
-    public function paymentHistory(request $request)
+    /**
+     * This function is use for create Order log
+     * @param type [array] inputArray 
+     * @param Request $request Request
+     * 
+     *  @return void;
+     */
+    public function createOrderLog(Request $request, $logType = "", $log = "")  
+    {
+        try {
+            OrderErrorLog::create([
+                'order_id' => $request->order_id ?? '',
+                'event_type' => $logType,
+                'log'=> $log,
+                    ]);  
+         } catch(\Exception $e) {
+            OrderErrorLog::create(['order_id' => $request->order_id ?? '', 'log'=> $e->getMessage(),'event_type'=> $logType]);
+        }
+    } 
+
+    /**
+     * This function is use for Payment History
+     * @param Request $request Request
+     * 
+     *  @return JsonReponse;
+     */
+    public function paymentHistory(Request $request)
     {
         $order_id = $request->input('order_id');
         $html = '';
@@ -4252,37 +4279,61 @@ class OrderController extends Controller
             return response()->json(['html' => $html, 'success' => true], 200);
         } else {
             $html .= '<tr>';
-            $html .= '<td></td>';
-            $html .= '<td></td>';
-            $html .= '<td></td>';
-            $html .= '<td></td>';
+            $html .= '<td colspan="4">No Record found</td>';
             $html .= '</tr>';
+            $this->createOrderLog($request, "Payment History", "No Record found");
         }
         return response()->json(['html' => $html, 'success' => true], 200);
 
     }
-    
+
+    /**
+     * This function is use for cancel Transaction
+     * @param Request $request Request
+     * 
+     *  @return JsonReponse;
+     */
     public function cancelTransaction(Request $request) 
     {
         $order_id = $request->get('order_id');
         $order = \App\Order::where("id", $order_id)->first();
-        
-
         $storeWebsiteOrder = StoreWebsiteOrder::where('order_id', $order_id)->first();
         //print_r($storeWebsiteOrder);
-            if ($storeWebsiteOrder) {
-                $website = StoreWebsite::find($storeWebsiteOrder->website_id);
-               
-                if ($website) {
-                    
-                            $magentoHelper = new MagentoHelperv2;
-                            $result = $magentoHelper->cancelTransaction($order, $website);
-                            
-                            return response()->json(['message' => $result, 'success' => true], 200);
-                       
-                }
-                //$storeWebsiteOrder->update(['order_id', $status]);
+        if ($storeWebsiteOrder) {
+            $website = StoreWebsite::find($storeWebsiteOrder->website_id);
+            
+            if ($website) {
+                $magentoHelper = new MagentoHelperv2;
+                $result = $magentoHelper->cancelTransaction($order, $website);
+                $this->createOrderLog($request, "Cancel Transaction from Magento request", $result);
+                return response()->json(['message' => $result, 'success' => true], 200);
             }
+            //$storeWebsiteOrder->update(['order_id', $status]);
+        } else {
+            $this->createOrderLog($request, "Cancel Transaction" , "Store Website Orders not found");
+            return response()->json(['message' => "Store Website Orders not found", "order_id" => $order_id, 'success' => false], 500);
+        }
+    }
+
+    /**
+     * This function is use for List Order log
+     * @param Request $request Request
+     * 
+     *  @return JsonReponse;
+     */
+    public function getOrderErrorLog(Request $request)
+    {
+        try {
+            $orderError = OrderErrorLog::where('order_id', $request->order_id)->get();
+            
+            if(count($orderError) > 0)
+                return response()->json(["code" => 200, "data" => $orderError]);
+            else 
+                return response()->json(["code" => 500, "message" => "Could not find any data"]);
+        } catch(\Exception $e) {
+            $orderError = OrderErrorLog::where('order_id', $request->order_id)->get();
+            return response()->json(["code" => 500, "message" => $e->getMessage()]);
+        }
     }
 
     public function syncTransaction(Request $request) 
@@ -4298,7 +4349,7 @@ class OrderController extends Controller
             $message = "Transaction id updated successfully";
             $success=true;
         }
-        
+        $this->createOrderLog($request, "Sync Transaction" , $message);
         return response()->json(['message' => $message, 'success' => $success], 200);
 
     }

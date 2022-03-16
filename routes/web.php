@@ -849,6 +849,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/view-est-delivery-date-history', 'OrderController@viewEstDelDateHistory')->name('order.viewEstDelDateHistory');
     Route::post('order/addNewReply', 'OrderController@addNewReply')->name('order.addNewReply');
     Route::post('order/get-customer-address', 'OrderController@getCustomerAddress')->name('order.customer.address');
+    Route::post('order/get-error-logs', 'OrderController@getOrderErrorLog')->name('order.customer.address');
     Route::get('order/charity-order', 'OrderController@charity_order');
     Route::post('order/cancel-transaction', 'OrderController@cancelTransaction')->name('order.canceltransaction');
     
