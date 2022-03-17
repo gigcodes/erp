@@ -7,8 +7,8 @@
     @endphp
     @foreach($categories as $key => $category)
         <?php
-    $site = $category->getDevelopment($category->id, isset($website) ? $website->id : $category->website_id, $category->site_development_id);//
-
+    //$site = $category->getDevelopment($category->id, isset($website) ? $website->id : $category->website_id, $category->site_development_id);//
+    $site = $category->getDevelopment($category->id,  $category->website_id, $category->site_development_id);//
     if ($isAdmin || $hasSiteDevelopment || ($site && $site->developer_id == $userId)) {
     ?>
 
@@ -99,9 +99,9 @@
                               if ($website) {
                                   $MsgPreview = $website->website;
                               }
-                              if ($site) {
+                              if ($site) { 
                                   $MsgPreview = $MsgPreview . ' ' . $site->title;
-                              }
+                              } 
                               ?>
 							  <input type="text" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
                                  <div class="d-flex p-0">

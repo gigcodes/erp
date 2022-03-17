@@ -43,23 +43,29 @@ class SiteDevelopmentController extends Controller
 		$selectedWebsites = [];
 		if(isset($input['websites']) and $input['websites'] !=null){
 			$selectedWebsites = $input['websites'];
+			if(in_array('all', $selectedWebsites)){
+				$id="all";
+			}
 		}
 
         if($id!='all') {
 			$website = StoreWebsite::find($id);
             if(is_array($selectedWebsites) and count($selectedWebsites) >0 ) {
-				$categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id' , 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` IN (' . implode(',', $selectedWebsites) . ') ORDER BY created_at DESC limit 1) as site_development_id'),'store_websites.website');
+				//$categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id' , 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` IN (' . implode(',', $selectedWebsites) . ') ORDER BY created_at DESC limit 1) as site_development_id'),'store_websites.website');
+			    $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
+                $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_dev.website_id', 'site_dev.site_development_id','store_websites.website')
+				->joinSub($site_dev, 'site_dev', function ($join)
+				{
+					$join->on('site_development_categories.id', '=', 'site_dev.site_development_category_id');
+				})->whereIn('site_developments.website_id', $selectedWebsites); 
 			} else{
 			     $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id' , 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC limit 1) as site_development_id'),'store_websites.website');
             }
 		} else {
-			    // $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id' , 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC limit 1) as site_development_id'),'store_websites.website');
-       
-//            $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id ORDER BY created_at DESC limit 1) as site_development_id'));
-        $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
+			   $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
             //->GroupBy(DB::raw('site_developments.website_id, site_developments.site_development_category_id'));
 
-        $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_dev.website_id', 'site_dev.site_development_id','store_websites.website')
+           $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_dev.website_id', 'site_dev.site_development_id','store_websites.website')
             ->joinSub($site_dev, 'site_dev', function ($join)
             {
                 $join->on('site_development_categories.id', '=', 'site_dev.site_development_category_id');
@@ -90,7 +96,7 @@ class SiteDevelopmentController extends Controller
         if($id!='all') {
 			if(is_array($selectedWebsites) and count($selectedWebsites) >0 ) {
                 $categories->join('site_developments', function ($q) use ($selectedWebsites) {
-                    $q->on('site_developments.site_development_category_id', '=', 'site_development_categories.id')
+                    $q->on('site_developments.id', '=', 'site_dev.site_development_id')
                     ->whereIn('site_developments.website_id', $selectedWebsites);
                 });
 			} else {
