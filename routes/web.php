@@ -573,6 +573,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('settings/update', 'SettingController@update');
     Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');
     Route::resource('settings', 'SettingController');
+	
+	Route::get('conversion/rates', 'ConversionRateController@index');
+	Route::post('conversion/rate/update', 'ConversionRateController@update');
 
     Route::get('category/child-categories', 'CategoryController@childCategory')->name('category.child-category');
     Route::get('category/edit-category', 'CategoryController@childEditCategory')->name('category.child-edit-category');
@@ -3285,6 +3288,10 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('twilio/call-management', 'TwilioController@callManagement')->name('twilio-call-management');
     Route::get('twilio/speech-to-text-logs', 'TwilioController@speechToTextLogs')->name('twilio-speech-to-text-logs');
+    Route::get('twilio/call-blocks', 'TwilioController@callBlocks')->name('twilio.call.blocks');
+    Route::get('twilio/call-block-delete', 'TwilioController@deleteCallBlocks')->name('twilio.call.block.delete');
+    Route::get('twilio/call-statistic', 'TwilioController@callStatistic')->name('twilio.call.statistic');
+    Route::get('twilio/call-statistic-delete', 'TwilioController@deleteCallStatistic')->name('twilio.call.statistic.delete');
     Route::get('twilio/incoming-calls/{number_sid}/{number}', 'TwilioController@getIncomingList')->name('twilio-incoming-calls');
     Route::get('twilio/incoming-calls-recording/{call_sid}', 'TwilioController@incomingCallRecording')->name('twilio-incoming-call-recording');
 
