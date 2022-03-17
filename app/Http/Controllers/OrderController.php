@@ -2876,15 +2876,24 @@ class OrderController extends Controller
                              */
                             $response=$result->getData();
                             if(isset($response) && isset($response->status) && $response->status==false){
-                                return response()->json(['Sucess' => false, 'error' => $response->error]);
+                                return response()->json($response->error,400);
                             }
+                        }else{
+                        return response()->json('Store MasterStatus Not Present',400);
                         }
+                    }else{
+                        return response()->json('Store Order Status Not Present',400);
                     }
+                }else{
+                    return response()->json('Website Order Not Present',400);
                 }
                 $storeWebsiteOrder->update(['order_id', $status]);
+            }else{
+
+                return response()->json('Store Website Order Not Present',400);
             }
         }
-        return response()->json('Sucess', 200);
+        return response()->json('Success', 200);
 
     }
 

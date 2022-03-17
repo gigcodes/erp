@@ -1074,8 +1074,8 @@
             }).done( function(response) {
               $("#update-status-message-tpl").modal("hide");
             }).fail(function(errObj) {
-              alert("Could not change status");
-            });
+              toastr['error'](errObj.responseText);
+           });
           }
           
       });
