@@ -154,5 +154,8 @@ class Scraper extends Model
     {
         return  $this->hasMany(ScraperDuration::class, 'scraper_id', 'id');
     }
+    public function latestScrapperProcess() {
 
+        return $this->hasOne(ScraperProcess::class,'scraper_id')->orderBY('id','DESC')->limit(1);
+    }
 }

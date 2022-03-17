@@ -52,7 +52,8 @@ class Customer extends Model
         'store_name',
         'language',
         'newsletter',
-        'platform_id'
+        'platform_id',
+        'priority'
     ];
 
     protected $casts = [
