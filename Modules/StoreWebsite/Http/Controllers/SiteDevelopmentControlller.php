@@ -23,6 +23,7 @@ use Illuminate\Routing\Controller;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\TaskCategory;
 use App\StoreWebsiteImage;
+use App\SiteDevelopmentLog;
 
 use App\Http\Controllers\TaskModuleController;
 
@@ -111,7 +112,7 @@ class SiteDevelopmentController extends Controller
            
         }
         if($id!='all') {
-			$categories->groupBy('site_development_categories.id');
+			//$categories->groupBy('site_development_categories.id');
         }else{
 			//$categories->groupBy('site_developments.website_id', 'site_development_categories.id');
 		}
