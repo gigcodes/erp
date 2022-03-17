@@ -49,8 +49,8 @@ class SiteDevelopmentController extends Controller
 			    // $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id' , 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC limit 1) as site_development_id'),'store_websites.website');
        
 //            $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id ORDER BY created_at DESC limit 1) as site_development_id'));
-        $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'))
-            ->GroupBy(DB::raw('site_developments.website_id, site_developments.site_development_category_id'));
+        $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
+            //->GroupBy(DB::raw('site_developments.website_id, site_developments.site_development_category_id'));
 
         $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_dev.website_id', 'site_dev.site_development_id','store_websites.website')
             ->joinSub($site_dev, 'site_dev', function ($join)
@@ -64,7 +64,7 @@ class SiteDevelopmentController extends Controller
             $categories = $categories->where("site_development_categories.title", "like", $request->k );
         }
         if($id!='all') { 
-            $ignoredCategory = \App\SiteDevelopmentHiddenCategory::where("store_website_id", $id)->pluck("category_id")->toArray();
+		    $ignoredCategory = \App\SiteDevelopmentHiddenCategory::where("store_website_id", $id)->pluck("category_id")->toArray();
          } else {
             $ignoredCategory = \App\SiteDevelopmentHiddenCategory::all()->pluck("category_id")->toArray();
          }
@@ -112,7 +112,7 @@ class SiteDevelopmentController extends Controller
            
         }
         if($id!='all') {
-			//$categories->groupBy('site_development_categories.id');
+			$categories->groupBy('site_development_categories.id');
         }else{
 			//$categories->groupBy('site_developments.website_id', 'site_development_categories.id');
 		}
@@ -191,7 +191,7 @@ class SiteDevelopmentController extends Controller
         } else {
             $statusCount = \App\SiteDevelopment::join("site_development_statuses as sds", "sds.id", "site_developments.status")
             ->where("site_developments.status", $request->status)
-            ->groupBy("sds.id")
+            //->groupBy("sds.id")
             ->select(["sds.name", \DB::raw("count(sds.id) as total")])
             ->orderBy("name", "desc")
             ->get();
