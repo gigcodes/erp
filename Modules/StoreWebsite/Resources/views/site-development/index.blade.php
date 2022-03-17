@@ -7,6 +7,13 @@
 <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
 <style type="text/css">
+    .select2-search__field {
+		width:200px !important;
+	} 
+	
+	.select2-selection__rendered {
+		width:130px !important;
+	}
 	.preview-category input.form-control {
 		width: auto;
 	}
@@ -158,26 +165,31 @@
 						</form>
 
 						<form class="form-inline handle-search" style="display:inline-block;">
-							<div class="form-group" style="margin-right:10px;">
+							<div class="form-group " style="margin-right:10px;">
 								<?php /* <label for="keyword">Search keyword:</label> */?>
 								<?php //echo Form::text("k", request("k"), ["class" => "form-control", "placeholder" => "Search keyword", "id" => "enter-keyword"]) ?>
 
-								<select class="form-control globalSelect2" name="k" id="k">
-									<option selected value=''>Please Select</option>
+								<select class="form-control globalSelect2" name="k[]" id="k" multiple>
+									<!-- <option @if(request()->k == null)selected @endif value=''>Please Select</option>-->
 									 @foreach($filter_category as $key => $all_cat)
-									 @if(request()->k == $all_cat)
-										<option selected value="{{$all_cat}}">{{$all_cat}}</option>
-									 @else
-										<option  value="{{$all_cat}}">{{$all_cat}}</option>
-									 @endif
+										 @if(isset(request()->k) and in_array($all_cat, request()->k))
+											<option selected value="{{$all_cat}}">{{$all_cat}}</option>
+										 @else
+											<option  value="{{$all_cat}}">{{$all_cat}}</option>
+										 @endif
 
 									@endforeach
 								</select>
 							</div>
-							<div class="form-group">
+							<div class="form-group ">
 								<?php /* <label for="status">Status:</label> */?>
-								<?php echo Form::select("status", ["" => "All Status"] + $allStatus, request("status"), ["class" => "form-control globalSelect2", "id" => "enter-status"]) ?>
+								<?php echo Form::select("status", ["" => "All Status"] + $allStatus, request("status"), ["class" => "form-control globalSelect2", "id" => "enter-status", "style"=>'width:150px !important;']) ?>
 							</div>
+							<div class="form-group" style="display:inline-block;width:300px">
+								<?php /* <label for="status">Status:</label> */?>
+								<?php echo Form::select("websites[]", ["all" => "All Website"] + $store_websites, isset(request()->websites) ? request()->websites: $website->id , ["class" => "form-control globalSelect2", 'multiple', "id" => "change_website1"]) ?>
+							</div>
+							
 							<div class="form-group">
 								<?php /* <label for="button">&nbsp;</label> */?>
 								<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
@@ -186,10 +198,7 @@
 							</div>
 						</form>
 
-							<div class="form-group" style="display:inline-block;width:300px">
-								<?php /* <label for="status">Status:</label> */?>
-								<?php echo Form::select("select_website", ["all" => "All Website"] + $store_websites, isset($website->id) ? $website->id: 'all' , ["class" => "form-control globalSelect2", "id" => "change_website"]) ?>
-							</div>
+							
 
 								<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
 
