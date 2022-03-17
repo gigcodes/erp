@@ -12,7 +12,7 @@
 	} 
 	
 	.select2-selection__rendered {
-		width:130px !important;
+		width:200px !important;
 	}
 	.preview-category input.form-control {
 		width: auto;
