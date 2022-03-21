@@ -79,9 +79,7 @@
     <br>
 	<div class="col-lg-12 margin-tb">
 		<div class="row">
-			<div class="col-md-6">
-				<button type="button" class="btn btn-secondary download_asset_data">Download</button>
-			</div>
+			
 			<div class="col-md-6 pull-right">
 				<form>
 					<div class="col-md-4">
@@ -127,8 +125,7 @@
 			<table class="table table-bordered" id="documents-table">
 				<thead>
 					<tr>
-						<th><input type="checkbox" id="checkAll" title="click here to select all" /></th>
-						<th width="10%">Categories</th>
+						<th width="15%">Categories</th>
 						@foreach($store_websites as $sw) 
 							<th>{{ $sw->title }}</th>
 						@endforeach

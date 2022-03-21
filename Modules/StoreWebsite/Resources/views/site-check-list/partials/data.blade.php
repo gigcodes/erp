@@ -2,9 +2,6 @@
 	@foreach($site_development_categories as $key1=>$sdc)
     <tr>
         <td>
-            <input  type="checkbox" class="checkboxClass" name="selectcheck" value='{{ $sdc->id }}'>
-        </td>
-        <td>
         {{ $sdc->title }} 
         </td>
          @foreach($store_websites as $key2=>$sw) 
