@@ -817,7 +817,8 @@ class TaskModuleController extends Controller
 
         if (auth()->user()->isAdmin()) {
             $issues = $issues->where(function ($q) use ($selected_issue, $user_id) {
-                if(count($selected_issue) != 0){
+
+                if( (count($selected_issue) != 0 && count($selected_issue) != 1) ){
                     $q->whereIn('tasks.id', $selected_issue);
                 }
                 
