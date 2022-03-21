@@ -646,7 +646,6 @@ class TaskModuleController extends Controller
                 return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses'));
             }
         }
-
         if ($request->is_statutory_query == 3) {
             return view('task-module.discussion-tasks', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses'));
         } else {
@@ -810,7 +809,6 @@ class TaskModuleController extends Controller
     {
         $user_id = $request->get('user_id', 0);
         $selected_issue = $request->get('selected_issue', []);
-
         $issues = Task::select('tasks.*')
                         ->leftJoin('erp_priorities', function ($query) {
                             $query->on('erp_priorities.model_id', '=', 'tasks.id');
@@ -819,13 +817,16 @@ class TaskModuleController extends Controller
 
         if (auth()->user()->isAdmin()) {
             $issues = $issues->where(function ($q) use ($selected_issue, $user_id) {
+                if(count($selected_issue) != 0){
+                    $q->whereIn('tasks.id', $selected_issue);
+                }
+                
                 $user_id = is_null($user_id) ? 0 : $user_id;
+
                 if($user_id!=0){
                     $q->where('tasks.assign_to', $user_id)->orWhere("tasks.master_user_id", $user_id);
                 }
-             ///   $q->whereIn('tasks.id', $selected_issue)->orWhere("erp_priorities.user_id", $user_id);
-                $q->whereIn('tasks.id', $selected_issue);
-                
+             
             });
         } else {
             $issues = $issues->whereNotNull('erp_priorities.id');
@@ -850,9 +851,11 @@ class TaskModuleController extends Controller
 
     public function setTaskPriority(Request $request)
     {
+        //dd($request->get);
      //   dd($request->all());
         $priority = $request->get('priority', null);
         $user_id = $request->get('user_id', 0);
+
         //get all user task
         //$developerTask = Task::where('assign_to', $user_id)->pluck('id')->toArray();
         
@@ -882,30 +885,36 @@ class TaskModuleController extends Controller
             $message = "";
             $i = 1;
             
-            foreach ($developerTask as $value) {
-                $message .= $i ." : #Task-" . $value->id . "-" . $value->task_subject."\n";
-                $i++;
-            }
-
-            if (!empty($message)) {
-                $requestData = new Request();
-                $requestData->setMethod('POST');
-                $params = [];
-                $params['user_id'] = $user_id;
-
-                $string = "";
-
-                if (!empty($request->get('global_remarkes', null))) {
-                    $string .= $request->get('global_remarkes')."\n";
+            if($user_id == 0){
+                //get user id from task
+                
+            }else{
+                foreach ($developerTask as $value) {
+                    $message .= $i ." : #Task-" . $value->id . "-" . $value->task_subject."\n";
+                    $i++;
                 }
 
-                $string .= "Task Priority is : \n".$message;
+                if (!empty($message)) {
+                    $requestData = new Request();
+                    $requestData->setMethod('POST');
+                    $params = [];
+                    $params['user_id'] = $user_id;
 
-                $params['message'] = $string;
-                $params['status'] = 2;
-                $requestData->request->add($params);
-                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+                    $string = "";
+
+                    if (!empty($request->get('global_remarkes', null))) {
+                        $string .= $request->get('global_remarkes')."\n";
+                    }
+
+                    $string .= "Task Priority is : \n".$message;
+
+                    $params['message'] = $string;
+                    $params['status'] = 2;
+                    $requestData->request->add($params);
+                    app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+                }  
             }
+            
         }
         return response()->json([
             'status' => 'success'
