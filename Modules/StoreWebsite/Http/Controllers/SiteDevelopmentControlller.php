@@ -1035,11 +1035,35 @@ class SiteDevelopmentController extends Controller
         
     }
 
+    public function checkSiteList(Request $request)
+    {
+        $checkSite = SiteDevelopment::find($request->siteDevelopmentId);
+        if(!empty($checkSite)){
+            return response()->json(["code" => 200, "status" => $checkSite->is_site_list]);
+        }else{
+            return response()->json(["code" => 404, "status" => 'Data Not Found']);
+        }
+        
+    }
+
     public function setSiteAsset(Request $request)
     {
         $checkSite = SiteDevelopment::find($request->siteDevelopmentId);
         if(!empty($checkSite)){
             $checkSite->is_site_asset = $request->status;
+            $checkSite->save();
+            return response()->json(["code" => 200, "status" => "Data Updated Successully"]);
+        }else{
+            return response()->json(["code" => 404, "status" => 'Site Development Data Not Found']);
+        }
+        
+    }
+	
+	 public function setSiteList(Request $request)
+    {
+        $checkSite = SiteDevelopment::find($request->siteDevelopmentId);
+        if(!empty($checkSite)){
+            $checkSite->is_site_list = $request->status;
             $checkSite->save();
             return response()->json(["code" => 200, "status" => "Data Updated Successully"]);
         }else{

@@ -19,10 +19,12 @@
             <td>
                 @include("storewebsite::site-development.partials.edit-modal")
                 @include("storewebsite::site-development.partials.site-asset-modal")
+                @include("storewebsite::site-development.partials.site-check-modal")
                 {{ $category->title }}
 
+                <div style="display: flex; float: right">  <button onclick="checkList({{$category->id}}, {{ $category->site_development_id }})" style="background-color: transparent;border: 0; margin-top:0px;" class="p-2" title="Set this category in site assets for this website"><i class="fa fa-plus"></i></button></div>
                 <div style="display: flex; float: right">  <button onclick="checkAsset({{$category->id}}, {{ $category->site_development_id }})" style="background-color: transparent;border: 0; margin-top:0px;" class="p-2" title="Set this category in site assets for this website"><i class="fa fa-info-circle"></i></button></div>
-              <div style="display: flex;float: right">  <button onclick="editCategory({{$category->id}})" style="background-color: transparent;border: 0;margin-top:0px;" class="pl-0"><i class="fa fa-edit"></i></button>
+                <div style="display: flex;float: right">  <button onclick="editCategory({{$category->id}})" style="background-color: transparent;border: 0;margin-top:0px;" class="pl-0"><i class="fa fa-edit"></i></button>
 
 
                 <!-- <input class="fa-ignore-category" type="checkbox" data-onstyle="secondary" data-category-id="{{$category->id}}" data-site-id="@if($website) {{ $website->id }} @endif" <?php echo (request('status') == 'ignored') ? "checked" : "" ?>

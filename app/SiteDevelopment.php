@@ -33,7 +33,7 @@ class SiteDevelopment extends Model
      */
     use Mediable;
 
-    protected $fillable = ['site_development_category_id','site_development_master_category_id','status','title','description','developer_id','designer_id','website_id','html_designer','artwork_status','tester_id'];
+    protected $fillable = ['site_development_category_id','site_development_master_category_id','status','title','description','developer_id','designer_id','website_id','html_designer','artwork_status','tester_id', 'is_site_list'];
 
 
     public function category()
