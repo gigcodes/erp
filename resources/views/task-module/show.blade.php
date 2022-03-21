@@ -1466,7 +1466,6 @@ input.cmn-toggle-round + label {
 
         $('#search_by_user').change(function () {
             $("#priority_user_id").select2({tags: true,width: '100%'}).val($(this).val()).trigger('change');
-
         });
 
 
@@ -1662,7 +1661,7 @@ input.cmn-toggle-round + label {
 
             $('.priority_model_btn').click(function () {
                 //$("#priority_user_id").val('0');
-                $("#sel_user_id").val('0');
+                //$("#sel_user_id").val('0');
                 $(".show_task_priority").html('');
                 <?php if (auth()->user()->isAdmin()) { ?>
                 getPriorityTaskList($('#priority_user_id').val());
@@ -1675,7 +1674,8 @@ input.cmn-toggle-round + label {
 
             $('#priority_user_id').change(function () {
                 $("#sel_user_id").val($(this).val());
-                getPriorityTaskList($(this).val())
+                if($('#priority_model').is(':visible')){                  getPriorityTaskList($(this).val())
+                }
             });
 
             $(document).on('submit', '#priorityForm', function (e) {
