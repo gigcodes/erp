@@ -50,7 +50,7 @@
                     </label>
                 </form>
             </td>
-            <td>{{$category->website}}</td>
+            <td width="15%" style="word-break: break-all;">{{$category->website}}</td>
 			<td>
 				{{Form::select('site_development_master_category_id', [''=>'- Select-']+$masterCategories, $category->site_development_master_category_id, array('class'=>'save-item-select globalSelect2','data-category'=>$category->id, 'data-type'=>'site_development_master_category_id', 'data-site'=>$site ? $site->id : '0'))}}
             </td>

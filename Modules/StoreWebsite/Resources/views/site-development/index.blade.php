@@ -244,7 +244,7 @@
 						<tr>
 							<th width="4%">S No</th>
 							<th width="15%"></th>
-							<th width="15%">Website</th>
+							<th width="15%" style="word-break: break-all;">Website</th>
 							<th width="12%">Master Category</th>
 							<th width="12%">Remarks</th>
 							<th width="12%">Assign To</th>

@@ -153,7 +153,7 @@ class SiteDevelopmentController extends Controller
 			}
       
         //main data listing
-        $categories = $categories->paginate(25);
+        $categories = $categories->paginate(20);
 
         //for filtration category
       
