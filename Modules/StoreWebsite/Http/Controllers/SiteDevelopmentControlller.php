@@ -73,7 +73,7 @@ class SiteDevelopmentController extends Controller
         }
         
 
-        if ($request->k != null) {
+        if ($request->k != null and $request->k != "undefined") {
             $categories = $categories->whereIn("site_development_categories.title",  $request->k );
         }
         if($id!='all') { 
