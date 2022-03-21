@@ -886,35 +886,31 @@ class TaskModuleController extends Controller
             $message = "";
             $i = 1;
             
-            if($user_id == 0){
-                //get user id from task
-                
-            }else{
-                foreach ($developerTask as $value) {
-                    $message .= $i ." : #Task-" . $value->id . "-" . $value->task_subject."\n";
-                    $i++;
+            foreach ($developerTask as $value) {
+                $message .= $i ." : #Task-" . $value->id . "-" . $value->task_subject."\n";
+                $i++;
+            }
+
+            if (!empty($message)) {
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $params = [];
+                $params['user_id'] = $user_id;
+
+                $string = "";
+
+                if (!empty($request->get('global_remarkes', null))) {
+                    $string .= $request->get('global_remarkes')."\n";
                 }
 
-                if (!empty($message)) {
-                    $requestData = new Request();
-                    $requestData->setMethod('POST');
-                    $params = [];
-                    $params['user_id'] = $user_id;
+                $string .= "Task Priority is : \n".$message;
 
-                    $string = "";
-
-                    if (!empty($request->get('global_remarkes', null))) {
-                        $string .= $request->get('global_remarkes')."\n";
-                    }
-
-                    $string .= "Task Priority is : \n".$message;
-
-                    $params['message'] = $string;
-                    $params['status'] = 2;
-                    $requestData->request->add($params);
-                    app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
-                }  
-            }
+                $params['message'] = $string;
+                $params['status'] = 2;
+                $requestData->request->add($params);
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+            }  
+            
             
         }
         return response()->json([
