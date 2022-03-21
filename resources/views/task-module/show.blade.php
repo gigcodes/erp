@@ -1469,6 +1469,11 @@ input.cmn-toggle-round + label {
                 tags: true,
                 width: '100%'
         });
+
+        $('#search_by_user').change(function () {
+            //$("#priority_user_id").val($(this).val());
+            //$("#sel_user_id").val($(this).val());
+            $("#priority_user_id").select2({tags: true,width: '100%'}).val($(this).val()).trigger('change');});
         var isLoading = false;
         var page = 1;
         $(document).ready(function () {
@@ -1652,12 +1657,12 @@ input.cmn-toggle-round + label {
             });
 
             $('.priority_model_btn').click(function () {
-                $("#priority_user_id").val('0');
-                $("#sel_user_id").val('0');
                 $(".show_task_priority").html('');
                 <?php if (auth()->user()->isAdmin()) { ?>
                 getPriorityTaskList($('#priority_user_id').val());
                 <?php } else { ?>
+                $("#priority_user_id").val('0');
+                $("#sel_user_id").val('0');
                 getPriorityTaskList('{{auth()->user()->id}}');
                 <?php } ?>
                 $('#priority_model').modal('show');
