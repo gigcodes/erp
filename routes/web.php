@@ -2203,12 +2203,8 @@ Route::middleware('auth')->prefix('social')->group(function() {
     Route::get('{post_id}/comments', 'SocialAccountCommentController@index')->name('social.account.comments');
     Route::post('reply-comments', 'SocialAccountCommentController@replyComments')->name('social.account.comments.reply');
 });
-Route::get('social/inbox', 'SocialWebhookController@inbox')->name('social.direct-message')->middleware('auth');
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
-
-    Route::post('send-message', 'SocialWebhookController@sendMessage')->name('instagram.message.send');
-    Route::post('list-message', 'SocialWebhookController@listMessage')->name('instagram.message.list');
 
     Route::get('auto-comment-history', 'UsersAutoCommentHistoriesController@index');
     Route::get('auto-comment-history/assign', 'UsersAutoCommentHistoriesController@assignPosts');
