@@ -231,6 +231,33 @@
 		</div>
 	</div>
 </div>
+<div id="remark-area-list" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-body">
+				
+				<div class="col-md-12">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th width="5%">No</th>
+								<th width="45%">Remark</th>
+								<th width="25%">BY</th>
+								<th width="25%">Date</th>
+							</tr>
+						</thead>
+						<tbody class="remark-action-list-view">
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div id="download_asset_data_modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
 		<form action='{{ route("site-asset.download") }}' method="POST">
@@ -346,6 +373,49 @@ $(document).on("click", ".create-task", function(e) {
 		toastr['error'](response.responseJSON.message);
 	});
 });
+
+$(document).on("click", ".btn-store-development-remark", function(e) {
+		var id = $(this).data("site-id");
+		var cat_id = $(this).data("site-category-id");
+		var website_id = $(this).data("store-website-id");
+		$.ajax({
+			url: '/site-development/' + id + '/remarks',
+			type: 'GET',
+			data:{cat_id: cat_id, website_id: website_id},
+			headers: {
+				'X-CSRF-TOKEN': "{{ csrf_token() }}"
+			},
+			beforeSend: function() {
+				$("#loading-image").show();
+			}
+		}).done(function(response) {
+			$("#loading-image").hide();
+			toastr["success"]("Remarks fetched successfully");
+
+			var html = "";
+			const shorter = (a,b)=>  a.id>b.id ? -1: 1;
+			response.data.flat().sort(shorter)
+
+			$.each(response.data.flat().sort(shorter), function(k, v) {
+				html += "<tr>";
+				html += "<td>" + v.id + "</td>";
+				html += "<td>" + v.remarks + "</td>";
+				html += "<td>" + v.created_by + "</td>";
+				html += "<td>" + v.created_at + "</td>";
+				html += "</tr>";
+			});
+
+			$("#remark-area-list").find("#remark-field").data("id", id);
+			$("#remark-area-list").find("#remark_cat_id").val(cat_id);
+			$("#remark-area-list").find("#remark_website_id").val(website_id);
+			$("#remark-area-list").find(".remark-action-list-view").html(html);
+			$("#remark-area-list").modal("show").css('z-index',1051);
+			//$this.closest("tr").remove();
+		}).fail(function(jqXHR, ajaxOptions, thrownError) {
+			toastr["error"]("Oops,something went wrong");
+			$("#loading-image").hide();
+		});
+	});
 
 
 $(document).on("click", ".count-dev-customer-tasks", function() {

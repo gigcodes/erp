@@ -39,6 +39,9 @@
                                       </div>
                     </div>
                 </div>
+				 <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $sdc->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-store-development-remark pd-5">
+                    <i class="fa fa-comment" aria-hidden="true"></i>
+                </button>
 							
 							
                             <button title="create quick task" type="button" class="btn btn-image d-inline create-quick-task p-2" data-id="@if($site){{ $site->id }}@endif" data-title="@if($site){{ $websitenamestr.' '.$site->title }} @endif" data-category_id = "{{ $sdc->id }}"><i class="fa fa-plus"></i></button>
