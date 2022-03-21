@@ -1627,6 +1627,9 @@ if (!empty($notifications)) {
 											 <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ url('/site-assets') }}">Site assets</a>
                                             </li>
+											 <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/site-check-list') }}">Site check  list</a>
+                                            </li>
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('list.daily-push-log') }}">Magento Daily Product Push Log</a>
                                             </li>
