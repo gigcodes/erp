@@ -23,6 +23,7 @@ use Illuminate\Routing\Controller;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\TaskCategory;
 use App\StoreWebsiteImage;
+use App\SiteDevelopmentLog;
 
 use App\Http\Controllers\TaskModuleController;
 
@@ -37,15 +38,51 @@ class SiteDevelopmentController extends Controller
         $masterCategories = SiteDevelopmentMasterCategory::pluck('title', 'id')->toArray();
         $designDevCategories = SiteDevelopmentMasterCategory::where('title', 'Design')->orWhere('title', 'Functionality')->pluck('title', 'id')->toArray();
         //Getting Website Details
-        $website = StoreWebsite::find($id);
+//        $website = StoreWebsite::find(1);
+        $website = null;
+		$selectedWebsites = [];
+		if(isset($input['websites']) and $input['websites'] !=null){
+			$selectedWebsites = $input['websites'];
+			if(in_array('all', $selectedWebsites)){
+				$id="all";
+			}
+		}
 
-        $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC limit 1) as site_development_id'));
+        if($id!='all') {
+			$website = StoreWebsite::find($id);
+            if(is_array($selectedWebsites) and count($selectedWebsites) >0 ) {
+				//$categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id' , 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` IN (' . implode(',', $selectedWebsites) . ') ORDER BY created_at DESC limit 1) as site_development_id'),'store_websites.website');
+			    $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
+                $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_dev.website_id', 'site_dev.site_development_id','store_websites.website')
+				->joinSub($site_dev, 'site_dev', function ($join)
+				{
+					$join->on('site_development_categories.id', '=', 'site_dev.site_development_category_id');
+				})->whereIn('site_developments.website_id', $selectedWebsites); 
+			} else{
+			     $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id' , 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC limit 1) as site_development_id'),'store_websites.website');
+            }
+		} else {
+			   $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
+            //->GroupBy(DB::raw('site_developments.website_id, site_developments.site_development_category_id'));
 
-        if ($request->k != null) {
-            $categories = $categories->where("site_development_categories.title", "like", "%" . $request->k . "%");
+           $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_dev.website_id', 'site_dev.site_development_id','store_websites.website')
+            ->joinSub($site_dev, 'site_dev', function ($join)
+            {
+                $join->on('site_development_categories.id', '=', 'site_dev.site_development_category_id');
+            });
         }
+        
 
-        $ignoredCategory = \App\SiteDevelopmentHiddenCategory::where("store_website_id", $id)->pluck("category_id")->toArray();
+        if ($request->k != null and $request->k != "undefined") {
+            $categories = $categories->whereIn("site_development_categories.title",  $request->k );
+        }
+        if($id!='all') { 
+		    $ignoredCategory = \App\SiteDevelopmentHiddenCategory::where("store_website_id", $id)->pluck("category_id")->toArray();
+         } else {
+            $ignoredCategory = \App\SiteDevelopmentHiddenCategory::all()->pluck("category_id")->toArray();
+         }
+
+        
 
         if (request('status') == "ignored") {
             $categories = $categories->whereIn('site_development_categories.id', $ignoredCategory);
@@ -56,30 +93,73 @@ class SiteDevelopmentController extends Controller
         //$categories = $categories->paginate(Setting::get('pagination'));
         // $categories = $categories->paginate(20);
 
-        $categories->join('site_developments', function ($q) use ($id) {
-            $q->on('site_developments.site_development_category_id', '=', 'site_development_categories.id')
-                ->where('site_developments.website_id', $id);
+        if($id!='all') {
+			if(is_array($selectedWebsites) and count($selectedWebsites) >0 ) {
+                $categories->join('site_developments', function ($q) use ($selectedWebsites) {
+                    $q->on('site_developments.id', '=', 'site_dev.site_development_id')
+                    ->whereIn('site_developments.website_id', $selectedWebsites);
+                });
+			} else {
+				$categories->join('site_developments', function ($q) use ($id) {
+                    $q->on('site_developments.site_development_category_id', '=', 'site_development_categories.id')
+                    ->where('site_developments.website_id', $id);
+                });
+			}
+            $categories->join('store_websites', function ($q) {
+                $q->on('store_websites.id', '=', 'site_developments.website_id');
+            });
+        } else {
+			$categories->join('site_developments', function ($q) {
+                    $q->on('site_developments.id', '=', 'site_dev.site_development_id');
+//                    $q->on('site_developments.site_development_category_id', '=', 'site_development_categories.id');
+					//->whereIn('site_developments.website_id', $ids);
+            });
+            $categories->join('store_websites', function ($q) {
+                $q->on('store_websites.id', '=', 'site_dev.website_id');
+            });
+        }
 
-        });
+       
         /* Status filter */
         if ($request->status) {
             //$categories->where('site_developments.status' , $request->status);
-            $categories->havingRaw('(SELECT status from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC limit 1) = ' . $request->status);
-        }
-
-        $categories->groupBy('site_development_categories.id');
-
-        if ($request->order) {
-            if ($request->order == 'title') {
-                $categories->orderBy('site_development_categories.title', 'asc');
-            } else if ($request->order == 'communication') {
-                $categories = $categories->leftJoin('store_development_remarks', 'store_development_remarks.store_development_id', '=', 'site_developments.id');
-                $categories = $categories->orderBy('store_development_remarks.created_at', 'DESC');
+            if($id!='all') {
+				if(is_array($selectedWebsites) and count($selectedWebsites) >0 ) {
+					$categories->havingRaw('(SELECT status from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` IN (' . implode(',',$selectedWebsites) . ') ORDER BY created_at DESC) = ' . $request->status);
+                } else {
+				   $categories->havingRaw('(SELECT status from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC) = ' . $request->status);
+                }
+		   } else {
+                $categories->havingRaw('(SELECT status from site_developments where site_developments.site_development_category_id = site_development_categories.id  ORDER BY created_at DESC limit 1) = ' . $request->status);
             }
-        } else {
-            $categories->orderBy('title', 'asc');
+           
         }
-        $categories = $categories->paginate(10);
+        if($id!='all') {
+			if(!is_array($selectedWebsites) ) {
+			$categories->groupBy('site_development_categories.id');
+			}
+        }else{
+			//$categories->groupBy('site_developments.website_id', 'site_development_categories.id');
+		}
+        if ($request->order) {
+				if ($request->order == 'title') {
+					$categories->orderBy('site_development_categories.title', 'asc');
+				} else if ($request->order == 'communication') {
+					$categories = $categories->leftJoin('store_development_remarks', 'store_development_remarks.store_development_id', '=', 'site_developments.id');
+					$categories = $categories->orderBy('store_development_remarks.created_at', 'DESC');
+				}
+			} else {
+				$categories->orderBy('title', 'asc');
+			}
+      
+        //main data listing
+        $categories = $categories->paginate(20);
+
+        //for filtration category
+      
+
+        //get filter category data
+        $filter_category = SiteDevelopmentCategory::pluck('title')->toArray();
 
         foreach ($categories as $category) {
             $finalArray = [];
@@ -95,6 +175,7 @@ class SiteDevelopmentController extends Controller
             $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
             $othertaskStatistics = $query1->get();
             $merged = $othertaskStatistics->merge($taskStatistics);
+
             foreach ($merged as $m) {
                 /*if($m['task_type'] == 'task' ) {
                 $object = Task::find($m['id']);
@@ -124,14 +205,26 @@ class SiteDevelopmentController extends Controller
         $allStatus = \App\SiteDevelopmentStatus::pluck("name", "id")->toArray();
 
 //dd($allStatus);
-
-        $statusCount = \App\SiteDevelopment::join("site_development_statuses as sds", "sds.id", "site_developments.status")
-            ->where("site_developments.website_id", $id)
-            ->where("site_developments.status", $request->status)
-            ->groupBy("sds.id")
+        if($id !='all') {
+            $statusCount = \App\SiteDevelopment::join("site_development_statuses as sds", "sds.id", "site_developments.status");
+			if(is_array($selectedWebsites) and count($selectedWebsites) >0 ) {
+				$statusCount = $statusCount->whereIn("site_developments.website_id", $selectedWebsites);
+			} else {
+				$statusCount = $statusCount->where("site_developments.website_id", $id)->groupBy("sds.id");
+			}
+            $statusCount = $statusCount->where("site_developments.status", $request->status)
             ->select(["sds.name", \DB::raw("count(sds.id) as total")])
             ->orderBy("name", "desc")
             ->get();
+        } else {
+            $statusCount = \App\SiteDevelopment::join("site_development_statuses as sds", "sds.id", "site_developments.status")
+            ->where("site_developments.status", $request->status)
+            //->groupBy("sds.id")
+            ->select(["sds.name", \DB::raw("count(sds.id) as total")])
+            ->orderBy("name", "desc")
+            ->get();
+        }
+       
 
         $allUsers = User::select('id', 'name')->get();
         $users_all = $allUsers;
@@ -139,12 +232,12 @@ class SiteDevelopmentController extends Controller
         $store_websites = StoreWebsite::pluck("title","id")->toArray();
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
-                'tbody' => view('storewebsite::site-development.partials.data', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites'))->render(),
+                'tbody' => view('storewebsite::site-development.partials.data', compact('input', 'masterCategories', 'categories', 'users', 'website', 'users_all','allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites'))->render(),
                 'links' => (string) $categories->render(),
             ], 200);
         }
 
-        return view('storewebsite::site-development.index', compact('input', 'masterCategories', 'categories', 'users','users_all', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites', 'designDevCategories'));
+        return view('storewebsite::site-development.index', compact('input', 'masterCategories', 'categories', 'users','users_all', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites', 'designDevCategories','filter_category'));
     }
 
     public function SendTask(Request $request)
@@ -1035,11 +1128,32 @@ class SiteDevelopmentController extends Controller
         
     }
 
-    public function setSiteAsset(Request $request)
+    public function checkSiteList(Request $request)
     {
         $checkSite = SiteDevelopment::find($request->siteDevelopmentId);
         if(!empty($checkSite)){
-            $checkSite->is_site_asset = $request->status;
+            return response()->json(["code" => 200, "status" => $checkSite->is_site_list]);
+        }else{
+            return response()->json(["code" => 404, "status" => 'Data Not Found']);
+        }
+        
+    }
+
+    public function setSiteAsset(Request $request)
+    {   
+		$siteDevelopments = SiteDevelopment::where('site_development_category_id', $request->categoryId)->get();
+		foreach($siteDevelopments as $siteDevelopment){
+			$siteDevelopment->is_site_asset = $request->status;
+            $siteDevelopment->save();
+		}
+		return response()->json(["code" => 200, "status" => "Data Updated Successully"]);
+    }
+	
+	 public function setSiteList(Request $request)
+    {
+        $checkSite = SiteDevelopment::find($request->siteDevelopmentId);
+        if(!empty($checkSite)){
+            $checkSite->is_site_list = $request->status;
             $checkSite->save();
             return response()->json(["code" => 200, "status" => "Data Updated Successully"]);
         }else{
