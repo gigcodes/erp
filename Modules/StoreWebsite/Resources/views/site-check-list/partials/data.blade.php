@@ -2,9 +2,6 @@
 	@foreach($site_development_categories as $key1=>$sdc)
     <tr>
         <td>
-            <input  type="checkbox" class="checkboxClass" name="selectcheck" value='{{ $sdc->id }}'>
-        </td>
-        <td>
         {{ $sdc->title }} 
         </td>
          @foreach($store_websites as $key2=>$sw) 
@@ -19,7 +16,7 @@
                     }
                 }
             @endphp
-            <td>@if($check)
+            <td>
                     
                           
                             @php
@@ -42,7 +39,7 @@
 				 <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $sdc->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-store-development-remark pd-5">
                     <i class="fa fa-comment" aria-hidden="true"></i>
                 </button>
-							
+				@if($check)			
 							
                             <button title="create quick task" type="button" class="btn btn-image d-inline create-quick-task p-2" data-id="@if($site){{ $site->id }}@endif" data-title="@if($site){{ $websitenamestr.' '.$site->title }} @endif" data-category_id = "{{ $sdc->id }}"><i class="fa fa-plus"></i></button>
                             <button type="button" class="btn btn-image d-inline count-dev-customer-tasks p-2" title="Show task history" title="Show Task History" data-id="@if($site){{ $site->id }}@endif"><i class="fa fa-info-circle"></i></button>
