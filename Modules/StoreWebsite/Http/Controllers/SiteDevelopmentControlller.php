@@ -1140,16 +1140,13 @@ class SiteDevelopmentController extends Controller
     }
 
     public function setSiteAsset(Request $request)
-    {
-        $checkSite = SiteDevelopment::find($request->siteDevelopmentId);
-        if(!empty($checkSite)){
-            $checkSite->is_site_asset = $request->status;
-            $checkSite->save();
-            return response()->json(["code" => 200, "status" => "Data Updated Successully"]);
-        }else{
-            return response()->json(["code" => 404, "status" => 'Site Development Data Not Found']);
-        }
-        
+    {   
+		$siteDevelopments = SiteDevelopment::where('site_development_category_id', $request->categoryId)->get();
+		foreach($siteDevelopments as $siteDevelopment){
+			$siteDevelopment->is_site_asset = $request->status;
+            $siteDevelopment->save();
+		}
+		return response()->json(["code" => 200, "status" => "Data Updated Successully"]);
     }
 	
 	 public function setSiteList(Request $request)
