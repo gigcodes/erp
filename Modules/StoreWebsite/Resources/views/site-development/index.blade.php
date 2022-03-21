@@ -7,6 +7,13 @@
 <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
 <style type="text/css">
+    .select2-search__field {
+		width:200px !important;
+	} 
+	
+	.select2-selection__rendered {
+		width:200px !important;
+	}
 	.preview-category input.form-control {
 		width: auto;
 	}
@@ -71,11 +78,13 @@
 <div id="myDiv">
 	<img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
 </div>
+
 <input type='hidden' id='site-development-category-id'  />
+
 <div class="row" id="common-page-layout" style="overflow: hidden">
 	<div class="col-lg-12 margin-tb p-0">
-		<input type="hidden" name="website_id_data" id="website_id_data" value="{{$website->id}}" />
-		<h2 class="page-heading">Site Development   @if($website) {{ '- ( ' .$website->website.' )' }} @endif <span class="count-text"></span>
+		<input type="hidden" name="website_id_data" id="website_id_data" value="{{(isset($website) ? $website->id : 0)}}" />
+		<h2 class="page-heading">Site Development {{(isset($website) ? '- ( ' .$website->website.' )' : ' ' )}} <span class="count-text"></span>
 		<div class="pull-right pr-2 d-flex">
 			<?php echo Form::select("select_website", ["" => "All Website"] + $store_websites, null, ["class" => "form-control globalSelect2", "id" => "copy_from_website"]) ?>
 			<button type="button" class="btn btn-secondary" onClick="copyTasksFromWebsite()">Copy Tasks from website</button>
@@ -129,7 +138,19 @@
 											<h4 class="modal-title">Attach Master Category</h4>
 										</div>
 										<div class="modal-body">
-											{{Form::select('site_development_master_category_id', [''=>'- Select-']+$masterCategories, null, array('class'=>'globalSelect2', 'id'=>'master_category_id'))}}
+											<div class="form-group col-md-12" style="margin-bottom: 15px;">
+
+												<label class="justify-content-start" for="select_website_id_data">Select Website</label>
+												<?php echo Form::select("select_website_id_data", $store_websites, isset($website) ? $website->id : null , ["class" => "form-control globalSelect2", "id" => "select_website_id_data"]) ?>
+
+											</div>
+											<div class="form-group col-md-12" style="margin-bottom: 15px;">
+
+												<label class="justify-content-start" for="site_development_master_category_id">Select Master Category</label>
+												{{Form::select('site_development_master_category_id', [''=>'- Select-']+$masterCategories, null, array('class'=>'globalSelect2', 'id'=>'master_category_id'))}}
+
+											</div>
+
 										</div>
 										<div class="modal-footer">
 											<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -144,27 +165,42 @@
 						</form>
 
 						<form class="form-inline handle-search" style="display:inline-block;">
-							<div class="form-group" style="margin-right:10px;">
+							<div class="form-group " style="margin-right:10px;">
 								<?php /* <label for="keyword">Search keyword:</label> */?>
-								<?php echo Form::text("k", request("k"), ["class" => "form-control", "placeholder" => "Search keyword", "id" => "enter-keyword"]) ?>
+								<?php //echo Form::text("k", request("k"), ["class" => "form-control", "placeholder" => "Search keyword", "id" => "enter-keyword"]) ?>
+
+								<select class="form-control globalSelect2" name="k[]" id="k" multiple>
+									<!-- <option @if(request()->k == null)selected @endif value=''>Please Select</option>-->
+									 @foreach($filter_category as $key => $all_cat)
+										 @if(isset(request()->k) and in_array($all_cat, request()->k))
+											<option selected value="{{$all_cat}}">{{$all_cat}}</option>
+										 @else
+											<option  value="{{$all_cat}}">{{$all_cat}}</option>
+										 @endif
+
+									@endforeach
+								</select>
 							</div>
-							<div class="form-group">
+							<div class="form-group ">
 								<?php /* <label for="status">Status:</label> */?>
-								<?php echo Form::select("status", ["" => "All Status"] + $allStatus, request("status"), ["class" => "form-control globalSelect2", "id" => "enter-status"]) ?>
+								<?php echo Form::select("status", ["" => "All Status"] + $allStatus, request("status"), ["class" => "form-control globalSelect2", "id" => "enter-status", "style"=>'width:150px !important;']) ?>
 							</div>
+							<div class="form-group" style="display:inline-block;width:300px">
+								<?php /* <label for="status">Status:</label> */?>
+								<?php echo Form::select("websites[]", ["all" => "All Website"] + $store_websites, isset(request()->websites) ? request()->websites: $website->id , ["class" => "form-control globalSelect2", 'multiple', "id" => "change_website1"]) ?>
+							</div>
+							
 							<div class="form-group">
 								<?php /* <label for="button">&nbsp;</label> */?>
 								<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
-									<img src="{{env('APP_URL')}}/images/send.png" style="cursor: default;">
+									<img src="{{env('APP_URL')}}/images/send.png" style="cursor: default;width: 16px;">
 								</button>
 							</div>
 						</form>
-					
-							<div class="form-group" style="display:inline-block;width:300px">
-								<?php /* <label for="status">Status:</label> */?>
-								<?php echo Form::select("select_website", ["" => "All Website"] + $store_websites, isset($website->id)?$website->id:'', ["class" => "form-control globalSelect2", "id" => "change_website"]) ?>
-							</div>
-					
+
+							
+
+								<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
 
 					</div>
 
@@ -199,6 +235,7 @@
 			</div>
 		</div>
 
+
 		<div class="col-md-12 margin-tb infinite-scroll">
 			<div class="row">
 				<div class="table-responsive">
@@ -207,6 +244,7 @@
 						<tr>
 							<th width="4%">S No</th>
 							<th width="15%"></th>
+							<th width="15%" style="word-break: break-all;">Website</th>
 							<th width="12%">Master Category</th>
 							<th width="12%">Remarks</th>
 							<th width="12%">Assign To</th>
@@ -226,6 +264,7 @@
 		</div>
 	</div>
 </div>
+
 <div id="chat-list-history" class="modal fade" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -610,6 +649,12 @@
 
         <div class="modal-body">
           <div class="form-group">
+			  <label for="select_website_for_task_add_id">Select Website</label>
+            <div class="input-group">
+				{{ Form::select("select_website_for_task_add_id", $store_websites, isset($website) ? $website->id : null , ["class" => "form-control globalSelect2", "id" => "select_website_for_task_add_id"]) }}
+            </div>
+		 </div>
+			<div class="form-group">
             <label>Select Task Category</label>
             <div class="input-group">
 				{{ Form::select('task_category', ['Design'=>'Design', 'Development'=>'Functionality'], null, array('class'=>'form-control', 'id'=>'task_category')) }}
@@ -654,14 +699,20 @@
 
         <div class="modal-body">
 			<div class="form-group">
-			
+
+				<label for="select_website_for_task_assign_id">Select Website</label>
+				<?php echo Form::select("select_website_for_task_assign_id", $store_websites, isset($website) ? $website->id : null , ["class" => "form-control globalSelect2", "id" => "select_website_for_task_assign_id"]) ?>
+				                 
+	        </div>
+			<div class="form-group">
+
 				<label for="task_asssigned_to">Assigned to</label>
 				<select name="task_asssigned_to" id="task_asssigned_to"  class="form-control" aria-placeholder="Select Assigned" style="float: left">
 				@foreach($allUsers as $user)
 							<option value="{{$user->id}}">{{$user->name}}</option>
-							@endforeach               
+							@endforeach
                 </select>
-				                 
+
 	        </div>
 		</div>
         <div class="modal-footer">
@@ -754,10 +805,11 @@ $(document).on('change', '.assign-user', function () {
 		minimumInputLength: 2,
 		width: '100%',
 	});
-	$(document).on('click', '.confirm-messge-button1', function (e) {   
+	$(document).on('click', '.confirm-messge-button1', function (e) {
 		 e.preventDefault();
 		 if($("#task_asssigned_to").val()!=""){
 			 var copy_from_website=$('#copy_from_website').val();
+			 var copy_to_website=$('#select_website_for_task_assign_id').val();
 			$("#confirmMessageModal").modal("hide");
 			$.ajax({
 				url: '{{ route('site-development.copy.task') }}',
@@ -765,7 +817,7 @@ $(document).on('change', '.assign-user', function () {
 				dataType: 'json',
 				data: {
 					copy_from_website: copy_from_website,
-					copy_to_website: {{$website->id}},
+					copy_to_website: copy_to_website,
 					"_token": "{{ csrf_token() }}",
 					task_asssigned_to:$("#task_asssigned_to").val(),
 				},
@@ -788,6 +840,7 @@ $(document).on('change', '.assign-user', function () {
 
 	function createTasks() {
 		var text = $('#task_category').val()
+		var select_website_for_task_add_id = $('#select_website_for_task_add_id').val()
 		if (text === '') {
 			alert('Please Enter Master Category');
 		} else {
@@ -797,7 +850,7 @@ $(document).on('change', '.assign-user', function () {
 					dataType: 'json',
 					data: {
 						task_category: text,
-						websiteId: {{$website->id}},
+						websiteId: select_website_for_task_add_id,
 						"_token": "{{ csrf_token() }}"
 					},
 					beforeSend: function() {
@@ -826,7 +879,7 @@ $(document).on('change', '.assign-user', function () {
 
 	$("#change_website").change(function(){
 		var websiteUrl='';
-		websiteUrl="{{route('site-development.index')}}/"+$(this).val();
+		websiteUrl="{{route('site-development.index')}}/"+$(this).val()+'?k='+$('#k').val();
 		window.location=websiteUrl;
 	});
 	$('.assign-to.select2').select2({
@@ -856,7 +909,9 @@ $(document).on('change', '.assign-user', function () {
 	//     });
 
 	function saveCategory() {
-		var websiteId = $('#website_id_data').val();//$('#website_id').val()
+		// var websiteId = $('#website_id_data').val();//$('#website_id').val()
+		var websiteId = $('#select_website_id_data').val();//$('#website_id').val()
+
 		var text = $('#add-category').val();
 		var masterCategoryId = $('#master_category_id').val();
 		if(masterCategoryId == null || masterCategoryId == '') {
@@ -2153,7 +2208,7 @@ $(document).on("click", ".tasks-relation", function() { alert('called');
 			var $loader = $('.infinite-scroll-products-loader');
 			page = page + 1;
 			$.ajax({
-				url: "/site-development/{{$website->id}}?page="+page+"&k="+keyword+"&status="+status,
+				url: "/site-development/{{((isset($website) ? $website->id : "all"))}}?page="+page+"&k="+keyword+"&status="+status,
 				type: 'GET',
 				data: $('.handle-search').serialize(),
 				beforeSend: function() {
