@@ -958,7 +958,7 @@ class Product extends Model
     * Get price calculation
     * @return float
     **/
-    public function getPrice($websiteId, $countryId = null, $countryGroup = null, $isOvveride = false, $dutyPrice = 0, $updated_seg_discount = null, $updated_add_profit = null, $checked_add_profit = null, $default_price = null, $category_segment = null)
+    public function getPrice($websiteId, $countryId = null, $countryGroup = null, $isOvveride = false, $dutyPrice = 0, $updated_seg_discount = null, $updated_add_profit = null, $checked_add_profit = null, $default_price = null, $category_segment = null, $order_id = null, $prod_id = null)
     { 
         $website        = is_object($websiteId) ? $websiteId : \App\StoreWebsite::find($websiteId);
         $priceRecords   = null;
