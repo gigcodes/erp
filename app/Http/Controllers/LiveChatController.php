@@ -175,7 +175,7 @@ class LiveChatController extends Controller
        
                    // if ($language == null) {
                         LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'incoming_chat', 'store_website_id'=>$websiteId, 'log'=> "google key used  ".config('env.GOOGLE_TRANSLATE_API_KEY')]);      
-                       $translate = new TranslateClient([
+                        $translate = new TranslateClient([
                             // 'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
                             'key' => config('env.GOOGLE_TRANSLATE_API_KEY'),
                         ]);
