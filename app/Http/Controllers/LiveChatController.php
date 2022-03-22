@@ -932,7 +932,7 @@ class LiveChatController extends Controller
     }
 
 	public function getChatEventLogs($customerId) {
-        $logs = LiveChatEventLog::where('customer_id', $customerId)->orderBy('id', 'desc')->get();
+        $logs = LiveChatEventLog::where('thread', $customerId)->orderBy('id', 'desc')->get();
         return $logs;
     }
 

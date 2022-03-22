@@ -614,35 +614,7 @@
             $('#chat_event_logs').modal('show');
         }
 
-        function openChatEventLogs(chatId)
-        {
-            $('#chat_event_body').html("");
-            var store_website_id = $('#selected_customer_store').val();
-            $.ajax({
-                url: "{{ url('livechat/getLiveChats/eventlogs') }}"+'/'+chatId,
-                type: 'GET',
-                dataType: 'json',
-                beforeSend: function () {
-                    $("#loading-image-preview").show();
-                },
-            }).done(function(data){
-                $("#loading-image-preview").hide();
-                var logs = data;
-                if(logs != null) {
-                    logs.forEach(function (log) {
-                        $('#chat_event_body').append(
-                            "<tr><td>"+log.created_at+"</td>"+
-                            "<tr><td>"+log.event_type+"</td>"+
-                            "<td>"+log.thread+"</td>"+
-                            "<td>"+log.log+"</td></tr>"
-                        );
-                    });
-                } else{
-                    $('#chat_event_body').append("<tr>No Logs Found</tr>");
-                }
-            });
-            $('#chat_event_logs').modal('show');
-        }
+        
 
         $(document).ready(function() {
             $('#start').datetimepicker({
