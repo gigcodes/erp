@@ -68,6 +68,7 @@ public/zoom/*
 public/tmp_images/*
 public/purchase_product_orders/*
 public/brand_logo/*
+public/download_asset/*
 
 /deployment_scripts_test
 

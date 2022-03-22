@@ -41,12 +41,14 @@
 							<tr>
 								<th>ID</th>
 								<th>Caller</th>
+								<th>Created At</th>
 								<th>Log</th>
 							</tr>
 							@foreach ($twilioLogs as $val )
 								<tr id = "row_{{$val->id}}">
 									<td>{{$val->id}}</td>
 									<td class="name">{{$val->phone}}</td> 
+									<td class="name">{{$val->created_at}}</td> 
 									<td class="val">{{$val->log}}</td>
 								</tr>
 							@endforeach

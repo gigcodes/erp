@@ -42,6 +42,7 @@ use Response;
 use App\Hubstaff\HubstaffActivity;
 use App\Sop;
 use App\TaskUserHistory;
+use App\LogChatMessage;
 
 
 class TaskModuleController extends Controller
@@ -79,11 +80,13 @@ class TaskModuleController extends Controller
 
         $categoryWhereClause = '';
         $category = '';
-        $request->category = $request->category ? $request->category : 1;
+       // $request->category = $request->category ? $request->category : 1;
         if ($request->category != '') {
-            if ($request->category != 1) {
-                $categoryWhereClause = "AND category = $request->category";
-                $category = $request->category;
+			   $categoryWhereClause = "AND category = $request->category";
+               $category = $request->category;
+            /*if ($request->category != 1) {
+               $categoryWhereClause = "AND category = $request->category";
+               $category = $request->category;
             } else {
                 $category_condition  = implode(',', $activeCategories);
                 if ($category_condition != '' || $category_condition != null) {
@@ -92,7 +95,7 @@ class TaskModuleController extends Controller
                 } else {
                     $categoryWhereClause = "";
                 }
-            }
+            }*/
         }
 
         $term = $request->term ?? "";
@@ -157,7 +160,7 @@ class TaskModuleController extends Controller
             if ($request->filter_by == 2) {
                 $isCompleteWhereClose = ' AND is_completed IS NOT NULL AND is_verified IS NULL ';
             }
-            
+           
             $data['task']['pending'] = DB::select('
 			SELECT tasks.*
 
@@ -643,7 +646,6 @@ class TaskModuleController extends Controller
                 return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses'));
             }
         }
-
         if ($request->is_statutory_query == 3) {
             return view('task-module.discussion-tasks', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses'));
         } else {
@@ -807,7 +809,6 @@ class TaskModuleController extends Controller
     {
         $user_id = $request->get('user_id', 0);
         $selected_issue = $request->get('selected_issue', []);
-
         $issues = Task::select('tasks.*')
                         ->leftJoin('erp_priorities', function ($query) {
                             $query->on('erp_priorities.model_id', '=', 'tasks.id');
@@ -816,13 +817,17 @@ class TaskModuleController extends Controller
 
         if (auth()->user()->isAdmin()) {
             $issues = $issues->where(function ($q) use ($selected_issue, $user_id) {
+
+                if( (count($selected_issue) != 0 && count($selected_issue) != 1) ){
+                    $q->whereIn('tasks.id', $selected_issue);
+                }
+                
                 $user_id = is_null($user_id) ? 0 : $user_id;
+
                 if($user_id!=0){
                     $q->where('tasks.assign_to', $user_id)->orWhere("tasks.master_user_id", $user_id);
                 }
-             ///   $q->whereIn('tasks.id', $selected_issue)->orWhere("erp_priorities.user_id", $user_id);
-                $q->whereIn('tasks.id', $selected_issue);
-                
+             
             });
         } else {
             $issues = $issues->whereNotNull('erp_priorities.id');
@@ -847,9 +852,11 @@ class TaskModuleController extends Controller
 
     public function setTaskPriority(Request $request)
     {
+        //dd($request->get);
      //   dd($request->all());
         $priority = $request->get('priority', null);
         $user_id = $request->get('user_id', 0);
+
         //get all user task
         //$developerTask = Task::where('assign_to', $user_id)->pluck('id')->toArray();
         
@@ -902,7 +909,9 @@ class TaskModuleController extends Controller
                 $params['status'] = 2;
                 $requestData->request->add($params);
                 app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
-            }
+            }  
+            
+            
         }
         return response()->json([
             'status' => 'success'
@@ -3114,7 +3123,57 @@ class TaskModuleController extends Controller
 
   		return response()->json(["code" => 500 , "message" => "Please select atleast one task"]);
   }
+    public function CommunicationTaskStatus(Request $request)
+    {
+        $task = Task::find($request->get('task_id'));
 
+        if($task->communication_status == 0)
+        {
+            $status = 1;
+        }
+        if($task->communication_status == 1)
+        {
+            $status = 0;
+        }
+
+        $updatetask = Task::find($request->get('task_id'));
+        $updatetask->communication_status = $status;
+        $updatetask->update();
+        return response()->json(['status' => 'success','communication_status'=>$status]);
+    }
+    public function recurringHistory(request $request)
+    {
+        $task_id = $request->input('task_id');
+        $html = '';
+        $chatData = LogChatMessage::where('task_id', $task_id)->where('task_time_reminder',0)
+            ->orderBy('id', 'DESC')
+            ->get();
+        $i = 1;
+        if (count($chatData) > 0) {
+            foreach ($chatData as $history) {
+                $html .= '<tr>';
+                $html .= '<td>' . $i . '</td>';
+                $html .= '<td>' . $history->log_case_id . '</td>';
+                $html .= '<td>' . $history->message . '</td>';
+                $html .= '<td>' . $history->log_msg . '</td>';
+                $html .= '<td>' . $history->created_at . '</td>';
+                $html .= '</tr>';
+
+                $i++;
+            }
+            return response()->json(['html' => $html, 'success' => true], 200);
+        } else {
+            $html .= '<tr>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '</tr>';
+        }
+        return response()->json(['html' => $html, 'success' => true], 200);
+
+    }
     public function AssignTaskToUser(Request $request){
         $task = Task::find($request->get('issue_id'));
         $old_id = $task->assign_to;

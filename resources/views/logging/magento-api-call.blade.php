@@ -40,6 +40,27 @@
     color:#757575;
     border:1px solid #ddd;
   }
+  
+  .ajax-loader{
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    z-index: 1060;
+  }
+
+  .inner_loader {
+	top: 30%;
+    position: absolute;
+    left: 40%;
+    width: 100%;
+    height: 100%;
+}
+
   @media (min-width: 576px){
     .modal-dialog {
         max-width: 700px;
@@ -58,7 +79,11 @@
 @endsection
 
 @section('content')
-
+<div class="ajax-loader" style="display: none;">
+		<div class="inner_loader">
+		<img src="{{ asset('/images/loading2.gif') }}">
+		</div>
+	</div>
   <div class="row m-0">
     <div class="col-lg-12 margin-tb p-0">
       <h2 class="page-heading">Magento Product API Call</h2>
@@ -114,14 +139,15 @@
             <table id="magento_list_tbl_895" class="table table-bordered table-hover" style="table-layout:fixed">
               <thead>
                 <th style="width:2%;">No</th>
+                <th style="width:5%;word-break:break-all">Date</th>
                 <th style="width:3%;word-break:break-all">Website</th>
-                <th style="width:5%;">Product SKU</th>
-                <th style="width:9%;">Product Name</th>
-                <th style="width:7%;">Category assigned</th>
+                <th style="width:4%;">Product SKU</th>
+                <th style="width:4%;">Product Name</th>
+                <th style="width:5%;">Category assigned</th>
                 <th style="width:5%;">Size Pushed</th>
                 <th style="width:5%;">Brand Pushed</th>
                 <th style="width:5%;">Size Chart Pushed</th>
-                <th style="width:8%;">Dimensions Pushed</th>
+                <th style="width:7%;">Dimensions Pushed</th>
                 <th style="width:7%;">Composition Pushed</th>
                 <th style="width:5%;">Images Pushed</th>
                 <th style="width:3%;word-break:break-all">English</th>
@@ -141,6 +167,7 @@
                 @foreach ($data as $key => $val)
                     <tr data-id="{{ $val->id }}">
                       <td>{{ ++$key }}</td>
+                      <td>{{ \Carbon\Carbon::parse($val->created_at)->format('d-m-y H:i:s')  }}</td>
                       <td>{{ $val->website_id }}</td>
                       <td style="word-break:break-all" class="expand-row">
                       
@@ -177,7 +204,9 @@
                       <td>{{ $val->russian }}</td>
                       <td>{{ $val->chinese }}</td>
                       <td>{{ $val->status }}</td>
-                      <td><button class="btn btn-image delete_api_search_history p-0" data-id="{{ $val->id }}"><i class="fa fa-trash"></i></button></td>
+                      <td><button class="btn btn-image delete_api_search_history p-0" data-id="{{ $val->id }}"><i class="fa fa-trash"></i></button>
+                      <button class="btn btn-image view_error p-0" data-toggle="modal" data-id="{{ $val->log_refid }}"> <i class="fa fa-eye"></i> </button>
+                    </td>
                     </tr>
                 @endforeach
               </tbody>
@@ -193,14 +222,99 @@
       @endif
     </div>
   </div>
-  <div class="ajax-loader" style="display:none;margin-left:50%;">
-    <div class="inner_loader">
-    <img src="{{ asset('loading.gif') }}">
+  <div id="view_error" class="modal fade" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form action="{{ url('logging/assign') }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h4 class="modal-title">View Logs</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            <th>Index</th>
+                            <th>Time</th>
+                            <th>Log</th>
+                            <th>Message</th>
+                        </tr>
+                        <tbody class="content">
+                            
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default close-setting" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+      </div>
     </div>
-  </div>
     @endsection
   @section('scripts')
     <script type="text/javascript">
+  $(document).on('click','.view_error',function(event){
+      event.preventDefault();
+      console.log($(this).data('id'));
+      $.ajax({
+            url: '{{ route("logging.magento.logMagentoApisAjax") }}',
+            dataType: "json",
+            data: {
+                id: $(this).data('id')
+            },
+            beforeSend: function () {
+              $(".ajax-loader").show();
+            },
+        }).done(function (data) {
+            $(".ajax-loader").hide();
+            var $html = '';
+            if(data.data.length > 0){
+                $.each(data.data, function(i, item) {
+                  $html += '<tr>';
+                  $html += '<td>'+parseInt(i+1)+'</td>';
+                  $html += '<td>'+item.created_at+'</td>';
+                  $html += '<td>'+item.api_log+'</td>';
+                  $html += '<td>'+wordWrap(item.message, 50)+'</td>';
+                  $html += '</tr>';
+              });
+            }
+            $('#view_error table tbody.content').html($html);
+            $('#view_error').modal('show');
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+          $(".ajax-loader").hide();
+        });
+      
+  });
+
+function wordWrap(str, maxWidth) {
+    var newLineStr = "\n"; done = false; res = '';
+    while (str.length > maxWidth) {                 
+        found = false;
+        // Inserts new line at first whitespace of the line
+        for (i = maxWidth - 1; i >= 0; i--) {
+            if (testWhite(str.charAt(i))) {
+                res = res + [str.slice(0, i), newLineStr].join('');
+                str = str.slice(i + 1);
+                found = true;
+                break;
+            }
+        }
+        // Inserts new line at maxWidth position, the word is too long to wrap
+        if (!found) {
+            res += [str.slice(0, maxWidth), newLineStr].join('');
+            str = str.slice(maxWidth);
+        }
+
+    }
+
+    return res + str;
+}
+
+function testWhite(x) {
+    var white = new RegExp(/^\s$/);
+    return white.test(x.charAt(0));
+};
 
 $(document).on('click', '.expand-row', function () {
         var selection = window.getSelection();

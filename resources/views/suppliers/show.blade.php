@@ -80,7 +80,7 @@
                 <h3>Supplier Page</h3>
             </div>
             <div class="pull-right mt-4">
-                <a class="btn btn-xs btn-secondary" href="{{ route('supplier.index') }}">Back</a>
+                <a class="btn btn-xs mr-2 custom-button" href="{{ route('supplier.index') }}">Back</a>
                 {{-- <a class="btn btn-xs btn-secondary" href="#" id="quick_add_lead">+ Lead</a>
                 <a class="btn btn-xs btn-secondary" href="#" id="quick_add_order">+ Order</a>
                 <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#privateViewingModal">Set Up for Private Viewing</button> --}}
@@ -109,7 +109,7 @@
         </ul>
     </div>
     <div class="row">
-        <div class="col-xs-12 col-md-4 border">
+        <div class="col-xs-12 col-md-4 border" style="height:358px;">
             <div class="tab-content">
                 <div class="tab-pane mt-3" id="brands-tab">
                     <h2 class="page-heading">Brands</h2>
@@ -129,36 +129,50 @@
                     @endif
                 </div>
                 <div class="tab-pane active mt-3" id="info-tab">
-                    <div class="row">
+                    <div class="row mt-3">
                         <div class="col-xs-12">
-                            <div class="form-group form-inline">
-                                <input type="text" name="supplier" id="supplier_supplier" class="form-control input-sm" placeholder="Supplier" value="{{ $supplier->supplier }}">
+                            <div class="d-flex pl-1">
+                                <div class="form-group form-inline">
+                                    <input type="text" name="supplier" id="supplier_supplier" class="form-control input-sm" placeholder="Supplier" value="{{ $supplier->supplier }}" style="width:208px; height:34px;">
 
-                                @if ($supplier->is_flagged == 1)
-                                    <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/flagged.png"/></button>
-                                @else
-                                    <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png"/></button>
-                                @endif
-                            </div>
-
-                            <div class="form-group form-inline">
-                                <input type="number" id="supplier_phone" name="phone" class="form-control input-sm" placeholder="910000000000" value="{{ $supplier->phone }}">
-                            </div>
-
-                            <div class="form-group">
-                                <select class="form-control input-sm" name="default_phone" id="supplier_default_phone">
-                                    <option value="">Select Default Phone</option>
-                                    @if ($supplier->phone != '')
-                                        <option value="{{ $supplier->phone }}" {{ $supplier->phone == $supplier->default_phone ? 'selected' : '' }}>{{ $supplier->phone }} - Supplier's Phone</option>
+                                    @if ($supplier->is_flagged == 1)
+                                        <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/flagged.png"/></button>
+                                    @else
+                                        <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png"/></button>
                                     @endif
+                                </div>
 
-                                    @if ($supplier->agents)
-                                        @foreach ($supplier->agents as $agent)
-                                            <option value="{{ $agent->phone }}" {{ $agent->phone == $supplier->default_phone ? 'selected' : '' }}>{{ $agent->phone }} - {{ $agent->name }}</option>
-                                        @endforeach
-                                    @endif
-                                </select>
+                                <div class="form-group form-inline">
+                                    <input type="number" id="supplier_phone" name="phone" class="form-control input-sm" placeholder="910000000000" value="{{ $supplier->phone }}" style="width:205px;height:34px;">
+                                </div>
                             </div>
+                            <div class="d-flex"style="margin-top:-7px;">
+                                <div class="form-group pl-1">
+                                    <select class="form-control input-sm" name="default_phone" id="supplier_default_phone"style="height: 34px;">
+                                        <option value="">Select Default Phone</option>
+                                        @if ($supplier->phone != '')
+                                            <option value="{{ $supplier->phone }}" {{ $supplier->phone == $supplier->default_phone ? 'selected' : '' }}>{{ $supplier->phone }} - Supplier's Phone</option>
+                                        @endif
+
+                                        @if ($supplier->agents)
+                                            @foreach ($supplier->agents as $agent)
+                                                <option value="{{ $agent->phone }}" {{ $agent->phone == $supplier->default_phone ? 'selected' : '' }}>{{ $agent->phone }} - {{ $agent->name }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                                 {{-- <div class="form-group" pl-2>
+                              <input type="number" id="supplier_whatsapp_number" name="whatsapp_number" class="form-control input-sm" placeholder="Whatsapp Number" value="{{ $supplier->whatsapp_number }}"style="height: 34px;">
+                            </div> --}}
+ 
+                            <div class="form-group pl-2">
+                                <textarea name="address" id="supplier_address" class="form-control input-sm" rows="3" cols="80" placeholder="Address" style="height: 34px;">{{ $supplier->address }}</textarea>
+                            </div>
+                             {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) --}}
+                            <div class="form-group pl-2">
+                                <input type="email" name="email" id="supplier_email" class="form-control input-sm" placeholder="Email" value="{{ $supplier->email }}"style="height: 34px;">
+                            </div>
+                    </div>
 
                         <!-- <div class="form-group">
               <select class="form-control form-control-sm" name="status" id="status">
@@ -167,18 +181,7 @@
               </select>
             </div> -->
 
-                            {{-- <div class="form-group">
-                              <input type="number" id="supplier_whatsapp_number" name="whatsapp_number" class="form-control input-sm" placeholder="Whatsapp Number" value="{{ $supplier->whatsapp_number }}">
-                            </div> --}}
 
-                            <div class="form-group">
-                                <textarea name="address" id="supplier_address" class="form-control input-sm" rows="3" cols="80" placeholder="Address">{{ $supplier->address }}</textarea>
-                            </div>
-
-                            {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) --}}
-                            <div class="form-group">
-                                <input type="email" name="email" id="supplier_email" class="form-control input-sm" placeholder="Email" value="{{ $supplier->email }}">
-                            </div>
 
                             {{-- <div class="form-group">
                               <select class="form-control input-sm" name="default_email" id="supplier_default_email">
@@ -194,74 +197,68 @@
                                 @endif
                               </select>
                             </div> --}}
+                            <div class="d-flex" style="margin-top:-7px;">
+                                <div class="form-group pl-1">
+                                    <input type="text" name="instagram_handle" id="supplier_instagram_handle" class="form-control input-sm" placeholder="Instagram Handle" value="{{ $supplier->instagram_handle }}" style="width:230px; height:34px;">
+                                </div>
 
-                            <div class="form-group">
-                                <input type="text" name="instagram_handle" id="supplier_instagram_handle" class="form-control input-sm" placeholder="Instagram Handle" value="{{ $supplier->instagram_handle }}">
+                                <div class="form-group pl-2">
+                                    <input type="text" name="social_handle" id="supplier_social_handle" class="form-control input-sm" placeholder="Social Handle" value="{{ $supplier->social_handle }}"style="width:221px; height:34px;">
+                                </div>
                             </div>
 
-                            <div class="form-group">
-                                <input type="text" name="social_handle" id="supplier_social_handle" class="form-control input-sm" placeholder="Social Handle" value="{{ $supplier->social_handle }}">
-                            </div>
-
-
-                            <div class="form-group">
+                            <div class="form-group pl-1" style="margin-top:-7px;">
                               <label>Update By</label>
                                 <p>@if(isset($user)) {{ $user->name }} @endif</p>
                             </div>
 
 
-
-                            <div class="form-group">
-                                    <select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
-                                        <option value="">-No Selected-</option>
-                                        @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
-                                            @if($number != "0")
-                                                <option {{ ($number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
-                                            @endif
-                                        @endforeach
-                                    </select>
+                            <div class="d-flex pl-1" style="margin-top:-7px;">
+                                <div class="form-group">
+                                        <select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
+                                            <option value="">-No Selected-</option>
+                                            @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+                                                @if($number != "0")
+                                                    <option {{ ($number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                </div>
+                                <div class="form-group pl-2">
+                                     <input type="text" name="website" id="supplier_website" class="form-control input-sm" placeholder="Website" value="{{ $supplier->website }}"style="height: 34px;">
+                                </div>
+                                <div class="form-group pl-2">
+                                     <input type="text" name="gst" id="supplier_gst" class="form-control input-sm" placeholder="GST" value="{{ $supplier->gst }}"style="height: 34px;">
+                                </div>
                             </div>
-
-
-                            <div class="form-group">
-                                <input type="text" name="website" id="supplier_website" class="form-control input-sm" placeholder="Website" value="{{ $supplier->website }}">
-                            </div>
-
-                            <div class="form-group">
-                                <input type="text" name="gst" id="supplier_gst" class="form-control input-sm" placeholder="GST" value="{{ $supplier->gst }}">
-                            </div>
-                            <div class="form-group">
-                                {!!Form::select('supplier_category_id', [null=>'Select a category'] + $suppliercategory->toArray(), $supplier->supplier_category_id, ['class' => 'form-control form-control-sm' , 'id' => 'supplier_category_id'])!!}
-                            </div>
-                            <div class="form-group">
-                                {!!Form::select('supplier_status_id', $supplierstatus, $supplier->supplier_status_id, ['class' => 'form-control form-control-sm', 'id' => 'supplier_status_id'])!!}
-                            </div>
-
-                            <div class="form-group">
-                                @php
-
-                                    $scrapersList = [];
-                                    if(!$supplier->scrapers->isEmpty()) {
-                                        foreach($supplier->scrapers as $ssc) {
-                                            $scrapersList[] = $ssc->scraper_name;
+                            <div class="d-flex pl-1"style="margin-top:-7px;">
+                                <div class="form-group">
+                                    {!!Form::select('supplier_category_id', [null=>'Select a category'] + $suppliercategory->toArray(), $supplier->supplier_category_id, ['class' => 'form-control form-control-sm' , 'id' => 'supplier_category_id'])!!}
+                                </div>
+                                <div class="form-group pl-2">
+                                    {!!Form::select('supplier_status_id', $supplierstatus, $supplier->supplier_status_id, ['class' => 'form-control form-control-sm', 'id' => 'supplier_status_id'])!!}
+                                </div>
+                                <div class="form-group pl-2">
+                                    @php
+                                        $scrapersList = [];
+                                        if(!$supplier->scrapers->isEmpty()) {
+                                            foreach($supplier->scrapers as $ssc) {
+                                                $scrapersList[] = $ssc->scraper_name;
+                                            }
                                         }
-                                    }
-
-                                    $scrapersName = implode(",",$scrapersList);
-                                @endphp
-
-                                <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control input-sm" placeholder="Scraper Name" value="{{ $scrapersName }}">
-                                
-                                {{-- <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control input-sm" placeholder="Scraper Name" value="{{ $scrapers[0]->scraper_name }}"> --}}
-
+                                        $scrapersName = implode(",",$scrapersList);
+                                     @endphp
+                                    <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control input-sm" placeholder="Scraper Name" value="{{ $scrapersName }}" style="height: 34px;width: 210px;">
+                                    
+                                    {{-- <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control  input-sm" placeholder="Scraper Name" value="{{ $scrapers[0]->scraper_name }}"style="height: 34px;width:210px;"> --}}
+                                </div>
+                           </div>
+                            <div class="form-group pl-1"style="margin-top:-7px;">
+                                <input type="text" name="inventory_lifetime" id="supplier_inventory_lifetime" class="form-control input-sm" placeholder="Inventory Lifetime (in days)" value="{{ ($supplier->scraper) ? $supplier->scraper->inventory_lifetime : '' }}" style="height:34px;">
                             </div>
 
-                            <div class="form-group">
-                                <input type="text" name="inventory_lifetime" id="supplier_inventory_lifetime" class="form-control input-sm" placeholder="Inventory Lifetime (in days)" value="{{ ($supplier->scraper) ? $supplier->scraper->inventory_lifetime : '' }}">
-                            </div>
-
-                            <div class="form-group">
-                                <button type="button" id="updateSupplierButton" class="btn btn-xs btn-secondary">Save</button>
+                            <div class="form-group pl-1"style="margin-top:-7px;">
+                                <button type="button" id="updateSupplierButton" class="btn btn-xs custom-button">Save</button>
                             </div>
                         </div>
 
@@ -364,96 +361,69 @@
             </div>
         </div>
 
-        <div class="col-xs-12 col-md-4 mb-3">
+        <div class="col-xs-12 col-md-4">
             <div class="border">
                 <form action="{{ route('whatsapp.send', 'supplier') }}" method="POST" enctype="multipart/form-data">
-                    <div class="d-flex">
+                    <div class="d-flex col-md-3 p-0 pt-3">
                         @csrf
-
                         <div class="form-group">
                             <div class="upload-btn-wrapper btn-group pr-0 d-flex">
                                 <button class="btn btn-image px-1"><img src="/images/upload.png"/></button>
                                 <input type="file" name="image"/>
-
-                                <button type="submit" class="btn btn-image px-1 send-communication received-customer"><img src="/images/filled-sent.png"/></button>
+                                <button type="submit" class="btn  btn-image px-1 send-communication received-customer"><img src="/images/filled-sent.png"/></button>
                             </div>
                         </div>
-
                         <div class="form-group flex-fill mr-3">
-                            <button type="button" id="supplierMessageButton" class="btn btn-image"><img src="/images/support.png"/></button>
-                            <textarea class="form-control mb-3 hidden" style="height: 110px;" name="body" placeholder="Received from Supplier"></textarea>
+                            <button type="button" id="supplierMessageButton" class="btn mt-0 btn-image"><img src="/images/support.png"/></button>
+                            <textarea class="form-control  hidden" style="height: 110px;" name="body" placeholder="Received from Supplier"></textarea>
                             <input type="hidden" name="status" value="0"/>
                         </div>
                     </div>
-
                 </form>
 
                 <form action="{{ route('whatsapp.send', 'supplier') }}" method="POST" enctype="multipart/form-data">
                     <div id="paste-container" style="width: 200px;">
-
                     </div>
-
-                    <div class="d-flex">
                         @csrf
-
-                        <div class="form-group">
-                            <div class=" d-flex flex-column">
-                                <div class="">
-                                    <div class="upload-btn-wrapper btn-group px-0">
-                                        <button class="btn btn-image px-1"><img src="/images/upload.png"/></button>
-                                        <input type="file" name="image"/>
-
-                                    </div>
-                                    <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png"/></button>
-
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group flex-fill mr-3">
-                            <textarea id="message-body" class="form-control mb-3" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
-
+                    <div class="d-flex" style="margin-bottom:-11px;">
+                        <div class="form-group  pt-3 ">
+                            <textarea id="message-body" class="form-control " style="height:35px;" name="body" placeholder="Send for approval"></textarea>
                             <input type="hidden" name="screenshot_path" value="" id="screenshot_path"/>
                             <input type="hidden" name="status" value="1"/>
-
                             <div class="paste-container"></div>
-
-
                         </div>
-                    </div>
-
-                    <div class="pb-4 mt-3">
-                        <div class="row">
-                            <div class="col">
-                                <select name="quickCategory" id="quickCategory" class="form-control input-sm mb-3">
+                        <div class="form-group  pt-3 pl-4 pr-3">
+                              <select name="quickCategory" id="quickCategory" class="form-control input-sm "style="height: 34px !important; width:175px !important;">
                                     <option value="">Select Category</option>
                                     @foreach($reply_categories as $category)
                                         <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
                                     @endforeach
                                 </select>
-
-                                <select name="quickComment" id="quickComment" class="form-control input-sm">
-                                    <option value="">Quick Reply</option>
-                                </select>
-                            </div>
-                            <div class="col">
-                                <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
-                            </div>
                         </div>
                     </div>
 
+                    <div class="d-flex pt-0 mt-3 pl-3">
+                            <div class="">
+                                <select name="quickComment" id="quickComment" class="form-control input-sm"style="height: 34px;width:128px!important;">
+                                    <option value="">Quick Reply</option>
+                                </select>
+                            </div>
+                             <div class="ml-2">
+                                <button type="button" class="btn btn-xs custom-button" data-toggle="modal" data-target="#ReplyModal" id="approval_reply" style="height:34px;">Create Quick Reply</button>
+                            </div>
+                             <div class="ml-2">
+                                <select name="autoTranslate" id="autoTranslate" class="form-control input-sm mb-3"style="    width:164px!important; height: 34px;">
+                                    <option value="">Translations Languages</option>
+                                    <option value="fr" {{ $supplier->language === 'fr'  ? 'selected' : '' }}>French</option>
+                                    <option value="de" {{ $supplier->language === 'de'  ? 'selected' : '' }}>German</option>
+                                    <option value="it" {{ $supplier->language === 'it'  ? 'selected' : '' }}>Italian</option>
+                               </select>
+                            </div>
+                    </div>
                 </form>
                 <div class="row">
-                    <div class="col">
-                        <select name="autoTranslate" id="autoTranslate" class="form-control input-sm mb-3">
-                            <option value="">Translations Languages</option>
-                            <option value="fr" {{ $supplier->language === 'fr'  ? 'selected' : '' }}>French</option>
-                            <option value="de" {{ $supplier->language === 'de'  ? 'selected' : '' }}>German</option>
-                            <option value="it" {{ $supplier->language === 'it'  ? 'selected' : '' }}>Italian</option>
-                        </select>
-                    </div>
-                    <div class="col">
-                        <button type="button" class="btn btn-xs btn-secondary" id="auto-translate">Add translation language</button>
+                    <div class="col mb-3 pl-5">
+                        <button type="button" class="btn btn-xs custom-button" id="auto-translate" style="height:34px;">Add translation language</button>
                     </div>
                 </div>
             </div>
@@ -495,7 +465,7 @@
                                     @csrf
                                 <input name="excel_file" type="file" class="form-control">
                                 <input type="hidden" name="id" value="{{ $supplier->id }}">
-                                <button type="submit" class="btn btn-secondary">Submit</button>
+                                <button type="submit" class="btn mt-2 custom-button">Submit</button>
                                 </form>
                             </div>
                         </div>
@@ -504,22 +474,28 @@
             </div>
         </div>
 
-        <div class="col-xs-12 col-md-4">
-            <div class="border">
+        <div class="col-xs-12 col-md-4 pr-2">
+            <div class=" ">
                 {{-- <h4>Messages</h4> --}}
 
-                <div class="row">
+                <div class="row pr-5 pt-3">
                     <form action="{{ route('supplier.image') }}" method="post" enctype="multipart/form-data" style="width: 100%">
-                        @csrf
-                        <button type="buttin" class="btn btn-xs btn-secondary" value="1" name="type" id="createProduct">Create Product</button>
-                        <button type="button" class="btn btn-xs btn-secondary" value="2" name="type" id="createGroup">Create Product Group</button>
-                        <button type="button" class="btn btn-xs btn-secondary" value="3" name="type" id="createInStockProduct">Create InStock Product</button>
+                     @csrf
+                      <div class="d-flex">
+                        <button type="buttin" class="btn btn-xs  custom-button" value="1" name="type" id="createProduct"style="height:34px;width: 200px;">Create Product</button>
+                        <button type="button" class="btn btn-xs  ml-2 custom-button" value="2" name="type" id="createGroup"style="height:34px;">Create Product Group</button>
+                        <button type="button" class="btn btn-xs  ml-2 custom-button" value="3" name="type" id="createInStockProduct" style="height:34px;">Create InStock Product</button>
+                      </div>
+                      <div class="d-flex pt-3">
                         <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></a>
-                        <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
-                        <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></a>
-                        <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message">
+                        <a type="button" class="btn ml-2 btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
+                        <a type="button" class="btn ml-2 btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></a>
+                      </div>
+                      <div class="pt-2">
+                        <input type="text" name="search_chat_pop"  class="form-control  search_chat_pop" placeholder="Search Message">
+                     </div>
                         <div class="load-communication-modal chat-history-load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"  style="display: none;" data-object="supplier" data-attached="1" data-id="{{ $supplier->id }}"></div>
-                        <div class="col-12" id="chat-history">
+                        <div class="col-12 mt-3" id="chat-history" style="height:271px !important;">
                         </div>
                     </form>
                 </div>
@@ -535,7 +511,7 @@
     @include('suppliers.partials.instock-product')
 
 
-    <div class="row mt-5">
+    <div class="row mt-3 pl-2 pr-2 ">
         <div class="col-xs-12">
 
             {{-- @include('customers.partials.modal-instruction') --}}
@@ -1502,7 +1478,8 @@
                     $(thiss).text('Saving...');
                 }
             }).done(function () {
-                $(thiss).text('Save');
+                $(thiss).text('
+                    ');
                 $(thiss).removeClass('btn-secondary');
                 $(thiss).addClass('btn-success');
 

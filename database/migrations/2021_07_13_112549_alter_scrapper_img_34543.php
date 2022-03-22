@@ -13,8 +13,9 @@ class AlterScrapperImg34543 extends Migration
      */
     public function up()
     {
-        DB::statement("ALTER TABLE `scraper_imags` ADD INDEX(`created_at`);");
-        DB::statement("ALTER TABLE `scraper_imags` ADD INDEX( `website_id`, `store_website`);");
+        Schema::table('scraper_imags', function (Blueprint $table) {
+            $table->index(['created_at', 'website_id', 'store_website']);
+        });
     }
 
     /**
@@ -24,6 +25,8 @@ class AlterScrapperImg34543 extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('scraper_imags', function (Blueprint $table) {
+            $table->dropIndex(['created_at', 'website_id', 'store_website']);
+        });
     }
 }

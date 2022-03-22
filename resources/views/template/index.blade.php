@@ -67,7 +67,7 @@
 <div class="row" id="product-template-page">
 	<div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Templates</h2>
-        <div class="pull-right">
+        <div class="pull-right pr-4">
             <button type="button" class="btn btn-secondary create-product-template-btn">+ Add Template</button>
         </div>
         <div class="pull-right">

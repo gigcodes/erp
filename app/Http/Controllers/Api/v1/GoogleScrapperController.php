@@ -9,25 +9,6 @@ use DB;
 
 class GoogleScrapperController extends Controller
 {   
-    
-    /**
-     * @SWG\Post(
-     *   path="/v1/account/create",
-     *   tags={"Account"},
-     *   summary="Create Account",
-     *   operationId="create-account",
-     *   @SWG\Response(response=200, description="successful operation"),
-     *   @SWG\Response(response=406, description="not acceptable"),
-     *   @SWG\Response(response=500, description="internal server error"),
-     *      @SWG\Parameter(
-     *          name="mytest",
-     *          in="path",
-     *          required=true, 
-     *          type="string" 
-     *      ),
-     * )
-     *
-     */
     public function extractedData(Request $request)
     {
 

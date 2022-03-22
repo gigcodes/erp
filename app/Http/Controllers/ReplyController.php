@@ -12,6 +12,7 @@ use App\ChatbotQuestion;
 use App\ChatbotQuestionReply;
 use App\WatsonAccount;
 use App\ChatbotQuestionExample;
+use App\StoreWebsitePage;
 use Illuminate\Support\Facades\Auth;
 
 class ReplyController extends Controller
@@ -221,7 +222,7 @@ class ReplyController extends Controller
         $replies = \App\ReplyCategory::join("replies","reply_categories.id","replies.category_id")
         ->leftJoin("store_websites as sw","sw.id","replies.store_website_id")
         ->where("model","Store Website")
-        ->select(["replies.*","sw.website","reply_categories.name as category_name","reply_categories.parent_id","reply_categories.id as reply_cat_id"]);
+        ->select(["replies.*","sw.website", "reply_categories.intent_id","reply_categories.name as category_name","reply_categories.parent_id","reply_categories.id as reply_cat_id"]);
 
         if($storeWebsite > 0) {
            $replies = $replies->where("replies.store_website_id",$storeWebsite);
@@ -260,6 +261,7 @@ class ReplyController extends Controller
     {
         $id     = $request->get("id");
         $reply  = \App\Reply::find($id);
+        
         $replies = Reply::where('id',$id)->first();
         $ReplyUpdateHistory = new ReplyUpdateHistory;
         $ReplyUpdateHistory->last_message = $replies->reply;
@@ -271,6 +273,42 @@ class ReplyController extends Controller
             $reply->reply = $request->reply;
             $reply->pushed_to_watson = 0;
 			$reply->save();
+			
+			$replyCategory  = \App\ReplyCategory::find($reply->category_id);
+		
+		    $replyCategories = $replyCategory->parentList();
+			$cats = explode('>',str_replace(' ', '',$replyCategories));
+			if(isset($cats[0]) and $cats[0] == "FAQ") {
+				$faqCat = \App\ReplyCategory::where('name', 'FAQ')->pluck('id')->first();
+				if($faqCat != null) {
+					$faqToPush = '<div class="cls_shipping_panelmain">';
+					$topParents = \App\ReplyCategory::where('parent_id', $faqCat)->get(); 
+					foreach($topParents as $topParent) {
+						$faqToPush .= '<div class="cls_shipping_panelsub">
+						<div id="shopPlaceOrder" class="accordion_head" role="tab">
+							<h4 class="panel-title"><a role="button" href="javascript:;" class="cls_abtn"> '.$topParent['name'].' </a><span class="plusminus">-</span></h4>
+						</div> <div class="accordion_body" style="display: block;">';
+						$questions = \App\ReplyCategory::where('parent_id', $topParent['id'])->get(); 
+						foreach($questions as $question) {
+							$answer = Reply::where('category_id', $question['id'])->first();
+							if($answer != null) {
+							    $faqToPush .= '<p class="md-paragraph"><strong>'.$question['name'].'</strong></p>
+									<p class="md-paragraph"> '.$answer['reply'].' </p>';
+							}							
+						}
+						$faqToPush .= "</div></div>";
+					}
+					$faqToPush .= "</div>";
+					$faqPage = StoreWebsitePage::where(['store_website_id'=>$reply->store_website_id, 'url_key'=>'faqs'])->first();
+					if($faqPage == null) {  echo "if";
+						$a = StoreWebsitePage::create(['title'=>'faqs','content'=>$faqToPush, 'store_website_id'=>$reply->store_website_id, 'url_key'=>'faqs', 'is_pushed'=>0]);
+					} else{  echo "else";
+						$a = StoreWebsitePage::where('id', $faqPage->id)->update(['content'=>$faqToPush, 'is_pushed'=>0]);
+					}
+				}	
+					
+					
+			}
         }
 
         return redirect()->back()->with('success','Quick Reply Updated successfully');

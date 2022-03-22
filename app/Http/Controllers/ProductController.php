@@ -29,6 +29,7 @@ use App\OrderProduct;
 use App\Product;
 use App\ProductPushErrorLog;
 use App\ProductStatusHistory;
+use App\ProductSuggestedLog;
 use App\ProductSupplier;
 use App\ProductTranslationHistory;
 use App\Product_translation;
@@ -215,15 +216,16 @@ class ProductController extends Controller
             $categories_array[$category->id] = $category->parent_id;
         }
 
-        if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+        if (auth()->user()->isReviwerLikeAdmin('final_listing')) { 
             $newProducts = Product::query();
-        } else {
+        } else { 
             $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
         }
 
         if ($request->get('status_id') != null) {
             $statusList = is_array($request->get('status_id')) ? $request->get('status_id') : [$request->get('status_id')];
-            $newProducts = $newProducts->whereIn('status_id', $statusList);
+            $newProducts = $newProducts->whereIn('status_id', $statusList); //dd($newProducts->limit(10)->get());
+
         } else {
             if ($request->get('submit_for_approval') == "on") {
                 $newProducts = $newProducts->where('status_id', StatusHelper::$submitForApproval);
@@ -231,7 +233,6 @@ class ProductController extends Controller
                 $newProducts = $newProducts->where('status_id', StatusHelper::$finalApproval);
             }
         }
-
         // Run through query helper
  //      $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts, true);
         $term = $request->input('term');
@@ -381,7 +382,7 @@ class ProductController extends Controller
 
         if ($request->without_title != null) {
             $newProducts = $newProducts->where("products.name", "");
-        }
+        } 
 
         if ($request->without_size != null) {
             $newProducts = $newProducts->where("products.size", "");
@@ -1795,8 +1796,8 @@ class ProductController extends Controller
             //code...
             // Get product by ID
             $product = Product::find($id);
-            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-            if(!empty($websiteArrays)) {
+            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id); 
+            if(!empty($websiteArrays)) { 
                 $storeWebsites = \App\StoreWebsite::whereIn("id",$websiteArrays)->get();
                 foreach($storeWebsites as $website) {
                     if ($website) {
@@ -1929,7 +1930,7 @@ class ProductController extends Controller
                 //check for hscode
                 $hsCode = $product->hsCode($product->category, $product->composition);
                 $hsCode = true;
-                if ($hsCode) {
+                //if ($hsCode) {
                     // If we have a product, push it to Magento
                     if ($product !== null) {
                         // Dispatch the job to the queue
@@ -1964,18 +1965,18 @@ class ProductController extends Controller
                         $product->isUploaded = 1;
                         $product->save();
                         // Return response
-                        // return response()->json([
-                        //     'result' => 'queuedForDispatch',
-                        //     'status' => 'listed'
-                        // ]);
+                         return response()->json([
+                             'result' => 'queuedForDispatch',
+                             'status' => 'listed'
+                         ]);
                     }
-                }
+                //}
 
-                $msg = 'Hs Code not found of product id ' . $id . '. Parameters where category_id: ' . $product->category . ' and composition: ' . $product->composition;
+               /* $msg = 'Hs Code not found of product id ' . $id . '. Parameters where category_id: ' . $product->category . ' and composition: ' . $product->composition;
 
                 $logId = LogListMagento::log($product->id, $msg, 'info');
                 ProductPushErrorLog::log("", $product->id, $msg, 'error', $logId->store_website_id, "", "", $logId->id);
-                $this->updateLogUserId($logId);
+                $this->updateLogUserId($logId);*/
 
                 // Return error response by default
                 // return response()->json([
@@ -3882,7 +3883,11 @@ class ProductController extends Controller
         $products = Product::orderBy('updated_at', 'DESC');
 
         if ($request->get('product_id') != '') {
-            // $products = Product::where('id',$request->get('product_id'))->get();
+             $products = $products->where('id',$request->get('product_id'));
+        }
+        if($request->get('sku') !='')
+        {
+            $products = $products->where('sku',$request->get('sku'));
         }
         if ($request->get('select_date') != '') {
             $date = $request->get('select_date');
@@ -3896,7 +3901,7 @@ class ProductController extends Controller
             $statusarray = [2, 4, 9, 15, 20, 33, 35, 36, 38, 39, 40];
         }
 
-        $products = $products->whereHas('productstatushistory', function ($query) use ($date, $statusarray, $request) {
+        /*$products = $products->whereHas('productstatushistory', function ($query) use ($date, $statusarray, $request) {
             $query->whereDate('created_at', $date);
             $query->whereIn('new_status', $statusarray);
             if ($request->get('product_id') != '') {
@@ -3908,7 +3913,7 @@ class ProductController extends Controller
             if ($request->get('product_id') != '') {
                 $query->where('product_id', $request->get('product_id'));
             }
-        }]);
+        }]);*/
 
         $products_count = $products->count();
 
@@ -4203,31 +4208,106 @@ class ProductController extends Controller
 
     }
 
+    /**
+     * This function is use for create suggested product log
+     * @param type [array] inputArray 
+     * @param Request $request Request
+     * 
+     *  @return void;
+     */
+    public function createSuggestedProductLog($log = "", $type = "", $parentId = "")  
+    {
+        try {
+            $prod = ProductSuggestedLog::create([
+                'parent_id' => $parentId,
+                'log'=> $log,
+                "type" => $type
+            ]);  
+    
+         } catch(\Exception $e) {
+            $prod = ProductSuggestedLog::create(['parent_id' => $parentId, "log" => $e->getMessage(), "type" => "not catch"]);
+        }
+       
+    }
+
     public function queueCustomerAttachImages(Request $request)
     {
-        $data['_token'] = $request->_token;
-        $data['send_pdf'] = $request->send_pdf;
-        $data['pdf_file_name'] = !empty($request->pdf_file_name) ? $request->pdf_file_name : "";
-        $data['images'] = $request->images;
-        $data['image'] = $request->image;
-        $data['screenshot_path'] = $request->screenshot_path;
-        $data['message'] = $request->message;
-        $data['customer_id'] = $request->customer_id;
-        $data['status'] = $request->status;
-        $data['type'] = $request->type;
-        \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
+     
+        $prodSugId = isset($request->hidden_suggestedproductid)? $request->hidden_suggestedproductid : '';
+        try {
+            // This condition is use for send now no whatsapp
+            if($request->is_queue == 2) {
+                return $this->sendNowCustomerAttachImages($request);
+            } else {
+                $data['_token'] = $request->_token;
+                $data['send_pdf'] = $request->send_pdf;
+                $data['pdf_file_name'] = !empty($request->pdf_file_name) ? $request->pdf_file_name : "";
+                $data['images'] = $request->images;
+                $data['image'] = $request->image;
+                $data['screenshot_path'] = $request->screenshot_path;
+                $data['message'] = $request->message;
+                $data['customer_id'] = $request->customer_id;
+                $data['status'] = $request->status;
+                $data['type'] = $request->type;
+                \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
+                
+                $json = request()->get("json", false);
 
-        $json = request()->get("json", false);
+                if ($json) {
+                    $this->createSuggestedProductLog('Message Send later Queue', "Send later Queue", $prodSugId);
+                    return response()->json(["code" => 200, 'message' => 'Message Send later Queue']);
+                }
+                if ($request->get('return_url')) {
+                    return redirect($request->get('return_url'));
+                }
 
-        if ($json) {
-            return response()->json(["code" => 200]);
+                return redirect()->route('customer.post.show', $prodSugId)->withSuccess('Message Send For Queue');
+            }
+        } catch(\Exception $e) {
+            $prod = ProductSuggestedLog::create(['parent_id' => $prodSugId, "log" => $e->getMessage(), "type" => "not catch"]);
         }
-        if ($request->get('return_url')) {
-            return redirect($request->get('return_url'));
-        }
-
-        return redirect()->route('customer.post.show', $request->customer_id)->withSuccess('Message Send For Queue');
     }
+
+    /**
+     * This function is use for send now image on whatsapp
+     * 
+     * @param Request $request
+     * @return type JsonResponse
+     */
+    public function sendNowCustomerAttachImages(Request $request)
+    {
+        $prodSugId = isset($request->hidden_suggestedproductid)? $request->hidden_suggestedproductid : '';
+        try {
+            $requestData = new Request();
+            $requestData->setMethod('POST');
+                $requestData->request->add([
+                    '_token'          => $request->_token,
+                    'send_pdf'        => $request->send_pdf,
+                    'pdf_file_name'   => $request->pdf_file_name,
+                    'images'          => $request->images,
+                    'image'           => $request->image,
+                    'screenshot_path' => $request->screenshot_path,
+                    'message'         => $request->message,
+                    'customer_id'     => $request->customer_id,
+                    'status'          => $request->status,
+                    'type'          => $request->type,
+                ]);
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+
+            $json = request()->get("json", false);
+            if ($json) {
+                $this->createSuggestedProductLog('Message Send Now on whatsapp', "Send Now", $prodSugId);
+                return response()->json(["code" => 200, 'message' => 'Message Send Now on whatsapp']);
+            }
+            if ($request->get('return_url')) {
+                return redirect($request->get('return_url'));
+            }
+            return redirect()->route('customer.post.show', $prodSugId)->withSuccess('Message Send Now on whatsapp');
+        } catch(\Exception $e) {
+            $prod = ProductSuggestedLog::create(['parent_id' => $prodSugId, "log" => $e->getMessage(), "type" => "not catch"]);
+        }
+    }
+
 
     public function cropImage(Request $request)
     {
@@ -4750,6 +4830,11 @@ class ProductController extends Controller
         PushToMagentoCondition::where('id', $input['id'])->update(['status'=>$input['status']]);
         return 'Status Updated';
     }
+    public function updateConditionUpteamStatus(Request $request) {
+        $input = $request->input();
+        PushToMagentoCondition::where('id', $input['id'])->update(['upteam_status'=>$input['upteam_status']]);
+        return 'Upteam Status Updated';
+    }
 
     public function getPreListProducts()
     {
@@ -5060,6 +5145,50 @@ class ProductController extends Controller
             return redirect()->back()->with('success', 'Template has been created successfully');
         }
         return redirect()->back()->with('error', 'Something went wrong, Please try again!');
+    }
+
+    /**
+     * This funcrtion is use for delete product suggested
+     * @param Request $request
+     * 
+     * @return JsonResponse
+     */
+    public function deleteSuggestedProduct(Request $request, $ids="") {
+        try {
+            $idArr = explode(",",$request->ids);
+            $sugProd = \App\SuggestedProduct::whereIn("id", $idArr)->delete();
+            if($sugProd!=0) {
+                return response()->json(['code' => 200, 'message' => 'Successfully Deleted']);   
+            }
+            return response()->json(['code' => 500, 'message' => "Please select any record"]);   
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);   
+        }
+    }
+
+    /**
+     * This funcrtion is use for get product suggested log
+     * @param Request $request
+     * 
+     * @return JsonResponse
+     */
+    public function getSuggestedProductLog(Request $request) {
+        try {
+            $sugProd = ProductSuggestedLog::where("parent_id", $request->id)->get();
+            if($sugProd->toArray()) {
+                $html = '';
+                foreach($sugProd AS $sugProdData) {
+                    $html .='<tr>';
+                    $html .='<td>'.$sugProdData->id.'</td>';
+                    $html .='<td>'.$sugProdData->log.'</td>';
+                    $html .='</tr>';
+                }
+                return response()->json(['code' => 200, 'data'=> $html, 'message' => 'Log listed Successfully']);   
+            }
+            return response()->json(['code' => 500, 'message' => "Log not found"]);   
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);   
+        }
     }
 
     public function attachedImageGrid($model_type = null, $model_id = null, $status = null, $assigned_user = null, Request $request)

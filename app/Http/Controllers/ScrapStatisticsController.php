@@ -317,7 +317,9 @@ class ScrapStatisticsController extends Controller
                 $developerTasks = \App\DeveloperTask::where("scraper_id", $_supplier->id)->latest()->get();
                 if ($developerTasks) {
                     foreach ($developerTasks as $_task) {
-                        $assignedUsers[$_task->assigned_to] = $_task->assignedUser->name;
+						if(isset($_task->assigned_to) and isset($_task->assignedUser->name)) {
+							$assignedUsers[$_task->assigned_to] = $_task->assignedUser->name;
+						}
                     }
                 }
             }

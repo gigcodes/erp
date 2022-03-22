@@ -46,7 +46,7 @@ function scraper_restart_list
 				pid=`echo $status|cut -d' ' -f2`
 				ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "pkill -9 -P $pid ; kill -9 $pid" < /dev/null
 				sed -i "/$scrap/d" /opt/scrap_status
-				echo "$scrap" |tee -a /tmp/scrap_restart |tee -a /opt/scrap_restart |tee -a /opt/scraper/scrap-start-$datetime
+				echo "$scrap" |tee -a /tmp/scrap_restart |tee -a /opt/scrap_restart |tee -a /opt/scraper/scrap-restart-$datetime
 			fi
 		else
 			scrapfile=`echo $scrap|cut -d'.' -f1`
@@ -99,7 +99,7 @@ function scraper_restart
 			chromium_kill
 			exit
 		fi
-		echo $server $scraper
+		echo $server $scraper $datetime > /tmp/scrap_process
 		scraperfile=`ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "find /root/scraper_nodejs/commands/completeScraps/ -iname $scraper.js" < /dev/null`
 		ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "nohup node $scraperfile &> /root/logs/$scraper-$datetime.log &" < /dev/null
 		if [ $? -eq 0 ]

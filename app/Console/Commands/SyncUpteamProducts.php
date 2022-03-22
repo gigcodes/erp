@@ -9,6 +9,7 @@ use App\Category;
 use App\UpteamLog;
 use App\Setting;
 use App\ProductSupplier;
+use App\ConversionRate;
 use Plank\Mediable\Mediable;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Image;
@@ -76,7 +77,7 @@ class SyncUpteamProducts extends Command
 		
 		foreach($productWithKeys as $product) { //dd($product);
 			UpteamLog::create(['log_description'=>'Product importing '.$product['product_name'].' with details '.json_encode($product)]);
-			$category = Category::where(['title'=>$product['category']])->first();
+			$category = Category::where(['title'=>$product['category']])->orderBy('id', 'desc')->first();
 			UpteamLog::create(['log_description'=>' Category details found'. json_encode($category)]);
 			if($category == null) {
 				UpteamLog::create(['log_description'=>$product['category'].' Category Not found for product '.$product['product_name']]);			
@@ -103,10 +104,14 @@ class SyncUpteamProducts extends Command
 				UpteamLog::create(['log_description'=>$product['product_name'].' belt size assigned']);
 			}
 			UpteamLog::create(['log_description'=>' Size assigned']);
+			$conversionRate = ConversionRate::where('currency', 'USD')->where('to_currency', 'INR')->pluck('price')->first();
+			if($conversionRate == null) {
+				$conversionRate = 0;
+			}
 			$productToInsert = [
 					'sku'=>$product['sku'], 
 					'short_description'=>$product['description'], 
-					'stock'=> (int)$product['stock'],
+					'stock'=> $product['stock'],
 					'brand'=>$brand['id'],
 					'name'=>$product['product_name'],
 					'category'=>$category['id'],
@@ -127,8 +132,8 @@ class SyncUpteamProducts extends Command
 					'status_id'=>3,
 					'is_scraped'=>1,
 					'is_on_sale'=>1,
-					'price_inr'=>round(Setting::get('usd_to_inr') * $product['rrp']),
-					'price_inr_special'=>round(Setting::get('usd_to_inr') * $product['selling_price_usd']),
+					'price_inr'=>round($conversionRate * $product['rrp']),
+					'price_inr_special'=>round($conversionRate * $product['selling_price_usd']),
 				];
 
 				

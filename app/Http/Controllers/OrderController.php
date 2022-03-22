@@ -52,6 +52,8 @@ use App\StoreWebsite;
 use App\StoreWebsiteOrder;
 use App\Store_order_status;
 use App\Task;
+use App\TwilioAgent;
+use App\TwilioDequeueCall;
 use App\User;
 use App\Waybill;
 use App\waybillTrackHistories;
@@ -334,9 +336,10 @@ class OrderController extends Controller
 
         $statusFilterList = $statusFilterList->leftJoin("order_statuses as os", "os.id", "orders.order_status_id")
             ->where("order_status", "!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"), "os.status as order_status", "swo.website_id")->get()->toArray();
+        
         $totalOrders = sizeOf($orders->get());
         $orders_array = $orders->paginate(10);
-
+        
         $quickreply = Reply::where('model', 'Order')->get();
 
         $duty_shipping = array();
@@ -364,6 +367,7 @@ class OrderController extends Controller
 
         }
         $orderStatusList = OrderStatus::all();
+       
         //return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
         return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault', 'duty_shipping', 'orderStatusList'));
     }
@@ -886,7 +890,7 @@ class OrderController extends Controller
  * @return \Illuminate\Http\Response
  */
     public function store(Request $request)
-    {
+    { 
         $this->validate($request, [
             'customer_id' => 'required',
             'advance_detail' => 'numeric|nullable',
@@ -911,6 +915,9 @@ class OrderController extends Controller
 
         if (empty($request->input('order_date'))) {
             $data['order_date'] = date('Y-m-d');
+        }
+        if (!empty($request->website_address)) {
+            $data['website_address_id'] = $request->website_address;
         }
 
         // if ($customer = Customer::where('name', $data['client_name'])->first()) {
@@ -2431,31 +2438,60 @@ class OrderController extends Controller
     }
 
     public function callManagement(Request $request){
-
-        $getnumbers = \App\TwilioCurrentCall::select('number')->where(['status'=>1])->get()->toArray();
-        $users = \App\Customer::select('id')->whereIn('phone', $getnumbers)->get()->toArray();
-
-        $reservedCalls = \App\TwilioCallWaiting::leftJoin("customers as c", "c.phone", \DB::raw('REPLACE(twilio_call_waitings.from, "+", "")'))->orderBy("twilio_call_waitings.created_at", "desc")
+        
+        $reservedCalls = \App\TwilioCallWaiting::with('storeWebsite')->leftJoin("customers as c", "c.phone", \DB::raw('REPLACE(twilio_call_waitings.from, "+", "")'))->orderBy("twilio_call_waitings.created_at", "desc")
         ->select(["twilio_call_waitings.*", "c.name", "c.email"])->get();
-        $allleads=[];
-        $orders = (new \App\Order())->newQuery()->with('customer')->leftJoin("store_website_orders as swo","swo.order_id","orders.id")
-        ->leftJoin("order_products as op","op.order_id","orders.id")
-        ->leftJoin("products as p","p.id","op.product_id")
-        ->leftJoin("brands as b","b.id","p.brand")->groupBy("orders.id")
-        ->whereIn('customer_id',$users)
-        ->select(["orders.*",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"])->orderBy('created_at','desc')->limit(5)->get();
-        $allleads[] = $this->getLeadsInformation($users);
-        if ($orders->count()){
-            foreach ($orders as &$value){
-                $value->storeWebsite = $value->storeWebsiteOrder ? ($value->storeWebsiteOrder->storeWebsite??'N/A') : 'N/A';
-                $value->order_date =  Carbon::parse($value->order_date)->format('d-m-y');
-                $totalBrands = explode(",",$value->brand_name_list);
-                $value->brand_name_list = (count($totalBrands) > 1) ? "Multi" : $value->brand_name_list;
-                $value->status = \App\Helpers\OrderHelper::getStatusNameById($value->order_status_id);
-            }
-        }
 
-        return view('orders.call_management', compact('reservedCalls','allleads','orders'));
+        return view('orders.call_management', compact('reservedCalls'));
+    }
+
+    public function getCurrentCallNumber()
+    {
+        $getnumber = TwilioDequeueCall::where('agent_id', Auth::id())->first();
+
+        return response()->json([
+            'number' => $getnumber->caller
+        ]);
+    }
+
+    public function getCurrentCallInformation()
+    {
+        try {
+            // $getnumbers = \App\TwilioCurrentCall::select('number')->where(['status'=>1])->get()->toArray();
+            $getnumber = TwilioDequeueCall::where('agent_id', Auth::id())->first();
+            $agent = TwilioAgent::where('user_id', Auth::id())->first();
+
+            $users = \App\Customer::select('id')->where('phone', str_replace("+","", $getnumber->caller))->get()->toArray();
+            
+            $allleads=[];
+            $orders = (new \App\Order())->newQuery()->with('customer')->leftJoin("store_website_orders as swo","swo.order_id","orders.id")
+            ->leftJoin("order_products as op","op.order_id","orders.id")
+            ->leftJoin("products as p","p.id","op.product_id")
+            ->leftJoin("brands as b","b.id","p.brand")->groupBy("orders.id")
+            ->where('orders.store_id',$agent->store_website_id)
+            ->whereIn('customer_id',$users)
+            ->select(["orders.*",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"])->orderBy('created_at','desc')->limit(5)->get();
+            $allleads[] = $this->getLeadsInformation($users);
+            if ($orders->count()){
+                foreach ($orders as &$value){
+                    $value->storeWebsite = $value->storeWebsiteOrder ? ($value->storeWebsiteOrder->storeWebsite??'N/A') : 'N/A';
+                    $value->order_date =  Carbon::parse($value->order_date)->format('d-m-y');
+                    $totalBrands = explode(",",$value->brand_name_list);
+                    $value->brand_name_list = (count($totalBrands) > 1) ? "Multi" : $value->brand_name_list;
+                    $value->status = \App\Helpers\OrderHelper::getStatusNameById($value->order_status_id);
+                }
+            }  
+            
+            return response()->json([
+                'all_leads' => $allleads,
+                'orders' => $orders
+            ]);
+        }catch(\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
+        }
+        
     }
 
     private function getLeadsInformation($ids){
@@ -2524,8 +2560,8 @@ class OrderController extends Controller
 
             if (is_numeric($value['twilio_call_sid'])) {
                 # code...
-                $formatted_phone = str_replace('+91', '', $value['twilio_call_sid']);
-                $customer_array = Customer::with('storeWebsite', 'orders')->where('phone', 'LIKE', "%$formatted_phone%")->get()->toArray();
+                $formatted_phone = str_replace('+', '', $value['twilio_call_sid']);
+                $customer_array = Customer::with('storeWebsite', 'orders')->where('phone', $formatted_phone)->get()->toArray();
 
                 if ($value['aget_user_id'] != '') {
                     $user_data = User::where('id', $value['aget_user_id'])->first();
@@ -2721,14 +2757,14 @@ class OrderController extends Controller
 
     public function statusChange(Request $request)
     {
-        $id = $request->get("id");
-        $status = $request->get("status");
-        $custom_email_content = $request->get("custom_email_content");
-        $to_mail_address = $request->get("to_mail");
-        $from_mail_address = $request->get("from_mail");
-        $order_via = $request->order_via;
-
-        if (!empty($id) && !empty($status)) {
+       
+        
+          $id = $request->get("id");
+          $status = $request->get("status");
+          $message = $request->get('message');
+          $sendmessage = $request->get("sendmessage");
+          $order_via = $request->order_via;
+            if (!empty($id) && !empty($status)) {
             $order = \App\Order::where("id", $id)->first();
             $statuss = OrderStatus::where("id", $status)->first();
 
@@ -2744,7 +2780,7 @@ class OrderController extends Controller
                 $history->new_status = $status;
                 $history->user_id = Auth::user()->id;
                 $history->save();
-
+                
                 if (in_array('email', $order_via)) {
                     if (isset($request->sendmessage) && $request->sendmessage == '1') {
                         //Sending Mail on changing of order status
@@ -2813,12 +2849,7 @@ class OrderController extends Controller
 
                     } else {
                         $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
-                        if ($from_mail_address != '') {
-                            $emailClass->fromMailer = $from_mail_address;
-                        }
-                        if ($to_mail_address != '') {
-                            $order->customer->email = $to_mail_address;
-                        }
+
                         $storeWebsiteOrder = $order->storeWebsiteOrder;
                         $email = Email::create([
                             'model_id' => $order->id,
@@ -2826,7 +2857,8 @@ class OrderController extends Controller
                             'from' => $emailClass->fromMailer,
                             'to' => $order->customer->email,
                             'subject' => $emailClass->subject,
-                            'message' => $custom_email_content,
+                            
+                            //'message' => $custom_email_content,
                             // 'message'          => $emailClass->render(),
                             'template' => 'order-status-update',
                             'additional_data' => $order->id,
@@ -2870,13 +2902,29 @@ class OrderController extends Controller
                         if ($magento_status) {
                             $magentoHelper = new MagentoHelperv2;
                             $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value);
+                            /**
+                             *check if response has error
+                             */
+                            $response=$result->getData();
+                            if(isset($response) && isset($response->status) && $response->status==false){
+                                return response()->json($response->error,400);
+                            }
+                        }else{
+                        return response()->json('Store MasterStatus Not Present',400);
                         }
+                    }else{
+                        return response()->json('Store Order Status Not Present',400);
                     }
+                }else{
+                    return response()->json('Website Order Not Present',400);
                 }
                 $storeWebsiteOrder->update(['order_id', $status]);
+            }else{
+
+                return response()->json('Store Website Order Not Present',400);
             }
         }
-        return response()->json('Sucess', 200);
+        return response()->json('Success', 200);
 
     }
 
@@ -3347,25 +3395,50 @@ class OrderController extends Controller
             'OrderController@viewAllInvoices');
     }
 
-    public function mailInvoice(Request $request, $id)
+    /**
+     * This function is use to get invoice customer email address.
+     *
+     * @param Request $request
+     * @param int $id
+     * @return Array
+     */
+    public function getInvoiceCustomerEmail(Request $request, $id) 
     {
         $invoice = Invoice::where("id", $id)->first();
+        return [
+            'email' => $invoice->orders[0]->customer->email,
+            'id' => $id
+        ];
+    }
 
-        if ($invoice) {
-
-            $data["invoice"] = $invoice;
-            $data["orders"] = $invoice->orders;
-            if ($invoice->orders) {
-                try {
+    /**
+     * This function is use to Email invoice to customer
+     *
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function mailInvoice(Request $request, $id)
+    {
+        try {
+            $invoice = Invoice::where("id", $id)->first();
+            if ($invoice) {
+                $data["invoice"] = $invoice;
+                $data["orders"] = $invoice->orders;
+                if ($invoice->orders) {
                     Mail::to($invoice->orders[0]->customer->email)->send(new ViewInvoice($data));
                     return response()->json(["code" => 200, "data" => [], "message" => "Email sent successfully"]);
-                } catch (InvalidArgumentException $e) {
-                    return response()->json(["code" => 500, "data" => [], "message" => "Sorry , there is no matching order found"]);
                 }
+            } else {
+                Invoice::where("id", $id)->update(['invoice_error_log' => 'Sorry , there is no matching order found']);
+                return response()->json(["code" => 500, "data" => [], "message" => "Sorry , there is no matching order found"]);
             }
+           
+        } catch (\Exception $e) {
+            \Log::info("Sending mail issue at the ordercontroller invoice log->" . $e->getMessage());
+            Invoice::where("id", $id)->update(['invoice_error_log' => $e->getMessage()]);
+            return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
         }
-
-        return response()->json(["code" => 500, "data" => [], "message" => "Sorry , there is no matching order found"]);
     }
 
     // public function fetchOrders() {
@@ -3671,6 +3744,21 @@ class OrderController extends Controller
             }
         }
     }
+    
+    //TODO::Get companyList
+    public function getCompany(Request $request)
+    {
+        if ($request->ajax()) {
+            try {
+                $term = $request->q;
+                $storeWebsites = \App\StoreWebsite::where('website_address', 'like', '%' . $term . '%')->take(100)->get();
+                return $storeWebsites;
+            } catch (\Exception $ex) {
+                //later put exception block message here
+            }
+        }
+    }
+    
     public function getSearchedProducts(Request $request)
     {
         $term = $request->q;
@@ -3954,10 +4042,14 @@ class OrderController extends Controller
 
         $template = str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $statusModal->status], $template);
         $from = "customercare@sololuxury.co.in";
+		$preview = "";
         if (strtolower($statusModal->status) == "cancel") {
 
             $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
             $storeWebsiteOrder = $order->storeWebsiteOrder;
+			if($emailClass != null) {
+				$preview = $emailClass->render();
+			}
             if ($storeWebsiteOrder) {
                 $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteOrder->website_id)->first();
                 if ($emailAddress) {
@@ -3973,11 +4065,14 @@ class OrderController extends Controller
                        <td>From </td> <td>
                        <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >
                        </td></tr><tr>
-                       <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $emailClass->render() . "</textarea></td>
+                       <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $preview . "</textarea></td>
                     </tr>
             </table>";
         } else {
             $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+			if($emailClass != null) {
+				$preview = $emailClass->render();
+			}
             $storeWebsiteOrder = $order->storeWebsiteOrder;
             if ($storeWebsiteOrder) {
                 $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteOrder->website_id)->first();
@@ -3993,7 +4088,7 @@ class OrderController extends Controller
                        <td>From </td> <td>
                        <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >
                        </td></tr><tr>
-                       <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $emailClass->render() . "</textarea></td>
+                       <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $preview . "</textarea></td>
                     </tr>
             </table>";
         }
@@ -4204,6 +4299,47 @@ class OrderController extends Controller
             $html .= '</tr>';
         }
         return response()->json(['html' => $html, 'success' => true], 200);
+
+    }
+    
+    public function cancelTransaction(Request $request) 
+    {
+        $order_id = $request->get('order_id');
+        $order = \App\Order::where("id", $order_id)->first();
+        
+
+        $storeWebsiteOrder = StoreWebsiteOrder::where('order_id', $order_id)->first();
+        //print_r($storeWebsiteOrder);
+            if ($storeWebsiteOrder) {
+                $website = StoreWebsite::find($storeWebsiteOrder->website_id);
+               
+                if ($website) {
+                    
+                            $magentoHelper = new MagentoHelperv2;
+                            $result = $magentoHelper->cancelTransaction($order, $website);
+                            
+                            return response()->json(['message' => $result, 'success' => true], 200);
+                       
+                }
+                //$storeWebsiteOrder->update(['order_id', $status]);
+            }
+    }
+
+    public function syncTransaction(Request $request) 
+    {
+        $order_id = $request->get('order_id');
+        $transaction_id = $request->get('transaction_id');
+        $order = Order::where('order_id', $order_id)->first();
+        $message  = "Issue in order";
+        $success= false;
+        if($order) {
+            $order->transaction_id = $transaction_id;
+            $order->save();
+            $message = "Transaction id updated successfully";
+            $success=true;
+        }
+        
+        return response()->json(['message' => $message, 'success' => $success], 200);
 
     }
 

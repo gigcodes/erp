@@ -244,11 +244,11 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
 		function getLogs(customerId) {
 			$('#display_logs').html('');
                $.ajax({
-                   url: window.location.origin+'/customer/credit/logs/'+customerId,
+                   url: "{{url('customer/credit/logs')}}/"+customerId,
                    type: 'GET',
                    success: function (data) {
-                       $('#display_logs').html(data.data);
-					   $('#credit_logs').modal('show');
+                      $('#display_logs').html(data.data);
+                      $('#credit_logs').modal('show');
                    },
                    error: function () {
                        $loader.hide();
@@ -260,11 +260,11 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
         function getHistories(customerId) {
             $('#display_histories').html('');
                     $.ajax({
-                        url: window.location.origin+'/customer/credit/histories/'+customerId,
+                        url: "{{url('customer/credit/histories')}}/"+customerId,
                         type: 'GET',
                         success: function (data) {
-                            $('#display_histories').html(data.data);
-                  $('#credit_histories').modal('show');
+                            $('#display_histories').html(data);
+                            $('#credit_histories').modal('show');
                         },
                         error: function () {
                             $loader.hide();

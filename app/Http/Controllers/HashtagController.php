@@ -814,7 +814,7 @@ class HashtagController extends Controller
         $services = \App\Service::first();
         $service_id=$services->id;
         $influencers = \App\ScrapInfluencer::where('email','!=',"")->get();
-        $websites = \App\StoreWebsite::select('id','title')->orderBy('id','desc')->get();
+        $websites = \App\StoreWebsite::select('id','title','send_in_blue_api','send_in_blue_account')->orderBy('id','desc')->get();
        
         $email_list=array();
         $email_list2=array();
@@ -827,6 +827,9 @@ class HashtagController extends Controller
         foreach($websites as $website)
                 {
                     $name=$website->title;
+                    $api_key=(isset($website->send_in_blue_api) &&  $website->send_in_blue_api !="")?$website->send_in_blue_api: getenv('SEND_IN_BLUE_API');
+
+
                     if ($name!='')
                     $name=$name."_".date("d_m_Y");
                     else
@@ -859,7 +862,7 @@ class HashtagController extends Controller
                                  CURLOPT_CUSTOMREQUEST => "POST",
                                  CURLOPT_POSTFIELDS => json_encode($data),
                                  CURLOPT_HTTPHEADER => array(
-                                     "api-key: ".getenv('SEND_IN_BLUE_API'),
+                                     "api-key: ".$api_key,
                                      "Content-Type: application/json"
                                  ),
                              ));
@@ -876,6 +879,8 @@ class HashtagController extends Controller
                                  'service_id' => $service_id,
                                  'email' =>$email,
                                  'remote_id' =>$res->id,
+                                 'send_in_blue_api'=>$website->send_in_blue_api,
+                                 'send_in_blue_account'=>$website->send_in_blue_account,
                              ]);
                              $listIds[]=$res->id;
      
@@ -985,6 +990,15 @@ class HashtagController extends Controller
          
         }
 
+        
+    }
+    public function changeCronSetting(Request $request){
+        $setting = Setting::get('run_mailing_command');
+        $value = ($setting ==1)?0:1;
+        $action = ($setting ==1)?"Stopped":"Started";
+        Setting::set("run_mailing_command", $value, $type = 'int');
+
+        return redirect()->back()->with('message', "Maillist command has  $action successfully.");  
         
     }
 }

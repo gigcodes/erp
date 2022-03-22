@@ -65,6 +65,24 @@
             </div>
             <div class="col-md-4">
                <div class="form-group">
+                  <label for="description">Send Blue Account</label>
+                  <input type="text" name="send_in_blue_account" value="{{if data}}{{:data.send_in_blue_account}}{{/if}}" class="form-control" id="send_in_blue_account" placeholder="Enter Send Blue Account">
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="description">Send Blue API</label>
+                  <input type="text" name="send_in_blue_api" value="{{if data}}{{:data.send_in_blue_api}}{{/if}}" class="form-control" id="send_in_blue_api" placeholder="Enter Send in Blue APi">
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="description">Send Blue SMTP Email API</label>
+                  <input type="text" name="send_in_blue_smtp_email_api" value="{{if data}}{{:data.send_in_blue_smtp_email_api}}{{/if}}" class="form-control" id="send_in_blue_sms_email_api" placeholder="Enter Send in Blue SMTP Mail APi">
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
                   <label for="remote_software">Remote software</label>
                   <input type="text" name="remote_software" value="{{if data}}{{:data.remote_software}}{{/if}}" class="form-control" id="remote_software" placeholder="Enter Remotesoftware">
                </div>
@@ -127,6 +145,12 @@
                <div class="form-group">
                   <label for="facebook_remarks">Facebook Remarks</label>
                   <textarea rows="1" name="facebook_remarks" class="form-control" id="facebook_remarks" placeholder="Enter facebook remarks">{{if data}}{{:data.facebook_remarks}}{{/if}}</textarea>
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="instagram">Product Markup %</label>
+                  <input type="number" name="product_markup" onkeyup="this.value = fnc(this.value, 0, 100)" value="{{if data}}{{:data.product_markup}}{{/if}}" class="form-control" id="product_markup" placeholder="Enter product markup">
                </div>
             </div>
             <div class="col-md-4">
@@ -311,6 +335,9 @@
                         <i class="fa fa-trash" aria-hidden="true"></i>
                         </button>
                         {{/if}}
+                        <a href="<?php echo url('/store-website/log-website-users/'); ?>/{{>prop.store_website_id}}" type="button" title="Website user history" class="btn btn-sm" style="border:1px solid">
+                          <i class="fa fa-history aria-hidden="true""></i>
+                        </a>
                      </div>
                   </div>
                </div>
@@ -368,6 +395,9 @@
                         <button type="button" data-id="" class="btn btn-delete-magento-user btn-sm" style="border:1px solid">
                         <i class="fa fa-trash" aria-hidden="true"></i>
                         </button>
+                        <a href="<?php echo url('/store-website/log-website-users/'); ?>/{{:data.id}}" type="button" title="Website user history" class="btn btn-sm" style="border:1px solid">
+                          <i class="fa fa-history aria-hidden="true""></i>
+                        </a>
                      </div>
                   </div>
                </div>
@@ -457,4 +487,5 @@
 	   </div>
    </div>
 </form>  	
+
 </script>

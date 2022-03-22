@@ -240,6 +240,7 @@ class CreateMailingListNewsLetters extends Command
             "folderId" => 1,
             "name" => $website->title,
         ];
+        $api_key=(isset($website->send_in_blue_api) &&  $website->send_in_blue_api !="")?$website->send_in_blue_api: getenv('SEND_IN_BLUE_API');
         curl_setopt_array($curl, array(
             CURLOPT_URL => "https://api.sendinblue.com/v3/contacts/lists",
             CURLOPT_RETURNTRANSFER => true,
@@ -252,7 +253,7 @@ class CreateMailingListNewsLetters extends Command
             CURLOPT_POSTFIELDS => json_encode($data),
             CURLOPT_HTTPHEADER => array(
                 // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                "api-key: ".config('env.SEND_IN_BLUE_API'),
+                "api-key: ".$api_key,
                 "Content-Type: application/json"
             ),
         ));
@@ -277,6 +278,8 @@ class CreateMailingListNewsLetters extends Command
 				'website_id' => $website->id,
 				'service_id' => 1,
 				'remote_id' => $res->id,
+                'send_in_blue_api'=>$website->send_in_blue_api,
+                'send_in_blue_account'=>$website->send_in_blue_account,
 			]);
 
 			$return_response['code'] = 200;

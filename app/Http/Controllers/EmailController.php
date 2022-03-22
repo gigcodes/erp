@@ -6,6 +6,7 @@ use App\CronJob;
 use App\CronJobReport;
 use App\DigitalMarketingPlatform;
 use App\Email;
+use App\EmailLog;
 use App\EmailAddress;
 use App\EmailRemark;
 use App\EmailRunHistories;
@@ -267,7 +268,7 @@ class EmailController extends Controller
         }*/
 
         $mailboxdropdown = $mailboxdropdown->toArray();
-
+        
         return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_categories' => $email_categories, 'email_status' => $email_status, 'reports' => $reports, 'sender_drpdwn' => $sender_drpdwn, 'digita_platfirms' => $digita_platfirms, 'receiver_drpdwn' => $receiver_drpdwn, 'receiver' => $receiver, 'from' => $from, 'mailboxdropdown' => $mailboxdropdown])->with('i', ($request->input('page', 1) - 1) * 5);
 
     }
@@ -378,18 +379,35 @@ class EmailController extends Controller
         $imap->connect();
 
         $array = is_array(json_decode($email->additional_data, true)) ? json_decode($email->additional_data, true) : [];
-
+    
         if (array_key_exists('attachment', $array)) {
             $temp = json_decode($email->additional_data, true)['attachment'];
         }
-        if (!is_array($temp)) {
-            $attachment[] = $temp;
-        } else {
-            $attachment = $temp;
+        if(isset($temp)) {
+            if (!is_array($temp)) {
+                $attachment[] = $temp;
+            } else {
+                $attachment = $temp;
+            }
         }
         $customConfig = [
             'from' => $email->from,
         ];
+
+        $emailsLog = \App\Email::create([
+            'model_id' => $email->id,
+            'model_type' => \App\Email::class,
+            'from' => $email->from,
+            'to' => $email->to,
+            'subject' => $email->subject,
+            'message' => $email->message,
+            'template' => 'resend-email',
+            'additional_data' => "",
+            'status' => 'pre-send',
+            'store_website_id' => null,
+            'is_draft' => 1,
+        ]);
+
         Mail::to($email->to)->send(new PurchaseEmail($email->subject, $email->message, $attachment));
         if ($type == 'approve') {
             $email->update(['approve_mail' => 0]);
@@ -438,8 +456,31 @@ class EmailController extends Controller
         }
 
         $email = Email::find($request->reply_email_id);
-        Mail::send(new ReplyToEmail($email, $request->message));
-
+        $replyPrefix = 'Re: ';
+        $subject = substr($email->subject, 0, 4) === $replyPrefix
+            ? $email->subject
+            : $replyPrefix . $email->subject;
+        $dateCreated = $email->created_at->format('D, d M Y');
+        $timeCreated = $email->created_at->format('H:i');
+        $originalEmailInfo = "On {$dateCreated} at {$timeCreated}, <{$email->from}> wrote:";
+        $message_to_store = $originalEmailInfo.'<br/>'. $request->message.'<br/>'.$email->message;
+        $emailsLog = \App\Email::create([
+            'model_id' => $email->id,
+            'model_type' => \App\Email::class,
+            'from' => $email->from,
+            'to' => $email->to,
+            'subject' => $subject,
+            'message' => $message_to_store,
+            'template' => 'reply-email',
+            'additional_data' => "",
+            'status' => 'pre-send',
+            'store_website_id' => null,
+            'is_draft' => 1,
+        ]);
+        //$replyemails = (new ReplyToEmail($email, $request->message))->build();
+        \App\Jobs\SendEmail::dispatch($emailsLog);
+        //Mail::send(new ReplyToEmail($email, $request->message));
+        
         return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
     }
 
@@ -1166,12 +1207,12 @@ class EmailController extends Controller
     }
 
     public function getEmailEvents($originId)
-    {
-        $exist = Email::where('origin_id', $originId)->first();
+    {   
+        $exist = Email::where('origin_id', $originId)->first();//$originId = "9e238becd3bc31addeff3942fc54e340@swift.generated";
         $events = [];
         $eventData = '';
         if ($exist != null) {
-            $events = \App\SendgridEvent::where('sg_message_id', $originId)->select('timestamp', 'event')->orderBy('id', 'desc')->get();
+            $events = \App\SendgridEvent::where('payload', 'like', '%"smtp-id":"<'.$originId.'>"%')->select('timestamp', 'event')->orderBy('id', 'desc')->get();
         }
         foreach ($events as $event) {
             $eventData .= "<tr><td>" . $event['timestamp'] . "</td><td>" . $event['event'] . "</td></tr>";
@@ -1180,5 +1221,31 @@ class EmailController extends Controller
             $eventData = '<tr><td>No data found.</td></tr>';
         }
         return $eventData;
+    }
+    /**
+     * Get Email Logs
+     */
+    public function getEmailLogs($emailid)
+    {
+        $emailLogs = EmailLog::where('email_id', $emailid)->orderBy('id', 'desc')->get();
+       
+        $emailLogData = '';
+        
+        foreach ($emailLogs as $emailLog) {
+            $emailLogData .= "<tr><td>" . $emailLog['created_at'] . "</td><td>" . $emailLog['email_log'] . "</td><td>" . $emailLog['message'] . "</td></tr>";
+        }
+        if ($emailLogData == '') {
+            $emailLogData = '<tr><td>No data found.</td></tr>';
+        }
+        return $emailLogData;
+    }
+/**
+ * Update Email Category using Ajax
+ */
+    public function changeEmailCategory(Request $request) 
+    {
+        Email::where('id', $request->email_id)->update(['email_category_id' => $request->category_id]);
+        session()->flash('success', 'Status has been updated successfully');
+        return response()->json(['type' => 'success'], 200);
     }
 }

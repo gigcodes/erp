@@ -13,7 +13,7 @@
             position: fixed;
             top: 50%;
             left: 50%;
-            margin: -50px 0px 0px -50px;
+            margin:-50px 0px 0px -50px;
         }
         .select2-container{
             float:left;
@@ -77,15 +77,15 @@
         </div>
     </div>
 
-
+<div class="pl-4 pr-4">
     <div class="table-responsive mt-3">
-        <table class="table table-bordered" id="passwords-table">
+        <table class="table table-bordered" id="passwords-table"style="table-layout: fixed;">
             <thead>
             <tr>
-                <th style="">ID</th>
-                <th style="">Name</th>
-                <th style="">Created Date</th>
-                <th style="width:700px">Action</th>
+                <th width="1%">ID</th>
+                <th width="7%">Name</th>
+                <th width="5%">Created Date</th>
+                <th width="3%">Action</th>
             </thead>
             <tbody>
             @foreach($data as $key=>$value)
@@ -94,14 +94,14 @@
                     <td id="name">{{$value->name??''}}</td>
                     <td id="name">{{$value->created_at->format('Y-m-d')??''}}</td>
                     <td>
-                        <a class="btn btn-secondary create_broadcast" data-message-id="<?php echo $value->id; ?>" href="javascript:;"><i class="fa fa-plus" aria-hidden="true"></i></a>
+                        <a class="create_broadcast" data-message-id="<?php echo $value->id; ?>" href="javascript:;"><i class="fa fa-plus" aria-hidden="true" style="color: gray;"></i></a>
                         <a title="Preview Broadcast Numbers" data-message-id="<?php echo $value->id; ?>" class="btn btn-image preview_broadcast_numbers" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
                         {{-- <a title="Resend Massage" data-message-id="{{$value->id}}" class="resend_massage" href="javascript:;"> <i style="cursor: pointer;" class="fa fa-repeat" aria-hidden="true"></i></a> --}}
 						<a data-route="{{route('delete.message')}}" data-id="{{$value->id}}" class="trigger-delete">  <i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a>
-                        <a class="btn btn-secondary show_massage" data-message-id="<?php echo $value->id; ?>" href="javascript:;">Show Massage</a>
-                        <a class="btn btn-secondary add_type" data-type="supplier" data-message-id="<?php echo $value->id; ?>" href="javascript:;">Add Suppliers</a>
-                        <a class="btn btn-secondary add_type" data-type="vendor" data-message-id="<?php echo $value->id; ?>" href="javascript:;">Add Vendors</a>
-                        <a class="btn btn-secondary add_type" data-type="customer" data-message-id="<?php echo $value->id; ?>" href="javascript:;">Add Customers</a>
+                        <a class=" show_massage ml-3" data-message-id="<?php echo $value->id; ?>" href="javascript:;"><i class="fa fa-comments-o" aria-hidden="true" style="color:gray;"></i></a>
+                        <a class=" add_type ml-3" data-type="supplier" data-message-id="<?php echo $value->id; ?>" href="javascript:;"><i class="fa fa-user" aria-hidden="true"style="color:gray;"></i></a>
+                        <a class=" add_type ml-3" data-type="vendor" data-message-id="<?php echo $value->id; ?>" href="javascript:;"><i class="fa fa-users" aria-hidden="true" style="color:gray;"></i></a>
+                        <a class=" add_type ml-3" data-type="customer" data-message-id="<?php echo $value->id; ?>" href="javascript:;"><i class="fa fa-plus" aria-hidden="true" style="color:gray;"></i></a>
                     </td>
                 </tr>
             @endforeach
@@ -111,6 +111,7 @@
             {{ $data->links() }}
         @endif
     </div>
+</div>
 @endsection
 
 <div id="create_broadcast" class="modal fade" role="dialog">
@@ -191,8 +192,22 @@
 					<button type="submit" class="btn btn-secondary">Submit</button>
 				</div>
 			</form>
-		</div>
-
+		
+            <div class="table-responsive" style="margin-top:20px;overflow-x: auto !important;">
+                <table class="table table-bordered text-nowrap" id="massage-table">
+                    <thead>
+                        <tr>
+                            <th>ID </th> 
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="group-items-list">
+                    </tbody>
+                </table>
+            </div>
+        </div>
 	</div>
 </div>
 
@@ -399,10 +414,49 @@
 
 
         $(document).on('click', '.add_type', function () {
+            
             var id = $(this).data("message-id");
             var type = $(this).data("type");
             $("#tid").val(id);
             $("#type").val(type);
+
+            $.ajax({
+                type: "POST",
+                url: '{{route("get-send-message-group")}}',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id:id,
+                    type:type,
+                }
+            }).done(function (response) {
+
+                if(response.code == 200) {
+                    
+                    var items = response.data;
+                    $('.group-items-list').html('<tr><td colspan="4">No data found</td></tr>');
+                    if(items.length > 0) {
+                        var itemsHtml = '';
+                        $.each(items, function(k,v) {
+                            itemsHtml += `<tr class="in-background filter-message" id="tr`+v.id+`">
+                                <td >`+v.id+`</td>
+                                <td >`+v.typeName+`</td>
+                                <td >`+v.type+`</td>
+                                <td ><a data-route="" data-id="`+v.id+`" onclick="deleteType(`+v.id+`,event)" class="trigger-type-delete">  <i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a></td>
+                            </tr>`;
+                        });
+                        
+                        $('.group-items-list').html(itemsHtml);
+                    }
+                }
+            }).fail(function (response) {
+                $(thiss).text('No');
+
+                alert('Could not say No!');
+                console.log(response);
+            });
+
+
+            
             if(type=='supplier'){
                 $("#add_type .modal-title").text('Select Suppliers');
                 $("#suppliers").show();

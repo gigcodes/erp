@@ -94,16 +94,128 @@
 		bMute = false;
 	}
 
-	function loadTwilioDevice(token,agent) { console.log('97');
+	function loadTwilioDevice(token,worker_token, agent) { console.log('97');
 		const $confirmModal = $('#receive-call-popup');
+
+
+		// This code is for Demo purpose only, it remove after Call Management UI finish
+		// Demo Code Start
+		$.getJSON("/twilio/getLeadByNumber?number=+971545889192", function (data) {
+
+			const $buttonForAnswer = $('.call__answer'),
+				$buttonForCancelledCall = $('.call__canceled'),
+				$buttonForRejectCall = $('.call__reject'),
+				$accordionTables = $('#accordionTables');
+			if (data.found) {
+				let information = data.data
+				let id = information.customer.id;
+				let name = information.customer.name;
+				let number = information.customer.phone;
+				let email = information.customer.email ;
+				let accordion_data = '';
+				if (information.leads_total){
+					accordion_data = get_leads_table_data(information.leads,information.leads_total)
+				}
+				if (information.orders_total){
+					accordion_data += get_orders_table_data(information.orders,information.orders_total)
+				}
+				if (information.exchanges_return_total){
+					accordion_data += get_exchanges_return_table_data(information.exchanges_return,information.exchanges_return_total)
+				}
+				let string = "Name :<span style='color: #2f2fe7'> " + name + " </span><br>Phone :<span style='color: #3939e2'>+971545889192</span>"
+				if (email){
+					string += "<br>Email :<span style='color: #3939e2'>"+email+"</span>"
+				}
+				$('#receive-call-popup .modal-body').html(string)
+				$('.call__to').html("+971545889192")
+				$accordionTables.html(accordion_data)
+
+				$(".customer-call-name").html(name)
+				$(".customer-call-mail").html(email)
+				$(".customer-call-number").html(number)
+				$(".load-customer-chat-button").attr("data-id", id);
+				$(".customer-call-information").removeClass("d-none");
+
+				getCurrentCallInformation(information.orders, information.leads, information.exchanges_return);
+				getTicketData(id);
+				getCreditData(id);
+			} else {
+				let number = data.number;
+				$('#receive-call-popup .modal-body').html("Incoming call from: <span style='color:#2727b8;'>" + number + "</span> would you like to answer call?")
+				$('.call__to').html('+971545889192')
+			}
+		}); 
+		// Demo Code End 
+
 		var set_status = '';
 		console.log("Token : "+token);
+		console.log("Worker Token : "+worker_token);
 		console.log("Agent : "+agent);
-		device = new Twilio.Device(token, {debug: true, allowIncomingWhileBusy: true, audioConstraints: {
+		device = new Twilio.Device(token, {debug: true, audioConstraints: {
 			mandatory: { 
 				googAutoGainControl: false 
 			} 
 		} });
+
+		const worker = new Twilio.TaskRouter.Worker(worker_token);
+		console.log("device: " + device);
+		console.log("worker: " + worker);
+		
+		worker.on("ready", function(agent) {
+			showActivityStatus(agent)			
+		});
+
+		worker.on("reservation.timeout", function(reservation) {
+			$confirmModal.modal("hide");     
+			showError("Reservation timeout occurred")          
+		});
+
+		worker.on("reservation.canceled", function(reservation) {
+			$confirmModal.modal("hide");     
+			showError("Caller Hang-up")          
+		});
+
+		worker.on("activity.update", (agent) => {
+			showActivityStatus(agent)			
+		});
+
+		showActivityStatus = (agent) => {
+			worker.activities.fetch(
+				(error, activityList) => {
+					if(error) {
+						console.log(error.code);
+						console.log(error.message);
+						return;
+					}
+					let activity;
+					if(agent.available) {
+						$(".worker-activity").addClass("alert-success");
+						$(".worker-activity").removeClass("alert-danger");
+						activity = activityList.data.find((item) => {
+							return item.friendlyName == "Offline";
+						});
+					} else {
+						$(".worker-activity").addClass("alert-danger");
+						$(".worker-activity").removeClass("alert-success");
+						activity = activityList.data.find((item) => {
+							return item.friendlyName == "Available";
+						});
+					}
+					$(".worker-activity").html(`<i class="fa fa-circle"></i> ${agent.activityName}`);
+					$(".worker-activity-toggle").html(activity.friendlyName);
+					$(".worker-activity-toggle").attr("data-activity-sid", activity.sid);
+				}	
+			);
+		}
+
+		$(document).on('click','.worker-activity-toggle', () => {
+			const sid = $('.worker-activity-toggle').attr('data-activity-sid');
+			if(sid) {
+				$(".worker-activity").html("Updating....");
+				worker.update({"ActivitySid":sid});
+			}
+		})
+
 		// Twilio.Device.setup(token, {debug: true});
 		device.on('ready', function () {
 			$("*[data-twilio-call]").each(function () {
@@ -160,7 +272,7 @@
 			showError("Error in Twilio Device");
 		});
 
-		device.on('connect', function (conn) {
+		device.on('connect',  (conn) => {
 			console.log("twilio device connected ", conn);
 			currentCallSid = conn.parameters.CallSid;
 			showNotifTimer("Call with " + remotePhoneNumber);
@@ -193,7 +305,7 @@
 					status: 0,
 				},
 			})
-
+			emptyCurrentCallInformation();
 			cleanup();
 		});
 		
@@ -201,132 +313,178 @@
 		device.on('incoming', function (conn) {
 
 			console.log("------------incoming------------");
+			$.getJSON("/order/current-call-number",  function(res) {
+				$.getJSON("/twilio/getLeadByNumber?number=" + res.number, function (data) {
 
-			$.getJSON("/twilio/getLeadByNumber?number=" + encodeURIComponent(conn.parameters.From), function (data) {
+					const $buttonForAnswer = $('.call__answer'),
+						$buttonForCancelledCall = $('.call__canceled'),
+						$buttonForRejectCall = $('.call__reject'),
+						$buttonForBlockCall = $('.call__block'),
+						$accordionTables = $('#accordionTables');
 
-				const $buttonForAnswer = $('.call__answer'),
-					$buttonForCancelledCall = $('.call__canceled'),
-					$accordionTables = $('#accordionTables');
+					if (data.found) {
+						let information = data.data
+						let id = information.customer.id;
+						let name = information.customer.name;
+						let number = information.customer.phone;
+						let email = information.customer.email ;
+						let accordion_data = '';
+						if (information.leads_total){
+							accordion_data = get_leads_table_data(information.leads,information.leads_total)
+						}
+						if (information.orders_total){
+							accordion_data += get_orders_table_data(information.orders,information.orders_total)
+						}
+						if (information.exchanges_return_total){
+							accordion_data += get_exchanges_return_table_data(information.exchanges_return,information.exchanges_return_total)
+						}
+						let string = "Name :<span style='color: #2f2fe7'> " + name + " </span><br>Phone :<span style='color: #3939e2'>" + conn.parameters.From + "</span>"
+						if (email){
+							string += "<br>Email :<span style='color: #3939e2'>"+email+"</span>"
+						}
+						$('#receive-call-popup .modal-body').html(string)
+						$('.call__to').html(conn.customParameters.get('phone'))
+						$accordionTables.html(accordion_data)
 
-				if (data.found) {
-					let information = data.data
-					let name = information.customer.name;
-					let number = information.customer.phone;
-					let email = information.customer.email ;
-					let accordion_data = '';
-					if (information.leads_total){
-						accordion_data = get_leads_table_data(information.leads,information.leads_total)
+						$(".customer-call-name").html(name)
+						$(".customer-call-mail").html(email)
+						$(".customer-call-number").html(number)
+						$(".load-customer-chat-button").attr("data-id", id);
+						$(".customer-call-information").removeClass("d-none");
+
+						getCurrentCallInformation(information.orders, information.leads, information.exchanges_return);
+						getTicketData(id);
+						getCreditData(id);
+					} else {
+						let number = data.number;
+						$('#receive-call-popup .modal-body').html("Incoming call from: <span style='color:#2727b8;'>" + number + "</span> would you like to answer call?")
+						$('.call__to').html(conn.customParameters.get('phone'))
 					}
-					if (information.orders_total){
-						accordion_data += get_orders_table_data(information.orders,information.orders_total)
-					}
-					if (information.exchanges_return_total){
-						accordion_data += get_exchanges_return_table_data(information.exchanges_return,information.exchanges_return_total)
-					}
-					let string = "Name :<span style='color: #2f2fe7'> " + name + " </span><br>Phone :<span style='color: #3939e2'>" + conn.parameters.From + "</span>"
-					if (email){
-						string += "<br>Email :<span style='color: #3939e2'>"+email+"</span>"
-					}
-					$('#receive-call-popup .modal-body').html(string)
-					$('.call__to').html(conn.customParameters.get('phone'))
-					$accordionTables.html(accordion_data)
 
-				} else {
-					let number = data.number;
-					$('#receive-call-popup .modal-body').html("Incoming call from: <span style='color:#2727b8;'>" + number + "</span> would you like to answer call?")
-					$('.call__to').html(conn.customParameters.get('phone'))
-				}
+					$confirmModal.modal('show');
+					$confirmModal.modal({
+						backdrop: 'static',
+						keyboard: false
+					});
 
-				$confirmModal.modal('show');
-				$confirmModal.modal({
-					backdrop: 'static',
-					keyboard: false
-				});
+					$buttonForAnswer.off().one('click', function () {
+						console.log('called');
+						$confirmModal.modal('hide');
 
-				$buttonForAnswer.off().one('click', function () {
-					console.log('called');
-					$confirmModal.modal('hide');
+						sendTwilioEvents({
+							status: 'answered',
+							From:  conn.parameters.From,
+							To: conn.customParameters.get('phone'),
+							CallSid: conn.parameters.CallSid,
+							AccountSid: conn.parameters.AccountSid
+						})
+						flagAboutAnswer = false;
 
-					sendTwilioEvents({
-						status: 'answered',
-						From:  conn.parameters.From,
-						To: conn.customParameters.get('phone'),
-						CallSid: conn.parameters.CallSid,
-						AccountSid: conn.parameters.AccountSid
-					})
-					flagAboutAnswer = false;
+						var auth_id = $('.call-twilio ').attr('data-auth-id');
 
-					var auth_id = $('.call-twilio ').attr('data-auth-id');
+						set_status = setInterval(function(){  
+							$.ajax({
+								url: '/twilio/change_agent_call_status',
+								type: 'POST',
+								dataType: 'json',
+								data: {
+									_token: "{{ csrf_token() }}",
+									authid : auth_id,
+									status: 1,
+								},
+							})
+						}, 2000);
 
-					set_status = setInterval(function(){  
+						add_number = setInterval(function(){  
+							$.ajax({
+								url: '/twilio/add_number',
+								type: 'POST',
+								dataType: 'json',
+								data: {
+									_token: "{{ csrf_token() }}",
+									authid : auth_id,
+									number : conn.parameters.From,
+									status: 1,
+								},
+							})
+						}, 2000);
+
+						conn.accept();
+					});
+
+					$buttonForCancelledCall.off().one('click', function () {
+						clearInterval(set_status);
+						$confirmModal.modal('hide');
+						
+						sendTwilioEvents({
+							status: 'busy',
+							From:  conn.parameters.From,
+							To: conn.customParameters.get('phone'),
+							CallSid: conn.parameters.CallSid,
+							AccountSid: conn.parameters.AccountSid
+						})
+						flagAboutAnswer = false
+
+						var auth_id = $('.call-twilio ').attr('data-auth-id');
+
 						$.ajax({
-							url: '/twilio/change_agent_call_status',
+							url: '/twilio/change_agent_status',
 							type: 'POST',
 							dataType: 'json',
 							data: {
 								_token: "{{ csrf_token() }}",
 								authid : auth_id,
-								status: 1,
+								status: 0,
 							},
 						})
-					}, 2000);
 
-					add_number = setInterval(function(){  
 						$.ajax({
-							url: '/twilio/add_number',
+							url: '/twilio/update_number_status',
 							type: 'POST',
 							dataType: 'json',
 							data: {
 								_token: "{{ csrf_token() }}",
 								authid : auth_id,
 								number : conn.parameters.From,
-								status: 1,
+								status: 0,
 							},
 						})
-					}, 2000);
 
-					conn.accept();
-				});
+						$.ajax({
+							url: '/twilio/update-reservation-status',
+							type: 'POST',
+							dataType: 'json',
+							data: {
+								_token: "{{ csrf_token() }}",
+								authid : auth_id,
+								number : conn.parameters.From,
+							},
+						})
 
-				$buttonForCancelledCall.off().one('click', function () {
-					clearInterval(set_status);
-					$confirmModal.modal('hide');
-					
-					sendTwilioEvents({
-						status: 'busy',
-						From:  conn.parameters.From,
-						To: conn.customParameters.get('phone'),
-						CallSid: conn.parameters.CallSid,
-						AccountSid: conn.parameters.AccountSid
-					})
-					flagAboutAnswer = false
+						conn.reject();
+					});
 
-					var auth_id = $('.call-twilio ').attr('data-auth-id');
-
-					$.ajax({
-						url: '/twilio/change_agent_status',
-						type: 'POST',
-						dataType: 'json',
-						data: {
-							_token: "{{ csrf_token() }}",
-							authid : auth_id,
-							status: 0,
-						},
-					})
-
-					$.ajax({
-						url: '/twilio/update_number_status',
-						type: 'POST',
-						dataType: 'json',
-						data: {
-							_token: "{{ csrf_token() }}",
-							authid : auth_id,
-							number : conn.parameters.From,
-							status: 0,
-						},
+					$buttonForRejectCall.off().one('click', function () {
+						sendTwilioEvents({
+							status: 'reject',
+							From:  conn.parameters.From,
+							To: conn.customParameters.get('phone'),
+							CallSid: conn.parameters.CallSid,
+							AccountSid: conn.parameters.AccountSid
+						})
+						
+						$.ajax({
+							url : "/twilio/reject-incoming-call",
+							method: 'GET'
+						})
 					})
 
-					conn.reject();
+					$buttonForBlockCall.off().one('click', function () {
+						$.ajax({
+							url : "/twilio/block-incoming-call",
+							method: 'GET'
+						})
+					})
 				});
 			});
 		});
@@ -375,8 +533,177 @@
 						status: 0,
 					},
 				})
+
+				emptyCurrentCallInformation();
 			}
 		});
+	}
+
+	function getCurrentCallInformation(orders, leads, exchange) {
+		$(".current_call_orders").empty();
+		let orderHtml = '';
+		orders.forEach((item) => {
+			orderHtml += '<tr>';
+			orderHtml += '<td>' + (item.customer.name || 'N/A') + '</td>';
+			orderHtml += '<td>' + (item.customer.email || 'N/A') + '</td>';
+			orderHtml += '<td>' + (item.order_id || 'N/A') + '</td>';
+			orderHtml += '<td>' + (item.client_name || 'N/A') + '</td>';
+			orderHtml += '<td>' + (item.storeWebsite.website || 'N/A') + '</td>';
+			orderHtml += '<td>' + (item.order_status || 'N/A') + '</td>';
+			orderHtml += '<td>' + (item.created_at || 'N/A') + '</td>';
+		})
+		$(".current_call_orders").html(orderHtml);
+
+		$(".current_call_all_leads").empty();
+		let allLeadsHtml = '';
+		leads.forEach((item) => {
+			allLeadsHtml += '<tr>';
+			allLeadsHtml += '<td>' + (item.id || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.lead_status_id || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.customer_name || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.color || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.size || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.min_price || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.max_price || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.brand_segment || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.gender  || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.qty  || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.product_name  || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.cat_title  || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.brand_name  || 'N/A') + '</td>';
+			allLeadsHtml += '<td>' + (item.status_name  || 'N/A') + '</td>';
+			allLeadsHtml += '</tr>';
+		})
+		$(".current_call_all_leads").html(allLeadsHtml);
+
+		$('.current_call_return_and_exchange').empty();
+		let exchangeTable = '';
+		exchange.forEach((item) => {
+			exchangeTable += '<tr>';
+			exchangeTable += '<td>' + (item.id  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.customer_name  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.name  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.type  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.refund_amount  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.reason_for_refund  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.status_name  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.pickup_address  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.remarks  || 'N/A') + '</td>';
+			exchangeTable += '<td>' + (item.created_at  || 'N/A') + '</td>';
+			exchangeTable += '</tr>';
+		})
+		$('.current_call_return_and_exchange').html(exchangeTable);
+	}
+
+	function getTicketData(id) {
+		$.ajax({
+			url: '/livechat/get-tickets-data',
+			method : 'GET',
+			data : {
+				customer_id: id 
+			},
+			success: function(res) {				
+				$(".current_call_ticket_data").empty();
+				let ticketData = '';
+				res.data.forEach((item, index) => {
+					ticketData += '<tr>';
+					ticketData += '<td>' + (parseInt(index) + 1) + '</td>';
+					ticketData += '<td>' + (item.subject || 'N/A') + '</td>';
+					ticketData += '<td>' + (item.message || 'N/A') + '</td>';
+					ticketData += '<td>' + (item.ticket_status.name || 'N/A') + '</td>';
+					ticketData += '<td>' + (item.created_at || 'N/A') + '</td>';
+					ticketData += '</tr>';
+				})
+				$(".current_call_ticket_data").html(ticketData);
+			}
+		})
+	}
+
+	function getCreditData(id) {
+		$.ajax({
+			url: '/livechat/get-credits-data',
+			method : 'GET',
+			data : {
+				customer_id: id 
+			},
+			success: function(res) {				
+				$(".remaining_credit").html(res.currentcredit)
+				$(".current_call_credit_data").empty();
+				let creditData = '';
+				res.data.forEach((item, index) => {
+					creditData += '<tr>';
+					creditData += '<td>' + (parseInt(index) + 1) + '</td>';
+					creditData += '<td>' + (item.used_credit || 'N/A') + '</td>';
+					creditData += '<td>' + (item.used_in || 'N/A') + '</td>';
+					creditData += '<td>' + (item.type.name|| 'N/A') + '</td>';
+					creditData += '<td>' + (item.created_at || 'N/A') + '</td>';
+					creditData += '</tr>';
+				})
+				$(".current_call_credit_data").html(creditData);
+			}
+		})
+	}
+
+	$(document).on("click", ".load-customer-chat-button", function() {
+		const customer_id = $(this).attr("data-id");
+		getCustomerChatHistory(customer_id)
+	})
+
+	function getCustomerChatHistory(customer_id)
+	{
+		$("#loading-image").show();
+		$.ajax({
+			url : `/chat-messages/customer/${customer_id}/loadMoreMessages`,
+			method : "GET",
+			data: {
+				limit: 100,
+				load_all: 1,
+				load_attached: 1,
+				load_type: "text_with_incoming_img"
+			},
+			success: function(res) {
+				const messages = res.messages;
+				$("#loading-image").hide();
+				$("#customer-call-chat-history .modal-body").empty();
+				if (messages.length > 0) {
+
+				    $(messages).each(function(key, value) {
+				        $("#customer-call-chat-history .modal-body").append(`
+				        <table class="table table-bordered">
+				            <tr>
+				                <td style="width:50%">${value.message}</td>
+				                <td style="width:50%">From ${value.sendBy} To ${value.sendTo} On ${value.datetime}</td>
+				            </tr>    
+				        </table>
+				        `)
+				    })
+				} else {
+				    $("#customer-call-chat-history .modal-body").append(`
+				        <table class="table table-bordered">
+				            <tr>
+				                <td colspan="2">No conversations found</td>
+				            </tr>    
+				        </table>
+				        `)
+				}
+				$("#customer-call-chat-history").modal('show');
+			}
+		})
+	}
+
+	function emptyCurrentCallInformation()
+	{
+		$(".current_call_orders").empty();
+		$(".current_call_all_leads").empty();
+		$(".current_call_return_and_exchange").empty();
+		$(".current_call_credit_data").empty();
+		$(".current_call_ticket_data").empty();
+		$(".remaining_credit").html(0);
+		$(".customer-call-name").empty();
+		$(".customer-call-mail").empty();
+		$(".customer-call-number").empty();
+		$(".load-customer-chat-button").attr("data-id", 0);
+		$(".customer-call-information").addClass("d-none");
 	}
 
 	function initializeTwilio() {
@@ -384,7 +711,7 @@
 			if (!result.empty) {
 				console.log("Received Twilio Token - agent " + result.agent);
 				for (var i in result.twilio_tokens) if (result.twilio_tokens.hasOwnProperty(i)) {
-					loadTwilioDevice(result.twilio_tokens[i],result.agent);
+					loadTwilioDevice(result.twilio_tokens[i],result.workers[i],result.agent);
 				}
 			} else {
 				console.log("Not Twilio Token - agent or auth user");

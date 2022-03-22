@@ -94,68 +94,115 @@
 
                     <div class="col-md-6 col-12">
                         @if ($has_customer)
-                            <div class="card mt-5">
-                              <div class="card-header bg-secondary text-white">
-                                Customer Details
+                            <div class="card mt-3">
+                              <div class="card-header" style="color:black;">
+                                Customer and Store Details
                               </div>
-                              <div class="card-body">
+                              <div class="card-body" style="margin-top: -19px;">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <p class="card-text"><strong>Name: </strong> {{ $customer->name }}</p>        
+                                        <p class="card-text">Name: {{ $customer->name }}</p>        
                                     </div>
-                                    <div class="col-md-6">
-                                        <p class="card-text"><strong>Email: </strong> {{ $customer->email }}</p>        
+                                    <div class="col-md-6 d-flex">
+                                        <p class="card-text">Email:  {{ $customer->email }}</p>        
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <p class="card-text"><strong>Phone: </strong> {{ $customer->phone }} 
+                                     <div class="col-md-6">
+                                        <p class="card-text">Phone:  {{ $customer->phone }} 
                                             @if (strlen($customer->phone) != 12 || preg_match('/^[91]{2}/', $customer->phone) == false)
                                               <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
                                             @endif
                                         </p>        
                                     </div>
-                                    <div class="col-md-6">
-                                        <p class="card-text"><strong>Instagram Handle: </strong> {{ $customer->instahandler }} </p>        
-                                    </div>
-                                </div>
-                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <p class="card-text"><strong>Address: </strong> {{ $customer->address }}</p>        
-                                    </div>
-                                    <div class="col-md-6">
-                                        <p class="card-text"><strong>City: </strong> {{ $customer->city }} </p>        
+                                     <div class="col-md-6">
+                                        <p class="card-text">Address:{{ $customer->address }}</p>        
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <p class="card-text"><strong>Country: </strong> {{ $customer->country }}</p>        
+                                        <p class="card-text">Instagram Handle: {{ $customer->instahandler }} </p>        
                                     </div>
-                                    <div class="col-md-6">
-                                        <p class="card-text"><strong>Pincode: </strong> {{ $customer->pincode }}</p>        
+                                     <div class="col-md-6 d-flex">
+                                        <p class="card-text">City:  {{ $customer->city }} </p>        
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <p class="card-text"><strong>Site Name: </strong> <a href="{{ @$customer->storeWebsite->website_url }}" target="_blank">{{$customer->storeWebsite->website ?? ''}}</a></p>        
+                                        <p class="card-text">Country:  {{ $customer->country }}</p>        
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="card-text">Pincode: {{ $customer->pincode }}</p>        
                                     </div>
                                 </div>
-                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="card-text">Site Name: <a href="{{ @$customer->storeWebsite->website_url }}" target="_blank">{{$customer->storeWebsite->website ?? ''}}</a></p>        
+                                    </div>
+                                     <div class="col-md-6">Store name: {{ $order->store_name ?? '--'}}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">Store id:  {{ $order->store_id ?? '--'}}</div>
+                                    <div class="col-md-6">store currency code:{{ $order->store_currency_code ?? '--'}}</div>
+                                </div>
                               </div>
                             </div>
                         @endif
                       <br>
+                    </div>
+                    <div class="col-md-6 col-12 mt-3">
+                        <div class="card">
+                          <div class="card-header " style="color:black;">Shipping and Billing address</div>
+                          <div class="card-body" style="margin-top: -19px;">
+                            <div class="row">
+                                <div class="col-md-6">First name:  {{ $shipping_address->firstname ?? '--'}}</div>
+                                <div class="col-md-6">Last name:  {{ $shipping_address->lastname ?? '--'}}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">street:  {{ $shipping_address->street ?? '--'}}</div>
+                                <div class="col-md-6">city:  {{ $shipping_address->city ?? '--'}}</div>
+                            </div>
+                            <div class="row">
+                              
+                                <div class="col-md-6">country:  {{ $shipping_address->country_id ?? '--'}}</div>
+                                <div class="col-md-6">postcode: {{ $shipping_address->postcode ?? '--'}}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">telephone: {{ $shipping_address->telephone ?? '--' }}</div>
+                                <div class="col-md-6 ">Email : {{ $shipping_address->email ?? '--'}}</div>
+                            </div>
+                            <h6><b>Biling address</b></h6>
+                            <div class="row">
+                                <div class="col-md-6">First name: {{ $billing_address->firstname ?? '--'}}</div>
+                                <div class="col-md-6">Last name:  {{ $billing_address->lastname ?? '--'}}</div>
+                            </div>
+                            <div class="row">
+                                 <div class="col-md-6">street: {{ $billing_address->street ?? '--' }}</div>
+                                  <div class="col-md-6">city: {{ $billing_address->city ?? '--'}}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">country:{{ $billing_address->country_id ?? '--'}}</div>
+                                <div class="col-md-6">postcode:{{ $billing_address->postcode ?? '--' }}</div>
+                            </div>
+                             <div class="row">
+                                <div class="col-md-6">telephone:{{ $billing_address->telephone ?? '--' }}</div>
+                                <div class="col-md-6">Email :{{ $billing_address->email ?? '--'}}</div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
 
-                      <div class="card">
-                          <div class="card-header bg-secondary text-white">
-                            Order details
+                    <div class="col-xs-12">
+                          <div class="card" style="margin-top: -2px;">
+                          <div class="card-header "style="color:black;">
+                            Order and Payment details
                           </div>
                           <div class="card-body">
-                            <p class="card-text"> 
-                                <div class="row">
-                                    <div class="col-md-4">
+                            <p class="card-text" style="margin-top: -30px;"> 
+                                <div class="row" style="margin-top: -18px;">
+                                    <div class="col-md-3">
                                         <div class="form-group">
-                                        <strong> Order Type :</strong>
+                                         Order Type :
                                         <?php
                                             $order_types = [
                                               'offline' => 'offline',
@@ -167,15 +214,15 @@
                                               @endif
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-group">
-                                            <strong>Sale Order No. </strong> 
+                                            Sale Order No.
                                             <input type="text" value="{{ $order_id }}" class="form-control">
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-group">
-                                            <strong>Order Date:</strong>
+                                            Order Date:
                                             <input type="date" class="form-control" name="order_date" placeholder="Order Date"
                                                    value="{{ old('order_date') ? old('order_date') : $order_date }}"/>
                                             @if ($errors->has('order_date'))
@@ -183,19 +230,19 @@
                                             @endif
                                         </div>
                                     </div>
-                                </div>
-                            </p>
-                            <p class="card-text">
-                                <div class="row">
-                                    <div class="col-md-4">
+                                   <div class="col-md-3">
                                     <div class="form-group">
-                                        <strong> Price :</strong>
+                                         Price :
                                         <input type="text" value="{{ $total_price }}" class="form-control">
                                     </div>
                                     </div>
-                                    <div class="col-md-4">
+                                </div>
+                            </p>
+                            <p class="card-text">
+                                <div class="row"style="margin-top: -18px;">
+                                    <div class="col-md-3">
                                           <div class="form-group">
-                                          <strong>Date of Delivery:</strong>
+                                         Date of Delivery:
                                           <input type="date" class="form-control" name="date_of_delivery" placeholder="Date of Delivery"
                                                 value="{{ old('date_of_delivery') ? old('date_of_delivery') : $date_of_delivery }}"/>
                                           @if ($errors->has('date_of_delivery'))
@@ -203,10 +250,10 @@
                                           @endif
                                       </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                           @php $status = ( new \App\ReadOnly\OrderStatus )->getNameById( $order_status ); @endphp
                                           <div class="form-group">
-                                              <strong>status:</strong>
+                                             status:
                                               <Select name="order_status_id" class="form-control" id="order_status">
                                                     @foreach($order_statuses as $key => $value)
                                                     <option value="{{$key}}" {{$order_status_id == $key ? 'Selected=Selected':''}}>{{$value->status}}</option>
@@ -215,13 +262,9 @@
                                               <span id="change_status_message" class="text-success" style="display: none;">Successfully changed status</span>
                                           </div>
                                         </div>
-                                  </div>
-                            </p>
-                            <p class="card-text">
-                                <div class="row">
-                                    <div class="col-md-4">
+                                        <div class="col-md-3">
                                       <div class="form-group">
-                                      <strong>Estimated Delivery Date:</strong>
+                                      Estimated Delivery Date:
                                       <input type="date" class="form-control" name="estimated_delivery_date" placeholder="Advance Date"
                                               value="{{ old('estimated_delivery_date') ? old('estimated_delivery_date') : $estimated_delivery_date }}"/>
                                       @if ($errors->has('estimated_delivery_date'))
@@ -229,27 +272,27 @@
                                       @endif
                                     </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                     <div class="form-group">
-                                        <strong>Shoe Size:</strong>
+                                        Shoe Size:
                                         <input type="text" class="form-control" name="shoe_size" placeholder="Shoe Size"
                                                 value="{{ old('shoe_size') ? old('shoe_size') : $shoe_size }}"/>
-                                    </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                      <div class="form-group">
-                                      <strong>Clothing Size:</strong>
-                                      <input type="text" class="form-control" name="clothing_size" placeholder="Clothing Size"
-                                              value="{{ old('clothing_size') ? old('clothing_size') : $clothing_size }}"/>
                                     </div>
                                     </div>
                                 </div>
                             </p>
                             <p class="card-text">
-                                <div class="row">
-                                    <div class="col-md-4">
+                                <div class="row"style="margin-top: -18px;">
+                                    <div class="col-md-3">
                                       <div class="form-group">
-                                      <strong>Note if any:</strong>
+                                      Clothing Size:
+                                      <input type="text" class="form-control" name="clothing_size" placeholder="Clothing Size"
+                                              value="{{ old('clothing_size') ? old('clothing_size') : $clothing_size }}"/>
+                                      </div>
+                                    </div>
+                                <div class="col-md-3">
+                                      <div class="form-group">
+                                      Note if any:
                                       <input type="text" class="form-control" name="note_if_any" placeholder="Note if any"
                                               value="{{ old('note_if_any') ? old('note_if_any') : $note_if_any }}"/>
                                       @if ($errors->has('note_if_any'))
@@ -257,33 +300,35 @@
                                       @endif
                                       </div>
                                     </div>
-                                    <div class="col-md-4">
+                                 <div class="col-md-3">
                                           <div class="form-group">
-                                              <strong>Created by:</strong>
+                                              Created by:
                                               <input class="form-control" type="text" value="{{ $user_id != 0 ? App\Helpers::getUserNameById($user_id) : 'Unknown' }}">
                                           </div>
-                                    </div>
-                                    <div class="col-md-4">
+                                </div>
+                                <div class="col-md-3">
                                     <div class="form-group">
                                       @if (strlen($contact_detail) < 12)
                                         <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
                                       @endif
-                                        <strong>Contact Detail:</strong>
+                                      Contact Detail:
                                         <input type="text" class="form-control" name="contact_detail" placeholder="Contact Detail"
                                               value="{{ old('contact_detail') ? old('contact_detail') : $contact_detail }}"/>
                                         @if ($errors->has('contact_detail'))
                                             <div class="alert alert-danger">{{$errors->first('contact_detail')}}</div>
                                         @endif
                                     </div>
-                                  </div>
-                                </div>
-                            </p>
+                                </div> 
+                          </div>
+                      </p>
+                      
+                            
                             <p class="card-text">
-                                <div class="row">
+                                <div class="row"style="margin-top: -20px;">
                                     <div class="col-md-12">
                                     <div id="tracking-wrapper-{{ $id }}" style="display: {{ $order_status == 'Product shiped to Client' ? 'block' : 'none' }}">
                                       <div class="form-group">
-                                        <strong>AWB Number:</strong>
+                                       AWB Number:
                                         <input type="text" name="awb" class="form-control" id="awb_field_{{ $id }}" value="{{ $awb }}" placeholder="00000000000">
                                         <button type="button" class="btn btn-xs btn-secondary mt-1 track-shipment-button" data-id="{{ $id }}">Track</button>
                                       </div>
@@ -296,28 +341,19 @@
                                 </div>
                             </p>
                             <p class="card-text">
-                                <div class="row">
+                                <div class="row"style="margin-top: -20px;">
                                   <div class="col-md-12">
                                     <div class="form-group">
-                                        <strong>Remark</strong>
+                                       Remark
                                         <p>{{ $remark }}</p>
                                     </div>
                                   </div>
                                 </div>
                             </p>
-                          </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 col-12 mt-5">
-                        <div class="card">
-                          <div class="card-header bg-secondary text-white">Payment Details</div>
-                          <div class="card-body">
-                            <p class="card-text">
-                                <div class="row">
-                                    <div class="col-md-4">
+                           <div class="row"style="margin-top: -23px;">
+                                    <div class="col-md-3">
                                         <div class="form-group">
-                                          <strong>Balance Amount:</strong>
+                                         Balance Amount:
                                           <input type="text" class="form-control" name="balance_amount" placeholder="Balance Amount"
                                                 value="{{ old('balance_amount') ? old('balance_amount') : $balance_amount }}"/>
                                           @if ($errors->has('balance_amount'))
@@ -325,9 +361,9 @@
                                           @endif
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                     <div class="form-group">
-                                    <strong> Payment Mode :</strong>
+                                     Payment Mode :
                                     <?php
                                     $paymentModes = new \App\ReadOnly\PaymentModes();
 
@@ -338,9 +374,9 @@
                                           @endif
                                       </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                     <div class="form-group">
-                                      <strong>Advance Amount:</strong>
+                                      Advance Amount:
                                       <input type="text" class="form-control" name="advance_detail" placeholder="Advance Detail"
                                             value="{{ old('advance_detail') ? old('advance_detail') : $advance_detail }}"/>
                                       @if ($errors->has('advance_detail'))
@@ -348,23 +384,21 @@
                                       @endif
                                   </div>
                                   </div>
-                                </div>
-                            </p>
-                            <p class="card-text">
-                                <div class="row">
-                                  <div class="col-md-6">
+                                  <div class="col-md-3">
                                     <div class="form-group">
-                                        <strong>Received By:</strong>
+                                       Received By:
                                         <input type="text" class="form-control" name="received_by" placeholder="Received By"
                                               value="{{ old('received_by') ? old('received_by') : $received_by }}"/>
                                         @if ($errors->has('received_by'))
                                             <div class="alert alert-danger">{{$errors->first('received_by')}}</div>
                                         @endif
                                       </div>
-                                    </div>
-                                    <div class="col-md-6">
+                                    </di>
+                                </div>
+                                <div class="d-flex pl-4"style="margin-top: -10px;">
+                                    <div class="">
                                     <div class="form-group">
-                                        <strong>Advance Date:</strong>
+                                        Advance Date:
                                         <input type="date" class="form-control" name="advance_date" placeholder="Advance Date"
                                                value="{{ old('advance_date') ? old('advance_date') : $advance_date }}"/>
                                         @if ($errors->has('advance_date'))
@@ -372,115 +406,56 @@
                                         @endif
                                     </div>
                                     </div>
-                                </div>
-                            </p>
-                            <p class="card-text">
+                                     <p class="card-text  ml-2 " style="margin-top: 19px;">
                                 @if ($has_customer)
-                                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#instructionModal">Add Instruction</button>
+                                    <button type="button" class="btn  btn-secondary" data-toggle="modal" data-target="#instructionModal">Add Instruction</button>
                                 @endif
                                 @if (isset($waybills) && !$waybills->isEmpty())
                                   @foreach($waybills as $way)
                                     <div class="form-group">
-                                      <strong>AWB: </strong> {{ $way->awb }}
+                                      AWB:  {{ $way->awb }}
                                       <br>
                                       <a href="{{ route('order.download.package-slip', $way->id) }}" class="btn-link">Download Package Slip</a>
                                       <a href="javascript:;" data-id="{{ $way->id }}" data-awb="{{ $way->awb }}" class="btn-link track-package-slip">Track Package Slip</a>
                                     </div>
                                   @endforeach
                                 @else
-                                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#generateAWBMODAL">Generate AWB</button>
+                                    <button type="button" class="btn  btn-secondary" data-toggle="modal" data-target="#generateAWBMODAL">Generate AWB</button>
                                 @endif
-                            </p>
-                          </div>
-                        </div>
-                        <br>
-                        <div class="card">
-                          <div class="card-header bg-secondary text-white">Store details</div>
-                          <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6"><strong>Store name: </strong> {{ $order->store_name ?? '--'}}</div>
-                                <div class="col-md-2"><strong>Store id: </strong> {{ $order->store_id ?? '--'}}</div>
-                                <div class="col-md-6"><strong>store currency code: </strong> {{ $order->store_currency_code ?? '--'}}</div>
-                            </div>
-                          </div>
-                        </div>
-                        <br>
-                        <div class="card">
-                          <div class="card-header bg-secondary text-white">Shipping address</div>
-                          <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6"><strong>First name: </strong> {{ $shipping_address->firstname ?? '--'}}</div>
-                                <div class="col-md-6"><strong>Last name: </strong> {{ $shipping_address->lastname ?? '--'}}</div>
-                                
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12"><strong>street: </strong> {{ $shipping_address->street ?? '--'}}</div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4"><strong>city: </strong> {{ $shipping_address->city ?? '--'}}</div>
-                                <div class="col-md-4"><strong>country: </strong> {{ $shipping_address->country_id ?? '--'}}</div>
-                                <div class="col-md-4"><strong>postcode: </strong> {{ $shipping_address->postcode ?? '--'}}</div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6"><strong>telephone: </strong> {{ $shipping_address->telephone ?? '--' }}</div>
-                                <div class="col-md-6"><strong>Email : </strong> {{ $shipping_address->email ?? '--'}}</div>
-                            </div>
-                          </div>
-                        </div>
-                        <br>
-                        <div class="card">
-                          <div class="card-header bg-secondary text-white">Billing address</div>
-                          <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6"><strong>First name: </strong> {{ $billing_address->firstname ?? '--'}}</div>
-                                <div class="col-md-6"><strong>Last name: </strong> {{ $billing_address->lastname ?? '--'}}</div>
-                                
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12"><strong>street: </strong> {{ $billing_address->street ?? '--' }}</div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4"><strong>city: </strong> {{ $billing_address->city ?? '--'}}</div>
-                                <div class="col-md-4"><strong>country: </strong> {{ $billing_address->country_id ?? '--'}}</div>
-                                <div class="col-md-4"><strong>postcode: </strong> {{ $billing_address->postcode ?? '--' }}</div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6"><strong>telephone: </strong> {{ $billing_address->telephone ?? '--' }}</div>
-                                <div class="col-md-6"><strong>Email : </strong> {{ $billing_address->email ?? '--'}}</div>
-                            </div>
-                          </div>
-                        </div>
+                            
+                                </div>
+                              
 
+                          </div>
+                        </div>
                     </div>
-
-
                     <div class="col-xs-12">
                       <div class="">
                             <div class="card">
-                              <div class="card-header bg-secondary text-white">Product Details</div>
-                              <div class="card-body">
+                              <div class="card-header bg-secondary" style="background-color: #bfbfbf !important;color:black;">Product Details</div>
+                              <div class="card-body"style="margin-bottom: -23px;">
                                 <p class="card-text">
                                     <div class="form-group">
                                       <table class="table table-bordered" id="products-table">
                                           <tr>
-                                              <th>Image</th>
-                                              <th>Name</th>
-                                              <th>Sku</th>
-                                              <th>Color</th>
-                                              <th>Brand</th>
-                                              <th style="width: 100px">Price</th>
-                                              <th style="width: 100px">Size</th>
-                                              <th style="width: 80px">Qty</th>
+                                              <th><h6>Image</h6></th>
+                                              <th><h6>Name</h6></th>
+                                              <th><h6>Sku</h6></th>
+                                              <th><h6>Color</h6></th>
+                                              <th><h6>Brand</h6></th>
+                                              <th style="width: 100px"><h6>Price</h6></th>
+                                              <th style="width: 100px"><h6>Size</h6></th>
+                                              <th style="width: 80px"><h6>Qty</h6></th>
                                               <th>Action</th>
                                           </tr>
                                           @foreach($order_products  as $order_product)
                                               <tr>
                                                   @if(isset($order_product['product']))
                                                     <th><img width="150" src="{{ $order_product['product']['image'] }}" /></th>
-                                                    <th>{{ $order_product['product']['name'] }}</th>
-                                                    <th>{{ $order_product['product']['sku'] }}</th>
-                                                    <th>{{ $order_product['product']['color'] }}</th>
-                                                    <th>{{ \App\Http\Controllers\BrandController::getBrandName($order_product['product']['brand']) }}</th>
+                                                    <th><h6>{{ $order_product['product']['name'] }}</h6></th>
+                                                    <th><h6>{{ $order_product['product']['sku'] }}</h6></th>
+                                                    <th><h6>{{ $order_product['product']['color'] }}</h6></th>
+                                                    <th><h6>{{ \App\Http\Controllers\BrandController::getBrandName($order_product['product']['brand']) }}</h6></th>
                                                   @else
                                                     <th></th>
                                                     <th></th>
@@ -525,7 +500,7 @@
                                   </div>
                                 </p>
                                 <p class="card-text">
-                                     <div class="form-group btn-group">
+                                     <div class="form-group btn-group" style="margin-left: -32px;">
                                           <a href="{{ route('attachProducts',['order',$id]) }}" class="btn btn-image"><img src="/images/attach.png" /></a>
                                           <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">+</button>&nbsp;&nbsp;
                                           <button type="submit" class="btn btn-secondary" id="submitButton">Update</button>
@@ -701,17 +676,17 @@
                 </div>
               </div>
 
-              <div class="row">
+              <div class="row" style="margin-top: -21px;">
                 <div class="col-md-12 col-12 mb-3">
                   <form action="{{ route('status.report.store') }}" method="POST">
                     @csrf
 
                     <input type="hidden" name="order_id" value="{{ $id }}">
 
-                    <div class="row">
+                    <div class="row pl-5 pt-3">
                         <div class="col-md-4">
                           <div class="form-group">
-                          <strong>Next action due</strong>
+                          Next action due
                           <a href="#" data-toggle="modal" data-target="#statusModal" class="btn-link">Add Action</a>
 
                           <select class="form-control" name="status_id" required>
@@ -722,9 +697,9 @@
                           </select>
                         </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-5">
                             <div class="form-group" id="completion_form_group">
-                            <strong>Completion Date:</strong>
+                            Completion Date:
                             <div class='input-group date' id='completion-datetime'>
                               <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
 
@@ -859,8 +834,8 @@
 
         </div> --}}
 
-        <div class="tab-pane" id="3">
-          <div class="row">
+        <div class="tab-pane pl-4" id="3" style="margin-top: -60px;">
+          <div class="row" >
             <div class="col-xs-12 col-sm-12">
                 <h3 style="text-center">Call Recordings</h3>
              </div>
@@ -890,7 +865,7 @@
 
         </div>
 
-        <div class="tab-pane" id="delivery_approval">
+        <div class="tab-pane pl-4" id="delivery_approval" style="margin-top: -17px;">
           <div class="row">
             <div class="col-xs-12 col-sm-12">
               <h3 style="text-center">Delivery Approval</h3>
@@ -913,9 +888,9 @@
                 <table class="table table-bordered" style="border:1px solid #ddd">
                   <thead>
                     <tr>
-                      <th>Product</th>
-                      <th>Uploaded Photos</th>
-                      <th>Approved</th>
+                      <th><h6>Product</h6></th>
+                      <th><h6>Uploaded Photos</h6></th>
+                      <th><h6>Approved</h6></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -955,15 +930,15 @@
           </div>
 
         </div>
-        <div class="tab-pane" id="customer-address">
+        <div class="tab-pane pl-4" id="customer-address" style="margin-top:-19px;">
           <div class="row">
             <div class="col-xs-12 col-sm-12">
               <h3 style="text-center">Customer address</h3>
 
-            <div class="col-xs-12 col-sm-12">
+            <div class="col-xs-12 col-sm-12 pl-1 pr-1">
               <div class="table-responsive">
                 <table class="table fixed_header table-hover" id="latest-remark-records">
-					<thead class="thead-dark">
+					<thead class="" style="background-color: #6c757d !important; color:white;">
 					<tr>
 						<th scope="col">Address type</th>
 						<th scope="col">City</th>
@@ -1068,7 +1043,7 @@
       </div>
 
         <div class="row">
-            <div class="col-xs-12 col-sm-12 mb-3">
+            <div class="col-xs-12 pl-5 col-sm-12 mb-3">
               <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#taskModal" id="addTaskButton">Add Task</button>
 
               @if (count($tasks) > 0)
