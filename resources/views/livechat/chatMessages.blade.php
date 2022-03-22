@@ -602,9 +602,9 @@
                     logs.forEach(function (log) {
                         $('#chat_event_body').append(
                             "<tr><td>"+log.created_at+"</td>"+
-                            "<tr><td>"+log.event_type+"</td>"+
+                            "<td>"+log.event_type+"</td>"+
                             "<td>"+log.thread+"</td>"+
-                            "<td>"+log.log+"</td></tr>"
+                            "<td style='word-wrap: break-word;'>"+log.log+"</td></tr>"
                         );
                     });
                 } else{

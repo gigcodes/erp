@@ -171,12 +171,8 @@ class LiveChatController extends Controller
 
                     $customerDetails = Customer::find($customerLiveChat->customer_id);
                     $language = $customerDetails->language;
-                    /**
-                     * create log if language is not english
-                     */
-                    if($language!='en' && $language!=null){
-                        LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$chatId, 'log'=>"Live chat language changed to ".$language]);
-                    }
+					LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'', 'store_website_id'=>$websiteId, 'log'=> "customer language  ".$language]);      
+       
                     if ($language == null) {
                         $translate = new TranslateClient([
                             // 'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
@@ -184,13 +180,17 @@ class LiveChatController extends Controller
                         ]);
                         $result = $translate->detectLanguage($message);
                         $customerDetails->language = $result['languageCode'];
+						LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'', 'store_website_id'=>$websiteId, 'log'=> "google key used  ".config('env.GOOGLE_TRANSLATE_API_KEY')]);      
+       
                         $language = $result['languageCode'];
+                        LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'', 'store_website_id'=>$websiteId, 'log'=> " language detected ".$language]);      
                     }
 
                     $result = TranslationHelper::translate($language, 'en', $message);
                     // $message = $result . ' -- ' . $message;
                     $message = $message;
-
+                    LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'', 'store_website_id'=>$websiteId, 'log'=> " translated message ".$result]);      
+                    
                     if ($author_id == 'buying@amourint.com') {
                         $messageStatus = 2;
                     } else {
@@ -457,7 +457,9 @@ class LiveChatController extends Controller
     {
         $chatId = $request->id;
         $message = $request->message;
+		$eventType = "send_message";
         $customerDetails = Customer::find($chatId);
+		
         //LiveChatLog::create(['customer_id'=>$chatId, 'log'=>"Customer details fetched"]);
 
         $language = $customerDetails->language;
@@ -477,8 +479,13 @@ class LiveChatController extends Controller
 
         if ($customer != null) {
             $thread = $customer->thread;
-            LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'log'=>"Customer live chat found"]);
-        } else {
+			$websiteId = LiveChatLog::where('thread', $thread)->whereNotNull('store_website_id')->pluck('store_website_id')->first();
+            LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'store_website_id'=>$websiteId, 'event_type'=>$eventType, 'log'=>"Customer live chat found"]);
+            if ($language != null) {
+			    LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'store_website_id'=>$websiteId, 'event_type'=>$eventType, 'log'=>"Customer language ".$language]);
+			    LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'store_website_id'=>$websiteId, 'event_type'=>$eventType, 'log'=>"message converted from ".$request->message." to ".$message]);
+            }
+		} else {
             //LiveChatLog::create(['customer_id'=>$chatId, 'log'=>"Customer live chat not available"]);
             return response()->json([
                 'status' => 'errors',
@@ -510,11 +517,11 @@ class LiveChatController extends Controller
 
         curl_close($curl);
 
-        LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'log'=>"Token used ".\Cache::get('key')]);
-        LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'log'=>$response]);
+        LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'store_website_id'=>$websiteId, 'event_type'=>$eventType, 'log'=>"Token used ".\Cache::get('key')]);
+        LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'store_website_id'=>$websiteId, 'event_type'=>$eventType, 'log'=>$response]);
 
         if ($err) {
-            LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'log'=>$err]);
+            LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'store_website_id'=>$websiteId, 'event_type'=>$eventType, 'log'=>$err]);
             return response()->json([
                 'status' => 'errors',
             ]);
@@ -523,7 +530,7 @@ class LiveChatController extends Controller
             $response = json_decode($response);
 
             if (isset($response->error)) {
-                LiveChatLog::create(['customer_id'=>$customer->id, 'thread'=>$thread, 'log'=>$response->error->message]);
+                LiveChatLog::create(['customer_id'=>$customer->id,'store_website_id'=>$websiteId, 'event_type'=>$eventType, 'thread'=>$thread, 'log'=>$response->error->message]);
                 return response()->json([
                     'status' => 'errors ' . @$response->error->message,
                 ]);
