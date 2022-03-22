@@ -42,9 +42,9 @@ class FindByNumberController extends Controller
         return Dubbizle::where('phone_number', $number)->first();
     }
 
-    protected function findCustomerByNumber($number)
+    protected function findCustomerByNumber($number, $storeId = null)
     {
-        return Customer::where('phone', '=', $number)->first();
+        return Customer::where('phone', '=', $number)->where('store_website_id', $storeId)->first();
     }
 
     protected function findOrderByNumber($number)
@@ -101,14 +101,14 @@ class FindByNumberController extends Controller
         return array(FALSE, FALSE);
     }
 
-    protected function findCustomerOrLeadOrOrderByNumber($number)
+    protected function findCustomerOrLeadOrOrderByNumber($number, $storeId = null)
     {
-        $customer = $this->findCustomerByNumber($number);
+        $customer = $this->findCustomerByNumber($number, $storeId);
         if ($customer) {
             return array("customers", $customer);
         }
         $lead = $this->findLeadByNumber($number);
-        if ($lead) {
+        if ($lead) {    
             return array("leads", $lead);
         }
         $order = $this->findOrderByNumber($number);
@@ -118,9 +118,9 @@ class FindByNumberController extends Controller
         return array(FALSE, FALSE);
     }
 
-    protected function findCustomerAndRelationsByNumber($number)
+    protected function findCustomerAndRelationsByNumber($number, $storeId = null)
     {
-        $customer = $this->findCustomerByNumber($number);
+        $customer = $this->findCustomerByNumber($number, $storeId);
         if ($customer){
                 $orders = (new \App\Order())->newQuery()->with('customer')->leftJoin("store_website_orders as swo","swo.order_id","orders.id")
                     ->leftJoin("order_products as op","op.order_id","orders.id")
