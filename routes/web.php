@@ -2058,8 +2058,8 @@ Route::post('livechat/check-new-chat', 'LiveChatController@checkNewChat')->name(
 
 Route::get('livechat/getLiveChats', 'LiveChatController@getLiveChats')->name('livechat.get.chats');
 Route::get('livechat/getLiveChats/logs/{chatId}', 'LiveChatController@getChatLogs')->name('livechat.get.chatlogs');
-Route::get('livechat/getLiveChats/eventlogs', 'LiveChatController@getAllChatEventLogs')->name('livechat.event.logs');
 Route::get('livechat/getLiveChats/eventlogs/{chatId}', 'LiveChatController@getChatEventLogs')->name('livechat.event.chatlogs');
+Route::get('livechat/getLiveChats/eventlogs', 'LiveChatController@getAllChatEventLogs')->name('livechat.event.logs');
 
 Route::get('livechat/getorderdetails', 'LiveChatController@getorderdetails')->name('livechat.getorderdetails');
 

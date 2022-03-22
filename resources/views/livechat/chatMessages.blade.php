@@ -134,8 +134,10 @@
 
                 <div class="pull-right">
                     <div style="text-align: right; margin-bottom: 10px;">
-                         <a href="{{url('livechat/getLiveChats/eventlogs')}}" class="btn btn-xs btn-secondary">Live Chat Log</a>
-						<button type="button" class="btn btn-xs btn-secondary" onclick="createCoupon()">New Coupon</button>
+
+                        <a href="{{url('livechat/getLiveChats/eventlogs')}}" class="btn btn-xs btn-secondary">Live Chat Log</a>
+                        <button type="button" class="btn btn-xs btn-secondary" onclick="createCoupon()">New Coupon</button>
+
                         <span>&nbsp;</span>
                     </div>
                 </div>
@@ -162,6 +164,7 @@
                 <th style="width: 5%;">Email</th>
                 <th style="width: 5%;">Ph Number</th>
                 <th style="width: 10%;">Trans Language</th>
+                <th style="width: 5%;">Language</th>
                 <th style="width: 20%;">Communication</th>
                 <th style="width: 27%;"></th>
                 <th style="width: 8.5%;">Actions</th>
@@ -169,6 +172,7 @@
             </thead>
             <tbody id="content_data" class="infinite-scroll-pending-inner">
             @include('livechat.partials.chat-list')
+
             </tbody>
         </table>
     </div>
@@ -598,9 +602,9 @@
                     logs.forEach(function (log) {
                         $('#chat_event_body').append(
                             "<tr><td>"+log.created_at+"</td>"+
-                            "<tr><td>"+log.event_type+"</td>"+
+                            "<td>"+log.event_type+"</td>"+
                             "<td>"+log.thread+"</td>"+
-                            "<td>"+log.log+"</td></tr>"
+                            "<td style='word-wrap: break-word;'>"+log.log+"</td></tr>"
                         );
                     });
                 } else{
@@ -609,6 +613,8 @@
             });
             $('#chat_event_logs').modal('show');
         }
+
+        
 
         $(document).ready(function() {
             $('#start').datetimepicker({
