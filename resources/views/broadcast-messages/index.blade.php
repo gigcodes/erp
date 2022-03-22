@@ -193,7 +193,7 @@
 				</div>
 			</form>
 		
-            <div class="table-responsive" style="margin-top:20px;">
+            <div class="table-responsive" style="margin-top:20px;overflow-x: auto !important;">
                 <table class="table table-bordered text-nowrap" id="massage-table">
                     <thead>
                         <tr>

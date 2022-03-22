@@ -3403,7 +3403,7 @@ Route::prefix('broadcast-messages')->middleware('auth')->group(function () {
     Route::get('/', 'BroadcastController@index')->name('messages.index');
     Route::post('preview-broadcast-numbers', 'BroadcastController@messagePreviewNumbers')->name('get-numbers');
     Route::post('get/send/message-group', 'BroadcastController@getSendType')->name('get-send-message-group');
-    Route::post('delete/message-group', 'BroadcastController@getSendType')->name('delete-message-group');
+    
     Route::post('send/message', 'BroadcastController@sendMessage')->name('send-message');
     Route::post('send/type', 'BroadcastController@sendType')->name('send-type');
     Route::post('delete/message', 'BroadcastController@deleteMessage')->name('delete.message');
