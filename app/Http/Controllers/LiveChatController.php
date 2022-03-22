@@ -173,18 +173,18 @@ class LiveChatController extends Controller
                     $language = $customerDetails->language;
 					LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'', 'store_website_id'=>$websiteId, 'log'=> "customer language  ".$language]);      
        
-                    if ($language == null) {
+                   // if ($language == null) {
                         $translate = new TranslateClient([
                             // 'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
                             'key' => config('env.GOOGLE_TRANSLATE_API_KEY'),
                         ]);
                         $result = $translate->detectLanguage($message);
                         $customerDetails->language = $result['languageCode'];
-						LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'', 'store_website_id'=>$websiteId, 'log'=> "google key used  ".config('env.GOOGLE_TRANSLATE_API_KEY')]);      
+						LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'incoming_chat', 'store_website_id'=>$websiteId, 'log'=> "google key used  ".config('env.GOOGLE_TRANSLATE_API_KEY')]);      
        
                         $language = $result['languageCode'];
-                        LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'', 'store_website_id'=>$websiteId, 'log'=> " language detected ".$language]);      
-                    }
+                        LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'incoming_chat', 'store_website_id'=>$websiteId, 'log'=> " language detected ".$language]);      
+                    //}
 
                     $result = TranslationHelper::translate($language, 'en', $message);
                     // $message = $result . ' -- ' . $message;
