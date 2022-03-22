@@ -1010,6 +1010,37 @@ class OrderController extends Controller
         $order->balance_amount = ($totalAmount - $order->advance_detail);
         $order->save();
 
+
+        $store_order_website = new StoreWebsiteOrder();
+        $store_order_website->website_id = 15;
+        $store_order_website->status_id = $order->order_status_id;
+        $store_order_website->order_id = $order->id;
+        $store_order_website->save();
+
+
+        $store_website_product_price = array();
+
+        foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) 
+        {
+            $store_website_product_price['product_id'] = $order_product->product_id;
+
+            $address = \App\OrderCustomerAddress::where("order_id", $order->id)->where("address_type", "shipping")->first();
+
+            $product =  \App\Product::find($order_product->product_id);
+            $getPrice = $product->getPrice($customer->store_website_id, $address->country_id);
+            $getDuty = $product->getDuty($address->country_id);
+
+            $store_website_product_price['default_price']  = $getPrice['original_price'];
+            $store_website_product_price["duty_price"] = (float)$getDuty["duty"];
+            $store_website_product_price["segment_discount"] = (float)$getPrice['segment_discount'];
+            $store_website_product_price["override_price"] = $getPrice['total'];
+            $store_website_product_price["status"] = 1;
+            $store_website_product_price['store_website_id'] =15;
+        }
+
+        \App\StoreWebsiteProductPrice::insert($store_website_product_price);
+
+
         if ($customer->credit > 0) {
             $balance_amount = $order->balance_amount;
             $totalCredit = $customer->credit;
@@ -2871,13 +2902,29 @@ class OrderController extends Controller
                         if ($magento_status) {
                             $magentoHelper = new MagentoHelperv2;
                             $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value);
+                            /**
+                             *check if response has error
+                             */
+                            $response=$result->getData();
+                            if(isset($response) && isset($response->status) && $response->status==false){
+                                return response()->json($response->error,400);
+                            }
+                        }else{
+                        return response()->json('Store MasterStatus Not Present',400);
                         }
+                    }else{
+                        return response()->json('Store Order Status Not Present',400);
                     }
+                }else{
+                    return response()->json('Website Order Not Present',400);
                 }
                 $storeWebsiteOrder->update(['order_id', $status]);
+            }else{
+
+                return response()->json('Store Website Order Not Present',400);
             }
         }
-        return response()->json('Sucess', 200);
+        return response()->json('Success', 200);
 
     }
 
@@ -4253,6 +4300,29 @@ class OrderController extends Controller
         }
         return response()->json(['html' => $html, 'success' => true], 200);
 
+    }
+    
+    public function cancelTransaction(Request $request) 
+    {
+        $order_id = $request->get('order_id');
+        $order = \App\Order::where("id", $order_id)->first();
+        
+
+        $storeWebsiteOrder = StoreWebsiteOrder::where('order_id', $order_id)->first();
+        //print_r($storeWebsiteOrder);
+            if ($storeWebsiteOrder) {
+                $website = StoreWebsite::find($storeWebsiteOrder->website_id);
+               
+                if ($website) {
+                    
+                            $magentoHelper = new MagentoHelperv2;
+                            $result = $magentoHelper->cancelTransaction($order, $website);
+                            
+                            return response()->json(['message' => $result, 'success' => true], 200);
+                       
+                }
+                //$storeWebsiteOrder->update(['order_id', $status]);
+            }
     }
 
     public function syncTransaction(Request $request) 

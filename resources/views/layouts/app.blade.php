@@ -753,6 +753,7 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ url('chatbot-message-log') }}">Chatbot Message Log</a>
                                             <a class="dropdown-item" href="{{ url('customers/accounts') }}">Store website customer</a>
                                             <a class="dropdown-item" href="{{ route('product.customer-reviews') }}" >Customer Reviews</a>
+                                            <a class="dropdown-item" href="{{ route('customer.priority.points') }}" >Customer Priority</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
@@ -1355,9 +1356,7 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
                                         </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('chatbot.type.error.log')}}">Call Journey</a>
-                                        </li>
+
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1628,6 +1627,9 @@ if (!empty($notifications)) {
 											 <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ url('/site-assets') }}">Site assets</a>
                                             </li>
+											 <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/site-check-list') }}">Site check  list</a>
+                                            </li>
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('list.daily-push-log') }}">Magento Daily Product Push Log</a>
                                             </li>
@@ -1726,6 +1728,9 @@ if (!empty($notifications)) {
                                                         <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{url('conversion/rates')}}">Currency Conversion Rate</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{url('magento-admin-settings')}}">Magento Admin Settings</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
@@ -1766,6 +1771,16 @@ if (!empty($notifications)) {
 
                                                         <li class="nav-item dropdown">
                                                             <a class="dropdown-item" href="{{route('twilio-speech-to-text-logs')}}">Twilio Speech to text Logs</a>
+                                                        </li>
+
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('chatbot.type.error.log')}}">Twilio Chat Bot Not Recognised</a>
+                                                        </li>
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('twilio.call.blocks')}}">Twilio Call Blocks</a>
+                                                        </li>
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('twilio.call.statistic')}}">Twilio Call Statistic</a>
                                                         </li>
                                                     </ul>
                                                 </li>

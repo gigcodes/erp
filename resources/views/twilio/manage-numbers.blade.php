@@ -40,8 +40,8 @@
         </div>
     </div>
     <div class="row  no-gutters mt-3">
-        <div class="col-md-12 col-sm-12">
-            <div class="table-responsive">
+        <div class="col-md-12 col-sm-12" style="overflow-x: auto;" >
+            <div class="">
                 <div class="">
                     <table class="table table-bordered table-hover">
                         <thead>
