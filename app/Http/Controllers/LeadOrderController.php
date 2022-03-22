@@ -74,7 +74,7 @@ class LeadOrderController extends Controller
                             ->leftJoin('customers','erp_leads.customer_id','=','customers.id')
                             //->leftJoin('users','erp_leads.customer_id','=','users.id')
                             ->join('brands','erp_leads.brand_id','=','brands.id')->with('storeWebsite')->with('storeWebsite.storeWebsiteProductPrice')
-                            ->union($orders);
+                            ->unionAll($orders);
             endif;
             
 
