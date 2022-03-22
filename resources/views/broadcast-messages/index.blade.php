@@ -192,8 +192,22 @@
 					<button type="submit" class="btn btn-secondary">Submit</button>
 				</div>
 			</form>
-		</div>
-
+		
+            <div class="table-responsive" style="margin-top:20px;">
+                <table class="table table-bordered text-nowrap" id="massage-table">
+                    <thead>
+                        <tr>
+                            <th>ID </th> 
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="group-items-list">
+                    </tbody>
+                </table>
+            </div>
+        </div>
 	</div>
 </div>
 
@@ -400,10 +414,49 @@
 
 
         $(document).on('click', '.add_type', function () {
+            
             var id = $(this).data("message-id");
             var type = $(this).data("type");
             $("#tid").val(id);
             $("#type").val(type);
+
+            $.ajax({
+                type: "POST",
+                url: '{{route("get-send-message-group")}}',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id:id,
+                    type:type,
+                }
+            }).done(function (response) {
+
+                if(response.code == 200) {
+                    
+                    var items = response.data;
+                    $('.group-items-list').html('<tr><td colspan="4">No data found</td></tr>');
+                    if(items.length > 0) {
+                        var itemsHtml = '';
+                        $.each(items, function(k,v) {
+                            itemsHtml += `<tr class="in-background filter-message" id="tr`+v.id+`">
+                                <td >`+v.id+`</td>
+                                <td >`+v.typeName+`</td>
+                                <td >`+v.type+`</td>
+                                <td ><a data-route="" data-id="`+v.id+`" onclick="deleteType(`+v.id+`,event)" class="trigger-type-delete">  <i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a></td>
+                            </tr>`;
+                        });
+                        
+                        $('.group-items-list').html(itemsHtml);
+                    }
+                }
+            }).fail(function (response) {
+                $(thiss).text('No');
+
+                alert('Could not say No!');
+                console.log(response);
+            });
+
+
+            
             if(type=='supplier'){
                 $("#add_type .modal-title").text('Select Suppliers');
                 $("#suppliers").show();
