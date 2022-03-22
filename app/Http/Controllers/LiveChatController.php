@@ -186,8 +186,8 @@ class LiveChatController extends Controller
 							
 							$language = $result['languageCode'];
 							LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'incoming_chat', 'store_website_id'=>$websiteId, 'log'=> " language detected ".$language]);      
-                        } elseif(isset($result->error->message)){
-							LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'incoming_chat', 'store_website_id'=>$websiteId, 'log'=> "Googlr translation".$result->error->message]);      
+                        } elseif(isset($result->message)){
+							LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'incoming_chat', 'store_website_id'=>$websiteId, 'log'=> "Googlr translation".$result->message]);      
                         }
                     //}
 
@@ -195,6 +195,8 @@ class LiveChatController extends Controller
                     // $message = $result . ' -- ' . $message;
 					if($result != null){
 						$message = $result;
+					} else{
+						$result ="Could not convert Message";
 					}
                    // $message = $message;
                     LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'', 'store_website_id'=>$websiteId, 'log'=> " translated message ".$result]);      
