@@ -933,8 +933,7 @@ class LiveChatController extends Controller
     } 
 
 	public function getAllChatEventLogs() {
-		$lang = (new GoogleTranslate)->detectLanguage('hello'); dd($lang);
-        $logs = LiveChatEventLog::leftJoin('customers', 'customers.id', 'live_chat_event_logs.customer_id')
+		$logs = LiveChatEventLog::leftJoin('customers', 'customers.id', 'live_chat_event_logs.customer_id')
 		->leftJoin('store_websites', 'store_websites.id', 'live_chat_event_logs.store_website_id')
 		->orderBy('live_chat_event_logs.id', 'desc')->select('live_chat_event_logs.*', 'customers.name as customer_name', 'store_websites.title as website')->paginate(30);
         return view('livechat.eventLogs', compact('logs'));
