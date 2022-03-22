@@ -325,11 +325,17 @@ class TwilioController extends FindByNumberController
     public function incomingCall(Request $request)
     {
         $number = $request->get("From");
+        $twilioNumber = $request->get("To");
 
         Log::channel('customerDnd')->info('Enter in Incoming Call Section '.$number);
         $response = new VoiceResponse();
 
-        list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
+        $storeId = null;
+        $activeNumber = TwilioActiveNumber::where('phone_number', '+' . trim($twilioNumber, '+'))->first();
+        if($activeNumber) {
+            $storeId = StoreWebsiteTwilioNumber::where('twilio_active_number_id', $activeNumber->id)->first();
+        }
+        list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number), $storeId->store_website_id ?? null);
         if (!$context) {
             $context='customers';
             $object = new Customer;
@@ -376,6 +382,7 @@ class TwilioController extends FindByNumberController
         $conditions = array_keys($conditionsWithIds);
 
 		$number = $request->get("From");
+		$twilioNumber = $request->get("To");
 		$call_sid = $request->get("CallSid");
 		$account_sid = $request->get("AccountSid");
         // Create Twilio Log
@@ -389,10 +396,14 @@ class TwilioController extends FindByNumberController
         TwilioLog::create(['log'=>'After call received, from Mobile No '.$number.' Call with Agent is :'.$call_with_agent, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
 
         //Log::channel('customerDnd')->info('call_with_agent:'.$call_with_agent);
-
-		$this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
+        $storeId = null;
+        $activeNumber = TwilioActiveNumber::where('phone_number', '+' . trim($twilioNumber, '+'))->first();
+        if($activeNumber) {
+            $storeId = StoreWebsiteTwilioNumber::where('twilio_active_number_id', $activeNumber->id)->first();
+        }
+		$this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number), $storeId->store_website_id ?? null);
    
-        list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
+        list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number), $storeId->store_website_id ?? null);
 
         $this->createTwilioLog($request, $inputArray, 'log '. $object);
         //TwilioLog::create(['log'=>'log '. $object, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
@@ -1622,7 +1633,12 @@ class TwilioController extends FindByNumberController
         $AccountSid = $request->get("AccountSid");
         $CallSid = $request->get("CallSid");
   	    
-        list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
+        $storeId = null;
+        $activeNumber = TwilioActiveNumber::where('phone_number', '+' . trim($to, '+'))->first();
+        if($activeNumber) {
+            $storeId = StoreWebsiteTwilioNumber::where('twilio_active_number_id', $activeNumber->id)->first();
+        }
+        list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number), $storeId->store_website_id ?? null);
         $store_website_id = (isset($object->store_website_id) ? $object->store_website_id : 0 );
         try {
 
@@ -2646,10 +2662,14 @@ class TwilioController extends FindByNumberController
      * @uses Customer
      */
     public function getLeadByNumber(Request $request)
-    {
+    {   
         $number = $request->get("number");
-
-        list($context, $object) = $this->findCustomerAndRelationsByNumber(str_replace("+", "", $number));
+        $twilioNumber = $request->get("twilio_number");
+        $activeNumber = TwilioActiveNumber::where('phone_number', '+' . trim($twilioNumber, '+'))->first();
+        if($activeNumber) {
+            $storeId = StoreWebsiteTwilioNumber::where('twilio_active_number_id', $activeNumber->id)->first();
+        }
+        list($context, $object) = $this->findCustomerAndRelationsByNumber(str_replace("+", "", $number), $storeId->store_website_id ?? null);
 
         if (!$context) {
             return response()->json(['found' => FALSE, 'number' => $number]);
