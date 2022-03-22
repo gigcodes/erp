@@ -186,8 +186,8 @@ class LiveChatController extends Controller
 							
 							$language = $result['languageCode'];
 							LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'incoming_chat', 'store_website_id'=>$websiteId, 'log'=> " language detected ".$language]);      
-                        } elseif(isset($message->error->message)){
-							LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'incoming_chat', 'store_website_id'=>$websiteId, 'log'=> "Googlr translation".$message->error->message]);      
+                        } elseif(isset($result->error->message)){
+							LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'thread'=>$threadId, 'event_type'=>'incoming_chat', 'store_website_id'=>$websiteId, 'log'=> "Googlr translation".$result->error->message]);      
                         }
                     //}
 
