@@ -117,15 +117,13 @@ class GoogleTranslate
                     'keyFile' => $jsonArray
                 ];
 
-                $translate = new TranslateClient($keyFileArray);
-           
-           
+                $translate = new TranslateClient($keyFileArray);           
                 $result = $translate->detectLanguage($text);
                 return $result;
             }
         } catch (\Google\Cloud\Core\Exception\ServiceException $e) {
-           \Log::error($e);
-		    $message = json_decode($e->getMessage());
+           \Log::error($e); 
+		    $message = json_decode($e->getMessage()); dd($message->error);
             return $message->error;
         }
 	}
