@@ -51,7 +51,9 @@ use App\StoreMasterStatus;
 use App\StoreWebsite;
 use App\StoreWebsiteOrder;
 use App\Store_order_status;
+use App\StoreWebsiteTwilioNumber;
 use App\Task;
+use App\TwilioActiveNumber;
 use App\TwilioAgent;
 use App\TwilioDequeueCall;
 use App\User;
@@ -2558,10 +2560,16 @@ class OrderController extends Controller
 // dd($callBusyMessages);
         foreach ($callBusyMessages['data'] as $key => $value) {
 
+            $storeId = null;
+            $activeNumber = TwilioActiveNumber::where('phone_number', '+' . trim($value['to'], '+'))->first();
+            if($activeNumber) {
+                $storeId = StoreWebsiteTwilioNumber::where('twilio_active_number_id', $activeNumber->id)->first();
+            }
+
             if (is_numeric($value['twilio_call_sid'])) {
                 # code...
                 $formatted_phone = str_replace('+', '', $value['twilio_call_sid']);
-                $customer_array = Customer::with('storeWebsite', 'orders')->where('phone', $formatted_phone)->get()->toArray();
+                $customer_array = Customer::with('storeWebsite', 'orders')->where('phone', $formatted_phone)->where('store_website_id', $storeId->store_website_id)->get()->toArray();
 
                 if ($value['aget_user_id'] != '') {
                     $user_data = User::where('id', $value['aget_user_id'])->first();
