@@ -325,7 +325,7 @@
 					if (data.found) {
 						let information = data.data
 						let id = information.customer.id;
-						let name = information.customer.name;s
+						let name = information.customer.name;
 						let number = information.customer.phone;
 						let email = information.customer.email ;
 						let accordion_data = '';

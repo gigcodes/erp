@@ -2430,7 +2430,9 @@ class TwilioController extends FindByNumberController
 
     public function getWaitingCallList()
     {
-        $waitingCalls = $waitingCalls = \App\TwilioCallWaiting::with('storeWebsite')->leftJoin("customers as c", "c.phone", \DB::raw('REPLACE(twilio_call_waitings.from, "+", "")'))->orderBy("twilio_call_waitings.created_at", "desc")
+        $agentId = Auth::id();
+        $agentData = AgentCallStatus::where('agent_id', $agentId)->first();
+        $waitingCalls = $waitingCalls = \App\TwilioCallWaiting::with('storeWebsite')->leftJoin("customers as c", "c.phone", \DB::raw('REPLACE(twilio_call_waitings.from, "+", "")'))->where('store_website_id', $agentData->site_id)->orderBy("twilio_call_waitings.created_at", "desc")
         ->select(["twilio_call_waitings.*", "c.name", "c.email"])->get();
         
         return response()->json([
