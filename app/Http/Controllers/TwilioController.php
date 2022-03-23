@@ -1393,6 +1393,13 @@ class TwilioController extends FindByNumberController
                     </Response>'
                     ]
                 );
+            } else {
+                CallBusyMessage::updateOrCreate([
+                    'caller_sid' => json_decode($request->get("TaskAttributes"))->call_sid
+                ],[
+                    'message' => 'Missed Call',
+                    'twilio_call_sid' => json_decode($request->get("TaskAttributes"))->caller
+                ]);
             }
 
             $call = $call->calls(json_decode($request->get("TaskAttributes"))->call_sid)->fetch();
@@ -2430,7 +2437,10 @@ class TwilioController extends FindByNumberController
 
     public function getWaitingCallList()
     {
-        $waitingCalls = $waitingCalls = \App\TwilioCallWaiting::with('storeWebsite')->leftJoin("customers as c", "c.phone", \DB::raw('REPLACE(twilio_call_waitings.from, "+", "")'))->orderBy("twilio_call_waitings.created_at", "desc")
+        $agentId = Auth::id();
+        $agentData = TwilioAgent::where('user_id', $agentId)->where('status', 1)->first();
+
+        $waitingCalls = \App\TwilioCallWaiting::with('storeWebsite')->leftJoin("customers as c", "c.phone", \DB::raw('REPLACE(twilio_call_waitings.from, "+", "")'))->where('c.store_website_id', $agentData->store_website_id)->orderBy("twilio_call_waitings.created_at", "desc")
         ->select(["twilio_call_waitings.*", "c.name", "c.email"])->get();
         
         return response()->json([
