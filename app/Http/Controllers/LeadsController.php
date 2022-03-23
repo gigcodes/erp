@@ -599,10 +599,10 @@ class LeadsController extends Controller
             // count adding for leads
             $store_website_product_price = array();
             $store_website_product_price['product_id'] = $product_id;
-            $address = \App\OrderCustomerAddress::where("customer_id", $request->customer_id)->where("address_type", "shipping")->first();
+            //$address = \App\OrderCustomerAddress::where("customer_id", $request->customer_id)->where("address_type", "shipping")->first();
             $productData =  \App\Product::find($product_id);
-            $getPrice = $productData->getPrice($customer->store_website_id, $address->country_id);
-            $getDuty = $productData->getDuty($address->country_id);
+            $getPrice = $productData->getPrice($customer->store_website_id, 'IN');
+            $getDuty = $productData->getDuty('IN');
             $store_website_product_price['default_price']  = $getPrice['original_price'];
             $store_website_product_price["duty_price"] = (float)$getDuty["duty"];
             $store_website_product_price["segment_discount"] = (float)$getPrice['segment_discount'];
