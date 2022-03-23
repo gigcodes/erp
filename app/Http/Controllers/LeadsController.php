@@ -570,6 +570,7 @@ class LeadsController extends Controller
 
     public function sendPrices(Request $request, GuzzleClient $client)
     {
+        
         $params = [
             'number' => null,
             'user_id' => Auth::id() ?? 6,
@@ -594,6 +595,23 @@ class LeadsController extends Controller
         $cnt = "IN";
         $website = \App\StoreWebsite::find(15);
         foreach ($request->selected_product as $product_id) {
+
+            // count adding for leads
+            $store_website_product_price = array();
+            $store_website_product_price['product_id'] = $product_id;
+            //$address = \App\OrderCustomerAddress::where("customer_id", $request->customer_id)->where("address_type", "shipping")->first();
+            $productData =  \App\Product::find($product_id);
+            $getPrice = $productData->getPrice($customer->store_website_id, 'IN');
+            $getDuty = $productData->getDuty('IN');
+            $store_website_product_price['default_price']  = $getPrice['original_price'];
+            $store_website_product_price["duty_price"] = (float)$getDuty["duty"];
+            $store_website_product_price["segment_discount"] = (float)$getPrice['segment_discount'];
+            $store_website_product_price["override_price"] = $getPrice['total'];
+            $store_website_product_price["status"] = 1;
+            $store_website_product_price['store_website_id'] =15;
+            \App\StoreWebsiteProductPrice::insert($store_website_product_price);
+
+
 
             $product = Product::find($product_id);
             $brand_name = $product->brands->name ?? '';

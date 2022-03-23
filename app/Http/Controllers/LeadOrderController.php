@@ -69,12 +69,12 @@ class LeadOrderController extends Controller
                             //->leftJoin('users','erp_leads.customer_id','=','users.id')
                             ->join('brands','erp_leads.brand_id','=','brands.id')->with('storeWebsite')->with('storeWebsite.storeWebsiteProductPrice');                            
             else:
-                $leads = ErpLeads::select('erp_leads.id','erp_leads.customer_id','erp_leads.product_id','erp_leads.created_at as order_date','products.name','brands.name as brand_name','products.price_inr','products.price_inr_discounted','customers.name as customer_name','brands.id as brand_id')
+                $leads = ErpLeads::select('erp_leads.id','erp_leads.customer_id','erp_leads.store_website_id','erp_leads.product_id','erp_leads.created_at as order_date','products.name','brands.name as brand_name','products.price_inr','products.price_inr_discounted','customers.name as customer_name','brands.id as brand_id')
                             ->join('products','erp_leads.product_id','=','products.id')
                             ->leftJoin('customers','erp_leads.customer_id','=','customers.id')
                             //->leftJoin('users','erp_leads.customer_id','=','users.id')
-                            ->join('brands','erp_leads.brand_id','=','brands.id')->with('storeWebsite')->with('storeWebsite.storeWebsiteProductPrice')
-                            ->union($orders);
+                            ->join('brands','erp_leads.brand_id','=','brands.id')->with('storeWebsite')->with('storeWebsite.storeWebsiteProductPrice');
+                            //->union($orders);
             endif;
             
 
