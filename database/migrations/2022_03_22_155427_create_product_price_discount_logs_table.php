@@ -15,9 +15,14 @@ class CreateProductPriceDiscountLogsTable extends Migration
     {
         Schema::create('product_price_discount_logs', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('order_id')->nullable();
-            $table->integer('product_id')->nullable();
+            $table->string('order_id')->nullable();
+            $table->string('product_id')->nullable();
+            $table->string('store_website_id')->nullable();
             $table->longText('stage')->nullable();
+            $table->string('oparetion')->nullable();
+            $table->string('product_price')->nullable();
+            $table->string('product_total_price')->nullable();
+            $table->string('product_discount')->nullable();
             $table->longText('log')->nullable();
             $table->char('status', '2')->default(1);
             $table->timestamps();
