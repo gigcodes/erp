@@ -17,6 +17,7 @@ class CreateProductPriceDiscountLogsTable extends Migration
             $table->increments('id');
             $table->string('order_id')->nullable();
             $table->string('product_id')->nullable();
+            $table->integer('customer_id')->nullable();
             $table->string('store_website_id')->nullable();
             $table->longText('stage')->nullable();
             $table->string('oparetion')->nullable();

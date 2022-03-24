@@ -6,6 +6,7 @@ use App\Leads;
 use App\Order;
 use Illuminate\Http\Request;
 use App\Setting;
+use App\ProductPriceDiscountLog;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Helpers;
 use Illuminate\Support\Facades\DB;
@@ -110,6 +111,38 @@ class LeadOrderController extends Controller
         
         return view('lead-order.index', compact('leadOrder_array','leads','brandList', 'term', 'orderOrLead'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
+    }
+
+    /**
+     * This funcrtion is use for get product suggested log
+     * @param Request $request
+     * 
+     * @return JsonResponse
+     */
+    public function leadProductPriceLog(Request $request) 
+    {
+        try {
+            $prodPriceDis = ProductPriceDiscountLog::where(["product_id" => $request->prod_id, 'customer_id' => $request->cust_id])->get();
+            if($prodPriceDis->toArray()) {
+                $html = '';
+                foreach($prodPriceDis AS $prodDisData) {
+                    $html .='<tr>';
+                    $html .='<td>'.$prodDisData->id.'</td>';
+                    $html .='<td>'.$prodDisData->order_id.'</td>';
+                    $html .='<td>'.$prodDisData->product_id.'</td>';
+                    $html .='<td>'.$prodDisData->stage.'</td>';
+                    $html .='<td>'.$prodDisData->product_price.'</td>';
+                    $html .='<td>'.$prodDisData->product_total_price.'</td>';
+                    $html .='<td>'.$prodDisData->product_discount.'</td>';
+                    $html .='<td>'.$prodDisData->log.'</td>';
+                    $html .='</tr>';
+                }
+                return response()->json(['code' => 200, 'data'=> $html, 'message' => 'Log listed Successfully']);   
+            }
+            return response()->json(['code' => 500, 'message' => "Log not found"]);   
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);   
+        }
     }
     
 }

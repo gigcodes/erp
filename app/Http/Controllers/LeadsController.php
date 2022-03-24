@@ -600,7 +600,7 @@ class LeadsController extends Controller
             $store_website_product_price = array();
             $store_website_product_price['product_id'] = $product_id;
             $productData =  \App\Product::find($product_id);
-            $getPrice = $productData->getPrice($website, 'IN', null, null, null, null, null, null, null, null, null, $product_id);
+            $getPrice = $productData->getPrice($website, 'IN', null, null, null, null, null, null, null, null, null, $product_id, $customer->id);
             $getDuty = $productData->getDuty('IN');
             $store_website_product_price['default_price']  = $getPrice['original_price'];
             $store_website_product_price["duty_price"] = (float)$getDuty["duty"];
@@ -616,7 +616,7 @@ class LeadsController extends Controller
             $brand_name = $product->brands->name ?? '';
             $special_price = (int) $product->price_special_offer > 0 ? (int) $product->price_special_offer : $product->price_inr_special;
             $dutyPrice = $product->getDuty($cnt);
-            $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice, null, null, null, null, null, null, $product_id);
+            $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice, null, null, null, null, null, null, $product_id, $customer->id);
             if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
                 $special_price = $discountPrice['total'];
                 $brand = $product->brands;
