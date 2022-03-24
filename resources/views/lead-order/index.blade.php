@@ -134,6 +134,14 @@
       });
     </script>
 <script>   
+        
+        $(document).on("click", ".expand-text", function (e) {
+            if($(e.target).closest("span").css('height') == '24px')
+                $(e.target).closest("span").css('height', 'auto');
+            else
+                $(e.target).closest("span").css('height', '24px');
+           
+        });
         $(document).on("click", ".load-log", function (event) {
             var prodId = $(this).data("prod_id");
             var custId = $(this).data("cust_id");

@@ -126,15 +126,15 @@ class LeadOrderController extends Controller
             if($prodPriceDis->toArray()) {
                 $html = '';
                 foreach($prodPriceDis AS $prodDisData) {
-                    $html .='<tr>';
-                    $html .='<td>'.$prodDisData->id.'</td>';
-                    $html .='<td>'.$prodDisData->order_id.'</td>';
-                    $html .='<td>'.$prodDisData->product_id.'</td>';
-                    $html .='<td>'.$prodDisData->stage.'</td>';
-                    $html .='<td>'.$prodDisData->product_price.'</td>';
-                    $html .='<td>'.$prodDisData->product_total_price.'</td>';
-                    $html .='<td>'.$prodDisData->product_discount.'</td>';
-                    $html .='<td>'.$prodDisData->log.'</td>';
+                    $html .='<tr style="height:32px;width:100%;">';
+                    $html .='<td with="5%">'.$prodDisData->id.'</td>';
+                    $html .='<td with="10%">'.$prodDisData->order_id.'</td>';
+                    $html .='<td with="10%">'.$prodDisData->product_id.'</td>';
+                    $html .='<td with="20%"><span class="expand-text" style="float:left;height:24px;overflow:hidden;cursor: pointer;">'.$prodDisData->stage.'</span></td>';
+                    $html .='<td with="5%">'.$prodDisData->product_price.'</td>';
+                    $html .='<td with="5%">'.$prodDisData->product_total_price.'</td>';
+                    $html .='<td with="5%">'.$prodDisData->product_discount.'</td>';
+                    $html .='<td with="35%"><span class="expand-text" style="float:left;height:24px;overflow:hidden;cursor: pointer;">'.$prodDisData->log.'</span></td>';
                     $html .='</tr>';
                 }
                 return response()->json(['code' => 200, 'data'=> $html, 'message' => 'Log listed Successfully']);   
