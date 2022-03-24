@@ -12,6 +12,7 @@ use App\CreditHistory;
 use App\CreditLog;
 use App\Customer;
 use App\CustomerPriorityPoint;
+use App\CustomerPriorityRangePoint;
 use App\CustomerAddressData;
 use App\Email;
 use App\EmailAddress;
@@ -44,6 +45,7 @@ use App\SuggestedProduct;
 use App\Suggestion;
 use App\Supplier;
 use App\User;
+use App\TwilioPriority;
 use Auth;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
@@ -3193,5 +3195,96 @@ class CustomerController extends Controller
         return response()->json(['message' => "Record added successfully", 'code' => 200, 'data' => $custPri, 'status' => 'success']);
     }
 
+    /**
+     * This function is use for get all proirity Range data
+     *
+     * @param Request $request
+     * @param [int] $id
+     * @return Jsonresponse
+     */
+    public function getCustomerPriorityRangePoints(Request $request) 
+    {
+        $custRangePoint = CustomerPriorityRangePoint::leftjoin('store_websites', 'store_websites.id', 'customer_priority_range_points.store_website_id')
+        ->leftjoin('twilio_priorities', 'twilio_priorities.id', 'customer_priority_range_points.twilio_priority_id')
+        ->where('customer_priority_range_points.deleted_at', '=', null)
+        ->get(
+        ['customer_priority_range_points.id',
+        'customer_priority_range_points.store_website_id',
+        'customer_priority_range_points.twilio_priority_id',
+        'customer_priority_range_points.min_point',
+        'customer_priority_range_points.max_point',
+        'customer_priority_range_points.range_name',
+        'customer_priority_range_points.created_at',
+        'store_websites.website',
+        'twilio_priorities.priority_name']);
+        
+        $storeWebsite = StoreWebsite::all();
+        $twilioPriority = TwilioPriority::all();
+        
+        return view('customers.customer_priority_range_point', compact('storeWebsite', 'custRangePoint', 'twilioPriority'));
+    }
+    /**
+     * This function is use for get all proirity Range data
+     *
+     * @param Request $request
+     * @param [int] $id
+     * @return Jsonresponse
+     */
+    public function selectCustomerPriorityRangePoints(Request $request) 
+    {
+        $custRangePoint = CustomerPriorityRangePoint::leftjoin('store_websites', 'store_websites.id', 'customer_priority_range_points.store_website_id')
+        ->leftjoin('twilio_priorities', 'twilio_priorities.id', 'customer_priority_range_points.twilio_priority_id')
+        ->where('customer_priority_range_points.deleted_at', '=', null)
+        ->get(
+        ['customer_priority_range_points.id',
+        'customer_priority_range_points.store_website_id',
+        'customer_priority_range_points.twilio_priority_id',
+        'customer_priority_range_points.min_point',
+        'customer_priority_range_points.max_point',
+        'customer_priority_range_points.range_name',
+        'customer_priority_range_points.created_at',
+        'store_websites.website',
+        'twilio_priorities.priority_name']);
+        
+        $storeWebsite = StoreWebsite::all();
+        $twilioPriority = TwilioPriority::all();
+        
+        return response()->json(['message' => "Record added successfully", 'code' => 200, 'data' => $custPri, 'status' => 'success']);
+    }
 
+    /**
+     * This function is use for save proirity range data
+     *
+     * @param Request $request
+     * @return Jsonresponse
+     */
+    public function addCustomerPriorityRangePoints(Request $request) 
+    {
+        $custPri = CustomerPriorityRangePoint::updateOrCreate([
+            'twilio_priority_id'      => $request->get('twilio_priority_id'),
+        ],
+        [
+            'twilio_priority_id'    => $request->get('twilio_priority_id'),
+            'min_point'      => $request->get('min_point'),
+            'max_point'      => $request->get('max_point'),
+            'deleted_at'     => NULL
+        ]);
+
+        return response()->json(['message' => "Record added successfully", 'code' => 200, 'data' => $custPri, 'status' => 'success']);
+    }
+
+     /**
+     * This function is use for save proirity range delete data 
+     *
+     * @param Request $request
+     * @return Jsonresponse
+     */
+    public function deleteCustomerPriorityRangePoints(Request $request) 
+    {
+        $custPri = CustomerPriorityRangePoint::where('id', '=', $request->id)->update([
+            'deleted_at'    => date('Y-m-d H:i:s')
+        ]);
+        return redirect()->back()->withSuccess('You have successfully Deleted');
+        //return response()->json(['message' => "Record added successfully", 'code' => 200, 'data' => $custPri, 'status' => 'success']);
+    }
 }

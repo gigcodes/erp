@@ -1189,6 +1189,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer/priority-points', 'CustomerController@customerPriorityPoints')->name('customer.priority.points');
     Route::get('customer/add-priority-points', 'CustomerController@addCustomerPriorityPoints')->name('customer.add.priority.points');
     Route::get('customer/get-priority-points/{id?}', 'CustomerController@getCustomerPriorityPoints')->name('customer.get.priority.points');
+
+    Route::get('customer/priority-range-points/', 'CustomerController@getCustomerPriorityRangePoints')->name('customer.get.priority.range.points');
+    Route::get('customer/priority-range-points/{id?}', 'CustomerController@selectCustomerPriorityRangePoints')->name('customer.select.priority.range.points');
+    Route::get('customer/add-priority-range-points', 'CustomerController@addCustomerPriorityRangePoints')->name('customer.add.priority.range.points');
+    Route::get('customer/delete-priority-range-points/{id?}', 'CustomerController@deleteCustomerPriorityRangePoints')->name('customer.delete.priority.range.points');
+
     Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');
     Route::get('customer/test', 'CustomerController@customerstest');
     Route::post('customer/reminder', 'CustomerController@updateReminder');
