@@ -55,7 +55,9 @@
             @endphp
             {{ isset($final_price)? $final_price : ''}}</td>
             <td>{{number_format($gmu,2)}}</td>
-            <td><button title="show Log" type="button" class="btn btn-xs btn-image load-log mr-3" data-cust_id="{{$leadOrder['customer_id']}}"  data-prod_id="{{$leadOrder['product_id']}}"><img src="/images/chat.png" alt="" style="cursor: nwse-resize; width: 0px;"></button></td>
+            <td><button title="show Log" type="button" class="btn btn-xs btn-image load-log mr-3" data-cust_id="{{$leadOrder['customer_id']}}"  data-prod_id="{{$leadOrder['product_id']}}"><img src="/images/chat.png" alt="" style="cursor: nwse-resize; width: 0px;"></button>
+              <button title="show Calculation" type="button" class="btn btn-xs btn-image load-calculation mr-3" data-cust_id="{{$leadOrder['customer_id']}}"  data-prod_id="{{$leadOrder['product_id']}}"><i class="fa fa-calculator" aria-hidden="true"></i></button>
+            </td>
         </tr>
     @endforeach
 	

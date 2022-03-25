@@ -609,6 +609,17 @@ class LeadsController extends Controller
             $store_website_product_price["status"] = 1;
             $store_website_product_price['store_website_id'] =15;
             \App\StoreWebsiteProductPrice::insert($store_website_product_price);
+            $condition = [
+                'product_id' => $product_id, 
+                'customer_id' =>  $customer->id
+            ];
+
+            $fields = [
+                'product_id' => $product_id,
+                'customer_id' => $customer->id,
+                'log' => 'Origanal Price : '. $getPrice['original_price']. '<br> + duty_price : '.(float)$getDuty["duty"]. ' <br>- Segment Discount : '.(float)$getPrice['segment_discount']. '<br> = Total Price : '.$getPrice['total'] ,
+            ];
+            \App\LeadProductPriceCountLogs::updateOrCreate($condition, $fields);
 
 
 
