@@ -1,13 +1,13 @@
 @if($store_websites)
-    @forelse($store_websites as $sw) 
+    @forelse($site_development_categories as $sdc) 
     <tr>
         <td>
             <input  type="checkbox" class="checkboxClass" name="selectcheck" value='{{ $sw->id }}'>
         </td>
         <td>
-        {{ $sw->website }} 
+        {{ $sdc->title }} 
         </td>
-        @forelse($site_development_categories as $sdc)
+        @forelse($store_websites as $sw)
             @php 
                 $check = 0;
                 $site = $sdc->getDevelopment($sdc->id, $sw->id);

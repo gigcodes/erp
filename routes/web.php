@@ -3234,6 +3234,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('twilio/get_website_wise_key_data', 'TwilioController@getTwilioKeyData')->name('twilio.get_website_wise_key_data');
     Route::get('twilio/get_website_wise_key_data_options/{web_site_id?}', 'TwilioController@getTwilioKeyDataOptions')->name('twilio.get_website_wise_key_data_options');
     Route::get('twilio/erp/logs', 'TwilioController@twilioErpLogs')->name('twilio.erp_logs');
+    Route::get('twilio/call/journey', 'TwilioController@twilioCallJourney')->name('twilio.call_journey');
     Route::get('twilio/webhook-error/logs', 'TwilioController@twilioWebhookErrorLogs')->name('twilio.webhook.error.logs');
     Route::get('twilio/account-logs', 'TwilioController@twilioAccountLogs')->name('twilio.account_logs');
     Route::get('twilio/conditions', 'TwilioController@getConditions')->name('twilio.conditions');
