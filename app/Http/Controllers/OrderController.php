@@ -51,7 +51,9 @@ use App\StoreMasterStatus;
 use App\StoreWebsite;
 use App\StoreWebsiteOrder;
 use App\Store_order_status;
+use App\StoreWebsiteTwilioNumber;
 use App\Task;
+use App\TwilioActiveNumber;
 use App\TwilioAgent;
 use App\TwilioDequeueCall;
 use App\User;
@@ -1009,6 +1011,37 @@ class OrderController extends Controller
 
         $order->balance_amount = ($totalAmount - $order->advance_detail);
         $order->save();
+
+
+        $store_order_website = new StoreWebsiteOrder();
+        $store_order_website->website_id = 15;
+        $store_order_website->status_id = $order->order_status_id;
+        $store_order_website->order_id = $order->id;
+        $store_order_website->save();
+
+
+        $store_website_product_price = array();
+
+        foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) 
+        {
+            $store_website_product_price['product_id'] = $order_product->product_id;
+
+            $address = \App\OrderCustomerAddress::where("order_id", $order->id)->where("address_type", "shipping")->first();
+
+            $product =  \App\Product::find($order_product->product_id);
+            $getPrice = $product->getPrice($customer->store_website_id, $address->country_id);
+            $getDuty = $product->getDuty($address->country_id);
+
+            $store_website_product_price['default_price']  = $getPrice['original_price'];
+            $store_website_product_price["duty_price"] = (float)$getDuty["duty"];
+            $store_website_product_price["segment_discount"] = (float)$getPrice['segment_discount'];
+            $store_website_product_price["override_price"] = $getPrice['total'];
+            $store_website_product_price["status"] = 1;
+            $store_website_product_price['store_website_id'] =15;
+        }
+
+        \App\StoreWebsiteProductPrice::insert($store_website_product_price);
+
 
         if ($customer->credit > 0) {
             $balance_amount = $order->balance_amount;
@@ -2527,10 +2560,16 @@ class OrderController extends Controller
 // dd($callBusyMessages);
         foreach ($callBusyMessages['data'] as $key => $value) {
 
+            $storeId = null;
+            $activeNumber = TwilioActiveNumber::where('phone_number', '+' . trim($value['to'], '+'))->first();
+            if($activeNumber) {
+                $storeId = StoreWebsiteTwilioNumber::where('twilio_active_number_id', $activeNumber->id)->first();
+            }
+
             if (is_numeric($value['twilio_call_sid'])) {
                 # code...
                 $formatted_phone = str_replace('+', '', $value['twilio_call_sid']);
-                $customer_array = Customer::with('storeWebsite', 'orders')->where('phone', $formatted_phone)->get()->toArray();
+                $customer_array = Customer::with('storeWebsite', 'orders')->where('phone', $formatted_phone)->where('store_website_id', $storeId->store_website_id)->get()->toArray();
 
                 if ($value['aget_user_id'] != '') {
                     $user_data = User::where('id', $value['aget_user_id'])->first();

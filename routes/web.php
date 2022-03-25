@@ -2058,8 +2058,8 @@ Route::post('livechat/check-new-chat', 'LiveChatController@checkNewChat')->name(
 
 Route::get('livechat/getLiveChats', 'LiveChatController@getLiveChats')->name('livechat.get.chats');
 Route::get('livechat/getLiveChats/logs/{chatId}', 'LiveChatController@getChatLogs')->name('livechat.get.chatlogs');
-Route::get('livechat/getLiveChats/eventlogs', 'LiveChatController@getAllChatEventLogs')->name('livechat.event.logs');
 Route::get('livechat/getLiveChats/eventlogs/{chatId}', 'LiveChatController@getChatEventLogs')->name('livechat.event.chatlogs');
+Route::get('livechat/getLiveChats/eventlogs', 'LiveChatController@getAllChatEventLogs')->name('livechat.event.logs');
 
 Route::get('livechat/getorderdetails', 'LiveChatController@getorderdetails')->name('livechat.getorderdetails');
 
@@ -3402,6 +3402,8 @@ Route::prefix('social-webhook-logs')->middleware('auth')->group(function () {
 Route::prefix('broadcast-messages')->middleware('auth')->group(function () {
     Route::get('/', 'BroadcastController@index')->name('messages.index');
     Route::post('preview-broadcast-numbers', 'BroadcastController@messagePreviewNumbers')->name('get-numbers');
+    Route::post('get/send/message-group', 'BroadcastController@getSendType')->name('get-send-message-group');
+    
     Route::post('send/message', 'BroadcastController@sendMessage')->name('send-message');
     Route::post('send/type', 'BroadcastController@sendType')->name('send-type');
     Route::post('delete/message', 'BroadcastController@deleteMessage')->name('delete.message');
