@@ -3223,6 +3223,7 @@ class CustomerController extends Controller
         
         return view('customers.customer_priority_range_point', compact('storeWebsite', 'custRangePoint', 'twilioPriority'));
     }
+
     /**
      * This function is use for get all proirity Range data
      *
@@ -3230,7 +3231,44 @@ class CustomerController extends Controller
      * @param [int] $id
      * @return Jsonresponse
      */
-    public function selectCustomerPriorityRangePoints(Request $request) 
+    public function getSelectCustomerPriorityRangePoints(Request $request, $id) 
+    {
+        $custRangePoint = CustomerPriorityRangePoint::select(['customer_priority_range_points.id',
+        'customer_priority_range_points.store_website_id',
+        'customer_priority_range_points.twilio_priority_id',
+        'customer_priority_range_points.min_point',
+        'customer_priority_range_points.max_point',
+        'customer_priority_range_points.range_name',
+        'customer_priority_range_points.created_at',
+        'store_websites.website',
+        'twilio_priorities.priority_name'])->
+        leftjoin('store_websites', 'store_websites.id', 'customer_priority_range_points.store_website_id')
+        ->leftjoin('twilio_priorities', 'twilio_priorities.id', 'customer_priority_range_points.twilio_priority_id')
+        ->where('customer_priority_range_points.deleted_at', '=', null)
+        ->where('customer_priority_range_points.id', $id)
+        ->first();
+        
+        $storeWebsite = StoreWebsite::all();
+        $twilioPriority = TwilioPriority::where('account_id', function($query) use ($custRangePoint){
+            $query->select('twilio_credentials_id')
+            ->from("store_website_twilio_numbers")
+            ->where('store_website_twilio_numbers.store_website_id', $custRangePoint->store_website_id);
+        })->get();
+        $twilioPriority  = $twilioPriority->toArray();
+
+        //dd($twilioPriority->toArray());
+        return response()->json(['message' => "Record Listed successfully", 'code' => 200, 'data' => compact('custRangePoint', 'storeWebsite', 'twilioPriority'), 'status' => 'success']);
+    }
+
+
+    /**
+     * This function is use for get all proirity Range data
+     *
+     * @param Request $request
+     * @param [int] $id
+     * @return Jsonresponse
+     */
+    public function selectCustomerPriorityRangePoints(Request $request, $id) 
     {
         $custRangePoint = CustomerPriorityRangePoint::leftjoin('store_websites', 'store_websites.id', 'customer_priority_range_points.store_website_id')
         ->leftjoin('twilio_priorities', 'twilio_priorities.id', 'customer_priority_range_points.twilio_priority_id')
@@ -3247,9 +3285,13 @@ class CustomerController extends Controller
         'twilio_priorities.priority_name']);
         
         $storeWebsite = StoreWebsite::all();
-        $twilioPriority = TwilioPriority::all();
-        
-        return response()->json(['message' => "Record added successfully", 'code' => 200, 'data' => $custPri, 'status' => 'success']);
+        $twilioPriority = TwilioPriority::where('account_id', function($query) use ($id){
+            $query->select('twilio_credentials_id')
+            ->from("store_website_twilio_numbers")
+            ->where('store_website_id', $id);
+        })->get();
+        //dd($twilioPriority->toArray());
+        return response()->json(['message' => "Record Listed successfully", 'code' => 200, 'data' => $twilioPriority->toArray(), 'status' => 'success']);
     }
 
     /**
@@ -3262,9 +3304,11 @@ class CustomerController extends Controller
     {
         $custPri = CustomerPriorityRangePoint::updateOrCreate([
             'twilio_priority_id'      => $request->get('twilio_priority_id'),
+            'store_website_id'    => $request->get('store_website_id'),
         ],
         [
             'twilio_priority_id'    => $request->get('twilio_priority_id'),
+            'store_website_id'    => $request->get('store_website_id'),
             'min_point'      => $request->get('min_point'),
             'max_point'      => $request->get('max_point'),
             'deleted_at'     => NULL

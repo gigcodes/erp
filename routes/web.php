@@ -1191,7 +1191,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer/get-priority-points/{id?}', 'CustomerController@getCustomerPriorityPoints')->name('customer.get.priority.points');
 
     Route::get('customer/priority-range-points/', 'CustomerController@getCustomerPriorityRangePoints')->name('customer.get.priority.range.points');
-    Route::get('customer/priority-range-points/{id?}', 'CustomerController@selectCustomerPriorityRangePoints')->name('customer.select.priority.range.points');
+    Route::get('customer/priority-all-range-points/{id?}', 'CustomerController@selectCustomerPriorityRangePoints')->name('customer.all.select.priority.range.points');
+    Route::get('customer/priority-range-points/{id?}', 'CustomerController@getSelectCustomerPriorityRangePoints')->name('customer.get.select.priority.range.points');
     Route::get('customer/add-priority-range-points', 'CustomerController@addCustomerPriorityRangePoints')->name('customer.add.priority.range.points');
     Route::get('customer/delete-priority-range-points/{id?}', 'CustomerController@deleteCustomerPriorityRangePoints')->name('customer.delete.priority.range.points');
 

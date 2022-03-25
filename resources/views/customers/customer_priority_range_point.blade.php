@@ -29,6 +29,7 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
         <thead>
           <tr>
             {{-- <th>Website</th> --}}
+            <th>Website</th>
             <th>Level Name</th>
             <th>Min Point</th>
             <th>Max Point</th>
@@ -40,12 +41,14 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
         <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
           @foreach ($custRangePoint as $c) 
             <tr>
-              {{-- <td>{{ $c->website}}</td> --}}
+              <td>{{ $c->website}}</td>
               <td>{{ $c->priority_name }}</td>
               <td>{{ $c->min_point }}</td>
               <td>{{ $c->max_point }}</td>
               <td>@if($c->created_at != null) {{ date("d-m-Y",strtotime($c->created_at)) }} @endif</td>
-              <td><a href="{{route('customer.delete.priority.range.points')}}/{{$c->id}}"><i class="fa fa-trash" aria-hidden="true"></i></a></td>
+              <td><a href="{{route('customer.delete.priority.range.points')}}/{{$c->id}}"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                <a class="btn btn-xs btn-secondary" href="#" id="edit" data-id="{{$c->id}}" data-bs-toggle="modal" data-bs-target="#add_customer_priority_point">Edit</a>
+              </td>
             </tr>
           @endforeach
         </tbody>
@@ -67,16 +70,16 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
                     <div class="col-md-12" id="">
                       <div class="row">
                           <div class="col-md-12">
-                              {{-- <div class="form-group">
+                              <div class="form-group">
                                   <label>Store Website</label>
-                                  <select id="store_website_id" name="store_website_id"  class="selectpicker form-control" data-live-search="true" data-size="15">
+                                  <select id="store_website_id" name="store_website_id"  class="form-control" data-live-search="true" data-size="15">
                                     <option value="">---</option>
                                     @foreach ($storeWebsite as $storeWebsiteData)
                                       <option value="{{ $storeWebsiteData->id}}" >{{ $storeWebsiteData->website}}</option>    
                                     @endforeach
                                 </select>
                               </div>
-                          </div> --}}
+                          </div>
                           <div class="col-md-12">
                             <div class="form-group">
                                 <label>Min Points</label>
@@ -98,11 +101,8 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
                           <div class="col-md-12">
                             <div class="form-group">
                                 <label>Range Level</label>
-                                <select id="twilio_priority_id" name="twilio_priority_id"  class="selectpicker form-control" data-live-search="true" data-size="15">
-                                  <option value="">---</option>
-                                  @foreach ($twilioPriority as $twilioPriorityData)
-                                    <option value="{{ $twilioPriorityData->id}}" >{{ $twilioPriorityData->priority_name}}</option>    
-                                  @endforeach
+                                <select id="twilio_priority_id" name="twilio_priority_id"  class="form-control" data-size="15">
+                                  
                               </select>
                             </div>
                         </div>
@@ -127,11 +127,11 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
           $('#add_customer_priority_point').modal('show');
         });
         
-        $(document).on("change","#twilio_priority_id1",function(e) {
+        $(document).on("change","#store_website_id",function(e) {
           e.preventDefault();
-          let twilio_priority_id = $("#twilio_priority_id").val();
+          let store_website_id = $("#store_website_id").val();
           $.ajax({
-               url: "{{route('customer.select.priority.range.points')}}/"+twilio_priority_id,
+               url: "{{route('customer.all.select.priority.range.points')}}/"+store_website_id,
                type: 'GET',
                headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
@@ -143,11 +143,59 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
                success: function (data) {
                    $('#loading-image').hide();
                    if(data.code == 200)  {
-                    var res = data.data.custPriority[0];
-                      if(res) {
-                        $("#min_point").val(res.min_point);
-                        $("#max_point").val(res.max_point);
-                        $("#twilio_priority_id").val(res.twilio_priority_id);
+                      if (data.data.length > 0) {
+                          var html = "";
+                          $.each(data.data, function (k, twi) {
+                              $('#twilio_priority_id')
+                              .append($("<option></option>")
+                                .attr("value", twi.id)
+                                .text(twi.priority_name)); 
+                          });
+                      } else {
+                        $('#twilio_priority_id').empty();
+                      }
+                   }else {
+                      toastr["error"](data.message, "Message")
+                   }
+               },
+               error: function () {
+                   //$('#loading-image').hide();
+                   toastr["error"]("Oops something went wrong", "Message")
+               }
+            });
+        });
+
+        $(document).on("click","#edit",function(e) {
+          $('#add_customer_priority_point').modal('show');
+          e.preventDefault();
+          var $this = $(this);
+          var id = $this.data("id");
+          $.ajax({
+               url: "{{route('customer.get.select.priority.range.points')}}/"+id,
+               type: 'GET',
+               headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+               
+               beforeSend : function() {
+                    $('#loading-image').show();
+               },
+               success: function (data) {
+                   $('#loading-image').hide();
+                   if(data.code == 200)  {
+                    //var obj = $.parseJSON( data );
+                      if (Object.keys(data.data.custRangePoint).length > 0) {
+                        
+                        var dataVal = data.data;
+                        $("#store_website_id").val(dataVal.custRangePoint.store_website_id);
+                        $('#min_point').val(dataVal.custRangePoint.min_point);
+                        $('#max_point').val(dataVal.custRangePoint.max_point);
+                        $.each(dataVal.twilioPriority, function (k, twi) {
+                              $('#twilio_priority_id')
+                              .append($("<option></option>")
+                                .attr("value", twi.id)
+                                .text(twi.priority_name)); 
+                          });
                       }
                    }else {
                       toastr["error"](data.message, "Message")
