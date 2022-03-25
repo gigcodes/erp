@@ -3535,8 +3535,9 @@ class OrderController extends Controller
         $magentoHelper = new MagentoHelperv2;
         $result = $magentoHelper->fetchOrderStatus($website);
         if ($result) {
-            if ($result['code'] == 200) {
-                $statuses = $result['data'];
+            if ($result->status() == 200) {
+                $statuses = json_decode($result->getContent());
+
                 foreach ($statuses as $status) {
                     StoreMasterStatus::updateOrCreate([
                         'store_website_id' => $request->store_website_id,
@@ -3546,7 +3547,7 @@ class OrderController extends Controller
                     ]);
                 }
             } else {
-                return redirect()->back()->with('error', $result['data']->message);
+                return redirect()->back()->with('error', $result->getContent());
             }
         } else {
             return redirect()->back()->with('error', 'Could not fetch the statuses');
