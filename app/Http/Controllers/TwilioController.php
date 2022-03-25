@@ -78,6 +78,7 @@ use App\TwilioCallBlock;
 use App\TwilioCallStatistic;
 use App\TwilioDequeueCall;
 use App\TwilioPriority;
+use App\TwilioCallJourney;
 
 use App\TwilioMessageTone;
 use Twilio\Jwt\TaskRouter\WorkerCapability;
@@ -394,7 +395,7 @@ class TwilioController extends FindByNumberController
         $call_with_agent = ($request->get("call_with_agent") != null ? $request->get("call_with_agent") : 0);
 
         TwilioLog::create(['log'=>'After call received, from Mobile No '.$number.' Call with Agent is :'.$call_with_agent, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
-
+        TwilioCallJourney::create(['account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number, 'call_entered'=>1]);
         //Log::channel('customerDnd')->info('call_with_agent:'.$call_with_agent);
         $storeId = null;
         $activeNumber = TwilioActiveNumber::where('phone_number', '+' . trim($twilioNumber, '+'))->first();
@@ -581,7 +582,7 @@ class TwilioController extends FindByNumberController
 
                 if(in_array('morning', $conditions) && in_array('evening', $conditions) && $morning != '' && $evening != '' &&  !$time->between($morning, $evening, true))  
                 {
-
+                   TwilioCallJourney::updateOrCreate(['account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number], ['called_in_working_hours'=>0]);
                    TwilioLog::create(['log'=>' Oops call is not landed in working hours Closing the call for mobile number '.$number, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
 
 			       //Log::channel('customerDnd')->info(' End work >> ');
@@ -604,7 +605,8 @@ class TwilioController extends FindByNumberController
                         $response->play($endworkRing);
                 }else{
 
-
+                    TwilioCallJourney::updateOrCreate(['account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number], ['called_in_working_hours'=>1]);
+                   
                     TwilioLog::create(['log'=>' Call is landed on working hours for mobile number, '.$number, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
 
 			        //Log::channel('customerDnd')->info(' working Hours >> ');
@@ -714,7 +716,9 @@ class TwilioController extends FindByNumberController
                             }else{
                                 $is_available = 1;
                             }
-
+                            TwilioCallJourney::updateOrCreate(['account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number], ['agent_available'=>$is_available]);
+                            TwilioCallJourney::updateOrCreate(['account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number], ['agent_online'=>$is_online]);
+                   
 
                             TwilioLog::create(['log'=>' Agent Availblity after checking the call status is '.$is_available, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
 
@@ -1083,6 +1087,8 @@ class TwilioController extends FindByNumberController
                                     'call_data' => 'client',
                                     'aget_user_id' => $client['agent_id']
                                 ]);
+								TwilioCallJourney::updateOrCreate(['account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number], ['call_answered'=>1]);
+                   
                                 //Call History - END
                             }
                         }
@@ -1674,6 +1680,8 @@ class TwilioController extends FindByNumberController
 
         Log::channel('customerDnd')->info('time_store_web_id: '.$time_store_web_id);
 		$inputs = $request->input();
+		TwilioCallJourney::updateOrCreate(['account_sid'=> $AccountSid,'call_sid'=>$CallSid, 'phone'=>$number], ['handled_by_chatbot'=>1]);
+                   
 		if(isset($inputs['Digits'])) {
 			$selectedOption = $request->input('Digits');
 			$key_data = TwilioKeyOption::where('website_store_id',$time_store_web_id)->orderBy('key', 'ASC')->get();
@@ -4767,5 +4775,10 @@ class TwilioController extends FindByNumberController
 		$twilioMessageTones = StoreWebsite::leftJoin('twilio_message_tones', 'twilio_message_tones.store_website_id','store_websites.id')
 		->select('twilio_message_tones.*', 'store_websites.title as website','store_websites.id as websiteId')->get();
 		return view('twilio.manage-tones', compact('twilioMessageTones'));
+	}  
+	
+	public function twilioCallJourney(){
+		$callJourney = TwilioCallJourney::orderBy('id', 'desc')->paginate(30);
+		return view('twilio.call_journey', compact('callJourney'));
 	}
 } 
