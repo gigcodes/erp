@@ -46,8 +46,9 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
               <td>{{ $c->min_point }}</td>
               <td>{{ $c->max_point }}</td>
               <td>@if($c->created_at != null) {{ date("d-m-Y",strtotime($c->created_at)) }} @endif</td>
-              <td><a href="{{route('customer.delete.priority.range.points')}}/{{$c->id}}"><i class="fa fa-trash" aria-hidden="true"></i></a>
-                <a class="btn btn-xs btn-secondary" href="#" id="edit" data-id="{{$c->id}}" data-bs-toggle="modal" data-bs-target="#add_customer_priority_point">Edit</a>
+              <td>
+                <a class="btn btn-xs " href="#" id="edit" data-id="{{$c->id}}" data-bs-toggle="modal" data-bs-target="#add_customer_priority_point"><i class="fa fa-edit" aria-hidden="true"></i></a>
+                <a href="{{route('customer.delete.priority.range.points')}}/{{$c->id}}"><i class="fa fa-trash" aria-hidden="true"></i></a>
               </td>
             </tr>
           @endforeach
