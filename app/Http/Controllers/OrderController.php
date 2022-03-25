@@ -1029,7 +1029,7 @@ class OrderController extends Controller
             $address = \App\OrderCustomerAddress::where("order_id", $order->id)->where("address_type", "shipping")->first();
 
             $product =  \App\Product::find($order_product->product_id);
-            $getPrice = $product->getPrice($customer->store_website_id, $address->country_id);
+            $getPrice = $product->getPrice($customer->store_website_id, "IN", '', '', '', '', '', '', '', '', $order->id, $order_product->product_id);
             $getDuty = $product->getDuty($address->country_id);
 
             $store_website_product_price['default_price']  = $getPrice['original_price'];

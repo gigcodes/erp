@@ -599,9 +599,8 @@ class LeadsController extends Controller
             // count adding for leads
             $store_website_product_price = array();
             $store_website_product_price['product_id'] = $product_id;
-            //$address = \App\OrderCustomerAddress::where("customer_id", $request->customer_id)->where("address_type", "shipping")->first();
             $productData =  \App\Product::find($product_id);
-            $getPrice = $productData->getPrice($customer->store_website_id, 'IN');
+            $getPrice = $productData->getPrice($website, 'IN', null, null, null, null, null, null, null, null, null, $product_id, $customer->id);
             $getDuty = $productData->getDuty('IN');
             $store_website_product_price['default_price']  = $getPrice['original_price'];
             $store_website_product_price["duty_price"] = (float)$getDuty["duty"];
@@ -610,6 +609,17 @@ class LeadsController extends Controller
             $store_website_product_price["status"] = 1;
             $store_website_product_price['store_website_id'] =15;
             \App\StoreWebsiteProductPrice::insert($store_website_product_price);
+            $condition = [
+                'product_id' => $product_id, 
+                'customer_id' =>  $customer->id
+            ];
+
+            $fields = [
+                'product_id' => $product_id,
+                'customer_id' => $customer->id,
+                'log' => 'Origanal Price : '. $getPrice['original_price']. '<br> + duty_price : '.(float)$getDuty["duty"]. ' <br>- Segment Discount : '.(float)$getPrice['segment_discount']. '<br> = Total Price : '.$getPrice['total'] ,
+            ];
+            \App\LeadProductPriceCountLogs::updateOrCreate($condition, $fields);
 
 
 
@@ -617,7 +627,7 @@ class LeadsController extends Controller
             $brand_name = $product->brands->name ?? '';
             $special_price = (int) $product->price_special_offer > 0 ? (int) $product->price_special_offer : $product->price_inr_special;
             $dutyPrice = $product->getDuty($cnt);
-            $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
+            $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice, null, null, null, null, null, null, $product_id, $customer->id);
             if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
                 $special_price = $discountPrice['total'];
                 $brand = $product->brands;
