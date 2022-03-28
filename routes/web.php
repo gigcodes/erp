@@ -3678,6 +3678,8 @@ Route::prefix('custom-chat-message')->middleware('auth')->group(function () {
 
 Route::prefix('lead-order')->middleware('auth')->group(function () {
     Route::get('/', 'LeadOrderController@index')->name('lead-order.index');
+    Route::get('/product/log', 'LeadOrderController@leadProductPriceLog')->name('lead.order.product.log');
+    Route::get('/cal/log', 'LeadOrderController@leadProductPriceCalLog')->name('lead.product.cal.log');
 });
 
 // Google Scrapper Keyword
