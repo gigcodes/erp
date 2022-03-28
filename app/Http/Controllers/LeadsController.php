@@ -617,10 +617,17 @@ class LeadsController extends Controller
             $fields = [
                 'product_id' => $product_id,
                 'customer_id' => $customer->id,
-                'log' => 'Origanal Price : '. $getPrice['original_price']. '<br> + duty_price : '.(float)$getDuty["duty"]. ' <br>- Segment Discount : '.(float)$getPrice['segment_discount']. '<br> = Total Price : '.$getPrice['total'] ,
+                'original_price' => $getPrice['original_price'] ?? '',
+                'promotion_per' => $getPrice['promotion_per'] ?? '',
+                'promotion' => $getPrice['promotion'] ?? '',
+                'segment_discount' => $getPrice['segment_discount'] ?? '',
+                'segment_discount_per' => $getPrice['segment_discount_per'] ?? '',
+                'total_price' => $getPrice['total'] ?? '',
+                'log' => $getPrice['last_log'] ?? '',
             ];
+            
             \App\LeadProductPriceCountLogs::updateOrCreate($condition, $fields);
-
+            
 
 
             $product = Product::find($product_id);
