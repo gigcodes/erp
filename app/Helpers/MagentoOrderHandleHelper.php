@@ -107,6 +107,7 @@ class MagentoOrderHandleHelper extends Model
                         array(
                             'customer_id'         => $customer_id,
                             'order_id'            => $order->increment_id,
+                            'order_magento_id'    => $order->id,
                             'order_type'          => 'online',
                             'order_status'        => isset($allStatus[$order_status]) ? $allStatus[$order_status] : $order_status,
                             'order_status_id'     => $order_status,
