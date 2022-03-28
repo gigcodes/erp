@@ -3219,9 +3219,7 @@ class CustomerController extends Controller
         'twilio_priorities.priority_name']);
         
         $storeWebsite = StoreWebsite::all();
-        $twilioPriority = TwilioPriority::all();
-        
-        return view('customers.customer_priority_range_point', compact('storeWebsite', 'custRangePoint', 'twilioPriority'));
+        return view('customers.customer_priority_range_point', compact('storeWebsite', 'custRangePoint'));
     }
 
     /**
