@@ -123,7 +123,8 @@
                         <th>Promotion</th>
                         <th>Segment Discount</th>
                         <th>Segment Discount Percentage</th>
-                        <th>Total Price</th>
+                        <th>IVA Price</th>
+                        <th>Euro Price</th>
                     </tr>
                     <tbody id="callogtr">
 

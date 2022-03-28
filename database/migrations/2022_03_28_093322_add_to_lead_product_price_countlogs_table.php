@@ -31,7 +31,12 @@ class AddToLeadProductPriceCountlogsTable extends Migration
     public function down()
     {
         Schema::table('lead_product_price_count_logs', function (Blueprint $table) {
-            //
+            $table->dropColumn('original_price');
+            $table->dropColumn('promotion_per');
+            $table->dropColumn('promotion');
+            $table->dropColumn('segment_discount');
+            $table->dropColumn('segment_discount_per');
+            $table->dropColumn('total_price');
         });
     }
 }
