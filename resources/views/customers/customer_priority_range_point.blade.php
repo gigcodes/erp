@@ -28,7 +28,6 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
       <table class="table table-bordered m-0">
         <thead>
           <tr>
-            {{-- <th>Website</th> --}}
             <th>Website</th>
             <th>Level Name</th>
             <th>Min Point</th>
