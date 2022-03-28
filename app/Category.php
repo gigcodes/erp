@@ -314,7 +314,7 @@ class Category extends Model
 
         // Set empty category tree for holding categories
         $categoryTree = [];
-     $topParent = ProductHelper::getTopParent($category->id);
+     $topParent = ProductHelper::getTopParent($id);
 
         // Continue only if category is not null
         if ( $categoryInstance !== NULL && $categoryMulti) {
