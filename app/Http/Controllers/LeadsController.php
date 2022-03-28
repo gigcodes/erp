@@ -625,10 +625,7 @@ class LeadsController extends Controller
                 'total_price' => $getPrice['total'] ?? '',
                 'log' => $getPrice['last_log'] ?? '',
             ];
-            
             \App\LeadProductPriceCountLogs::updateOrCreate($condition, $fields);
-            
-
 
             $product = Product::find($product_id);
             $brand_name = $product->brands->name ?? '';
