@@ -3268,21 +3268,6 @@ class CustomerController extends Controller
      */
     public function selectCustomerPriorityRangePoints(Request $request, $id) 
     {
-        $custRangePoint = CustomerPriorityRangePoint::leftjoin('store_websites', 'store_websites.id', 'customer_priority_range_points.store_website_id')
-        ->leftjoin('twilio_priorities', 'twilio_priorities.id', 'customer_priority_range_points.twilio_priority_id')
-        ->where('customer_priority_range_points.deleted_at', '=', null)
-        ->get(
-        ['customer_priority_range_points.id',
-        'customer_priority_range_points.store_website_id',
-        'customer_priority_range_points.twilio_priority_id',
-        'customer_priority_range_points.min_point',
-        'customer_priority_range_points.max_point',
-        'customer_priority_range_points.range_name',
-        'customer_priority_range_points.created_at',
-        'store_websites.website',
-        'twilio_priorities.priority_name']);
-        
-        $storeWebsite = StoreWebsite::all();
         $twilioPriority = TwilioPriority::where('account_id', function($query) use ($id){
             $query->select('twilio_credentials_id')
             ->from("store_website_twilio_numbers")
