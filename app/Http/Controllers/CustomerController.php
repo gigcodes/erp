@@ -3238,7 +3238,6 @@ class CustomerController extends Controller
         'customer_priority_range_points.twilio_priority_id',
         'customer_priority_range_points.min_point',
         'customer_priority_range_points.max_point',
-        'customer_priority_range_points.range_name',
         'customer_priority_range_points.created_at',
         'store_websites.website',
         'twilio_priorities.priority_name'])->
