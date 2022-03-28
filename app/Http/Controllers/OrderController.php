@@ -2916,12 +2916,15 @@ class OrderController extends Controller
                              */
                             $response=$result->getData();
                             if(isset($response) && isset($response->status) && $response->status==false){
+
                                 return response()->json($response->error,400);
                             }
                         }else{
+
                         return response()->json('Store MasterStatus Not Present',400);
                         }
                     }else{
+                        
                         return response()->json('Store Order Status Not Present',400);
                     }
                 }else{
