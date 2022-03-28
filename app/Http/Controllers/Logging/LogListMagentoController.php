@@ -27,7 +27,8 @@ use Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
-
+use App\ProductPushJourney;
+use App\PushToMagentoCondition;
 
 class LogListMagentoController extends Controller
 {
@@ -291,6 +292,13 @@ class LogListMagentoController extends Controller
         }
         $productErrorLogs = $productErrorLogs->get();
         return view('logging.partials.magento_error_data', compact('productErrorLogs'));
+    }
+
+    public function showJourneyById($id)
+    {
+        $conditions = PushToMagentoCondition::pluck('condition')->toArray();
+		$pushJourney = ProductPushJourney::where('log_list_magento_id', $id)->pluck( 'condition')->toArray();
+        return view('logging.partials.push_journey', compact('conditions','pushJourney'));
     }
 
     public function showErrorByLogId($id)
