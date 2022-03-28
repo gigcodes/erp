@@ -3256,7 +3256,6 @@ class CustomerController extends Controller
         })->get();
         $twilioPriority  = $twilioPriority->toArray();
 
-        //dd($twilioPriority->toArray());
         return response()->json(['message' => "Record Listed successfully", 'code' => 200, 'data' => compact('custRangePoint', 'storeWebsite', 'twilioPriority'), 'status' => 'success']);
     }
 
@@ -3290,7 +3289,7 @@ class CustomerController extends Controller
             ->from("store_website_twilio_numbers")
             ->where('store_website_id', $id);
         })->get();
-        //dd($twilioPriority->toArray());
+        
         return response()->json(['message' => "Record Listed successfully", 'code' => 200, 'data' => $twilioPriority->toArray(), 'status' => 'success']);
     }
 
@@ -3329,6 +3328,5 @@ class CustomerController extends Controller
             'deleted_at'    => date('Y-m-d H:i:s')
         ]);
         return redirect()->back()->withSuccess('You have successfully Deleted');
-        //return response()->json(['message' => "Record added successfully", 'code' => 200, 'data' => $custPri, 'status' => 'success']);
     }
 }

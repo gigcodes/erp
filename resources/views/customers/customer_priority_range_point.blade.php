@@ -160,7 +160,6 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
                    }
                },
                error: function () {
-                   //$('#loading-image').hide();
                    toastr["error"]("Oops something went wrong", "Message")
                }
             });

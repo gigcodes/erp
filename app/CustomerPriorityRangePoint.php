@@ -19,7 +19,6 @@ class CustomerPriorityRangePoint extends Model
      *
      */
     
-    // protected $appends = ['communication'];
     protected $table = "customer_priority_range_points";
 
     protected $fillable = [
