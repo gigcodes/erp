@@ -710,7 +710,7 @@
       dataType: 'html'
     })
     .done(function(result) {
-      $('#pushJourney').modal('show');
+      $('#ErrorLogModal').modal('show');
       $('.error-log-data').html(result);
     });
 
@@ -728,7 +728,7 @@
       dataType: 'html'
     })
     .done(function(result) {
-      $('#ErrorLogModal').modal('show');
+      $('#pushJourney').modal('show');
       $('.push_journey_logs').html(result);
     });
 
