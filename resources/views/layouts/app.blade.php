@@ -1357,13 +1357,6 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
                                         </li>
-<<<<<<< HEAD
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('chatbot.type.error.log')}}">Twillio Missing Keywrods</a>
-                                        </li>
-=======
-
->>>>>>> 43743e205e8670711b0825db9d9cdc942dcc16e5
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
