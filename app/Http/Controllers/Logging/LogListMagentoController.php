@@ -29,6 +29,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use App\ProductPushJourney;
 use App\PushToMagentoCondition;
+use App\Helpers\ProductHelper;
 
 class LogListMagentoController extends Controller
 {
@@ -299,6 +300,24 @@ class LogListMagentoController extends Controller
         $conditions = PushToMagentoCondition::pluck('condition')->toArray();
 		$pushJourney = ProductPushJourney::where('log_list_magento_id', $id)->pluck( 'condition')->toArray();
         return view('logging.partials.push_journey', compact('conditions','pushJourney'));
+    }
+
+    public function showJourneyHorizontalById(Request $request, $id)
+    {
+        $conditions = PushToMagentoCondition::pluck('condition')->toArray();
+		$pushJourney = ProductPushJourney::where('log_list_magento_id', $id)->pluck( 'condition')->toArray();
+        $productSku = $request->sku_name ?? '';
+        $product = \App\Product::find($request->product_id);
+        $type = ProductHelper::getTopParent($product->category);
+        $category = Category::find($product->category);
+        //dd($type);
+        if($category->parent_id !=0) {
+            $useStatus = 'status';
+        } else {
+            $useStatus = "upteam_status";
+        }
+
+        return view('logging.partials.push_journey_horizontal', compact('conditions','pushJourney', 'productSku', 'useStatus'));
     }
 
     public function showErrorByLogId($id)

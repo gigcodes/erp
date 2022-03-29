@@ -277,6 +277,35 @@
     <!-- /.modal-dialog -->
   </div>
 
+
+  <div id="pushJourneyHorizontal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Product push  journey Horizontal</h4>
+        </div>
+        <div class="modal-body" style="overflow-x: auto;">
+          <table class="table table-bordered table-hover">
+            {{-- <thead>
+              <th style="width:7%">Step </th>
+              <th style="width:6%">Is checked</th>
+             
+            </thead> --}}
+            <tbody class="push_journey_horizontal_logs">
+
+            </tbody>
+          </table>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
   <div id="PriceModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
       <div class="modal-content">
@@ -730,6 +759,28 @@
     .done(function(result) {
       $('#pushJourney').modal('show');
       $('.push_journey_logs').html(result);
+    });
+
+  });
+
+  $(document).on("click", ".push_journey_horizontal", function() {
+    var id = $(this).data('id');
+    var store_website_id = $(this).data('website');
+    var prodSku = $(this).data('sku');
+    var productId = $(this).data('product_id');
+    $.ajax({
+      method: "GET",
+      url: "/logging/call-journey-horizontal-by-id/" + id,
+      data: {
+        "_token": "{{ csrf_token() }}",
+        "sku_name" : prodSku,
+        "product_id" : productId,
+      },
+      dataType: 'html'
+    })
+    .done(function(result) {
+      $('#pushJourneyHorizontal').modal('show');
+      $('.push_journey_horizontal_logs').html(result);
     });
 
   });
