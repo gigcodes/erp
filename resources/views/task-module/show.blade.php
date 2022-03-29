@@ -1483,6 +1483,13 @@ input.cmn-toggle-round + label {
         $('#search_by_user').select2({
                 width: "100%"
         });
+
+        $('#search_by_user').change(function () {
+            $("#priority_user_id").select2({tags: true,width: '100%'}).val($(this).val()).trigger('change');
+        });
+
+
+
         $(document).ready(function () {
 
         $('#priority_user_id').select2({
@@ -1623,6 +1630,7 @@ input.cmn-toggle-round + label {
             });
 
             function getPriorityTaskList(id) {
+                console.log('id',id)
                 var selected_issue = [0];
 
                 $('input[name ="selected_issue[]"]').each(function () {
@@ -1672,8 +1680,8 @@ input.cmn-toggle-round + label {
             });
 
             $('.priority_model_btn').click(function () {
-                $("#priority_user_id").val('0');
-                $("#sel_user_id").val('0');
+                //$("#priority_user_id").val('0');
+                //$("#sel_user_id").val('0');
                 $(".show_task_priority").html('');
                 <?php if (auth()->user()->isAdmin()) { ?>
                 getPriorityTaskList($('#priority_user_id').val());
@@ -1686,8 +1694,8 @@ input.cmn-toggle-round + label {
 
             $('#priority_user_id').change(function () {
                 $("#sel_user_id").val($(this).val());
-                getPriorityTaskList($(this).val())
-
+                if($('#priority_model').is(':visible')){                  getPriorityTaskList($(this).val())
+                }
             });
 
             $(document).on('submit', '#priorityForm', function (e) {

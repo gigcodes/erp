@@ -745,6 +745,7 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=unapproved">Customers - unapproved</a>
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=Refund+to+be+processed">Customers - refund</a>
                                             <a class="dropdown-item" href="{{ action('VisitorController@index') }}">Livechat Visitor Logs</a>
+                                            <a class="dropdown-item" href="{{ url('livechat/setting') }}">Livechat Setting</a>
                                             <a class="dropdown-item" href="{{ action('ProductController@attachedImageGrid') }}">Attach Images</a>
                                             <a class="dropdown-item" href="{{ action('ProductController@suggestedProducts') }}">Sent Images</a>
                                             <a class="dropdown-item" href="{{ route('chat.dndList') }}">DND Manage</a>
@@ -752,6 +753,8 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ url('chatbot-message-log') }}">Chatbot Message Log</a>
                                             <a class="dropdown-item" href="{{ url('customers/accounts') }}">Store website customer</a>
                                             <a class="dropdown-item" href="{{ route('product.customer-reviews') }}" >Customer Reviews</a>
+                                            <a class="dropdown-item" href="{{ route('customer.priority.points') }}" >Customer Priority</a>
+                                            <a class="dropdown-item" href="{{ route('customer.get.priority.range.points') }}" >Customer Range Priority Point</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
@@ -936,6 +939,7 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="/mail-templates/mailables">Mailables</a>
                                             <a class="dropdown-item" href="{{ route('emailleads') }}">Email Leads</a>
                                             <a class="dropdown-item" href="{{ url('twillio')}}">Messages</a>
+                                            <a class="dropdown-item" href="{{ url('email-data-extraction')}}">Auto Email Records</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1353,9 +1357,13 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
                                         </li>
+<<<<<<< HEAD
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.type.error.log')}}">Twillio Missing Keywrods</a>
                                         </li>
+=======
+
+>>>>>>> 43743e205e8670711b0825db9d9cdc942dcc16e5
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1623,6 +1631,12 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ url('/store-website-product-prices') }}">Store website product price</a>
                                             </li>
+											 <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/site-assets') }}">Site assets</a>
+                                            </li>
+											 <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/site-check-list') }}">Site check  list</a>
+                                            </li>
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('list.daily-push-log') }}">Magento Daily Product Push Log</a>
                                             </li>
@@ -1658,8 +1672,14 @@ if (!empty($notifications)) {
 													<li class="nav-item dropdown">
 														<a class="dropdown-item" href="{{ route('twilio.erp_logs') }}">Twilio ERP Logs</a>
 													</li>
+													<li class="nav-item dropdown">
+														<a href="{{ route('twilio.call_journey') }}">Twilio call journey</a>
+													</li>
                                                     <li class="nav-item dropdown">
 														<a class="dropdown-item" href="{{ route('get.python.log') }}">Python Site Logs</a>
+													</li>
+                                                    <li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('twilio.get_website_wise_key_data_options') }}">Twilio Key Options</a>
 													</li>
 												</ul>
 											</li>
@@ -1718,6 +1738,9 @@ if (!empty($notifications)) {
                                                         <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{url('conversion/rates')}}">Currency Conversion Rate</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{url('magento-admin-settings')}}">Magento Admin Settings</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
@@ -1758,6 +1781,16 @@ if (!empty($notifications)) {
 
                                                         <li class="nav-item dropdown">
                                                             <a class="dropdown-item" href="{{route('twilio-speech-to-text-logs')}}">Twilio Speech to text Logs</a>
+                                                        </li>
+
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('chatbot.type.error.log')}}">Twilio Chat Bot Not Recognised</a>
+                                                        </li>
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('twilio.call.blocks')}}">Twilio Call Blocks</a>
+                                                        </li>
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('twilio.call.statistic')}}">Twilio Call Statistic</a>
                                                         </li>
                                                     </ul>
                                                 </li>
@@ -2460,9 +2493,9 @@ if (!empty($notifications)) {
                                 @php
                                 $chatIds = \App\CustomerLiveChat::with('customer')->orderBy('seen','asc')
                                 ->orderBy('status','desc')
-                                ->get();
+                                ->get(); 
                                 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
-                                @endphp
+                                @endphp 
                                 <ul class="contacts" id="customer-list-chat">
                                     @foreach ($chatIds as $chatId)
                                         @php

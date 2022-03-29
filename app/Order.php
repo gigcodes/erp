@@ -91,6 +91,7 @@ class Order extends Model
         'monetary_account_id',
         'website_address_id',
         'transaction_id',
+        'order_magento_id',
     ];
 
     protected $appends = ['action'];

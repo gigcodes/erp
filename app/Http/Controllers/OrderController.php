@@ -41,6 +41,7 @@ use App\OrderReport;
 use App\OrderStatus;
 use App\OrderStatus as OrderStatuses;
 use App\OrderStatusHistory;
+use App\OrderErrorLog;
 use App\Product;
 use App\Refund;
 use App\Reply;
@@ -51,7 +52,11 @@ use App\StoreMasterStatus;
 use App\StoreWebsite;
 use App\StoreWebsiteOrder;
 use App\Store_order_status;
+use App\StoreWebsiteTwilioNumber;
 use App\Task;
+use App\TwilioActiveNumber;
+use App\TwilioAgent;
+use App\TwilioDequeueCall;
 use App\User;
 use App\Waybill;
 use App\waybillTrackHistories;
@@ -1007,6 +1012,37 @@ class OrderController extends Controller
 
         $order->balance_amount = ($totalAmount - $order->advance_detail);
         $order->save();
+
+
+        $store_order_website = new StoreWebsiteOrder();
+        $store_order_website->website_id = 15;
+        $store_order_website->status_id = $order->order_status_id;
+        $store_order_website->order_id = $order->id;
+        $store_order_website->save();
+
+
+        $store_website_product_price = array();
+
+        foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) 
+        {
+            $store_website_product_price['product_id'] = $order_product->product_id;
+
+            $address = \App\OrderCustomerAddress::where("order_id", $order->id)->where("address_type", "shipping")->first();
+
+            $product =  \App\Product::find($order_product->product_id);
+            $getPrice = $product->getPrice($customer->store_website_id, "IN", '', '', '', '', '', '', '', '', $order->id, $order_product->product_id);
+            $getDuty = $product->getDuty($address->country_id);
+
+            $store_website_product_price['default_price']  = $getPrice['original_price'];
+            $store_website_product_price["duty_price"] = (float)$getDuty["duty"];
+            $store_website_product_price["segment_discount"] = (float)$getPrice['segment_discount'];
+            $store_website_product_price["override_price"] = $getPrice['total'];
+            $store_website_product_price["status"] = 1;
+            $store_website_product_price['store_website_id'] =15;
+        }
+
+        \App\StoreWebsiteProductPrice::insert($store_website_product_price);
+
 
         if ($customer->credit > 0) {
             $balance_amount = $order->balance_amount;
@@ -2405,31 +2441,60 @@ class OrderController extends Controller
     }
 
     public function callManagement(Request $request){
-
-        $getnumbers = \App\TwilioCurrentCall::select('number')->where(['status'=>1])->get()->toArray();
-        $users = \App\Customer::select('id')->whereIn('phone', $getnumbers)->get()->toArray();
-
+        
         $reservedCalls = \App\TwilioCallWaiting::with('storeWebsite')->leftJoin("customers as c", "c.phone", \DB::raw('REPLACE(twilio_call_waitings.from, "+", "")'))->orderBy("twilio_call_waitings.created_at", "desc")
         ->select(["twilio_call_waitings.*", "c.name", "c.email"])->get();
-        $allleads=[];
-        $orders = (new \App\Order())->newQuery()->with('customer')->leftJoin("store_website_orders as swo","swo.order_id","orders.id")
-        ->leftJoin("order_products as op","op.order_id","orders.id")
-        ->leftJoin("products as p","p.id","op.product_id")
-        ->leftJoin("brands as b","b.id","p.brand")->groupBy("orders.id")
-        ->whereIn('customer_id',$users)
-        ->select(["orders.*",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"])->orderBy('created_at','desc')->limit(5)->get();
-        $allleads[] = $this->getLeadsInformation($users);
-        if ($orders->count()){
-            foreach ($orders as &$value){
-                $value->storeWebsite = $value->storeWebsiteOrder ? ($value->storeWebsiteOrder->storeWebsite??'N/A') : 'N/A';
-                $value->order_date =  Carbon::parse($value->order_date)->format('d-m-y');
-                $totalBrands = explode(",",$value->brand_name_list);
-                $value->brand_name_list = (count($totalBrands) > 1) ? "Multi" : $value->brand_name_list;
-                $value->status = \App\Helpers\OrderHelper::getStatusNameById($value->order_status_id);
-            }
-        }
 
-        return view('orders.call_management', compact('reservedCalls','allleads','orders'));
+        return view('orders.call_management', compact('reservedCalls'));
+    }
+
+    public function getCurrentCallNumber()
+    {
+        $getnumber = TwilioDequeueCall::where('agent_id', Auth::id())->first();
+
+        return response()->json([
+            'number' => $getnumber->caller
+        ]);
+    }
+
+    public function getCurrentCallInformation()
+    {
+        try {
+            // $getnumbers = \App\TwilioCurrentCall::select('number')->where(['status'=>1])->get()->toArray();
+            $getnumber = TwilioDequeueCall::where('agent_id', Auth::id())->first();
+            $agent = TwilioAgent::where('user_id', Auth::id())->first();
+
+            $users = \App\Customer::select('id')->where('phone', str_replace("+","", $getnumber->caller))->get()->toArray();
+            
+            $allleads=[];
+            $orders = (new \App\Order())->newQuery()->with('customer')->leftJoin("store_website_orders as swo","swo.order_id","orders.id")
+            ->leftJoin("order_products as op","op.order_id","orders.id")
+            ->leftJoin("products as p","p.id","op.product_id")
+            ->leftJoin("brands as b","b.id","p.brand")->groupBy("orders.id")
+            ->where('orders.store_id',$agent->store_website_id)
+            ->whereIn('customer_id',$users)
+            ->select(["orders.*",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"])->orderBy('created_at','desc')->limit(5)->get();
+            $allleads[] = $this->getLeadsInformation($users);
+            if ($orders->count()){
+                foreach ($orders as &$value){
+                    $value->storeWebsite = $value->storeWebsiteOrder ? ($value->storeWebsiteOrder->storeWebsite??'N/A') : 'N/A';
+                    $value->order_date =  Carbon::parse($value->order_date)->format('d-m-y');
+                    $totalBrands = explode(",",$value->brand_name_list);
+                    $value->brand_name_list = (count($totalBrands) > 1) ? "Multi" : $value->brand_name_list;
+                    $value->status = \App\Helpers\OrderHelper::getStatusNameById($value->order_status_id);
+                }
+            }  
+            
+            return response()->json([
+                'all_leads' => $allleads,
+                'orders' => $orders
+            ]);
+        }catch(\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
+        }
+        
     }
 
     private function getLeadsInformation($ids){
@@ -2496,10 +2561,16 @@ class OrderController extends Controller
 // dd($callBusyMessages);
         foreach ($callBusyMessages['data'] as $key => $value) {
 
+            $storeId = null;
+            $activeNumber = TwilioActiveNumber::where('phone_number', '+' . trim($value['to'], '+'))->first();
+            if($activeNumber) {
+                $storeId = StoreWebsiteTwilioNumber::where('twilio_active_number_id', $activeNumber->id)->first();
+            }
+
             if (is_numeric($value['twilio_call_sid'])) {
                 # code...
-                $formatted_phone = str_replace('+91', '', $value['twilio_call_sid']);
-                $customer_array = Customer::with('storeWebsite', 'orders')->where('phone', 'LIKE', "%$formatted_phone%")->get()->toArray();
+                $formatted_phone = str_replace('+', '', $value['twilio_call_sid']);
+                $customer_array = Customer::with('storeWebsite', 'orders')->where('phone', $formatted_phone)->where('store_website_id', $storeId->store_website_id)->get()->toArray();
 
                 if ($value['aget_user_id'] != '') {
                     $user_data = User::where('id', $value['aget_user_id'])->first();
@@ -2840,13 +2911,32 @@ class OrderController extends Controller
                         if ($magento_status) {
                             $magentoHelper = new MagentoHelperv2;
                             $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value);
+                            /**
+                             *check if response has error
+                             */
+                            $response=$result->getData();
+                            if(isset($response) && isset($response->status) && $response->status==false){
+
+                                return response()->json($response->error,400);
+                            }
+                        }else{
+
+                        return response()->json('Store MasterStatus Not Present',400);
                         }
+                    }else{
+                        
+                        return response()->json('Store Order Status Not Present',400);
                     }
+                }else{
+                    return response()->json('Website Order Not Present',400);
                 }
                 $storeWebsiteOrder->update(['order_id', $status]);
+            }else{
+
+                return response()->json('Store Website Order Not Present',400);
             }
         }
-        return response()->json('Sucess', 200);
+        return response()->json('Success', 200);
 
     }
 
@@ -3449,8 +3539,9 @@ class OrderController extends Controller
         $magentoHelper = new MagentoHelperv2;
         $result = $magentoHelper->fetchOrderStatus($website);
         if ($result) {
-            if ($result['code'] == 200) {
-                $statuses = $result['data'];
+            if ($result->status() == 200) {
+                $statuses = json_decode($result->getContent());
+
                 foreach ($statuses as $status) {
                     StoreMasterStatus::updateOrCreate([
                         'store_website_id' => $request->store_website_id,
@@ -3460,7 +3551,7 @@ class OrderController extends Controller
                     ]);
                 }
             } else {
-                return redirect()->back()->with('error', $result['data']->message);
+                return redirect()->back()->with('error', $result->getContent());
             }
         } else {
             return redirect()->back()->with('error', 'Could not fetch the statuses');
@@ -4190,7 +4281,33 @@ class OrderController extends Controller
 
     }
 
-    public function paymentHistory(request $request)
+    /**
+     * This function is use for create Order log
+     * @param type [array] inputArray 
+     * @param Request $request Request
+     * 
+     *  @return void;
+     */
+    public function createOrderLog(Request $request, $logType = "", $log = "")  
+    {
+        try {
+            OrderErrorLog::create([
+                'order_id' => $request->order_id ?? '',
+                'event_type' => $logType,
+                'log'=> $log,
+                    ]);  
+         } catch(\Exception $e) {
+            OrderErrorLog::create(['order_id' => $request->order_id ?? '', 'log'=> $e->getMessage(),'event_type'=> $logType]);
+        }
+    } 
+
+    /**
+     * This function is use for Payment History
+     * @param Request $request Request
+     * 
+     *  @return JsonReponse;
+     */
+    public function paymentHistory(Request $request)
     {
         $order_id = $request->input('order_id');
         $html = '';
@@ -4214,14 +4331,61 @@ class OrderController extends Controller
             return response()->json(['html' => $html, 'success' => true], 200);
         } else {
             $html .= '<tr>';
-            $html .= '<td></td>';
-            $html .= '<td></td>';
-            $html .= '<td></td>';
-            $html .= '<td></td>';
+            $html .= '<td colspan="4">No Record found</td>';
             $html .= '</tr>';
+            $this->createOrderLog($request, "Payment History", "No Record found");
         }
         return response()->json(['html' => $html, 'success' => true], 200);
 
+    }
+
+    /**
+     * This function is use for cancel Transaction
+     * @param Request $request Request
+     * 
+     *  @return JsonReponse;
+     */
+    public function cancelTransaction(Request $request) 
+    {
+        $order_id = $request->get('order_id');
+        $order = \App\Order::where("id", $order_id)->first();
+        $storeWebsiteOrder = StoreWebsiteOrder::where('order_id', $order_id)->first();
+        //print_r($storeWebsiteOrder);
+        if ($storeWebsiteOrder) {
+            $website = StoreWebsite::find($storeWebsiteOrder->website_id);
+            
+            if ($website) {
+                $magentoHelper = new MagentoHelperv2;
+                $result = $magentoHelper->cancelTransaction($order, $website);
+                $this->createOrderLog($request, "Cancel Transaction from Magento request", $result);
+                return response()->json(['message' => $result, 'success' => true], 200);
+            }
+            //$storeWebsiteOrder->update(['order_id', $status]);
+        } else {
+            $this->createOrderLog($request, "Cancel Transaction" , "Store Website Orders not found");
+            return response()->json(['message' => "Store Website Orders not found", "order_id" => $order_id, 'success' => false], 500);
+        }
+    }
+
+    /**
+     * This function is use for List Order log
+     * @param Request $request Request
+     * 
+     *  @return JsonReponse;
+     */
+    public function getOrderErrorLog(Request $request)
+    {
+        try {
+            $orderError = OrderErrorLog::where('order_id', $request->order_id)->get();
+            
+            if(count($orderError) > 0)
+                return response()->json(["code" => 200, "data" => $orderError]);
+            else 
+                return response()->json(["code" => 500, "message" => "Could not find any data"]);
+        } catch(\Exception $e) {
+            $orderError = OrderErrorLog::where('order_id', $request->order_id)->get();
+            return response()->json(["code" => 500, "message" => $e->getMessage()]);
+        }
     }
 
     public function syncTransaction(Request $request) 
@@ -4237,7 +4401,7 @@ class OrderController extends Controller
             $message = "Transaction id updated successfully";
             $success=true;
         }
-        
+        $this->createOrderLog($request, "Sync Transaction" , $message);
         return response()->json(['message' => $message, 'success' => $success], 200);
 
     }

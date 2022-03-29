@@ -18,11 +18,9 @@
   <td>{{ $socialConfig->created_at->format('d-m-Y') }}</td>
   <td>
     <button onclick="changesocialConfig({{ $socialConfig->id }})" class="btn btn-secondary btn-sm">Edit</button>
-    @if(Auth::user()->hasRole('Admin'))
     <button onclick="deleteConfig({{ $socialConfig->id }})" class="btn btn-sm">Delete</button>
-    {{-- <a class="btn btn-sm" href="{{route('social.post.index',$socialConfig->id)}} ">Manage Posts</a> --}}
-    <a class="btn btn-sm" href="{{ route('social.account.posts',$socialConfig->id) }} ">Manage Posts</a>
-    @endif
+    <a class="btn btn-sm" href="{{route('social.post.index',$socialConfig->id)}} ">Manage Posts</a>
+    <a class="btn btn-sm" href="{{ route('social.account.posts',$socialConfig->id) }} ">Webhook Posts</a>
   </td>
 </tr>
 

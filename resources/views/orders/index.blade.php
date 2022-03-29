@@ -351,7 +351,9 @@
               <td>{{$duty_shipping[$order->id]['shipping']}}</td>
               <td>{{$duty_shipping[$order->id]['duty']}}</td>
               <td>
-                <div class="d-flex">
+                <div class="d-flex"> <button type="button" title="Payment history" class="btn cancel-transaction-btn btn-xs pull-left" data-id="{{$order->id}}">
+                      <i class="fa fa-close"></i>
+                  </button>
                  <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" data-id="{{$order->id}}">
                       <i class="fa fa-history"></i>
                   </button>
@@ -428,6 +430,7 @@
                   <i class="fa fa-download"></i>
                </a>
                 @endif
+                <button type="button" class="btn btn-xs btn-image load-log-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="order" data-id="{{$order->id}}" data-load-type="text" data-all="1" title="Show Error Log"><img src="{{asset('images/chat.png')}}" alt=""></button>
                 </div>
               </td>
             </tr>
@@ -482,6 +485,38 @@
         </div>
       </div>
     </div>
+
+    <div id="order_error_log" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h4 class="modal-title">Order Logs</h4>
+              </div>
+              <div class="modal-body">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Order ID</th>
+                        <th style="width: 20%;">Log Type</th>
+                        <th style="width: 20%;">Error Log</th>
+                        <th>Date</th>
+                      </tr>
+                    </thead>
+
+                    <tbody id="order_logtd">
+                     
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
 
     <div id="order-status-map" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
@@ -826,6 +861,42 @@
 			});
 		});
 
+    $(document).on("click",".load-log-modal",function() { 
+			  console.log(this);
+        var order_id = $(this).data("id");
+        $.ajax({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{url("order/get-error-logs")}}',
+          type: "post",
+          data : { order_id: order_id },
+          beforeSend: function() {
+            $("loading-image").show();
+          }
+        }).done( function(response) {
+          if(response.code == 200) {
+            var t = '';
+            $.each(response.data,function(k,v) {
+              t += `<tr><td>`+v.id+`</td>`;
+              t += `<td>`+v.order_id+`</td>`;
+              t += `<td>`+v.event_type+`</td>`;
+              t += `<td>`+v.log+`</td>`;
+              t += `<td>`+v.created_at+`</td></tr>`;
+            });
+
+            $("#order_error_log").find("#order_logtd").html(t);
+            $('#order_error_log').modal("show");
+            $("loading-image").hide();
+          } else if(response.code == 500){
+            alert(response.message);
+          }
+        }).fail(function(errObj) {
+          alert("Could not find any data");
+        });
+		  });
+      
+
       $(document).on("click",".generate-awb",function() {
           var customer = $(this).data("customer");
           var order_id = $(this).data("order-id");
@@ -1072,8 +1143,8 @@
             }).done( function(response) {
               $("#update-status-message-tpl").modal("hide");
             }).fail(function(errObj) {
-              alert("Could not change status");
-            });
+              toastr['error'](errObj.responseText);
+           });
           }
           
       });
@@ -1184,7 +1255,37 @@
         });
     });
 
-    $('.payment-history-btn').click(function(){
+    $('.cancel-transaction-btn').click(function(){
+          var order_id = $(this).data('id');
+          console.log(order_id);
+          //return false;
+          $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('order.canceltransaction') }}",
+            data: {
+              order_id:order_id,
+            },
+        }).done(response => {
+          //$('#payment-history-modal').find('.payment-history-list-view').html('');
+            if(response.success==true){
+              console.log(response);
+              message = JSON.parse(response.message);
+              alert(message.message);
+              //$('#payment-history-modal').find('.payment-history-list-view').html(response.html);
+              //$('#payment-history-modal').modal('show');
+            }
+
+        }).fail(function(response) {
+          alert(response.responseJSON.message);
+        });
+      });
+
+ $('.payment-history-btn').click(function(){
+    event.stopPropagation();
+    event.stopImmediatePropagation(); 
           var order_id = $(this).data('id');
           $.ajax({
             type: 'POST',
@@ -1207,7 +1308,6 @@
           alert('Could not fetch payments');
         });
       });
-
     $(document).on("click",".send-order-email-btn",function(e){
        e.preventDefault();
        var $this = $(this);

@@ -22,6 +22,10 @@
                 </a>
 
                 <a class="ml-2">
+                    <button type="button" data-toggle="modal" data-target="#priorityModal" class="btn btn-secondary">TWillio Agents Priority</button>
+                </a>
+
+                <a class="ml-2">
                     <button type="button" data-toggle="modal" data-target="#workflowModal" class="btn btn-secondary">Twilio Workflow</button>
                 </a>
 
@@ -36,8 +40,8 @@
         </div>
     </div>
     <div class="row  no-gutters mt-3">
-        <div class="col-md-12 col-sm-12">
-            <div class="table-responsive">
+        <div class="col-md-12 col-sm-12" style="overflow-x: auto;" >
+            <div class="">
                 <div class="">
                     <table class="table table-bordered table-hover">
                         <thead>
@@ -82,7 +86,7 @@
                                     <td>{{ @$number->assigned_stores->store_website->title }}</td>
                                     <td>{{ $number->status }}</td>
                                     <td>
-                                        <a href="javascript:void(0);" type="button" id="1" class="btn btn-image open_row">
+                                        <a href="javascript:void(0);" type="button" id="1" data-workspace-sid="{{ $number->workspace_sid }}" data-workflow-sid="{{ $number->workflow_sid }}" class="btn btn-image open_row">
                                             <img src="/images/forward.png" style="cursor: default;" width="2px;">
                                         </a>
                                         <a href="javascript:void(0);" class="call_forwarding btn d-inline btn-image" data-attr="1" title="Call Forwarding" ><img src="/images/remark.png" style="cursor: default;"></a>
@@ -111,6 +115,16 @@
                                                 @if(isset($workspace))
                                                     @foreach($workspace as $wsp)
                                                         <option value="{{ $wsp->workspace_sid }}"@if($number->workspace_sid == $wsp->workspace_sid) selected @endif>{{ $wsp->workspace_name }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        </div>
+                                        <label>Workflow:</label>
+                                        <div class="input-group">
+                                            <select class="form-control change-workflow" id="workflow_sid_1">
+                                                @if(isset($workflow))
+                                                    @foreach($workflow as $wsp)
+                                                        <option value="{{ $wsp->workflow_sid }}" @if($number->workflow_sid == $wsp->workflow_sid) selected @endif>{{ $wsp->workflow_name }}</option>
                                                     @endforeach
                                                 @endif
                                             </select>
@@ -240,6 +254,59 @@
         </div>
     </div>
 
+     <!-- Twilio priority-->
+    <div class="modal fade" id="priorityModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content ">
+            <div class="modal-header">
+                <h5 class="modal-title">Twilio Priority</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {{-- @if(count($workspace) <= 0) --}}
+                <div class="row">
+                    <div class="col-md-3">
+                        <input type="hidden" class="form-control account_id" id="account_id" name="account_id" value="{{ $account_id }}"/>
+                        <input type="number" class="form-control priority_no" name="priority_no" placeholder="Priority Number"/>
+                    </div>
+                   
+                    <div class="col-md-3">
+                        <input type="text" class="form-control priority_name" name="priority_name" placeholder="Priority Name"/>
+                    </div>
+
+                    <a class="ml-2" >
+                        <button type="button" class="btn btn-secondary create_twilio_priority">Create</button>
+                    </a>
+                </div>
+                {{-- @endif --}}
+
+                <table class="table table-bordered table-hover mt-5">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="text-center">Priority No</th>
+                            <th scope="col" class="text-center">Priority Name</th>
+                            <th scope="col" class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center priority_list">
+                        @if($priority)
+                            @foreach($priority as $key => $val)
+                            <tr class="priority_row_{{$val->id}}">
+                                <td>{{$val->priority_no}}</td>
+                                <td>{{$val->priority_name}}</td>
+                                <td><i style="cursor: pointer;" class="fa fa-trash delete_twilio_priority" data-id="{{$val->id}}" aria-hidden="true"></i></td>
+                            </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
+                
+            </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Worker Modal -->
     <div class="modal fade" id="workerModal" tabindex="-1" role="dialog" aria-hidden="true">
@@ -270,6 +337,14 @@
                             <option value="0">Select User</option>
                             @foreach($twilio_user_list as $value)
                             <option value="{{ $value->id }}">{{ $value->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <select class="form-control worker_priority" name="worker_priority" multiple>
+                            @foreach($priority as $key => $val)
+                            <option value="{{$val->priority_no}}">{{$val->priority_name}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -753,6 +828,7 @@
                     counter_one = 1;
                     $('.hidden_row_'+row_id).show();
                 }
+                changeWorkflow($(this).attr('data-workspace-sid'), $(this).attr('data-workflow-sid'))
             });
 
             
@@ -781,12 +857,13 @@
                         'sub_category_menu_message' : $('#sub_category_menu_message_'+num_id).val(),
                         'speech_response_not_available_message' : $('#speech_response_not_available_message_'+num_id).val(),
                         'credential_id' : credential_id,
-                        "workspace_sid" :$('#workspace_sid_'+num_id).val()
+                        "workspace_sid" :$('#workspace_sid_'+num_id).val(),
+                        "workflow_sid" :$('#workflow_sid_'+num_id).val()
                     }
                 }).done(function(response){
                     if(response.status == 1){
                         toastr['success'](response.message);
-
+                        location.reload();
                     }else{
                         toastr['error'](response.message);
 
@@ -859,11 +936,53 @@
                 
             });
 
+            $('.create_twilio_priority').on("click", function(){
+                var priority_no = $('.priority_no').val();
+                var priority_name = $('.priority_name').val();
+                var account_id = $('#account_id').val();
+                
+                $.ajax({
+                    url: "{{ route('create.twilio.priority') }}",
+                    type: 'POST',
+                    data : {
+                        priority_no : priority_no,
+                        priority_name : priority_name,
+                        account_id : account_id,
+                        _token : "{{ csrf_token() }}"
+                    },
+                    beforeSend: function() {
+                        $("#loading-image").show();
+                    },
+                    success: function(response) {
+                        $("#loading-image").hide();
+                        if(response.statusCode == 200) {
+                            toastr["success"](response.message);
+                            var html = '<tr class="priority_row_'+response.data.id+'">';
+                            html += '<td>'+response.data.priority_no+'</td>';
+                            html += '<td>'+response.data.priority_name+'</td>';
+                            html += '<td><i style="cursor: pointer;" class="fa fa-trash delete_twilio_priority" data-id="'+response.data.id+'" aria-hidden="true"></i></td>';
+                            html += '</tr>';
+                            $('.priority_list').append(html);
+
+                        }else if(response.statusCode == 500){
+                            toastr["error"](response.message);
+                        }
+                        
+                    },
+                    error: function(response) {
+                        $("#loading-image").hide();
+                        toastr["error"]("Oops, something went wrong");
+                    }
+                });
+                
+            });
+
             $('.create_twilio_worker').on("click", function(){
                 var workspace_id = $('.worker_workspace_id').val();
                 // var worker_name = $('.twilio_worker_name').val();
                 var user_id = $('.worker_user_id').val();
                 var worker_phone = $('.worker_phone').val();
+                var worker_priority = $('.worker_priority').val();
 
                 $.ajax({
                     url: "{{ route('create-twilio-worker') }}",
@@ -873,6 +992,7 @@
                         // worker_name: worker_name,
                         user_id: user_id,
                         worker_phone: worker_phone,
+                        worker_priority: worker_priority,
                         account_id: '{{ $account_id }}',
                         _token : "{{ csrf_token() }}"
                     },
@@ -906,6 +1026,27 @@
                 
             });
 
+            $(".change-workspace").on("change", function() {
+                changeWorkflow($(this).val(), null)
+            })
+
+            function changeWorkflow(workspace, workflow) {
+                $.ajax({
+                    url: "{{ route('get-workflow-list') }}",
+                    type: 'POST',
+                    data : {
+                        _token :  "{{ csrf_token() }}",
+                        workspace_sid : workspace,
+                    },
+                    success: (res) => {
+                        let html = '<option>Select Workflow</option>';
+                        res.workflows.forEach((item) => {
+                            html += `<option value="${item.workflow_sid}" ${item.workflow_sid == workflow ? 'selected' : ''}>${item.workflow_name}</option>`
+                        })
+                        $('.change-workflow').html(html)
+                    }
+                })
+            }
 
             $('.delete_worker').on("click", function(){
                 var id = $(this).attr('data-id');
@@ -924,6 +1065,37 @@
                         $("#loading-image").hide();
 
                         $(".worker_row_"+id).css("display", "none");
+
+                        if(response.code == 200) {
+                            toastr["success"](response.message);
+                        }
+                        
+                    },
+                    error: function(response) {
+                        $("#loading-image").hide();
+                        toastr["error"]("Oops, something went wrong");
+                    }
+                });
+                
+            });
+
+            $('.delete_twilio_priority').on("click", function(){
+                var id = $(this).attr('data-id');
+
+                $.ajax({
+                    url: "{{ route('delete.twilio.priority') }}",
+                    type: 'POST',
+                    data : {
+                        priority_id: id,
+                        _token : "{{ csrf_token() }}"
+                    },
+                    beforeSend: function() {
+                    $("#loading-image").show();
+                    },
+                    success: function(response) {
+                        $("#loading-image").hide();
+
+                        $(".priority_row_"+id).css("display", "none");
 
                         if(response.code == 200) {
                             toastr["success"](response.message);
