@@ -862,6 +862,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     
     
     Route::post('order/payment-history', 'OrderController@paymentHistory')->name('order.paymentHistory');
+    Route::post('order/magento-log-list', 'OrderController@getOrderMagentoErrorLogList')->name('order.magento.log.list');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');

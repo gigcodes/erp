@@ -19,6 +19,7 @@ use App\EmailAddress;
 use App\Events\OrderUpdated;
 use App\Helpers;
 use App\Helpers\OrderHelper;
+use App\OrderMagentoErrorLog;
 use App\Invoice;
 use App\Jobs\UpdateOrderStatusMessageTpl;
 use App\Library\DHL\CreateShipmentRequest;
@@ -2916,29 +2917,79 @@ class OrderController extends Controller
                              */
                             $response=$result->getData();
                             if(isset($response) && isset($response->status) && $response->status==false){
-
+                                $this->createOrderMagentoErrorLog($order->id, $response->error); 
                                 return response()->json($response->error,400);
                             }
                         }else{
-
-                        return response()->json('Store MasterStatus Not Present',400);
+                            $this->createOrderMagentoErrorLog($order->id, 'Store MasterStatus Not Present'); 
+                            return response()->json('Store MasterStatus Not Present',400);
                         }
                     }else{
-                        
+                        $this->createOrderMagentoErrorLog($order->id, 'Store Order Status Not Present'); 
                         return response()->json('Store Order Status Not Present',400);
                     }
                 }else{
+                    $this->createOrderMagentoErrorLog($order->id, 'Website Order Not Present'); 
                     return response()->json('Website Order Not Present',400);
                 }
                 $storeWebsiteOrder->update(['order_id', $status]);
             }else{
-
+                $this->createOrderMagentoErrorLog($order->id, 'Store Website Order Not Present'); 
                 return response()->json('Store Website Order Not Present',400);
             }
         }
         return response()->json('Success', 200);
 
     }
+
+    /**
+     * This function user for get magent to order error list
+     * 
+     * @param $order (INT), 
+     * @param $logMsg (string)
+     * @return void 
+     */
+    public function getOrderMagentoErrorLogList(Request $request) 
+    {
+        try {
+            $getOrderList = OrderMagentoErrorLog::where('order_id',$request->order_id)->get();
+            $html = '';
+            foreach($getOrderList AS $getOrder) {
+                $html .= '<tr>';
+                $html .= '<td>'.$getOrder->id.'</td>';
+                $html .= '<td>'.$getOrder->log_msg.'</td>';
+                $html .= '<td>'.$getOrder->created_at.'</td>';
+                $html .= '</tr>';
+            }
+            return response()->json(["code" => 200, "data" => $html, "message" => "Log Listed successfully"]);
+        } catch(\Exception $e) {
+            return response()->json(["code" => 500, "data" => [], "message" => "Sorry , there is no matching order log"]);
+            
+        }
+    }
+    
+    /**
+     * This function user for create magent to order error list
+     * 
+     * @param $order (INT), 
+     * @param $logMsg (string)
+     * @return void 
+     */
+    public function createOrderMagentoErrorLog($order_id, $logMsg) 
+    {
+        try {
+            OrderMagentoErrorLog::create([
+                'order_id' => $order_id,
+                'log_msg' => $logMsg
+            ]);
+        } catch(\Exception $e) {
+            OrderMagentoErrorLog::create([
+                'order_id' => $order_id,
+                'log_msg' => $e->getMessage()
+            ]);
+        }
+    }
+    
 
     public function sendInvoice(Request $request, $id)
     {
