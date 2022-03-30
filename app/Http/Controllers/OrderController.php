@@ -2793,6 +2793,8 @@ class OrderController extends Controller
                     if (isset($request->sendmessage) && $request->sendmessage == '1') {
                         //Sending Mail on changing of order status
                         try {
+                            $from_mail_address = $request->from_mail;
+                            $to_mail_address = $request->to_mail;
                             // send order canellation email
                             if (strtolower($statuss->status) == "cancel") {
 
@@ -2812,7 +2814,7 @@ class OrderController extends Controller
                                     'from' => $emailClass->fromMailer,
                                     'to' => $order->customer->email,
                                     'subject' => $emailClass->subject,
-                                    'message' => $custom_email_content,
+                                    'message' => $request->message,
                                     // 'message'          => $emailClass->render(),
                                     'template' => 'order-cancellation-update',
                                     'additional_data' => $order->id,
