@@ -288,7 +288,9 @@
             <thead>
               <th style="width:7%">Product ID</th>
               <th style="width:7%">Default Price</th>
+              <th style="width:7%">Price Discount %</th>
               <th style="width:7%">Segment Discount</th>
+              <th style="width:7%">Segment Discount %</th>
               <th style="width:7%">Duty Price</th>
               <th style="width:7%">Override Price</th>
               <th style="width:6%">Status</th>
