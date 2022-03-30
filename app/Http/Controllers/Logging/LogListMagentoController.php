@@ -310,7 +310,6 @@ class LogListMagentoController extends Controller
         $product = \App\Product::find($request->product_id);
         $type = ProductHelper::getTopParent($product->category);
         $category = Category::find($product->category);
-        //dd($type);
         if($category->parent_id !=0) {
             $useStatus = 'status';
         } else {
