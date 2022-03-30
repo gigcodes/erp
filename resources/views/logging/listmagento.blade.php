@@ -292,7 +292,6 @@
               <th style="width:7%">Segment Discount</th>
               <th style="width:7%">Segment Discount %</th>
               <th style="width:7%">Duty Price</th>
-              <th style="width:7%">Duty Price Discount %</th>
               <th style="width:7%">Override Price</th>
               <th style="width:6%">Status</th>
               <th style="width:6%">Web Store</th>
