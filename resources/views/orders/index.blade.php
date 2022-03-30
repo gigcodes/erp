@@ -431,6 +431,9 @@
                </a>
                 @endif
                 <button type="button" class="btn btn-xs btn-image load-log-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="order" data-id="{{$order->id}}" data-load-type="text" data-all="1" title="Show Error Log"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                <button type="button" title="Payment history" class="btn magento-log-btn btn-xs pull-left" data-id="{{$order->id}}">
+                  <i class="fa fa-eye"></i>
+              </button>
                 </div>
               </td>
             </tr>
@@ -476,6 +479,34 @@
                 </thead>
                 <tbody class="payment-history-list-view">
                             </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="order-magento-history-modal" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Order Status Change Log</h4>
+          </div>
+          <div class="modal-body">
+            <div class="col-md-12">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Log Detail</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody class="order-magento-list">
+                </tbody>
               </table>
             </div>
           </div>
@@ -1280,6 +1311,31 @@
 
         }).fail(function(response) {
           alert(response.responseJSON.message);
+        });
+      });
+
+      $('.magento-log-btn').click(function(){
+          var order_id = $(this).data('id');
+          $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('order.magento.log.list') }}",
+            data: {
+              order_id:order_id,
+            },
+        }).done(response => {
+          $('.order-magento-list').html('');
+            if(response.code == '200' && response.data !=''){
+              $('.order-magento-list').html(response.data);
+              $('#order-magento-history-modal').modal('show');
+            } else {
+              alert('Could not fetch log list');
+            }
+
+        }).fail(function(response) {
+          alert('Could not fetch log list');
         });
       });
 
