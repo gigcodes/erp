@@ -304,7 +304,7 @@ class LogListMagentoController extends Controller
 
     public function showJourneyHorizontalById(Request $request, $id)
     {
-        $conditions = PushToMagentoCondition::pluck('condition')->toArray();
+        $conditions = PushToMagentoCondition::select('condition', 'status', 'upteam_status')->get();
 		$pushJourney = ProductPushJourney::where('log_list_magento_id', $id)->pluck( 'condition')->toArray();
         $productSku = $request->sku_name ?? '';
         $product = \App\Product::find($request->product_id);
