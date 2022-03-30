@@ -74,7 +74,8 @@ class FcmNotificationController extends Controller
         $input['sent_at'] = $request->sent_at;
         $input['store_website_id'] = $StoreWebsiteId;
         $input['created_by'] = Auth::id();
-		$insert = PushFcmNotification::create($input);
+        $input['status'] = 'Pending';
+        $insert = PushFcmNotification::create($input);
 
 		return redirect()->route('pushfcmnotification.list')->with('success', 'Notification created successfully');
     }
