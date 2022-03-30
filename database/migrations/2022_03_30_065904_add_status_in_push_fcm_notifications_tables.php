@@ -13,7 +13,9 @@ class AddStatusInPushFcmNotificationsTables extends Migration
      */
     public function up()
     {
-        $table->string('status')->nullable();
+        Schema::table('push_notifications', function (Blueprint $table) {
+            $table->string('status')->nullable();
+        });
     }
 
     /**
@@ -23,6 +25,8 @@ class AddStatusInPushFcmNotificationsTables extends Migration
      */
     public function down()
     {
-        $table->dropColumn('status');
+        Schema::table('push_notifications', function (Blueprint $table) {
+            $table->dropColumn('status');
+        });
     }
 }
