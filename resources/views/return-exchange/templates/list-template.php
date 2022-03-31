@@ -1,9 +1,5 @@
 <script type="text/x-jsrender" id="template-result-block">
 	<div class="page-template-{{:page}} table-responsive">
-	{{props order_status_list}}
-		{{:prop.id}}
-	{{/props}}
-	
 		<table class="table table-bordered" style="">
 		    <thead>
 		      <tr>
@@ -51,27 +47,19 @@
 					</td>
 
 					<td class="expand-row-msg" data-name="statusName" data-id="{{:prop.id}}" >
-						<p class="mb-0" style="display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; overflow: hidden; border: none; line-height: 21px;">
+						<!-- <p class="mb-0" style="display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; overflow: hidden; border: none; line-height: 21px;">
 							<span class="show-short-statusName-{{:prop.id}}" style="white-space : nowrap;">{{:~trimlength(prop.status_name, 7)}}</span>
 							<span class="show-full-statusName-{{:prop.id}} hidden"><span style="word-break:inherit;">{{:prop.status_name}}</span></span><br>
 							<span class="show-short-statusName-{{:prop.id}}" style="white-space : nowrap;">{{:~trimlength('to be added', 7)}}</span>
 							<span class="show-full-statusName-{{:prop.id}} hidden"><span style="word-break:inherit;">to be added</span></span>
-						</p>
+						</p> -->
 						
-						{{for ~oslist}}
-							{{:prop}}
-						{{/for}}
-						<select name="status" class="form-control select-multiple" style="width: 100%;">
-							{{props order_status_list}}
-								<option value="{{:prop.id}}">{{:prop.status}}</option>
-							{{/props}}
+						<select name="return_exchange_status" data-old_status_name="{{:prop.status_name}}" data-old_status_id="{{:prop.status}}" data-id="{{:prop.id}}" class="form-control return_exchange_status" style="width: 100%;">
+							{{for ~oslist ~selectedStatus = prop.status}}
+		                        <option {{if ~selectedStatus == id}} selected="selected" {{/if}} value="{{:id}}">{{:status_name}}</option>
+		                    {{/for}}
 		                </select>
-
-						<select name="status" class="form-control" style="width: 100%;">
-							{^{for order_status_list}}
-								<option value="{{:id}}">{{:status}}</option>
-							{{/for}}
-		                </select>
+						<button style="padding-right:0px;" type="button" class="btn btn-xs return_exchange_status_info mr-2 mt-1" title="Show Date History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>
 					</td>
 					<td class="expand-row-msg" data-name="pickupAdd" data-id="{{:prop.id}}">
 						<span class="show-short-pickupAdd-{{:prop.id}}">{{:~trimlength(prop.pickup_address, 10)}}</span>
@@ -136,6 +124,37 @@
 
 	</div>
 	{{:pagination}}
+</script>
+<script type="text/x-jsrender" id="return_exchange_status_info_list">
+	<div class="modal-content">
+		<div class="modal-body">
+			<div class="col-md-12">
+				<table class="table table-bordered">
+				    <thead>
+				      <tr>
+				      	<th>Id</th>
+				        <th>Status</th>
+				        <th>Updated By</th>
+				        <th>Created at</th>
+				      </tr>
+				    </thead>
+				    <tbody>
+				    	{{props data}}
+					      <tr>
+					      	<td>{{:prop.id}}</td>
+					      	<td>{{:prop.status_name}}</td>
+					      	<td>{{:prop.updatedby_name}}</td>
+					      	<td>{{:prop.created_at}}</td>
+					      </tr>
+					    {{/props}}  
+				    </tbody>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div>
+		</div> 		
+	</div>
 </script>
 <script type="text/x-jsrender" id="template-history-block">
 	<div class="modal-content">

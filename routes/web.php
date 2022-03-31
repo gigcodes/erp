@@ -3193,6 +3193,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function (
     Route::post('/status/create', 'ReturnExchangeController@createStatus')->name('return-exchange.createStatus');
     Route::post('/status/delete', 'ReturnExchangeController@deleteStatus')->name('return-exchange.deleteStatus');
     Route::post('/addNewReply', 'ReturnExchangeController@addNewReply')->name('returnexchange.addNewReply');
+    Route::post('/update-status', 'ReturnExchangeController@updateExchangeStatuses')->name('returnexchange.update-status');
+    Route::get('/update-status-log/{id?}', 'ReturnExchangeController@listExchangeStatusesLog')->name('returnexchange.update_status_log');
 
     Route::prefix('{id}')->group(function () {
         Route::get('/detail', 'ReturnExchangeController@detail')->name('return-exchange.detail');

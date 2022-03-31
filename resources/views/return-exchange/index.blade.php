@@ -422,15 +422,80 @@
           
         })
         $('.quickreply').on('change',function(){
-          var reply = $(this).find('option:selected').text();
-          var replyval = $(this).find('option:selected').attr('value');
-          if(replyval!=''){
-            $(this).parentsUntil('#customerUpdateForm').find('textarea[name="customer_message"]').val(reply);
-          }else{
-            $(this).parentsUntil('#customerUpdateForm').find('textarea[name="customer_message"]').val('');
-          }
+			var reply = $(this).find('option:selected').text();
+			var replyval = $(this).find('option:selected').attr('value');
+			if(replyval!=''){
+				$(this).parentsUntil('#customerUpdateForm').find('textarea[name="customer_message"]').val(reply);
+			}else{
+				$(this).parentsUntil('#customerUpdateForm').find('textarea[name="customer_message"]').val('');
+			}
         });
 		
+		$(document).on("change", '.return_exchange_status', function(event) { 
+   			//$('.return_exchange_status').on('change',function(){
+			
+        	var statusVal = $(this).val();
+			let exchange_id = $(this).data('id');
+			var oldStatusText = $(this).data('old_status_name');
+			var oldStatusId = $(this).data('old_status_id');
+			$.ajax({
+                type: "POST",
+                url: "{{route('returnexchange.update-status')}}",
+                data: {
+					return_exchange_status: statusVal,
+					id: exchange_id,
+					status_name: oldStatusText,
+					status_id: oldStatusId
+				},
+                headers: {
+                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                dataType:"json",
+                beforeSend:function(data){
+                  $('.ajax-loader').show();
+                }
+            }).done(function (response) {
+              $('.ajax-loader').hide();
+				if (response.code == 200) {
+					toastr['success']("Status updated successfully!", 'success');
+				} else {
+					toastr['error'](response.message, 'Error');
+				}
+			}).fail(function (response) {
+              $('.ajax-loader').hide();
+			  toastr['error'](response.message, 'Error');
+            });
+        });
+
+		$(document).on("change", '.return_exchange_status_info', function(event) { 
+   			//$('.return_exchange_status').on('change',function(){
+			let exchange_id = $(this).data('id');
+			$.ajax({
+                type: "POST",
+                url: "{{route('returnexchange.update_status_log')}}",
+                data: {
+					id: exchange_id,
+				},
+                headers: {
+                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                dataType:"json",
+                beforeSend:function(data){
+                  $('.ajax-loader').show();
+                }
+            }).done(function (response) {
+              $('.ajax-loader').hide();
+				if (response.code == 200) {
+					$('#returnExchangeStatusInfotr')	
+					toastr['success']("Status Log listed successfully!", 'success');
+				} else {
+					toastr['error'](response.message, 'Error');
+				}
+			}).fail(function (response) {
+              $('.ajax-loader').hide();
+			  toastr['error'](response.message, 'Error');
+            });
+        });
 	</script>
 @endsection
 
