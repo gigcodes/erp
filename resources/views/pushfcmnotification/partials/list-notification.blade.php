@@ -12,6 +12,7 @@
                     </td>
                     <td>{{ $fcmnotification->sent_at }}</td>
                     <td>{{ $fcmnotification->sent_on }}</td>
+                    <td>{{ $fcmnotification->status }}</td>
                     <td>{{ $fcmnotification->username }}</td>
                     <td>{{ $fcmnotification->updated_at }}</td>
                     <td>
