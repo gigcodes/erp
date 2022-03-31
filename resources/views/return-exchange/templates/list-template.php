@@ -1,5 +1,9 @@
 <script type="text/x-jsrender" id="template-result-block">
 	<div class="page-template-{{:page}} table-responsive">
+	{{props order_status_list}}
+		{{:prop.id}}
+	{{/props}}
+	
 		<table class="table table-bordered" style="">
 		    <thead>
 		      <tr>
@@ -22,7 +26,7 @@
 		      </tr>
 		    </thead>
 		    <tbody>
-		    	{{props data}}
+		    	{{props data ~oslist = order_status_list}}
 				<tr>
 			      	<td><input class="select-id-input" type="checkbox" name="ids[]" value="{{:prop.id}}"></td>
 					<td>{{:prop.id}}</td>
@@ -53,6 +57,21 @@
 							<span class="show-short-statusName-{{:prop.id}}" style="white-space : nowrap;">{{:~trimlength('to be added', 7)}}</span>
 							<span class="show-full-statusName-{{:prop.id}} hidden"><span style="word-break:inherit;">to be added</span></span>
 						</p>
+						
+						{{for ~oslist}}
+							{{:prop}}
+						{{/for}}
+						<select name="status" class="form-control select-multiple" style="width: 100%;">
+							{{props order_status_list}}
+								<option value="{{:prop.id}}">{{:prop.status}}</option>
+							{{/props}}
+		                </select>
+
+						<select name="status" class="form-control" style="width: 100%;">
+							{^{for order_status_list}}
+								<option value="{{:id}}">{{:status}}</option>
+							{{/for}}
+		                </select>
 					</td>
 					<td class="expand-row-msg" data-name="pickupAdd" data-id="{{:prop.id}}">
 						<span class="show-short-pickupAdd-{{:prop.id}}">{{:~trimlength(prop.pickup_address, 10)}}</span>

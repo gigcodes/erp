@@ -25,7 +25,7 @@ use Dompdf\Dompdf;
 use Qoraiche\MailEclipse\MailEclipse;
 use Twilio\Rest\Client;
 use Exception;
-
+use App\OrderStatus;
 
 class ReturnExchangeController extends Controller
 {
@@ -292,10 +292,12 @@ class ReturnExchangeController extends Controller
             $item["date_of_issue_formated"]   = !empty($item->date_of_issue) ? date('d-m-Y', strtotime($item->date_of_issue)) : '-';
 
         }
-
+        $order_status_list = OrderStatus::all();
+        
         return response()->json([
             "code"       => 200,
             "data"       => $items,
+            "order_status_list" => $order_status_list,
             "pagination" => (string) $returnExchange->links(),
             "total"      => $returnExchange->total(),
             "page"       => $returnExchange->currentPage(),
