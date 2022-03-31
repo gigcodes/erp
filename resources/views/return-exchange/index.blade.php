@@ -468,8 +468,7 @@
         });
 
 		$(document).on("change", '.return_exchange_status_info', function(event) { 
-   			//$('.return_exchange_status').on('change',function(){
-			let exchange_id = $(this).data('id');
+   			let exchange_id = $(this).data('id');
 			$.ajax({
                 type: "POST",
                 url: "{{route('returnexchange.update_status_log')}}",
