@@ -660,6 +660,9 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="/languages">Language</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('logging.magento.product_push_journey') }}">Product Push Journey</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
