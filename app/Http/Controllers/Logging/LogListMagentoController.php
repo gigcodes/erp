@@ -471,7 +471,10 @@ class LogListMagentoController extends Controller
 
     public function showPrices($id)
     {
-        $prices = \App\StoreWebsiteProductPrice::where('product_id', $id)->get();
+        $prices = \App\StoreWebsiteProductPrice::select(['store_website_product_prices.*', 'lp.segment_discount_per', 'p.discounted_percentage'])->
+        leftJoin('products AS p', 'p.id', 'store_website_product_prices.product_id')->
+        leftJoin('lead_product_price_count_logs AS lp', 'lp.product_id', 'store_website_product_prices.product_id')->
+        where('store_website_product_prices.product_id', $id)->get();
         return view('logging.partials.magento_prices_data', compact('prices'));
     }
 
