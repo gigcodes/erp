@@ -1032,6 +1032,10 @@ class ReturnExchangeController extends Controller
         $website = \App\StoreWebsite::find($request->id);
         $magentoHelper = new MagentoHelperv2;
         $result= $magentoHelper->addReturnOrderStatus($website,$request->status);
+        $response=$result->getData();
+        if(isset($response) && isset($response->status) && $response->status==false){
+            return response()->json($response->error,500);
+        }
         if($result){
                 $newStatus = new ReturnExchangeStatus;
                 $newStatus->status_name = $request->status;

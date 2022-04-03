@@ -29,10 +29,10 @@ class AppServiceProvider extends ServiceProvider
             return "<?php echo icon($expression); ?>";
         });
 
-        // Totem::auth(function($request) {
-        //     // return true / false . For e.g.
-        //     return \Auth::check();
-        // });
+        Totem::auth(function($request) {
+            // return true / false . For e.g.
+            return \Auth::check();
+        });
 
         if (in_array(app('request')->ip(),config('debugip.ips') )) {
             config(['app.debug' => true]);

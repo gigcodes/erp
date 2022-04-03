@@ -32,7 +32,7 @@ class ReturnExchange extends Model
      * @SWG\Property(property="est_completion_date",type="datetime")
      */
     use Mediable;
-    //use SoftDeletes;
+    use SoftDeletes;
     protected $fillable = [
         'customer_id',
         'type',
