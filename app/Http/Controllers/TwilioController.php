@@ -4777,8 +4777,42 @@ class TwilioController extends FindByNumberController
 		return view('twilio.manage-tones', compact('twilioMessageTones'));
 	}  
 	
-	public function twilioCallJourney(){
-		$callJourney = TwilioCallJourney::orderBy('id', 'desc')->paginate(30);
-		return view('twilio.call_journey', compact('callJourney'));
+	public function twilioCallJourney(Request $request){
+		$call_Journeies = TwilioCallJourney::query();
+
+        // if ($request->id) {
+        //     $call_Journeies = $call_Journeies->where('id', $request->id);
+        // }
+
+        if ($request->phone) {
+            // phone number with search query
+            $call_Journeies = $call_Journeies->where('phone', 'like', $request->phone . '%');
+        }
+
+        if($request->store_id){
+            // relation with search query
+            $call_Journeies = $call_Journeies->whereHas('twilio_credential', function ($query) use ($request){
+                $query->where('id', 'like', $request->store_id);
+            });
+        }
+        
+
+        $call_Journeies = $call_Journeies->with(['twilio_credential:id,account_id,twilio_email'])
+                ->orderBy('id', 'desc')
+                ->paginate(Setting::get('pagination'));
+        
+        if ($request->ajax()) {
+            $count = $call_Journeies->count();
+
+            $html = view('twilio.partials.call_journey_data', compact('call_Journeies'))->render();
+
+            if (count($call_Journeies)) {
+                return array('status' => 1, 'html' => $html, 'count' => $count, 'call_Journeies' => $call_Journeies);
+            } else {
+                return array('status' => 0, 'html' => '<tr id="noresult_tr"><td colspan="7">No More Records</td></tr>');
+            }
+        }
+
+		return view('twilio.call_journey', compact('call_Journeies'));
 	}
 } 
