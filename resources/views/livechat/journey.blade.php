@@ -24,7 +24,6 @@
 								<th>Message received</th>
 								<th>Reply found in database</th>
 								<th>Reply searched in watson</th>
-								<th>Reply searched in watson</th>
 								<th>Reply</th>
 								<th>Response sent to customer</th>
 								
