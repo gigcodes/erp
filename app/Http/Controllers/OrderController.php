@@ -44,6 +44,7 @@ use App\OrderStatus;
 use App\OrderStatus as OrderStatuses;
 use App\OrderStatusHistory;
 use App\OrderErrorLog;
+use App\OrderEmailSendJourneyLog;
 use App\Product;
 use App\Refund;
 use App\Reply;
@@ -2766,19 +2767,43 @@ class OrderController extends Controller
         return $result;
     }
 
+    /**
+     * This function is use for Create Order email send journey log
+     * 
+     * @return created data
+     */
+    public function createEmailSendJourneyLog($order_id = '', $steps = "", $modelType = "",  $sendType = "", $seen = "0" , $from = "" , $to = "", $subject = "", $message = "", $template = "", $errorMsg = "", $storeWebsiteId = "")
+    {
+        return OrderEmailSendJourneyLog::create(
+            [
+                'order_id' => $order_id,
+                'steps' => $steps, 
+                'model_type' => $modelType, 
+                'send_type' => $sendType,
+                'seen' => $seen, 
+                'from_email' => $from, 
+                'to_email' => $to, 
+                'subject' => $subject, 
+                'message' => $message, 
+                'template' => $template, 
+                'error_msg' => $errorMsg, 
+                'store_website_id' => $storeWebsiteId 
+            ]
+        );
+    }
+
     public function statusChange(Request $request)
     {
        
         
-          $id = $request->get("id");
-          $status = $request->get("status");
-          $message = $request->get('message');
-          $sendmessage = $request->get("sendmessage");
-          $order_via = $request->order_via;
-            if (!empty($id) && !empty($status)) {
+        $id = $request->get("id");
+        $status = $request->get("status");
+        $message = $request->get('message');
+        $sendmessage = $request->get("sendmessage");
+        $order_via = $request->order_via;
+        if (!empty($id) && !empty($status)) {
             $order = \App\Order::where("id", $id)->first();
             $statuss = OrderStatus::where("id", $status)->first();
-
             if ($order) {
                 $old_status = $order->order_status_id;
                 $order->order_status = $statuss->status;
@@ -2827,7 +2852,8 @@ class OrderController extends Controller
                                 ]);
 
                                 \App\Jobs\SendEmail::dispatch($email);
-
+                                $this->createEmailSendJourneyLog($id, "Email type via Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $from_mail_address, $to_mail_address, $emailClass->subject, $request->message, "", "", $storeWebsiteOrder->website_id);
+            
                             } else {
 
                                 $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
@@ -2854,10 +2880,12 @@ class OrderController extends Controller
                                 ]);
 
                                 \App\Jobs\SendEmail::dispatch($email);
+                                $this->createEmailSendJourneyLog($id, "Email type via Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $from_mail_address, $to_mail_address, $emailClass->subject, $request->message, "", "", $storeWebsiteOrder->website_id);
                             }
 
                         } catch (\Exception $e) {
                             $this->createEmailCommonExceptionLog($order->id, $e->getMessage(), 'email');
+                            $this->createEmailSendJourneyLog($id, "Email type via Error", Order::class,  "outgoing", "0" , $from_mail_address, $to_mail_address, $emailClass->subject, $request->message, "", $e->getMessage(), $storeWebsiteOrder->website_id);
                             \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
                         }
 
@@ -2882,7 +2910,7 @@ class OrderController extends Controller
                         ]);
 
                         \App\Jobs\SendEmail::dispatch($email);
-
+                        $this->createEmailSendJourneyLog($id, "Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $emailClass->fromMailer, $order->customer->email, $emailClass->subject, $request->message, "", "", $storeWebsiteOrder->website_id);
                     }
                 }
 
@@ -2895,6 +2923,7 @@ class OrderController extends Controller
 
                             $receiverNumber = $order->contact_detail;
                             \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $request->message, $website->store_website_id);
+                            $this->createEmailSendJourneyLog($id, "Email type IVA SMS Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $emailClass->fromMailer, $order->customer->email, $emailClass->subject, 'Phone : '.$receiverNumber.' <br/> '.$request->message, "", "", $website->website_id);
                         }
 
                     }
@@ -2916,29 +2945,35 @@ class OrderController extends Controller
                         if ($magento_status) {
                             $magentoHelper = new MagentoHelperv2;
                             $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value);
+                            $this->createEmailSendJourneyLog($id, "Magento Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento replay", $request->message, "", "", $storeWebsiteOrder->website_id);
                             /**
                              *check if response has error
                              */
                             $response=$result->getData();
                             if(isset($response) && isset($response->status) && $response->status==false){
                                 $this->createOrderMagentoErrorLog($order->id, $response->error); 
+                                $this->createEmailSendJourneyLog($id, "Magento Error Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error", $response->error, "", "", $storeWebsiteOrder->website_id);
                                 return response()->json($response->error,400);
                             }
                         }else{
                             $this->createOrderMagentoErrorLog($order->id, 'Store MasterStatus Not Present'); 
+                            $this->createEmailSendJourneyLog($id, "Magento Error Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error Store MasterStatus Not Present", "", "", "", $storeWebsiteOrder->website_id);
                             return response()->json('Store MasterStatus Not Present',400);
                         }
                     }else{
                         $this->createOrderMagentoErrorLog($order->id, 'Store Order Status Not Present'); 
+                        $this->createEmailSendJourneyLog($id, "Magento Error Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error Store Order Status Not Present", "", "", "", $storeWebsiteOrder->website_id);
                         return response()->json('Store Order Status Not Present',400);
                     }
                 }else{
                     $this->createOrderMagentoErrorLog($order->id, 'Website Order Not Present'); 
+                    $this->createEmailSendJourneyLog($id, "Magento Error Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error Store Website Order Not Present", "", "", "", "");
                     return response()->json('Website Order Not Present',400);
                 }
                 $storeWebsiteOrder->update(['order_id', $status]);
             }else{
                 $this->createOrderMagentoErrorLog($order->id, 'Store Website Order Not Present'); 
+                $this->createEmailSendJourneyLog($id, "Magento Error Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error Store Website Order Not Present", "", "", "", "");
                 return response()->json('Store Website Order Not Present',400);
             }
         }
@@ -4203,6 +4238,7 @@ class OrderController extends Controller
                        <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $preview . "</textarea></td>
                     </tr>
             </table>";
+            $this->createEmailSendJourneyLog($order->id, "Status Change to ".$statusModal->status, "\App\Order",  "outgoing", "0" , $from, "", "Order # " . $order->id . " Status has been changed", $preview, $template, "", $storeWebsiteOrder->website_id);
         } else {
             $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
 			if($emailClass != null) {
@@ -4226,6 +4262,7 @@ class OrderController extends Controller
                        <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $preview . "</textarea></td>
                     </tr>
             </table>";
+            $this->createEmailSendJourneyLog($order->id, "Status Change to ".$statusModal->status, "\App\Order",  "outgoing", "0" , $from, "", "Order # " . $order->id . " Status has been changed", $preview, $template, "", $storeWebsiteOrder);
         }
 
         return response()->json(["code" => 200, "template" => $template, 'preview' => $preview]);
