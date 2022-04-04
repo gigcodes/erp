@@ -177,6 +177,7 @@
 		    </tbody>
 		</table>
 	</div>
+	{!! $messageData->links() !!}
 
 @endsection
 

@@ -249,6 +249,34 @@
     <!-- /.modal-dialog -->
   </div>
 
+<div id="pushJourney" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Product push journey</h4>
+        </div>
+        <div class="modal-body">
+          <table class="table table-bordered table-hover" style="table-layout:fixed;">
+            <thead>
+              <th style="width:7%">Step </th>
+              <th style="width:6%">Is checked</th>
+             
+            </thead>
+            <tbody class="push_journey_logs">
+
+            </tbody>
+          </table>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
   <div id="PriceModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
       <div class="modal-content">
@@ -260,9 +288,13 @@
             <thead>
               <th style="width:7%">Product ID</th>
               <th style="width:7%">Default Price</th>
+              <th style="width:7%">Price Discount %</th>
               <th style="width:7%">Segment Discount</th>
+              <th style="width:7%">Segment Discount %</th>
               <th style="width:7%">Duty Price</th>
+              <th style="width:7%">IVA Price</th>
               <th style="width:7%">Override Price</th>
+              <th style="width:7%">Override Price % </th>
               <th style="width:6%">Status</th>
               <th style="width:6%">Web Store</th>
               <th style="width:11%">Store Website</th>
@@ -684,6 +716,24 @@
     .done(function(result) {
       $('#ErrorLogModal').modal('show');
       $('.error-log-data').html(result);
+    });
+
+  });
+  
+  $(document).on("click", ".push_journey", function() {
+    var id = $(this).data('id');
+    var store_website_id = $(this).data('website');
+    $.ajax({
+      method: "GET",
+      url: "/logging/call-journey-by-id/" + id,
+      data: {
+        "_token": "{{ csrf_token() }}"
+      },
+      dataType: 'html'
+    })
+    .done(function(result) {
+      $('#pushJourney').modal('show');
+      $('.push_journey_logs').html(result);
     });
 
   });
