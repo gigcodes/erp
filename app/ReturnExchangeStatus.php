@@ -19,6 +19,7 @@ class ReturnExchangeStatus extends Model
 
     protected $fillable = [
 		'status_name',
-        'message'
+        'message',
+        'store_website_id'
     ];
 }

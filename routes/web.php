@@ -581,6 +581,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('category/child-categories', 'CategoryController@childCategory')->name('category.child-category');
     Route::get('category/edit-category', 'CategoryController@childEditCategory')->name('category.child-edit-category');
     Route::post('category/{edit}/edit-category', 'CategoryController@updateCategory')->name('category.child-update-category');
+    Route::post('category/{edit}/update-days-cancelation', 'CategoryController@updateCancelationPolicy')->name('category.update-cancelation-policy');
+    //Route::post('category/{edit}/update-days-refund', 'CategoryController@updateDaysRefund')->name('category.child-update-days_refund');
 
     Route::get('category/references/used-products', 'CategoryController@usedProducts');
     Route::post('category/references/update-reference', 'CategoryController@updateReference');
@@ -3191,6 +3193,9 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function (
     Route::post('/updateRefund', 'ReturnExchangeController@updateRefund')->name('return-exchange.updateRefund');
     Route::post('/update-estimated-date', 'ReturnExchangeController@updateEstmatedDate')->name('return-exchange.update-estimated-date');
     Route::get('/status', 'ReturnExchangeController@status')->name('return-exchange.status');
+    Route::post('/status', 'ReturnExchangeController@getStatusByWebsite');
+    Route::post('/status/save', 'ReturnExchangeController@statusWebsiteSave');
+    Route::post('/status/fetch-store-status', 'ReturnExchangeController@fetchMagentoStatus')->name('fetch-magento.status');
     Route::post('/status/store', 'ReturnExchangeController@saveStatusField')->name('return-exchange.save.status-field');
     Route::post('/status/create', 'ReturnExchangeController@createStatus')->name('return-exchange.createStatus');
     Route::post('/status/delete', 'ReturnExchangeController@deleteStatus')->name('return-exchange.deleteStatus');
