@@ -31,6 +31,7 @@ use App\LiveChatLog;
 use App\LiveChatEventLog;
 use App\GoogleTranslate;
 use App\WatsonChatJourney;
+use App\ChatbotReply;
 
 class LiveChatController extends Controller
 {
