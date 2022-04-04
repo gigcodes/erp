@@ -755,6 +755,7 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ url('customers/accounts') }}">Store website customer</a>
                                             <a class="dropdown-item" href="{{ route('product.customer-reviews') }}" >Customer Reviews</a>
                                             <a class="dropdown-item" href="{{ route('customer.priority.points') }}" >Customer Priority</a>
+                                            <a class="dropdown-item" href="{{ route('customer.get.priority.range.points') }}" >Customer Range Priority Point</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>

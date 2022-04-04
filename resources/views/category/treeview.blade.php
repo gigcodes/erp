@@ -204,6 +204,8 @@
                             <th style="width:6%">Level-4</th>
 
                             <th style="width:8%"> Magento id</th>
+                            <th style="width:8%"> Days Cancelation</th>
+                            <th style="width:8%"> Days Refund</th>
                             <th style="width:8%"> Show all id </th>
                             <th style="width:9%"> SH code </th>
                             <th style="width:7%"> Select category segmanet </th>
@@ -241,23 +243,63 @@
                                 <td class="pb-0"></td>
                                 <td class="pb-0"></td>
                                 <td class="pb-0"></td>
-                         
-                            <td class="pb-0">
-                                <form method="POST"
-                                    action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}"
-                                    class="edit_category_data" data-id="{{ $cat->id }}">
-                                    @csrf
-                                    <div class="d-flex align-items-baseline">
-                                        <div class="form-group mb-0">
-                                            <input type="number" class="form-control" name="magento_id"
-                                                placeholder="Enter Magento Id" required value="{{ $cat->magento_id }}">
+                                <td class="pb-0">
+                                    <form method="POST"
+                                        action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}"
+                                        class="edit_category_data" data-id="{{ $cat->id }}">
+                                        @csrf
+                                        <div class="d-flex align-items-baseline">
+                                            <div class="form-group mb-0">
+                                                <input type="number" class="form-control" name="magento_id"
+                                                    placeholder="Enter Magento Id" required value="{{ $cat->magento_id }}">
+                                            </div>
+                                            <button class="btn btn-xs" hidden>
+                                                <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                            </button>
                                         </div>
-                                        <button class="btn btn-xs" hidden>
-                                            <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
-                                        </button>
-                                    </div>
-                                </form>
-                            </td>
+                                    </form>
+                                </td>
+
+                                <td class="pb-0">
+                                    <form method="POST"
+                                        action="{{ route('category.update-cancelation-policy', ['edit' => $cat->id]) }}"
+                                        class="edit_category_cancelation_days" data-id="{{ $cat->id }}">
+                                        @csrf
+                                        <div class="d-flex align-items-baseline">
+                                            <div class="form-group mb-0">
+                                                <select name="days_cancelation" class="form-control">
+                                                    @for ($i=0; $i<=31; $i++)
+                                                        <option @if($i == $cat->days_cancelation) selected="selected" @endif value="{{$i}}">{{$i}}</option>
+                                                    @endfor
+                                                </select>
+                                            </div>
+                                            <button class="btn btn-xs" hidden>
+                                                <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                            </button>
+                                        </div>
+                                    </form>
+                                </td>
+                                <td class="pb-0">
+                                    <form method="POST"
+                                        action="{{ route('category.update-cancelation-policy', ['edit' => $cat->id]) }}"
+                                        class="edit_category_cancelation_days" data-id="{{ $cat->id }}">
+                                        @csrf
+                                        <div class="d-flex align-items-baseline">
+                                            <div class="form-group mb-0">
+                                                <select name="days_refund" class="form-control">
+                                                    @for ($i=0; $i<=31; $i++)
+                                                        <option  @if($i == $cat->days_refund) selected="selected" @endif value="{{$i}}">{{$i}}</option>
+                                                    @endfor
+                                                </select>
+                                            </div>
+                                            <button class="btn btn-xs" hidden>
+                                                <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                            </button>
+                                        </div>
+                                    </form>
+                                </td>
+                            
+                            
                             <td class="pb-0">
                                 <div class="form-group mb-2">
                                     <form method="POST"
@@ -460,6 +502,44 @@
                                 </form>
                             </td>
                             <td class="pb-0">
+                                <form method="POST"
+                                    action="{{ route('category.update-cancelation-policy', ['edit' => $firstChild->id]) }}"
+                                    class="edit_category_cancelation_days" data-id="{{ $firstChild->id }}">
+                                    @csrf
+                                    <div class="d-flex align-items-baseline">
+                                        <div class="form-group mb-0">
+                                            <select name="days_cancelation" class="form-control">
+                                                @for ($i=0; $i<=31; $i++)
+                                                    <option  @if($i == $firstChild->days_cancelation) selected="selected" @endif value="{{$i}}">{{$i}}</option>
+                                                @endfor
+                                            </select>
+                                        </div>
+                                        <button class="btn btn-xs" hidden>
+                                            <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                            <td class="pb-0">
+                                <form method="POST"
+                                    action="{{ route('category.update-cancelation-policy', ['edit' => $firstChild->id]) }}"
+                                    class="edit_category_cancelation_days" data-id="{{ $firstChild->id }}">
+                                    @csrf
+                                    <div class="d-flex align-items-baseline">
+                                        <div class="form-group mb-0">
+                                            <select name="days_refund" class="form-control">
+                                                @for ($i=0; $i<=31; $i++)
+                                                    <option  @if($i == $firstChild->days_refund) selected="selected" @endif value="{{$i}}">{{$i}}</option>
+                                                @endfor
+                                            </select>
+                                        </div>
+                                        <button class="btn btn-xs" hidden>
+                                            <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                            <td class="pb-0">
                                 <div class="form-group mb-2">
                                     <form method="POST"
                                         action="{{ route('category.child-update-category', ['edit' => $firstChild->id]) }}"
@@ -652,6 +732,44 @@
                                                                 <div class="form-group mb-0">
                                                                     <input type="number" class="form-control" name="magento_id"
                                                                         placeholder="Enter Magento Id" required value="{{ $secondChild->magento_id }}">
+                                                                </div>
+                                                                <button class="btn btn-xs" hidden>
+                                                                    <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    </td>
+                                                    <td class="pb-0">
+                                                        <form method="POST"
+                                                            action="{{ route('category.update-cancelation-policy', ['edit' => $secondChild->id]) }}"
+                                                            class="edit_category_cancelation_days" data-id="{{ $secondChild->id }}">
+                                                            @csrf
+                                                            <div class="d-flex align-items-baseline">
+                                                                <div class="form-group mb-0">
+                                                                    <select name="days_cancelation" class="form-control">
+                                                                        @for ($i=0; $i<=31; $i++)
+                                                                            <option @if($i == $secondChild->days_cancelation) selected="selected" @endif value="{{$i}}">{{$i}}</option>
+                                                                        @endfor
+                                                                    </select>
+                                                                </div>
+                                                                <button class="btn btn-xs" hidden>
+                                                                    <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    </td>
+                                                    <td class="pb-0">
+                                                        <form method="POST"
+                                                            action="{{ route('category.update-cancelation-policy', ['edit' => $secondChild->id]) }}"
+                                                            class="edit_category_cancelation_days" data-id="{{ $secondChild->id }}">
+                                                            @csrf
+                                                            <div class="d-flex align-items-baseline">
+                                                                <div class="form-group mb-0">
+                                                                    <select name="days_refund" class="form-control">
+                                                                        @for ($i=0; $i<=31; $i++)
+                                                                            <option @if($i == $secondChild->days_refund) selected="selected" @endif value="{{$i}}">{{$i}}</option>
+                                                                        @endfor
+                                                                    </select>
                                                                 </div>
                                                                 <button class="btn btn-xs" hidden>
                                                                     <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
@@ -862,6 +980,44 @@
                                                                 </form>
                                                             </td>
                                                             <td class="pb-0">
+                                                                <form method="POST"
+                                                                    action="{{ route('category.update-cancelation-policy', ['edit' => $thirdChild->id]) }}"
+                                                                    class="edit_category_cancelation_days" data-id="{{ $thirdChild->id }}">
+                                                                    @csrf
+                                                                    <div class="d-flex align-items-baseline">
+                                                                        <div class="form-group mb-0">
+                                                                            <select name="days_cancelation" class="form-control" width="100%">
+                                                                                @for ($i=0; $i<=31; $i++)
+                                                                                    <option  @if($i == $thirdChild->days_cancelation) selected="selected" @endif  value="{{$i}}">{{$i}}</option>
+                                                                                @endfor
+                                                                            </select>
+                                                                        </div>
+                                                                        <button class="btn btn-xs" hidden>
+                                                                            <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                                                        </button>
+                                                                    </div>
+                                                                </form>
+                                                            </td>
+                                                            <td class="pb-0">
+                                                                <form method="POST"
+                                                                    action="{{ route('category.update-cancelation-policy', ['edit' => $thirdChild->id]) }}"
+                                                                    class="edit_category_cancelation_days" data-id="{{ $thirdChild->id }}">
+                                                                    @csrf
+                                                                    <div class="d-flex align-items-baseline">
+                                                                        <div class="form-group mb-0">
+                                                                            <select name="days_refund" class="form-control" width="100%">
+                                                                                @for ($i=0; $i<=31; $i++)
+                                                                                    <option  @if($i == $thirdChild->days_refund) selected="selected" @endif  value="{{$i}}">{{$i}}</option>
+                                                                                @endfor
+                                                                            </select>
+                                                                        </div>
+                                                                        <button class="btn btn-xs" hidden>
+                                                                            <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                                                        </button>
+                                                                    </div>
+                                                                </form>
+                                                            </td>
+                                                            <td class="pb-0">
                                                                 <div class="form-group mb-2">
                                                                     <form method="POST"
                                                                         action="{{ route('category.child-update-category', ['edit' => $thirdChild->id]) }}"
@@ -1052,6 +1208,7 @@
             </div>
         </div>
     </div>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script type="text/javascript">
         $('ul.pagination').hide();
@@ -1200,7 +1357,33 @@
                 }
             });
 
-        })
+        });
+
+        $(document).on('change', '.edit_category_cancelation_days', function(e) {
+            e.preventDefault()
+            const dataId = $(this).data('id')
+            console.log(dataId)
+            const form_data = $(this).serialize();
+            console.log(form_data, 'form-data')
+
+            $.ajax({
+                url: '/category/' + dataId + '/update-days-cancelation',
+                method: 'POST',
+                dataType: "json",
+                data: form_data,
+                success: function(response) {
+                    // location.reload()
+                    toastr["success"](response['success-remove']);
+                    $('#editCategoryModal').modal('hide')
+
+                },
+                error: function(response) {
+                    toastr["error"]("Oops,something went wrong");
+
+                }
+            });
+
+        });
 
         $(document).on('submit', '.category_deleted', function(e) {
             e.preventDefault()
