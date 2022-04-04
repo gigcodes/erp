@@ -21,4 +21,13 @@ class ReturnExchangeProduct extends Model
         'name',
         'status_id',
     ];
+
+    public function product(){
+        return $this->hasOne('App\Product','id','product_id');
+    }
+
+    public function order_product(){
+        return $this->hasOne('App\OrderProduct','id','order_product_id');
+    }
+
 }
