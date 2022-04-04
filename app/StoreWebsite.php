@@ -201,4 +201,9 @@ class StoreWebsite extends Model
         }
         return false;
     }
-}
+
+    //return exchange status
+    public function returnExchangeStatus(){
+        return $this->hasMany('App\ReturnExchangeStatus','store_website_id','id');
+    }
+ }

@@ -34,7 +34,7 @@
                       <option value="">Select a store</option>
 
                       @foreach ($store_website as $id => $website)
-                        <option value="{{ $website->id }}" {{ $website->id == $store ? 'selected' : '' }}>{{$website->title}} ({{$website->website_source}})</option>
+                        <option value="{{ $website->id }}" {{ $website->id == $store ? 'selected' : '' }}> ({{$website->website_source}})</option>
                       @endforeach
                     </select>
                   </div>
@@ -67,7 +67,7 @@
 			  @foreach ($store_order_statuses as $key => $status)
             <tr>
             <td>{{$status->order_status->status}}</td>
-            <td>{{$status->store_website->title}} ({{$status->store_website->website_source}})</td>
+            <td></td>
             <td>{{($status->store_master_status) ? $status->store_master_status->label : "N/A"}}</td>
             <td>
               <a class="btn btn-image edit-btn" data-id="{{ $status->id }}"><img src="/images/edit.png" /></a>
