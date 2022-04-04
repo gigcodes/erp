@@ -16,6 +16,7 @@ use App\Customer;
 use App\DeliveryApproval;
 use App\Email;
 use App\EmailAddress;
+use App\EmailCommonExceptionLog;
 use App\Events\OrderUpdated;
 use App\Helpers;
 use App\Helpers\OrderHelper;
@@ -2844,7 +2845,7 @@ class OrderController extends Controller
                                     'from' => $emailClass->fromMailer,
                                     'to' => $order->customer->email,
                                     'subject' => $emailClass->subject,
-                                    'message' => $custom_email_content,
+                                    'message' => $request->custom_email_content,
                                     // 'message'          => $emailClass->render(),
                                     'template' => 'order-status-update',
                                     'additional_data' => $order->id,
@@ -2856,6 +2857,7 @@ class OrderController extends Controller
                             }
 
                         } catch (\Exception $e) {
+                            $this->createEmailCommonExceptionLog($order->id, $e->getMessage(), 'email');
                             \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
                         }
 
@@ -2943,6 +2945,73 @@ class OrderController extends Controller
         return response()->json('Success', 200);
 
     }
+
+    /**
+     * This function is use for List Order Exception Error Log
+     * @param Request $request Request
+     * 
+     *  @return JsonReponse;
+     */
+    public function getOrderExceptionErrorLog(Request $request)
+    {
+        try {
+            $orderError = EmailCommonExceptionLog::where('order_id', $request->order_id)->get();
+            
+            if(count($orderError) > 0)
+                return response()->json(["code" => 200, "data" => $orderError]);
+            else 
+                return response()->json(["code" => 500, "message" => "Could not find any error Log"]);
+        } catch(\Exception $e) {
+            return response()->json(["code" => 500, "message" => $e->getMessage()]);
+        }
+    }
+
+    
+    /**
+     * This function is use for List Order Exception Error Log
+     * @param Request $request Request
+     * 
+     *  @return JsonReponse;
+     */
+    public function getOrderEmailSendLog(Request $request)
+    {
+        try {
+            $orderError = Email::where('model_id', $request->order_id)->get();
+            
+            if(count($orderError) > 0)
+                return response()->json(["code" => 200, "data" => $orderError]);
+            else 
+                return response()->json(["code" => 500, "message" => "Could not find any error Log"]);
+        } catch(\Exception $e) {
+            return response()->json(["code" => 500, "message" => $e->getMessage()]);
+        }
+    }
+
+
+    /**
+     * This function user for create email commaon  error list
+     * 
+     * @param $order (INT), 
+     * @param $logMsg (string)
+     * @return void 
+     */
+    public function createEmailCommonExceptionLog($order_id = '', $logMsg = '', $type= '') 
+    {
+        try {
+            EmailCommonExceptionLog::create([
+                'order_id' => $order_id,
+                'exception_error' => $logMsg,
+                'type' => $type
+            ]);
+        } catch(\Exception $e) {
+            EmailCommonExceptionLog::create([
+                'order_id' => $order_id,
+                'log_msg' => $e->getMessage(),
+                'type' => $type
+            ]);
+        }
+    }
+    
 
     /**
      * This function user for get magent to order error list
