@@ -58,7 +58,7 @@
             <th width="5%">Method</th>
             <th width="10%">Method</th>
             <th width="15%">URL</th>
-            <th width="15%">Request</th>
+            <th width="15%">Message</th>
             <th width="5%">Status Code</th>
             <th width="5%">Time Taken</th>
             <th width="10%">Created At</th>
@@ -68,10 +68,27 @@
             <th width="10%"><input type="text" class="search form-control tbInput" name="id" id="filename"></th>
             <th width="10%"><input type="text" class="search form-control tbInput" id="log" name="ip"></th>
             <th width="5%"><input type="text" class="search form-control tbInput" id="api_name" name="api_name"></th>
-            <th width="5%"></th>
-            <th width="10%"><input type="text" name="method" class="search form-control tbInput" id="website"></th>
-            <th width="15%"><input type="text" name="url" class="search form-control tbInput" id="moduleName"></th>
-            <th width="15%"></th>
+            <th width="10%">
+              <select name="method_name" class="search form-control tbInput" id="method_name">
+                <option value="">Select Status Code</option>
+                @foreach($all_method_names as $all_method_name)
+                  <option value="{{$all_method_name->method_name}}">{{$all_method_name->method_name}}</option>
+                @endforeach
+              </select>
+              <!-- <input type="text" name="status" class="search form-control tbInput" id="action"> -->
+            </th>
+
+            <th width="5%">
+               <select name="method" class="search form-control tbInput" id="method">
+                 <option value="">Select Status Code</option>
+                   <option value="POST">POST</option>
+                   <option value="GET">GET</option>
+               </select>
+               <!-- <input type="text" name="status" class="search form-control tbInput" id="action"> -->
+             </th>
+
+            <th width="15%"><input type="text" name="url" class="search form-control tbInput" id="url"></th>
+            <th width="15%"><input type="text" name="message" class="search form-control tbInput" id="message"></th>
             <!--  <th width="10%"><input type="text" class="search form-control" id="controllerName"></th> -->
             <th width="5%">
               <select name="status" class="search form-control tbInput" id="action">
@@ -172,6 +189,14 @@
         $(document).on('change','select[name="status"]',function(){
           filterResults();
         });
+        
+        $(document).on('change','select[name="method"]',function(){
+          filterResults();
+        });
+
+        $(document).on('change','select[name="method_name"]',function(){
+          filterResults();
+        });
    
        //Expand Row
    
@@ -182,12 +207,8 @@
    
             var formatedValue = e.date.format(e.date._f);
                created = $('#created_date').val();
-   
-   
+               
            filterResults();
-   
-   
-   
    
            })
    
@@ -247,10 +268,9 @@
    
         function filterResults()
         {
-                     $('#noresult_tr').remove();
+           $('#noresult_tr').remove();
    
             var row= getFilterValues();
-   
    
            $.ajax({
                    url: '{{route("api-log-list")}}',
