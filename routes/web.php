@@ -582,6 +582,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('category/edit-category', 'CategoryController@childEditCategory')->name('category.child-edit-category');
     Route::post('category/{edit}/edit-category', 'CategoryController@updateCategory')->name('category.child-update-category');
     Route::post('category/{edit}/update-days-cancelation', 'CategoryController@updateCancelationPolicy')->name('category.update-cancelation-policy');
+    Route::post('category/get-days-cancelation-log', 'CategoryController@getCategoryCancellationPolicyLog')->name('category.get_cancelation_policy_log');
     //Route::post('category/{edit}/update-days-refund', 'CategoryController@updateDaysRefund')->name('category.child-update-days_refund');
 
     Route::get('category/references/used-products', 'CategoryController@usedProducts');

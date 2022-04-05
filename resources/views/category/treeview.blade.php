@@ -263,8 +263,9 @@
                                 <td class="pb-0">
                                     <form method="POST"
                                         action="{{ route('category.update-cancelation-policy', ['edit' => $cat->id]) }}"
-                                        class="edit_category_cancelation_days" data-id="{{ $cat->id }}">
+                                        class="edit_category_cancelation_days" data-id="{{ $cat->id }}" data-day_old="{{$cat->days_cancelation}}">
                                         @csrf
+                                        <input type="hidden" name="day_old" value="{{$cat->days_cancelation}}" />
                                         <div class="d-flex align-items-baseline">
                                             <div class="form-group mb-0">
                                                 <select name="days_cancelation" class="form-control">
@@ -278,12 +279,16 @@
                                             </button>
                                         </div>
                                     </form>
+                                    <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 " data-id="{{$cat->id}}" data-day_type="days_cancelation">
+                                        <i style="color:#6c757d;" class="fa fa-info-circle category_cancle_policy" data-id="{{ $cat->id }}" data-day_type="days_cancelation" aria-hidden="true"></i>
+                                    </button>
                                 </td>
                                 <td class="pb-0">
                                     <form method="POST"
                                         action="{{ route('category.update-cancelation-policy', ['edit' => $cat->id]) }}"
-                                        class="edit_category_cancelation_days" data-id="{{ $cat->id }}">
+                                        class="edit_category_cancelation_days" data-id="{{ $cat->id }}" data-day_old="{{$cat->days_refund}}">
                                         @csrf
+                                        <input type="hidden" name="day_old" value="{{$cat->days_refund}}" />
                                         <div class="d-flex align-items-baseline">
                                             <div class="form-group mb-0">
                                                 <select name="days_refund" class="form-control">
@@ -297,6 +302,9 @@
                                             </button>
                                         </div>
                                     </form>
+                                    <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 " data-id="{{$cat->id}}"  data-day_type="days_refund">
+                                        <i style="color:#6c757d;" class="fa fa-info-circle category_cancle_policy" data-id="{{ $cat->id }}" data-day_type="days_refund" aria-hidden="true"></i>
+                                    </button>
                                 </td>
                             
                             
@@ -504,8 +512,9 @@
                             <td class="pb-0">
                                 <form method="POST"
                                     action="{{ route('category.update-cancelation-policy', ['edit' => $firstChild->id]) }}"
-                                    class="edit_category_cancelation_days" data-id="{{ $firstChild->id }}">
+                                    class="edit_category_cancelation_days" data-id="{{ $firstChild->id }}" data-day_old="{{$firstChild->days_cancelation}}">
                                     @csrf
+                                    <input type="hidden" name="day_old" value="{{$firstChild->days_cancelation}}" />
                                     <div class="d-flex align-items-baseline">
                                         <div class="form-group mb-0">
                                             <select name="days_cancelation" class="form-control">
@@ -519,12 +528,16 @@
                                         </button>
                                     </div>
                                 </form>
+                                <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 " data-id="{{$firstChild->id}}" data-day_type="days_cancelation">
+                                    <i style="color:#6c757d;" class="fa fa-info-circle category_cancle_policy" data-id="{{ $firstChild->id }}"  data-day_type="days_cancelation" aria-hidden="true"></i>
+                                </button>
                             </td>
                             <td class="pb-0">
                                 <form method="POST"
                                     action="{{ route('category.update-cancelation-policy', ['edit' => $firstChild->id]) }}"
-                                    class="edit_category_cancelation_days" data-id="{{ $firstChild->id }}">
+                                    class="edit_category_cancelation_days" data-id="{{ $firstChild->id }}" data-day_old="{{$firstChild->days_refund}}">
                                     @csrf
+                                    <input type="hidden" name="day_old" value="{{$firstChild->days_refund}}" />
                                     <div class="d-flex align-items-baseline">
                                         <div class="form-group mb-0">
                                             <select name="days_refund" class="form-control">
@@ -538,6 +551,9 @@
                                         </button>
                                     </div>
                                 </form>
+                                <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 " data-id="{{$firstChild->id}}" data-day_type="days_refund">
+                                    <i style="color:#6c757d;" class="fa fa-info-circle category_cancle_policy" data-id="{{ $firstChild->id }}" data-day_type="days_refund" aria-hidden="true"></i>
+                                </button>
                             </td>
                             <td class="pb-0">
                                 <div class="form-group mb-2">
@@ -742,8 +758,9 @@
                                                     <td class="pb-0">
                                                         <form method="POST"
                                                             action="{{ route('category.update-cancelation-policy', ['edit' => $secondChild->id]) }}"
-                                                            class="edit_category_cancelation_days" data-id="{{ $secondChild->id }}">
+                                                            class="edit_category_cancelation_days" data-id="{{ $secondChild->id }}"  data-day_old="{{$secondChild->days_cancelation}}">
                                                             @csrf
+                                                            <input type="hidden" name="day_old" value="{{$secondChild->days_cancelation}}" />
                                                             <div class="d-flex align-items-baseline">
                                                                 <div class="form-group mb-0">
                                                                     <select name="days_cancelation" class="form-control">
@@ -757,12 +774,16 @@
                                                                 </button>
                                                             </div>
                                                         </form>
+                                                        <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 " data-id="{{$secondChild->id}}" data-day_type="days_cancelation">
+                                                            <i style="color:#6c757d;" class="fa fa-info-circle category_cancle_policy" data-id="{{ $secondChild->id }}"  data-day_type="days_cancelation" aria-hidden="true"></i>
+                                                        </button>
                                                     </td>
                                                     <td class="pb-0">
                                                         <form method="POST"
                                                             action="{{ route('category.update-cancelation-policy', ['edit' => $secondChild->id]) }}"
-                                                            class="edit_category_cancelation_days" data-id="{{ $secondChild->id }}">
+                                                            class="edit_category_cancelation_days" data-id="{{ $secondChild->id }}" data-day_old="{{$secondChild->days_refund}}">
                                                             @csrf
+                                                            <input type="hidden" name="day_old" value="{{$secondChild->days_refund}}" />
                                                             <div class="d-flex align-items-baseline">
                                                                 <div class="form-group mb-0">
                                                                     <select name="days_refund" class="form-control">
@@ -776,6 +797,9 @@
                                                                 </button>
                                                             </div>
                                                         </form>
+                                                        <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 " data-id="{{$secondChild->id}}" data-day_type="days_refund">
+                                                            <i style="color:#6c757d;" class="fa fa-info-circle category_cancle_policy" data-id="{{ $secondChild->id }}" data-day_type="days_refund" aria-hidden="true"></i>
+                                                        </button>
                                                     </td>
                                                     <td class="pb-0">
                                                         <div class="form-group mb-2">
@@ -982,8 +1006,9 @@
                                                             <td class="pb-0">
                                                                 <form method="POST"
                                                                     action="{{ route('category.update-cancelation-policy', ['edit' => $thirdChild->id]) }}"
-                                                                    class="edit_category_cancelation_days" data-id="{{ $thirdChild->id }}">
+                                                                    class="edit_category_cancelation_days" data-id="{{ $thirdChild->id }}" data-day_old="{{$cat->days_cancelation}}">
                                                                     @csrf
+                                                                    <input type="hidden" name="day_old" value="{{$cat->days_cancelation}}" />
                                                                     <div class="d-flex align-items-baseline">
                                                                         <div class="form-group mb-0">
                                                                             <select name="days_cancelation" class="form-control" width="100%">
@@ -997,12 +1022,16 @@
                                                                         </button>
                                                                     </div>
                                                                 </form>
+                                                                <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 " data-id="{{$cat->id}}" data-day_type="days_cancelation">
+                                                                    <i style="color:#6c757d;" class="fa fa-info-circle category_cancle_policy" data-id="{{ $cat->id }}"  data-day_type="days_cancelation" aria-hidden="true"></i>
+                                                                </button>
                                                             </td>
                                                             <td class="pb-0">
                                                                 <form method="POST"
                                                                     action="{{ route('category.update-cancelation-policy', ['edit' => $thirdChild->id]) }}"
-                                                                    class="edit_category_cancelation_days" data-id="{{ $thirdChild->id }}">
+                                                                    class="edit_category_cancelation_days" data-id="{{ $thirdChild->id }}" data-day_old="{{$thirdChild->days_refund}}">
                                                                     @csrf
+                                                                    <input type="hidden" name="day_old" value="{{$thirdChild->days_refund}}" />
                                                                     <div class="d-flex align-items-baseline">
                                                                         <div class="form-group mb-0">
                                                                             <select name="days_refund" class="form-control" width="100%">
@@ -1016,6 +1045,9 @@
                                                                         </button>
                                                                     </div>
                                                                 </form>
+                                                                <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 " data-id="{{$thirdChild->id}}" data-day_type="days_refund">
+                                                                    <i style="color:#6c757d;" class="fa fa-info-circle category_cancle_policy" data-id="{{ $thirdChild->id }}"  data-day_type="days_refund" aria-hidden="true"></i>
+                                                                </button>
                                                             </td>
                                                             <td class="pb-0">
                                                                 <div class="form-group mb-2">
@@ -1208,9 +1240,83 @@
             </div>
         </div>
     </div>
+    <div id="category_cancle_policy" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Order Logs</h4>
+                </div>
+                <div class="modal-body">
+                  <div class="table-responsive">
+                    <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Category</th>
+                          <th>Day Type</th>
+                          <th>Change Days</th>
+                          <th>Old Days</th>
+                          <th>Date</th>
+                        </tr>
+                      </thead>
     
+                      <tbody id="category_cancle_policylogtd">
+                       
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+      </div>
+      <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script type="text/javascript">
+
+        $(document).on("click",".category_cancle_policy",function() { 
+			  console.log(this);
+            var category_id = $(this).data("id");
+            var day_type = $(this).data("day_type");
+            $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{route("category.get_cancelation_policy_log")}}',
+            type: "post",
+            data : { category_id: category_id,
+                    day_type : day_type,
+                 },
+            beforeSend: function() {
+                $("loading-image").show();
+            }
+            }).done( function(response) {
+            if(response.code == 200 && response.data !='') {
+                var t = '';
+                $.each(response.data,function(k,v) {
+                t += `<tr><td>`+v.id+`</td>`;
+                t += `<td>`+v.category_id+`</td>`;
+                t += `<td>`+v.day_type+`</td>`;
+                t += `<td>`+v.day_change+`</td>`;
+                t += `<td>`+v.day_old+`</td>`;
+                t += `<td>`+v.created_at+`</td></tr>`;
+                });
+
+                $("#category_cancle_policy").find("#category_cancle_policylogtd").html(t);
+                $('#category_cancle_policy').modal("show");
+                $("loading-image").hide();
+            } else if(response.code == 500){
+                toastr['error']('Could not find any error Log', 'Error');
+            } else {
+                toastr['error']('Could not find any error Log', 'Error');
+            }
+            }).fail(function(error) {
+                toastr['error']('Could not find any error Log', 'Error');
+            });
+        });
+
         $('ul.pagination').hide();
         $(function() {
             $('.infinite-scroll').jscroll({
@@ -1362,8 +1468,7 @@
         $(document).on('change', '.edit_category_cancelation_days', function(e) {
             e.preventDefault()
             const dataId = $(this).data('id')
-            console.log(dataId)
-            const form_data = $(this).serialize();
+            var form_data = $(this).serialize();
             console.log(form_data, 'form-data')
 
             $.ajax({
@@ -1375,7 +1480,7 @@
                     // location.reload()
                     toastr["success"](response['success-remove']);
                     $('#editCategoryModal').modal('hide')
-
+                    location.reload();
                 },
                 error: function(response) {
                     toastr["error"]("Oops,something went wrong");
