@@ -220,27 +220,27 @@
                         }
                     ?>
                     </div>
-                    <div class="col-md-2 pd-sm pd-rt status-selection">
-                        <input type="checkbox" name="empty_estimated_time" value="1" {{ $request->get('empty_estimated_time') == 1 ? 'checked' : '' }} >Empty Estimated Time & Date
+                    <div class="col-md-3 pd-sm pd-rt status-selection">
+                        <input type="checkbox" name="empty_estimated_time"  value="1" style="height:11px;" {{ $request->get('empty_estimated_time') == 1 ? 'checked' : '' }} >Empty Estimated Time & Date
                     </div> 
-                    <div class="col-md-2 pd-sm pd-rt status-selection">
-                        <input type="checkbox" name="time_is_overdue" value="1" {{ $request->get('time_is_overdue') == 1 ? 'checked' : '' }} >Time is overdue
+                    <div class="ml-4 pd-sm pd-rt status-selection" style="margin-top: -13px;">
+                        <input type="checkbox" name="time_is_overdue" value="1" style="height:11px;" {{ $request->get('time_is_overdue') == 1 ? 'checked' : '' }} >Time is overdue
                     </div> 
                     
 
-                    <div class='input-group date mr-3 ml-3 col-md-1' id='datetimepicker'>
+                    <div class='input-group date mr-3 ml-3 col-md-1' id='datetimepicker' style="margin-top: -13px;">
                          <input name="delivery_date" type='text' class="form-control" placeholder="Search Delivery Date" id="delivery_date" style="width: 156px !important;">
                          <span class="input-group-addon">
                          <span class="glyphicon glyphicon-calendar"></span>
                          </span>
                       </div>
-
-                    <button type="submit" style="padding: 5px;margin-top:-1px;margin-left: 10px;" class="btn btn-image"
+                        
+                    <button type="submit" style="padding: 5px;margin-top:-1px;margin-left: 10px;margin-top: -13px;" class="btn btn-image"
                         id="show"><img src="<?php echo $base_url; ?>/images/filter.png" /></button>
-					<a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder">
+					<a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder" style="margin-top: -13px;">
                        <i class="fa fa-bell  red-notification " aria-hidden="true"></i>
                     </a> 
-                   <a data-toggle="modal" data-target="#reminderTimeMessageModal" class="btn pd-5 task-set-reminder">
+                   <a data-toggle="modal" data-target="#reminderTimeMessageModal" class="btn pd-5 task-set-reminder" style="margin-top: -13px;">
                        <i class="fa fa-plus red-notification " aria-hidden="true"></i>
                     </a>
                 </form>
