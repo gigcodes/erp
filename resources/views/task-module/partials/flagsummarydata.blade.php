@@ -62,7 +62,7 @@
        </div>
     </td>
 
-   <td class="communication-td devtask-com" style="border-bottom: none; display: block;">
+   <td class="communication-td devtask-com d-flex" style="border-bottom: none; display: block;">
     <!-- class="expand-row" -->
   
    <div class="d-flex">
@@ -72,25 +72,23 @@
     </div>
     <div class="d-flex">
           <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $issue->id }}" style="mmargin-top: -0%;margin-left: -2%; width:10%" title="Load messages"><img src="/images/chat.png" alt=""></button>
-              <span class="Website-task pr-0 {{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? '' : '' }} justify-content-between expand-row-msg" style="word-break: break-all;margin-top:6px; width:100%; margin-right:-13px;" data-id="{{$issue->id}}">
-    <span class="td-mini-container-{{$issue->id}} Website-task" style="margin:0px;">
-                    {{  \Illuminate\Support\Str::limit($issue->message, 25, $end='...') }}
-    </span>
-</span>
+          <span class="Website-task pr-0 {{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? '' : '' }} justify-content-between expand-row-msg" style="word-break: break-all;margin-top:6px; width:100%; margin-right:-13px;" data-id="{{$issue->id}}">
+          <span class="td-mini-container-{{$issue->id}} Website-task" style="margin:0px;">
+                {{  \Illuminate\Support\Str::limit($issue->message, 25, $end='...') }}
+        </span>
+              </span>
     </div>
-  
-
-  <div class="expand-row-msg" data-id="{{$issue->id}}">
-    <span class="td-full-container-{{$issue->id}} hidden">
-        {{ $issue->message }}
-        <br>
-        <div class="td-full-container">
-            <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }})">Send Attachment</button>
-            <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$issue->id}})">Send Images</button>
-            <input id="file-input{{ $issue->id }}" type="file" name="files" style="display: none;" multiple/>
-         </div> 
-    </span>
-</div>
+    <div class="expand-row-msg" data-id="{{$issue->id}}">
+        <span class="td-full-container-{{$issue->id}} hidden">
+            {{ $issue->message }}
+            <br>
+            <div class="td-full-container">
+                <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }})">Send Attachment</button>
+                <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$issue->id}})">Send Images</button>
+                <input id="file-input{{ $issue->id }}" type="file" name="files" style="display: none;" multiple/>
+             </div> 
+        </span>
+    </div>
     </td> 
 
     <td>
