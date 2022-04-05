@@ -2952,28 +2952,28 @@ class OrderController extends Controller
                             $response=$result->getData();
                             if(isset($response) && isset($response->status) && $response->status==false){
                                 $this->createOrderMagentoErrorLog($order->id, $response->error); 
-                                $this->createEmailSendJourneyLog($id, "Magento Error Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error", $response->error, "", "", $storeWebsiteOrder->website_id);
+                                $this->createEmailSendJourneyLog($id, "Magento Error", Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error", $response->error, "", "", $storeWebsiteOrder->website_id);
                                 return response()->json($response->error,400);
                             }
                         }else{
                             $this->createOrderMagentoErrorLog($order->id, 'Store MasterStatus Not Present'); 
-                            $this->createEmailSendJourneyLog($id, "Magento Error Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error Store MasterStatus Not Present", "", "", "", $storeWebsiteOrder->website_id);
+                            $this->createEmailSendJourneyLog($id, "Magento Error", Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error Store MasterStatus Not Present", "", "", "", $storeWebsiteOrder->website_id);
                             return response()->json('Store MasterStatus Not Present',400);
                         }
                     }else{
                         $this->createOrderMagentoErrorLog($order->id, 'Store Order Status Not Present'); 
-                        $this->createEmailSendJourneyLog($id, "Magento Error Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error Store Order Status Not Present", "", "", "", $storeWebsiteOrder->website_id);
+                        $this->createEmailSendJourneyLog($id, "Magento Error", Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error Store Order Status Not Present", "", "", "", $storeWebsiteOrder->website_id);
                         return response()->json('Store Order Status Not Present',400);
                     }
                 }else{
                     $this->createOrderMagentoErrorLog($order->id, 'Website Order Not Present'); 
-                    $this->createEmailSendJourneyLog($id, "Magento Error Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error Store Website Order Not Present", "", "", "", "");
+                    $this->createEmailSendJourneyLog($id, "Magento Error", Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error Store Website Order Not Present", "", "", "", "");
                     return response()->json('Website Order Not Present',400);
                 }
                 $storeWebsiteOrder->update(['order_id', $status]);
             }else{
                 $this->createOrderMagentoErrorLog($order->id, 'Store Website Order Not Present'); 
-                $this->createEmailSendJourneyLog($id, "Magento Error Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error Store Website Order Not Present", "", "", "", "");
+                $this->createEmailSendJourneyLog($id, "Magento Error", Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error Store Website Order Not Present", "", "", "", "");
                 return response()->json('Store Website Order Not Present',400);
             }
         }
@@ -2990,7 +2990,7 @@ class OrderController extends Controller
     public function getOrderEmailSendJourneyLog(Request $request)
     {
         try {
-            $orderJourney = OrderEmailSendJourneyLog::all();
+            $orderJourney = OrderEmailSendJourneyLog::groupBy('order_id')->get();
             
             if(count($orderJourney) > 0)
                 return view('orders.email_send_journey', compact('orderJourney'));

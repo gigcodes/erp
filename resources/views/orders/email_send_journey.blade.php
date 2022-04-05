@@ -42,17 +42,26 @@
                 <table id="show-ordres-table" class="table table-bordered table-hover" style="table-layout:fixed;">
                     <thead class="reserved-calls">
                         <tr>
-                            <th>ID</th>
-                            <th>Order ID</th>
-                            <th>Steps</th>
-                            <th>From</th>
-                            <th>To</th>
-                            <th>Subject</th>
-                            <th>Message</th>
-                            <th>Date</th>
+                            <th width="3%">ID</th>
+                            <th width="3%">Order ID</th>
+                            
+                            <th width="5%">Status Change</th>
+                            <th width="5%">Email type via Order update status</th>
+                            <th width="5%">Email type via Error</th>
+                            <th width="5%">Email type IVA SMS Order update status</th>
+                            <th width="5%">Magento Order update status</th>
+                            <th width="5%">Magento Error</th>
+
+
+                            <th width="10%">From</th>
+                            <th width="10%">To</th>
+                            <th width="10%">Subject</th>
+                            {{-- <th>Message</th> --}}
+                            <th width="10%">Date</th>
                         </tr>
                     </thead>
                     <tbody id="order-email-journey-table-body">
+                        <?php $counter = 6; ?>
                         @foreach ($orderJourney as $orderJourneyData)
                             <tr>
                                 <td>
@@ -61,9 +70,37 @@
                                 <td>
                                     {{ $orderJourneyData->order_id }}
                                 </td>
-                                <td>
-                                    {!! $orderJourneyData->steps !!}
-                                </td>
+                                <?php $orderJourneyResult = \App\OrderEmailSendJourneyLog::where('order_id', '=', $orderJourneyData->order_id)->orderBy('id', 'ASC')->get(); 
+                                    
+                                    $i=1;
+                                    $stepsName = '';
+                                    $stepsName1 = '';
+                                    foreach ($orderJourneyResult as $key => $value) {
+                                        $orderJourneyData->from_email = $value->from_email;
+                                        $orderJourneyData->to_email = $value->to_email;
+                                        $i++;
+                                        if($value->steps == 'Magento Error' || $value->steps == 'Email type via Error'){
+                                            $stepsName = $value->error_msg;
+                                            
+                                        }else {
+                                            $stepsName = $value->steps;
+                                        }
+                                ?>
+                                    <td>
+                                        {!! $stepsName !!}
+                                        
+                                    </td>
+                                <?php
+                                    }
+                                    $counter = $counter - $i;
+                                    for($ic = 0; $ic<=$counter; $ic++){
+                                ?>
+                                    <td>
+                                        
+                                    </td>
+                                <?php } ?>
+
+                                
                                 <td>
                                     {{ $orderJourneyData->from_email }}
                                 </td>
@@ -73,9 +110,9 @@
                                 <td>
                                     {!! $orderJourneyData->subject !!}
                                 </td>
-                                <td>
-                                    <table>{!! $orderJourneyData->message !!}</table>
-                                </td>
+                                {{-- <td>
+                                    <table><tr><td>{!! $orderJourneyData->message !!}</td></tr></table>
+                                </td> --}}
                                 <td>{!! $orderJourneyData->created_at !!}</td>
                             </tr>
                         @endforeach
