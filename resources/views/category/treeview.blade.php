@@ -1244,7 +1244,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Order Logs</h4>
+                    <h4 class="modal-title">Cancellation Policy Log</h4>
                 </div>
                 <div class="modal-body">
                   <div class="table-responsive">
