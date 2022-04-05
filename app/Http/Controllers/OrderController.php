@@ -2852,7 +2852,7 @@ class OrderController extends Controller
                                 ]);
 
                                 \App\Jobs\SendEmail::dispatch($email);
-                                $this->createEmailSendJourneyLog($id, "Email type via Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $from_mail_address, $to_mail_address, $emailClass->subject, $request->message, "", "", $storeWebsiteOrder->website_id);
+                                $this->createEmailSendJourneyLog($id, "Email type via Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $emailClass->fromMailer, $order->customer->email, $emailClass->subject, $request->message, "", "", $storeWebsiteOrder->website_id);
             
                             } else {
 
@@ -2880,7 +2880,7 @@ class OrderController extends Controller
                                 ]);
 
                                 \App\Jobs\SendEmail::dispatch($email);
-                                $this->createEmailSendJourneyLog($id, "Email type via Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $from_mail_address, $to_mail_address, $emailClass->subject, $request->message, "", "", $storeWebsiteOrder->website_id);
+                                $this->createEmailSendJourneyLog($id, "Email type via Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $emailClass->fromMailer, $order->customer->email, $emailClass->subject, $request->message, "", "", $storeWebsiteOrder->website_id);
                             }
 
                         } catch (\Exception $e) {
@@ -2980,6 +2980,27 @@ class OrderController extends Controller
         return response()->json('Success', 200);
 
     }
+
+    /**
+     * This function is use for List Order Exception Error Log
+     * @param Request $request Request
+     * 
+     *  @return view;
+     */
+    public function getOrderEmailSendJourneyLog(Request $request)
+    {
+        try {
+            $orderJourney = OrderEmailSendJourneyLog::all();
+            
+            if(count($orderJourney) > 0)
+                return view('orders.email_send_journey', compact('orderJourney'));
+            else 
+                return redirect()->back()->with('error', 'Record not found');
+        } catch(\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
 
     /**
      * This function is use for List Order Exception Error Log
