@@ -110,7 +110,7 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h2><p>Lead Product Price Calculation Log</p></h2>
+                <h2>Lead Product Price Calculation Log</h2>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body" style="overflow-x: scroll;">
@@ -118,7 +118,13 @@
                     <tr>
                         <th>ID</th>
                         <th>Prod ID</th>
-                        <th>Calculation</th>
+                        <th>Original Price</th>
+                        <th>Promotion Percentage</th>
+                        <th>Promotion</th>
+                        <th>Segment Discount</th>
+                        <th>Segment Discount Percentage</th>
+                        <th>IVA Price</th>
+                        <th>Euro Price</th>
                     </tr>
                     <tbody id="callogtr">
 

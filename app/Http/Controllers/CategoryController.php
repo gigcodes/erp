@@ -535,6 +535,42 @@ class CategoryController extends Controller
         }
     }
 
+    public function updateCancelationPolicy(Request $request, $id)
+    {
+        if ($request->days_cancelation) {
+            \App\Category::where('id', $id)->update(['days_cancelation' => $request->days_cancelation]);
+        }
+
+        if ($request->days_refund) {
+            $request->input('days_refund');
+            \App\Category::where('id', $id)->update(['days_refund' => $request->days_refund]);
+        }
+        
+        $sql = "select  id,
+                    title,
+                    parent_id
+            from    (select * from categories
+                    order by parent_id, id) categories,
+                    (select @pv := '".$id."') initialisation
+            where   find_in_set(parent_id, @pv) > 0
+            and     length(@pv := concat(@pv, ',', id))";
+        $results = \DB::select($sql);
+
+        foreach($results as $result) {
+            
+            if ($request->days_cancelation) {
+                \App\Category::where('id', $result->id)->update(['days_cancelation' => $request->days_cancelation]);
+            }
+
+            if ($request->days_refund) {
+                $request->input('days_refund');
+                \App\Category::where('id', $result->id)->update(['days_refund' => $request->days_refund]);
+            }
+        }
+        return response()->json(['success-remove'=> 'Days Cancelation '.$request->days_cancelation . ' updated successfully']);
+
+    }
+
     public function updateCategoryReference(Request $request)
     {
 

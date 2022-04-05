@@ -751,9 +751,11 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('chat.dndList') }}">DND Manage</a>
                                             <a class="dropdown-item" href="{{ url('customer/credit') }}">Customer Credit</a>
                                             <a class="dropdown-item" href="{{ url('chatbot-message-log') }}">Chatbot Message Log</a>
+                                            <a class="dropdown-item" href="{{ url('watson-journey') }}">Watson Journey</a>
                                             <a class="dropdown-item" href="{{ url('customers/accounts') }}">Store website customer</a>
                                             <a class="dropdown-item" href="{{ route('product.customer-reviews') }}" >Customer Reviews</a>
                                             <a class="dropdown-item" href="{{ route('customer.priority.points') }}" >Customer Priority</a>
+                                            <a class="dropdown-item" href="{{ route('customer.get.priority.range.points') }}" >Customer Range Priority Point</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
@@ -762,7 +764,7 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item" href="{{ action('ColdLeadsController@showImportedColdLeads') }}">Imported Cold leads</a>
                                             </ul>
                                         </li>
-                                    </ul>
+                                    </ul>                                                                                                                                                                                                                                                                                     
                                 </li>
 
                                 <li class="nav-item dropdown dropdown-submenu">

@@ -148,6 +148,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
 
     Route::post('list-magento/{id}', 'Logging\LogListMagentoController@updateMagentoStatus');
     Route::get('show-error-logs/{product_id}/{website_id?}', 'Logging\LogListMagentoController@showErrorLogs')->name('list.magento.show-error-logs');
+    Route::get('call-journey-by-id/{id}', 'Logging\LogListMagentoController@showJourneyById')->name('list.magento.show-journey-by-id');
     Route::get('show-error-log-by-id/{id}', 'Logging\LogListMagentoController@showErrorByLogId')->name('list.magento.show-error-log-by-id');
     Route::get('show-prices/{id}', 'Logging\LogListMagentoController@showPrices')->name('list.magento.show-prices');
     Route::get('list-magento/product-push-infomation', 'Logging\LogListMagentoController@productPushInformation')->name('list.magento.product-push-information');
@@ -580,6 +581,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('category/child-categories', 'CategoryController@childCategory')->name('category.child-category');
     Route::get('category/edit-category', 'CategoryController@childEditCategory')->name('category.child-edit-category');
     Route::post('category/{edit}/edit-category', 'CategoryController@updateCategory')->name('category.child-update-category');
+    Route::post('category/{edit}/update-days-cancelation', 'CategoryController@updateCancelationPolicy')->name('category.update-cancelation-policy');
+    //Route::post('category/{edit}/update-days-refund', 'CategoryController@updateDaysRefund')->name('category.child-update-days_refund');
 
     Route::get('category/references/used-products', 'CategoryController@usedProducts');
     Route::post('category/references/update-reference', 'CategoryController@updateReference');
@@ -852,6 +855,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/view-est-delivery-date-history', 'OrderController@viewEstDelDateHistory')->name('order.viewEstDelDateHistory');
     Route::post('order/addNewReply', 'OrderController@addNewReply')->name('order.addNewReply');
     Route::post('order/get-customer-address', 'OrderController@getCustomerAddress')->name('order.customer.address');
+    Route::post('order/get-error-logs', 'OrderController@getOrderErrorLog')->name('order.customer.address');
+    Route::post('order/get-email-error-logs', 'OrderController@getOrderExceptionErrorLog')->name('order.get.email.error.logs');
+    Route::post('order/get-email-send-logs', 'OrderController@getOrderEmailSendLog')->name('order.get.email.send.logs');
     Route::get('order/charity-order', 'OrderController@charity_order');
     Route::post('order/cancel-transaction', 'OrderController@cancelTransaction')->name('order.canceltransaction');
     
@@ -860,6 +866,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     
     
     Route::post('order/payment-history', 'OrderController@paymentHistory')->name('order.paymentHistory');
+    Route::post('order/magento-log-list', 'OrderController@getOrderMagentoErrorLogList')->name('order.magento.log.list');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
@@ -1189,6 +1196,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer/priority-points', 'CustomerController@customerPriorityPoints')->name('customer.priority.points');
     Route::get('customer/add-priority-points', 'CustomerController@addCustomerPriorityPoints')->name('customer.add.priority.points');
     Route::get('customer/get-priority-points/{id?}', 'CustomerController@getCustomerPriorityPoints')->name('customer.get.priority.points');
+
+    Route::get('customer/priority-range-points/', 'CustomerController@getCustomerPriorityRangePoints')->name('customer.get.priority.range.points');
+    Route::get('customer/priority-all-range-points/{id?}', 'CustomerController@selectCustomerPriorityRangePoints')->name('customer.all.select.priority.range.points');
+    Route::get('customer/priority-range-points/{id?}', 'CustomerController@getSelectCustomerPriorityRangePoints')->name('customer.get.select.priority.range.points');
+    Route::get('customer/add-priority-range-points', 'CustomerController@addCustomerPriorityRangePoints')->name('customer.add.priority.range.points');
+    Route::get('customer/delete-priority-range-points/{id?}', 'CustomerController@deleteCustomerPriorityRangePoints')->name('customer.delete.priority.range.points');
+
     Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');
     Route::get('customer/test', 'CustomerController@customerstest');
     Route::post('customer/reminder', 'CustomerController@updateReminder');
@@ -3179,6 +3193,9 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function (
     Route::post('/updateRefund', 'ReturnExchangeController@updateRefund')->name('return-exchange.updateRefund');
     Route::post('/update-estimated-date', 'ReturnExchangeController@updateEstmatedDate')->name('return-exchange.update-estimated-date');
     Route::get('/status', 'ReturnExchangeController@status')->name('return-exchange.status');
+    Route::post('/status', 'ReturnExchangeController@getStatusByWebsite');
+    Route::post('/status/save', 'ReturnExchangeController@statusWebsiteSave');
+    Route::post('/status/fetch-store-status', 'ReturnExchangeController@fetchMagentoStatus')->name('fetch-magento.status');
     Route::post('/status/store', 'ReturnExchangeController@saveStatusField')->name('return-exchange.save.status-field');
     Route::post('/status/create', 'ReturnExchangeController@createStatus')->name('return-exchange.createStatus');
     Route::post('/status/delete', 'ReturnExchangeController@deleteStatus')->name('return-exchange.deleteStatus');
@@ -3640,6 +3657,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
 Route::get('chatbot-message-log', 'ChatbotMessageLogsController@index')->name('chatbot.messages.logs');
+Route::get('watson-journey', 'LiveChatController@watsonJourney')->name('watson.journey');
 Route::post('pushwaston', 'ChatbotMessageLogsController@pushwaston');
 
 Route::get('sync-to-watson', 'ChatbotMessageLogsController@pushQuickRepliesToWaston');
