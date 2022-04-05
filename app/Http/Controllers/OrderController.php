@@ -2885,7 +2885,7 @@ class OrderController extends Controller
 
                         } catch (\Exception $e) {
                             $this->createEmailCommonExceptionLog($order->id, $e->getMessage(), 'email');
-                            $this->createEmailSendJourneyLog($id, "Email type via Error", Order::class,  "outgoing", "0" , $from_mail_address, $to_mail_address, $emailClass->subject, $request->message, "", $e->getMessage(), $storeWebsiteOrder->website_id);
+                            $this->createEmailSendJourneyLog($id, "Email type via Error", Order::class,  "outgoing", "0" , $from_mail_address, $to_mail_address, $emailClass->subject, $request->message, "", $e->getMessage(), $order->storeWebsiteOrder);
                             \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
                         }
 
