@@ -61,7 +61,7 @@
                         </tr>
                     </thead>
                     <tbody id="order-email-journey-table-body">
-                        <?php $counter = 6; ?>
+                        
                         @foreach ($orderJourney as $orderJourneyData)
                             <tr>
                                 <td>
@@ -71,7 +71,7 @@
                                     {{ $orderJourneyData->order_id }}
                                 </td>
                                 <?php $orderJourneyResult = \App\OrderEmailSendJourneyLog::where('order_id', '=', $orderJourneyData->order_id)->orderBy('id', 'ASC')->get(); 
-                                    
+                                    $counter = 6;            
                                     $i=1;
                                     $stepsName = '';
                                     $stepsName1 = '';
@@ -93,18 +93,15 @@
                                 <?php
                                     }
                                     $counter = $counter - $i;
-                                    for($ic = 0; $ic<=$counter; $ic++){
+                                    for($ic = 0; $ic<=$counter; $ic++) {
                                 ?>
-                                    <td>
-                                        
-                                    </td>
+                                    <td></td>
                                 <?php } ?>
-
                                 
-                                <td>
+                                <td style="overflow-wrap: anywhere;">
                                     {{ $orderJourneyData->from_email }}
                                 </td>
-                                <td>
+                                <td style="overflow-wrap: anywhere;">
                                     {{ $orderJourneyData->to_email }}
                                 </td>
                                 <td>
