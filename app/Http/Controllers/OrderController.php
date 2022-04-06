@@ -1207,6 +1207,12 @@ class OrderController extends Controller
                             'status' => 'pre-send',
                             'is_draft' => 1,
                         ]);
+						
+						\App\EmailLog::create([
+							'email_id'   => $email->id,
+							'email_log' => 'Email initiated',
+							'message'       => $email->to
+						]);
 
                         \App\Jobs\SendEmail::dispatch($email);
 
@@ -1650,6 +1656,12 @@ class OrderController extends Controller
                     'status' => 'pre-send',
                     'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
                 ]);
+				
+				\App\EmailLog::create([
+					'email_id'   => $email->id,
+					'email_log' => 'Email initiated',
+					'message'       => $email->to
+				]);
 
                 \App\Jobs\SendEmail::dispatch($email);
             }
@@ -1689,6 +1701,12 @@ class OrderController extends Controller
                     'status' => 'pre-send',
                     'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
                 ]);
+				
+				\App\EmailLog::create([
+					'email_id'   => $email->id,
+					'email_log' => 'Email initiated',
+					'message'       => $email->to
+				]);
 
                 \App\Jobs\SendEmail::dispatch($email);
 
@@ -2133,6 +2151,12 @@ class OrderController extends Controller
                 'status' => 'pre-send',
                 'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
             ]);
+			
+			\App\EmailLog::create([
+				'email_id'   => $email->id,
+				'email_log' => 'Email initiated',
+				'message'       => $email->to
+			]);
 
             \App\Jobs\SendEmail::dispatch($email);
 
@@ -3813,6 +3837,12 @@ class OrderController extends Controller
                                         'status' => 'pre-send',
                                         'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
                                     ]);
+									
+									\App\EmailLog::create([
+										'email_id'   => $email->id,
+										'email_log' => 'Email initiated',
+										'message'       => $email->to
+									]);
 
                                     \App\Jobs\SendEmail::dispatch($email);
 
