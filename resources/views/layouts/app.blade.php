@@ -2743,6 +2743,8 @@ if (!empty($notifications)) {
 
     <script type="text/javascript" src="{{url('js/jquery-ui.js')}}"></script>
     <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
     <script>
         // $('#chat-list-history').on('hidden.bs.modal', function (e) {

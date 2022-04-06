@@ -81,6 +81,11 @@ Route::middleware('auth')->group(function () {
 
 });
 
+/** Magento Module */
+Route::middleware('auth')->group(function () {
+    Route::resource('magento_modules', 'MagentoModuleController');
+});
+
 /** Magento Settings */
 Route::middleware('auth')->group(function () {
 
@@ -3749,13 +3754,6 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::get('ads/create', 'SocialAdsController@create')->name('social.ad.create');
     Route::post('ads/history', 'SocialAdsController@history')->name('social.ad.history');
     Route::get('ads/getconfigPost', 'SocialAdsController@getpost')->name('social.ad.getpost');
-
-
-
-
-
-   
-
 
 });
 Route::get('test', 'ScrapController@listCron');
