@@ -1221,14 +1221,14 @@ class EmailController extends Controller
         fclose($file);
     }
 
-    public function getEmailEvents($originId)
+    public function getEmailEvents($emailId)
     {   
-        $exist = Email::where('origin_id', $originId)->first();//$originId = "9e238becd3bc31addeff3942fc54e340@swift.generated";
+        $exist = Email::where('id', $emailId)->first();//$originId = "9e238becd3bc31addeff3942fc54e340@swift.generated";
         $events = [];
         $eventData = '';
         if ($exist != null) {
-            $events = \App\SendgridEvent::where('payload', 'like', '%"smtp-id":"<'.$originId.'>"%')->select('timestamp', 'event')->orderBy('id', 'desc')->get();
-        }
+            $events = \App\SendgridEvent::where('payload', 'like', '%"email_id":'.$emailId.'%')->select('timestamp', 'event')->orderBy('id', 'desc')->get();
+       }
         foreach ($events as $event) {
             $eventData .= "<tr><td>" . $event['timestamp'] . "</td><td>" . $event['event'] . "</td></tr>";
         }
@@ -1239,7 +1239,7 @@ class EmailController extends Controller
     }
 	
 	public function getAllEmailEvents() {
-		$events = \App\SendgridEvent::->select('*')->orderBy('id', 'desc')->get()->groupBy('sg_message_id');
+		$events = \App\SendgridEvent::select('*')->orderBy('id', 'desc')->get()->groupBy('sg_message_id');
        return view('emails.events', compact('events'));
 	}
 	
