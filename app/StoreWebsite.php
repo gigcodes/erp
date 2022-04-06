@@ -91,13 +91,17 @@ class StoreWebsite extends Model
         'is_price_override',
         'repository_id',
 		'semrush_project_id',
+        'send_in_blue_account',
+        'send_in_blue_api',
+        'send_in_blue_smtp_email_api',
         'logo_color',  
         'logo_border_color',  
         'text_color',   
         'border_color',   
         'border_thickness',
         'sale_old_products',
-        'website_address'
+        'website_address',
+		'twilio_greeting_message'
     ];
 
     const DB_CONNECTION = [
@@ -188,4 +192,18 @@ class StoreWebsite extends Model
     {
         return self::where("website_source","magento")->pluck("website", "id")->toArray();
     }
-}
+
+    function getSiteAssetData($id, $category_id, $mediatype)
+    {
+        $data = \App\StoreWebsiteImage::where(['category_id'=> $category_id, 'store_website_id' => $id, 'media_type'=> $mediatype])->first();
+        if(!empty($data)){
+            return true;
+        }
+        return false;
+    }
+
+    //return exchange status
+    public function returnExchangeStatus(){
+        return $this->hasMany('App\ReturnExchangeStatus','store_website_id','id');
+    }
+ }

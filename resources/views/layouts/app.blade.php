@@ -123,6 +123,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script type="text/javascript" src="https://media.twiliocdn.com/sdk/js/client/v1.14/twilio.min.js"></script>
+    <script src="https://sdk.twilio.com/js/taskrouter/v1.21/taskrouter.min.js"></script>
 
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.0.5/dist/js/tabulator.min.js"></script>
 
@@ -744,13 +745,17 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=unapproved">Customers - unapproved</a>
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=Refund+to+be+processed">Customers - refund</a>
                                             <a class="dropdown-item" href="{{ action('VisitorController@index') }}">Livechat Visitor Logs</a>
+                                            <a class="dropdown-item" href="{{ url('livechat/setting') }}">Livechat Setting</a>
                                             <a class="dropdown-item" href="{{ action('ProductController@attachedImageGrid') }}">Attach Images</a>
                                             <a class="dropdown-item" href="{{ action('ProductController@suggestedProducts') }}">Sent Images</a>
                                             <a class="dropdown-item" href="{{ route('chat.dndList') }}">DND Manage</a>
                                             <a class="dropdown-item" href="{{ url('customer/credit') }}">Customer Credit</a>
                                             <a class="dropdown-item" href="{{ url('chatbot-message-log') }}">Chatbot Message Log</a>
+                                            <a class="dropdown-item" href="{{ url('watson-journey') }}">Watson Journey</a>
                                             <a class="dropdown-item" href="{{ url('customers/accounts') }}">Store website customer</a>
                                             <a class="dropdown-item" href="{{ route('product.customer-reviews') }}" >Customer Reviews</a>
+                                            <a class="dropdown-item" href="{{ route('customer.priority.points') }}" >Customer Priority</a>
+                                            <a class="dropdown-item" href="{{ route('customer.get.priority.range.points') }}" >Customer Range Priority Point</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
@@ -759,7 +764,7 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item" href="{{ action('ColdLeadsController@showImportedColdLeads') }}">Imported Cold leads</a>
                                             </ul>
                                         </li>
-                                    </ul>
+                                    </ul>                                                                                                                                                                                                                                                                                     
                                 </li>
 
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -838,6 +843,7 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item" href="{{ route('order.status.messages') }}">Order Status Messages</a>
                                                 <a class="dropdown-item" href="{{ route('lead-order.index') }}">Lead order</a>
                                                 <a class="dropdown-item" href="{{ url('order/charity-order') }}">Charity order</a>
+                                                <a class="dropdown-item" href="{{ route('order.get.email.send.journey.logs') }}">Order email journey</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -927,11 +933,15 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
                                             <a class="dropdown-item" href="/marketing/services">Mailing Service</a>
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList.log') }}">Mailinglist Log</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList.flowlog') }}">Mailinglist Flow Log</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList.customerlog') }}">Customer Mailinglist Log</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
                                             <a class="dropdown-item" href="/mail-templates/mailables">Mailables</a>
                                             <a class="dropdown-item" href="{{ route('emailleads') }}">Email Leads</a>
                                             <a class="dropdown-item" href="{{ url('twillio')}}">Messages</a>
+                                            <a class="dropdown-item" href="{{ url('email-data-extraction')}}">Auto Email Records</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1349,6 +1359,7 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
                                         </li>
+
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1616,6 +1627,12 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ url('/store-website-product-prices') }}">Store website product price</a>
                                             </li>
+											 <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/site-assets') }}">Site assets</a>
+                                            </li>
+											 <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/site-check-list') }}">Site check  list</a>
+                                            </li>
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('list.daily-push-log') }}">Magento Daily Product Push Log</a>
                                             </li>
@@ -1643,13 +1660,22 @@ if (!empty($notifications)) {
 														<a href="{{ route('twilio.account_logs') }}">Twilio Account Logs</a>
 													</li>
 													<li class="nav-item dropdown">
+														<a href="{{ route('twilio.view_tone') }}">Twilio Message Tones</a>
+													</li>
+													<li class="nav-item dropdown">
 														<a class="dropdown-item" href="{{ url('twilio/getChats') }}">SMS</a>
 													</li>
 													<li class="nav-item dropdown">
 														<a class="dropdown-item" href="{{ route('twilio.erp_logs') }}">Twilio ERP Logs</a>
 													</li>
+													<li class="nav-item dropdown">
+														<a href="{{ route('twilio.call_journey') }}">Twilio call journey</a>
+													</li>
                                                     <li class="nav-item dropdown">
 														<a class="dropdown-item" href="{{ route('get.python.log') }}">Python Site Logs</a>
+													</li>
+                                                    <li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('twilio.get_website_wise_key_data_options') }}">Twilio Key Options</a>
 													</li>
 												</ul>
 											</li>
@@ -1708,6 +1734,9 @@ if (!empty($notifications)) {
                                                         <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{url('conversion/rates')}}">Currency Conversion Rate</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{url('magento-admin-settings')}}">Magento Admin Settings</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
@@ -1748,6 +1777,16 @@ if (!empty($notifications)) {
 
                                                         <li class="nav-item dropdown">
                                                             <a class="dropdown-item" href="{{route('twilio-speech-to-text-logs')}}">Twilio Speech to text Logs</a>
+                                                        </li>
+
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('chatbot.type.error.log')}}">Twilio Chat Bot Not Recognised</a>
+                                                        </li>
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('twilio.call.blocks')}}">Twilio Call Blocks</a>
+                                                        </li>
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('twilio.call.statistic')}}">Twilio Call Statistic</a>
                                                         </li>
                                                     </ul>
                                                 </li>
@@ -2450,9 +2489,9 @@ if (!empty($notifications)) {
                                 @php
                                 $chatIds = \App\CustomerLiveChat::with('customer')->orderBy('seen','asc')
                                 ->orderBy('status','desc')
-                                ->get();
+                                ->get(); 
                                 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
-                                @endphp
+                                @endphp 
                                 <ul class="contacts" id="customer-list-chat">
                                     @foreach ($chatIds as $chatId)
                                         @php

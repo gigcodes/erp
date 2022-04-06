@@ -1088,9 +1088,10 @@ class DevelopmentController extends Controller
         $issues = DeveloperTask::with('timeSpent')->where('is_flagged', '1');
         $task =  Task::with('timeSpent')->where('is_flagged', '1'); 
        
-       if ($type == 'issue') {
+        if ($type == 'issue') {
             $issues = $issues->where('developer_tasks.task_type_id', '3');
         }
+
         if ($type == 'devtask') {
             $issues = $issues->where('developer_tasks.task_type_id', '1');
         }
@@ -1110,6 +1111,19 @@ class DevelopmentController extends Controller
         if ((int) $request->get('assigned_to') > 0) {
             $issues = $issues->where('developer_tasks.assigned_to', $request->get('assigned_to'));
             $task = $task->where('tasks.assign_to', $request->get('assigned_to'));
+        }
+        if((int) $request->get('empty_estimated_time') > 0)
+        {
+            $issues = $issues->where('developer_tasks.estimate_time', NULL);
+            $issues = $issues->where('developer_tasks.estimate_date', NULL);
+            $task = $task->where('tasks.approximate',0);
+            $task = $task->where('tasks.due_date',NULL);
+        }
+        if((int) $request->get('time_is_overdue') > 0)
+        {
+            $issues = $issues->where('developer_tasks.estimate_date', '>', date('Y-m-d'))->where('developer_tasks.status','!=','Done');
+
+            $task = $task->where('tasks.due_date', '>', date('Y-m-d'))->where('tasks.status','!=',3);
         }
         if ($request->get('module')) {
             $issues = $issues->where('developer_tasks.module_id', $request->get('module'));

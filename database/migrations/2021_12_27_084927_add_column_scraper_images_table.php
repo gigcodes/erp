@@ -14,7 +14,7 @@ class AddColumnScraperImagesTable extends Migration
     public function up()
     {
         Schema::table('scraper_imags',function($table){
-            $table->string('url')->nullable();
+            $table->string('url')->index('url')->nullable();
             $table->date('scrap_date');
         });
     }
@@ -26,6 +26,9 @@ class AddColumnScraperImagesTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('scraper_imags',function(Blueprint $table) {
+            $table->dropField('url');
+            $table->dropField('scrap_date');
+        });
     }
 }

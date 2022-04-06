@@ -25,6 +25,9 @@ use Dompdf\Dompdf;
 use Qoraiche\MailEclipse\MailEclipse;
 use Twilio\Rest\Client;
 use Exception;
+use seo2websites\MagentoHelper\MagentoHelperv2;
+
+
 
 
 class ReturnExchangeController extends Controller
@@ -324,6 +327,15 @@ class ReturnExchangeController extends Controller
 
         $returnExchange = \App\ReturnExchange::find($id);
         $status =  ReturnExchangeStatus::find($request->status);
+
+        //Sending request to magento
+        $magentoHelper = new MagentoHelperv2;
+        $result = $magentoHelper->changeReturnOrderStatus($status,$returnExchange);
+        $response=$result->getData();
+                            
+        if(isset($response) && isset($response->status) && $response->status==false){
+            return response()->json($response->error,500);
+        }
 
         if (!empty($returnExchange)) {
             $returnExchange->fill($params);
@@ -942,15 +954,54 @@ class ReturnExchangeController extends Controller
     public function status(Request $request)
     {
         $status = ReturnExchangeStatus::query();
-
+        $websites = \App\StoreWebsite::all();
         if ($request->search != null) {
             $status = $status->where("status_name", "like", "%" . $request->search . "%");
         }
 
         $status = $status->get();
 
-        return view("return-exchange.status", compact('status'));
+        return view("return-exchange.status", compact('status','websites'));
     }
+
+    public function getStatusByWebsite(Request $request)
+    {
+        $website = \App\StoreWebsite::find($request->id);
+        $status = $website->returnExchangeStatus;
+        return view("return-exchange.partial.list-status", compact('status'));
+    }
+
+    public function fetchMagentoStatus(Request $request)
+    {
+        $website = \App\StoreWebsite::find($request->id);
+        $magentoHelper = new MagentoHelperv2;
+        $results = $magentoHelper->getReturnOrderStatus($website);
+        
+        if(!is_array($results)){
+            $response=$results->getData();
+                            
+            if(isset($response) && isset($response->status) && $response->status==false){
+                return response()->json($response->error,500);
+            }   
+        }
+        
+
+        foreach($results as $result){
+            $checkIfExist = app(ReturnExchangeStatus::class)->where('status_name',$result->status)->where('store_website_id',$website->id)->first();
+            if(!$checkIfExist){
+                $newStatus = new ReturnExchangeStatus;
+                $newStatus->status_name = $result->status;
+                $newStatus->store_website_id = $website->id;
+                $newStatus->save();
+            }
+        }
+        $website->refresh();
+        $status = $website->returnExchangeStatus;
+        return view("return-exchange.partial.list-status", compact('status'));
+    //}
+
+    }
+
 
     public function saveStatusField(Request $request)
     {
@@ -977,6 +1028,29 @@ class ReturnExchangeController extends Controller
             }
         }
 
+        return response()->json(["code" => 500, "data" => [], "message" => "No data found"]);
+    }
+
+    public function statusWebsiteSave(Request $request)
+    {
+        $website = \App\StoreWebsite::find($request->id);
+        $magentoHelper = new MagentoHelperv2;
+        $result= $magentoHelper->addReturnOrderStatus($website,$request->status);
+        $response=$result->getData();
+        if(isset($response) && isset($response->status) && $response->status==false){
+            return response()->json($response->error,500);
+        }
+        if($result){
+                $newStatus = new ReturnExchangeStatus;
+                $newStatus->status_name = $request->status;
+                $newStatus->store_website_id = $website->id;
+                $newStatus->save();
+                $website->refresh();
+                $status = $website->returnExchangeStatus;
+                return view("return-exchange.partial.list-status", compact('status'));
+            
+            //return response()->json(["code" => 200, "data" => $status, "message" => "Added successfully"]);
+        }
         return response()->json(["code" => 500, "data" => [], "message" => "No data found"]);
     }
 

@@ -15,6 +15,7 @@ class AlterChatMessageAddFiledTable extends Migration
     {
         Schema::table('chat_messages', function (Blueprint $table) {
             $table->integer('send_to_tickets')->nullable()->after("ticket_id");
+            
         });
     }
 

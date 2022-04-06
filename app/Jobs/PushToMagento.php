@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 use App\Helpers\StatusHelper;
 use App\Helpers\ProductHelper;
 use App\PushToMagentoCondition;
+use App\ProductPushJourney;
 
 class PushToMagento implements ShouldQueue
 {
@@ -59,8 +60,9 @@ class PushToMagento implements ShouldQueue
 		$categorym = $product->categories;  
 		$topParent = ProductHelper::getTopParent($categorym->id);
 
-		$charity = 0;
-		if(($topParent == "NEW" && in_array('charity_condition', $conditions)) || ($topParent == "PREOWNED" &&  in_array('status_condition',$upteamconditions))){
+		$charity = 0; $isCharityChecked = 0;
+		if(($topParent == "NEW" && in_array('charity_condition', $conditions)) || ($topParent == "PREOWNED" &&  in_array('charity_condition',$upteamconditions))){
+			$isCharityChecked = 1;
 			$p = \App\CustomerCharity::where('product_id', $product->id)->first();
 			if ($p) {
 				$charity = 1;
@@ -78,8 +80,13 @@ class PushToMagento implements ShouldQueue
 						$this->log->queue_id = $this->job->getJobId();
 						$this->log->job_start_time = $date_time;
 						$this->log->save();
-					}
+					} 
+					ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'product_id'=>$product->id, 'condition'=>'entered_in_product_push', 'is_checked'=>1]);
 					
+					if($isCharityChecked ==1) {
+					    ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'product_id'=>$product->id, 'condition'=>'charity_condition', 'is_checked'=>1]);
+					}
+					ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'product_id'=>$product->id, 'condition'=>'status_condition', 'is_checked'=>1]);
 					if ($website->sale_old_products == 0 and strtoupper($topParent) == "PREOWNED") {
 						ProductPushErrorLog::log('', $product->id, 'Website do not sale preowned products.', 'error', $website->id, null, null, $this->log->id);
 						$this->log->message = "Website do not sale preowned products";
@@ -91,6 +98,7 @@ class PushToMagento implements ShouldQueue
 					if((in_array('website_source', $conditions) && $topParent == "NEW") || ($topParent == "PREOWNED" && in_array('website_source',$upteamconditions))){
 						if (!$website->website_source || $website->website_source == '') {
 							ProductPushErrorLog::log('', $product->id, 'Website Source not found', 'error', $website->id, null, null, $this->log->id, $conditionsWithIds['website_source']);
+							ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'product_id'=>$product->id, 'condition'=>'website_source', 'is_checked'=>1]);
 							$this->log->message = "Website source not found";
 							$this->log->sync_status = "error";
 							$this->log->job_end_time = date("Y-m-d H:i:s");
@@ -102,6 +110,7 @@ class PushToMagento implements ShouldQueue
 					if(($topParent == "NEW" && in_array('disable_push', $conditions)) || ($topParent == "PREOWNED" && in_array('disable_push',$upteamconditions)) ){
 						if ($website->disable_push == 1) {
 							ProductPushErrorLog::log('', $product->id, 'Website is disable for push product', 'error', $website->id, null, null, $this->log->id, $conditionsWithIds['disable_push']);
+							ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'product_id'=>$product->id, 'condition'=>'disable_push', 'is_checked'=>1]);
 							$this->log->message = "Website is disable for push product";
 							$this->log->sync_status = "error";
 							$this->log->job_end_time = date("Y-m-d H:i:s");
@@ -116,6 +125,7 @@ class PushToMagento implements ShouldQueue
 					if ($categorym && !$product->isCharity()) {
 						$categoryparent = $categorym->parent;
 						if(($topParent == "NEW" && in_array('check_if_size_chart_exists', $conditions)) || ($topParent == "PREOWNED" && in_array('check_if_size_chart_exists',$upteamconditions))){
+							ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'product_id'=>$product->id, 'condition'=>'check_if_size_chart_exists', 'is_checked'=>1]);
 							if ($categoryparent && $categoryparent->size_chart_needed == 1 && empty($categoryparent->getSizeChart($website->id))) {
 								ProductPushErrorLog::log('', $product->id, 'Size chart is needed for push product', 'error', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_size_chart_exists']);
 								$this->log->message = "Size chart is needed for push product";
@@ -139,6 +149,7 @@ class PushToMagento implements ShouldQueue
 
 					// check the product has images or not and then if no image for push then assign error it
 					if(($topParent == "NEW" && in_array('check_if_images_exists', $conditions)) && ($topParent == "PREOWNED" && in_array('check_if_images_exists',$upteamconditions))){
+						ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'product_id'=>$product->id, 'condition'=>'check_if_images_exists', 'is_checked'=>1]);
 						$images = $product->getImages("gallery_" . $website->cropper_color);
 						if (empty($images) && $charity == 0) {
 							ProductPushErrorLog::log('', $product->id, 'Image(s) is needed for push product', 'error', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_images_exists']);

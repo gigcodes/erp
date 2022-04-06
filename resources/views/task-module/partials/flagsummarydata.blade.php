@@ -18,7 +18,23 @@
     {{ $issue->id }}
     </td>
    <td class="Website-task" style="vertical-align: baseline;">    
-       {{ $issue->task_subject }}
+       
+       <a data-toggle="modal" data-target="#task_subject{{ $issue->id }}" class="btn pd-5 task-set-reminder" style="overflow: hidden;display: inline-block;text-overflow: ellipsis;white-space: nowrap;width: 100%;">
+                       {{ $issue->task_subject }}
+                    </a>
+                    <div id="task_subject{{ $issue->id }}" class="modal fade custom-modle-sm" role="dialog">
+                        <div class="modal-dialog" style=" display: flex;justify-content: center;align-items: center; height: 100%;flex-wrap: wrap;">
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                     {{ $issue->task_subject }}
+                                </div>
+                                <div class="modal-footer" style="padding-top: 8px; padding-bottom: 8px;">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
     </td>
    <td>
         <div class="d-flex">
@@ -40,41 +56,44 @@
         <td  style="vertical-align: baseline;">
    {{ $issue->approximate }}
 
-   <button type="button" class="btn btn-xs show-time-history-task" title="Show History" data-id="{{$issue->id}}" data-user_id="{{$issue->assign_to}}" style="background: none;"><i class="fa fa-info-circle"></i></button>
+   <button type="button" style="float:right;" class="btn btn-xs show-time-history-task" title="Show History" data-id="{{$issue->id}}" data-user_id="{{$issue->assign_to}}" style="background: none;"><i class="fa fa-info-circle"></i></button>
     </td>
 
      <td  style="vertical-align: baseline;">
         <div class="d-flex">
         {{ $issue->due_date }}
-        <span> 2021-12-07 00:00:00</span>
-        <button type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="task" style="margin-top: -2px; background: none;"><i class="fa fa-info-circle"></i></button>
+        {{-- <span> 2021-12-07 00:00:00</span> --}}
+        <button type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="task" style="float:right;margin-left: auto;"><i class="fa fa-info-circle"></i></button>
        </div>
     </td>
 
-   <td class="communication-td devtask-com"style="border-bottom: none;">
+   <td class="communication-td devtask-com d-flex" style="border-bottom: none; display: block;">
     <!-- class="expand-row" -->
   
-   
-    <input type="text" class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px;width:52%;display:inline;"/>
+   <div class="d-flex">
+          <input type="text" class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px;width:calc(100% - 24px);display:inline;"/>
    
     <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$issue->id}}" style="width:10%"><img src="/images/filled-sent.png"/></button>
-    <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $issue->id }}" style="mmargin-top: -0%;margin-left: -2%; width:10%" title="Load messages"><img src="/images/chat.png" alt=""></button>
-    <span class="Website-task pr-0 {{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? '' : '' }} justify-content-between expand-row-msg" style="word-break: break-all;margin-top:6px; width:40%; margin-right:-13px;" data-id="{{$issue->id}}">
-    <span class="td-mini-container-{{$issue->id}} Website-task" style="margin:0px;">
-                    {{  \Illuminate\Support\Str::limit($issue->message, 25, $end='...') }}
-    </span>
-</span>
-  <div class="expand-row-msg" data-id="{{$issue->id}}">
-    <span class="td-full-container-{{$issue->id}} hidden">
-        {{ $issue->message }}
-        <br>
-        <div class="td-full-container">
-            <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }})">Send Attachment</button>
-            <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$issue->id}})">Send Images</button>
-            <input id="file-input{{ $issue->id }}" type="file" name="files" style="display: none;" multiple/>
-         </div> 
-    </span>
-</div>
+    </div>
+    <div class="d-flex">
+          <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $issue->id }}" style="mmargin-top: -0%;margin-left: -2%; width:10%" title="Load messages"><img src="/images/chat.png" alt=""></button>
+          <span class="Website-task pr-0 {{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? '' : '' }} justify-content-between expand-row-msg" style="word-break: break-all;margin-top:6px; width:100%; margin-right:-13px;" data-id="{{$issue->id}}">
+          <span class="td-mini-container-{{$issue->id}} Website-task" style="margin:0px;">
+                {{  \Illuminate\Support\Str::limit($issue->message, 25, $end='...') }}
+        </span>
+              </span>
+    </div>
+    <div class="expand-row-msg" data-id="{{$issue->id}}">
+        <span class="td-full-container-{{$issue->id}} hidden">
+            {{ $issue->message }}
+            <br>
+            <div class="td-full-container">
+                <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }})">Send Attachment</button>
+                <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$issue->id}})">Send Images</button>
+                <input id="file-input{{ $issue->id }}" type="file" name="files" style="display: none;" multiple/>
+             </div> 
+        </span>
+    </div>
     </td> 
 
     <td>

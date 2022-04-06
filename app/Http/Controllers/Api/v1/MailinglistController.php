@@ -109,7 +109,7 @@ class MailinglistController extends Controller
 
         // Step5
         foreach ($mailinglist as $key => $m) {
-            $this->addToList($m->remote_id, $request->get("email"));
+            $this->addToList($m->remote_id, $request->get("email"),$store_website->send_in_blue_api);
         }
 
         $customer->newsletter = 1;
@@ -126,9 +126,9 @@ class MailinglistController extends Controller
      * @param $email
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function addToList($id, $email)  {
+    public function addToList($id, $email,$send_in_blue_api)  {
         
-
+        $api_key=($send_in_blue_api !="")?$send_in_blue_api: config('env.SEND_IN_BLUE_API');
         $curl = curl_init();
         $data = [
             "email" => $email,
@@ -147,7 +147,7 @@ class MailinglistController extends Controller
             CURLOPT_POSTFIELDS => json_encode($data),
             CURLOPT_HTTPHEADER => array(
                 // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                "api-key: ".config('env.SEND_IN_BLUE_API'),
+                "api-key: ".$api_key,
                 "Content-Type: application/json"
             ),
         ));
@@ -169,7 +169,7 @@ class MailinglistController extends Controller
                     CURLOPT_CUSTOMREQUEST => "DELETE",
                     CURLOPT_HTTPHEADER => array(
                         // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                        "api-key: ".config('env.SEND_IN_BLUE_API'),
+                        "api-key: ".$api_key,
                         "Content-Type: application/json"
                     ),
                 ));
@@ -190,7 +190,7 @@ class MailinglistController extends Controller
                     CURLOPT_POSTFIELDS => json_encode($data),
                     CURLOPT_HTTPHEADER => array(
                         // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                        "api-key: ".config('env.SEND_IN_BLUE_API'),
+                        "api-key: ".$api_key,
                         "Content-Type: application/json"
                     ),
                 ));

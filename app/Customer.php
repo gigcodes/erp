@@ -52,7 +52,8 @@ class Customer extends Model
         'store_name',
         'language',
         'newsletter',
-        'platform_id'
+        'platform_id',
+        'priority'
     ];
 
     protected $casts = [
@@ -338,5 +339,9 @@ class Customer extends Model
     public function wishListBasket()
     {
         return $this->hasOne(\App\CustomerBasket::class, 'customer_id', 'id');
+    }
+    public function maillistCustomerHistory()
+    {
+       return  $this->hasOne(\App\MaillistCustomerHistory::class,'customer_id','id');
     }
 }

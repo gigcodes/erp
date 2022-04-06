@@ -102,4 +102,29 @@ class GoogleTranslate
             }
         }
     }
+	
+	public function detectLanguage($text) {
+		try {
+            $file = googleTraslationSettings::select('id','account_json')
+            ->where('status','1')
+            ->orderBy('id')
+            ->first();
+
+            if (!empty($file)) {
+                $jsonArray = (array)json_decode($file->account_json);
+                $lastFileId = $file->id;
+                $keyFileArray = [
+                    'keyFile' => $jsonArray
+                ];
+
+                $translate = new TranslateClient($keyFileArray);           
+                $result = $translate->detectLanguage($text);
+                return $result;
+            }
+        } catch (\Google\Cloud\Core\Exception\ServiceException $e) {
+           \Log::error($e); 
+		    $message = json_decode($e->getMessage()); dd($message->error);
+            return $message->error;
+        }
+	}
 }

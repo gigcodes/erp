@@ -36,10 +36,10 @@ class GoogleWebMasterController extends Controller{
 
         $logs=Activity::where('log_name','v3_sites')->orWhere('log_name','v3_search_analytics')->latest()->paginate(Setting::get('pagination'),['*'],'logs_per_page');
         $webmaster_logs = WebmasterLog::paginate(Setting::get('pagination'),['*'],'webmaster_logs_per_page');
-
+        $site_submit_history = WebsiteStoreViewsWebmasterHistory::paginate(Setting::get('pagination'),['*'],'history_per_page');
      
 
-        $SearchAnalytics=new GoogleSearchAnalytics;
+        $SearchAnalytics = new GoogleSearchAnalytics;
 
         $devices=$SearchAnalytics->select('device')->where('device','!=',null)->groupBy('device')->orderBy('device','asc')->get();
 
@@ -88,7 +88,7 @@ class GoogleWebMasterController extends Controller{
 
        // echo '<pre>';print_r($sitesData->toArray());die;
 
-        return view('google-web-master/index', compact('getSites','sitesData','sites','request','devices','countries','logs', 'webmaster_logs'));
+        return view('google-web-master/index', compact('getSites','sitesData','sites','request','devices','countries','logs', 'webmaster_logs', 'site_submit_history'));
     }
 
 
@@ -356,6 +356,94 @@ class GoogleWebMasterController extends Controller{
         return response()->json( ["code" => 200 , "data" => $history] );
     }
 
+      /**
+     * Submit site to webmaster.
+     * 
+     * @return Response
+     */ 
+    
+    public function SubmitSiteToWebmaster( Request $request ){
+
+        $fetchStores = WebsiteStoreView::whereNotNull('website_store_id')
+        ->whereNotIn('site_submit_webmaster',[1])
+        ->join("website_stores as ws", "ws.id", "website_store_views.website_store_id")
+        ->join("websites as w", "w.id", "ws.website_id")
+        ->join("store_websites as sw", "sw.id", "w.store_website_id")
+        ->select("website_store_views.code","website_store_views.id", "sw.website")
+        ->get()->toArray();
+        $google_acc = GoogleClientAccountMail::latest()->first();
+        $token = $google_acc->GOOGLE_CLIENT_ACCESS_TOKEN;
+foreach ($fetchStores as $key => $value) {
+
+    $websiter = urlencode(utf8_encode($value['website'].'/'.$value['code']));
+    $url_for_sites = 'https://searchconsole.googleapis.com/webmasters/v3/sites/'.$websiter;
+    //$token = \config('google.GOOGLE_CLIENT_ACCESS_TOKEN');
+
+    $curl = curl_init();
+    //replace website name with code coming form site list
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => $url_for_sites,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "PUT",
+        CURLOPT_HTTPHEADER => array( 
+            'Accept: application/json',
+            'Content-length: 0', 
+            "authorization: Bearer ".$token
+        ),
+    ));
+    $response = curl_exec($curl);
+    $response = json_decode($response);
+
+    if (curl_errno($curl)) {
+        $error_msg = curl_error($curl);
+        \Log::info('Request URL::'.$url_for_sites);
+        \Log::info('Request Token::'.$token);
+        \Log::error('Error Msg::'.$error_msg);
+    }
+
+    curl_close($curl);
+
+    if( !empty($response) ){
+        $history = [
+            'website_store_views_id' => $value['id'],
+            'log' => isset( $response->error->message ) ? $value['website'].'/'.$value['code'].' - '.$response->error->message : $value['website'].'/'.$value['code'].' - '.'Error'
+        ];
+    
+        WebsiteStoreViewsWebmasterHistory::insert( $history );
+
+        \Log::info('Request URL::'.$url_for_sites);
+        \Log::info('Request Token::'.$token);
+        \Log::error('Error Msg::'.$response->error->message);
+        \App\WebmasterLog::create([
+            'user_name' => Auth::user()->name,
+            'name'      => 'Submit Site',
+            'status'    => 'Error',
+            'message'   => $value['website'].'/'.$value['code'].' - '.$response->error->message
+            ]);
+
+    }else{
+
+        \App\WebmasterLog::create([
+            'user_name' => Auth::user()->name,
+            'name'      => 'Submit Site',
+            'status'    => 'Success',
+            'message'   => 'Site submit successfully Website is '.$value['website'].'/'.$value['code']
+            ]);
+
+        
+        WebsiteStoreView::where('id', $value['id'])->update( [ 'site_submit_webmaster' => 1 ] );
+    }
+}
+
+    return redirect()->route('googlewebmaster.index')->with('success', 'Sites submit successfully');          
+
+        
+    }
+
     /**
      * Re-submit site to webmaster.
      * 
@@ -376,7 +464,8 @@ class GoogleWebMasterController extends Controller{
                 $websiter = urlencode(utf8_encode($fetchStores->website.'/'.$fetchStores->code));
                 $url_for_sites = 'https://searchconsole.googleapis.com/webmasters/v3/sites/'.$websiter;
 
-                 $token = \config('google.GOOGLE_CLIENT_ACCESS_TOKEN'); 
+                    $google_acc = GoogleClientAccountMail::latest()->first();
+                    $token = $google_acc->GOOGLE_CLIENT_ACCESS_TOKEN;
 
                 if ($token) {
                 $curl = curl_init();
