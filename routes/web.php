@@ -3440,6 +3440,8 @@ Route::prefix('referralprograms')->middleware('auth')->group(function () {
     Route::get('/{id?}/edit', 'ReferralProgramController@edit')->name('referralprograms.edit');
     Route::post('/store', 'ReferralProgramController@store')->name('referralprograms.store');
     Route::post('/update', 'ReferralProgramController@update')->name('referralprograms.update');
+    // pawan added for ajax call
+    Route::get('referralprograms-ajax', 'ReferralProgramController@ajax')->name('referralprograms.ajax');
 
 });
 
