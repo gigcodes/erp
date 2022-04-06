@@ -29,12 +29,12 @@
                     </select>
                   </div>
 
-                  <div class="form-group ml-4">
+                  <div class="form-group ml-4" style="width: 260px;">
                     <select class="form-control select2" name="store_website_id">
                       <option value="">Select a store</option>
 
                       @foreach ($store_website as $id => $website)
-                        <option value="{{ $website->id }}" {{ $website->id == $store ? 'selected' : '' }}> ({{$website->website_source}})</option>
+                        <option value="{{ $website->id }}" {{ $website->id == $store ? 'selected' : '' }}> ({{$website->website}})</option>
                       @endforeach
                     </select>
                   </div>
@@ -64,15 +64,17 @@
         </thead>
 
         <tbody>
+          <?php $i = 0; ?>
 			  @foreach ($store_order_statuses as $key => $status)
             <tr>
             <td>{{$status->order_status->status}}</td>
-            <td></td>
+            <td>{{$status->store_website->website}}</td>
             <td>{{($status->store_master_status) ? $status->store_master_status->label : "N/A"}}</td>
             <td>
               <a class="btn btn-image edit-btn" data-id="{{ $status->id }}"><img src="/images/edit.png" /></a>
             </td>
             </tr>
+            <?php $i++;?>
           @endforeach
         </tbody>
       </table>
