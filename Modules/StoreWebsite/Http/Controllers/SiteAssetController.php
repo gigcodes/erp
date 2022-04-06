@@ -45,6 +45,7 @@ class SiteAssetController extends Controller
     public function siteCheckList(Request $request)
     {
         $data = array();
+        $data['allStatus'] = \App\SiteDevelopmentStatus::pluck("name", "id")->toArray();
         $data['all_store_websites'] = StoreWebsite::all();
         $data['categories'] = SiteDevelopmentCategory::all();
         $data['search_website'] = isset($request->store_webs)? $request->store_webs : '';
@@ -54,11 +55,22 @@ class SiteAssetController extends Controller
             $store_websites =  $store_websites->where('store_websites.id', $data['search_website']);
         }
         $data['store_websites'] =  $store_websites->where('is_site_list', 1)->groupBy('store_websites.id')->get();
-        $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*')->join('site_developments','site_development_categories.id','=','site_developments.site_development_category_id')->where('is_site_list', 1);
+        
+        $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
+        
+        $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_dev.website_id', 'site_dev.site_development_id')
+            ->join('site_developments','site_development_categories.id','=','site_developments.site_development_category_id')
+            ->joinSub($site_dev, 'site_dev', function ($join)
+            {
+                $join->on('site_development_categories.id', '=', 'site_dev.site_development_category_id');
+            })
+            ->where('is_site_list', 1);
         if($data['search_category'] != ''){
             $site_development_categories =  $site_development_categories->where('site_development_categories.id',  $data['search_category']);
         }
-        $data['site_development_categories'] = $site_development_categories->groupBy('site_development_categories.id')->get();
+      
+        $data['site_development_categories'] = $site_development_categories->leftJoin('store_development_remarks', 'store_development_remarks.store_development_id', '=', 'site_developments.id')->groupBy('site_development_categories.id')->get();
+        // dd($data);
         $data['allUsers'] = User::select('id', 'name')->get();
         return view('storewebsite::site-check-list.index', $data);
     }
