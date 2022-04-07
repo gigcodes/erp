@@ -634,7 +634,9 @@ input.cmn-toggle-round + label {
                             @if(count($data['task']['pending']) >0)
                             @foreach($data['task']['pending'] as $task)
 
-                            @php $task->due_date='';
+                            @php
+                                $taskDueDate =  $task->due_date;
+                                $task->due_date='';
                                  //$task->lead_hubstaff_task_id=0;
                                  //$task->status=1;
                                 @endphp
@@ -813,7 +815,7 @@ input.cmn-toggle-round + label {
                                                 <div class="form-group" style="padding-top:5px;">
                                                     <div class='input-group date due-datetime'>
 
-                                                        <input type="text" class="form-control input-sm due_date_cls" name="due_date" value="{{$task->due_date}}"/>
+                                                        <input type="text" class="form-control input-sm due_date_cls" name="due_date" value="{{$taskDueDate}}"/>
 
                                                         <span class="input-group-addon">
                                                             <span class="glyphicon glyphicon-calendar"></span>
@@ -2225,7 +2227,8 @@ input.cmn-toggle-round + label {
                         },
                         "data": {
                             task_id : task_id,
-                            date : date
+                            date : date,
+                            type : "TASK"
                         }
                     }).done(function (response) {
                         toastr['success']('Successfully updated');
