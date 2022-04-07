@@ -69,6 +69,7 @@ use Response; //Purpose : Add Modal - DEVTASK-4236
 use Tickets;
 use Validator;
 use App\LogChatMessage;
+use App\WatsonChatJourney;
 use \App\Helpers\TranslationHelper;
 
 class WhatsAppController extends FindByNumberController
