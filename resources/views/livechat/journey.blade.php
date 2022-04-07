@@ -20,7 +20,6 @@
 							<tr>
 								<th>#</th>
 								<th>Chat id</th>
-								<th>Chat message id</th>
 								<th>Chat entered</th>
 								<th>Message received</th>
 								<th>Reply found in database</th>
@@ -34,7 +33,6 @@
 								<tr>
 									<td>{{ $key+1 }}</td>
 									<td>{{$log->chat_id}}</td> 
-									<td>{{$log->chat_message_id}}</td> 
 									<td>@if($log->chat_entered == 1) Yes @else No @endif</td>
 									<td>{{$log->message_received}}</td>
 									<td>@if($log->reply_found_in_database == 1) Yes @else No @endif</td>
