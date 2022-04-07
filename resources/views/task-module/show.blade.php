@@ -2233,7 +2233,7 @@ input.cmn-toggle-round + label {
                     }).done(function (response) {
                         toastr['success']('Successfully updated');
                     }).fail(function (errObj) {
-                    
+                        toastr['error'](errObj.message);
                     });
             } else {
                 alert('Please enter a date first');
