@@ -1021,20 +1021,34 @@ class DevelopmentController extends Controller
         $devCheckboxs = $request->get("devCheckboxs");
         $dev = [];
         
-        $whereTaskCondition = "";
-        if ($request->get('subject') != '') {
-            $whereTaskCondition = ' and message like  "%' . $request->get('subject') . '%"';
+        if (isset($request->term) && !empty($request->term)) {
+
             $task = $task->where(function ($query) use ($request) {
-                $subject = $request->get('subject');
-                $query->where('tasks.id', 'LIKE', "%$subject%")->orWhere('task_subject', 'LIKE', "%$subject%")->orWhere("task_details", "LIKE", "%$subject%")
-                    ->orwhere("chat_messages.message", 'LIKE', "%$subject%");
+                $term = $request->get('term');
+                $query->where('tasks.id', 'LIKE', "%$term%")
+                ->orWhere('store_websites.website', 'LIKE', "%$term%")
+                ->orWhere('tasks.parent_task_id', 'LIKE', "%$term%")
+                ->orWhere('tasks.task_subject', 'LIKE', "%$term%")
+                ->orWhere("tasks.task_details", "LIKE", "%$term%")
+                ->orwhere("chat_messages.message", 'LIKE', "%$term%");
             });
         }
+        
+
+        if (isset($request->assigned_to) && !empty($request->assigned_to)) {
+            $task = $task->whereIn('tasks.assign_to', $request->assigned_to);
+        }
+
+        if (isset($request->task_status) && !empty($request->task_status)) {
+            $task = $task->where('tasks.status', $request->task_status);
+        }
     
-        $task = $task->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, task_id, message  FROM `chat_messages` where task_id > 0 ' . $whereTaskCondition . ' GROUP BY task_id ) m_max'), 'm_max.task_id', '=', 'tasks.id');
+        $task = $task->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, task_id, message  FROM `chat_messages` where task_id > 0 GROUP BY task_id ) m_max'), 'm_max.task_id', '=', 'tasks.id');
         $task = $task->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
         $task = $task->select("tasks.*", "chat_messages.message", "store_websites.website", "store_websites.title as website_title");
         
+        // dd($task->get());
+
         if($devCheckboxs){
             $count = 1;
             foreach($request->get("devCheckboxs") as $devCheckbox){
@@ -1055,8 +1069,20 @@ class DevelopmentController extends Controller
                 });
             }
         }
-        $task_statuses=TaskStatus::all();
+        
         $tasks = $task->paginate(Setting::get('pagination'));//dd($statusList);
+        $task_statuses=TaskStatus::all();
+
+        if ($request->ajax()) {
+         
+            return response()->json([
+                'tbody' => view('task-module.partials.flagsummarydata', compact('users', 'request', 'title', 'task_statuses', 'tasks', 'dev'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string)$tasks->render(),
+                'count' => $tasks->total(),
+            ], 200); 
+        }
+        
+        
        return view('task-module.automatictask', [
             'users' => $users,
             'request' => $request,

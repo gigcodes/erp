@@ -203,18 +203,37 @@
     </div>
     <div class="row">
         <div class="col-md-12 p-0">
-            <h2 class="page-heading">Quick Dev Taskvfghyjukukuk</h2>
+            <h2 class="page-heading">{{ $title }}</h2>
         </div>
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
+
+
             <?php $base_url = URL::to('/'); ?>
             <div class=" cls_filter_box" style="margin-left: -13px;">
-                <form class="form-inline form-search-data" action="{{ route('development.automatic.tasks_post') }}"
-                    method="POST">
-                    @csrf
-                    @if (auth()->user()->isReviwerLikeAdmin())
-                        <div class="form-group ml-3">
+                {{-- <form class="form-inline form-search-data" action="{{ route('development.automatic.tasks_post') }}" method="POST"> --}}
+                @csrf
+                @if (auth()->user()->isReviwerLikeAdmin())
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <input name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}"
+                                placeholder="search" id="term">
+                        </div>
+
+                        <div class="col-md-3">
+                            <select id="task_status" class="form-control select2" name="task_status" id="task_status">
+                                <option value="">Select Task Status</option>
+                                @if (!empty($task_statuses))
+                                    @foreach ($task_statuses as $index => $status)
+                                        <option value="{{ $status->id }}">{{ $status->name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
                             <div class="multiselect">
                                 <div class="selectBox" onclick="showSelectCheckboxes()">
                                     <select class="form-control" name="assigned_to" id="assigned_to"
@@ -226,47 +245,58 @@
                                 <div id="checkboxes" class="checkbox1">
                                     <label for="select_all">
                                         <input type="checkbox" id="select_all"
-                                            @if (count($dev) == 0) checked @endif />Select All</label>
+                                            {{ count($dev) == 0 ? 'checked' : '' }} />Select All</label>
                                     @foreach ($users as $k => $_dev)
                                         <label for="{{ $k }}">
                                             @if (count($dev) > 0)
                                                 <input type="checkbox" value="{{ $k }}" id="{{ $k }}"
                                                     class="devCheckbox" name="devCheckboxs[]"
-                                                    @if (array_key_exists($k, $dev)) checked @endif />{{ $_dev }}
+                                                    {{ array_key_exists($k, $dev) ? 'checked' : '' }} />{{ $_dev }}
+                                            @else
+                                                <input type="checkbox" value="{{ $k }}"
+                                                    id="{{ $k }}" class="devCheckbox" name="devCheckboxs[]"
+                                                    checked />{{ $_dev }}
+                                            @endif
                                         </label>
-                                    @else
-                                        <input type="checkbox" value="{{ $k }}" id="{{ $k }}"
-                                            class="devCheckbox" name="devCheckboxs[]"
-                                            checked />{{ $_dev }}</label>
-                                    @endif
-                    @endforeach
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-image" onclick="submitSearch()"><img
+                                    src="/images/filter.png" /></button>
+
+                            <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img
+                                    src="/images/resend2.png" /></button>
+
+                            <a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder">
+                                <i class="fa fa-bell  red-notification " aria-hidden="true"></i>
+                            </a>
+                            <a class="btn btn-secondary assignTask" style="color:white;">Assign Task</a>
+                        </div>
+                    </div>
+
+                @endif
+
+
+                {{-- </form> --}}
+
             </div>
         </div>
-    </div>
-    @endif
-    <button type="submit" style="padding: 5px;margin-top:-1px;margin-left: 10px;" class="btn btn-image" id="show"><img
-            src="<?php echo $base_url; ?>/images/filter.png" /></button>
-    <a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder">
-        <i class="fa fa-bell  red-notification " aria-hidden="true"></i>
-    </a>
-    <a class="btn btn-secondary assignTask" style="color:white;">Assign Task</a>
-
-    </form>
-
-    </div>
-    </div>
 
     </div>
 
     @include('partials.flash_messages')
     <div class="infinite-scroll">
         <div class="table-responsive mt-3">
-            <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;">
+            <table id="filter_table" class="table table-bordered table-striped"
+                style="table-layout:fixed;margin-bottom:0px;">
                 <thead>
                     <tr>
-                        <th width="5%"><input type="checkbox" onchange="checkAll(this)" name="chk[]"></th>
+                        <th width="3%"><input type="checkbox" onchange="checkAll(this)" name="chk[]"></th>
                         <th width="4%">ID</th>
-                        <th width="5%">Website</th>
+                        <th width="10%">Website</th>
                         <th width="5%">Parent Task</th>
                         <th width="9%">Subject</th>
                         <th width="12%">Assigned To</th>
@@ -280,10 +310,9 @@
                     </tr>
                 </thead>
 
-                <tbody id="vendor-body">
-                    @foreach ($tasks as $key => $issue)
-                        @include('task-module.partials.flagsummarydata')
-                    @endforeach
+                <tbody class="infinite-scroll-pending-inner">
+
+                    @include('task-module.partials.flagsummarydata')
                 </tbody>
             </table>
         </div>
@@ -425,6 +454,77 @@
                 }
             });
         });
+
+        function submitSearch() {
+            var src = "{{ route('development.automatic.tasks') }}"
+            var term = $('#term').val()
+            var task_status = $('#task_status').val()
+            var assigned_to = $('input[type=checkbox]:checked').map(function(_, el) {
+                return $(el).val();
+            }).get();
+
+
+            // assigned_to = $('#assigned_to').val()
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    term: term,
+                    assigned_to: assigned_to,
+                    task_status: task_status,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+
+            }).done(function(data) {
+                $("#loading-image").hide();
+                $("#filter_table tbody").empty().html(data.tbody);
+                $("#filter_table_count").text(data.count);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+
+            }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+
+        }
+
+
+        function resetSearch() {
+            src = "{{ route('development.automatic.tasks') }}"
+            blank = ''
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+
+                    blank: blank,
+
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+
+            }).done(function(data) {
+                $("#loading-image").hide();
+                $('#term').val('')
+                $('#task_status').val('')
+                $("#filter_table tbody").empty().html(data.tbody);
+                $("#filter_table_count").text(data.count);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+
+            }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        }
 
 
         var isLoading = false;
@@ -955,12 +1055,14 @@
                 alert('Could not load email');
             });
         });
+
         $(document).on("keyup", '.search_email_pop', function() {
             var value = $(this).val().toLowerCase();
             $(".speech-wrapper .bubble").filter(function() {
                 $(this).toggle($(this).find('.message').text().toLowerCase().indexOf(value) > -1)
             });
         });
+
         $(document).on('click', '.send-message', function() {
             var thiss = $(this);
             var data = new FormData();
@@ -1000,6 +1102,7 @@
                 alert('Please enter a message first');
             }
         });
+
         $(document).on('click', '.send-message1', function() {
             var thiss = $(this);
             var data = new FormData();
@@ -1039,6 +1142,7 @@
                 alert('Please enter a message first');
             }
         });
+
         $(document).on('change', '.update-category-user', function() {
             let catId = $(this).attr('data-categoryId');
             let userId = $(this).val();
@@ -1070,7 +1174,7 @@
             <div class="col-md-2">
                 <button type="button" class="btn btn-image cc-delete-button"><img src="/images/delete.png"></button>
             </div>
-        </div>`;
+            </div>`;
 
             $('#cc-list').append(el);
         });
@@ -1694,12 +1798,31 @@
                             }
                             $('#status_quick_history_modal table tbody').append(
                                 '<tr>\
-                                                                <td>' + moment(item['created_at']).format('DD/MM/YYYY') + '</td>\
-                                                                <td>' + ((item['old_value'] != null) ? item['old_value'] :
-                                    '-') + '</td>\
-                                                                <td>' + item['new_value'] + '</td>\
-                                                                <td>' + item['name'] + '</td>\
-                                                            </tr>'
+                                                                                                                                                                                                                                                                                    <td>' +
+                                moment(
+                                    item[
+                                        'created_at'])
+                                .format(
+                                    'DD/MM/YYYY') +
+                                '</td>\
+                                                                                                                                                                                                                                                                                    <td>' +
+                                ((
+                                        item[
+                                            'old_value'] !=
+                                        null) ?
+                                    item[
+                                        'old_value'] :
+                                    '-') +
+                                '</td>\
+                                                                                                                                                                                                                                                                                    <td>' +
+                                item[
+                                    'new_value'] +
+                                '</td>\
+                                                                                                                                                                                                                                                                                    <td>' +
+                                item[
+                                    'name'] +
+                                '</td>\
+                                                                                                                                                                                                                                                                                </tr>'
                             );
                         });
                     }
@@ -1745,12 +1868,45 @@
                     $.each(data.users, function(i, item) {
                         $('#user_history_div table tbody').append(
                             '<tr>\
-                                                        <td>' + moment(item['created_at']).format('DD/MM/YYYY') + '</td>\
-                                                        <td>' + ((item['user_type'] != null) ? item['user_type'] : '-') + '</td>\
-                                                        <td>' + ((item['old_name'] != null) ? item['old_name'] : '-') + '</td>\
-                                                        <td>' + ((item['new_name'] != null) ? item['new_name'] : '-') + '</td>\
-                                                        <td>' + item['updated_by'] + '</td>\
-                                                    </tr>'
+                                                                                                                                                                                                                                                                            <td>' +
+                            moment(
+                                item[
+                                    'created_at'])
+                            .format(
+                                'DD/MM/YYYY') +
+                            '</td>\
+                                                                                                                                                                                                                                                                            <td>' +
+                            ((
+                                    item[
+                                        'user_type'] !=
+                                    null) ?
+                                item[
+                                    'user_type'] :
+                                '-') +
+                            '</td>\
+                                                                                                                                                                                                                                                                            <td>' +
+                            ((
+                                    item[
+                                        'old_name'] !=
+                                    null) ?
+                                item[
+                                    'old_name'] :
+                                '-') +
+                            '</td>\
+                                                                                                                                                                                                                                                                            <td>' +
+                            ((
+                                    item[
+                                        'new_name'] !=
+                                    null) ?
+                                item[
+                                    'new_name'] :
+                                '-') +
+                            '</td>\
+                                                                                                                                                                                                                                                                            <td>' +
+                            item[
+                                'updated_by'] +
+                            '</td>\
+                                                                                                                                                                                                                                                                        </tr>'
                         );
                     });
                 }
@@ -1781,12 +1937,32 @@
                             }
                             $('#date_history_modal table tbody').append(
                                 '<tr>\
-                                                        <td>' + moment(item['created_at']).format('DD/MM/YYYY') + '</td>\
-                                                        <td>' + ((item['old_value'] != null) ? item['old_value'] : '-') + '</td>\
-                                                        <td>' + item['new_value'] + '</td>\<td>' + item['name'] +
+                                                                                                                                                                                                                                                                            <td>' +
+                                moment(
+                                    item[
+                                        'created_at'])
+                                .format(
+                                    'DD/MM/YYYY') +
+                                '</td>\
+                                                                                                                                                                                                                                                                            <td>' +
+                                ((
+                                        item[
+                                            'old_value'] !=
+                                        null) ?
+                                    item[
+                                        'old_value'] :
+                                    '-') +
+                                '</td>\
+                                                                                                                                                                                                                                                                            <td>' +
+                                item[
+                                    'new_value'] +
+                                '</td>\<td>' +
+                                item[
+                                    'name'] +
                                 '</td><td><input type="radio" name="approve_date" value="' +
-                                item['id'] + '" ' + checked + ' class="approve_date"/></td>\
-                                                    </tr>'
+                                item['id'] + '" ' + checked +
+                                ' class="approve_date"/></td>\
+                                                                                                                                                                                                                                                                        </tr>'
                             );
                         });
                     }
@@ -1849,10 +2025,28 @@
                             var sec = parseInt(item['total_tracked']);
                             $('#time_tracked_div table tbody').append(
                                 '<tr>\
-                                                        <td>' + moment(item['created_at']).format('DD-MM-YYYY') + '</td>\
-                                                        <td>' + ((item['name'] != null) ? item['name'] : '') + '</td>\
-                                                        <td>' + humanizeDuration(sec, 's') + '</td>\
-                                                    </tr>'
+                                                                                                                                                                                                                                                                            <td>' +
+                                moment(
+                                    item[
+                                        'created_at'])
+                                .format(
+                                    'DD-MM-YYYY') +
+                                '</td>\
+                                                                                                                                                                                                                                                                            <td>' +
+                                ((
+                                        item[
+                                            'name'] !=
+                                        null) ?
+                                    item[
+                                        'name'] :
+                                    '') +
+                                '</td>\
+                                                                                                                                                                                                                                                                            <td>' +
+                                humanizeDuration(
+                                    sec,
+                                    's') +
+                                '</td>\
+                                                                                                                                                                                                                                                                        </tr>'
                             );
                         });
                     }
@@ -1877,10 +2071,28 @@
                             var sec = parseInt(item['total_tracked']);
                             $('#time_tracked_div table tbody').append(
                                 '<tr>\
-                                                        <td>' + moment(item['starts_at_date']).format('DD-MM-YYYY') + '</td>\
-                                                        <td>' + ((item['name'] != null) ? item['name'] : '') + '</td>\
-                                                        <td>' + humanizeDuration(sec, 's') + '</td>\
-                                                    </tr>'
+                                                                                                                                                                                                                                                                            <td>' +
+                                moment(
+                                    item[
+                                        'starts_at_date'])
+                                .format(
+                                    'DD-MM-YYYY') +
+                                '</td>\
+                                                                                                                                                                                                                                                                            <td>' +
+                                ((
+                                        item[
+                                            'name'] !=
+                                        null) ?
+                                    item[
+                                        'name'] :
+                                    '') +
+                                '</td>\
+                                                                                                                                                                                                                                                                            <td>' +
+                                humanizeDuration(
+                                    sec,
+                                    's') +
+                                '</td>\
+                                                                                                                                                                                                                                                                        </tr>'
                             );
                         });
                     }
@@ -1888,6 +2100,7 @@
             });
             $('#time_tracked_modal').modal('show');
         });
+
         $(document).on('click', '.show-time-history-task', function() {
             var data = $(this).data('history');
             var userId = $(this).data('user_id');
@@ -1934,12 +2147,32 @@
                             }
                             $('#time_history_div table tbody').append(
                                 '<tr>\
-                                                        <td>' + moment(item['created_at']).format('DD/MM/YYYY') + '</td>\
-                                                        <td>' + ((item['old_value'] != null) ? item['old_value'] : '-') + '</td>\
-                                                        <td>' + item['new_value'] + '</td><td>' + item['name'] +
+                                                                                                                                                                                                                                                                            <td>' +
+                                moment(
+                                    item[
+                                        'created_at'])
+                                .format(
+                                    'DD/MM/YYYY') +
+                                '</td>\
+                                                                                                                                                                                                                                                                            <td>' +
+                                ((
+                                        item[
+                                            'old_value'] !=
+                                        null) ?
+                                    item[
+                                        'old_value'] :
+                                    '-') +
+                                '</td>\
+                                                                                                                                                                                                                                                                            <td>' +
+                                item[
+                                    'new_value'] +
+                                '</td><td>' +
+                                item[
+                                    'name'] +
                                 '</td><td><input type="radio" name="approve_time" value="' +
-                                item['id'] + '" ' + checked + ' class="approve_time"/></td>\
-                                                    </tr>'
+                                item['id'] + '" ' + checked +
+                                ' class="approve_time"/></td>\
+                                                                                                                                                                                                                                                                        </tr>'
                             );
                         });
 
@@ -1951,6 +2184,7 @@
             });
             $('#time_history_modal').modal('show');
         });
+
         //START - Purpose : Remind , Revise button Events - DEVTASK-4354
         $(document).on('click', '.remind_btn', function() {
             var issueId = $('#approve-time-btn input[name="developer_task_id"]').val();
