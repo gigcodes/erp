@@ -149,24 +149,24 @@
         }
 
         .multiselect {
-          width: 200px;
+            width: 200px;
         }
 
         .multiselect .selectBox {
-          position: relative;
+            position: relative;
         }
 
         .multiselect .selectBox select {
-          width: 100%;
-          font-weight: bold;
+            width: 100%;
+            font-weight: bold;
         }
 
         .multiselect .overSelect {
-          position: absolute;
-          left: 0;
-          right: 0;
-          top: 0;
-          bottom: 0;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
         }
 
         .multiselect #checkboxes {
@@ -181,17 +181,19 @@
         }
 
         .multiselect #checkboxes label {
-          display: block;
-          color: #333;
+            display: block;
+            color: #333;
         }
-        .multiselect #checkboxes label input{
-                margin-right: 5px;
+
+        .multiselect #checkboxes label input {
+            margin-right: 5px;
         }
 
         div.checkbox1 {
             height: 250px;
             overflow: scroll;
         }
+
     </style>
 @endsection
 
@@ -208,47 +210,51 @@
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/'); ?>
             <div class=" cls_filter_box" style="margin-left: -13px;">
-                <form class="form-inline form-search-data" action="{{ route('development.automatic.tasks_post') }}" method="POST">
-                   @csrf
+                <form class="form-inline form-search-data" action="{{ route('development.automatic.tasks_post') }}"
+                    method="POST">
+                    @csrf
                     @if (auth()->user()->isReviwerLikeAdmin())
                         <div class="form-group ml-3">
                             <div class="multiselect">
                                 <div class="selectBox" onclick="showSelectCheckboxes()">
-                                    <select class="form-control" name="assigned_to" id="assigned_to" data-placeholder="Developers...">
+                                    <select class="form-control" name="assigned_to" id="assigned_to"
+                                        data-placeholder="Developers...">
                                         <option value="">Assigned To</option>
                                     </select>
                                     <div class="overSelect"></div>
                                 </div>
                                 <div id="checkboxes" class="checkbox1">
                                     <label for="select_all">
-                                    <input type="checkbox" id="select_all" @if(count($dev)==0) 
-                                    checked 
-                                    @endif />Select All</label>
+                                        <input type="checkbox" id="select_all"
+                                            @if (count($dev) == 0) checked @endif />Select All</label>
                                     @foreach ($users as $k => $_dev)
                                         <label for="{{ $k }}">
-                                            @if(count($dev)>0)
-                                                <input type="checkbox" value="{{ $k }}" id="{{ $k }}" class="devCheckbox" name="devCheckboxs[]" @if(array_key_exists($k, $dev)) 
-                                                checked
-                                                @endif />{{ $_dev }}</label>
-                                            @else
-                                                <input type="checkbox" value="{{ $k }}" id="{{ $k }}" class="devCheckbox" name="devCheckboxs[]" checked />{{ $_dev }}</label>
-                                            @endif
-                                        @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-                    <button type="submit" style="padding: 5px;margin-top:-1px;margin-left: 10px;" class="btn btn-image"
-                        id="show"><img src="<?php echo $base_url; ?>/images/filter.png" /></button>
-					<a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder">
-                       <i class="fa fa-bell  red-notification " aria-hidden="true"></i>
-                    </a>  
-                    <a class="btn btn-secondary assignTask" style="color:white;">Assign Task</a> 
-                    
-                </form>
-                
+                                            @if (count($dev) > 0)
+                                                <input type="checkbox" value="{{ $k }}" id="{{ $k }}"
+                                                    class="devCheckbox" name="devCheckboxs[]"
+                                                    @if (array_key_exists($k, $dev)) checked @endif />{{ $_dev }}
+                                        </label>
+                                    @else
+                                        <input type="checkbox" value="{{ $k }}" id="{{ $k }}"
+                                            class="devCheckbox" name="devCheckboxs[]"
+                                            checked />{{ $_dev }}</label>
+                                    @endif
+                    @endforeach
             </div>
         </div>
+    </div>
+    @endif
+    <button type="submit" style="padding: 5px;margin-top:-1px;margin-left: 10px;" class="btn btn-image" id="show"><img
+            src="<?php echo $base_url; ?>/images/filter.png" /></button>
+    <a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder">
+        <i class="fa fa-bell  red-notification " aria-hidden="true"></i>
+    </a>
+    <a class="btn btn-secondary assignTask" style="color:white;">Assign Task</a>
+
+    </form>
+
+    </div>
+    </div>
 
     </div>
 
@@ -259,8 +265,9 @@
                 <thead>
                     <tr>
                         <th width="5%"><input type="checkbox" onchange="checkAll(this)" name="chk[]"></th>
-                        <th width="7%">ID</th>
+                        <th width="4%">ID</th>
                         <th width="5%">Website</th>
+                        <th width="5%">Parent Task</th>
                         <th width="9%">Subject</th>
                         <th width="12%">Assigned To</th>
                         <th width="8%">Tracked Time</th>
@@ -268,22 +275,23 @@
                         <th width="11%">Delivery Date</th>
                         <th width="20%">Communication</th>
                         <th width="13%">Status</th>
+                        <th width="13%">Action</th>
 
                     </tr>
                 </thead>
 
                 <tbody id="vendor-body">
                     @foreach ($tasks as $key => $issue)
-                        @include("task-module.partials.flagsummarydata")
+                        @include('task-module.partials.flagsummarydata')
                     @endforeach
                 </tbody>
             </table>
         </div>
-        
+
     </div>
-    @include("development.partials.upload-document-modal")
-    @include("development.partials.time-tracked-modal")
-    @include("partials.plain-modal")
+    @include('development.partials.upload-document-modal')
+    @include('development.partials.time-tracked-modal')
+    @include('partials.plain-modal')
 
 
     <div id="python-action-history" class="modal fade" role="dialog">
@@ -291,7 +299,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Action History</h4>
-                   
+
                 </div>
                 <div class="modal-body">
                     <div class="row">
@@ -360,31 +368,34 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <form class="form-inline form-search-data" action="{{ route('task.AssignMultipleTaskToUser') }}" method="POST">
-                    @csrf
-                    <div class="row">
-                        <div class="col-md-6">
-                            <select class="form-control mb-2 mr-sm-2 select2 col-md-10" id="user_assigned_to" name="user_assigned_to" required>
-                                <option value="">Assigned To</option>
-                                @foreach ($users as $k => $_dev)
-                                    <option value="{{ $k }}">{{ $_dev }}</option>
-                                @endforeach
-                            </select>
-                            <input type='hidden' name='taskIDs[]' id="tsk_id" value="">
-                        </div> 
-                        <div class="col-md-6">
-                            <button type="submit" class="btn btn-secondary mb-2">Submit</button>
-                        </div>  
-                    </div>
+                    <form class="form-inline form-search-data" action="{{ route('task.AssignMultipleTaskToUser') }}"
+                        method="POST">
+                        @csrf
+                        <div class="row">
+                            <div class="col-md-6">
+                                <select class="form-control mb-2 mr-sm-2 select2 col-md-10" id="user_assigned_to"
+                                    name="user_assigned_to" required>
+                                    <option value="">Assigned To</option>
+                                    @foreach ($users as $k => $_dev)
+                                        <option value="{{ $k }}">{{ $_dev }}</option>
+                                    @endforeach
+                                </select>
+                                <input type='hidden' name='taskIDs[]' id="tsk_id" value="">
+                            </div>
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-secondary mb-2">Submit</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-@include("development.partials.time-history-modal")
-@include("task-module.partials.tracked-time-history")
-@include("development.partials.user_history_modal")
-<img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
+    @include('development.partials.time-history-modal')
+    @include('task-module.partials.tracked-time-history')
+    @include('development.partials.user_history_modal')
+    <img class="infinite-scroll-products-loader center-block" src="{{ asset('/images/loading.gif') }}" alt="Loading..."
+        style="display: none" />
 
 
 @endsection
@@ -397,31 +408,31 @@
     <script src="/js/jquery-ui.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
-    
-	
-	<script>
-       $(document).on('click', '.task-submit-reminder', function () {
+
+
+    <script>
+        $(document).on('click', '.task-submit-reminder', function() {
             var task_message_form = $("#task_message_form").serialize();
             $.ajax({
-                url: "{{route('development.taskmessage')}}",
+                url: "{{ route('development.taskmessage') }}",
                 type: 'POST',
-				data: task_message_form,
-                success: function () {
+                data: task_message_form,
+                success: function() {
                     toastr['success']('message updated successfully!');
                 },
-                error: function (){
+                error: function() {
                     toastr['error']('Something went wrong, Please try again!');
                 }
             });
         });
-		
-		
+
+
         var isLoading = false;
         var page = 1;
-        $(document).ready(function () {
-            
+        $(document).ready(function() {
+
             $(window).scroll(function() {
-                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {
                     loadMore();
                 }
             });
@@ -433,27 +444,28 @@
                 var $loader = $('.infinite-scroll-products-loader');
                 page = page + 1;
                 $.ajax({
-                    url: "{{url('development/flagtask')}}?ajax=1&page="+page,
+                    url: "{{ url('development/flagtask') }}?ajax=1&page=" + page,
                     type: 'GET',
                     data: $('.form-search-data').serialize(),
                     beforeSend: function() {
                         $loader.show();
                     },
-                    success: function (data) {  console.log(data);                   
+                    success: function(data) {
+                        console.log(data);
                         $loader.hide();
-                        $('#vendor-body').append(data); 
-						isLoading = false;
-						if(data == "") {
-							isLoading = true;
-						}						
-                        
+                        $('#vendor-body').append(data);
+                        isLoading = false;
+                        if (data == "") {
+                            isLoading = true;
+                        }
+
                     },
-                    error: function () {
+                    error: function() {
                         $loader.hide();
                         isLoading = false;
                     }
                 });
-            }            
+            }
         });
 
         $(document).on("click", ".assignTask", function(e) {
@@ -463,7 +475,7 @@
                 return $(this).val();
             }).get();
 
-            if($IDs == ''){
+            if ($IDs == '') {
                 alert('Please select any task');
                 return false;
             }
@@ -471,13 +483,9 @@
             $("#tsk_id").val($IDs);
             model.modal("show");
         });
-       
+    </script>
 
-  </script>  
-	
     <script type="text/javascript">
-
-
         $(document).on('click', '.expand-row-msg', function() {
             var id = $(this).data('id');
             console.log(id);
@@ -1261,7 +1269,7 @@
                     });
                 }
                 $(this).closest("td").find(".quick-message-field").val($(this).find("option:selected")
-                .text());
+                    .text());
 
             });
 
@@ -1674,7 +1682,7 @@
                 url: "{{ route('development/status/history') }}",
                 data: {
                     id: issueId,
-                    type : type
+                    type: type
                 },
                 success: function(data) {
                     if (data != 'error') {
@@ -1686,11 +1694,12 @@
                             }
                             $('#status_quick_history_modal table tbody').append(
                                 '<tr>\
-                                            <td>' + moment(item['created_at']).format('DD/MM/YYYY') + '</td>\
-                                            <td>' + ((item['old_value'] != null) ? item['old_value'] : '-') + '</td>\
-                                            <td>' + item['new_value'] + '</td>\
-                                            <td>' + item['name'] + '</td>\
-                                        </tr>'
+                                                                <td>' + moment(item['created_at']).format('DD/MM/YYYY') + '</td>\
+                                                                <td>' + ((item['old_value'] != null) ? item['old_value'] :
+                                    '-') + '</td>\
+                                                                <td>' + item['new_value'] + '</td>\
+                                                                <td>' + item['name'] + '</td>\
+                                                            </tr>'
                             );
                         });
                     }
@@ -1700,7 +1709,7 @@
         });
 
         //Popup for add new task
-        $(document).on('click', '#newTaskModalBtn', function () {
+        $(document).on('click', '#newTaskModalBtn', function() {
             if ($("#newTaskModal").length > 0) {
                 $("#newTaskModal").remove();
             }
@@ -1709,41 +1718,46 @@
                 url: "{{ action('DevelopmentController@openNewTaskPopup') }}",
                 type: 'GET',
                 dataType: "JSON",
-                success: function (resp) {
+                success: function(resp) {
                     console.log(resp);
                     if (resp.status == 'ok') {
                         $("body").append(resp.html);
                         $('#newTaskModal').modal('show');
-                        $('select.select2').select2({tags: true});
+                        $('select.select2').select2({
+                            tags: true
+                        });
                     }
                 }
             });
         });
         $(document).on('click', '.show-user-history', function() {
             var issueId = $(this).data('id');
-            var type =  $(this).data('type');
+            var type = $(this).data('type');
             $('#user_history_div table tbody').html('');
             $.ajax({
                 url: "{{ route('task/user/history') }}",
-                data: {id: issueId,type :type},
-                success: function (data) {
-                    
+                data: {
+                    id: issueId,
+                    type: type
+                },
+                success: function(data) {
+
                     $.each(data.users, function(i, item) {
-                            $('#user_history_div table tbody').append(
-                                '<tr>\
-                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
-                                    <td>'+ ((item['user_type'] != null) ? item['user_type'] : '-') +'</td>\
-                                    <td>'+ ((item['old_name'] != null) ? item['old_name'] : '-') +'</td>\
-                                    <td>'+ ((item['new_name'] != null) ? item['new_name'] : '-') +'</td>\
-                                    <td>'+ item['updated_by']  +'</td>\
-                                </tr>'
-                            );
-                        });
+                        $('#user_history_div table tbody').append(
+                            '<tr>\
+                                                        <td>' + moment(item['created_at']).format('DD/MM/YYYY') + '</td>\
+                                                        <td>' + ((item['user_type'] != null) ? item['user_type'] : '-') + '</td>\
+                                                        <td>' + ((item['old_name'] != null) ? item['old_name'] : '-') + '</td>\
+                                                        <td>' + ((item['new_name'] != null) ? item['new_name'] : '-') + '</td>\
+                                                        <td>' + item['updated_by'] + '</td>\
+                                                    </tr>'
+                        );
+                    });
                 }
             });
             $('#user_history_modal').modal('show');
         });
-$(document).on('click', '.show-date-history', function() {
+        $(document).on('click', '.show-date-history', function() {
             var data = $(this).data('history');
             var type = $(this).data('type');
 
@@ -1751,24 +1765,28 @@ $(document).on('click', '.show-date-history', function() {
             $('#date_history_modal table tbody').html('');
             $.ajax({
                 url: "{{ route('development/date/history') }}",
-                data: {id: issueId,type:type},
-                success: function (data) {
+                data: {
+                    id: issueId,
+                    type: type
+                },
+                success: function(data) {
                     console.log(data);
-                    if(data != 'error') {
+                    if (data != 'error') {
                         $("#developer_task_id").val(issueId);
                         $.each(data, function(i, item) {
-                            if(item['is_approved'] == 1) {
+                            if (item['is_approved'] == 1) {
                                 var checked = 'checked';
-                            }
-                            else {
-                                var checked = ''; 
+                            } else {
+                                var checked = '';
                             }
                             $('#date_history_modal table tbody').append(
                                 '<tr>\
-                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
-                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td><td><input type="radio" name="approve_date" value="'+item['id']+'" '+checked+' class="approve_date"/></td>\
-                                </tr>'
+                                                        <td>' + moment(item['created_at']).format('DD/MM/YYYY') + '</td>\
+                                                        <td>' + ((item['old_value'] != null) ? item['old_value'] : '-') + '</td>\
+                                                        <td>' + item['new_value'] + '</td>\<td>' + item['name'] +
+                                '</td><td><input type="radio" name="approve_date" value="' +
+                                item['id'] + '" ' + checked + ' class="approve_date"/></td>\
+                                                    </tr>'
                             );
                         });
                     }
@@ -1777,10 +1795,9 @@ $(document).on('click', '.show-date-history', function() {
             $('#date_history_modal').modal('show');
         });
     </script>
-    
-<script>
-    
-    $(document).on('click', '.flag-task', function () {
+
+    <script>
+        $(document).on('click', '.flag-task', function() {
             var task_id = $(this).data('id');
             var task_type = $(this).data('type');
             var thiss = $(this);
@@ -1791,12 +1808,12 @@ $(document).on('click', '.show-date-history', function() {
                 data: {
                     _token: "{{ csrf_token() }}",
                     task_id: task_id,
-                    task_type:task_type
+                    task_type: task_type
                 },
-                beforeSend: function () {
+                beforeSend: function() {
                     $(thiss).text('Flagging...');
                 }
-            }).done(function (response) {
+            }).done(function(response) {
                 if (response.is_flagged == 1) {
                     // var badge = $('<span class="badge badge-secondary">Flagged</span>');
                     //
@@ -1808,7 +1825,7 @@ $(document).on('click', '.show-date-history', function() {
                 }
 
                 // $(thiss).remove();
-            }).fail(function (response) {
+            }).fail(function(response) {
                 $(thiss).html('<img src="/images/unflagged.png" />');
 
                 alert('Could not flag task!');
@@ -1816,48 +1833,54 @@ $(document).on('click', '.show-date-history', function() {
                 console.log(response);
             });
         });
-    $(document).on('click', '.show-tracked-history', function() {
+        $(document).on('click', '.show-tracked-history', function() {
             var issueId = $(this).data('id');
             var type = $(this).data('type');
             $('#time_tracked_div table tbody').html('');
             $.ajax({
                 url: "{{ route('development/tracked/history') }}",
-                data: {id: issueId,type:type},
-                success: function (data) {
-                    if(data != 'error') {
+                data: {
+                    id: issueId,
+                    type: type
+                },
+                success: function(data) {
+                    if (data != 'error') {
                         $.each(data.histories, function(i, item) {
                             var sec = parseInt(item['total_tracked']);
                             $('#time_tracked_div table tbody').append(
                                 '<tr>\
-                                    <td>'+ moment(item['created_at']).format('DD-MM-YYYY') +'</td>\
-                                    <td>'+ ((item['name'] != null) ? item['name'] : '') +'</td>\
-                                    <td>'+humanizeDuration(sec,'s')+'</td>\
-                                </tr>'
+                                                        <td>' + moment(item['created_at']).format('DD-MM-YYYY') + '</td>\
+                                                        <td>' + ((item['name'] != null) ? item['name'] : '') + '</td>\
+                                                        <td>' + humanizeDuration(sec, 's') + '</td>\
+                                                    </tr>'
                             );
                         });
                     }
                 }
             });
             $('#time_tracked_modal').modal('show');
-    });
-     $(document).on('click', '.show-tracked-history_task', function() {
+        });
+        $(document).on('click', '.show-tracked-history_task', function() {
             var issueId = $(this).data('id');
             var type = $(this).data('type');
             $('#time_tracked_div table tbody').html('');
             $.ajax({
                 url: "{{ route('task.time.tracked.history') }}",
-                data: {id: issueId,type:type},
-                success: function (data) {
+                data: {
+                    id: issueId,
+                    type: type
+                },
+                success: function(data) {
                     console.log(data);
-                    if(data != 'error') {
+                    if (data != 'error') {
                         $.each(data.histories, function(i, item) {
                             var sec = parseInt(item['total_tracked']);
                             $('#time_tracked_div table tbody').append(
                                 '<tr>\
-                                    <td>'+ moment(item['starts_at_date']).format('DD-MM-YYYY') +'</td>\
-                                    <td>'+ ((item['name'] != null) ? item['name'] : '') +'</td>\
-                                    <td>'+humanizeDuration(sec,'s')+'</td>\
-                                </tr>'
+                                                        <td>' + moment(item['starts_at_date']).format('DD-MM-YYYY') + '</td>\
+                                                        <td>' + ((item['name'] != null) ? item['name'] : '') + '</td>\
+                                                        <td>' + humanizeDuration(sec, 's') + '</td>\
+                                                    </tr>'
                             );
                         });
                     }
@@ -1874,10 +1897,10 @@ $(document).on('click', '.show-date-history', function() {
             //START - Purpose : Display Hide Remind, Revise Button - DEVTASK-4354
             const hasText = $(this).siblings('input').val();
 
-            if(!hasText || hasText == 0){
+            if (!hasText || hasText == 0) {
                 $('#time_history_modal .revise_btn').prop('disabled', true);
                 $('#time_history_modal .remind_btn').prop('disabled', false);
-            }else{
+            } else {
                 $('#time_history_modal .revise_btn').prop('disabled', false);
                 $('#time_history_modal .remind_btn').prop('disabled', true);
             }
@@ -1885,8 +1908,10 @@ $(document).on('click', '.show-date-history', function() {
 
             $.ajax({
                 url: "{{ route('task.time.history') }}",
-                data: {id: issueId},
-                success: function (data) {
+                data: {
+                    id: issueId
+                },
+                success: function(data) {
                     // if(data != 'error') {
                     //     $.each(data, function(i, item) {
                     //         $('#time_history_div table tbody').append(
@@ -1899,43 +1924,48 @@ $(document).on('click', '.show-date-history', function() {
                     //     });
                     // }
 
-                    if(data != 'error') {
+                    if (data != 'error') {
                         $('input[name="developer_task_id"]').val(issueId);
                         $.each(data, function(i, item) {
-                            if(item['is_approved'] == 1) {
+                            if (item['is_approved'] == 1) {
                                 var checked = 'checked';
-                            }
-                            else {
-                                var checked = ''; 
+                            } else {
+                                var checked = '';
                             }
                             $('#time_history_div table tbody').append(
                                 '<tr>\
-                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
-                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td><td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
-                                </tr>'
+                                                        <td>' + moment(item['created_at']).format('DD/MM/YYYY') + '</td>\
+                                                        <td>' + ((item['old_value'] != null) ? item['old_value'] : '-') + '</td>\
+                                                        <td>' + item['new_value'] + '</td><td>' + item['name'] +
+                                '</td><td><input type="radio" name="approve_time" value="' +
+                                item['id'] + '" ' + checked + ' class="approve_time"/></td>\
+                                                    </tr>'
                             );
                         });
 
                         $('#time_history_div table tbody').append(
-                            '<input type="hidden" name="user_id" value="'+userId+'" class=" "/>'
-                        ); 
+                            '<input type="hidden" name="user_id" value="' + userId + '" class=" "/>'
+                        );
                     }
                 }
             });
             $('#time_history_modal').modal('show');
         });
-          //START - Purpose : Remind , Revise button Events - DEVTASK-4354
-          $(document).on('click', '.remind_btn', function() {
-            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val(); 
-            var userId = $('#approve-time-btn input[name="user_id"]').val();  
+        //START - Purpose : Remind , Revise button Events - DEVTASK-4354
+        $(document).on('click', '.remind_btn', function() {
+            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val();
+            var userId = $('#approve-time-btn input[name="user_id"]').val();
 
             $('#time_history_div table tbody').html('');
             $.ajax({
                 url: "{{ route('task.time.history.approve.sendRemindMessage') }}",
                 type: 'POST',
-                data: {id: issueId, user_id: userId, _token: '{{csrf_token()}}' },
-                success: function (data) {
+                data: {
+                    id: issueId,
+                    user_id: userId,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(data) {
                     toastr['success'](data.message, 'success');
                 }
             });
@@ -1943,15 +1973,19 @@ $(document).on('click', '.show-date-history', function() {
         });
 
         $(document).on('click', '.revise_btn', function() {
-            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val(); 
-            var userId = $('#approve-time-btn input[name="user_id"]').val();  
+            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val();
+            var userId = $('#approve-time-btn input[name="user_id"]').val();
 
             $('#time_history_div table tbody').html('');
             $.ajax({
                 url: "{{ route('task.time.history.approve.sendMessage') }}",
                 type: 'POST',
-                data: {id: issueId, user_id: userId, _token: '{{csrf_token()}}' },
-                success: function (data) {
+                data: {
+                    id: issueId,
+                    user_id: userId,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(data) {
                     toastr['success'](data.message, 'success');
                 }
             });
@@ -1959,31 +1993,34 @@ $(document).on('click', '.show-date-history', function() {
         });
         //END - DEVTASK-4354
 
-        $(document).on('change', '.change-task-status', function () {
-         
-         let id = $(this).attr('data-id');  
-         let status=$(this).val();
+        $(document).on('change', '.change-task-status', function() {
 
-         $.ajax({
-           url: "{{route('task.change.status')}}",
-           type: "POST",
-          headers: {
-             'X-CSRF-TOKEN': "{{ csrf_token() }}"
-         },
-         dataType:"json",
-         data: { 'task_id' : id , 'status': status},
-             success: function (response) {
-                 toastr["success"](response.message, "Message")
-             },
-             error: function (error) {
-                 toastr["error"](error.responseJSON.message, "Message")
-                 
-             }
-         });
+            let id = $(this).attr('data-id');
+            let status = $(this).val();
 
-     });
+            $.ajax({
+                url: "{{ route('task.change.status') }}",
+                type: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                dataType: "json",
+                data: {
+                    'task_id': id,
+                    'status': status
+                },
+                success: function(response) {
+                    toastr["success"](response.message, "Message")
+                },
+                error: function(error) {
+                    toastr["error"](error.responseJSON.message, "Message")
 
-     function checkAll(ele) {
+                }
+            });
+
+        });
+
+        function checkAll(ele) {
             var checkboxes = document.getElementsByClassName('rowCheckbox');
             if (ele.checked) {
                 for (var i = 0; i < checkboxes.length; i++) {
@@ -2001,30 +2038,29 @@ $(document).on('click', '.show-date-history', function() {
             }
         }
 
-     var expanded = false;
+        var expanded = false;
 
         function showSelectCheckboxes() {
-          var checkboxes = document.getElementById("checkboxes");
-          if (!expanded) {
-            checkboxes.style.display = "block";
-            expanded = true;
-          } else {
-            checkboxes.style.display = "none";
-            expanded = false;
-          }
+            var checkboxes = document.getElementById("checkboxes");
+            if (!expanded) {
+                checkboxes.style.display = "block";
+                expanded = true;
+            } else {
+                checkboxes.style.display = "none";
+                expanded = false;
+            }
         }
 
-        $("#select_all").click(function () {
+        $("#select_all").click(function() {
             $(".devCheckbox").prop('checked', $(this).prop('checked'));
         });
 
-        $(".devCheckbox").change(function(){
+        $(".devCheckbox").change(function() {
             if ($('.devCheckbox:checked').length == $('.devCheckbox').length) {
-               $('#select_all').prop('checked', true);
-            }else{
+                $('#select_all').prop('checked', true);
+            } else {
                 $('#select_all').prop('checked', false);
             }
         });
-
-</script>
+    </script>
 @endsection
