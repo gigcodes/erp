@@ -13,11 +13,7 @@ class AlterOrderEmailSendJourneyLogsTable extends Migration
      */
     public function up()
     {
-        Schema::table('order_email_send_journey_logs', function (Blueprint $table) {
-            $table->longText('message')->change();
-            $table->longText('template')->change();
-            $table->longText('error_msg')->change();
-        });
+        \DB::statement("ALTER TABLE `order_email_send_journey_logs` CHANGE `message` `message` LONGTEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL, CHANGE `template` `template` LONGTEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL, CHANGE `error_msg` `error_msg` LONGTEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;");
     }
 
     /**
@@ -27,10 +23,6 @@ class AlterOrderEmailSendJourneyLogsTable extends Migration
      */
     public function down()
     {
-        Schema::table('order_email_send_journey_logs', function (Blueprint $table) {
-            $table->string('message')->change();
-            $table->string('template')->change();
-            $table->string('error_msg')->change();
-        });
+    
     }
 }
