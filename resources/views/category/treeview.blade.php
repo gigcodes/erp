@@ -268,10 +268,10 @@
                                         <input type="hidden" name="day_old" value="{{$cat->days_cancelation}}" />
                                         <div class="d-flex align-items-baseline">
                                             <div class="form-group mb-0">
-                                                <select name="days_cancelation" class="form-control">
-                                                    @for ($i=0; $i<=31; $i++)
+                                                <select name="days_cancelation" class="form-control days_cancelation" data-day_can="{{$cat->days_cancelation}}">
+                                                    {{-- @for ($i=0; $i<=31; $i++)
                                                         <option @if($i == $cat->days_cancelation) selected="selected" @endif value="{{$i}}">{{$i}}</option>
-                                                    @endfor
+                                                    @endfor --}}
                                                 </select>
                                             </div>
                                             <button class="btn btn-xs" hidden>
@@ -291,10 +291,10 @@
                                         <input type="hidden" name="day_old" value="{{$cat->days_refund}}" />
                                         <div class="d-flex align-items-baseline">
                                             <div class="form-group mb-0">
-                                                <select name="days_refund" class="form-control">
-                                                    @for ($i=0; $i<=31; $i++)
+                                                <select name="days_refund" class="form-control days_refund" data-day_can="{{$cat->days_refund}}" >
+                                                    {{-- @for ($i=0; $i<=31; $i++)
                                                         <option  @if($i == $cat->days_refund) selected="selected" @endif value="{{$i}}">{{$i}}</option>
-                                                    @endfor
+                                                    @endfor --}}
                                                 </select>
                                             </div>
                                             <button class="btn btn-xs" hidden>
@@ -348,7 +348,7 @@
                                         class="edit_category_data" data-id={{ $cat->id }}>
                                         @csrf
 
-                                        <select class="form-control submit_on_change globalSelect2"
+                                        <select class="form-control submit_on_change globalSelect2 segmanet" data-category_segment_id="{{$cat->category_segment_id}}" 
                                             name="category_segment_id">
                                             <option>Select Category Segment</option>
                                             @foreach ($category_segments as $k => $catSeg)
@@ -370,10 +370,10 @@
                                     <div
                                         class="mb-0 pb-0  form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
 
-                                        <select name="parent_id" class="submit_on_change globalSelect2">
+                                        <select name="parent_id" class="submit_on_change globalSelect2" data-cat_id="{{$cat->parent_id}}">
                                             <option>Select Category </option>
 
-                                            @foreach ($allCategories as $c)
+                                            {{-- @foreach ($allCategories as $c)
                                                 @if ($c->id == $cat->id)
                                                     @continue
                                                 @endif
@@ -382,7 +382,7 @@
                                                     {{ $c->id == $cat->parent_id ? 'selected' : '' }}>
                                                     {{ $c->title }}
                                                 </option>
-                                            @endforeach
+                                            @endforeach --}}
 
                                         </select>
                                         <span class="text-danger">{{ $errors->first('parent_id') }}</span>
@@ -517,10 +517,10 @@
                                     <input type="hidden" name="day_old" value="{{$firstChild->days_cancelation}}" />
                                     <div class="d-flex align-items-baseline">
                                         <div class="form-group mb-0">
-                                            <select name="days_cancelation" class="form-control">
-                                                @for ($i=0; $i<=31; $i++)
+                                            <select name="days_cancelation" class="form-control days_cancelation" data-day_can="{{$firstChild->days_cancelation}}">
+                                                {{-- @for ($i=0; $i<=31; $i++)
                                                     <option  @if($i == $firstChild->days_cancelation) selected="selected" @endif value="{{$i}}">{{$i}}</option>
-                                                @endfor
+                                                @endfor --}}
                                             </select>
                                         </div>
                                         <button class="btn btn-xs" hidden>
@@ -540,10 +540,10 @@
                                     <input type="hidden" name="day_old" value="{{$firstChild->days_refund}}" />
                                     <div class="d-flex align-items-baseline">
                                         <div class="form-group mb-0">
-                                            <select name="days_refund" class="form-control">
-                                                @for ($i=0; $i<=31; $i++)
+                                            <select name="days_refund" class="form-control days_refund" data-day_can="{{$firstChild->days_refund}}">
+                                                {{-- @for ($i=0; $i<=31; $i++)
                                                     <option  @if($i == $firstChild->days_refund) selected="selected" @endif value="{{$i}}">{{$i}}</option>
-                                                @endfor
+                                                @endfor --}}
                                             </select>
                                         </div>
                                         <button class="btn btn-xs" hidden>
@@ -593,7 +593,7 @@
                                         class="edit_category_data" data-id={{ $firstChild->id }}>
                                         @csrf
 
-                                        <select class="form-control submit_on_change globalSelect2"
+                                        <select class="form-control submit_on_change globalSelect2 segmanet" data-category_segment_id="{{$firstChild->category_segment_id}}" 
                                             name="category_segment_id">
                                             <option>Select Category Segment</option>
                                             @foreach ($category_segments as $k => $catSeg)
@@ -615,10 +615,10 @@
                                     <div
                                         class="mb-0 pb-0  form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
 
-                                        <select name="parent_id" class="submit_on_change globalSelect2">
+                                        <select name="parent_id" class="submit_on_change globalSelect2" data-cat_id="{{$firstChild->parent_id}}">
                                             <option>Select Category </option>
 
-                                            @foreach ($allCategories as $c)
+                                            {{-- @foreach ($allCategories as $c)
                                                 @if ($c->id == $firstChild->id)
                                                     @continue
                                                 @endif
@@ -627,7 +627,7 @@
                                                     {{ $c->id == $firstChild->parent_id ? 'selected' : '' }}>
                                                     {{ $c->title }}
                                                 </option>
-                                            @endforeach
+                                            @endforeach --}}
 
                                         </select>
                                         <span class="text-danger">{{ $errors->first('parent_id') }}</span>
@@ -763,10 +763,10 @@
                                                             <input type="hidden" name="day_old" value="{{$secondChild->days_cancelation}}" />
                                                             <div class="d-flex align-items-baseline">
                                                                 <div class="form-group mb-0">
-                                                                    <select name="days_cancelation" class="form-control">
-                                                                        @for ($i=0; $i<=31; $i++)
+                                                                    <select name="days_cancelation" class="form-control days_cancelation" data-day_can="{{$secondChild->days_cancelation}}">
+                                                                        {{-- @for ($i=0; $i<=31; $i++)
                                                                             <option @if($i == $secondChild->days_cancelation) selected="selected" @endif value="{{$i}}">{{$i}}</option>
-                                                                        @endfor
+                                                                        @endfor --}}
                                                                     </select>
                                                                 </div>
                                                                 <button class="btn btn-xs" hidden>
@@ -786,10 +786,10 @@
                                                             <input type="hidden" name="day_old" value="{{$secondChild->days_refund}}" />
                                                             <div class="d-flex align-items-baseline">
                                                                 <div class="form-group mb-0">
-                                                                    <select name="days_refund" class="form-control">
-                                                                        @for ($i=0; $i<=31; $i++)
+                                                                    <select name="days_refund" class="form-control days_refund" data-day_can="{{$secondChild->days_refund}}">
+                                                                        {{-- @for ($i=0; $i<=31; $i++)
                                                                             <option @if($i == $secondChild->days_refund) selected="selected" @endif value="{{$i}}">{{$i}}</option>
-                                                                        @endfor
+                                                                        @endfor --}}
                                                                     </select>
                                                                 </div>
                                                                 <button class="btn btn-xs" hidden>
@@ -841,7 +841,7 @@
                                                                 class="edit_category_data" data-id={{ $secondChild->id }}>
                                                                 @csrf
                         
-                                                                <select class="form-control submit_on_change globalSelect2"
+                                                                <select class="form-control submit_on_change globalSelect2 segmanet" data-category_segment_id="{{$secondChild->category_segment_id}}" 
                                                                     name="category_segment_id">
                                                                     <option>Select Category Segment</option>
                                                                     @foreach ($category_segments as $k => $catSeg)
@@ -863,10 +863,10 @@
                                                             <div
                                                                 class="mb-0 pb-0  form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
                         
-                                                                <select name="parent_id" class="submit_on_change globalSelect2">
+                                                                <select name="parent_id" class="submit_on_change globalSelect2" data-cat_id="{{$secondChild->parent_id}}">
                                                                     <option>Select Category </option>
                         
-                                                                    @foreach ($allCategories as $c)
+                                                                    {{-- @foreach ($allCategories as $c)
                                                                         @if ($c->id == $secondChild->id)
                                                                             @continue
                                                                         @endif
@@ -875,7 +875,7 @@
                                                                             {{ $c->id == $secondChild->parent_id ? 'selected' : '' }}>
                                                                             {{ $c->title }}
                                                                         </option>
-                                                                    @endforeach
+                                                                    @endforeach --}}
                         
                                                                 </select>
                                                                 <span class="text-danger">{{ $errors->first('parent_id') }}</span>
@@ -1006,15 +1006,15 @@
                                                             <td class="pb-0">
                                                                 <form method="POST"
                                                                     action="{{ route('category.update-cancelation-policy', ['edit' => $thirdChild->id]) }}"
-                                                                    class="edit_category_cancelation_days" data-id="{{ $thirdChild->id }}" data-day_old="{{$cat->days_cancelation}}">
+                                                                    class="edit_category_cancelation_days" data-id="{{ $thirdChild->id }}" data-day_old="{{$thirdChild->days_cancelation}}">
                                                                     @csrf
                                                                     <input type="hidden" name="day_old" value="{{$cat->days_cancelation}}" />
                                                                     <div class="d-flex align-items-baseline">
                                                                         <div class="form-group mb-0">
-                                                                            <select name="days_cancelation" class="form-control" width="100%">
-                                                                                @for ($i=0; $i<=31; $i++)
+                                                                            <select name="days_cancelation" class="form-control days_cancelation" width="100%" data-day_can="{{$thirdChild->days_cancelation}}">
+                                                                                {{-- @for ($i=0; $i<=31; $i++)
                                                                                     <option  @if($i == $thirdChild->days_cancelation) selected="selected" @endif  value="{{$i}}">{{$i}}</option>
-                                                                                @endfor
+                                                                                @endfor --}}
                                                                             </select>
                                                                         </div>
                                                                         <button class="btn btn-xs" hidden>
@@ -1034,10 +1034,10 @@
                                                                     <input type="hidden" name="day_old" value="{{$thirdChild->days_refund}}" />
                                                                     <div class="d-flex align-items-baseline">
                                                                         <div class="form-group mb-0">
-                                                                            <select name="days_refund" class="form-control" width="100%">
-                                                                                @for ($i=0; $i<=31; $i++)
+                                                                            <select name="days_refund" class="form-control days_refund" width="100%" data-day_can="{{$thirdChild->days_refund}}">
+                                                                                {{-- @for ($i=0; $i<=31; $i++)
                                                                                     <option  @if($i == $thirdChild->days_refund) selected="selected" @endif  value="{{$i}}">{{$i}}</option>
-                                                                                @endfor
+                                                                                @endfor --}}
                                                                             </select>
                                                                         </div>
                                                                         <button class="btn btn-xs" hidden>
@@ -1089,7 +1089,7 @@
                                                                         class="edit_category_data" data-id={{ $thirdChild->id }}>
                                                                         @csrf
                                 
-                                                                        <select class="form-control submit_on_change globalSelect2"
+                                                                        <select class="form-control submit_on_change globalSelect2 segment" data-category_segment_id="{{$thirdChild->category_segment_id}}"
                                                                             name="category_segment_id">
                                                                             <option>Select Category Segment</option>
                                                                             @foreach ($category_segments as $k => $catSeg)
@@ -1111,10 +1111,10 @@
                                                                     <div
                                                                         class="mb-0 pb-0  form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
                                 
-                                                                        <select name="parent_id" class="submit_on_change globalSelect2">
+                                                                        <select name="parent_id" class="submit_on_change globalSelect2 segmanet" data-cat_id="{{$thirdChild->parent_id}}">
                                                                             <option>Select Category </option>
                                 
-                                                                            @foreach ($allCategories as $c)
+                                                                            {{-- @foreach ($allCategories as $c)
                                                                                 @if ($c->id == $thirdChild->id)
                                                                                     @continue
                                                                                 @endif
@@ -1123,7 +1123,7 @@
                                                                                     {{ $c->id == $thirdChild->parent_id ? 'selected' : '' }}>
                                                                                     {{ $c->title }}
                                                                                 </option>
-                                                                            @endforeach
+                                                                            @endforeach --}}
                                 
                                                                         </select>
                                                                         <span class="text-danger">{{ $errors->first('parent_id') }}</span>
@@ -1240,7 +1240,7 @@
             </div>
         </div>
     </div>
-    <div id="category_cancle_policy" class="modal fade" role="dialog">
+    <div id="category_cancle_policy" class="modal fade" role="  dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1275,7 +1275,71 @@
       <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script type="text/javascript">
+        window.onload = function(e){ 
+            setTimeout(() => {
+                $.each($(".days_cancelation"), function() {
+                    var opt = '';
+                    var days_can_id = $(this).attr("data-day_can");
+                    //console.log(days_can_id);
+                    for (var n = 0; n < 32; ++ n){
+                        var selected = "";
+                        if(n == days_can_id) {
+                            selected = "selected"
+                        }
+                        opt += "<option value="+n+" "+selected+">"+n+"</option>";
+                    } 
+                    $(this).html(opt);
+                });
+                
+                $.each($(".days_refund"), function() {
+                    var opt = '';
+                    var days_ref_id = $(this).attr("data-day_can");
+                    //console.log(days_ref_id);
+                    for (var n = 0; n < 32; ++ n){
+                        var selected = "";
+                        if(n == days_ref_id) {
+                            selected = "selected"
+                        }
+                        opt += "<option value="+n+" "+selected+">"+n+"</option>";
+                    } 
+                    $(this).html(opt);
+                });
+                //debugger;
+                $.each($(".submit_on_change"), function() {
+                    var opta = '';
+                    var cat_id = $(this).attr("data-cat_id");
+                    var catArrs = <?php echo json_encode($allCategories); ?>;
+                    $.each(catArrs, function(i, v) {
+                        //console.log('index : '+i+ '==> Value'+v.id);
+                        var selectedCat = "";
+                        if(v.id == cat_id) {
+                            selectedCat = "selected";
+                        }
+                        opta += "<option value="+i+" "+selectedCat+">"+v.title+"</option>";
+                    });
+                    $(this).html(opta);
+                });
 
+                // var catArr = <?php echo json_encode($category_segments); ?>;
+                // console.log(catArr);
+                // $.each($(".segmanet"), function() {
+                //     var opts = '';
+                //     var cat_ids = $(this).attr("data-category_segment_id");
+                //     $.each(catArr, function(i, v) {
+                //         //console.log('index : '+i+ '==> Value'+v.id);
+                //         var selectedCats = "";
+                //         if(i == cat_ids) {
+                //             selectedCats = "selected";
+                //         }
+                //         opts += "<option value="+v.id+" "+selectedCats+">"+v.name+"</option>";
+                //     });
+                //     $(this).html(opts);
+                // });
+
+                
+            }, 3000);            
+        }
+        
         $(document).on("click",".category_cancle_policy",function() { 
 			  console.log(this);
             var category_id = $(this).data("id");
