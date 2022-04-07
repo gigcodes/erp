@@ -296,6 +296,7 @@
                     <tr>
                         <th width="3%"><input type="checkbox" onchange="checkAll(this)" name="chk[]"></th>
                         <th width="4%">ID</th>
+                        <th width="10%">Created At</th>
                         <th width="10%">Website</th>
                         <th width="5%">Parent Task</th>
                         <th width="9%">Subject</th>
@@ -1798,14 +1799,14 @@
                             }
                             $('#status_quick_history_modal table tbody').append(
                                 '<tr>\
-                                                                                                                                                                                                                                                                                    <td>' +
+                                                                                                                                                                                                                                                                                                <td>' +
                                 moment(
                                     item[
                                         'created_at'])
                                 .format(
                                     'DD/MM/YYYY') +
                                 '</td>\
-                                                                                                                                                                                                                                                                                    <td>' +
+                                                                                                                                                                                                                                                                                                <td>' +
                                 ((
                                         item[
                                             'old_value'] !=
@@ -1814,15 +1815,15 @@
                                         'old_value'] :
                                     '-') +
                                 '</td>\
-                                                                                                                                                                                                                                                                                    <td>' +
+                                                                                                                                                                                                                                                                                                <td>' +
                                 item[
                                     'new_value'] +
                                 '</td>\
-                                                                                                                                                                                                                                                                                    <td>' +
+                                                                                                                                                                                                                                                                                                <td>' +
                                 item[
                                     'name'] +
                                 '</td>\
-                                                                                                                                                                                                                                                                                </tr>'
+                                                                                                                                                                                                                                                                                            </tr>'
                             );
                         });
                     }
@@ -1868,14 +1869,14 @@
                     $.each(data.users, function(i, item) {
                         $('#user_history_div table tbody').append(
                             '<tr>\
-                                                                                                                                                                                                                                                                            <td>' +
+                                                                                                                                                                                                                                                                                        <td>' +
                             moment(
                                 item[
                                     'created_at'])
                             .format(
                                 'DD/MM/YYYY') +
                             '</td>\
-                                                                                                                                                                                                                                                                            <td>' +
+                                                                                                                                                                                                                                                                                        <td>' +
                             ((
                                     item[
                                         'user_type'] !=
@@ -1884,7 +1885,7 @@
                                     'user_type'] :
                                 '-') +
                             '</td>\
-                                                                                                                                                                                                                                                                            <td>' +
+                                                                                                                                                                                                                                                                                        <td>' +
                             ((
                                     item[
                                         'old_name'] !=
@@ -1893,7 +1894,7 @@
                                     'old_name'] :
                                 '-') +
                             '</td>\
-                                                                                                                                                                                                                                                                            <td>' +
+                                                                                                                                                                                                                                                                                        <td>' +
                             ((
                                     item[
                                         'new_name'] !=
@@ -1902,11 +1903,11 @@
                                     'new_name'] :
                                 '-') +
                             '</td>\
-                                                                                                                                                                                                                                                                            <td>' +
+                                                                                                                                                                                                                                                                                        <td>' +
                             item[
                                 'updated_by'] +
                             '</td>\
-                                                                                                                                                                                                                                                                        </tr>'
+                                                                                                                                                                                                                                                                                    </tr>'
                         );
                     });
                 }
@@ -1937,14 +1938,14 @@
                             }
                             $('#date_history_modal table tbody').append(
                                 '<tr>\
-                                                                                                                                                                                                                                                                            <td>' +
+                                                                                                                                                                                                                                                                                        <td>' +
                                 moment(
                                     item[
                                         'created_at'])
                                 .format(
                                     'DD/MM/YYYY') +
                                 '</td>\
-                                                                                                                                                                                                                                                                            <td>' +
+                                                                                                                                                                                                                                                                                        <td>' +
                                 ((
                                         item[
                                             'old_value'] !=
@@ -1953,7 +1954,7 @@
                                         'old_value'] :
                                     '-') +
                                 '</td>\
-                                                                                                                                                                                                                                                                            <td>' +
+                                                                                                                                                                                                                                                                                        <td>' +
                                 item[
                                     'new_value'] +
                                 '</td>\<td>' +
@@ -1962,7 +1963,7 @@
                                 '</td><td><input type="radio" name="approve_date" value="' +
                                 item['id'] + '" ' + checked +
                                 ' class="approve_date"/></td>\
-                                                                                                                                                                                                                                                                        </tr>'
+                                                                                                                                                                                                                                                                                    </tr>'
                             );
                         });
                     }
@@ -2025,14 +2026,14 @@
                             var sec = parseInt(item['total_tracked']);
                             $('#time_tracked_div table tbody').append(
                                 '<tr>\
-                                                                                                                                                                                                                                                                            <td>' +
+                                                                                                                                                                                                                                                                                        <td>' +
                                 moment(
                                     item[
                                         'created_at'])
                                 .format(
                                     'DD-MM-YYYY') +
                                 '</td>\
-                                                                                                                                                                                                                                                                            <td>' +
+                                                                                                                                                                                                                                                                                        <td>' +
                                 ((
                                         item[
                                             'name'] !=
@@ -2041,12 +2042,12 @@
                                         'name'] :
                                     '') +
                                 '</td>\
-                                                                                                                                                                                                                                                                            <td>' +
+                                                                                                                                                                                                                                                                                        <td>' +
                                 humanizeDuration(
                                     sec,
                                     's') +
                                 '</td>\
-                                                                                                                                                                                                                                                                        </tr>'
+                                                                                                                                                                                                                                                                                    </tr>'
                             );
                         });
                     }
@@ -2071,14 +2072,14 @@
                             var sec = parseInt(item['total_tracked']);
                             $('#time_tracked_div table tbody').append(
                                 '<tr>\
-                                                                                                                                                                                                                                                                            <td>' +
+                                                                                                                                                                                                                                                                                        <td>' +
                                 moment(
                                     item[
                                         'starts_at_date'])
                                 .format(
                                     'DD-MM-YYYY') +
                                 '</td>\
-                                                                                                                                                                                                                                                                            <td>' +
+                                                                                                                                                                                                                                                                                        <td>' +
                                 ((
                                         item[
                                             'name'] !=
@@ -2087,12 +2088,12 @@
                                         'name'] :
                                     '') +
                                 '</td>\
-                                                                                                                                                                                                                                                                            <td>' +
+                                                                                                                                                                                                                                                                                        <td>' +
                                 humanizeDuration(
                                     sec,
                                     's') +
                                 '</td>\
-                                                                                                                                                                                                                                                                        </tr>'
+                                                                                                                                                                                                                                                                                    </tr>'
                             );
                         });
                     }
@@ -2147,14 +2148,14 @@
                             }
                             $('#time_history_div table tbody').append(
                                 '<tr>\
-                                                                                                                                                                                                                                                                            <td>' +
+                                                                                                                                                                                                                                                                                        <td>' +
                                 moment(
                                     item[
                                         'created_at'])
                                 .format(
                                     'DD/MM/YYYY') +
                                 '</td>\
-                                                                                                                                                                                                                                                                            <td>' +
+                                                                                                                                                                                                                                                                                        <td>' +
                                 ((
                                         item[
                                             'old_value'] !=
@@ -2163,7 +2164,7 @@
                                         'old_value'] :
                                     '-') +
                                 '</td>\
-                                                                                                                                                                                                                                                                            <td>' +
+                                                                                                                                                                                                                                                                                        <td>' +
                                 item[
                                     'new_value'] +
                                 '</td><td>' +
@@ -2172,7 +2173,7 @@
                                 '</td><td><input type="radio" name="approve_time" value="' +
                                 item['id'] + '" ' + checked +
                                 ' class="approve_time"/></td>\
-                                                                                                                                                                                                                                                                        </tr>'
+                                                                                                                                                                                                                                                                                    </tr>'
                             );
                         });
 

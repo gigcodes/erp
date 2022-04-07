@@ -5,6 +5,7 @@
         <td style="display:table-cell;vertical-align: baseline;">
             {{ $task->id }}
         </td>
+        <td style="vertical-align: baseline;"> {{ $task->created_at->format('d-m-Y') }} </td>
         <td style="vertical-align: baseline;">
             @php
                 $website = substr($task->website, 0, 10) . '...';
