@@ -498,6 +498,11 @@ class PurchaseProductController extends Controller
                 'status' => 'pre-send',
                 'is_draft' => 0,
             ]);
+			\App\EmailLog::create([
+				'email_id'   => $email->id,
+				'email_log' => 'Email initiated',
+				'message'       => $email->to
+			]);
 
             \App\Jobs\SendEmail::dispatch($email);
 
@@ -1173,6 +1178,12 @@ class PurchaseProductController extends Controller
                     'status' => 'pre-send',
                     'is_draft' => 0,
                 ]);
+				
+				\App\EmailLog::create([
+					'email_id'   => $email->id,
+					'email_log' => 'Email initiated',
+					'message'       => $email->to
+				]);
 
                 \App\Jobs\SendEmail::dispatch($email);
             }

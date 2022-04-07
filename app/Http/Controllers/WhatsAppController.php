@@ -70,7 +70,6 @@ use Tickets;
 use Validator;
 use App\LogChatMessage;
 use \App\Helpers\TranslationHelper;
-use App\WatsonChatJourney;
 
 class WhatsAppController extends FindByNumberController
 {
@@ -1061,9 +1060,11 @@ class WhatsAppController extends FindByNumberController
             } catch (\Exception $e) {
                 //continue
             }
+
             WatsonChatJourney::updateOrCreate(['chat_message_id'=>$quoted_message_id], ['chat_entered'=>1]);
             WatsonChatJourney::updateOrCreate(['chat_message_id'=>$quoted_message_id], ['message_received'=>1]);
      
+
             // Set default parameters
             $from = str_replace('@c.us', '', $chatapiMessage['author']);
             $instanceId = $data['instanceId'];
@@ -1524,6 +1525,7 @@ class WhatsAppController extends FindByNumberController
             if (empty($to)) {
                 $to = $config[0]['number'];
             }
+
 			
              WatsonChatJourney::updateOrCreate(['chat_message_id'=>$quoted_message_id], ['reply_found_in_database'=>1]);
              WatsonChatJourney::updateOrCreate(['chat_message_id'=>$quoted_message_id], ['reply'=> $params['message']]);
@@ -1532,6 +1534,7 @@ class WhatsAppController extends FindByNumberController
                 (new \App\Services\Products\SendImagesOfProduct)->check($message);
                 \App\Helpers\MessageHelper::whatsAppSend($customer, $params['message'], true, $message, false, $parentMessage);
                 WatsonChatJourney::updateOrCreate(['chat_message_id'=>$quoted_message_id], ['response_sent_to_cusomer'=>1]);
+
             }
 
             // Is this message from a customer?
@@ -1647,9 +1650,11 @@ class WhatsAppController extends FindByNumberController
                         ]);
                         $params['chat_message_log_id'] = $chat_message_log_id;
                         \App\Helpers\MessageHelper::sendwatson($customer, $params['message'], true, $message, $params, false, 'customer');
+
 						WatsonChatJourney::updateOrCreate(['chat_message_id'=>$quoted_message_id], ['reply_searched_in_watson'=>1]);
                         WatsonChatJourney::updateOrCreate(['chat_message_id'=>$quoted_message_id], ['reply'=> $params['message']]);
      
+
                         \App\ChatbotMessageLogResponse::StoreLogResponse([
                             'chatbot_message_log_id' => $chat_message_log_id,
                             'request' => "",

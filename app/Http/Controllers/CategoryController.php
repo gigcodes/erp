@@ -15,6 +15,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\CategoryCancellationPolicyLog;
 
 class CategoryController extends Controller
 {
@@ -535,15 +536,31 @@ class CategoryController extends Controller
         }
     }
 
+    public function categoryCancellationPolicyLog($categoryId = '', $changeParentId = '', $dayType = '', $dayChange = '', $dayOld = '')
+    {
+        return CategoryCancellationPolicyLog::create(
+            [
+                'category_id' => $categoryId, 
+                'change_parent_id' => $changeParentId,
+                'day_type' => $dayType,
+                'day_change' => $dayChange,
+                'day_old' => $dayOld, 
+                'status' => '1'
+            ]
+        );
+    }
+
     public function updateCancelationPolicy(Request $request, $id)
     {
         if ($request->days_cancelation) {
             \App\Category::where('id', $id)->update(['days_cancelation' => $request->days_cancelation]);
+            $this->categoryCancellationPolicyLog($id, $id,"days_cancelation", $request->days_cancelation, $request->day_old);
         }
 
         if ($request->days_refund) {
             $request->input('days_refund');
             \App\Category::where('id', $id)->update(['days_refund' => $request->days_refund]);
+            $this->categoryCancellationPolicyLog($id, $id, "days_refund", $request->days_refund, $request->day_old);
         }
         
         $sql = "select  id,
@@ -560,15 +577,32 @@ class CategoryController extends Controller
             
             if ($request->days_cancelation) {
                 \App\Category::where('id', $result->id)->update(['days_cancelation' => $request->days_cancelation]);
+                $this->categoryCancellationPolicyLog($result->id, $id, "days_cancelation", $request->days_cancelation, $request->day_old);
             }
 
             if ($request->days_refund) {
                 $request->input('days_refund');
                 \App\Category::where('id', $result->id)->update(['days_refund' => $request->days_refund]);
+                $this->categoryCancellationPolicyLog($result->id, $id, "days_refund", $request->days_refund, $request->day_old);
             }
         }
         return response()->json(['success-remove'=> 'Days Cancelation '.$request->days_cancelation . ' updated successfully']);
 
+    }
+
+    public function getCategoryCancellationPolicyLog(Request $request)
+    {
+        $getCanPol = CategoryCancellationPolicyLog::where(
+            [
+                ['change_parent_id', '=', $request->category_id], 
+                ['day_type', '=', $request->day_type]
+                
+            ]
+        )->get();
+        if(!empty($getCanPol))
+            return response()->json(["code" => 200, "data" => $getCanPol]);
+        else
+            return response()->json(["code" => 500 , "message" => "Can not found Log"]);
     }
 
     public function updateCategoryReference(Request $request)
