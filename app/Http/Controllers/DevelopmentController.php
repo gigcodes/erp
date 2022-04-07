@@ -1036,7 +1036,7 @@ class DevelopmentController extends Controller
         
 
         if (isset($request->assigned_to) && !empty($request->assigned_to)) {
-            $task = $task->whereIn('tasks.assign_to', $request->assigned_to);
+            $task = $task->where('tasks.assign_to', $request->assigned_to);
         }
 
         if (isset($request->task_status) && !empty($request->task_status)) {
@@ -1070,7 +1070,8 @@ class DevelopmentController extends Controller
             }
         }
         
-        $tasks = $task->paginate(Setting::get('pagination'));//dd($statusList);
+        $tasks = $task->paginate(50);//dd($statusList);
+
         $task_statuses=TaskStatus::all();
 
         if ($request->ajax()) {
@@ -1089,7 +1090,8 @@ class DevelopmentController extends Controller
             'title' => $title,
             'task_statuses' => $task_statuses,
             'tasks'=>$tasks,
-            'dev' => $dev
+            'dev' => $dev,
+            'count' => $tasks->total(),
         ]);
     }
 

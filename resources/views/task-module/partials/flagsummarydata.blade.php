@@ -5,7 +5,7 @@
         <td style="display:table-cell;vertical-align: baseline;">
             {{ $task->id }}
         </td>
-        <td style="vertical-align: baseline;"> {{ $task->created_at->format('d-m-Y') }} </td>
+        <td style="vertical-align: baseline;"> {{ $task->created_at->format('d-m-y') }} </td>
         <td style="vertical-align: baseline;">
             @php
                 $website = substr($task->website, 0, 10) . '...';
@@ -16,26 +16,7 @@
             {{ $task->parent_task_id }}
         </td>
         <td style="vertical-align: baseline;">
-
-            <a data-toggle="modal" data-target="#task_subject{{ $task->id }}" class="btn pd-5 task-set-reminder"
-                style="overflow: hidden;display: inline-block;text-overflow: ellipsis;white-space: nowrap;width: 100%;">
-                {{ $task->task_subject }}
-            </a>
-
-            <div id="task_subject{{ $task->id }}" class="modal fade custom-modle-sm" role="dialog">
-                <div class="modal-dialog"
-                    style=" display: flex;justify-content: center;align-items: center; height: 100%;flex-wrap: wrap;">
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                        <div class="modal-body">
-                            {{ $task->task_subject }}
-                        </div>
-                        <div class="modal-footer" style="padding-top: 8px; padding-bottom: 8px;">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {{ $website = substr($task->task_subject, 0, 10) . '...' }}
         </td>
         <td>
             <div class="d-flex">
@@ -60,21 +41,26 @@
             @if (isset($special_task->timeSpent) && $special_task->timeSpent->task_id > 0)
                 {{ formatDuration($special_task->timeSpent->tracked) }}
 
-                <button style="float:right;padding-right:0px;" type="button"
-                    class="btn btn-xs show-tracked-history_task" title="Show tracked time History"
-                    data-id="{{ $task->id }}" data-type="developer"><i class="fa fa-info-circle"></i></button>
+                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history_task"
+                    title="Show tracked time History" data-id="{{ $task->id }}" data-type="developer"><i
+                        class="fa fa-info-circle"></i></button>
             @endif
         </td>
         <td style="vertical-align: baseline;">
 
-            {{ $task->approximate }}
+            @php
+                echo date('d-m-y H:i:s', strtotime($task->approximate));
+            @endphp
             <button type="button" style="float:right;" class="btn btn-xs show-time-history-task" title="Show History"
                 data-id="{{ $task->id }}" data-user_id="{{ $task->assign_to }}" style="background: none;"><i
                     class="fa fa-info-circle"></i></button>
         </td>
         <td style="vertical-align: baseline;">
             <div class="d-flex">
-                {{ $task->due_date }}
+
+                @php
+                    echo date('d-m-y H:i:s', strtotime($task->due_date));
+                @endphp
                 {{-- <span> 2021-12-07 00:00:00</span> --}}
                 <button type="button" class="btn btn-xs show-date-history" title="Show tracked time History"
                     data-id="{{ $task->id }}" data-type="task" style="float:right;margin-left: auto;"><i
@@ -121,9 +107,9 @@
             </div>
         </td>
 
-        <td class="communication-td devtask-com d-flex" style="border-bottom: none; display: block;">
+        <td class="communication-td devtask-com " style="border-bottom: none; display: block;">
             <!-- class="expand-row" -->
-            <div class="d-flex">
+            <p>
                 <select id="master_user_id" class="form-control change-task-status select2"
                     data-id="{{ $task->id }}" name="master_user_id" id="user_{{ $task->id }}">
                     @if (!empty($task_statuses))
@@ -136,8 +122,9 @@
                         @endforeach
                     @endif
                 </select>
-
-                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history"
+            </p>
+            <p>
+                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history p-"
                     title="Show Status History" data-id="{{ $task->id }}" data-type="task">
                     <i class="fa fa-info-circle"></i>
                 </button>
@@ -149,8 +136,7 @@
                     <button type="button" class="btn btn-image flag-task pd-5" data-type="task"
                         data-id="{{ $task->id }}"><img src="{{ asset('images/unflagged.png') }}" /></button>
                 @endif
-            </div>
-
+            </p>
         </td>
 
         <td style="vertical-align: initial;">
