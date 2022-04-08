@@ -2885,9 +2885,7 @@ class TaskModuleController extends Controller
         ],200);
 	}
 
-<<<<<<< HEAD
     
-=======
     public function getTaskDueDateHistoryLog(Request $request)
     {
         $taskHistory = TaskDueDateHistoryLog::where([['task_id', '=', $request->task_id]])->get();
@@ -2907,7 +2905,6 @@ class TaskModuleController extends Controller
         }
     }
 
->>>>>>> 1be50dd68a67d0f625a33d564d2faa3a6ffa2380
 	public function createHubstaffManualTask(Request $request) {
 		$task = Task::find($request->id);
 		if($task) {
