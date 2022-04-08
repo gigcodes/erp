@@ -57,11 +57,54 @@ class MailinglistTemplateController extends Controller
         return view("marketing.mailinglist.templates.index", compact('mailings', 'rViewMail', 'MailingListCategory', 'storeWebSites'));
 
     }
+
+
     public function ajax(Request $request) 
     {
+        
+        $query = MailinglistTemplate::whereHas('category', function($query) use($request){
+            if(isset($request->MailingListCategory) && $request->MailingListCategory != ''){
+                $query->where('id', $request->MailingListCategory);
+            }
+        })->whereHas('storeWebsite', function ($query) use($request){
+            if(isset($request->StoreWebsite) && $request->StoreWebsite != ''){
+                $query->where('id', $request->StoreWebsite);
+            }
+        })->where(function ($query) use($request){
+            if ($request->term) {
+                $query->where('name', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('mail_class', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('mail_tpl', 'LIKE', '%' . $request->term . '%');
+            }
+            if ($request->date) {
+                $query->where('created_at', 'LIKE', '%' . $request->date . '%');
+            }
 
+            // pawan added for filter if key value is found on change
+            if(isset($request->MailingListCategory) && $request->MailingListCategory != ''){
+                $query->where('category_id', $request->MailingListCategory);
+            }
+            if(isset($request->StoreWebsite) && $request->StoreWebsite != ''){
+                $query->where('store_website_id', $request->StoreWebsite);
+            }
+            //end
+        })->paginate(20);
+       
+        
+
+        return response()->json([
+            'mailings' => view('partials.mailing-template.list', [
+                'mailings' => $query,
+            ])->render(),
+        ]);
+
+    }
+    public function ajax_call_old(Request $request) 
+    {
+
+        
         $query = MailinglistTemplate::query();
-
+        
         if ($request->term) {
             $query->where('name', 'LIKE', '%' . $request->term . '%')
                 ->orWhere('mail_class', 'LIKE', '%' . $request->term . '%')
@@ -70,7 +113,9 @@ class MailinglistTemplateController extends Controller
         if ($request->date) {
             $query->where('created_at', 'LIKE', '%' . $request->date . '%');
         }
+
         $query = $query->get();
+        
 
         return response()->json([
             'mailings' => view('partials.mailing-template.list', [
