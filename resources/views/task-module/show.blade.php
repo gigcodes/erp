@@ -823,7 +823,8 @@ input.cmn-toggle-round + label {
 
                                                     </div>
                                                 </div>
-                                                <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{ $task->id }}"><img style="padding: 0;margin-top: -14px;" src="{{asset('images/filled-sent.png')}}"/></button>
+                                                <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{ $task->id }}" data-old_due_date="{{$taskDueDate}}"><img style="padding: 0;margin-top: -14px;" src="{{asset('images/filled-sent.png')}}"/></button>
+                                                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs" title="Show History" data-task_type="TASK" data-taskid="{{ $task->id }}"><i class="fa fa-info-circle get_due_date_history_log" data-task_type="TASK" data-taskid="{{ $task->id }}"></i></button>
                                             </div>
 
                                             @if($task->is_milestone)
@@ -1265,6 +1266,32 @@ input.cmn-toggle-round + label {
 					      </tr>
 					    </thead>
 					    <tbody class="task-image-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="preview-task-due-date-history-log-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th style="width:1%;">ID</th>
+					        <th style=" width: 12%">Update By</th>
+					        <th style="word-break: break-all; width:12%">Old Due date</th>
+                            <th style="word-break: break-all; width:12%">New Due date</th>
+					        <th style="width: 11%">Created at</th>
+                          </tr>
+					    </thead>
+					    <tbody class="task-due-date-list-view">
 					    </tbody>
 					</table>
 				</div>
@@ -2218,6 +2245,7 @@ input.cmn-toggle-round + label {
             var thiss = $(this);
             var task_id = $(this).data('taskid');
             var date = $(this).siblings().find('.due_date_cls').val();
+            var oldDueDate = $(this).data('old_due_date');
             if (date != '') {
                 $.ajax({
                         url: "{{route('task.update.due_date')}}",
@@ -2228,7 +2256,8 @@ input.cmn-toggle-round + label {
                         "data": {
                             task_id : task_id,
                             date : date,
-                            type : "TASK"
+                            type : "TASK",
+                            old_due_date : oldDueDate
                         }
                     }).done(function (response) {
                         toastr['success']('Successfully updated');
@@ -2238,6 +2267,38 @@ input.cmn-toggle-round + label {
             } else {
                 alert('Please enter a date first');
             }
+        });
+
+
+        $(document).on("click",".get_due_date_history_log",function(e) {
+            var task_id = $(this).data('taskid');
+            var task_type = $(this).data('task_type');
+            $.ajax({
+                type: "POST",
+                url: "{{route('task.get.due_date_history_log')}}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    task_id : task_id,
+                    type : task_type,
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function (response) {
+                if(response.code == 200) {
+                    $("#loading-image").hide();
+                    $("#preview-task-due-date-history-log-modal").modal("show");
+                    $(".task-due-date-list-view").html(response.data);
+                    toastr['success'](response.msg);
+                }else{
+                    $("#loading-image").hide();
+                    toastr['error'](response.msg);
+                }
+                
+            }).fail(function (response) {
+                $("#loading-image").hide();
+                toastr['error'](response.msg);
+            });
         });
         // $(document).on('click', '.create-task-btn', function () {
         //     $.ajax({
