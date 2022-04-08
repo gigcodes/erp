@@ -30,6 +30,8 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\LiveChatLog;
 use App\LiveChatEventLog;
 use App\GoogleTranslate;
+use App\WatsonChatJourney;
+use App\ChatbotReply;
 
 class LiveChatController extends Controller
 {
@@ -56,7 +58,7 @@ class LiveChatController extends Controller
 		} else if(isset($receivedJson->payload->chat_id)) {
 			$threadId = $receivedJson->payload->chat_id;
 		}
-		
+		WatsonChatJourney::updateOrCreate(['chat_id'=>$threadId], ['chat_entered'=>1]);
 		    if(isset($receivedJson->payload->chat->thread->properties->routing->start_url)) {
 				$websiteURL = self::getDomain($receivedJson->payload->chat->thread->properties->routing->start_url);
 				$website = \App\StoreWebsite::where("website", "like", "%" . $websiteURL . "%")->first();
@@ -238,6 +240,7 @@ class LiveChatController extends Controller
                             'replied_chat_id' => $chatMessage->id,
                             'reply_from' => 'chatbot',
                         ]);
+						WatsonChatJourney::updateOrCreate(['chat_id'=>$threadId], ['message_received'=>$message]);
 						LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'store_website_id'=>$websiteId, 'thread'=>$chatId, 'event_type'=>'incoming_event', 'log'=>$message." saved in chatbot reply ."]);      
 				    }
                     //END - DEVTASK-18280
@@ -433,7 +436,16 @@ class LiveChatController extends Controller
 				try {
                     $text = $chat->thread->events[1]->text;
 					LiveChatEventLog::create(['customer_id'=>$customer->id, 'store_website_id'=>$websiteId, 'thread'=>$chatId, 'event_type'=>"incoming_chat", 'log'=>"text found ".$text]);
-                } catch (\Exception $e) {
+                    $replyFound = ChatbotReply::where('answer', $text)->first(); 
+                    if($replyFound == null) {
+					    WatsonChatJourney::updateOrCreate(['chat_id'=>$threadId], ['reply_searched_in_watson'=>1]);
+					} else {
+						WatsonChatJourney::updateOrCreate(['chat_id'=>$threadId], ['reply_found_in_database'=>1]);
+					}
+				   
+                    WatsonChatJourney::updateOrCreate(['chat_id'=>$threadId], ['reply'=>$text ]);
+                    WatsonChatJourney::updateOrCreate(['chat_id'=>$threadId], ['response_sent_to_cusomer'=>1 ]);
+				} catch (\Exception $e) {
                     LiveChatEventLog::create(['customer_id'=>$customer->id, 'store_website_id'=>$websiteId, 'thread'=>$chatId, 'event_type'=>"incoming_chat", 'log'=>"incoming chat error ".$e." <br>data ".json_encode($chat->thread->events[1])]);
                     $text = 'Error';    
                 }
@@ -1656,6 +1668,12 @@ class LiveChatController extends Controller
                                     'status' => 'pre-send',
                                     'store_website_id' => null,
                                 ]);
+								
+								\App\EmailLog::create([
+									'email_id'   => $email->id,
+									'email_log' => 'Email initiated',
+									'message'       => $email->to
+								]);
 
                                 try{
                                     \App\Jobs\SendEmail::dispatch($email);
@@ -2087,7 +2105,11 @@ class LiveChatController extends Controller
             'store_website_id' => $couponCodeRule->store_website_id,
             'is_draft'         => 0,
         ]);
-
+        \App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Email initiated',
+            'message'       => $email->to
+        ]);
         \App\Jobs\SendEmail::dispatch($email);
         \App\CouponCodeRuleLog::create([
             'rule_id' => $ruleId,
@@ -2149,4 +2171,8 @@ class LiveChatController extends Controller
 
     }
 
+   public function watsonJourney() {
+	   $watsonJourney = WatsonChatJourney::orderBy('id', 'desc')->paginate();
+	   return view('livechat.journey', compact('watsonJourney'));
+   }
 }

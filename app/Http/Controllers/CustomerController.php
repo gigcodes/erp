@@ -1734,7 +1734,11 @@ class CustomerController extends Controller
             'status' => 'pre-send',
             'store_website_id' => null,
         ]);
-
+        \App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Email initiated',
+            'message'       => $email->to
+        ]);
         \App\Jobs\SendEmail::dispatch($email);
 
         return redirect()->route('customer.show', $customer->id)->withSuccess('You have successfully sent an email!');
@@ -1897,7 +1901,11 @@ class CustomerController extends Controller
             'additional_data' => '',
             'status' => 'pre-send',
         ]);
-
+        \App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Email initiated',
+            'message'       => $email->to
+        ]);
         \App\Jobs\SendEmail::dispatch($email);
 
         $message = "Dear $customer->name, this is to confirm that an amount of Rs. $customer->credit - is credited with us against your previous order. You can use this credit note for reference on your next purchase. Thanks & Regards, Solo Luxury Team";

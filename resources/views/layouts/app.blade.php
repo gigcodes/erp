@@ -751,6 +751,7 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('chat.dndList') }}">DND Manage</a>
                                             <a class="dropdown-item" href="{{ url('customer/credit') }}">Customer Credit</a>
                                             <a class="dropdown-item" href="{{ url('chatbot-message-log') }}">Chatbot Message Log</a>
+                                            <a class="dropdown-item" href="{{ url('watson-journey') }}">Watson Journey</a>
                                             <a class="dropdown-item" href="{{ url('customers/accounts') }}">Store website customer</a>
                                             <a class="dropdown-item" href="{{ route('product.customer-reviews') }}" >Customer Reviews</a>
                                             <a class="dropdown-item" href="{{ route('customer.priority.points') }}" >Customer Priority</a>
@@ -763,7 +764,7 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item" href="{{ action('ColdLeadsController@showImportedColdLeads') }}">Imported Cold leads</a>
                                             </ul>
                                         </li>
-                                    </ul>
+                                    </ul>                                                                                                                                                                                                                                                                                     
                                 </li>
 
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -842,6 +843,7 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item" href="{{ route('order.status.messages') }}">Order Status Messages</a>
                                                 <a class="dropdown-item" href="{{ route('lead-order.index') }}">Lead order</a>
                                                 <a class="dropdown-item" href="{{ url('order/charity-order') }}">Charity order</a>
+                                                <a class="dropdown-item" href="{{ route('order.get.email.send.journey.logs') }}">Order email journey</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -2743,6 +2745,8 @@ if (!empty($notifications)) {
 
     <script type="text/javascript" src="{{url('js/jquery-ui.js')}}"></script>
     <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
     <script>
         // $('#chat-list-history').on('hidden.bs.modal', function (e) {

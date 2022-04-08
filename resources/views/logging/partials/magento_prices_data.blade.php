@@ -23,8 +23,16 @@
         {{$log->duty_price}}
     </td>
     <td>
+        <?php $ivaPercentage = \App\Product::IVA_PERCENTAGE;?>
+        {{ $ivaPrice = $log->default_price + ($log->default_price * $ivaPercentage / 100) - $log->segment_discount}}
+    </td>
+    <td>
         {{$log->override_price}}
     </td>
+    <td>
+        {{round((($ivaPrice - $log->override_price) / $ivaPrice) * 100, 2).'%'}}
+    </td>
+    
     <td>
     @if($log->status)
         {{$log->status}}
