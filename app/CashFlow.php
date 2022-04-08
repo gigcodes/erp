@@ -23,7 +23,7 @@ class CashFlow extends Model
      * @SWG\Property(property="currency",type="string")
      * @SWG\Property(property="status",type="string")
      * @SWG\Property(property="order_status",type="sting")
-     * @SWG\Property(property="updated_by",type="datetime")
+     * @SWG\Property(property="updated_by",type="integer")
      * @SWG\Property(property="cash_flow_able_id",type="integer")
      * @SWG\Property(property="cash_flow_able_type",type="sting")
      */
