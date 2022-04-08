@@ -14,13 +14,17 @@ class UserAvaibilitiesChangeFromToDayMinute extends Migration
      */
     public function up()
     {
-        Schema::table('user_avaibilities', function($table){
-            $table->date('from')->nullable()->change();
-            $table->date('to')->nullable()->change();
-            $table->integer('day')->default(0)->change();
-            $table->time('minute')->change();
-            $table->text('date')->change();
-        });
+
+        
+        \DB::statement("ALTER TABLE `user_avaibilities` CHANGE `from` `from`
+        DATE NULL DEFAULT NULL,
+        CHANGE `to` `to`
+        DATE NULL DEFAULT NULL,
+        CHANGE `minute` `minute`
+        TIME NULL DEFAULT NULL,
+        CHANGE `date` `date` TEXT NULL DEFAULT NULL,
+        CHANGE `day` `day` INTEGER NULL DEFAULT NULL");
+    
     }
 
     /**
