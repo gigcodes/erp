@@ -81,6 +81,11 @@ Route::middleware('auth')->group(function () {
 
 });
 
+/** Magento Module */
+Route::middleware('auth')->group(function () {
+    Route::resource('magento_modules', 'MagentoModuleController');
+});
+
 /** Magento Settings */
 Route::middleware('auth')->group(function () {
 
@@ -977,6 +982,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
     Route::post('task/create/get-remark', 'TaskModuleController@createGetTaskRemark')->name('task.create.get.remark');
+    Route::post('task/get/due-date-history-log', 'TaskModuleController@getTaskDueDateHistoryLog')->name('task.get.due_date_history_log');
     Route::post('task/update/priority-no', 'TaskModuleController@updatePriorityNo')->name('task.update.updatePriorityNo');
     Route::post('task/time/history/approve', 'TaskModuleController@approveTimeHistory')->name('task.time.history.approve');
 
@@ -3204,6 +3210,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function (
     Route::post('/status/create', 'ReturnExchangeController@createStatus')->name('return-exchange.createStatus');
     Route::post('/status/delete', 'ReturnExchangeController@deleteStatus')->name('return-exchange.deleteStatus');
     Route::post('/addNewReply', 'ReturnExchangeController@addNewReply')->name('returnexchange.addNewReply');
+    Route::post('/update-status', 'ReturnExchangeController@updateExchangeStatuses')->name('returnexchange.update-status');
+    Route::get('/update-status-log/{id?}', 'ReturnExchangeController@listExchangeStatusesLog')->name('returnexchange.update_status_log');
 
     Route::prefix('{id}')->group(function () {
         Route::get('/detail', 'ReturnExchangeController@detail')->name('return-exchange.detail');
@@ -3255,7 +3263,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('twilio/get_website_wise_key_data', 'TwilioController@getTwilioKeyData')->name('twilio.get_website_wise_key_data');
     Route::get('twilio/get_website_wise_key_data_options/{web_site_id?}', 'TwilioController@getTwilioKeyDataOptions')->name('twilio.get_website_wise_key_data_options');
     Route::get('twilio/erp/logs', 'TwilioController@twilioErpLogs')->name('twilio.erp_logs');
-    Route::get('twilio/call/journey', 'TwilioController@twilioCallJourney')->name('twilio.call_journey');
+    Route::any('twilio/call/journey', 'TwilioController@twilioCallJourney')->name('twilio.call_journey');
     Route::get('twilio/webhook-error/logs', 'TwilioController@twilioWebhookErrorLogs')->name('twilio.webhook.error.logs');
     Route::get('twilio/account-logs', 'TwilioController@twilioAccountLogs')->name('twilio.account_logs');
     Route::get('twilio/conditions', 'TwilioController@getConditions')->name('twilio.conditions');
@@ -3444,6 +3452,8 @@ Route::prefix('referralprograms')->middleware('auth')->group(function () {
     Route::get('/{id?}/edit', 'ReferralProgramController@edit')->name('referralprograms.edit');
     Route::post('/store', 'ReferralProgramController@store')->name('referralprograms.store');
     Route::post('/update', 'ReferralProgramController@update')->name('referralprograms.update');
+    // pawan added for ajax call
+    Route::get('referralprograms-ajax', 'ReferralProgramController@ajax')->name('referralprograms.ajax');
 
 });
 
@@ -3754,13 +3764,6 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::get('ads/create', 'SocialAdsController@create')->name('social.ad.create');
     Route::post('ads/history', 'SocialAdsController@history')->name('social.ad.history');
     Route::get('ads/getconfigPost', 'SocialAdsController@getpost')->name('social.ad.getpost');
-
-
-
-
-
-   
-
 
 });
 Route::get('test', 'ScrapController@listCron');

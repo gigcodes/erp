@@ -13,6 +13,7 @@ use App\User;
 use App\Task;
 use App\TaskCategory;
 use App\TaskStatus;
+use App\TaskDueDateHistoryLog;
 use App\Contact;
 use App\Setting;
 use App\Remark;
@@ -2841,18 +2842,41 @@ class TaskModuleController extends Controller
         return response()->json(['histories' => $task_histories]);
 	}
 	
+    /**
+     * This function is use for create task due data log history
+     * 
+     * @param mixed $request
+     * @return JsonResponce
+     */
+    public function createTaskDueDateHistoryLog($request)
+    {
+        try {
+            TaskDueDateHistoryLog::create([
+                'task_id' => $request->task_id,
+                'task_type' => $request->type,
+                'updated_by' => Auth::id(),
+                'old_due_date' => $request->old_due_date,
+                'new_due_date' => $request->date,
+            ]);
+            return response()->json(['code' => 200,'message' => 'Successfully updated'],200);
+        } catch(\Exception $e) {
+            return response()->json(['code' => 500, 'error' => $e->getMessage],200);
+        }
+    }
+
 	public function updateTaskDueDate(Request $request) {
-		
 		
 		if($request->type == 'TASK'){
 			$task = Task::find($request->task_id);
 			if($request->date) {
 				$task->update(['due_date' => $request->date]);
-			}
+                $this->createTaskDueDateHistoryLog($request);
+            }
 		}else{
 			if($request->date) {
 				DeveloperTask::where('id',$request->task_id)
 					->update(['due_date' => $request->date]);
+                    $this->createTaskDueDateHistoryLog($request);
 			}
 		}
 		
@@ -2861,7 +2885,29 @@ class TaskModuleController extends Controller
         ],200);
 	}
 
+<<<<<<< HEAD
     
+=======
+    public function getTaskDueDateHistoryLog(Request $request)
+    {
+        $taskHistory = TaskDueDateHistoryLog::where([['task_id', '=', $request->task_id]])->get();
+        
+        if (count($taskHistory)>0) {
+            $html = "";
+            foreach($taskHistory as $taskHistoryData) {
+                $html .= "<td>".$taskHistoryData->id."</td>";
+                $html .= "<td>".$taskHistoryData->users->name."</td>";
+                $html .= "<td>".$taskHistoryData->old_due_date."</td>";
+                $html .= "<td>".$taskHistoryData->new_due_date."</td>";
+                $html .= "<td>".$taskHistoryData->created_at."</td>";
+            }
+            return response()->json(['code'=>200 , 'data' => $html, 'msg' => 'Task Due Date History successfully loaded']);
+        } else {
+            return response()->json(['code' => 500, 'msg' => 'Task Due Date history long not found'], 200);
+        }
+    }
+
+>>>>>>> 1be50dd68a67d0f625a33d564d2faa3a6ffa2380
 	public function createHubstaffManualTask(Request $request) {
 		$task = Task::find($request->id);
 		if($task) {
