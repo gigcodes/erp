@@ -843,6 +843,7 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item" href="{{ route('order.status.messages') }}">Order Status Messages</a>
                                                 <a class="dropdown-item" href="{{ route('lead-order.index') }}">Lead order</a>
                                                 <a class="dropdown-item" href="{{ url('order/charity-order') }}">Charity order</a>
+                                                <a class="dropdown-item" href="{{ route('order.get.email.send.journey.logs') }}">Order email journey</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -2744,6 +2745,8 @@ if (!empty($notifications)) {
 
     <script type="text/javascript" src="{{url('js/jquery-ui.js')}}"></script>
     <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
     <script>
         // $('#chat-list-history').on('hidden.bs.modal', function (e) {

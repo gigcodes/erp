@@ -1668,6 +1668,12 @@ class LiveChatController extends Controller
                                     'status' => 'pre-send',
                                     'store_website_id' => null,
                                 ]);
+								
+								\App\EmailLog::create([
+									'email_id'   => $email->id,
+									'email_log' => 'Email initiated',
+									'message'       => $email->to
+								]);
 
                                 try{
                                     \App\Jobs\SendEmail::dispatch($email);
@@ -2099,7 +2105,11 @@ class LiveChatController extends Controller
             'store_website_id' => $couponCodeRule->store_website_id,
             'is_draft'         => 0,
         ]);
-
+        \App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Email initiated',
+            'message'       => $email->to
+        ]);
         \App\Jobs\SendEmail::dispatch($email);
         \App\CouponCodeRuleLog::create([
             'rule_id' => $ruleId,

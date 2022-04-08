@@ -976,11 +976,15 @@ class ReturnExchangeController extends Controller
         $website = \App\StoreWebsite::find($request->id);
         $magentoHelper = new MagentoHelperv2;
         $results = $magentoHelper->getReturnOrderStatus($website);
-        $response=$results->getData();
+        
+        if(!is_array($results)){
+            $response=$results->getData();
                             
-        if(isset($response) && isset($response->status) && $response->status==false){
-            return response()->json($response->error,500);
+            if(isset($response) && isset($response->status) && $response->status==false){
+                return response()->json($response->error,500);
+            }   
         }
+        
 
         foreach($results as $result){
             $checkIfExist = app(ReturnExchangeStatus::class)->where('status_name',$result->status)->where('store_website_id',$website->id)->first();

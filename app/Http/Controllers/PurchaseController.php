@@ -906,6 +906,12 @@ class PurchaseController extends Controller
             'additional_data'  => json_encode(['attachment' => $path]),
             'status'           => 'pre-send',
         ]);
+		
+		\App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Email initiated',
+            'message'       => $email->to
+        ]);
 
         \App\Jobs\SendEmail::dispatch($email);
 
