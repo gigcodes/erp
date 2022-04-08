@@ -2820,10 +2820,9 @@ class TaskModuleController extends Controller
 	}
 	
     public function taskCreateGetRemark(Request $request) {
-        if(Auth::user()->isAdmin) {
-            return response()->json(['message' => 'Success'],200);
-        }
-        return response()->json(['message' => 'Only admin can approve'],500);
+        
+        //return response()->json(['message' => 'Success'],200);
+        //return response()->json(['message' => 'Only admin can approve'],500);
 	}
 
 	public function getTrackedHistory(Request $request)
