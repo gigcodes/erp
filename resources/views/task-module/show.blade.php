@@ -1015,6 +1015,7 @@ input.cmn-toggle-round + label {
                                                     <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/unflagged.png')}}"/></button>
                                                 @endif
                                                 <button class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
+                                                <button class="btn btn-image set-remark" data-task_id="{{ $task->id }}"  data-task_type="TASK" ><i class="fa fa-comment" aria-hidden="true"></i></button>
                                             </div>
                                         </div>
                                     </td>
@@ -2234,6 +2235,33 @@ input.cmn-toggle-round + label {
                     });
             } else {
                 alert('Please enter a date first');
+            }
+        });
+
+        $(document).on('click', '.set-remark', function () {
+            var thiss = $(this);
+            var task_id = $(this).data('task_id');
+            var remark = $('#remark').val();
+            if (remark != '') {
+                $.ajax({
+                        url: "{{route('task.create.get.remark')}}",
+                        type: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        },
+                        "data": {
+                            task_id : task_id,
+                            remark : remark,
+                            type : "TASK",
+                        }
+                    }).done(function (response) {
+                        toastr['success']('Successfully Added');
+                    }).fail(function (errObj) {
+                        toastr['error'](errObj.message);
+                    });
+            } else {
+                //alert('Please enter a remark first');
+                toastr['error']('Please enter a remark first');
             }
         });
         // $(document).on('click', '.create-task-btn', function () {

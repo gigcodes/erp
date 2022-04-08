@@ -2819,6 +2819,13 @@ class TaskModuleController extends Controller
         ],500);
 	}
 	
+    public function taskCreateGetRemark(Request $request) {
+        if(Auth::user()->isAdmin) {
+            return response()->json(['message' => 'Success'],200);
+        }
+        return response()->json(['message' => 'Only admin can approve'],500);
+	}
+
 	public function getTrackedHistory(Request $request)
     {
         $id = $request->id;
@@ -2853,6 +2860,7 @@ class TaskModuleController extends Controller
         ],200);
 	}
 
+    
 	public function createHubstaffManualTask(Request $request) {
 		$task = Task::find($request->id);
 		if($task) {
