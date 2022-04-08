@@ -1277,6 +1277,34 @@ input.cmn-toggle-round + label {
         </div>
     </div>
 </div>
+
+<div id="preview-task-create-get-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th style="width:1%;">ID</th>
+					        <th style=" width: 12%">Update By</th>
+					        <th style="word-break: break-all; width:12%">Old Due date</th>
+                            <th style="word-break: break-all; width:12%">New Due date</th>
+					        <th style="width: 11%">Created at</th>
+                          </tr>
+					    </thead>
+					    <tbody class="task-create-get-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="preview-task-due-date-history-log-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -2270,6 +2298,37 @@ input.cmn-toggle-round + label {
             }
         });
 
+        $(document).on("click",".set-remark",function(e) {
+            var thiss = $(this);
+            var task_id = $(this).data('task_id');
+            var remark = $('#remark').val();
+            $.ajax({
+                type: "POST",
+                url: "{{route('task.create.get.remark')}}",
+                data: {
+                    task_id : task_id,
+                    remark : remark,
+                    type : "TASK",
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function (response) {
+                if(response.code == 200) {
+                    $("#loading-image").hide();
+                    $("#preview-task-create-get-modal").modal("show");
+                    $(".task-create-get-list-view").html(response.data);
+                    toastr['success'](response.msg);
+                }else{
+                    $("#loading-image").hide();
+                    toastr['error'](response.msg);
+                }
+                
+            }).fail(function (response) {
+                $("#loading-image").hide();
+                toastr['error'](response.msg);
+            });
+        });
 
         $(document).on("click",".get_due_date_history_log",function(e) {
             var task_id = $(this).data('taskid');

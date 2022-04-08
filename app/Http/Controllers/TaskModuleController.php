@@ -2820,15 +2820,7 @@ class TaskModuleController extends Controller
         ],500);
 	}
 	
-    public function taskCreateGetRemark(Request $request) 
-    {
-        
-        //return response()->json(['code' => 200, 'message' => 'Success']);
-        //return response()->json(['code' => 500, 'message' => 'Only admin can approve']);
-	}
-
-
-	public function getTrackedHistory(Request $request)
+    public function getTrackedHistory(Request $request)
     {
         $id = $request->id;
         $type = $request->type;
@@ -2885,7 +2877,19 @@ class TaskModuleController extends Controller
         ],200);
 	}
 
-    
+    public function taskCreateGetRemark(Request $request) 
+    {
+        try {
+            if($request->remark !='') {
+                
+            }
+            return response()->json(['code' => 200, 'message' => 'Success']);
+        
+        } catch (Exception $e) {
+            return response()->json(['code' => 500, 'message' => 'Only admin can approve']);
+        }
+	}
+
     public function getTaskDueDateHistoryLog(Request $request)
     {
         $taskHistory = TaskDueDateHistoryLog::where([['task_id', '=', $request->task_id]])->get();

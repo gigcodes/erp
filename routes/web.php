@@ -981,7 +981,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //END - DEVTASK-4354
 
     Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
-    Route::post('task/create/get-remark', 'TaskModuleController@createGetTaskRemark')->name('task.create.get.remark');
+    Route::post('task/create/get-remark', 'TaskModuleController@taskCreateGetRemark')->name('task.create.get.remark');
     Route::post('task/get/due-date-history-log', 'TaskModuleController@getTaskDueDateHistoryLog')->name('task.get.due_date_history_log');
     Route::post('task/update/priority-no', 'TaskModuleController@updatePriorityNo')->name('task.update.updatePriorityNo');
     Route::post('task/time/history/approve', 'TaskModuleController@approveTimeHistory')->name('task.time.history.approve');
