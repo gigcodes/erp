@@ -54,11 +54,7 @@ Route::prefix('user-management')->middleware('auth')->group(function () {
     Route::post('user-avaibility/submit-time', 'UserManagementController@saveUserAvaibility')->name("user-management.user-avaibility.submit-time");
 
     Route::get('user-avl-list/{id}', 'UserManagementController@userAvaibilityForModal')->name("user-management.user-avl-list");
-    /*
-       Pawan added for view the page for user-activities
-    */
-    Route::get('user-avl-view/{id}', 'UserManagementController@userAvaibilityForView')->name("user-management.user-avl-view");
-    //end
+   
     Route::post('user-avaibility/{id}', 'UserManagementController@userAvaibilityUpdate')->name("user-management.update-user-avaibility");
     Route::post('approve-user/{id}', 'UserManagementController@approveUser')->name("user-management.approve-user");
     Route::post('/add-new-method', 'UserManagementController@addPaymentMethod')->name("user-management.add-payment-method");

@@ -1373,8 +1373,8 @@ class UserManagementController extends Controller
                 "error" => $message
             ]);
         }
-        $nextDay =  implode(', ', $request->day);
-        // $nextDay = 'next '.$request->day;
+        // $nextDay =  implode(', ', $request->day);
+        $nextDay = 'next '.$request->day;
 
         UserAvaibility::updateOrCreate([
             'user_id'   => $request->user_id,
@@ -1407,28 +1407,7 @@ class UserManagementController extends Controller
         
     }
 
-    /*
-        Pawan added for userAvailibility view
-    */
-    public function userAvaibilityForView($id){
-        $avaibility = UserAvaibility::where('user_id',$id)->first();
-        if($avaibility){
-            $avaibility['weekday'] = explode (",", $avaibility['date']); 
-            $avaibility['date_from'] = date("Y-m-d", strtotime($avaibility['from']));
-            $avaibility['date_to'] = date("Y-m-d", strtotime($avaibility['to']));  
-        }
-        // $userhubstafftotal = \DB::table('hubstaff_activities')->where('user_id',352204)->sum('tracked');
-
-        $userhubstafftotal = \DB::table('hubstaff_activities')->where('user_id',$id)->whereBetween('starts_at',[$avaibility['date_from'],$avaibility['date_to']])->sum('tracked');
-        $avaibility['userhubstafftotal'] = $userhubstafftotal;
-        
-        // \Log::info('HubStaff'.json_encode($userhubstafftotal));
-        $avaibility['user_id'] = $id;
-        \Log::info('avaibility:'.json_encode($avaibility));
-        return response()->json(["code" => 200,"data" => $avaibility]);
-        
-    }
-    //end
+    
 
     public function userAvaibilityForModal($id) {
         
