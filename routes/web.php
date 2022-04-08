@@ -81,6 +81,11 @@ Route::middleware('auth')->group(function () {
 
 });
 
+/** Magento Module */
+Route::middleware('auth')->group(function () {
+    Route::resource('magento_modules', 'MagentoModuleController');
+});
+
 /** Magento Settings */
 Route::middleware('auth')->group(function () {
 
@@ -581,6 +586,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('category/child-categories', 'CategoryController@childCategory')->name('category.child-category');
     Route::get('category/edit-category', 'CategoryController@childEditCategory')->name('category.child-edit-category');
     Route::post('category/{edit}/edit-category', 'CategoryController@updateCategory')->name('category.child-update-category');
+    Route::post('category/{edit}/update-days-cancelation', 'CategoryController@updateCancelationPolicy')->name('category.update-cancelation-policy');
+    Route::post('category/get-days-cancelation-log', 'CategoryController@getCategoryCancellationPolicyLog')->name('category.get_cancelation_policy_log');
+    //Route::post('category/{edit}/update-days-refund', 'CategoryController@updateDaysRefund')->name('category.child-update-days_refund');
 
     Route::get('category/references/used-products', 'CategoryController@usedProducts');
     Route::post('category/references/update-reference', 'CategoryController@updateReference');
@@ -854,6 +862,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/addNewReply', 'OrderController@addNewReply')->name('order.addNewReply');
     Route::post('order/get-customer-address', 'OrderController@getCustomerAddress')->name('order.customer.address');
     Route::post('order/get-error-logs', 'OrderController@getOrderErrorLog')->name('order.customer.address');
+    Route::post('order/get-email-error-logs', 'OrderController@getOrderExceptionErrorLog')->name('order.get.email.error.logs');
+    Route::post('order/get-email-send-logs', 'OrderController@getOrderEmailSendLog')->name('order.get.email.send.logs');
+    Route::get('order/get-email-send-journey-logs', 'OrderController@getOrderEmailSendJourneyLog')->name('order.get.email.send.journey.logs');
     Route::get('order/charity-order', 'OrderController@charity_order');
     Route::post('order/cancel-transaction', 'OrderController@cancelTransaction')->name('order.canceltransaction');
     
@@ -862,6 +873,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     
     
     Route::post('order/payment-history', 'OrderController@paymentHistory')->name('order.paymentHistory');
+    Route::post('order/magento-log-list', 'OrderController@getOrderMagentoErrorLogList')->name('order.magento.log.list');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
@@ -882,6 +894,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('email/{id}/get-file-status', 'EmailController@getFileStatus');
     Route::resource('email', 'EmailController');
     Route::get('email/events/{originId}', 'EmailController@getEmailEvents');
+    Route::get('sendgrid/email/events', 'EmailController@getAllEmailEvents');
     Route::get('email/emaillog/{emailId}', 'EmailController@getEmailLogs');
 
     Route::get('email/order_data/{email?}', 'EmailController@index'); //Purpose : Add Route -  DEVTASK-18283
@@ -3188,10 +3201,15 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function (
     Route::post('/updateRefund', 'ReturnExchangeController@updateRefund')->name('return-exchange.updateRefund');
     Route::post('/update-estimated-date', 'ReturnExchangeController@updateEstmatedDate')->name('return-exchange.update-estimated-date');
     Route::get('/status', 'ReturnExchangeController@status')->name('return-exchange.status');
+    Route::post('/status', 'ReturnExchangeController@getStatusByWebsite');
+    Route::post('/status/save', 'ReturnExchangeController@statusWebsiteSave');
+    Route::post('/status/fetch-store-status', 'ReturnExchangeController@fetchMagentoStatus')->name('fetch-magento.status');
     Route::post('/status/store', 'ReturnExchangeController@saveStatusField')->name('return-exchange.save.status-field');
     Route::post('/status/create', 'ReturnExchangeController@createStatus')->name('return-exchange.createStatus');
     Route::post('/status/delete', 'ReturnExchangeController@deleteStatus')->name('return-exchange.deleteStatus');
     Route::post('/addNewReply', 'ReturnExchangeController@addNewReply')->name('returnexchange.addNewReply');
+    Route::post('/update-status', 'ReturnExchangeController@updateExchangeStatuses')->name('returnexchange.update-status');
+    Route::get('/update-status-log/{id?}', 'ReturnExchangeController@listExchangeStatusesLog')->name('returnexchange.update_status_log');
 
     Route::prefix('{id}')->group(function () {
         Route::get('/detail', 'ReturnExchangeController@detail')->name('return-exchange.detail');
@@ -3243,7 +3261,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('twilio/get_website_wise_key_data', 'TwilioController@getTwilioKeyData')->name('twilio.get_website_wise_key_data');
     Route::get('twilio/get_website_wise_key_data_options/{web_site_id?}', 'TwilioController@getTwilioKeyDataOptions')->name('twilio.get_website_wise_key_data_options');
     Route::get('twilio/erp/logs', 'TwilioController@twilioErpLogs')->name('twilio.erp_logs');
-    Route::get('twilio/call/journey', 'TwilioController@twilioCallJourney')->name('twilio.call_journey');
+    Route::any('twilio/call/journey', 'TwilioController@twilioCallJourney')->name('twilio.call_journey');
     Route::get('twilio/webhook-error/logs', 'TwilioController@twilioWebhookErrorLogs')->name('twilio.webhook.error.logs');
     Route::get('twilio/account-logs', 'TwilioController@twilioAccountLogs')->name('twilio.account_logs');
     Route::get('twilio/conditions', 'TwilioController@getConditions')->name('twilio.conditions');
@@ -3432,6 +3450,8 @@ Route::prefix('referralprograms')->middleware('auth')->group(function () {
     Route::get('/{id?}/edit', 'ReferralProgramController@edit')->name('referralprograms.edit');
     Route::post('/store', 'ReferralProgramController@store')->name('referralprograms.store');
     Route::post('/update', 'ReferralProgramController@update')->name('referralprograms.update');
+    // pawan added for ajax call
+    Route::get('referralprograms-ajax', 'ReferralProgramController@ajax')->name('referralprograms.ajax');
 
 });
 
@@ -3649,6 +3669,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
 Route::get('chatbot-message-log', 'ChatbotMessageLogsController@index')->name('chatbot.messages.logs');
+Route::get('watson-journey', 'LiveChatController@watsonJourney')->name('watson.journey');
 Route::post('pushwaston', 'ChatbotMessageLogsController@pushwaston');
 
 Route::get('sync-to-watson', 'ChatbotMessageLogsController@pushQuickRepliesToWaston');
@@ -3741,13 +3762,6 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::get('ads/create', 'SocialAdsController@create')->name('social.ad.create');
     Route::post('ads/history', 'SocialAdsController@history')->name('social.ad.history');
     Route::get('ads/getconfigPost', 'SocialAdsController@getpost')->name('social.ad.getpost');
-
-
-
-
-
-   
-
 
 });
 Route::get('test', 'ScrapController@listCron');

@@ -407,7 +407,11 @@ class EmailController extends Controller
             'store_website_id' => null,
             'is_draft' => 1,
         ]);
-
+        \App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Email resend initiated',
+            'message'       => $email->to
+        ]);
         Mail::to($email->to)->send(new PurchaseEmail($email->subject, $email->message, $attachment));
         if ($type == 'approve') {
             $email->update(['approve_mail' => 0]);
@@ -477,6 +481,11 @@ class EmailController extends Controller
             'store_website_id' => null,
             'is_draft' => 1,
         ]);
+		\App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Email reply initiated',
+            'message'       => $email->to
+        ]);
         //$replyemails = (new ReplyToEmail($email, $request->message))->build();
         \App\Jobs\SendEmail::dispatch($emailsLog);
         //Mail::send(new ReplyToEmail($email, $request->message));
@@ -516,6 +525,12 @@ class EmailController extends Controller
             'status' => 'pre-send',
             'store_website_id' => null,
             'is_draft' => 1,
+        ]);
+		
+		\App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Email forward initiated',
+            'message'       => $email->to
         ]);
 
         \App\Jobs\SendEmail::dispatch($email);
@@ -1206,14 +1221,14 @@ class EmailController extends Controller
         fclose($file);
     }
 
-    public function getEmailEvents($originId)
+    public function getEmailEvents($emailId)
     {   
-        $exist = Email::where('origin_id', $originId)->first();//$originId = "9e238becd3bc31addeff3942fc54e340@swift.generated";
+        $exist = Email::where('id', $emailId)->first();//$originId = "9e238becd3bc31addeff3942fc54e340@swift.generated";
         $events = [];
         $eventData = '';
         if ($exist != null) {
-            $events = \App\SendgridEvent::where('payload', 'like', '%"smtp-id":"<'.$originId.'>"%')->select('timestamp', 'event')->orderBy('id', 'desc')->get();
-        }
+            $events = \App\SendgridEvent::where('payload', 'like', '%"email_id":'.$emailId.'%')->select('timestamp', 'event')->orderBy('id', 'desc')->get();
+       }
         foreach ($events as $event) {
             $eventData .= "<tr><td>" . $event['timestamp'] . "</td><td>" . $event['event'] . "</td></tr>";
         }
@@ -1222,6 +1237,12 @@ class EmailController extends Controller
         }
         return $eventData;
     }
+	
+	public function getAllEmailEvents() {
+		$events = \App\SendgridEvent::select('*')->orderBy('id', 'desc')->get()->groupBy('sg_message_id');
+       return view('emails.events', compact('events'));
+	}
+	
     /**
      * Get Email Logs
      */

@@ -21,11 +21,20 @@ class ReferFriendController extends Controller
 		}
 		if($request->term){
             $query = $query->where('referrer_email', 'LIKE','%'.$request->term.'%')
-                    ->orWhere('referee_email', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('website', 'LIKE', '%'.$request->term.'%')
+                    ->orWhere('referrer_first_name', 'LIKE', '%'.$request->term.'%')
+                    ->orWhere('referrer_last_name', 'LIKE', '%'.$request->term.'%')
                     ->orWhere('referrer_phone', 'LIKE', '%'.$request->term.'%')
-                    ->orWhere('referee_phone', 'LIKE', '%'.$request->term.'%');
+                    ->orWhere('referee_first_name', 'LIKE', '%'.$request->term.'%')
+                    ->orWhere('referee_last_name', 'LIKE', '%'.$request->term.'%')
+                    ->orWhere('referee_email', 'LIKE', '%'.$request->term.'%')
+                    ->orWhere('referee_phone', 'LIKE', '%'.$request->term.'%')
+                    ->orWhere('website', 'LIKE', '%'.$request->term.'%')
+                    ->orWhere('status', 'LIKE', '%'.$request->term.'%');
 		}
+
+        if($request->for_date){
+            $query = $query->whereDate('created_at', $request->for_date);
+        }
 
 		$data = $query->orderBy('id', 'desc')->paginate(25)->appends(request()->except(['page']));
 		if ($request->ajax()) {

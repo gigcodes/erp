@@ -7,6 +7,7 @@ use App\ChatbotMessageLog;
 use App\ChatbotQuestionExample;
 use App\Library\Watson\Model as WatsonManager;
 use App\Setting;
+use App\WatsonJourney;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -84,7 +85,7 @@ class ChatbotMessageLogsController extends Controller
 
         $result        = json_decode(WatsonManager::pushDialog($dialog->id));*/
 
-        $params                      = $request->all();
+        $params  = $param       = $request->all();
        
         $validator                   = Validator::make($params, [
             'value'               => 'required|unique:chatbot_questions|max:255',
@@ -94,7 +95,7 @@ class ChatbotMessageLogsController extends Controller
         if ($validator->fails()) {
             return response()->json(["code" => 500, "error" => $validator->errors()]);
         }
- $params["value"]             = str_replace(" ", "_", $params["value"]);
+        $params["value"]             = str_replace(" ", "_", $params["value"]);
         $params["watson_account_id"] = $request->watson_account;
         if ($request->keyword_or_question == 'simple' || $request->keyword_or_question == 'priority-customer') {
             $validator = Validator::make($request->all(), [
@@ -111,6 +112,8 @@ class ChatbotMessageLogsController extends Controller
         }
 
         $chatbotQuestion = \App\ChatbotQuestion::create($params);
+		WatsonJourney::updateOrCreate(['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id],['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id, 'question_created'=>1]);
+		
         if (!empty($params["question"])) {
             foreach ($params["question"] as $qu) {
                 if ($qu) {
@@ -119,7 +122,8 @@ class ChatbotMessageLogsController extends Controller
                     $chatbotQuestionExample->question            = $qu;
                     $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
                     $chatbotQuestionExample->save();
-                }
+					WatsonJourney::updateOrCreate(['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id],['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id, 'question_example_created'=>1]);
+		        }
             }
         }
 
@@ -132,7 +136,8 @@ class ChatbotMessageLogsController extends Controller
                 $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
                 $chatbotQuestionExample->types               = $params["types"];
                 $chatbotQuestionExample->save();
-            }
+				WatsonJourney::updateOrCreate(['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id],['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id, 'question_example_created'=>1]);
+		    }
 
             if ($chatbotQuestionExample) {
                 $valueType                             = [];
@@ -193,15 +198,19 @@ class ChatbotMessageLogsController extends Controller
             ];
         }
         \App\ChatbotQuestionReply::insert($data_to_insert);
-
+	    WatsonJourney::updateOrCreate(['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id],['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id, 'question_reply_inserted'=>1]);
+		    
         if ($request->erp_or_watson == 'watson') {
             if ($request->keyword_or_question == 'intent' || $request->keyword_or_question == 'simple' || $request->keyword_or_question == 'priority-customer') {
 
                 \App\ChatbotQuestion::where('id', $chatbotQuestion->id)->update(['watson_status' => 'Pending watson send']);
 
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, $request->watson_account, $id->store_website_id));
-                $this->createdialog($request->value, $request->suggested_reply, $request->watson_account, $id->store_website_id);
-                session()->flash('msg', 'Successfully done the operation.');
+                WatsonJourney::updateOrCreate(['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id],['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id, 'response'=>json_encode($result)]);
+                WatsonJourney::updateOrCreate(['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id],['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id, 'question_pushed'=>1]);
+				$this->createdialog($request->value, $request->suggested_reply, $request->watson_account, $id->store_website_id);
+                WatsonJourney::updateOrCreate(['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id],['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id, 'dialog_inserted'=>1]);
+				session()->flash('msg', 'Successfully done the operation.');
                 return redirect()->back();
             }
 
@@ -210,14 +219,22 @@ class ChatbotMessageLogsController extends Controller
                 \App\ChatbotQuestion::where('id', $chatbotQuestion->id)->update(['watson_status' => 'Pending watson send']);
 
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, $request->watson_account, $id->store_website_id));
-                $this->createdialog($request->value, $request->suggested_reply, $request->watson_account, $id->store_website_id);
-                session()->flash('msg', 'Successfully done the operation.');
+                WatsonJourney::updateOrCreate(['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id],['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id, 'response'=>json_encode($result)]);
+                WatsonJourney::updateOrCreate(['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id],['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id, 'question_pushed'=>1]);
+				$this->createdialog($request->value, $request->suggested_reply, $request->watson_account, $id->store_website_id);
+                WatsonJourney::updateOrCreate(['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id],['chatbot_message_log_id'=>$param['log_id'], 'question_id'=>$chatbotQuestion->id, 'dialog_inserted'=>1]);
+				session()->flash('msg', 'Successfully done the operation.');
                 return redirect()->back();
             }
 
         }
 
     }
+	
+	public function watsonJourney() {
+		$watsonJourney = WatsonJourney::whereNotNull('id')->paginate(30);
+		return view('chatboat_message_logs.journey', compact('watsonJourney'));
+	}                                                                                                                                                                                                                                                                                                                                                                                                  
 
     public function createdialog($name, $suggested_reply, $watson_account, $websiteId = null, $replyId= null)
     {
