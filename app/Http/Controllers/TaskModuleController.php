@@ -2819,11 +2819,13 @@ class TaskModuleController extends Controller
         ],500);
 	}
 	
-    public function taskCreateGetRemark(Request $request) {
+    public function taskCreateGetRemark(Request $request) 
+    {
         
-        //return response()->json(['message' => 'Success'],200);
-        //return response()->json(['message' => 'Only admin can approve'],500);
+        //return response()->json(['code' => 200, 'message' => 'Success']);
+        //return response()->json(['code' => 500, 'message' => 'Only admin can approve']);
 	}
+
 
 	public function getTrackedHistory(Request $request)
     {
