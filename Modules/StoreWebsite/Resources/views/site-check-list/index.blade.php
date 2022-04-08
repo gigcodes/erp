@@ -71,6 +71,12 @@
             width: calc(100% - 26px) !important;
         }
 
+        table-same-button {
+            width: 20px;
+            height: 29px;
+            border: 1px black solid;
+        }
+
     </style>
 @endsection
 
@@ -86,32 +92,35 @@
         </div>
         <br>
         <div class="col-lg-12 margin-tb">
-            <div class="row">
+            <form id="filter_data" action="{{ route('site-check-list') }}" method="get">
+                <div class="row">
+                    <div class="col-md-3">
+                        {{ Form::select('store_webs', $all_store_websites, $search_website, ['class' => 'form-control  globalSelect2','placeholder' => '-- Select Website --']) }}
+                    </div>
 
-                <div class="col-md-6 pull-right">
-                    <form>
-                        <div class="col-md-4">
-                            {{ Form::select('store_webs', $all_store_websites, $search_website, ['class' => 'form-control  globalSelect2','placeholder' => '-- Select --']) }}
-                        </div>
-                        <div class="col-md-4">
-                            <select name="categories" class="form-control select2">
-                                <option value="">-- Select a categories --</option>
-                                @forelse($categories as $ct)
-                                    <option value="{{ $ct->id }}" @if ($search_category == $ct->id) selected @endif>
-                                        {{ $ct->title }}</option>
-                                @empty
-                                @endforelse
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-secondary">Search</button>
-                        </div>
-                    </form>
+                    <div class="col-md-3">
+                        <select name="categories" class="form-control select2">
+                            <option value="">-- Select a categories --</option>
+                            @forelse($categories as $ct)
+                                <option value="{{ $ct->id }}" @if ($search_category == $ct->id) selected @endif>
+                                    {{ $ct->title }}</option>
+                            @empty
+                            @endforelse
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        {{ Form::select('site_development_status_id', $allStatus, $site_development_status_id, ['class' => 'form-control globalSelect2','placeholder' => '--- Select Status---']) }}
+                    </div>
+
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-secondary">Search</button>
+                        <a href="{{ route('site-check-list') }}" class="btn btn-secondary">Reset</a>
+                        <button type="button" class="btn btn-secondary download_check_list_data">Download</button>
+                    </div>
+
                 </div>
-                <div class="col-md-3 pull-right">
-                    <button type="button" class="btn btn-secondary download_check_list_data">Download</button>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
     @if (Session::has('message'))
@@ -258,6 +267,9 @@
         </div>
     </div>
 
+    @include(
+        'storewebsite::site-check-list.partials.status-history-modal'
+    )
     @include(
         'storewebsite::site-check-list.partials.upload-document'
     )
@@ -527,42 +539,95 @@
         $.ajax({
             method: "GET",
             url: `{{ route('site-check-list.get-document') }}`,
-                data: {
-                    site_development_category_id: sdcid,
-                    store_website_id: swid,
-                    site_development_id: sdid,
+            data: {
+                site_development_category_id: sdcid,
+                store_website_id: swid,
+                site_development_id: sdid,
+            },
+            dataType: "json",
+            success: function(response) {
+                if (response.code == 200) {
+                    $("#blank-modal").find(".modal-title").html("Document List");
+                    $("#blank-modal").find(".modal-body").html(response.data);
+                    $("#blank-modal").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            },
+            error: function(error) {
+                toastr["error"]('Unauthorized permission development-get-document', "Message")
+
+            }
+        });
+    });
+
+    // Open Modal for download model
+    $(document).on("click", ".download_check_list_data", function() {
+        $("#download_site_check_list_modal").modal('show');
+    });
+
+    // Update Site status 
+    $(document).on("change", ".save-item-select", function() {
+        category = $(this).data("category");
+        type = $(this).data("type");
+        site = $(this).data("site");
+        websiteId = $(this).data("swid");
+        var text = $(this).val();
+
+        $.ajax({
+                url: `{{ route('site-development.save') }}`,
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        websiteId: websiteId,
+                        category: category,
+                        type: type,
+                        text: text,
+                        site: site
+                    },
+                    beforeSend: function() {
+                        $("#loading-image").show();
+                    },
+                })
+                .done(function(data) {
+                    toastr["success"]("Successful");
+                    $("#loading-image").hide();
+                })
+                .fail(function(data) {
+                    console.log(data)
+                    console.log("error");
+                    $("#loading-image").hide();
+                });
+        });
+
+        $(document).on('click', '.btn-status-histories-get', function(e) {
+            e.preventDefault();
+            id = $(this).data('site-id');
+            if (!id) return;
+            $.ajax({
+                url: "/site-development/status-history/" + id,
+                type: 'GET',
+                beforeSend: function() {
+                    $("#loading-image").show();
                 },
                 dataType: "json",
                 success: function(response) {
-                    if (response.code == 200) {
-                        $("#blank-modal").find(".modal-title").html("Document List");
-                        $("#blank-modal").find(".modal-body").html(response.data);
-                        $("#blank-modal").modal("show");
-                    } else {
-                        toastr["error"](response.error, "Message");
-                    }
+                    console.log(response);
+                    var tr = '';
+                    $.each(response.data, function(k, v) {
+                        tr = tr + '<tr><td>' + v.id + '</td><td>' + v.created_at +
+                            '</td><td> ' + v.status_name + '</td><td>' + v.user_name +
+                            '</td></tr>';
+                    });
+                    $("#status-history-modal").modal("show");
+                    $(".status-history-list-view").html(tr);
+                    $("#loading-image").hide();
                 },
-                error: function(error) {
-                    toastr["error"]('Unauthorized permission development-get-document', "Message")
-
+                error: function() {
+                    $("#loading-image").hide();
                 }
             });
-        });
-
-        // Open Modal for download model
-        $(document).on("click", ".download_check_list_data", function() {
-            // if ($("input:checkbox:checked").length > 0) {
-            // var sList = [];
-            // var i = 0;
-            // $("input:checkbox:checked").each(function() {
-            //     sList[i] = $(this).val();
-            //     i++;
-            // });
-            // $("#download_website_id").val(JSON.stringify(sList));
-            $("#download_site_check_list_modal").modal('show');
-            // } else {
-            //     alert("Please select a checkbox");
-            // }
         });
     </script>
 

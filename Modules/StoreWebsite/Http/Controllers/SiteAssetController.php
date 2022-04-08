@@ -30,14 +30,22 @@ class SiteAssetController extends Controller
         $data['categories'] = SiteDevelopmentCategory::all();
         $data['search_website'] = isset($request->store_webs)? $request->store_webs : '';
         $data['search_category'] = isset($request->categories)? $request->categories : '';
+        $data['site_development_status_id'] = isset($request->site_development_status_id)? $request->site_development_status_id : [];
         $store_websites = StoreWebsite::select('store_websites.*')->join('site_developments','store_websites.id','=','site_developments.website_id');
         if($data['search_website'] != ''){
             $store_websites =  $store_websites->where('store_websites.id', $data['search_website']);
         }
         $data['store_websites'] =  $store_websites->where('is_site_asset', 1)->groupBy('store_websites.id')->get();
-        $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*')->join('site_developments','site_development_categories.id','=','site_developments.site_development_category_id')->where('is_site_asset', 1);
+        $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*')
+            ->join('site_developments','site_development_categories.id','=','site_developments.site_development_category_id')
+            ->where('is_site_asset', 1);
+
         if($data['search_category'] != ''){
             $site_development_categories =  $site_development_categories->where('site_development_categories.id',  $data['search_category']);
+        }
+        
+        if(isset($request->site_development_status_id) && !empty($request->site_development_status_id)){
+            $site_development_categories =  $site_development_categories->where('site_developments.status',  $data['site_development_status_id']);
         }
         $data['site_development_categories'] = $site_development_categories->groupBy('site_development_categories.id')->get();
         $data['allUsers'] = User::select('id', 'name')->get();
@@ -86,6 +94,7 @@ class SiteAssetController extends Controller
         $data['categories'] = SiteDevelopmentCategory::all();
         $data['search_website'] = isset($request->store_webs)? $request->store_webs : '';
         $data['search_category'] = isset($request->categories)? $request->categories : '';
+        $data['site_development_status_id'] = isset($request->site_development_status_id)? $request->site_development_status_id : [];
         $store_websites = StoreWebsite::select('store_websites.*')->join('site_developments','store_websites.id','=','site_developments.website_id');
         if($data['search_website'] != ''){
             $store_websites =  $store_websites->where('store_websites.id', $data['search_website']);
@@ -94,17 +103,25 @@ class SiteAssetController extends Controller
         
         $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
         
-        $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_dev.website_id', 'site_dev.site_development_id')
-            ->join('site_developments','site_development_categories.id','=','site_developments.site_development_category_id')
+        $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.status', 'site_dev.website_id', 'site_dev.site_development_id')            
+            ->join('site_developments', function ($join) use ($request) {
+                
+                $join->on('site_development_categories.id','=','site_developments.site_development_category_id');
+
+                if(isset($request->site_development_status_id) && !empty($request->site_development_status_id)){
+                    $join->where('site_developments.status', $request->site_development_status_id);
+                }
+            })
             ->joinSub($site_dev, 'site_dev', function ($join)
             {
                 $join->on('site_development_categories.id', '=', 'site_dev.site_development_category_id');
             })
             ->where('is_site_list', 1);
+
         if($data['search_category'] != ''){
             $site_development_categories =  $site_development_categories->where('site_development_categories.id',  $data['search_category']);
         }
-      
+
         $data['site_development_categories'] = $site_development_categories->leftJoin('store_development_remarks', 'store_development_remarks.store_development_id', '=', 'site_developments.id')->groupBy('site_development_categories.id')->get();
         // dd($data);
         $data['allUsers'] = User::select('id', 'name')->get();
@@ -175,10 +192,6 @@ class SiteAssetController extends Controller
             return response()->json(["code" => 500, "error" => "Oops, id is required field"], 500);
         }
     }
-    
-
-
-
 
     /**
      * Download a listing of the images.
