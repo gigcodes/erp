@@ -108,7 +108,11 @@ class TicketController extends Controller
             'status' => 'pre-send',
             'is_draft' => 1,
         ]);
-
+         \App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Email initiated',
+            'message'       => $email->to
+        ]);
         \App\Jobs\SendEmail::dispatch($email);
 
         if (!is_null($success)) {
