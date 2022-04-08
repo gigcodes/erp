@@ -1347,7 +1347,6 @@ class UserManagementController extends Controller
     }
 
     public function saveUserAvaibility(Request $request) {
-        
         $rules = [
 			'user_id' => 'required',
 			'to' => 'required',
@@ -1374,13 +1373,13 @@ class UserManagementController extends Controller
                 "error" => $message
             ]);
         }
-
-        $nextDay = 'next '.$request->day;
+        $nextDay =  implode(', ', $request->day);
+        // $nextDay = 'next '.$request->day;
 
         UserAvaibility::updateOrCreate([
             'user_id'   => $request->user_id,
         ],[
-            'date'     => date('Y-m-d', strtotime($nextDay)),
+            'date'     => $nextDay,
             'user_id'  => $request->user_id,
             'from'     => $request->from,
             'to'       => $request->to,
@@ -1408,13 +1407,62 @@ class UserManagementController extends Controller
         
     }
 
+    /*
+        Pawan added for userAvailibility view
+    */
+    public function userAvaibilityForView($id){
+        $avaibility = UserAvaibility::where('user_id',$id)->first();
+        if($avaibility){
+            $avaibility['weekday'] = explode (",", $avaibility['date']); 
+            $avaibility['date_from'] = date("Y-m-d", strtotime($avaibility['from']));
+            $avaibility['date_to'] = date("Y-m-d", strtotime($avaibility['to']));  
+        }
+        // $userhubstafftotal = \DB::table('hubstaff_activities')->where('user_id',352204)->sum('tracked');
+
+        $userhubstafftotal = \DB::table('hubstaff_activities')->where('user_id',$id)->whereBetween('starts_at',[$avaibility['date_from'],$avaibility['date_to']])->sum('tracked');
+        $avaibility['userhubstafftotal'] = $userhubstafftotal;
+        
+        // \Log::info('HubStaff'.json_encode($userhubstafftotal));
+        $avaibility['user_id'] = $id;
+        \Log::info('avaibility:'.json_encode($avaibility));
+        return response()->json(["code" => 200,"data" => $avaibility]);
+        
+    }
+    //end
+
     public function userAvaibilityForModal($id) {
         
         $avaibility = UserAvaibility::where('user_id',$id)->first();
         
-
+        
         if($avaibility){
-            $avaibility['weekday'] = strtolower(date('l', strtotime($avaibility['date'])));
+            $weekday = explode (",", $avaibility['date']);
+            for($i=0;$i<count($weekday);$i++){
+                \Log::info($i);
+                if($weekday[$i] == 'monday' || $weekday[$i] == ' monday'){
+                    $avaibility['weekday_0'] = $weekday[$i];
+                } 
+                if($weekday[$i] == 'tuesday' || $weekday[$i] == ' tuesday'){
+                    $avaibility['weekday_1'] = $weekday[$i];
+                }
+                if($weekday[$i] == 'wednesday' || $weekday[$i] == ' wednesday'){
+                    $avaibility['weekday_2'] = $weekday[$i];
+                }
+                if($weekday[$i] == 'thursday' || $weekday[$i] == ' thursday'){
+                    $avaibility['weekday_3'] = $weekday[$i];
+                }
+                if($weekday[$i] == 'friday' || $weekday[$i] == ' friday'){
+                    $avaibility['weekday_4'] = $weekday[$i];
+                }
+                if($weekday[$i] == 'saturday' || $weekday[$i] == ' saturday'){
+                    $avaibility['weekday_5'] = $weekday[$i];
+                }
+                // $avaibility['weekday_'.$i] = $weekday[$i];
+            }
+            // $avaibility['weekday'] = strtolower(date('l', strtotime($avaibility['date'])));
+            $avaibility['weekday'] = explode (",", $avaibility['date']); 
+            \Log::info('array:'.json_encode($avaibility['weekday']));
+            \Log::info('array:'.json_encode($avaibility));
         }
 
         $avaibility['user_id'] = $id;

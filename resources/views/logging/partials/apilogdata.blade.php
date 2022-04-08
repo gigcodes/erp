@@ -39,12 +39,8 @@
                         </span>
                     </td>
                     <td>{{ $log->status_code }}</td>
-                    <td>{{ $log->time_taken }} s</td>
-                    
+                    <td>{{ $log->time_taken }}</td>
                     <td>{{ \Carbon\Carbon::parse($log->created_at)->format('d-m-y H:i:s')  }}</td>
-
                     <td><button class="btn btn-warning showModalResponse" data-id="{{$log->id}}">View</button></td>
-
-                    
                 </tr>
 @endforeach
