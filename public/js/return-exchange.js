@@ -96,6 +96,12 @@ var msQueue = {
             msQueue.historyList($(this).data("id"));     
         });
 
+        $(document).on("click",".return_exchange_status_info",function(e){
+            e.preventDefault();
+            //alert('fgffd');
+            msQueue.historyExchangeStatusList($(this).data("id"));     
+        });
+
         $(document).on("click",".show-date-history",function(e){
             e.preventDefault();
             msQueue.dateHistoryList($(this).data("id"));     
@@ -285,6 +291,28 @@ var msQueue = {
             var tplHtml       = addProductTpl.render(response);
             $(".common-modal").find(".modal-dialog").html(tplHtml);
             $(".common-modal").modal("show");
+        }
+    },
+    historyExchangeStatusList: function(id) {
+        var _z = {
+            url: this.config.baseUrl + "/return-exchange/update-status-log/"+id,
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "showExchangeStatusList",{append : true});
+    },
+    showExchangeStatusList: function(response) {
+        if(response.code == 200) {
+           $("#loading-image").hide();
+            var addProductTpl = $.templates("#return_exchange_status_info_list");
+            var tplHtml = addProductTpl.render(response);
+            $(".common-modal").find(".modal-dialog").html(tplHtml);
+            $(".common-modal").modal("show");
+        } else {
+            $("#loading-image").hide();
+            toastr['error'](response.message, 'Error');
         }
     },
     dateHistoryList: function(id) {
