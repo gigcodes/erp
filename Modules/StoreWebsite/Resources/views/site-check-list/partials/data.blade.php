@@ -1,14 +1,15 @@
 @if ($store_websites)
-    @foreach ($site_development_categories as $key1 => $sdc)
+    @foreach ($site_development_categories as $sdc)
         <tr>
             <td>
                 {{ $sdc->title }}
             </td>
-            @foreach ($store_websites as $key2 => $sw)
+            @foreach ($store_websites as $sw)
                 @php
                     $website = $sw;
                     $check = 0;
                     $site = $sdc->getDevelopment($sdc->id, $sw->id);
+                    // dd($sw, $site);
                     if ($site) {
                         if ($site->is_site_list == 1) {
                             $check = 1;
@@ -16,27 +17,25 @@
                     }
                 @endphp
                 <td>
-
-
                     @php
                         $websitenamestr = $sw ? $sw->title : '';
                     @endphp
-                    <div class="col-md-12 mb-1 p-0 d-flex  pt-2 mt-1">
-                        <input style="margin-top: 0px;width:auto !important;" type="text"
-                            class="form-control quick-message-field" name="message" placeholder="Message" value=""
-                            id="remark_{{ $sdc->id . $sw->id }}" data-catId="{{ $sdc->id }}"
-                            data-siteId="@if ($site) {{ $site->id }} @endif"
-                            data-websiteId="@if ($website) {{ $website->id }} @endif">
-
-
-
-                        <br />
+                    <div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1">
+                        <p class="m-0 p-0">
+                            <input style="margin-top: 0px;width:auto !important;" type="text"
+                                class="form-control quick-message-field" name="message" placeholder="Message" value=""
+                                id="remark_{{ $sdc->id . $sw->id }}" data-catId="{{ $sdc->id }}"
+                                data-siteId="{{ $site ? $site->id : '' }}"
+                                data-websiteId="{{ $website ? $website->id : '' }}" />
+                        </p>
+                        <p class="m-0 p-0">
 
                         <div style="margin-top: 0px;" class="d-flex p-0">
                             <button class="btn pr-0 btn-xs btn-image "
                                 onclick="saveRemarks({{ $sdc->id . $sw->id }})"><img
                                     src="/images/filled-sent.png" /></button>
                         </div>
+                        </p>
                     </div>
                     <div class="col-md-12 p-0 pl-1">
                         {{-- {{ $site->id }} --}}
@@ -94,6 +93,18 @@
                                 data-id="@if ($site) {{ $site->id }} @endif"><i
                                     class="fa fa-info-circle"></i></button>
                         @endif
+
+                        <a href="javascript:;" data-sdcid="{{ $sdc->id }}" data-swid="{{ $sw->id }}"
+                            data-sdid="{{ isset($site->id) ? $site->id : 0 }}" class="upload-document-btn">
+                            <img width="15px" src="/images/attach.png" alt="" style="cursor: default;">
+                        </a>
+
+                        <a href="javascript:;" data-sdcid="{{ $sdc->id }}" data-swid="{{ $sw->id }}"
+                            data-sdid="{{ isset($site->id) ? $site->id : 0 }}" class="list-document-btn">
+                            <img width="15px" src="/images/archive.png" alt="" style="cursor: default;">
+                        </a>
+
+
                     </div>
                 </td>
             @endforeach

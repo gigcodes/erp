@@ -91,14 +91,7 @@
                 <div class="col-md-6 pull-right">
                     <form>
                         <div class="col-md-4">
-                            <select name="store_webs" class="form-control select2">
-                                <option value="">-- Select a website --</option>
-                                @forelse($all_store_websites as $asw)
-                                    <option value="{{ $asw->id }}" @if ($search_website == $asw->id) selected @endif>
-                                        {{ $asw->title }}</option>
-                                @empty
-                                @endforelse
-                            </select>
+                            {{ Form::select('store_webs', $all_store_websites, $search_website, ['class' => 'form-control  globalSelect2','placeholder' => '-- Select --']) }}
                         </div>
                         <div class="col-md-4">
                             <select name="categories" class="form-control select2">
@@ -110,10 +103,13 @@
                                 @endforelse
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-2">
                             <button type="submit" class="btn btn-secondary">Search</button>
                         </div>
                     </form>
+                </div>
+                <div class="col-md-3 pull-right">
+                    <button type="button" class="btn btn-secondary download_check_list_data">Download</button>
                 </div>
             </div>
         </div>
@@ -262,34 +258,14 @@
         </div>
     </div>
 
-    <div id="download_asset_data_modal" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
-            <form action='{{ route('site-asset.download') }}' method="POST">
-                <?php echo csrf_field(); ?>
-                <div class="modal-content">
-                    <div class="modal-body">
-                        <div class="col-md-6">
-                            Select the content type for download
-                        </div>
-                        <div class="col-md-6">
-                            <input type='hidden' id="download_website_id" name="download_website_id">
-                            <select id='media_type' name='media_type' class="form-control" required>
-                                <option value="">Select type</option>
-                                <option value="PSDD">PSD - DESKTOP</option>
-                                <option value="PSDM">PSD - MOBILE</option>
-                                <option value="PSDA">PSD - APP</option>
-                                <option value="FIGMA">FIGMA</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-default download-document-site-asset-btn">Download</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+    @include(
+        'storewebsite::site-check-list.partials.upload-document'
+    )
+    @include(
+        'storewebsite::site-check-list.partials.download-modal'
+    )
+
+    @include('partials.plain-modal')
 @endsection
 
 
@@ -509,19 +485,84 @@
             $('input:checkbox').not(this).prop('checked', this.checked);
         });
 
-        $(document).on("click", ".download_asset_data", function() {
-            if ($("input:checkbox:checked").length > 0) {
-                var sList = [];
-                var i = 0;
-                $("input:checkbox:checked").each(function() {
-                    sList[i] = $(this).val();
-                    i++;
-                });
-                $("#download_website_id").val(JSON.stringify(sList));
-                $("#download_asset_data_modal").modal('show');
-            } else {
-                alert("Please select a checkbox");
-            }
+        // For Open File Upload Modal 
+        $(document).on("click", ".upload-document-btn", function() {
+            var sdcid = $(this).data("sdcid");
+            var swid = $(this).data("swid");
+            var sdid = $(this).data("sdid");
+            $("#upload-document-modal").find("#site_development_category_id	").val(sdcid);
+            $("#upload-document-modal").find("#store_website_id").val(swid);
+            $("#upload-document-modal").find("#site_development_id").val(sdid); // 
+            $("#upload-document-modal").modal("show");
+        });
+
+        // For Document Upload ajax
+        $(document).on("submit", "#upload-task-documents", function(e) {
+            e.preventDefault();
+            var form = $(this);
+            var postData = new FormData(form[0]);
+            $.ajax({
+                method: "post",
+                url: `{{ route('site-check-list.upload-document') }}`,
+                data: postData,
+                processData: false,
+                contentType: false,
+                dataType: "json",
+                success: function(response) {
+                    if (response.code == 200) {
+                        toastr["success"]("Status updated!", "Message")
+                        $("#upload-document-modal").modal("hide");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        // get Uploaded Document data`
+    $(document).on("click", ".list-document-btn", function() {
+        var sdcid = $(this).data("sdcid");
+        var swid = $(this).data("swid");
+        var sdid = $(this).data("sdid");
+        $.ajax({
+            method: "GET",
+            url: `{{ route('site-check-list.get-document') }}`,
+                data: {
+                    site_development_category_id: sdcid,
+                    store_website_id: swid,
+                    site_development_id: sdid,
+                },
+                dataType: "json",
+                success: function(response) {
+                    if (response.code == 200) {
+                        $("#blank-modal").find(".modal-title").html("Document List");
+                        $("#blank-modal").find(".modal-body").html(response.data);
+                        $("#blank-modal").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                },
+                error: function(error) {
+                    toastr["error"]('Unauthorized permission development-get-document', "Message")
+
+                }
+            });
+        });
+
+        // Open Modal for download model
+        $(document).on("click", ".download_check_list_data", function() {
+            // if ($("input:checkbox:checked").length > 0) {
+            // var sList = [];
+            // var i = 0;
+            // $("input:checkbox:checked").each(function() {
+            //     sList[i] = $(this).val();
+            //     i++;
+            // });
+            // $("#download_website_id").val(JSON.stringify(sList));
+            $("#download_site_check_list_modal").modal('show');
+            // } else {
+            //     alert("Please select a checkbox");
+            // }
         });
     </script>
 
