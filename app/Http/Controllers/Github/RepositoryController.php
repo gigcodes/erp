@@ -6,6 +6,7 @@ use App\DeveloperTask;
 use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubBranchState;
 use App\Github\GithubRepository;
+use App\GitMigrationErrorLog;
 use App\Helpers\githubTrait;
 use App\Helpers\MessageHelper;
 use Illuminate\Http\Request;
@@ -142,6 +143,9 @@ class RepositoryController extends Controller
 
         } catch (Exception $e) {
             print_r($e->getMessage());
+            foreach($e->getMessage() as $err){
+                
+            }
             return redirect(url('/github/pullRequests'))->with(
                 [
                     'message' => $e->getMessage(),
@@ -154,6 +158,21 @@ class RepositoryController extends Controller
             'message' => print_r($allOutput, true),
             'alert-type' => 'success'
         ]);
+    }
+
+    public function getGitMigrationErrorLog($repoId, $branchName, $errorLog)
+    {
+        $comparison = $this->compareRepoBranches($repoId, $branchName);
+        GitMigrationErrorLog::create([
+                'repository_id'               => $repoId,
+                'branch_name'                 => $branchName,
+                'ahead_by'                    => $comparison['ahead_by'],
+                'behind_by'                   => $comparison['behind_by'],
+                'last_commit_author_username' => $comparison['last_commit_author_username'],
+                'last_commit_time'            => $comparison['last_commit_time'],
+                'error'                       => $errorLog
+            ]);
+
     }
 
     private function updateBranchState($repoId, $branchName){
