@@ -3673,6 +3673,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
 Route::get('chatbot-message-log', 'ChatbotMessageLogsController@index')->name('chatbot.messages.logs');
 Route::get('watson-journey', 'LiveChatController@watsonJourney')->name('watson.journey');
+Route::get('watson-journey-ajax', 'LiveChatController@ajax')->name('watson.ajax'); //pawan added for ajax call for filter
 Route::post('pushwaston', 'ChatbotMessageLogsController@pushwaston');
 
 Route::get('sync-to-watson', 'ChatbotMessageLogsController@pushQuickRepliesToWaston');
