@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
-class UserAvaibilitiesChangeFromToDayMinute extends Migration
+class AlterTableUserAvaibilitiesChangeFromToDayMinute extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class UserAvaibilitiesChangeFromToDayMinute extends Migration
      */
     public function up()
     {
-        DB::statement("ALTER TABLE `user_avaibilities` MODIFY
+        DB::statement("ALTER TABLE `user_avaibilities`
         CHANGE `from` `from` DATE NULL DEFAULT NULL,
         CHANGE `to` `to` DATE NULL DEFAULT NULL,
         CHANGE `minute` `minute` TIME NULL DEFAULT NULL,
