@@ -176,7 +176,16 @@ var page = {
         $(".common-modal").on("click",".add-permission",function() {
             page.addPermission();
         });
-        
+        /*
+            Pawan added for view user activity
+        */
+        page.config.bodyView.on("click",".load-time-modal-view",function(e) {
+            
+            page.timeModalOpenView($(this));
+        });
+        /*
+            End
+        */
         page.config.bodyView.on("click",".load-time-modal",function(e) {
             
             page.timeModalOpen($(this));
@@ -779,7 +788,30 @@ var page = {
             toastr["error"](response.error,"");
         }
     },
-   
+    /*
+      Pawan added for view user activity
+    */
+    timeModalOpenView: function(ele) {
+        var user_id = ele.data("id");
+        var _z = {
+            url: this.config.baseUrl + "/user-management/user-avl-view/"+ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'resultTimeModalView');
+    },
+    resultTimeModalView : function(response) {
+        
+        var communicationHistoryTemplate = $.templates("#template-view-time");
+        var tplHtml = communicationHistoryTemplate.render(response);
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+            //$("#time_user_id").val(user_id);
+
+    },
+    /*
+      End
+    */
     timeModalOpen : function(ele) {
         var user_id = ele.data("id");
         var _z = {
