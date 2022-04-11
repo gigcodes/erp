@@ -30,6 +30,7 @@ class FlowLogController extends Controller
                 'flows.store_website_id', 
                 'store_websites.website', 
                 'flow_log_messages.modalType',
+                'flow_log_messages.created_at',
                 'customers.name as lead_name'
             ])
         ->join('flows','flows.id', 'flow_logs.flow_id')
@@ -48,6 +49,7 @@ class FlowLogController extends Controller
                     ->orWhere('flow_logs.messages', 'LIKE', '%'.$request->term.'%')
                     ->orWhere('flows.flow_description', 'LIKE', '%'.$request->term.'%')
                     ->orWhere('flow_log_messages.modalType', 'LIKE', '%'.$request->term.'%')
+                    ->orWhere('customers.name', 'LIKE', '%'.$request->term.'%')
                     ->orWhere('store_websites.website', 'LIKE', '%'.$request->term.'%');
                 });
             }
