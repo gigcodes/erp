@@ -1435,7 +1435,7 @@ class UserManagementController extends Controller
         $avaibility['end_time'] = date("H:i", strtotime($avaibility['end_time']));
         $avaibility['launch_time'] = date("H:i", strtotime($avaibility['launch_time']));
         $avaibility['minute'] = date("H:i", strtotime($avaibility['minute']));
-        \Log::info('avaibility:'.json_encode($avaibility));
+        //\Log::info('avaibility:'.json_encode($avaibility));
         return response()->json(["code" => 200,"data" => $avaibility]);
         
     }
