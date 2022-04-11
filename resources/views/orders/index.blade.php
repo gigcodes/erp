@@ -433,7 +433,16 @@
                 <button type="button" class="btn btn-xs btn-image load-log-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="order" data-id="{{$order->id}}" data-load-type="text" data-all="1" title="Show Error Log"><img src="{{asset('images/chat.png')}}" alt=""></button>
                 <button type="button" title="Payment history" class="btn magento-log-btn btn-xs pull-left" data-id="{{$order->id}}">
                   <i class="fa fa-eye"></i>
-              </button>
+                </button>
+                <button type="button" title="Order Email send error" class="btn  btn-xs btn-image pd-5 email_exception_list" data-id="{{$order->id}}">
+                  <i style="color:#6c757d;" class="fa fa-info-circle" data-id="{{$order->id}}"  aria-hidden="true"></i>
+                </button>
+                <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 order_email_send_log" data-id="{{$order->id}}">
+                    <img src="http://erp.local:8080/images/chat.png" alt="">
+                </button>
+                <button type="button" title="Order email send model" class="btn  btn-xs btn-image pd-5 order-resend-popup" data-status_id="{{ $order->order_status_id }}" data-id="{{$order->id}}">
+                  <i style="color:#6c757d;" class="fa fa-address-card" data-id="{{$order->id}}"  aria-hidden="true"></i>
+                </button>
                 </div>
               </td>
             </tr>
@@ -547,6 +556,71 @@
               </div>
           </div>
       </div>
+  </div>
+ 
+  <div id="order_exception_error_log" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Order Logs</h4>
+            </div>
+            <div class="modal-body">
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Order ID</th>
+                      <th style="width: 20%;">Error Log</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+
+                  <tbody id="order_errorlogtd">
+                   
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div id="order_email_send_log" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Order Logs</h4>
+            </div>
+            <div class="modal-body">
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Order ID</th>
+                      <th>Type</th>
+                      <th>From</th>
+                      <th>To</th>
+                      <th>Subject</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+
+                  <tbody id="order_emailsendlogtd">
+                   
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
   </div>
 
     <div id="order-status-map" class="modal fade" role="dialog">
@@ -892,6 +966,78 @@
 			});
 		});
 
+    
+    $(document).on("click",".email_exception_list",function() { 
+			  console.log(this);
+        var order_id = $(this).data("id");
+        $.ajax({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{route("order.get.email.error.logs")}}',
+          type: "post",
+          data : { order_id: order_id },
+          beforeSend: function() {
+            $("loading-image").show();
+          }
+        }).done( function(response) {
+          if(response.code == 200) {
+            var t = '';
+            $.each(response.data,function(k,v) {
+              t += `<tr><td>`+v.id+`</td>`;
+              t += `<td>`+v.order_id+`</td>`;
+              t += `<td>`+v.exception_error+`</td>`;
+              t += `<td>`+v.created_at+`</td></tr>`;
+            });
+
+            $("#order_exception_error_log").find("#order_errorlogtd").html(t);
+            $('#order_exception_error_log').modal("show");
+            $("loading-image").hide();
+          } else if(response.code == 500){
+            toastr['error']('Could not find any error Log', 'Error');
+          }
+        }).fail(function(error) {
+          toastr['error']('Could not find any error Log', 'Error');
+        });
+		  });
+
+      $(document).on("click",".order_email_send_log",function() { 
+			  console.log(this);
+        var order_id = $(this).data("id");
+        $.ajax({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{route("order.get.email.send.logs")}}',
+          type: "post",
+          data : { order_id: order_id },
+          beforeSend: function() {
+            $("loading-image").show();
+          }
+        }).done( function(response) {
+          if(response.code == 200) {
+            var t = '';
+            $.each(response.data,function(k,v) {
+              t += `<tr><td>`+v.id+`</td>`;
+              t += `<td>`+v.model_id+`</td>`;
+              t += `<td>`+v.type+`</td>`;
+              t += `<td>`+v.from+`</td>`;
+              t += `<td>`+v.to+`</td>`;
+              t += `<td>`+v.subject+`</td>`;
+              t += `<td>`+v.created_at+`</td></tr>`;
+            });
+
+            $("#order_email_send_log").find("#order_emailsendlogtd").html(t);
+            $('#order_email_send_log').modal("show");
+            $("loading-image").hide();
+          } else if(response.code == 500){
+            toastr['error']('Could not find any error Log', 'Error');
+          }
+        }).fail(function(error) {
+          toastr['error']('Could not find any error Log', 'Error');
+        });
+		  });
+
     $(document).on("click",".load-log-modal",function() { 
 			  console.log(this);
         var order_id = $(this).data("id");
@@ -1108,7 +1254,39 @@
           var message = 'Do you want to send message to customer for status change';
           ConfirmDialog(message,id,status);
       });*/
-
+      $(document).on("click",".order-resend-popup",function() {
+          var id = $(this).data("id");
+          var status = $(this).data('status_id');
+          $("#preview").hide();
+          $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "order/"+id+"/change-status-template",
+            type: "post",
+            data : {
+              order_id: id, 
+              order_status_id : status
+            },
+            beforeSend: function() {
+              $("loading-image").show();
+            }
+          }).done( function(response) {
+            $("loading-image").hide();
+            if(response.code == 200) {
+              $("#order-id-status-tpl").val(id);
+              $("#preview").html(response.preview);
+              CKEDITOR.replace( 'editableFile' );
+              $("#order-status-id-status-tpl").val(status);
+              $("#order-template-status-tpl").val(response.template);
+              $(".msg_platform").prop('checked', false);
+              $("#update-status-message-tpl").modal("show");
+            }
+            
+          }).fail(function(errObj) {
+              alert("Could not change status");
+          });
+      });
       $(document).on("change",".order-status-select",function() {
           var id = $(this).data("id");
           var status = $(this).val();

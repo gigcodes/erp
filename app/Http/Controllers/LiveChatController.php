@@ -30,6 +30,8 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\LiveChatLog;
 use App\LiveChatEventLog;
 use App\GoogleTranslate;
+use App\WatsonChatJourney;
+use App\ChatbotReply;
 
 class LiveChatController extends Controller
 {
@@ -56,7 +58,7 @@ class LiveChatController extends Controller
 		} else if(isset($receivedJson->payload->chat_id)) {
 			$threadId = $receivedJson->payload->chat_id;
 		}
-		
+		WatsonChatJourney::updateOrCreate(['chat_id'=>$threadId], ['chat_entered'=>1]);
 		    if(isset($receivedJson->payload->chat->thread->properties->routing->start_url)) {
 				$websiteURL = self::getDomain($receivedJson->payload->chat->thread->properties->routing->start_url);
 				$website = \App\StoreWebsite::where("website", "like", "%" . $websiteURL . "%")->first();
@@ -238,6 +240,7 @@ class LiveChatController extends Controller
                             'replied_chat_id' => $chatMessage->id,
                             'reply_from' => 'chatbot',
                         ]);
+						WatsonChatJourney::updateOrCreate(['chat_id'=>$threadId], ['message_received'=>$message]);
 						LiveChatEventLog::create(['customer_id'=>$customerLiveChat->customer_id, 'store_website_id'=>$websiteId, 'thread'=>$chatId, 'event_type'=>'incoming_event', 'log'=>$message." saved in chatbot reply ."]);      
 				    }
                     //END - DEVTASK-18280
@@ -433,7 +436,16 @@ class LiveChatController extends Controller
 				try {
                     $text = $chat->thread->events[1]->text;
 					LiveChatEventLog::create(['customer_id'=>$customer->id, 'store_website_id'=>$websiteId, 'thread'=>$chatId, 'event_type'=>"incoming_chat", 'log'=>"text found ".$text]);
-                } catch (\Exception $e) {
+                    $replyFound = ChatbotReply::where('answer', $text)->first(); 
+                    if($replyFound == null) {
+					    WatsonChatJourney::updateOrCreate(['chat_id'=>$threadId], ['reply_searched_in_watson'=>1]);
+					} else {
+						WatsonChatJourney::updateOrCreate(['chat_id'=>$threadId], ['reply_found_in_database'=>1]);
+					}
+				   
+                    WatsonChatJourney::updateOrCreate(['chat_id'=>$threadId], ['reply'=>$text ]);
+                    WatsonChatJourney::updateOrCreate(['chat_id'=>$threadId], ['response_sent_to_cusomer'=>1 ]);
+				} catch (\Exception $e) {
                     LiveChatEventLog::create(['customer_id'=>$customer->id, 'store_website_id'=>$websiteId, 'thread'=>$chatId, 'event_type'=>"incoming_chat", 'log'=>"incoming chat error ".$e." <br>data ".json_encode($chat->thread->events[1])]);
                     $text = 'Error';    
                 }
@@ -1656,6 +1668,12 @@ class LiveChatController extends Controller
                                     'status' => 'pre-send',
                                     'store_website_id' => null,
                                 ]);
+								
+								\App\EmailLog::create([
+									'email_id'   => $email->id,
+									'email_log' => 'Email initiated',
+									'message'       => $email->to
+								]);
 
                                 try{
                                     \App\Jobs\SendEmail::dispatch($email);
@@ -2087,7 +2105,11 @@ class LiveChatController extends Controller
             'store_website_id' => $couponCodeRule->store_website_id,
             'is_draft'         => 0,
         ]);
-
+        \App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Email initiated',
+            'message'       => $email->to
+        ]);
         \App\Jobs\SendEmail::dispatch($email);
         \App\CouponCodeRuleLog::create([
             'rule_id' => $ruleId,
@@ -2149,4 +2171,144 @@ class LiveChatController extends Controller
 
     }
 
+   public function watsonJourney(request $request) {
+	   $watsonJourney = WatsonChatJourney::orderBy('id', 'desc')->paginate(10)->appends(request()->except(['page']));
+       if(count($watsonJourney) != 0){
+            foreach($watsonJourney as $value){
+                $id = null;
+                if(!empty($value->chat_id)){
+                    $id = $value->chat_id;
+                } else{
+                    $id = $value->chat_message_id;
+                }
+                $senderDeatilsId = \DB::table('chat_messages')->where('id',$id)->first();
+                if(!empty($senderDeatilsId)){
+                    $sender_id = $senderDeatil = null;
+                    if(!empty($senderDeatilsId->vendor_id)){
+                        $sender_id = $senderDeatilsId->vendor_id;
+                        $senderDeatil = \DB::table('vendors')->select('name','phone','id')->where('id',$sender_id)->first();
+                    } else if(!empty($senderDeatilsId->supplier_id)){
+                        $sender_id = $senderDeatilsId->supplier_id;
+                        $senderDeatil = \DB::table('suppliers')->select('supplier as name','phone','id')->where('id',$sender_id)->first();
+                    }else if(!empty($senderDeatilsId->user_id)){
+                        $sender_id = $senderDeatilsId->user_id;
+                        $senderDeatil = \DB::table('users')->select('name','phone','id')->where('id',$sender_id)->first();
+                    }else if(!empty($senderDeatilsId->customer_id)){
+                        $sender_id = $senderDeatilsId->customer_id;
+                        $senderDeatil = \DB::table('customers')->select('name','phone','id')->where('id',$sender_id)->first();
+                    }
+                }
+                if(!empty($senderDeatil)){
+                    $value->sender_name = $senderDeatil->name;
+                    $value->sender_phone = $senderDeatil->phone;
+                } else{
+                    $value->sender_name = '';
+                    $value->sender_phone = '';
+                }
+                
+            }
+            // \Log::info('Watson data:'.json_encode($watsonJourney));
+       }
+       return view('livechat.journey', compact('watsonJourney'))
+			->with('i', ($request->input('page', 1) - 1) * 5);
+	//    return view('livechat.journey', compact('watsonJourney'));
+   }
+
+   /* Pawan added for ajax call for filter of below
+        1.Chat entered dropdown
+        2.Reply found in database dropdown
+        3.Reply searched in watson dropdown
+        4.Response sent to customer dropdown
+        5.Message received Search
+        6.Reply Search
+        7.sender(name/phone) Search
+    */
+    public function ajax(request $request){
+        $unsetvalue = null;
+        $watsonJourney = WatsonChatJourney::where(function ($query) use($request){
+                if(isset($request->apply_id) && isset($request->term) && $request->term != '' && $request->apply_id != ''){
+                    if($request->apply_id == 1){
+                        $query = $query->where('reply', 'LIKE','%'.$request->term.'%');
+                    } elseif($request->apply_id == 4){
+                        $query = $query->where('message_received', 'LIKE', '%'.$request->term.'%');
+                    } elseif($request->apply_id == 5){
+                        $query = $query->where('chat_entered', 'LIKE', '%'.$request->term.'%');
+                    } elseif($request->apply_id == 6){
+                        $query = $query->where('reply_found_in_database', 'LIKE', '%'.$request->term.'%');
+                    } elseif($request->apply_id == 7){
+                        $query = $query->where('reply_searched_in_watson', 'LIKE', '%'.$request->term.'%');
+                    } elseif($request->apply_id == 8){
+                        $query = $query->where('response_sent_to_cusomer', 'LIKE', '%'.$request->term.'%');
+                    } 
+                }
+            })->orderBy('id', 'desc')->paginate(10);
+            if(count($watsonJourney) != 0){
+                foreach($watsonJourney as $key => $value){
+                    $id = null;
+                    if(!empty($value->chat_id)){
+                        $id = $value->chat_id;
+                    } else{
+                        $id = $value->chat_message_id;
+                    }
+                    $senderDeatilsId = \DB::table('chat_messages')->select('id','vendor_id','supplier_id','user_id','customer_id')->where('id',$id)->first();
+                    if(!empty($senderDeatilsId)){
+                        $sender_id = $senderDeatil = null;
+                        if(!empty($senderDeatilsId->vendor_id)){
+                            $sender_id = $senderDeatilsId->vendor_id;
+                            if($request->apply_id == 2){
+                                $senderDeatil = \DB::table('vendors')->select('name','phone','id')->where('id',$sender_id)->where('name', 'LIKE','%'.$request->term.'%')->first();
+                            } else if($request->apply_id == 3){
+                                $senderDeatil = \DB::table('vendors')->select('name','phone','id')->where('id',$sender_id)->where('phone', 'LIKE','%'.$request->term.'%')->first();
+                            } else {
+                                $senderDeatil = \DB::table('vendors')->select('name','phone','id')->where('id',$sender_id)->first();
+                            }
+                        }else if(!empty($senderDeatilsId->supplier_id)){
+                            $sender_id = $senderDeatilsId->supplier_id;
+                            if($request->apply_id == 2){
+                                $senderDeatil = \DB::table('suppliers')->select('supplier as name','phone','id')->where('id',$sender_id)->where('supplier', 'LIKE','%'.$request->term.'%')->first();
+                            } else if($request->apply_id == 3){
+                                $senderDeatil = \DB::table('suppliers')->select('supplier as name','phone','id')->where('id',$sender_id)->where('phone', 'LIKE','%'.$request->term.'%')->first();
+                            } else{
+                                $senderDeatil = \DB::table('suppliers')->select('supplier as name','phone','id')->where('id',$sender_id)->first();
+                            }
+                        }else if(!empty($senderDeatilsId->user_id)){
+                            $sender_id = $senderDeatilsId->user_id;
+                            if($request->apply_id == 2){
+                                $senderDeatil = \DB::table('users')->select('name','phone','id')->where('id',$sender_id)->where('name', 'LIKE','%'.$request->term.'%')->first();
+                            } else if($request->apply_id == 3){
+                                $senderDeatil = \DB::table('users')->select('name','phone','id')->where('id',$sender_id)->where('phone', 'LIKE','%'.$request->term.'%')->first();
+                            } else{
+                                $senderDeatil = \DB::table('users')->select('name','phone','id')->where('id',$sender_id)->first();
+                            }
+                        }else if(!empty($senderDeatilsId->customer_id)){
+                            $sender_id = $senderDeatilsId->customer_id;
+                            if($request->apply_id == 2){
+                                $senderDeatil = \DB::table('customers')->select('name','phone','id')->where('id',$sender_id)->where('name', 'LIKE','%'.$request->term.'%')->first();
+                            } else if($request->apply_id == 3){
+                                $senderDeatil = \DB::table('customers')->select('name','phone','id')->where('id',$sender_id)->where('phone', 'LIKE','%'.$request->term.'%')->first();
+                            }else{
+                                $senderDeatil = \DB::table('customers')->select('name','phone','id')->where('id',$sender_id)->first();
+                            }
+                        }
+                    }
+                    if(!empty($senderDeatil)){
+                        $value->sender_name = $senderDeatil->name;
+                        $value->sender_phone = $senderDeatil->phone;
+                    } else{
+                        $value->sender_name = '';
+                        $value->sender_phone = '';
+                        if($request->apply_id == 2 || $request->apply_id == 3){
+                            $unsetvalue[] = $key ;
+                        }
+                    }
+                }
+                unset($watsonJourney[$unsetvalue]);
+           }
+
+        return response()->json([
+            'livechat' => view('livechat.partials.list-journey', compact('watsonJourney'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+            'links' => (string)$watsonJourney->render(),
+            'count' => $watsonJourney->total(),
+        ], 200);
+    }
 }

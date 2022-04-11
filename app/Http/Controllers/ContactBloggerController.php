@@ -44,7 +44,11 @@ class ContactBloggerController extends Controller
             'store_website_id' => null,
             'is_draft'         => 0,
         ]);
-
+\App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Email initiated',
+            'message'       => $email->to
+        ]);
         \App\Jobs\SendEmail::dispatch($email);
 
         return redirect()->back()->withSuccess('Information stored successfully along with push email to the blogger!');

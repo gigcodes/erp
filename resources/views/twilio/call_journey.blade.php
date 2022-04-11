@@ -20,6 +20,7 @@
 							<tr>
 								<th>#</th>
 								<th>Phone</th>
+								<th>Store Id</th>
 								<th>Account Sid</th>
 								<th>Call Sid</th>
 								<th>Call Entered</th>
@@ -29,25 +30,96 @@
 								<th>Agent online</th>
 								<th>Call Answered</th>
 							</tr>
-							@foreach ($callJourney as $key=>$log )
-								<tr>
-									<td>{{ $key+1 }}</td>
-									<td>{{$log->phone}}</td> 
-									<td>{{$log->account_sid}}</td> 
-									<td>{{$log->call_sid}}</td>
-									<td>@if($log->call_entered == 1) Yes @else No @endif</td>
-									<td>@if($log->handled_by_chatbot == 1) Yes @else No @endif</td>
-									<td>@if($log->called_in_working_hours == 1) Yes @else No @endif</td>
-									<td>@if($log->agent_available == 1) Yes @else No @endif</td>
-									<td>@if($log->agent_online == 1) Yes @else No @endif</td>
-									<td>@if($log->call_answered == 1) Yes @else No @endif</td>
-								</tr>
-							@endforeach
+							<tr>
+								<th></th>
+								<th width="10%"><input type="text" class="search form-control tbInput" name="phone" id="phone"></th>
+								<th width="5%"><input type="text" class="search form-control tbInput" name="store_id" id="store_id"></th>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th></th>
+							 </tr>
+
+							 <tbody id="content_data" class="tableLazy">
+								@include('twilio.partials.call_journey_data')
+							 </tbody>
+
 						</table>
-						{{ $callJourney->links() }}
+						{{ $call_Journeies->links() }}
                     </div>
                 </div>
             </div>
 		</div>
 	</div>	
+	<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+          50% 50% no-repeat;display:none;"></div>
+@endsection
+
+
+@section('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script type="text/javascript">
+   //Ajax Request For Search
+   $(document).ready(function () {
+   
+   
+       $(document).on('keyup','.tbInput',function()
+       {
+           filterResults();
+       })
+
+
+	   function filterResults()
+        {
+           $('#noresult_tr').remove();
+           var row= getFilterValues();
+   
+           $.ajax({
+                   url: '{{route("twilio.call_journey")}}',
+                   dataType: "json",
+                   data: row,
+                   method:'post',
+                   beforeSend: function () {
+                      $("#loading-image").show();
+                   },
+   
+               }).done(function (res) {
+                      $("#loading-image").hide();
+                     $('#noresult_tr').remove();
+   
+   
+             if(res.status){
+               $('.tableLazy').html(res.html);
+               $(".page-total").html(res.count);
+          }
+             else
+               $('.tableLazy').html(res.html)
+          })
+        }
+
+		function getFilterValues()
+        {
+           var row={};
+           $('.tbInput').each(function()
+           {
+               var name=$(this).attr('name');
+			   row[name]=$(this).val();
+           })
+   
+           row['created_at']=$('[name="created_at"]').val();
+           row['_token']='{{csrf_token()}}';
+           return row;
+        }
+
+	});
+	</script>
+	
 @endsection
