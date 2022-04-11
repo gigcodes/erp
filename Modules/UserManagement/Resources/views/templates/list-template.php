@@ -131,9 +131,7 @@ a {
 					<a title="Add role" class="btn btn-image load-role-modal" data-id="{{:prop.id}}"><img src="/images/role.png" alt=""style="padding: 0px 1px;"></a>
 					<a title="Add Permission" class="btn btn-image load-permission-modal" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-lock" aria-hidden="true"></i></a>
 					<?php } ?>
-					<!-- Pawan added for UserAvaibility -->
-					<a title="View Avaibility" class="btn btn-image load-time-modal-view" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-eye" aria-hidden="true"></i></a>
-					<!-- end -->
+					
 					<a title="Add Avaibility" class="btn btn-image load-time-modal" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>
 					<a title="Task Hours" class="btn btn-image load-tasktime-modal" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-tasks" aria-hidden="true"></i></a>
 					<button type="button" class="btn send-email-common-btn" data-toemail="{{:prop.email}}" data-object="user" data-id="{{:prop.id}}" style="padding: 0px 1px;"><i class="fa fa-envelope-square"></i></button>
