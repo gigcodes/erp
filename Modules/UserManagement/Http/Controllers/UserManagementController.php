@@ -1347,6 +1347,7 @@ class UserManagementController extends Controller
     }
 
     public function saveUserAvaibility(Request $request) {
+        \Log::info('Request:'. json_encode($request->all()));
         $rules = [
 			'user_id' => 'required',
 			'to' => 'required',
@@ -1355,6 +1356,9 @@ class UserManagementController extends Controller
 			'status' => 'required',
             'availableDay' => 'required',
             'availableHour' => 'required',
+            'startTime' => 'required',
+            'endTime' => 'required',
+            'launchTime' => 'required',
             'note' => 'required_if:status,"0"',
         ];
 
@@ -1375,7 +1379,7 @@ class UserManagementController extends Controller
         }
         $nextDay =  implode(', ', $request->day);
         // $nextDay = 'next '.$request->day;
-
+       
         UserAvaibility::updateOrCreate([
             'user_id'   => $request->user_id,
         ],[
@@ -1386,7 +1390,10 @@ class UserManagementController extends Controller
             'day'      => $request->availableDay,
             'minute'   => $request->availableHour,
             'status'   => $request->status,
-            'note'     => trim($request->note)
+            'note'     => trim($request->note),
+            'start_time' => $request->startTime,
+            'end_time'   => $request->endTime,
+            'launch_time' => $request->launchTime,
         ]);
 
         // $user_avaibility = new UserAvaibility;
@@ -1424,7 +1431,11 @@ class UserManagementController extends Controller
         
         // \Log::info('HubStaff'.json_encode($userhubstafftotal));
         $avaibility['user_id'] = $id;
-        \Log::info('avaibility:'.json_encode($avaibility));
+        $avaibility['start_time'] = date("H:i", strtotime($avaibility['start_time']));
+        $avaibility['end_time'] = date("H:i", strtotime($avaibility['end_time']));
+        $avaibility['launch_time'] = date("H:i", strtotime($avaibility['launch_time']));
+        $avaibility['minute'] = date("H:i", strtotime($avaibility['minute']));
+        //\Log::info('avaibility:'.json_encode($avaibility));
         return response()->json(["code" => 200,"data" => $avaibility]);
         
     }
