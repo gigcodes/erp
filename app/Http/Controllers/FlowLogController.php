@@ -19,36 +19,36 @@ class FlowLogController extends Controller
     public $channel_filter = [];
     public function index(Request $request)
     {
+
+        $pagination_count = Setting::get('pagination') ? Setting::get('pagination') : 1;
+
+        $logs = FlowLog::select(['flow_logs.*','flows.flow_name', 'flows.flow_description', 'flows.store_website_id', 'store_websites.website', 'flow_log_messages.modalType'])
+        ->join('flows','flows.id','flow_logs.flow_id')
+        ->join('flow_log_messages', 'flow_log_messages.flow_log_id', 'flow_logs.id')
+        ->join('store_websites', 'flows.store_website_id', 'store_websites.id');
         
         if ($request->flow_name || $request->messages || $request->created_at) {
 
-            $query = FlowLog::orderby('updated_at', 'desc')->select(['flow_logs.*','flows.flow_name', 'flows.flow_description', 'flows.store_website_id', 'store_websites.website', 'flow_log_messages.modalType'])
-            ->join('flows','flows.id','flow_logs.flow_id')
-            ->join('flow_log_messages', 'flow_log_messages.flow_log_id', 'flow_logs.id')
-            ->join('store_websites', 'flows.store_website_id', 'store_websites.id');
-
+            $logs = $logs->orderby('updated_at', 'desc');
            
             if (request('messages') != null) {
-                $query->where('messages', 'LIKE', "%{$request->messages}%");
+                $logs = $logs->where('messages', 'LIKE', "%{$request->messages}%");
             }
 
             if (request('created_at') != null) {
-                $query->whereDate('created_at', request('created_at'));
+                $logs = $logs->whereDate('created_at', request('created_at'));
             }
             if (request('flow_name') != null) {
-                $query->where('flows.flow_name', 'LIKE', "%{$request->flow_name}%");
+                $logs = $logs->where('flows.flow_name', 'LIKE', "%{$request->flow_name}%");
             }
 
             
-            $paginate = (Setting::get('pagination') * 10);
-            $logs  = $query->paginate($paginate)->appends(request()->except(['page']));
+            $paginate = ($pagination_count * 10);
+            $logs  = $logs->paginate($paginate)->appends(request()->except(['page']));
         } else {
 
-            $paginate = (Setting::get('pagination') * 10);
-            $logs = FlowLog::orderby('created_at', 'desc')->select(['flow_logs.*','flows.flow_name', 'flows.flow_description', 'flows.store_website_id', 'store_websites.website', 'flow_log_messages.modalType'])
-            ->join('flows','flows.id','flow_logs.flow_id')
-            ->join('flow_log_messages', 'flow_log_messages.flow_log_id', 'flow_logs.id')
-            ->join('store_websites', 'flows.store_website_id', 'store_websites.id')
+            $paginate = ($pagination_count * 10);
+            $logs = $logs->orderby('created_at', 'desc')
             ->paginate($paginate);
             
         }
