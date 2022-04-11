@@ -400,6 +400,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 							<tr>
 								<th>Website </th>
 								<th>Synced on</th>
+                                <th>Error Status</th>
 							</tr>
 						</thead>
 						<tbody id="sync_data_log">
@@ -407,6 +408,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 							<tr>
 								<td>{{$pushLog['website']}}</td>
 								<td>{{$pushLog['created_at'] }}</td>
+                                <td>@if($pushLog['status'] == '') Success @else {{$pushLog['status']}} @endif</td>
 							</tr>
 						@endforeach
 						</tbody>
@@ -664,8 +666,13 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
             $("#loading-image").hide();
             var html = '';
             response.data.forEach(function(value, index){
+                var statusError = 'Success';
+                if(value.status){
+                    statusError = value.status;
+                }
                 html += `<tr><td>${value.website}</td>`;
-                html += `<td>${value.created_at}</td></tr>`;
+                html += `<td>${value.created_at}</td>`;
+                html += `<td>${statusError}</td></tr>`;
             }) 
             $('#sync_data_log').html(html);
             toastr['success'](response.msg);
@@ -692,8 +699,13 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
             $("#loading-image").hide();
             var html = '';
             response.data.forEach(function(value, index){
+                var statusError = 'Success';
+                if(value.status){
+                    statusError = value.status;
+                }
                 html += `<tr><td>${value.website}</td>`;
-                html += `<td>${value.created_at}</td></tr>`;
+                html += `<td>${value.created_at}</td>`;
+                html += `<td>${statusError}</td></tr>`;
             }) 
             $('#sync_data_log').html(html);
             toastr['success'](response.msg);

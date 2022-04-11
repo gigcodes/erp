@@ -30,7 +30,7 @@ class MagentoSettingsController extends Controller
             $magentoSettings->where('scope', $request->scope);
         }
         $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
-            ->select('website', 'command', 'magento_setting_push_logs.created_at')->orderBy('magento_setting_push_logs.created_at', 'DESC')->get();
+            ->select('store_websites.website', 'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at')->orderBy('magento_setting_push_logs.created_at', 'DESC')->get();
         if ($request->website) {
 
             if (empty($request->scope)) {
@@ -139,7 +139,7 @@ class MagentoSettingsController extends Controller
     public function magentoSyncLogSearch(Request $request) 
     {
         $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
-        ->select('store_websites.website', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at');
+        ->select('store_websites.website', 'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at');
         if($request->sync_date !='')
             $pushLogs = $pushLogs->whereDate('magento_setting_push_logs.created_at', date('Y-m-d',strtotime($request->sync_date)));
         
