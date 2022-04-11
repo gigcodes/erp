@@ -1,5 +1,9 @@
+@php
+$i = isset($i) && $i > 0 ? $i : 1;
+@endphp
 @foreach ($logs as $log)
     <tr>
+        {{-- <td>{{ $i++ }}</td> --}}
         <td>{{ $log->id }}</td>
         <td>{{ $log->flow_name }}</td>
         <td>{{ $log->modalType }}</td>

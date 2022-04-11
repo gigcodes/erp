@@ -20,7 +20,7 @@ class FlowLogController extends Controller
     public function index(Request $request)
     {
 
-        $pagination_count = Setting::get('pagination') ? Setting::get('pagination') : 1;
+        $page = isset($request->page) ? $request->page : 1;
 
         $logs = FlowLog::orderby('updated_at', 'desc')->select(
             [
@@ -39,41 +39,42 @@ class FlowLogController extends Controller
 
         // dd($logs->limit(10)->get());
 
-        if ($request->flow_name || $request->messages || $request->created_at) {
-
-            $logs = $logs->orderby('updated_at', 'desc');
-           
-            if (request('messages') != null) {
-                $logs = $logs->where('messages', 'LIKE', "%{$request->messages}%");
-            }
-
-            if (request('created_at') != null) {
-                $logs = $logs->whereDate('created_at', request('created_at'));
-            }
-            if (request('flow_name') != null) {
-                $logs = $logs->where('flows.flow_name', 'LIKE', "%{$request->flow_name}%");
-            }
+        if ($request->term || $request->created_at) {
 
             
-            $paginate = ($pagination_count * 10);
-            $logs  = $logs->paginate($paginate)->appends(request()->except(['page']));
-        } else {
-
-            $paginate = ($pagination_count * 10);
-            $logs = $logs->orderby('created_at', 'desc');
-            // dd($logs->limit(20)->get());
-            $logs = $logs->paginate($paginate);
+            if (request('term') != null) {
+                $logs = $logs->where(function ($query) use ($request) {
+                    $query->where('flows.flow_name', 'LIKE', '%'.$request->term.'%')
+                    ->orWhere('flow_logs.messages', 'LIKE', '%'.$request->term.'%')
+                    ->orWhere('flows.flow_description', 'LIKE', '%'.$request->term.'%')
+                    ->orWhere('flow_log_messages.modalType', 'LIKE', '%'.$request->term.'%')
+                    ->orWhere('store_websites.website', 'LIKE', '%'.$request->term.'%');
+                });
+            }
+            
+            if (request('created_at') != null) {
+                $logs = $logs->whereDate('flow_logs.created_at', request('created_at'));
+            }
         }
+        
+        $logs = $logs->orderby('flow_logs.created_at', 'desc')->groupBy('flow_logs.id');
+
+        $logs  = $logs->paginate(50);
 
         if ($request->ajax()) {
+            
+            $page = $request->input('page', 1);
+            $page_count = $page > 1 ? ($request->input('page', 1) - 1) * 50 : $request->input('page', 1) * 50;
+
             return response()->json([
-                'tbody' => view('logging.partials.flowlogdata', compact('logs'))->render(),
+                'tbody' => view('logging.partials.flowlogdata', compact('logs', 'page'))->with('i', $page_count)->render(),
                 'links' => (string) $logs->render(),
                 'count' => $logs->total(),
             ], 200);
         }
-
-        return view('logging.flowlog', compact('logs'));
+        
+        $title = 'Flow Log List';
+        return view('logging.flowlog', compact('logs', 'title', 'page'));
     }
     public function details(Request $request){
         

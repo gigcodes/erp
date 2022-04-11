@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Flow Log List')
+@section('title', $title)
 
 @section('styles')
     <link rel="stylesheet" type="text/css"
@@ -23,42 +23,41 @@
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
     </div>
+
     <div class="row">
+        <div class="col-md-12">
+            <h2 class="page-heading">{{ $title }} (<span id="filter_table_count">{{ $logs->total() }}</span>)</h2>
+        </div>
+    </div>
+
+    {{-- filter_table_count --}}
+    {{-- <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Flow Logs</h2>
             <div class="pull-right">
-                {{-- <a href="/logging/live-laravel-logs" type="button" class="btn btn-secondary">Live Logs</a> --}}
                 <button type="button" class="btn btn-image" onclick="refreshPage()"><img
                         src="/images/resend2.png" /></button>
             </div>
 
         </div>
-    </div>
+    </div> --}}
+
+
 
     @include('partials.flash_messages')
 
-    <div class="mt-3 col-md-12">
-        <table class="table table-bordered table-striped" id="log-table">
-            <thead>
-                <tr>
-                    <th style="width:7%">ID</th>
-                    <th width="10%">Flow Name</th>
-                    <th width="10%">Model</th>
-                    <th width="10%">Leads</th>
-                    <th width="10%">Website</th>
-                    <th width="10%">Description</th>
-                    <th width="25%">Message</th>
-                    <th width="10%">LogCreated</th>
-                    <th width="10%">Action</th>
-                </tr>
-                <tr>
-                    <th style="width:7%"></th>
-                    <th width="10%"><input type="text" name="flow_name" class="search form-control" id="flow_name"></th>
-                    <th>&nbsp;</th>
-                    <th>&nbsp;</th>
-                    <th width="10%"><input type="text" name="message" class="search form-control" id="message"></th>
-                    <th>&nbsp;</th>
-                    <th>
+
+    <div class="row m-2">
+        <div class="col-lg-12">
+            <div class="cls_filter_box mt-5 mb-2">
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <input name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}"
+                            placeholder="search" id="term">
+                    </div>
+
+                    <div class="col-md-3">
                         <div class='input-group' id='log-created-date1'>
                             <input type='text' class="form-control " name="created_at" value="" placeholder="Date"
                                 id="created-date" />
@@ -66,49 +65,77 @@
                                 <span class="glyphicon glyphicon-calendar"></span>
                             </span>
                         </div>
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
+                    </div>
 
-            <tbody id="content_data">
-                @include('logging.partials.flowlogdata')
-            </tbody>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-image" onclick="submitSearch()"><img
+                                src="/images/filter.png" /></button>
 
-            {!! $logs->render() !!}
-
-        </table>
-    </div>
-    <div id="ErrorLogModal" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Flow Log Detail</h4>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-bordered table-hover" style="table-layout:fixed;">
-                        <thead>
-                            <th style="width:10%">Flow Action</th>
-                            <th style="width:20%">Modal Type </th>
-                            <th style="width:20%">Leads</th>
-                            <th style="width:25%">Message</th>
-                            <th style="width:15%">Website</th>
-                            <th style="width:10%">Date</th>
-                        </thead>
-                        <tbody class="error-log-data">
-
-                        </tbody>
-                    </table>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img
+                                src="/images/resend2.png" /></button>
+                    </div>
                 </div>
             </div>
-            <!-- /.modal-content -->
         </div>
-        <!-- /.modal-dialog -->
+
+        <div class="mt-3 col-md-12">
+            <table class="table table-bordered table-striped" id="filter_table">
+                <thead>
+                    <tr>
+                        {{-- <th style="width:7%">sn</th> --}}
+                        <th style="width:7%">ID</th>
+                        <th width="10%">Flow Name</th>
+                        <th width="10%">Model</th>
+                        <th width="10%">Leads</th>
+                        <th width="10%">Website</th>
+                        <th width="10%">Description</th>
+                        <th width="25%">Message</th>
+                        <th width="10%">LogCreated</th>
+                        <th width="10%">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="content_data">
+                    @include('logging.partials.flowlogdata')
+                </tbody>
+
+                {{-- {!! $logs->render() !!} --}}
+
+            </table>
+        </div>
+        <div id="ErrorLogModal" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Flow Log Detail</h4>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-bordered table-hover" style="table-layout:fixed;">
+                            <thead>
+                                <th style="width:10%">Flow Action</th>
+                                <th style="width:20%">Modal Type </th>
+                                <th style="width:20%">Leads</th>
+                                <th style="width:25%">Message</th>
+                                <th style="width:15%">Website</th>
+                                <th style="width:10%">Date</th>
+                            </thead>
+                            <tbody class="error-log-data">
+
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
     </div>
+    <img class="infinite-scroll-products-loader center-block" src="{{ asset('/images/loading.gif') }}" alt="Loading..."
+        style="display: none" />
 
 @endsection
 
@@ -147,94 +174,73 @@
             count = 0;
             $('#created-date').datetimepicker({
                 format: 'YYYY/MM/DD'
-            }).on('dp.change', function(e) {
-                //  alert("dddd");
-                //if(count > 0){    
-                var formatedValue = e.date.format(e.date._f);
-                created_at = $('#created_date').val();
-                flow_name = $('#flow_name').val();
-                message = $('#message').val();
-                src = "{{ route('logging.flow.log') }}";
+            });
+
+            var isLoading = false;
+            var page = 1;
+
+            $(window).scroll(function() {
+                if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {
+                    loadMore();
+                }
+            });
+
+            function loadMore() {
+                if (isLoading)
+                    return;
+                isLoading = true;
+                var $loader = $('.infinite-scroll-products-loader');
+
+                page = page + 1;
+
+                var src = "{{ route('logging.flow.log') }}?ajax=1&page=" + page;
+                var term = $('#term').val()
+                var created_at = $('#created-date').val()
+
+
                 $.ajax({
                     url: src,
-                    dataType: "json",
+                    type: 'GET',
                     data: {
-                        created_at: created_at,
-                        flow_name: flow_name,
-                        message: message,
-
+                        term: term,
+                        created_at: created_at
                     },
                     beforeSend: function() {
-                        $("#loading-image").show();
+                        $loader.show();
                     },
-
-                }).done(function(data) {
-                    $("#loading-image").hide();
-                    $("#content_data").empty().html(data.tbody);
-                    if (data.links.length > 10) {
-                        $('ul.pagination').replaceWith(data.links);
-                    } else {
-                        $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                    }
-
-
-                }).fail(function(jqXHR, ajaxOptions, thrownError) {
-                    alert('No response from server');
-                });
-
-                // } 
-                //count++;       
-            });
-
-
-            //Search    
-            src = "{{ route('logging.flow.log') }}";
-            $(".search").autocomplete({
-                source: function(request, response) {
-                    message = $('#message').val();
-                    flow_name = $('#flow_name').val();
-                    created_at = $('#created_date').val();
-
-                    $.ajax({
-                        url: src,
-                        dataType: "json",
-                        data: {
-                            created_at: created_at,
-                            message: message,
-                            flow_name: flow_name,
-
-                        },
-                        beforeSend: function() {
-                            $("#loading-image").show();
-                        },
-
-                    }).done(function(data) {
-                        $("#loading-image").hide();
+                    success: function(data) {
                         console.log(data);
-                        $("#log-table tbody").empty().html(data.tbody);
-                        if (data.links.length > 10) {
-                            $('ul.pagination').replaceWith(data.links);
-                        } else {
-                            $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                        $loader.hide();
+                        $("#filter_table tbody").append(data.tbody);
+
+                        isLoading = false;
+                        if (data.tbody == "") {
+                            isLoading = true;
                         }
 
-                    }).fail(function(jqXHR, ajaxOptions, thrownError) {
-                        alert('No response from server');
-                    });
-                },
-                minLength: 1,
-
-            });
+                    },
+                    error: function() {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }
         });
-        src = "{{ route('logging.flow.log') }}";
 
-        function refreshPage() {
-            blank = ''
+
+        // Filter the data
+        function submitSearch() {
+            var src = "{{ route('logging.flow.log') }}"
+            var term = $('#term').val()
+            var created_at = $('#created-date').val()
+
+
             $.ajax({
                 url: src,
                 dataType: "json",
                 data: {
-                    blank: blank
+                    term: term,
+                    created_at: created_at
                 },
                 beforeSend: function() {
                     $("#loading-image").show();
@@ -242,8 +248,39 @@
 
             }).done(function(data) {
                 $("#loading-image").hide();
-                console.log(data);
-                $("#log-table tbody").empty().html(data.tbody);
+                $("#filter_table tbody").empty().html(data.tbody);
+                // page = (data.tbody.page !== undefined) ? data.tbody.page : 1
+                $("#filter_table_count").text(data.count);
+                page = 1;
+
+            }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+
+        }
+
+        // Restart Form
+        function resetSearch() {
+            src = "{{ route('logging.flow.log') }}"
+            blank = ''
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+
+                    blank: blank,
+
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+
+            }).done(function(data) {
+                $("#loading-image").hide();
+                $('#term').val('');
+                $('#created-date').val('');
+                $("#filter_table tbody").empty().html(data.tbody);
+                $("#filter_table_count").text(data.count);
                 if (data.links.length > 10) {
                     $('ul.pagination').replaceWith(data.links);
                 } else {
