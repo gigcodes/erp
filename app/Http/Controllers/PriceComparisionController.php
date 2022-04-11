@@ -204,7 +204,7 @@ class PriceComparisionController extends Controller
      *
      */
     public function sendDetails(Request $request)
-    {
+    {  
         //checking if we getting proper request 
         $message = $this->generate_erp_response("price_compare.failed.validation",0, $default = 'Please Send Both SKU and Country', request('lang_code'));
         if(empty($request->sku) || empty($request->country)){
@@ -218,6 +218,10 @@ class PriceComparisionController extends Controller
         
         //getting product
         $product = Product::getProductBySKU($request->sku);
+		if(!$product){
+		    $sku = explode('-', $request->sku);	
+			$product = Product::whereIn('sku', $sku)->first();
+		}
         if($product){
             //getting product category
             $category =  $product->product_category;
