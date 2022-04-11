@@ -90,7 +90,7 @@
 								@include('livechat.partials.list-journey')
 							</tbody>
 						</table>
-						<!-- {{ $watsonJourney->links() }} -->
+						
                     </div>
                 </div>
             </div>
@@ -100,8 +100,6 @@
 @endsection
 <!-- pawan added for ajax call on filter search -->
 @section('scripts')
- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 <script type="text/javascript">
     // $('.select2').select2({placeholder: "Select",allowClear: true});
 	function resetSearch(){

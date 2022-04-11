@@ -2181,7 +2181,6 @@ class LiveChatController extends Controller
                 } else{
                     $id = $value->chat_message_id;
                 }
-
                 $senderDeatilsId = \DB::table('chat_messages')->where('id',$id)->first();
                 if(!empty($senderDeatilsId)){
                     $sender_id = $senderDeatil = null;
