@@ -607,14 +607,27 @@ class ChatMessagesController extends Controller
         $vendors = Vendor::orderBy('name')->get();
 
         $customers = Customer::orderBy('name')->get();
-
         return view('custom-chat-message.index', compact('title', 'users', 'vendors', 'customers'));
     }
 
     public function customChatRecords(Request $request)
     {
-        $keyword = $request->get("keyword");
+        if ($request->get("keyword") != null) {
+            $delimiters = ['/', ','];
+            $str = $request->get("keyword");
+            $newStr = str_replace($delimiters, $delimiters[0], $str);
+            $arr = explode($delimiters[0], $newStr);
+            $keywords = array_filter($arr);
 
+            if ($request->search == 'yes') {
+                $keywords = $keywords;
+            } else {
+                $keywords = $keywords[0];
+            }
+        } else {
+            $keywords = [];
+        }
+        
         $records = ChatMessage::with('user', 'vendor', 'customer')
             ->where(function ($query) {
                 $query->whereNotNull('vendor_id');
@@ -622,12 +635,19 @@ class ChatMessagesController extends Controller
                 $query->orWhereNotNull('customer_id');
             });
 
-        if (!empty($keyword)) {
-            $records = $records->where(function ($q) use ($keyword) {
-                $q->where("message", "LIKE", "%$keyword%");
+        if (!empty($keywords)) {
+            $records = $records->where(function ($query) use ($keywords) {
+        // dd($keywords);
+               foreach ($keywords as $keyword) {
+                    $query->orWhere('message', 'like', '%' . $keyword . '%');
+                    $query->orWhere('created_at', 'like', '%' . $keyword . '%');
+                }
+            })->orWhereHas('user', function ($query) use ($keywords) {
+                foreach ($keywords as $keyword) {
+                    $query->where('name', 'like', '%' . $keyword . '%');
+                }
             });
         }
-
         if (!empty($request->user_id)) {
             $records = $records->where("user_id", $request->user_id);
         }
