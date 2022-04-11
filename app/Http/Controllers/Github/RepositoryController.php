@@ -143,7 +143,9 @@ class RepositoryController extends Controller
 
         } catch (Exception $e) {
             print_r($e->getMessage());
-            foreach($e->getMessage() as $err){
+            $errorArr = array();
+            $errorArr = $e->getMessage();
+            foreach($errorArr as $err){
                 
             }
             return redirect(url('/github/pullRequests'))->with(
