@@ -16,18 +16,18 @@
            <div class="form-group">
                   <strong>Day</strong>
                   
-                 <select class="form-control" name="day[]" multiple="true">
-                    <option value='monday' {{if data.weekday_0 }} selected {{/if}}>Monday</option>
+                 <select class="form-control" name="day">
+                    <option value='monday' {{if data.weekday }} selected {{/if}}>Monday</option>
 
-                    <option value='tuesday' {{if data.weekday_1 }} selected {{/if}}>Tuesday</option>
+                    <option value='tuesday' {{if data.weekday }} selected {{/if}}>Tuesday</option>
 
-                    <option value='wednesday' {{if data.weekday_2 }} selected {{/if}}>Wednesday</option>
+                    <option value='wednesday' {{if data.weekday }} selected {{/if}}>Wednesday</option>
 
-                    <option value='thursday' {{if data.weekday_3  }} selected {{/if}}>Thursday</option>
+                    <option value='thursday' {{if data.weekday  }} selected {{/if}}>Thursday</option>
 
-                    <option value='friday' {{if data.weekday_4 }} selected {{/if}}>Friday</option>
+                    <option value='friday' {{if data.weekday }} selected {{/if}}>Friday</option>
 
-                    <option value='saturday' {{if data.weekday_5 }} selected {{/if}}>Saturday</option>
+                    <option value='saturday' {{if data.weekday }} selected {{/if}}>Saturday</option>
 
                  </select>
 			</div>
@@ -67,95 +67,4 @@
 		</div>
 	</form> 
    
-</script>
-<script type="text/x-jsrender" id="template-view-time">
-   <style>
-   .display {
-      display: flex;
-      justify-content: space-evenly;
-   }
-
-   </style>
-   <div class="modal-content">
-      <div class="modal-header">
-         <h5 class="modal-title">View Avaibility</h5>
-         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-         <span aria-hidden="true">&times;</span>
-         </button>
-      </div>
-      <div class="modal-body">
-            <div class="form-group display">
-               {{if data.user_id }}
-                  <div>
-                     <strong>User Id:</strong>
-                     {{:data.user_id}}
-                  </div>
-               {{/if}}
-               {{if data.weekday }}
-                  <div>
-                     <strong>Day:</strong>
-                     {{:data.weekday}}
-                  </div>
-               {{/if}}
-            </div>
-            <div class="form-group display">
-               {{if data.day }}
-                  <div>
-                     <strong>Available Day:</strong>
-                     {{:data.day}}
-                  </div>
-               {{/if}}
-               {{if data.minute }}
-               <div>
-                  <strong>Available Hour:</strong>
-                  {{:data.minute}}
-               </div>
-               {{/if}}
-            </div>
-            
-            <div class="form-group display">
-               {{if data.date_from }}
-                  <div>
-                     <strong>Available From: </strong>
-                     {{:data.date_from}}
-                  </div>
-               {{/if}}
-               {{if data.date_to }}
-                  <div>
-                     <strong>Available To: </strong>
-                     {{:data.date_to}}
-                  </div>
-               {{/if}}
-            </div>
-            
-            <div class="form-group display">
-               {{if data.status }}
-                  <div>
-                     <strong>Status: </strong>
-                     {{if data.status == 1}}
-                        Available
-                     {{/if}}
-                     {{if data.status == 0}}
-                        Not Available
-                     {{/if}}
-                  </div>
-               {{/if}}
-               {{if data.note }}
-                  <div>
-                     <strong>Notes: </strong>
-                     {{:data.note}}
-                  </div>
-               {{/if}}
-            </div>
-            <div class="form-group display">
-               {{if data.userhubstafftotal }}
-               {{/if}}
-               <div>
-                  <strong>HubStaff Total Minute: </strong>
-                  {{:data.userhubstafftotal}}
-               </div>
-               
-            </div>
-      </div>
-	</div>
 </script>
