@@ -520,13 +520,17 @@
                 processData: false,
                 contentType: false,
                 dataType: "json",
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
                 success: function(response) {
                     if (response.code == 200) {
-                        toastr["success"]("Status updated!", "Message")
+                        toastr["success"]("Document Uploaded!", "Message")
                         $("#upload-document-modal").modal("hide");
                     } else {
                         toastr["error"](response.error, "Message");
                     }
+                    $("#loading-image").hide();
                 }
             });
         });
@@ -545,6 +549,10 @@
                 site_development_id: sdid,
             },
             dataType: "json",
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+
             success: function(response) {
                 if (response.code == 200) {
                     $("#blank-modal").find(".modal-title").html("Document List");
@@ -553,10 +561,12 @@
                 } else {
                     toastr["error"](response.error, "Message");
                 }
+
+                $("#loading-image").hide();
             },
             error: function(error) {
                 toastr["error"]('Unauthorized permission development-get-document', "Message")
-
+                $("#loading-image").hide();
             }
         });
     });
