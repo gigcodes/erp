@@ -30,7 +30,7 @@ class MagentoSettingsController extends Controller
             $magentoSettings->where('scope', $request->scope);
         }
         $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
-            ->select('website', 'command', 'magento_setting_push_logs.created_at')->get();
+            ->select('website', 'command', 'magento_setting_push_logs.created_at')->orderBy('magento_setting_push_logs.created_at', 'DESC')->get();
         if ($request->website) {
 
             if (empty($request->scope)) {
@@ -135,6 +135,19 @@ class MagentoSettingsController extends Controller
                 'pushLogs'          => $pushLogs,
             ]);
         }
+    }
+    public function magentoSyncLogSearch(Request $request) 
+    {
+        $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
+        ->select('store_websites.website', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at');
+        if($request->sync_date !='')
+            $pushLogs = $pushLogs->whereDate('magento_setting_push_logs.created_at', date('Y-m-d',strtotime($request->sync_date)));
+        
+        $pushLogs = $pushLogs->orderBy('magento_setting_push_logs.created_at', 'DESC')->get();
+        if(!empty($pushLogs))
+            return response()->json(['status' => 200, 'data' => $pushLogs, 'msg' => "Data Listed successfully!"]);
+        else
+            return response()->json(['status' => 500, 'data' => [], 'msg' => "Could, not find data!"]);
     }
 
     public function create(Request $request)

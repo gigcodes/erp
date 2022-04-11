@@ -91,6 +91,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('magento-admin-settings/namehistrory/{id}', 'MagentoSettingsController@namehistrory');
     Route::get('magento-admin-settings', 'MagentoSettingsController@index')->name('magento.setting.index');
+    Route::get('magento-get-sync-data', 'MagentoSettingsController@magentoSyncLogSearch')->name('get.magento.sync.data');
     Route::get('magento-admin-settings/pushLogs/{settingId}', 'MagentoSettingsController@magentoPushLogs')->name('magento.setting.logs');
     Route::post('magento-admin-settings/create', 'MagentoSettingsController@create')->name('magento.setting.create');
     Route::post('magento-admin-settings/update', 'MagentoSettingsController@update')->name('magento.setting.update');
@@ -3671,6 +3672,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
 Route::get('chatbot-message-log', 'ChatbotMessageLogsController@index')->name('chatbot.messages.logs');
 Route::get('watson-journey', 'LiveChatController@watsonJourney')->name('watson.journey');
+Route::get('watson-journey-ajax', 'LiveChatController@ajax')->name('watson.ajax'); //pawan added for ajax call for filter
 Route::post('pushwaston', 'ChatbotMessageLogsController@pushwaston');
 
 Route::get('sync-to-watson', 'ChatbotMessageLogsController@pushQuickRepliesToWaston');
