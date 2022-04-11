@@ -19,7 +19,7 @@ class ScrapLog extends Model
      */
 
     protected $fillable = [
-        'scraper_id', 'folder_name', 'file_name', 'log_messages', 'type',
+        'scraper_id', 'folder_name', 'file_name', 'log_messages', 'type','reason'
     ];
 
 }

@@ -32,6 +32,7 @@
             </select> </td>
             <td> 
             <input type="text" name="value"  placeholder="Enter your value" required>
+			<input type="hidden" name="log_id" value="{{$item->id}}" >
            </td>
            <td> 
             <input type="text" name="suggested_reply"  placeholder="Suggested Reply" required>

@@ -107,6 +107,7 @@ class MagentoOrderHandleHelper extends Model
                         array(
                             'customer_id'         => $customer_id,
                             'order_id'            => $order->increment_id,
+                            'order_magento_id'    => $order->entity_id,
                             'order_type'          => 'online',
                             'order_status'        => isset($allStatus[$order_status]) ? $allStatus[$order_status] : $order_status,
                             'order_status_id'     => $order_status,
@@ -162,6 +163,7 @@ class MagentoOrderHandleHelper extends Model
                                     'color'         => isset($splitted_sku[1]) ? $splitted_sku[1] : $skuAndColor['sku'],
                                     'created_at'    => $order->created_at,
                                     'updated_at'    => $order->created_at,
+                                    'item_id'       => $item->item_id,
                                 )
                             );
 

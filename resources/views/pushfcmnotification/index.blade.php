@@ -57,6 +57,7 @@
                 <th>Text</th>
                 <th>Sent At</th>
                 <th>Sent On</th>
+                <th>Status</th>
                 <th>Created By</th>
                 <th>Updated At</th>
                 <th>Action</th>

@@ -43,9 +43,9 @@ class CallBusyMessage extends Model
            
                 if($model->twilio_call_sid){
 
-                    $formatted_phone = str_replace('+91', '',$model->twilio_call_sid);
-                    $customer  = Customer::with('storeWebsite','orders')->where('phone', 'LIKE', "%$formatted_phone%")->first();
-                    $model->customer_id =  $customer->id;
+                    $formatted_phone = str_replace('+', '',$model->twilio_call_sid);
+                    $customer  = Customer::with('storeWebsite','orders')->where('phone', $formatted_phone)->first();
+                    $model->customer_id =  $customer->id ?? null;
                     $model->save();
                 }    
         });

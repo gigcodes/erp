@@ -13,6 +13,7 @@ use App\User;
 use App\Task;
 use App\TaskCategory;
 use App\TaskStatus;
+use App\TaskDueDateHistoryLog;
 use App\Contact;
 use App\Setting;
 use App\Remark;
@@ -646,7 +647,6 @@ class TaskModuleController extends Controller
                 return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses'));
             }
         }
-
         if ($request->is_statutory_query == 3) {
             return view('task-module.discussion-tasks', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses'));
         } else {
@@ -810,7 +810,6 @@ class TaskModuleController extends Controller
     {
         $user_id = $request->get('user_id', 0);
         $selected_issue = $request->get('selected_issue', []);
-
         $issues = Task::select('tasks.*')
                         ->leftJoin('erp_priorities', function ($query) {
                             $query->on('erp_priorities.model_id', '=', 'tasks.id');
@@ -819,13 +818,17 @@ class TaskModuleController extends Controller
 
         if (auth()->user()->isAdmin()) {
             $issues = $issues->where(function ($q) use ($selected_issue, $user_id) {
+
+                if( (count($selected_issue) != 0 && count($selected_issue) != 1) ){
+                    $q->whereIn('tasks.id', $selected_issue);
+                }
+                
                 $user_id = is_null($user_id) ? 0 : $user_id;
+
                 if($user_id!=0){
                     $q->where('tasks.assign_to', $user_id)->orWhere("tasks.master_user_id", $user_id);
                 }
-             ///   $q->whereIn('tasks.id', $selected_issue)->orWhere("erp_priorities.user_id", $user_id);
-                $q->whereIn('tasks.id', $selected_issue);
-                
+             
             });
         } else {
             $issues = $issues->whereNotNull('erp_priorities.id');
@@ -850,9 +853,11 @@ class TaskModuleController extends Controller
 
     public function setTaskPriority(Request $request)
     {
+        //dd($request->get);
      //   dd($request->all());
         $priority = $request->get('priority', null);
         $user_id = $request->get('user_id', 0);
+
         //get all user task
         //$developerTask = Task::where('assign_to', $user_id)->pluck('id')->toArray();
         
@@ -905,7 +910,9 @@ class TaskModuleController extends Controller
                 $params['status'] = 2;
                 $requestData->request->add($params);
                 app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
-            }
+            }  
+            
+            
         }
         return response()->json([
             'status' => 'success'
@@ -2827,18 +2834,41 @@ class TaskModuleController extends Controller
         return response()->json(['histories' => $task_histories]);
 	}
 	
+    /**
+     * This function is use for create task due data log history
+     * 
+     * @param mixed $request
+     * @return JsonResponce
+     */
+    public function createTaskDueDateHistoryLog($request)
+    {
+        try {
+            TaskDueDateHistoryLog::create([
+                'task_id' => $request->task_id,
+                'task_type' => $request->type,
+                'updated_by' => Auth::id(),
+                'old_due_date' => $request->old_due_date,
+                'new_due_date' => $request->date,
+            ]);
+            return response()->json(['code' => 200,'message' => 'Successfully updated'],200);
+        } catch(\Exception $e) {
+            return response()->json(['code' => 500, 'error' => $e->getMessage],200);
+        }
+    }
+
 	public function updateTaskDueDate(Request $request) {
-		
 		
 		if($request->type == 'TASK'){
 			$task = Task::find($request->task_id);
 			if($request->date) {
 				$task->update(['due_date' => $request->date]);
-			}
+                $this->createTaskDueDateHistoryLog($request);
+            }
 		}else{
 			if($request->date) {
 				DeveloperTask::where('id',$request->task_id)
 					->update(['due_date' => $request->date]);
+                    $this->createTaskDueDateHistoryLog($request);
 			}
 		}
 		
@@ -2846,6 +2876,25 @@ class TaskModuleController extends Controller
             'message' => 'Successfully updated'
         ],200);
 	}
+
+    public function getTaskDueDateHistoryLog(Request $request)
+    {
+        $taskHistory = TaskDueDateHistoryLog::where([['task_id', '=', $request->task_id]])->get();
+        
+        if (count($taskHistory)>0) {
+            $html = "";
+            foreach($taskHistory as $taskHistoryData) {
+                $html .= "<td>".$taskHistoryData->id."</td>";
+                $html .= "<td>".$taskHistoryData->users->name."</td>";
+                $html .= "<td>".$taskHistoryData->old_due_date."</td>";
+                $html .= "<td>".$taskHistoryData->new_due_date."</td>";
+                $html .= "<td>".$taskHistoryData->created_at."</td>";
+            }
+            return response()->json(['code'=>200 , 'data' => $html, 'msg' => 'Task Due Date History successfully loaded']);
+        } else {
+            return response()->json(['code' => 500, 'msg' => 'Task Due Date history long not found'], 200);
+        }
+    }
 
 	public function createHubstaffManualTask(Request $request) {
 		$task = Task::find($request->id);
