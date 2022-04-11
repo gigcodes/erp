@@ -1281,16 +1281,21 @@ input.cmn-toggle-round + label {
 <div id="preview-task-create-get-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Task Remark</h4>
+                <input type="text" name="remark_pop" class="form-control remark_pop" placeholder="Please enter remark" style="width: 200px;">
+                <button type="button" class="btn btn-default sub_remark" data-task_id="{{$task->id}}">Save</button>
+            </div>
         	<div class="modal-body">
     			<div class="col-md-12">
-	        		<table class="table table-bordered">
+                    <table class="table table-bordered">
 					    <thead>
 					      <tr>
 					        <th style="width:1%;">ID</th>
 					        <th style=" width: 12%">Update By</th>
-					        <th style="word-break: break-all; width:12%">Old Due date</th>
-                            <th style="word-break: break-all; width:12%">New Due date</th>
-					        <th style="width: 11%">Created at</th>
+					        <th style="word-break: break-all; width:12%">Remark</th>
+                            <th style="width: 11%">Created at</th>
+                            <th style="width: 11%">Action</th>
                           </tr>
 					    </thead>
 					    <tbody class="task-create-get-list-view">
@@ -2278,7 +2283,7 @@ input.cmn-toggle-round + label {
             if (date != '') {
                 $.ajax({
                         url: "{{route('task.update.due_date')}}",
-                        type: 'POST',
+                        type: 'post',
                         headers: {
                             'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                         },
@@ -2299,12 +2304,20 @@ input.cmn-toggle-round + label {
         });
 
         $(document).on("click",".set-remark",function(e) {
+            $('.remark_pop').val("");
+            var task_id = $(this).data('task_id');
+            $('.sub_remark').attr( "data-task_id", task_id );
+        });
+        $(document).on("click",".set-remark, .sub_remark",function(e) {
             var thiss = $(this);
             var task_id = $(this).data('task_id');
-            var remark = $('#remark').val();
+            var remark = $('.remark_pop').val();
             $.ajax({
                 type: "POST",
                 url: "{{route('task.create.get.remark')}}",
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
                 data: {
                     task_id : task_id,
                     remark : remark,
@@ -2318,17 +2331,41 @@ input.cmn-toggle-round + label {
                     $("#loading-image").hide();
                     $("#preview-task-create-get-modal").modal("show");
                     $(".task-create-get-list-view").html(response.data);
-                    toastr['success'](response.msg);
+                    $('.remark_pop').val("");
+                    toastr['success'](response.message);
                 }else{
                     $("#loading-image").hide();
-                    toastr['error'](response.msg);
+                    $("#preview-task-create-get-modal").modal("show");
+                    $(".task-create-get-list-view").html("");
+                    toastr['error'](response.message);
                 }
                 
             }).fail(function (response) {
                 $("#loading-image").hide();
-                toastr['error'](response.msg);
+                $("#preview-task-create-get-modal").modal("show");
+                $(".task-create-get-list-view").html("");
+                toastr['error'](response.message);
             });
         });
+
+        $(document).on("click",".copy_remark",function(e) {
+            var thiss = $(this);
+            var remark_text = thiss.data('remark_text');
+            copyToClipboard(remark_text);
+            /* Alert the copied text */
+            toastr['success']("Copied the text: " + remark_text);
+            //alert("Copied the text: " + remark_text);
+        });
+
+        function copyToClipboard(text) {
+            var sampleTextarea = document.createElement("textarea");
+            document.body.appendChild(sampleTextarea);
+            sampleTextarea.value = text; //save main text in it
+            sampleTextarea.select(); //select textarea contenrs
+            document.execCommand("copy");
+            document.body.removeChild(sampleTextarea);
+        }
+
 
         $(document).on("click",".get_due_date_history_log",function(e) {
             var task_id = $(this).data('taskid');

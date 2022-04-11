@@ -14,6 +14,7 @@ use App\Task;
 use App\TaskCategory;
 use App\TaskStatus;
 use App\TaskDueDateHistoryLog;
+use App\TaskRemark;
 use App\Contact;
 use App\Setting;
 use App\Remark;
@@ -2880,13 +2881,32 @@ class TaskModuleController extends Controller
     public function taskCreateGetRemark(Request $request) 
     {
         try {
+            $msg = "";
             if($request->remark !='') {
-                
+                TaskRemark::create(
+                    [
+                        'task_id' => $request->task_id,
+                        'task_type' => $request->type,
+                        'updated_by' => Auth::id(),
+                        'remark' => $request->remark,
+                    ]
+                );
+                $msg = " Created and ";
             }
-            return response()->json(['code' => 200, 'message' => 'Success']);
+            $taskRemarkData = TaskRemark::where([['task_id', '=', $request->task_id], ['task_type', '=', $request->type]])->get();
+            $html='';
+            foreach($taskRemarkData as $taskRemark) {
+                $html .= "<tr>";
+                $html .= "<td>".$taskRemark->id."</td>";
+                $html .= "<td>".$taskRemark->users->name."</td>";
+                $html .= "<td>".$taskRemark->remark."</td>";
+                $html .= "<td>".$taskRemark->create_at."</td>";
+                $html .= "<td><i class='fa fa-copy copy_remark' data-remark_text='".$taskRemark->remark."'></i></td>";
+            }
+            return response()->json(['code' => 200, 'data'=> $html, 'message' => 'Remark '.$msg.' listed Successfully']);
         
         } catch (Exception $e) {
-            return response()->json(['code' => 500, 'message' => 'Only admin can approve']);
+            return response()->json(['code' => 500, 'data'=> '', 'message' => $e->getMessage()]);
         }
 	}
 
