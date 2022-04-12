@@ -1564,9 +1564,7 @@ class LiveChatController extends Controller
 
     public function createCredits(Request $request)
     {
-
         $data = [];
-
         $customer_id = $request->credit_customer_id;
         $credit = $request->credit;
         $type = $request->credit_type;
@@ -1596,6 +1594,7 @@ class LiveChatController extends Controller
 
 
         if ($customer) {
+            
 
 
             if ($customer->store_website_id != null and $customer->platform_id != null) {

@@ -155,6 +155,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
     Route::post('list-magento/{id}', 'Logging\LogListMagentoController@updateMagentoStatus');
     Route::get('show-error-logs/{product_id}/{website_id?}', 'Logging\LogListMagentoController@showErrorLogs')->name('list.magento.show-error-logs');
     Route::get('call-journey-by-id/{id}', 'Logging\LogListMagentoController@showJourneyById')->name('list.magento.show-journey-by-id');
+    Route::get('call-journey-horizontal-by-id/{id}', 'Logging\LogListMagentoController@showJourneyHorizontalById')->name('list.magento.show-journey-horizontal-by-id');
     Route::get('show-error-log-by-id/{id}', 'Logging\LogListMagentoController@showErrorByLogId')->name('list.magento.show-error-log-by-id');
     Route::get('show-prices/{id}', 'Logging\LogListMagentoController@showPrices')->name('list.magento.show-prices');
     Route::get('list-magento/product-push-infomation', 'Logging\LogListMagentoController@productPushInformation')->name('list.magento.product-push-information');
@@ -187,6 +188,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
     Route::get('get-latest-product-for-push', 'Logging\LogListMagentoController@getLatestProductForPush')->name('logging.magento.get-latest-product-for-push');
     Route::post('delete/magento-api-search-history', 'Logging\LogListMagentoController@deleteMagentoApiData')->name('delete.magento.api-search-history');
     Route::get('log-magento-apis-ajax', 'Logging\LogListMagentoController@logMagentoApisAjax')->name('logging.magento.logMagentoApisAjax');
+    Route::get('log-magento-product-push-journey', 'Logging\LogListMagentoController@productPushJourney')->name('logging.magento.product_push_journey');
 });
 
 Route::get('log-scraper-api', 'Logging\LogScraperController@scraperApiLog')->middleware('auth')->name('log-scraper.api');
@@ -1974,7 +1976,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/drafted-products/delete', 'ProductController@deleteDraftedProducts');
     Route::post('/drafted-products/addtoquicksell', 'ProductController@addDraftProductsToQuickSell');
     Route::post('/drafted-products/send-lead-price', 'ProductController@sendLeadPrice');
-	Route::get('chatbot-type-error-log', 'ChatbotTypeErrorLogController@index')->name('chatbot.type.error.log');
+	Route::get('twillio-missing-keywrods', 'ChatbotTypeErrorLogController@index')->name('chatbot.type.error.log');
 
     //emails_extraction
     Route::resource('email-data-extraction', 'EmailDataExtractionController');
@@ -3783,4 +3785,3 @@ Route::get('command', function () {
    /* \Artisan::call('command:schedule_emails');
     dd("Done");*/
 });
-

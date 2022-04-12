@@ -63,13 +63,30 @@ class TaskModuleController extends Controller
 
     public function index(Request $request)
     {
-
         if ($request->input('selected_user') == '') {
             $userid = Auth::id();
-            $userquery = ' AND (assign_from = ' . $userid . ' OR  second_master_user_id = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
+
+            $searchMasterUserId = $userid;
+            if($request->search_master_user_id !='')
+                $searchMasterUserId = $request->search_master_user_id;
+
+            $searchSecondMasterUserId = $userid;
+            if($request->search_second_master_user_id !='')
+                $searchSecondMasterUserId = $request->search_second_master_user_id;
+                
+            $userquery = ' AND (assign_from = ' . $userid . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ' OR  master_user_id = ' . $searchMasterUserId . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
         } else {
             $userid = $request->input('selected_user');
-            $userquery = ' AND (master_user_id = ' . $userid . ' OR  second_master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
+            
+            $searchMasterUserId = $userid;
+            if($request->search_master_user_id !='')
+                $searchMasterUserId = $request->search_master_user_id;
+
+            $searchSecondMasterUserId = $userid;
+            if($request->search_second_master_user_id !='')
+                $searchSecondMasterUserId = $request->search_second_master_user_id;
+
+            $userquery = ' AND (master_user_id = ' . $searchMasterUserId . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
         }
         
         if (!$request->input('type') || $request->input('type') == '') {

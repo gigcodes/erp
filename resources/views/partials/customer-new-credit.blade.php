@@ -124,7 +124,9 @@ $statuses = \App\ticketStatuses::all();
                         $('#credit_form').trigger("reset");
                         $('#create-customer-credit-modal').modal('toggle');
                     }else{
-                        alert(data[0]);
+                        //console.log(data[0]);
+                        var msg = JSON.parse(JSON.parse(data[0]));
+                        alert(msg.message);
                     }
                 }, error: function (jqXHR, exception) {
                     var msg = '';
