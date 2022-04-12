@@ -477,7 +477,7 @@
 						$timeSpent = $row['daily_working_hour'];
 						$time = explode(":",$timeSpent);
 						$timeInSec = (int)$time[0]*60*60 + (int)$time[1]*60 + (int)$time[2];
-		dd($timeInSec);
+		
 						
 						
 						//$dwork = $row['daily_working_hour'] ? number_format($row['daily_working_hour'],2,".","") : 0;
