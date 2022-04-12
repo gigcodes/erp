@@ -1,9 +1,11 @@
 @extends('layouts.app')
 @section('title', 'Laravel API Log List')
-@section("styles")
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+@section('styles')
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 @endsection
 @section('content')
 <div class="row">
@@ -362,14 +364,164 @@
             }).fail(function (res) {
                 $("#loading-image").hide();
             });
-        });
 
-        $(".datepicker-block").datetimepicker({
-           format: 'YYYY-MM-DD'
-        });
+            //Expand Row
 
-       // console.log($logsRecords);
-   
-    })
-</script>
+            $('#log-created-date').datetimepicker({
+                format: 'YYYY/MM/DD'
+            }).on('dp.change',
+                function(e) {
+                    var formatedValue = e.date.format(e.date._f);
+                    created = $('#created_date').val();
+
+                    filterResults();
+
+                })
+
+
+            $(window).on('scroll', function() {
+
+                if ($(window).scrollTop() == $(document).height() - $(window).height()) {
+                    var page_no = $('.currentPage').last().attr('data-page');
+
+                    page_no = parseInt(page_no) + 1;
+                    //console.log(page_no);
+
+                    var row = getFilterValues();
+
+
+
+                    $.ajax({
+                        url: '{{ route('api-log-list') }}' + '?page=' + page_no,
+                        dataType: "json",
+                        data: row,
+                        method: 'post',
+                        beforeSend: function() {
+
+                        },
+
+                    }).done(function(res) {
+
+                        $('#noresult_tr').remove();
+                        //var res=JSON.parse(res);
+
+                        if (res.status) {
+                            $('.tableLazy').append(res.html);
+                            $(".page-total").html(res.count);
+                            $.each(res.logs.data, function(k, v) {
+                                $logsRecords.push(v);
+                            })
+
+
+                        } else
+                            $('.tableLazy').append(res.html)
+                    })
+
+
+
+                }
+
+            })
+
+            function filterResults() {
+                $('#noresult_tr').remove();
+
+                var row = getFilterValues();
+
+
+                $.ajax({
+                    url: '{{ route('api-log-list') }}',
+                    dataType: "json",
+                    data: row,
+                    method: 'post',
+                    beforeSend: function() {
+                        $("#loading-image").show();
+                    },
+
+                }).done(function(res) {
+                    $("#loading-image").hide();
+                    $('#noresult_tr').remove();
+
+
+                    if (res.status) {
+                        $('.tableLazy').html(res.html);
+
+
+                        $logsRecords = res.logs.data;
+                        $(".page-total").html(res.count);
+
+                    } else
+                        $('.tableLazy').html(res.html)
+                })
+            }
+
+            function getFilterValues() {
+                var row = {};
+                $('.tbInput').each(function() {
+                    var name = $(this).attr('name');
+
+                    row[name] = $(this).val();
+
+                    //data.push(row);
+                })
+
+                row['created_at'] = $('[name="created_at"]').val();
+                row['_token'] = '{{ csrf_token() }}';
+
+                return row;
+
+            }
+
+            $(document).on('click', '.showModalResponse', function() {
+                var selector = $(this);
+                $.each($logsRecords, function(k, v) {
+
+                    if (v.id == selector.attr('data-id')) {
+                        console.log(v.id);
+                        $('#api_response_modal').find('.modal-body').find('#json').html(JSON
+                            .stringify(JSON.parse(v.response), undefined, 2));
+
+
+
+                        $('#api_response_modal').find('.modal-body').find('#json_request').html(JSON
+                            .stringify(JSON.parse(v.request), undefined, 2));
+                    }
+                })
+                $('#api_response_modal').modal('show');
+            })
+
+            var logsRecords = @json($logs);
+            $logsRecords = logsRecords.data;
+
+            $(document).on("click", ".btn-generate-report", function(e) {
+                e.preventDefault();
+                var form = $(this).closest("form");
+                $.ajax({
+                    method: 'get',
+                    url: "/logging/list/api/logs/generate-report",
+                    data: {
+                        keyword: form.find("input[name='keyword']").val(),
+                        for_date: form.find("input[name='for_date']").val(),
+                        report_type: form.find("select[name='report_type']").val()
+                    },
+                    beforeSend: function() {
+                        $("#loading-image").show();
+                    }
+                }).done(function(res) {
+                    $("#loading-image").hide();
+                    $("#generate-report-modal").find(".modal-body").html(res);
+                    $("#generate-report-modal").modal("show");
+                }).fail(function(res) {
+                    $("#loading-image").hide();
+                });
+            });
+
+            $(".datepicker-block").datetimepicker({
+                format: 'YYYY-MM-DD'
+            });
+
+            // console.log($logsRecords);
+
+        })
+    </script>
 @endsection

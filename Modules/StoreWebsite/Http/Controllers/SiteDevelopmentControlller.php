@@ -553,7 +553,6 @@ class SiteDevelopmentController extends Controller
 	
     public function addSiteDevelopment(Request $request)
     {
-
         if ($request->site) {
             $site = SiteDevelopment::find($request->site);
         } else {
@@ -611,18 +610,22 @@ class SiteDevelopmentController extends Controller
             $siteDev = SiteDevelopment::where('id', $id)->first();
             $status = ($siteDev) ? $siteDev->status : 0;
             if ($siteDev && $status > 0) {
-                \App\SiteDevelopmentStatusHistory::create([
+                $siteDevelopmentStatusHistory = \App\SiteDevelopmentStatusHistory::create([
                     "site_development_id" => $id,
                     "status_id" => $siteDev->status,
                     "user_id" => auth()->user()->id,
                 ]);
+
+                $siteDev->update(['status'=> $status]);
             }
+
             if ($status == 3) {
                 $html .= "<i class='fa fa-ban save-status' data-text='4' data-site=" . $siteDev->id . " data-category=" . $siteDev->site_development_category_id . "  data-type='status' aria-hidden='true' style='color:red;'' title='Deactivate'></i>";
             } elseif ($status == 4 || $status == 0) {
                 $html .= "<i class='fa fa-ban save-status' data-text='3' data-site=" . $siteDev->id . " data-category=" . $siteDev->site_development_category_id . "  data-type='status' aria-hidden='true' style='color:black;' title='Activate'></i>";
             }
         }
+
         if ($request->type == 'artwork_status') {
             $history = new SiteDevelopmentArtowrkHistory;
             $history->date = date('Y-m-d');
@@ -718,7 +721,7 @@ class SiteDevelopmentController extends Controller
             'original_name' => $file->getClientOriginalName(),
         ]);
     }
-
+    
     public function saveDocuments(Request $request)
     {
         $site = null;

@@ -81,11 +81,17 @@ Route::middleware('auth')->group(function () {
 
 });
 
+/** Magento Module */
+Route::middleware('auth')->group(function () {
+    Route::resource('magento_modules', 'MagentoModuleController');
+});
+
 /** Magento Settings */
 Route::middleware('auth')->group(function () {
 
     Route::get('magento-admin-settings/namehistrory/{id}', 'MagentoSettingsController@namehistrory');
     Route::get('magento-admin-settings', 'MagentoSettingsController@index')->name('magento.setting.index');
+    Route::get('magento-get-sync-data', 'MagentoSettingsController@magentoSyncLogSearch')->name('get.magento.sync.data');
     Route::get('magento-admin-settings/pushLogs/{settingId}', 'MagentoSettingsController@magentoPushLogs')->name('magento.setting.logs');
     Route::post('magento-admin-settings/create', 'MagentoSettingsController@create')->name('magento.setting.create');
     Route::post('magento-admin-settings/update', 'MagentoSettingsController@update')->name('magento.setting.update');
@@ -149,6 +155,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
     Route::post('list-magento/{id}', 'Logging\LogListMagentoController@updateMagentoStatus');
     Route::get('show-error-logs/{product_id}/{website_id?}', 'Logging\LogListMagentoController@showErrorLogs')->name('list.magento.show-error-logs');
     Route::get('call-journey-by-id/{id}', 'Logging\LogListMagentoController@showJourneyById')->name('list.magento.show-journey-by-id');
+    Route::get('call-journey-horizontal-by-id/{id}', 'Logging\LogListMagentoController@showJourneyHorizontalById')->name('list.magento.show-journey-horizontal-by-id');
     Route::get('show-error-log-by-id/{id}', 'Logging\LogListMagentoController@showErrorByLogId')->name('list.magento.show-error-log-by-id');
     Route::get('show-prices/{id}', 'Logging\LogListMagentoController@showPrices')->name('list.magento.show-prices');
     Route::get('list-magento/product-push-infomation', 'Logging\LogListMagentoController@productPushInformation')->name('list.magento.product-push-information');
@@ -181,6 +188,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
     Route::get('get-latest-product-for-push', 'Logging\LogListMagentoController@getLatestProductForPush')->name('logging.magento.get-latest-product-for-push');
     Route::post('delete/magento-api-search-history', 'Logging\LogListMagentoController@deleteMagentoApiData')->name('delete.magento.api-search-history');
     Route::get('log-magento-apis-ajax', 'Logging\LogListMagentoController@logMagentoApisAjax')->name('logging.magento.logMagentoApisAjax');
+    Route::get('log-magento-product-push-journey', 'Logging\LogListMagentoController@productPushJourney')->name('logging.magento.product_push_journey');
 });
 
 Route::get('log-scraper-api', 'Logging\LogScraperController@scraperApiLog')->middleware('auth')->name('log-scraper.api');
@@ -582,6 +590,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('category/edit-category', 'CategoryController@childEditCategory')->name('category.child-edit-category');
     Route::post('category/{edit}/edit-category', 'CategoryController@updateCategory')->name('category.child-update-category');
     Route::post('category/{edit}/update-days-cancelation', 'CategoryController@updateCancelationPolicy')->name('category.update-cancelation-policy');
+    Route::post('category/get-days-cancelation-log', 'CategoryController@getCategoryCancellationPolicyLog')->name('category.get_cancelation_policy_log');
     //Route::post('category/{edit}/update-days-refund', 'CategoryController@updateDaysRefund')->name('category.child-update-days_refund');
 
     Route::get('category/references/used-products', 'CategoryController@usedProducts');
@@ -858,6 +867,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/get-error-logs', 'OrderController@getOrderErrorLog')->name('order.customer.address');
     Route::post('order/get-email-error-logs', 'OrderController@getOrderExceptionErrorLog')->name('order.get.email.error.logs');
     Route::post('order/get-email-send-logs', 'OrderController@getOrderEmailSendLog')->name('order.get.email.send.logs');
+    Route::get('order/get-email-send-journey-logs', 'OrderController@getOrderEmailSendJourneyLog')->name('order.get.email.send.journey.logs');
     Route::get('order/charity-order', 'OrderController@charity_order');
     Route::post('order/cancel-transaction', 'OrderController@cancelTransaction')->name('order.canceltransaction');
     
@@ -887,6 +897,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('email/{id}/get-file-status', 'EmailController@getFileStatus');
     Route::resource('email', 'EmailController');
     Route::get('email/events/{originId}', 'EmailController@getEmailEvents');
+    Route::get('sendgrid/email/events', 'EmailController@getAllEmailEvents');
     Route::get('email/emaillog/{emailId}', 'EmailController@getEmailLogs');
 
     Route::get('email/order_data/{email?}', 'EmailController@index'); //Purpose : Add Route -  DEVTASK-18283
@@ -973,6 +984,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //END - DEVTASK-4354
 
     Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
+    Route::post('task/get/due-date-history-log', 'TaskModuleController@getTaskDueDateHistoryLog')->name('task.get.due_date_history_log');
     Route::post('task/update/priority-no', 'TaskModuleController@updatePriorityNo')->name('task.update.updatePriorityNo');
     Route::post('task/time/history/approve', 'TaskModuleController@approveTimeHistory')->name('task.time.history.approve');
 
@@ -1964,7 +1976,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/drafted-products/delete', 'ProductController@deleteDraftedProducts');
     Route::post('/drafted-products/addtoquicksell', 'ProductController@addDraftProductsToQuickSell');
     Route::post('/drafted-products/send-lead-price', 'ProductController@sendLeadPrice');
-	Route::get('chatbot-type-error-log', 'ChatbotTypeErrorLogController@index')->name('chatbot.type.error.log');
+	Route::get('twillio-missing-keywrods', 'ChatbotTypeErrorLogController@index')->name('chatbot.type.error.log');
 
     //emails_extraction
     Route::resource('email-data-extraction', 'EmailDataExtractionController');
@@ -3200,6 +3212,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function (
     Route::post('/status/create', 'ReturnExchangeController@createStatus')->name('return-exchange.createStatus');
     Route::post('/status/delete', 'ReturnExchangeController@deleteStatus')->name('return-exchange.deleteStatus');
     Route::post('/addNewReply', 'ReturnExchangeController@addNewReply')->name('returnexchange.addNewReply');
+    Route::post('/update-status', 'ReturnExchangeController@updateExchangeStatuses')->name('returnexchange.update-status');
+    Route::get('/update-status-log/{id?}', 'ReturnExchangeController@listExchangeStatusesLog')->name('returnexchange.update_status_log');
 
     Route::prefix('{id}')->group(function () {
         Route::get('/detail', 'ReturnExchangeController@detail')->name('return-exchange.detail');
@@ -3440,6 +3454,8 @@ Route::prefix('referralprograms')->middleware('auth')->group(function () {
     Route::get('/{id?}/edit', 'ReferralProgramController@edit')->name('referralprograms.edit');
     Route::post('/store', 'ReferralProgramController@store')->name('referralprograms.store');
     Route::post('/update', 'ReferralProgramController@update')->name('referralprograms.update');
+    // pawan added for ajax call
+    Route::get('referralprograms-ajax', 'ReferralProgramController@ajax')->name('referralprograms.ajax');
 
 });
 
@@ -3657,6 +3673,8 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
 Route::get('chatbot-message-log', 'ChatbotMessageLogsController@index')->name('chatbot.messages.logs');
+Route::get('watson-journey', 'LiveChatController@watsonJourney')->name('watson.journey');
+Route::get('watson-journey-ajax', 'LiveChatController@ajax')->name('watson.ajax'); //pawan added for ajax call for filter
 Route::post('pushwaston', 'ChatbotMessageLogsController@pushwaston');
 
 Route::get('sync-to-watson', 'ChatbotMessageLogsController@pushQuickRepliesToWaston');
@@ -3750,13 +3768,6 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::post('ads/history', 'SocialAdsController@history')->name('social.ad.history');
     Route::get('ads/getconfigPost', 'SocialAdsController@getpost')->name('social.ad.getpost');
 
-
-
-
-
-   
-
-
 });
 Route::get('test', 'ScrapController@listCron');
 Route::get('command', function () {	
@@ -3774,4 +3785,3 @@ Route::get('command', function () {
    /* \Artisan::call('command:schedule_emails');
     dd("Done");*/
 });
-
