@@ -1976,7 +1976,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/drafted-products/delete', 'ProductController@deleteDraftedProducts');
     Route::post('/drafted-products/addtoquicksell', 'ProductController@addDraftProductsToQuickSell');
     Route::post('/drafted-products/send-lead-price', 'ProductController@sendLeadPrice');
-	Route::get('chatbot-type-error-log', 'ChatbotTypeErrorLogController@index')->name('chatbot.type.error.log');
+	Route::get('twillio-missing-keywrods', 'ChatbotTypeErrorLogController@index')->name('chatbot.type.error.log');
 
     //emails_extraction
     Route::resource('email-data-extraction', 'EmailDataExtractionController');
@@ -3785,4 +3785,3 @@ Route::get('command', function () {
    /* \Artisan::call('command:schedule_emails');
     dd("Done");*/
 });
-
