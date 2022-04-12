@@ -20,6 +20,7 @@ class Job extends Model
     protected $fillable = [
         'queue', 'payload', 'attempts',
     ];
+    
 
     /**
      * The attributes that should be hidden for arrays.

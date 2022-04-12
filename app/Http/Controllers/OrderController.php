@@ -2934,6 +2934,7 @@ class OrderController extends Controller
                         ]);
 
                         \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
+                        
                         $this->createEmailSendJourneyLog($id, "Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $emailClass->fromMailer, $order->customer->email, $emailClass->subject, $request->message, "", "", $storeWebsiteOrder->website_id);
                     }
                 }
