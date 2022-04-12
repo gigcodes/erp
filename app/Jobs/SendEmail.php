@@ -123,4 +123,9 @@ class SendEmail implements ShouldQueue
 
         return true;
     }
+	
+	public function tags() 
+    {
+        return [ 'SendEmail', $this->email->id ];
+    }
 }
