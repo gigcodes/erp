@@ -2,7 +2,7 @@
 
 
 
-@section('title', 'Language Manager')
+@section('title', $title)
 
 @section('styles')
 
@@ -39,7 +39,7 @@
 
     <div class="row ">
         <div class="col-lg-12 ">
-            <h2 class="page-heading">Magento Modules
+            <h2 class="page-heading">{{ $title }}
 
                 <div class="pull-right">
                     <a href="{{ route('magento_modules.create') }}" class="btn btn-secondary">+</a>
@@ -134,6 +134,7 @@
         </table>
     </div>
 
+    @include('partials.plain-modal')
 @endsection
 
 
@@ -258,10 +259,10 @@
                         render: function(data, type, row, meta) {
                             var edit_url = `{{ url('/') }}/magento_modules/` + row['id'] +
                                 `/edit/`;
-                            var show_url = `{{ url('/') }}/magento_modules/` + row['id'] +
-                                ``;
+                            // var show_url = `{{ url('/') }}/magento_modules/` + row['id'] +
+                            //     ``;
                             var edit_data = actionEditButton(edit_url, row['id']);
-                            var show_data = actionShowButton(show_url);
+                            var show_data = actionShowButtonWithClass('show-details', row['id']);
 
                             var del_data = actionDeleteButton(row['id']);
                             return `<div class="flex justify-left items-center"> ${show_data} ${edit_data} ${del_data} </div>`;
@@ -283,6 +284,32 @@
             var status = $(this).attr('data-status');
             var url = `{{ url('/') }}/magento_modules/status/` + id + `/` + status;
             tableChnageStatus(url, oTable);
+        });
+
+        $(document).on("click", ".show-details", function() {
+
+            var id = $(this).attr('data-id');
+            var e = $(this).parent().parent();
+
+            $.ajax({
+                method: "GET",
+                url: `{{ url('/') }}/magento_modules/` + id,
+                data: {
+                    id: id
+                },
+                dataType: "json",
+                success: function(response) {
+                    console.log(response);
+                    console.log(response.code);
+                    if (response.code == 200) {
+                        $("#blank-modal").find(".modal-title").html(response.title);
+                        $("#blank-modal").find(".modal-body").html(response.data);
+                        $("#blank-modal").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
         });
     </script>
 

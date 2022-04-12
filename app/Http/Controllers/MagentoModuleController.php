@@ -54,7 +54,7 @@ class MagentoModuleController extends Controller
         } else {
             $title = 'Magento Module';
             $module_categories = ModuleCategory::where('status',1)->get()->pluck('category_name', 'id');
-            return view($this->index_view, compact('module_categories'));
+            return view($this->index_view, compact('module_categories', 'title'));
         }
     }
 
@@ -94,7 +94,23 @@ class MagentoModuleController extends Controller
      */
     public function show(MagentoModule $magento_module)
     {
-        $title = 'Magento Module';
+        $title = 'Magento Module Details';
+
+        if (request()->ajax() && $magento_module) {
+            return response()->json([
+                'data' => view('magento_module.partials.data', compact('magento_module'))->render(),
+                'title' => $title,
+                'code' => 200
+            ], 200);
+        }else{
+            return response()->json([
+                'data' => "",
+                'title' => $title,
+                'code' => 500
+            ], 500);
+
+        }
+        
         return view($this->detail_view, compact( 'title', 'magento_module'));
     }
 
