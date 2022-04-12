@@ -146,14 +146,18 @@ class RepositoryController extends Controller
             $errorArr = array();
             $errorArr = $e->getMessage();
             if(!is_array($errorArr))
-                $arr[] = $errorArr;
+                $arrErr[] = $errorArr;
             else
-                $arr = $errorArr;
-            implode(" ",$arr);
+                $arrErr = $errorArr;
+            $errorArr = implode(" ",$arrErr);
+            if (str_contains($errorArr, 'database/migrations') || str_contains($errorArr, 'Database/Migrations')) { 
+                if($source == 'master') {
+                    $this->createGitMigrationErrorLog($repoId, $destination, $errorArr);
+                } else if($destination == 'master') {
+                    $this->createGitMigrationErrorLog($repoId, $source, $errorArr);
+                }
+            }
             
-            // foreach($errorArr as $err){
-                
-            // }
             return redirect(url('/github/pullRequests'))->with(
                 [
                     'message' => $e->getMessage(),
@@ -168,7 +172,15 @@ class RepositoryController extends Controller
         ]);
     }
 
-    public function getGitMigrationErrorLog($repoId, $branchName, $errorLog)
+    /**
+     * Undocumented function
+     *
+     * @param [mix] $repoId
+     * @param [mix] $branchName
+     * @param [array] $errorLog
+     * @return void
+     */
+    public function createGitMigrationErrorLog($repoId, $branchName, $errorLog)
     {
         $comparison = $this->compareRepoBranches($repoId, $branchName);
         GitMigrationErrorLog::create([
@@ -180,7 +192,15 @@ class RepositoryController extends Controller
                 'last_commit_time'            => $comparison['last_commit_time'],
                 'error'                       => $errorLog
             ]);
+    }
 
+    public function getGitMigrationErrorLog(){
+        try{
+            $gitDbError = GitMigrationErrorLog::orderBy('id', 'desc')->take(100)->get();
+            return view('github.deploy_branch_error', compact('gitDbError'));
+        } catch(\Exception $e) {
+            return redirect()->back()->withErrors($e->getMessage());
+        }
     }
 
     private function updateBranchState($repoId, $branchName){
