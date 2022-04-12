@@ -261,6 +261,26 @@ input.cmn-toggle-round + label {
                             </select>
                         </div>
                     </div>
+                    <div class="col-xs-12  col-md-1 pd-2">
+                        <div class="form-group ml-3">
+                            <select id="master_user_id" class="form-control select2" name="search_master_user_id" id="search_master_user_id">
+                                <option value="">Lead 1 Select</option>
+                                @foreach($users as $leadId => $leadName)
+                                    <option value="{{ $leadId }}">{{ $leadName }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12  col-md-1 pd-2">
+                        <div class="form-group ml-3">
+                            <select id="master_user_id" class="form-control select2" name="search_second_master_user_id" id="search_second_master_user_id">
+                                <option value="">Lead 2 Select<option>
+                                @foreach($users as $leadId => $leadName)
+                                    <option value="{{ $leadId }}">{{ $leadName }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                     @endif
                     <div class="col-xs-12 col-md-1 pd-2">
                         <div class="form-group">
@@ -3640,7 +3660,6 @@ $(document).on("click",".btn-save-documents",function(e){
 
 
         $(document).on("keyup",".search-category",function() {
-            console.log("aaaaaa");
             var input, filter, ul, li, a, i, txtValue;
             input = document.getElementById("myInput");
             filter = input.value.toUpperCase();
