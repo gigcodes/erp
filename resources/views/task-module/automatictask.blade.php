@@ -192,9 +192,10 @@
         div.checkbox1 {
             height: 250px;
             overflow: scroll;
-        body {
-            height: 100%;
-        }
+
+            body {
+                height: 100%;
+            }
 
     </style>
 @endsection
@@ -437,8 +438,8 @@
         });
 
         function submitSearch() {
-            var src = "{{ route('development.automatic.tasks') }}"
-            var term = $('#term').val()
+            var src = `{{ route('development.automatic.tasks') }}`;
+            var term = $('#term').val();
             var task_status = $('#task_status').val()
 
             var assigned_to = $('#assigned_to').val();
@@ -471,17 +472,14 @@
 
         }
 
-
         function resetSearch() {
-            src = "{{ route('development.automatic.tasks') }}"
-            blank = ''
+            src = `{{ route('development.automatic.tasks') }}`;
+            blank = '';
             $.ajax({
                 url: src,
                 dataType: "json",
                 data: {
-
                     blank: blank,
-
                 },
                 beforeSend: function() {
                     $("#loading-image").show();
@@ -503,7 +501,7 @@
                 alert('No response from server');
             });
         }
-        
+
         var isLoading = false;
         var page = 1;
         $(document).ready(function() {
@@ -545,7 +543,6 @@
                 });
             }
         });
-    </script>
 
         $(document).on("click", ".assignTask", function(e) {
             e.preventDefault();
@@ -1755,41 +1752,6 @@
             });
         });
 
-
-        $(document).on('click', '.show-status-history', function() {
-            var data = $(this).data('history');
-            var issueId = $(this).data('id');
-            var type = $(this).data('type');
-            $('#status_quick_history_modal table tbody').html('');
-            $.ajax({
-                url: "{{ route('development/status/history') }}",
-                data: {
-                    id: issueId,
-                    type: type
-                },
-                success: function(data) {
-                    if (data != 'error') {
-                        $.each(data, function(i, item) {
-                            if (item['is_approved'] == 1) {
-                                var checked = 'checked';
-                            } else {
-                                var checked = '';
-                            }
-                            $('#status_quick_history_modal table tbody').append(
-                                `<tr> 
-                                    <td> ${moment(item['created_at']).format('DD/MM/YYYY')} }</td>
-                                    <td>${((item['old_value'] != null) ? item['old_value'] : '-') }</td>
-                                    <td>${item['new_value'] }</td>
-                                    <td>${item['name'] }</td>
-                                </tr>`;
-                            );
-                        });
-                    }
-                }
-            });
-            $('#status_quick_history_modal').modal('show');
-        });
-
         //Popup for add new task
         $(document).on('click', '#newTaskModalBtn', function() {
             if ($("#newTaskModal").length > 0) {
@@ -1811,68 +1773,6 @@
                     }
                 }
             });
-        });
-        $(document).on('click', '.show-user-history', function() {
-            var issueId = $(this).data('id');
-            var type = $(this).data('type');
-            $('#user_history_div table tbody').html('');
-            $.ajax({
-                url: "{{ route('task/user/history') }}",
-                data: {
-                    id: issueId,
-                    type: type
-                },
-                success: function(data) {
-                    $.each(data.users, function(i, item) {
-                        $('#user_history_div table tbody').append(
-                            `<tr> 
-                                <td>${ moment(item['created_at']).format('DD/MM/YYYY') }</td>
-                                <td>${ ((item['user_type'] != null) ? item['user_type'] : '-') }</td>
-                                <td>${ ((item['old_name'] != null) ? item['old_name'] : '-') }</td>
-                                <td>${ ((item['new_name'] != null) ? item['new_name'] : '-') }</td>
-                                <td>${ item['updated_by'] }</td>
-                            </tr>`;
-                        );
-                    });
-                }
-            });
-            $('#user_history_modal').modal('show');
-        });
-        $(document).on('click', '.show-date-history', function() {
-            var data = $(this).data('history');
-            var type = $(this).data('type');
-
-            var issueId = $(this).data('id');
-            $('#date_history_modal table tbody').html('');
-            $.ajax({
-                url: "{{ route('development/date/history') }}",
-                data: {
-                    id: issueId,
-                    type: type
-                },
-                success: function(data) {
-                    console.log(data);
-                    if (data != 'error') {
-                        $("#developer_task_id").val(issueId);
-                        $.each(data, function(i, item) {
-                            if (item['is_approved'] == 1) {
-                                var checked = 'checked';
-                            } else {
-                                var checked = '';
-                            }
-                            $('#date_history_modal table tbody').append(
-                                `<tr>
-                                    <td>${moment(item['created_at']).format('DD/MM/YYYY') }</td>
-                                    <td>${((item['old_value'] != null) ? item['old_value'] : '-') }</td>
-                                    <td>${item['new_value'] }</td><td>${item['name']}</td>
-                                    <td><input type="radio" name="approve_date" value="${item['id'] }" ${checked } class="approve_date"/></td>
-                                 </tr>`;
-                            );
-                        });
-                    }
-                }
-            });
-            $('#date_history_modal').modal('show');
         });
     </script>
 
@@ -1934,124 +1834,6 @@
 
                 console.log(response);
             });
-        });
-        $(document).on('click', '.show-tracked-history', function() {
-            var issueId = $(this).data('id');
-            var type = $(this).data('type');
-            $('#time_tracked_div table tbody').html('');
-            $.ajax({
-                url: "{{ route('development/tracked/history') }}",
-                data: {
-                    id: issueId,
-                    type: type
-                },
-                success: function(data) {
-                    if (data != 'error') {
-                        $.each(data.histories, function(i, item) {
-                            var sec = parseInt(item['total_tracked']);
-                            $('#time_tracked_div table tbody').append(
-                                `<tr>
-                                    <td> ${ moment(item['created_at']).format('DD-MM-YYYY') }</td>
-                                    <td> ${ ((item['name'] != null) ? item['name'] : '') }</td>
-                                    <td> ${ humanizeDuration(sec, 's') }</td>
-                                </tr>`;
-                            );
-                        });
-                    }
-                }
-            });
-            $('#time_tracked_modal').modal('show');
-        });
-        $(document).on('click', '.show-tracked-history_task', function() {
-            var issueId = $(this).data('id');
-            var type = $(this).data('type');
-            $('#time_tracked_div table tbody').html('');
-            $.ajax({
-                url: "{{ route('task.time.tracked.history') }}",
-                data: {
-                    id: issueId,
-                    type: type
-                },
-                success: function(data) {
-                    console.log(data);
-                    if (data != 'error') {
-                        $.each(data.histories, function(i, item) {
-                            var sec = parseInt(item['total_tracked']);
-                            $('#time_tracked_div table tbody').append(
-                                `<tr>
-                                    <td>${ moment(item['starts_at_date']).format('DD-MM-YYYY') }</td>
-                                    <td>${ ((item['name'] != null) ? item['name'] : '') }</td>
-                                    <td>${ humanizeDuration(sec, 's') }</td>
-                                </tr>`;
-                            );
-                        });
-                    }
-                }
-            });
-            $('#time_tracked_modal').modal('show');
-        });
-
-        $(document).on('click', '.show-time-history-task', function() {
-            var data = $(this).data('history');
-            var userId = $(this).data('user_id');
-            var issueId = $(this).data('id');
-            $('#time_history_div table tbody').html('');
-
-            //START - Purpose : Display Hide Remind, Revise Button - DEVTASK-4354
-            const hasText = $(this).siblings('input').val();
-
-            if (!hasText || hasText == 0) {
-                $('#time_history_modal .revise_btn').prop('disabled', true);
-                $('#time_history_modal .remind_btn').prop('disabled', false);
-            } else {
-                $('#time_history_modal .revise_btn').prop('disabled', false);
-                $('#time_history_modal .remind_btn').prop('disabled', true);
-            }
-            //END - DEVTASK-4354
-
-            $.ajax({
-                url: "{{ route('task.time.history') }}",
-                data: {
-                    id: issueId
-                },
-                success: function(data) {
-                    // if(data != 'error') {
-                    //     $.each(data, function(i, item) {
-                    //         $('#time_history_div table tbody').append(
-                    //             '<tr>\
-                    //                 <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
-                    //                 <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                    //                 <td>'+item['new_value']+'</td>\
-                    //             </tr>'
-                    //         );
-                    //     });
-                    // }
-
-                    if (data != 'error') {
-                        $('input[name="developer_task_id"]').val(issueId);
-                        $.each(data, function(i, item) {
-                            if (item['is_approved'] == 1) {
-                                var checked = 'checked';
-                            } else {
-                                var checked = '';
-                            }
-                            $('#time_history_div table tbody').append(
-                                `<tr>
-                                    <td>${ moment(item['created_at']).format('DD/MM/YYYY') }</td>
-                                    <td>${ ((item['old_value'] != null) ? item['old_value'] : '-') }</td>
-                                    <td>${ item['new_value'] }</td><td>${ item['name'] } </td>
-                                    <td><input type="radio" name="approve_time" value="${ item['id'] }" ${ checked } class="approve_time"/></td>
-                                </tr>`;
-                            );
-                        });
-
-                        $('#time_history_div table tbody').append(
-                            '<input type="hidden" name="user_id" value="' + userId + '" class=" "/>'
-                        );
-                    }
-                }
-            });
-            $('#time_history_modal').modal('show');
         });
 
         //START - Purpose : Remind , Revise button Events - DEVTASK-4354
@@ -2165,6 +1947,223 @@
                 $('#select_all').prop('checked', false);
             }
         });
-        
+    </script>
+
+    <script>
+        $(document).on('click', '.show-time-history-task', function() {
+            var data = $(this).data('history');
+            var userId = $(this).data('user_id');
+            var issueId = $(this).data('id');
+            $('#time_history_div table tbody').html('');
+
+            //START - Purpose : Display Hide Remind, Revise Button - DEVTASK-4354
+            const hasText = $(this).siblings('input').val();
+
+            if (!hasText || hasText == 0) {
+                $('#time_history_modal .revise_btn').prop('disabled', true);
+                $('#time_history_modal .remind_btn').prop('disabled', false);
+            } else {
+                $('#time_history_modal .revise_btn').prop('disabled', false);
+                $('#time_history_modal .remind_btn').prop('disabled', true);
+            }
+            //END - DEVTASK-4354
+
+            $.ajax({
+                url: "{{ route('task.time.history') }}",
+                data: {
+                    id: issueId
+                },
+                success: function(data) {
+                    // if(data != 'error') {
+                    //     $.each(data, function(i, item) {
+                    //         $('#time_history_div table tbody').append(
+                    //             '<tr>\
+                    //                 <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                    //                 <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                    //                 <td>'+item['new_value']+'</td>\
+                    //             </tr>'
+                    //         );
+                    //     });
+                    // }
+
+                    if (data != 'error') {
+                        $('input[name="developer_task_id"]').val(issueId);
+                        $.each(data, function(i, item) {
+                            if (item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            } else {
+                                var checked = '';
+                            }
+                            $('#time_history_div table tbody').append(
+                                `<tr> 
+                                    <td>${ moment(item['created_at']).format('DD/MM/YYYY') }</td> 
+                                    <td>${ ((item['old_value'] != null) ? item['old_value'] : '-') }</td> 
+                                    <td>${ item['new_value'] }</td><td>${ item['name'] } </td> 
+                                    <td><input type="radio" name="approve_time" value="${ item['id'] }" ${ checked } class="approve_time"/></td> 
+                                </tr>`
+                            );
+                        });
+
+                        $('#time_history_div table tbody').append(
+                            '<input type="hidden" name="user_id" value="' + userId + '" class=" "/>'
+                        );
+                    }
+                }
+            });
+            $('#time_history_modal').modal('show');
+        });
+
+        $(document).on('click', '.show-status-history', function() {
+            var data = $(this).data('history');
+            var issueId = $(this).data('id');
+            var type = $(this).data('type');
+            $('#status_quick_history_modal table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/status/history') }}",
+                data: {
+                    id: issueId,
+                    type: type
+                },
+                success: function(data) {
+                    if (data != 'error') {
+                        $.each(data, function(i, item) {
+                            if (item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            } else {
+                                var checked = '';
+                            }
+                            $('#status_quick_history_modal table tbody').append(
+                                `<tr> 
+                                    <td>${ moment(item['created_at']).format('DD/MM/YYYY') } </td>
+                                    <td>${ (item['old_value'] != null) ? item['old_value'] : '-' }</td>
+                                    <td>${ item['new_value'] }</td>
+                                    <td>${ item['name'] }</td>
+                                </tr>`
+                            );
+                        });
+                    }
+                }
+            });
+            $('#status_quick_history_modal').modal('show');
+        });
+
+        $(document).on('click', '.show-user-history', function() {
+            var issueId = $(this).data('id');
+            var type = $(this).data('type');
+            $('#user_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('task/user/history') }}",
+                data: {
+                    id: issueId,
+                    type: type
+                },
+                success: function(data) {
+                    $.each(data.users, function(i, item) {
+                        $('#user_history_div table tbody').append(
+                            `<tr> 
+                                <td>${ moment(item['created_at']).format('DD/MM/YYYY') }</td>
+                                <td>${ ((item['user_type'] != null) ? item['user_type'] : '-') }</td>
+                                <td>${ ((item['old_name'] != null) ? item['old_name'] : '-') }</td>
+                                <td>${ ((item['new_name'] != null) ? item['new_name'] : '-') }</td>
+                                <td>${ item['updated_by'] }</td>
+                            </tr>`
+                        );
+                    });
+                }
+            });
+            $('#user_history_modal').modal('show');
+        });
+
+        $(document).on('click', '.show-date-history', function() {
+            var data = $(this).data('history');
+            var type = $(this).data('type');
+
+            var issueId = $(this).data('id');
+            $('#date_history_modal table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/date/history') }}",
+                data: {
+                    id: issueId,
+                    type: type
+                },
+                success: function(data) {
+                    console.log(data);
+                    if (data != 'error') {
+                        $("#developer_task_id").val(issueId);
+                        $.each(data, function(i, item) {
+                            if (item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            } else {
+                                var checked = '';
+                            }
+                            $('#date_history_modal table tbody').append(
+                                `<tr>
+                                    <td>${moment(item['created_at']).format('DD/MM/YYYY') }</td>
+                                    <td>${((item['old_value'] != null) ? item['old_value'] : '-') }</td>
+                                    <td>${item['new_value'] }</td><td>${item['name']}</td>
+                                    <td><input type="radio" name="approve_date" value="${item['id'] }" ${checked } class="approve_date"/></td>
+                                 </tr>`
+                            );
+                        });
+                    }
+                }
+            });
+            $('#date_history_modal').modal('show');
+        });
+
+        $(document).on('click', '.show-tracked-history', function() {
+            var issueId = $(this).data('id');
+            var type = $(this).data('type');
+            $('#time_tracked_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/tracked/history') }}",
+                data: {
+                    id: issueId,
+                    type: type
+                },
+                success: function(data) {
+                    if (data != 'error') {
+                        $.each(data.histories, function(i, item) {
+                            var sec = parseInt(item['total_tracked']);
+                            $('#time_tracked_div table tbody').append(`<tr>
+                                    <td> ${ moment(item['created_at']).format('DD-MM-YYYY') }</td>
+                                    <td> ${ ((item['name'] != null) ? item['name'] : '') }</td>
+                                    <td> ${ humanizeDuration(sec, 's') }</td>
+                                </tr>`);
+                        });
+                    }
+                }
+            });
+            $('#time_tracked_modal').modal('show');
+        });
+
+        $(document).on('click', '.show-tracked-history_task', function() {
+            var issueId = $(this).data('id');
+            var type = $(this).data('type');
+            $('#time_tracked_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('task.time.tracked.history') }}",
+                data: {
+                    id: issueId,
+                    type: type
+                },
+                success: function(data) {
+                    console.log(data);
+                    if (data != 'error') {
+                        $.each(data.histories, function(i, item) {
+                            var sec = parseInt(item['total_tracked']);
+                            $('#time_tracked_div table tbody').append(
+                                `<tr>
+                                    <td>${ moment(item['starts_at_date']).format('DD-MM-YYYY') }</td>
+                                    <td>${ ((item['name'] != null) ? item['name'] : '') }</td>
+                                    <td>${ humanizeDuration(sec, 's') }</td>
+                                </tr>`
+                            );
+                        });
+                    }
+                }
+            });
+            $('#time_tracked_modal').modal('show');
+        });
     </script>
 @endsection
