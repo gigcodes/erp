@@ -1005,7 +1005,7 @@ input.cmn-toggle-round + label {
                                                 @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id()  || $task->master_user_id == Auth::id() || $task->second_master_user_id == Auth::id())
                                                     <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>
                                                     @if ($task->assign_from == Auth::id())
-                                                        sdfsfds<button type="button" title="Verify the task by admin" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/completed-green.png"/></button>
+                                                        <button type="button" title="Verify the task by admin" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/completed-green.png"/></button>
                                                     @else
                                                         <button type="button" class="btn btn-image pd-5"><img src="/images/completed-green.png"/></button>
                                                     @endif
