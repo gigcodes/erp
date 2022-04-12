@@ -474,10 +474,10 @@
                    </tr>
                    <?php if(!empty($hubstaffNotifications)){  $i = 1;?>
                      <?php foreach($hubstaffNotifications as $row) { 
-						if(is_numeric($row['daily_working_hour'])) {
-							 $dwork = $row['daily_working_hour'] ? number_format($row['daily_working_hour'],2,".","") : 0;
+						if(is_numeric($row['daily_working_hour'])) { dd($row);
+							 //$dwork = $row['daily_working_hour'] ? number_format($row['daily_working_hour'],2,".","") : 0;
                         } else {
-							dd($row);
+							//dd($row);
 						}
                        $thours = floor($row['total_track'] / 3600);
                         $tminutes = floor(($row['total_track'] / 60) % 60);
