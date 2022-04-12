@@ -15,6 +15,7 @@ class AlterWatsonChatJourneyTable extends Migration
     {
         Schema::table('watson_chat_journey', function (Blueprint $table) {
             $table->integer('chat_message_id')->nullable();
+            
         });
     }
 
