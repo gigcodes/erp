@@ -77,6 +77,22 @@
             border: 1px black solid;
         }
 
+        table {
+            display: inline-block;
+            overflow-x: auto;
+            white-space: nowrap;
+            width: 1000px;
+        }
+
+        .table-bordered>tbody>tr>td:last-child,
+        .table-bordered>tbody>tr>th:last-child,
+        .table-bordered>tfoot>tr>td:last-child,
+        .table-bordered>tfoot>tr>th:last-child,
+        .table-bordered>thead>tr>td:last-child,
+        .table-bordered>thead>tr>th:last-child {
+            border-right: 1px #dedede solid !important;
+        }
+
     </style>
 @endsection
 
@@ -345,7 +361,6 @@
                 $("#loading-image").hide();
             });
         }
-
 
 
         $(document).on("click", ".create-task", function(e) {
