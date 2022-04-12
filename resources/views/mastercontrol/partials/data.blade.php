@@ -476,15 +476,17 @@
                      <?php foreach($hubstaffNotifications as $row) { 
 						$timeSpent = $row['daily_working_hour'];
 						$time = explode(":",$timeSpent);
-						dd($time);
-						$row['daily_working_hour'] = $time[0]*60*60 + $time[1]*60 + $time[2];
-		
+						$timeInSec = $time[0]*60*60 + $time[1]*60 + $time[2];
+		dd($timeInSec);
 						
-						$dwork = $row['daily_working_hour'] ? number_format($row['daily_working_hour'],2,".","") : 0;
+						
+						//$dwork = $row['daily_working_hour'] ? number_format($row['daily_working_hour'],2,".","") : 0;
+						$dwork = $timeInSec ? number_format($timeInSec,2,".","") : 0;
                         $thours = floor($row['total_track'] / 3600);
                         $tminutes = floor(($row['total_track'] / 60) % 60);
                         $twork = $thours.':'.sprintf("%02d", $tminutes);
-                        $difference = ( ($row['daily_working_hour'] * 60 * 60 ) - $row['total_track']);
+                        //$difference = ( ($row['daily_working_hour'] * 60 * 60 ) - $row['total_track']);
+                        $difference = ( $timeInSec  - $row['total_track']);
                         $sing = '';
                         if($difference > 0){
                           $sign = '-';
