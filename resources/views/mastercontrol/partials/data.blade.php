@@ -474,6 +474,12 @@
                    </tr>
                    <?php if(!empty($hubstaffNotifications)){  $i = 1;?>
                      <?php foreach($hubstaffNotifications as $row) { 
+						$timeSpent = $row['daily_working_hour'];
+						$time = explode(":",$timeSpent);
+						
+						$row['daily_working_hour'] = $time[0]*60*60 + $time[1]*60 + $time[2];
+		
+						
 						$dwork = $row['daily_working_hour'] ? number_format($row['daily_working_hour'],2,".","") : 0;
                         $thours = floor($row['total_track'] / 3600);
                         $tminutes = floor(($row['total_track'] / 60) % 60);
