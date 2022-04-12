@@ -2881,9 +2881,9 @@ class OrderController extends Controller
                             } else {
 
                                 $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
-                                if ($from_mail_address != '') {
-                                    $emailClass->fromMailer = $from_mail_address;
-                                }
+                                // if ($from_mail_address != '') {
+                                //     $emailClass->fromMailer = $from_mail_address;
+                                // }
                                 if ($to_mail_address != '') {
                                     $order->customer->email = $to_mail_address;
                                 }
@@ -2892,9 +2892,9 @@ class OrderController extends Controller
                                 $email = Email::create([
                                     'model_id' => $order->id,
                                     'model_type' => Order::class,
-                                    'from' => $emailClass->fromMailer,
+                                    'from' => $from_mail_address,
                                     'to' => $order->customer->email,
-                                    'subject' => $emailClass->subject,
+                                    'subject' => 'subject',
                                     'message' => $request->custom_email_content,
                                     // 'message'          => $emailClass->render(),
                                     'template' => 'order-status-update',
@@ -2904,7 +2904,7 @@ class OrderController extends Controller
                                 ]);
 
                                 \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
-                                $this->createEmailSendJourneyLog($id, "Email type via Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $emailClass->fromMailer, $order->customer->email, $emailClass->subject, $request->message, "", "", $storeWebsiteOrder->website_id);
+                                //$this->createEmailSendJourneyLog($id, "Email type via Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $emailClass->fromMailer, $order->customer->email, $emailClass->subject, $request->message, "", "", $storeWebsiteOrder->website_id);
                             }
 
                         // } catch (\Exception $e) {
