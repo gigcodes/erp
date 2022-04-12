@@ -41,5 +41,6 @@ class Job extends Model
         "supplier_products" => "Supplier product push",
         "customer_message"  => "Customer message queue",
         "watson_push"       => "Watson push queue",
+        "send_email"        => "Sending Email",
     ];
 }

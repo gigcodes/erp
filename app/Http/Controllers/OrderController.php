@@ -2821,7 +2821,7 @@ class OrderController extends Controller
                                     'is_draft' => 0,
                                 ]);
 
-                                \App\Jobs\SendEmail::dispatch($email);
+                                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                             } else {
 
@@ -2848,7 +2848,7 @@ class OrderController extends Controller
                                     'is_draft' => 0,
                                 ]);
 
-                                \App\Jobs\SendEmail::dispatch($email);
+                                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
                             }
 
                         } catch (\Exception $e) {
@@ -2875,7 +2875,7 @@ class OrderController extends Controller
                             'is_draft' => 0,
                         ]);
 
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                     }
                 }
