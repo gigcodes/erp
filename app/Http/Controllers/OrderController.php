@@ -2844,7 +2844,7 @@ class OrderController extends Controller
                 if (in_array('email', $order_via)) {
                     if (isset($request->sendmessage) && $request->sendmessage == '1') {
                         //Sending Mail on changing of order status
-                        try {
+                       // try {
                             $from_mail_address = $request->from_mail;
                             $to_mail_address = $request->to_mail;
                             // send order canellation email
@@ -2907,11 +2907,11 @@ class OrderController extends Controller
                                 $this->createEmailSendJourneyLog($id, "Email type via Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $emailClass->fromMailer, $order->customer->email, $emailClass->subject, $request->message, "", "", $storeWebsiteOrder->website_id);
                             }
 
-                        } catch (\Exception $e) {
-                            $this->createEmailCommonExceptionLog($order->id, $e->getMessage(), 'email');
-                            $this->createEmailSendJourneyLog($id, "Email type via Error", Order::class,  "outgoing", "0" , $from_mail_address, $to_mail_address, $emailClass->subject, $request->message, "", $e->getMessage(), $order->storeWebsiteOrder);
-                            \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
-                        }
+                        // } catch (\Exception $e) {
+                        //     $this->createEmailCommonExceptionLog($order->id, $e->getMessage(), 'email');
+                        //     $this->createEmailSendJourneyLog($id, "Email type via Error", Order::class,  "outgoing", "0" , $from_mail_address, $to_mail_address, $emailClass->subject, $request->message, "", $e->getMessage(), $order->storeWebsiteOrder);
+                        //     \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
+                        // }
 
                     } else {
                         $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
@@ -2934,7 +2934,7 @@ class OrderController extends Controller
                         ]);
 
                         \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
-                        
+
                         $this->createEmailSendJourneyLog($id, "Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $emailClass->fromMailer, $order->customer->email, $emailClass->subject, $request->message, "", "", $storeWebsiteOrder->website_id);
                     }
                 }
