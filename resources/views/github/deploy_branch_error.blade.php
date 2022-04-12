@@ -28,9 +28,9 @@
     <table id="org-users-table" class="table table-bordered">
         <thead>
             <tr>
-                <th width="10%">Id</th>
-                <th width="20%">Branch Name</th>
-                <th width="60%">Error</th>
+                <th width="5%">Id</th>
+                <th width="15%">Branch Name</th>
+                <th width="70%">Error</th>
             </tr>
         </thead>
         <tbody>
