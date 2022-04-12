@@ -9,6 +9,7 @@ use App\Services\Whatsapp\ChatApi\ChatApi;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use App\Setting;
 use DB;
 use Excel;
 
@@ -75,7 +76,8 @@ class MessageQueueController extends Controller
             })
             ->groupBy("group_id")
             ->orderBy("group_id", "desc")
-            ->get();
+            ->paginate(Setting::get('pagination'));
+            //->get();
 
         return view('messagequeue::approve', compact('groupList', 'messageData', 'group_id'));
 

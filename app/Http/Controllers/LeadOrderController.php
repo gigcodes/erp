@@ -168,6 +168,7 @@ class LeadOrderController extends Controller
                     $html .='<td with="10%">'.$prodDisData->segment_discount.'</td>';
                     $html .='<td with="10%">'.$prodDisData->segment_discount_per.'%</td>';
                     $html .='<td with="10%">'.$prodDisData->total_price.'</td>';
+                    $html .='<td with="10%">'.$prodDisData->euro_to_inr_price.'</td>';
                     $html .='</tr>';
                 }
                 return response()->json(['code' => 200, 'data'=> $html, 'message' => 'Calculation Log listed Successfully']);   

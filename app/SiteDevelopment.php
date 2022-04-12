@@ -38,7 +38,11 @@ class SiteDevelopment extends Model
 
     public function category()
     {
-    	$this->belongsTo(SiteDevelopmentCategory::class,'id','site_development_category_id');
+    	return $this->belongsTo(SiteDevelopmentCategory::class,'site_development_category_id');
+    }
+    public function store_website()
+    {
+    	return $this->belongsTo(StoreWebsite::class,'website_id');
     }
 
     public function lastChat()
@@ -77,6 +81,11 @@ class SiteDevelopment extends Model
     public function statusHistories()
     {
         return $this->hasMany(\App\SiteDevelopmentStatusHistory::class,'site_development_id','id');
+    }
+
+    public function site_development_status()
+    {
+        return $this->belongsTo(SiteDevelopmentStatus::class, 'status', 'id');
     }
 
     public static function getLastRemark($scci, $web_id){

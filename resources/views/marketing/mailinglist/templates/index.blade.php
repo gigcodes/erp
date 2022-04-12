@@ -43,6 +43,34 @@
                                   </span>
                                 </div>
                             </div>
+                            <!-- added by pawan for filter the data through above selected id's -->
+                            <div class="form-group ml-3">
+                                <div class='input-group' >
+                                    <select name="filter_mailinglist_category" class="form-control select2" id='filter_mailinglist_category'>
+                                        <option value="">Select MailingList-Category</option>
+                                        @if(!empty($MailingListCategory))
+                                            @foreach($MailingListCategory as $key => $category)
+                                                <option value="{{ $key }}">{{ $category }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    <span class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group ml-3">
+                                <div class='input-group'>
+                                    <select name="filter_store_website" class="form-control select2" id='filter_store_website'>
+                                        <option value="">Select Store-Website</option>
+                                        @if(!empty($storeWebSites))
+                                            @foreach($storeWebSites as $key => $storeWebSite)
+                                                <option value="{{ $key }}">{{ $storeWebSite }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    <span class="text-danger"></span>
+                                </div>
+                            </div>                            						
+                            <!-- end -->
                             <button id="filter" type="submit" class="btn mt-0 btn-image"><img src="/images/filter.png"/>
                             </button>
                         </form>
@@ -354,10 +382,64 @@
             });
         });
 
+        // pawan added for calling the function on change for maillistcategory & StoreWebsite filter
+        $('#filter_mailinglist_category').on('change',function (e){
+            e.preventDefault();
+            var StoreWebsite = $('#filter_store_website').val();
+            var MailingListCategory = $('#filter_mailinglist_category').val();
+            // alert(MailingListCategory);
+            // alert(StoreWebsite);
+
+            $.ajax({
+                url: "/marketing/mailinglist-ajax",
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                type: 'GET',
+                data: {
+                    MailingListCategory: MailingListCategory,
+                    StoreWebsite: StoreWebsite
+                }
+            }).done(function (response) {
+                $('tbody').html('');
+                $('tbody').html(response.mailings);
+            }).fail(function (errObj) {
+                console.log(errObj);
+            });
+            // alert(MailingListCategory);
+        });
+        $('#filter_store_website').on('change',function (e){
+            e.preventDefault();
+            var StoreWebsite = $('#filter_store_website').val();
+            var MailingListCategory = $('#filter_mailinglist_category').val();
+            // alert(MailingListCategory);
+            // alert(StoreWebsite);
+
+            $.ajax({
+                url: "/marketing/mailinglist-ajax",
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                type: 'GET',
+                data: {
+                    MailingListCategory: MailingListCategory,
+                    StoreWebsite: StoreWebsite
+                }
+            }).done(function (response) {
+                $('tbody').html('');
+                $('tbody').html(response.mailings);
+            }).fail(function (errObj) {
+                console.log(errObj);
+            });
+            // alert(MailingListCategory);
+        });
+        // end
+
         $('#filter').on('click', function (e) {
             e.preventDefault();
             var term = $('#term').val();
             var date = $('#date').val();
+            
             $.ajax({
                 url: "/marketing/mailinglist-ajax",
                 headers: {
@@ -367,6 +449,7 @@
                 data: {
                     term: term,
                     date: date
+                    
                 }
             }).done(function (response) {
                 $('tbody').html('');
