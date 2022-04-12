@@ -20,6 +20,7 @@ class Job extends Model
     protected $fillable = [
         'queue', 'payload', 'attempts',
     ];
+    
 
     /**
      * The attributes that should be hidden for arrays.
@@ -41,5 +42,6 @@ class Job extends Model
         "supplier_products" => "Supplier product push",
         "customer_message"  => "Customer message queue",
         "watson_push"       => "Watson push queue",
+        "send_email"        => "Sending Email",
     ];
 }
