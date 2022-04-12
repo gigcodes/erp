@@ -474,12 +474,8 @@
                    </tr>
                    <?php if(!empty($hubstaffNotifications)){  $i = 1;?>
                      <?php foreach($hubstaffNotifications as $row) { 
-						if(is_numeric($row['daily_working_hour'])) { dd($row);
-							 //$dwork = $row['daily_working_hour'] ? number_format($row['daily_working_hour'],2,".","") : 0;
-                        } else {
-							$dwork = 0;
-						}
-                       $thours = floor($row['total_track'] / 3600);
+						$dwork = $row['daily_working_hour'] ? number_format($row['daily_working_hour'],2,".","") : 0;
+                        $thours = floor($row['total_track'] / 3600);
                         $tminutes = floor(($row['total_track'] / 60) % 60);
                         $twork = $thours.':'.sprintf("%02d", $tminutes);
                         $difference = ( ($row['daily_working_hour'] * 60 * 60 ) - $row['total_track']);
