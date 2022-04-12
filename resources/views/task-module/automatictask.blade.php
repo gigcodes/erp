@@ -192,6 +192,8 @@
         div.checkbox1 {
             height: 250px;
             overflow: scroll;
+        body {
+            height: 100%;
         }
 
     </style>
@@ -260,9 +262,7 @@
 
                 @endif
 
-
                 {{-- </form> --}}
-
             </div>
         </div>
 
@@ -293,7 +293,6 @@
                 </thead>
 
                 <tbody class="infinite-scroll-pending-inner">
-
                     @include('task-module.partials.flagsummarydata')
                 </tbody>
             </table>
@@ -371,6 +370,7 @@
             </div>
         </div>
     </div>
+
     <div id="show-task-model-table" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -419,7 +419,6 @@
     <script src="/js/jquery-ui.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
-
 
     <script>
         $(document).on('click', '.task-submit-reminder', function() {
@@ -504,8 +503,7 @@
                 alert('No response from server');
             });
         }
-
-
+        
         var isLoading = false;
         var page = 1;
         $(document).ready(function() {
@@ -547,6 +545,7 @@
                 });
             }
         });
+    </script>
 
         $(document).on("click", ".assignTask", function(e) {
             e.preventDefault();
@@ -1824,49 +1823,15 @@
                     type: type
                 },
                 success: function(data) {
-
                     $.each(data.users, function(i, item) {
                         $('#user_history_div table tbody').append(
-                            '<tr>\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td>' +
-                            moment(
-                                item[
-                                    'created_at'])
-                            .format(
-                                'DD/MM/YYYY') +
-                            '</td>\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td>' +
-                            ((
-                                    item[
-                                        'user_type'] !=
-                                    null) ?
-                                item[
-                                    'user_type'] :
-                                '-') +
-                            '</td>\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td>' +
-                            ((
-                                    item[
-                                        'old_name'] !=
-                                    null) ?
-                                item[
-                                    'old_name'] :
-                                '-') +
-                            '</td>\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td>' +
-                            ((
-                                    item[
-                                        'new_name'] !=
-                                    null) ?
-                                item[
-                                    'new_name'] :
-                                '-') +
-                            '</td>\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <td>' +
-                            item[
-                                'updated_by'] +
-                            '</td>\
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </tr>'
+                            `<tr> 
+                                <td>${ moment(item['created_at']).format('DD/MM/YYYY') }</td>
+                                <td>${ ((item['user_type'] != null) ? item['user_type'] : '-') }</td>
+                                <td>${ ((item['old_name'] != null) ? item['old_name'] : '-') }</td>
+                                <td>${ ((item['new_name'] != null) ? item['new_name'] : '-') }</td>
+                                <td>${ item['updated_by'] }</td>
+                            </tr>`;
                         );
                     });
                 }
@@ -1912,6 +1877,28 @@
     </script>
 
     <script>
+        $(document).on('change', '.assign-task-user', function() {
+            let id = $(this).attr('data-id');
+            let userId = $(this).val();
+            if (userId == '') {
+                return;
+            }
+            $.ajax({
+                url: "{{ route('task.AssignTaskToUser') }}",
+                data: {
+                    user_id: userId,
+                    issue_id: id
+                },
+                success: function() {
+                    toastr["success"]("User assigned successfully!", "Message")
+                },
+                error: function(error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+
+                }
+            });
+        });
+
         $(document).on('click', '.flag-task', function() {
             var task_id = $(this).data('id');
             var task_type = $(this).data('type');
@@ -1967,7 +1954,7 @@
                                     <td> ${ moment(item['created_at']).format('DD-MM-YYYY') }</td>
                                     <td> ${ ((item['name'] != null) ? item['name'] : '') }</td>
                                     <td> ${ humanizeDuration(sec, 's') }</td>
-                                </tr>`
+                                </tr>`;
                             );
                         });
                     }
@@ -2178,5 +2165,6 @@
                 $('#select_all').prop('checked', false);
             }
         });
+        
     </script>
 @endsection

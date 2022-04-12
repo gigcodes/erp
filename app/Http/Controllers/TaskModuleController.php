@@ -13,6 +13,7 @@ use App\User;
 use App\Task;
 use App\TaskCategory;
 use App\TaskStatus;
+use App\TaskDueDateHistoryLog;
 use App\Contact;
 use App\Setting;
 use App\Remark;
@@ -62,13 +63,30 @@ class TaskModuleController extends Controller
 
     public function index(Request $request)
     {
-
         if ($request->input('selected_user') == '') {
             $userid = Auth::id();
-            $userquery = ' AND (assign_from = ' . $userid . ' OR  second_master_user_id = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
+
+            $searchMasterUserId = $userid;
+            if($request->search_master_user_id !='')
+                $searchMasterUserId = $request->search_master_user_id;
+
+            $searchSecondMasterUserId = $userid;
+            if($request->search_second_master_user_id !='')
+                $searchSecondMasterUserId = $request->search_second_master_user_id;
+                
+            $userquery = ' AND (assign_from = ' . $userid . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ' OR  master_user_id = ' . $searchMasterUserId . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
         } else {
             $userid = $request->input('selected_user');
-            $userquery = ' AND (master_user_id = ' . $userid . ' OR  second_master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
+            
+            $searchMasterUserId = $userid;
+            if($request->search_master_user_id !='')
+                $searchMasterUserId = $request->search_master_user_id;
+
+            $searchSecondMasterUserId = $userid;
+            if($request->search_second_master_user_id !='')
+                $searchSecondMasterUserId = $request->search_second_master_user_id;
+
+            $userquery = ' AND (master_user_id = ' . $searchMasterUserId . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
         }
         
         if (!$request->input('type') || $request->input('type') == '') {
@@ -2833,18 +2851,41 @@ class TaskModuleController extends Controller
         return response()->json(['histories' => $task_histories]);
 	}
 	
+    /**
+     * This function is use for create task due data log history
+     * 
+     * @param mixed $request
+     * @return JsonResponce
+     */
+    public function createTaskDueDateHistoryLog($request)
+    {
+        try {
+            TaskDueDateHistoryLog::create([
+                'task_id' => $request->task_id,
+                'task_type' => $request->type,
+                'updated_by' => Auth::id(),
+                'old_due_date' => $request->old_due_date,
+                'new_due_date' => $request->date,
+            ]);
+            return response()->json(['code' => 200,'message' => 'Successfully updated'],200);
+        } catch(\Exception $e) {
+            return response()->json(['code' => 500, 'error' => $e->getMessage],200);
+        }
+    }
+
 	public function updateTaskDueDate(Request $request) {
-		
 		
 		if($request->type == 'TASK'){
 			$task = Task::find($request->task_id);
 			if($request->date) {
 				$task->update(['due_date' => $request->date]);
-			}
+                $this->createTaskDueDateHistoryLog($request);
+            }
 		}else{
 			if($request->date) {
 				DeveloperTask::where('id',$request->task_id)
 					->update(['due_date' => $request->date]);
+                    $this->createTaskDueDateHistoryLog($request);
 			}
 		}
 		
@@ -2852,6 +2893,25 @@ class TaskModuleController extends Controller
             'message' => 'Successfully updated'
         ],200);
 	}
+
+    public function getTaskDueDateHistoryLog(Request $request)
+    {
+        $taskHistory = TaskDueDateHistoryLog::where([['task_id', '=', $request->task_id]])->get();
+        
+        if (count($taskHistory)>0) {
+            $html = "";
+            foreach($taskHistory as $taskHistoryData) {
+                $html .= "<td>".$taskHistoryData->id."</td>";
+                $html .= "<td>".$taskHistoryData->users->name."</td>";
+                $html .= "<td>".$taskHistoryData->old_due_date."</td>";
+                $html .= "<td>".$taskHistoryData->new_due_date."</td>";
+                $html .= "<td>".$taskHistoryData->created_at."</td>";
+            }
+            return response()->json(['code'=>200 , 'data' => $html, 'msg' => 'Task Due Date History successfully loaded']);
+        } else {
+            return response()->json(['code' => 500, 'msg' => 'Task Due Date history long not found'], 200);
+        }
+    }
 
 	public function createHubstaffManualTask(Request $request) {
 		$task = Task::find($request->id);

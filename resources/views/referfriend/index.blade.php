@@ -5,6 +5,11 @@
 
 @section('styles')
 
+    <!-- ... -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
     <style type="text/css">
         #loading-image {
             position: fixed;
@@ -27,10 +32,17 @@
             <div class="pull-left">
                 <div class="form-group">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
+                            <label>Search All Columns</label>
                             <input name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}"
-                                placeholder="search Referral" id="term">
+                                placeholder="search all fields" id="term">
                         </div>
+                        <div class="col-md-6">
+                            <label for="for_date">Created at:</label>
+                            <input class="form-control datepicker-block" placeholder="Enter date" name="for_date" type="text"
+                                id="for_date">
+                        </div>
+
                         <div class="col-md-2">
                             <button type="button" class="btn btn-image" onclick="submitSearch()"><img
                                     src="/images/filter.png" /></button>
@@ -107,6 +119,14 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
     </script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js">
+    </script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
     <script type="text/javascript">
         $('.select-multiple').select2({
             width: '100%'
@@ -115,11 +135,13 @@
         function submitSearch() {
             src = "{{ route('referfriend.list') }}"
             term = $('#term').val()
+            for_date = $('#for_date').val()
             $.ajax({
                 url: src,
                 dataType: "json",
                 data: {
                     term: term,
+                    for_date: for_date,
                 },
                 beforeSend: function() {
                     $("#loading-image").show();
@@ -272,6 +294,10 @@
             var white = new RegExp(/^\s$/);
             return white.test(x.charAt(0));
         };
+
+        $(".datepicker-block").datetimepicker({
+            format: 'YYYY-MM-DD'
+        });
     </script>
 
 @endsection
