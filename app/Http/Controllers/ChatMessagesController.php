@@ -637,7 +637,6 @@ class ChatMessagesController extends Controller
 
         if (!empty($keywords)) {
             $records = $records->where(function ($query) use ($keywords) {
-        // dd($keywords);
                foreach ($keywords as $keyword) {
                     $query->orWhere('message', 'like', '%' . $keyword . '%');
                     $query->orWhere('created_at', 'like', '%' . $keyword . '%');

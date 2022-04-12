@@ -211,47 +211,53 @@ function loadMore() {
             }
         });
     }
-    $(document).on("keypress", "#search-keywords", function (e){
-        e.preventDefault();
-        if(e.keyCode == 13){
-            $("#leaf-editor-model").modal('show');
-            $(".search").on("click",function(e) {
-                e.preventDefault();
-                 page = 0;
-        $("#page-view-result #chatmessagecontent").html('');
-        loadMore()
-            var _this = $(this);
-            var search = _this.attr('data-id');
-
-        $.ajax({
-            url: "/custom-chat-message/records?page="+page+"&search="+search,
-            type: 'GET',
-            data: $('.form-search-data').serialize(),
-            beforeSend: function() {
-                $loader.show();
-            },
-            success: function (response) {
-                $loader.hide();
-
-                var addProductTpl = $.templates("#template-result-block");
-                var tplHtml       = addProductTpl.render(response);
-
-                $(".count-text").html("("+response.total+")");
-
-                $("#page-view-result #chatmessagecontent").append(tplHtml);
-
-                isLoading = false;
-                $("#leaf-editor-model").modal('hide');
-
-            },
-            error: function () {
-                $loader.hide();
-                isLoading = false;
-            }
-        });
-    });
+    $("#search-keywords").on('keypress',function(e) {
+        e.stopPropagation();
+        if(e.which == 13) {
+            alert('You pressed enter!');
         }
     });
+    // $(document).on("keypress", "#search-keywords", function (e){
+    //     e.preventDefault();
+    //     if(e.keyCode == 13){
+    //         $("#leaf-editor-model").modal('show');
+    //         $(document).on("click",".search", function(e) {
+    //             e.preventDefault();
+    //             page = 0;
+    //             $("#page-view-result #chatmessagecontent").html('');
+    //             loadMore()
+    //             var _this = $(this);
+    //             var search = _this.attr('data-id');
+
+    //             $.ajax({
+    //                 url: "/custom-chat-message/records?page="+page+"&search="+search,
+    //                 type: 'GET',
+    //                 data: $('.form-search-data').serialize(),
+    //                 beforeSend: function() {
+    //                     $loader.show();
+    //                 },
+    //                 success: function (response) {
+    //                     $loader.hide();
+
+    //                     var addProductTpl = $.templates("#template-result-block");
+    //                     var tplHtml       = addProductTpl.render(response);
+
+    //                     $(".count-text").html("("+response.total+")");
+
+    //                     $("#page-view-result #chatmessagecontent").append(tplHtml);
+
+    //                     isLoading = false;
+    //                     $("#leaf-editor-model").modal('hide');
+
+    //                 },
+    //                 error: function () {
+    //                     $loader.hide();
+    //                     isLoading = false;
+    //                 }
+    //             });
+    //         });
+    //     }
+    // });
 
 }
 
