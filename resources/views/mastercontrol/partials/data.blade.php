@@ -476,7 +476,7 @@
                      <?php foreach($hubstaffNotifications as $row) { 
 						$timeSpent = $row['daily_working_hour'];
 						$time = explode(":",$timeSpent);
-						
+						dd($time);
 						$row['daily_working_hour'] = $time[0]*60*60 + $time[1]*60 + $time[2];
 		
 						
