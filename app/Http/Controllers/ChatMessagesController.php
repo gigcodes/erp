@@ -618,23 +618,22 @@ class ChatMessagesController extends Controller
             $newStr = str_replace($delimiters, $delimiters[0], $str);
             $arr = explode($delimiters[0], $newStr);
             $keywords = array_filter($arr);
-
             if ($request->search == 'yes') {
                 $keywords = $keywords;
             } else {
-                $keywords = $keywords[0];
+                $value = $keywords[0];
+                $keywords = [];
+                $keywords = [$value];
             }
         } else {
             $keywords = [];
         }
-        
         $records = ChatMessage::with('user', 'vendor', 'customer')
             ->where(function ($query) {
                 $query->whereNotNull('vendor_id');
                 $query->orWhereNotNull('user_id');
                 $query->orWhereNotNull('customer_id');
             });
-
         if (!empty($keywords)) {
             $records = $records->where(function ($query) use ($keywords) {
                foreach ($keywords as $keyword) {
@@ -660,7 +659,6 @@ class ChatMessagesController extends Controller
         }
 
         $records = $records->latest()->paginate(20);
-
         $recorsArray = [];
 
         foreach ($records as $row) {

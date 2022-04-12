@@ -163,6 +163,28 @@
 <!-- <script type="text/javascript" src="{{ asset('/js/custom_chat_message.js') }}"></script> -->
 
 <script type="text/javascript">
+    $(document).on('submit','.form-search-data',function(e){
+        e.preventDefault();
+        var keyword = $("#search-keywords").val();
+        if(keyword != null) {
+            if(keyword.indexOf(",") != -1 || keyword.indexOf("/") != -1) {
+                $("#leaf-editor-model").modal('show');
+            } else {
+                page = 0;
+                $("#page-view-result #chatmessagecontent").html('');
+                loadMore('no')
+            }
+        }
+
+    });
+    $(document).on("click",".search", function(e) {
+        e.preventDefault();
+        page = 0;
+        $("#page-view-result #chatmessagecontent").html('');
+        var _this = $(this);
+        var search = _this.attr('data-id');
+        loadMore(search)
+    });
     // page.init({
     //  bodyView : $("#common-page-layout"),
     //  baseUrl : "//echo url("/"); ?>"
@@ -171,107 +193,44 @@
 var isLoading = false;
 var page = 0;
 
-function loadMore() {
+function loadMore(search = null) {
     if (isLoading)
         return;
-    
     isLoading = true;
-
     type = $("#tasktype").val();
-    
     var $loader = $('.infinite-scroll-products-loader');
-    
     page = page + 1;
-    if ($('#search-keywords').val() == '') 
-        {
-            $.ajax({
-            url: "/custom-chat-message/records?page="+page+"&search=",
-            type: 'GET',
-            data: $('.form-search-data').serialize(),
-            beforeSend: function() {
-                $loader.show();
-            },
-            success: function (response) {
-                $loader.hide();
-
-                var addProductTpl = $.templates("#template-result-block");
-                var tplHtml       = addProductTpl.render(response);
-
-                $(".count-text").html("("+response.total+")");
-
-                $("#page-view-result #chatmessagecontent").append(tplHtml);
-
-                isLoading = false;
-                $("#leaf-editor-model").modal('hide');
-
-            },
-            error: function () {
-                $loader.hide();
-                isLoading = false;
-            }
-        });
-    }
-    $("#search-keywords").on('keypress',function(e) {
-        e.stopPropagation();
-        if(e.which == 13) {
-            alert('You pressed enter!');
+    $.ajax({
+        url: "/custom-chat-message/records?page="+page+"&search="+search,
+        type: 'GET',
+        data: $('.form-search-data').serialize(),
+        beforeSend: function() {
+            $loader.show();
+        },
+        success: function (response) {
+            $loader.hide();
+            var addProductTpl = $.templates("#template-result-block");
+            var tplHtml       = addProductTpl.render(response);
+            $(".count-text").html("("+response.total+")");
+            $("#page-view-result #chatmessagecontent").append(tplHtml);
+            isLoading = false;
+            $("#leaf-editor-model").modal('hide');
+        },
+        error: function () {
+            $loader.hide();
+            isLoading = false;
         }
     });
-    // $(document).on("keypress", "#search-keywords", function (e){
-    //     e.preventDefault();
-    //     if(e.keyCode == 13){
-    //         $("#leaf-editor-model").modal('show');
-    //         $(document).on("click",".search", function(e) {
-    //             e.preventDefault();
-    //             page = 0;
-    //             $("#page-view-result #chatmessagecontent").html('');
-    //             loadMore()
-    //             var _this = $(this);
-    //             var search = _this.attr('data-id');
-
-    //             $.ajax({
-    //                 url: "/custom-chat-message/records?page="+page+"&search="+search,
-    //                 type: 'GET',
-    //                 data: $('.form-search-data').serialize(),
-    //                 beforeSend: function() {
-    //                     $loader.show();
-    //                 },
-    //                 success: function (response) {
-    //                     $loader.hide();
-
-    //                     var addProductTpl = $.templates("#template-result-block");
-    //                     var tplHtml       = addProductTpl.render(response);
-
-    //                     $(".count-text").html("("+response.total+")");
-
-    //                     $("#page-view-result #chatmessagecontent").append(tplHtml);
-
-    //                     isLoading = false;
-    //                     $("#leaf-editor-model").modal('hide');
-
-    //                 },
-    //                 error: function () {
-    //                     $loader.hide();
-    //                     isLoading = false;
-    //                 }
-    //             });
-    //         });
-    //     }
-    // });
-
 }
 
         
 $(document).ready(function () {
-    
     loadMore();
-
     $(window).scroll(function() {
         if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
             loadMore();
         }
     });
-
     $("#common-page-layout").on("click",".btn-search-action",function(e) {
         e.preventDefault();
         page = 0;
