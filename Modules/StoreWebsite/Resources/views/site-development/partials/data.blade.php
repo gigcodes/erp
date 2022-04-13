@@ -94,7 +94,7 @@
                 {{ Form::select('site_development_master_category_id',['' => '- Select-'] + $masterCategories,$category->site_development_master_category_id,['class' => 'save-item-select globalSelect2','data-category' => $category->id,'data-type' => 'site_development_master_category_id','data-site' => $site ? $site->id : '0']) }}
             </td>
             <td class="pt-0 pr-2">
-                <div class="col-md-12 mb-1 p-0 d-flex  pt-2 mt-1">
+                <div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1">
                     <input style="margin-top: 0px;width:auto !important;" type="text"
                         class="form-control quick-message-field" name="message" placeholder="Message" value=""
                         id="remark_{{ $key }}" data-catId="{{ $category->id }}"
@@ -362,13 +362,14 @@
         </tr>
 
         <?php /* <tr class="hidden_row_{{ $category->id  }} dis-none" data-eleid="{{ $category->id }}">
-                    <td colspan="2">
-                        <?php  echo Form::select("status", ["" => "-- Select --"] + $allStatus, ($site) ? $site->status : 0, [
-                            "class" => "form-control save-item-select",
-                            "data-category" => $category->id,
-                            "data-type" => "status",
-                            "data-site" => ($site) ? $site->id : ""
-                        ])  ?>
+                            <td colspan="2">
+                                <?php  echo Form::select("status", ["" => "-- Select --"] + $allStatus, ($site) ? $site->status : 0, [
+                                    "class" => "form-control save-item-select",
+                                    "data-category" => $category->id,
+                                    "data-type" => "status",
+                                    "data-site" => ($site) ? $site->id : ""
+                                ])  ?>
+        ?>
         ?>
 
         </td>
