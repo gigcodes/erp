@@ -7,11 +7,11 @@
                 <h2>Add {{ $title }}</h2>
             </div>
             <div class="pull-right mr-5">
-                <a class="btn btn-primary" href="{{ route('magento_modules.index') }}"> Back</a>
+                <a class="btn btn-primary" href="{{ route('magento_module_categories.index') }}"> Back</a>
 
             </div>
         </div>
     </div>
 
-    @include('magento_modules.partials.data')
+    @include('magento_module_categories.partials.data')
 @endsection
