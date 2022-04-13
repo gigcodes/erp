@@ -3,10 +3,36 @@
 @section('title', 'Product Push Journey')
 
 @section('content')
+<br/>
   <div id="myDiv">
     <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
   </div>
-    
+  <div class="col-md-12 pl-3 pr-3">
+    <div class="mb-3">
+      <div class="panel-body p-0">
+        <form action="{{ route('logging.magento.product_push_journey') }}" method="GET" class="handle-search">
+          <div class="row m-0">
+            <div class="col-md-1 pl-0">
+              <input type="text" class="form-control" id="product_id" name="product_id" value="{{ request('product_id') }}" placeholder="Product ID">
+            </div>
+            <div class="col-md-1 pl-0">
+              <input type="text" class="form-control" id="sku" name="sku" value="{{ request('sku')}}" placeholder="SKU">
+            </div>
+            <div class="col-md-1 pl-0">
+              <input type="text" class="form-control" id="brand" name="brand" value="{{ request('brand')}}" placeholder="Brand">
+            </div>
+            <div class="col-md-3 pl-0">
+              <button class="btn btn-primary text-dark" style="height: 34px" id="submit">
+                  <span class="fa fa-filter"></span>&nbsp;Filter Results
+                </button>
+            </div>
+        
+        </div>
+      </form>
+    </div>
+  </form>
+</div>
+
     <div class="row m-0">
       <div class="col-lg-12 margin-tb p-0">
         <h2 class="page-heading">Product Push Journey ({{ $total_count }})</h2>
@@ -53,13 +79,13 @@
                             $useStatus = "upteam_status";
                         }
                   ?>
-                  <td> @if(in_array('entered_in_product_push', $pushJourney)) <i class="fa fa-check-circle-o text-success fa-lg" aria-hidden="true"></i> @else <i class="fa fa-times-circle text-danger fa-lg" aria-hidden="true"></i> @endif</td>
+                  <td> @if(in_array('entered_in_product_push', $pushJourney)) <i class="fa fa-check-circle-o text-secondary fa-lg" aria-hidden="true"></i> @else <i class="fa fa-times-circle text-dark fa-lg" aria-hidden="true"></i> @endif</td>
                   @foreach($conditions as $condition)
                       <td>
                           @if($condition->$useStatus == '1')
-                              <i class="fa fa-check-circle-o text-success fa-lg" aria-hidden="true"></i>
+                              <i class="fa fa-check-circle-o text-secondary fa-lg" aria-hidden="true"></i>
                           @else
-                              <i class="fa fa-times-circle text-danger fa-lg" aria-hidden="true"></i>
+                              <i class="fa fa-times-circle text-dark fa-lg" aria-hidden="true"></i>
                           @endif
                       </td>
                   @endforeach()
