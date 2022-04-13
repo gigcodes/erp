@@ -65,8 +65,25 @@ class RedisjobController extends Controller
     public function clearQue(Request $request)
     {
         try{
-            Artisan::call('queue:clear redis --queue='.$request);
-            return response()->json(['code' => 200, 'data' => [], 'message' => 'Crear Queue successfully!']);
+            Artisan::call('queue:clear redis --queue='.$request->name);
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'Clear Queue successfully!']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'data' => [], 'message' =>  $e->getMessage()]);
+        }
+    
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Redisjob  $redisjob
+     * @return \Illuminate\Http\Response
+     */
+    public function restartManagement(Request $request)
+    {
+        try{
+            Artisan::call('queue:retry --queue='.$request->name);
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'Clear Queue successfully!']);
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'data' => [], 'message' =>  $e->getMessage()]);
         }
