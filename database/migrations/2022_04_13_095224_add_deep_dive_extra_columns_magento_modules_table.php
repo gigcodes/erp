@@ -32,7 +32,13 @@ class AddDeepDiveExtraColumnsMagentoModulesTable extends Migration
     public function down()
     {
         Schema::table('magento_modules', function (Blueprint $table) {
-            //
+            $table->dropColumn('last_message');
+            $table->dropColumn('cron_time', 45);
+            $table->dropColumn('task_status');
+            $table->dropColumn('is_sql');
+            $table->dropColumn('is_third_party_plugin');
+            $table->dropColumn('is_third_party_js');
+            $table->dropColumn('is_js_css');
         });
     }
 }
