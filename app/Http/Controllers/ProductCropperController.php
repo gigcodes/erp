@@ -381,7 +381,6 @@ class ProductCropperController extends Controller
     {
         $amend = CropAmends::where('status', 1)->first();
 
-
         return response()->json($amend);
     }
 
