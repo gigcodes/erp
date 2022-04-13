@@ -39,13 +39,13 @@
     <td class="expand-row">
         <!--span style="word-break: break-all;">{{ \Illuminate\Support\Str::limit($issue->message, 150, $end = '...') }}</span>
         @if ($issue->getMedia(config('constants.media_tags'))->first())
-            <br>
+<br>
             @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
 <a href="{{ $image->getUrl() }}" target="_blank" class="d-inline-block">
                     <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px" alt="">
                 </a>
 @endforeach
-        @endif
+@endif
         <div>
             <div class="panel-group">
                 <div class="panel panel-default">
@@ -73,7 +73,7 @@
                 'to_tester' => 'Send To Tester',
             ],
             null,
-            ['class' => 'form-control send-message-number', 'style' => 'width:85% !important;display: inline;'],
+            ['class' => 'form-control send-message-number', 'style' => 'width:85% !important;display: inline;']
         ); ?>
         <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message-open" type="submit"
             id="submit_message" data-id="{{ $issue->id }}"><img src="/images/filled-sent.png" /></button>

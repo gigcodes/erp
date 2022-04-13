@@ -1362,7 +1362,6 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
                                         </li>
-
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
