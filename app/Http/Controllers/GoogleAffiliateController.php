@@ -396,7 +396,7 @@ class GoogleAffiliateController extends Controller
             'store_website_id' => null,
         ]);
 
-        \App\Jobs\SendEmail::dispatch($email);
+        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
         return redirect()->route('affiliates.index', $customer->id)->withSuccess('You have successfully sent an email!');
     }

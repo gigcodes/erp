@@ -1688,7 +1688,7 @@ class LeadsController extends Controller
 							'message'       => $email->to
 						]);
 
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                     } catch (\Exception $e) {
                         \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
@@ -1710,7 +1710,7 @@ class LeadsController extends Controller
                         'is_draft' => 0,
                     ]);
 
-                    \App\Jobs\SendEmail::dispatch($email);
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                 }
 
