@@ -94,4 +94,8 @@ class SiteDevelopment extends Model
         return $remark->remarks ?? '';
     }
 
+    public function store_website() 
+  	{
+	  	return $this->belongsTo('App\StoreWebsite', 'website_id', 'id');
+	  }
 }
