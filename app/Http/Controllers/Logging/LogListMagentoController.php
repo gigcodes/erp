@@ -29,6 +29,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use App\ProductPushJourney;
 use App\PushToMagentoCondition;
+use App\Helpers\ProductHelper;
 
 class LogListMagentoController extends Controller
 {
@@ -250,6 +251,150 @@ class LogListMagentoController extends Controller
             ->with('categories', $this->get_categories());
     }
 
+    public function productPushJourney(Request $request)
+    {
+        //$this->check_successfully_listed_products();
+        /*
+        $logListMagentos = LogListMagento::join('products', 'log_list_magentos.product_id', '=', 'products.id')
+        ->join('brands', 'products.brand', '=', 'brands.id')
+        ->join('categories', 'products.category', '=', 'categories.id')
+        ->orderBy('log_list_magentos.created_at', 'DESC');
+         */
+
+        // Get results
+        $logListMagentos = \App\Product::join('log_list_magentos', 'log_list_magentos.product_id', '=', 'products.id')
+            ->leftJoin('store_websites as sw', 'sw.id', '=', 'log_list_magentos.store_website_id')
+            ->join('brands', 'products.brand', '=', 'brands.id')
+            ->join('categories', 'products.category', '=', 'categories.id')
+            ->orderBy('log_list_magentos.id', 'DESC');
+
+        // Filters
+        if (!empty($request->product_id)) {
+            $logListMagentos->where('products.id', 'LIKE', '%' . $request->product_id . '%');
+        }
+
+        if (!empty($request->sku)) {
+            $logListMagentos->where('products.sku', 'LIKE', '%' . $request->sku . '%');
+        }
+
+        if (!empty($request->brand)) {
+            $logListMagentos->where('brands.name', 'LIKE', '%' . $request->brand . '%');
+        }
+
+        if (!empty($request->category)) {
+            $categories = (new \App\Product)->matchedCategories($request->category);
+            $logListMagentos->whereIn('categories.id', $categories);
+        }
+
+        if (!empty($request->size_info)) {
+            if ($request->size_info == 'yes') {
+                $logListMagentos->where('log_list_magentos.size_chart_url', '!=', null);
+            } else if ($request->size_info == 'no') {
+                $logListMagentos->where('log_list_magentos.size_chart_url', null);
+            }
+        }
+
+        if (!empty($request->select_date)) {
+            $logListMagentos->whereDate('log_list_magentos.created_at', 'LIKE', '%' . $request->select_date . '%');
+        }
+
+        if (!empty($request->job_start_date)) {
+            $logListMagentos->whereDate('log_list_magentos.job_start_time', 'LIKE', '%' . $request->job_start_date . '%');
+        }
+
+        if (!empty($request->status)) {
+            if ($request->status == 'available') {
+                $logListMagentos->where('products.stock', '>', 0);
+            } else if ($request->status == 'out_of_stock') {
+                $logListMagentos->where('products.stock', '<=', 0);
+            }
+        }
+
+        if ($request->sync_status != null) {
+            $logListMagentos->where('log_list_magentos.sync_status', $request->sync_status);
+        }
+
+        if ($request->user != null) {
+            $logListMagentos->where('log_list_magentos.user_id', $request->user);
+        }
+
+        if ($request->queue != null) {
+            $logListMagentos->where('log_list_magentos.queue', $request->queue);
+        }
+
+        $selectClause = [
+            'log_list_magentos.*',
+            'products.*',
+            'brands.name as brand_name',
+            'categories.title as category_title',
+            'categories.id as category_id',
+            'log_list_magentos.id as log_list_magento_id',
+            'log_list_magentos.created_at as log_created_at',
+            'sw.website as website',
+            'sw.title as website_title',
+            'sw.magento_url as website_url',
+            'log_list_magentos.user_id as log_user_id',
+        ];
+        if ($request->crop_start_date != null && $request->crop_end_date != null) {
+            $selectClause[] = 'cri.product_id as cri_product_id';
+
+            $startDate = $request->crop_start_date;
+            $endDate = $request->crop_end_date;
+            $logListMagentos->leftJoin("cropped_image_references as cri", function ($join) use ($startDate, $endDate) {
+                $join->on("cri.product_id", "products.id");
+                $join->whereDate("cri.created_at", ">=", $startDate)->whereDate("cri.created_at", "<=", $endDate);
+            });
+
+            $logListMagentos->whereNotNull("cri.product_id");
+            $logListMagentos->groupBy("products.id");
+        }
+
+        // Get paginated result
+        $logListMagentos->select($selectClause);
+        $logListMagentos = $logListMagentos->paginate(25);
+        $total_count = $logListMagentos->total();
+        //dd($logListMagentos);
+        foreach ($logListMagentos as $key => $item) {
+            if ($item->hasMedia(config('constants.media_tags'))) {
+                $logListMagentos[$key]['image_url'] = $item->getMedia(config('constants.media_tags'))->first()->getUrl();
+            } else {
+                $logListMagentos[$key]['image_url'] = '';
+            }
+            $logListMagentos[$key]['category_home'] = $item->expandCategory();
+            if ($item->log_list_magento_id) {
+                $logListMagentos[$key]['total_error'] = \App\ProductPushErrorLog::where('log_list_magento_id', $item->log_list_magento_id)->where('response_status', 'error')->count();
+                $logListMagentos[$key]['total_success'] = \App\ProductPushErrorLog::where('log_list_magento_id', $item->log_list_magento_id)->where('response_status', 'success')->count();
+            }
+            if ($item->log_user_id) {
+                $logListMagentos[$key]['log_user_name'] = \App\User::find($item->log_user_id)->name;
+            } else {
+                $logListMagentos[$key]['log_user_name'] = "";
+            }
+
+        }
+        $conditions = PushToMagentoCondition::select('condition', 'status', 'upteam_status')->get();
+		$users = \App\User::all();
+        if ($request->ajax() and $request->type == 'product_log_list') {
+            return response()->json([
+                'tbody' => view('logging.partials.magento_product_data_push', compact('logListMagentos', 'total_count', 'conditions'))->render(),
+                'links' => (string) $logListMagentos->render(),
+            ], 200);
+        } else if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('logging.partials.magento_product_data_push', compact('logListMagentos', 'total_count', 'conditions'))->render(),
+                'links' => (string) $logListMagentos->render(),
+            ], 200);
+        }
+        $filters = $request->all();
+        // Show results
+
+        return view('logging.partials.magento_product_data_push_jouerny', compact('logListMagentos', 'filters', 'users', 'total_count', 'conditions'))
+            ->with('success', \Request::Session()->get("success"))
+            ->with('brands', $this->get_brands())
+            ->with('categories', $this->get_categories());
+    }
+
+
     public function updateMagentoStatus(Request $request, $id)
     {
         //LogListMagento::updateMagentoStatus($id,)
@@ -299,6 +444,23 @@ class LogListMagentoController extends Controller
         $conditions = PushToMagentoCondition::pluck('condition')->toArray();
 		$pushJourney = ProductPushJourney::where('log_list_magento_id', $id)->pluck( 'condition')->toArray();
         return view('logging.partials.push_journey', compact('conditions','pushJourney'));
+    }
+
+    public function showJourneyHorizontalById(Request $request, $id)
+    {
+        $conditions = PushToMagentoCondition::select('condition', 'status', 'upteam_status')->get();
+		$pushJourney = ProductPushJourney::where('log_list_magento_id', $id)->pluck( 'condition')->toArray();
+        $productSku = $request->sku_name ?? '';
+        $product = \App\Product::find($request->product_id);
+        $type = ProductHelper::getTopParent($product->category);
+        $category = Category::find($product->category);
+        if($category->parent_id !=0) {
+            $useStatus = 'status';
+        } else {
+            $useStatus = "upteam_status";
+        }
+
+        return view('logging.partials.push_journey_horizontal', compact('conditions','pushJourney', 'productSku', 'useStatus'));
     }
 
     public function showErrorByLogId($id)

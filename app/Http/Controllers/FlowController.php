@@ -161,6 +161,7 @@ class FlowController extends Controller
             }
             return response()->json(['status' => 'failed', 'statusCode' => 500, 'message' => $message]);
         }
+        
         $inputs = $request->input();
         if ($inputs['id'] == null) {
             $inputs['flow_code'] = $this->randomFlowCode();
