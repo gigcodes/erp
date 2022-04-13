@@ -7,7 +7,7 @@ use App\ReferralProgram;
 use App\StoreWebsite;
 class ReferralProgramController extends Controller
 {
-    /**
+    /** 
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -26,8 +26,9 @@ class ReferralProgramController extends Controller
                     ->orWhere('credit', 'LIKE', '%'.$request->term.'%')
                     ->orWhere('currency', 'LIKE', '%'.$request->term.'%');
 		}
-
-		$data = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
+        $storeWebsite = StoreWebsite::select('id','website')->groupBy('website')->get();
+		
+		$data = $query->orderBy('id', 'asc')->paginate(10)->appends(request()->except(['page']));
 		if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('referralprogram.partials.list-programs', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
@@ -35,11 +36,44 @@ class ReferralProgramController extends Controller
                 'count' => $data->total(),
             ], 200);
         }
-		return view('referralprogram.index', compact('data'))
+		return view('referralprogram.index', compact('data','storeWebsite'))
 			->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
+    /* Pawan added for ajax call for filter of below
+        #Search by NAME 
+        #SEARCH BY uri 
+        #SEARCH BY Lifetime Minutes 
+        #SEARCH BY Credit
+        #Select Website
+    */
+    public function ajax(Request $request) 
+    {
 
+		$data = ReferralProgram::where(function ($query) use($request){
+                    if(isset($request->apply_id) && isset($request->term) && $request->term != '' && $request->apply_id != ''){
+                        if($request->apply_id == 1){
+                            $query = $query->where('name', 'LIKE','%'.$request->term.'%');
+                        } elseif($request->apply_id == 2){
+                            $query = $query->where('uri', 'LIKE', '%'.$request->term.'%');
+                        } elseif($request->apply_id == 3){
+                            $query = $query->where('credit', 'LIKE', '%'.$request->term.'%');
+                        } elseif($request->apply_id == 4){
+                            $query = $query->where('currency', 'LIKE', '%'.$request->term.'%');
+                        } elseif($request->apply_id == 5){
+                            $query = $query->where('lifetime_minutes', 'LIKE', '%'.$request->term.'%');
+                        }
+                    }
+                })->orderBy('id', 'asc')->paginate(10);
+        
+        
+        return response()->json([
+            'referralprogram' => view('referralprogram.partials.list-programs', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+            'links' => (string)$data->render(),
+            'count' => $data->total(),
+        ], 200);
+        
+    }
     /**
      * Show the form for creating a new resource.
      *

@@ -11,10 +11,10 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Laravel API Logs (<span class="page-total">{{ $count }}</span>)</h2>
-            {{-- <div class="pull-right">
-            <a href="/logging/live-laravel-logs" type="button" class="btn btn-secondary">Live Logs</a>
-            <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
-            </div> --}}
+            <!-- <div class="pull-right">
+                                                                 <a href="/logging/live-laravel-logs" type="button" class="btn btn-secondary">Live Logs</a>
+                                                                 <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
+                                                                 </div> -->
         </div>
     </div>
     @include('partials.flash_messages')
@@ -62,7 +62,7 @@
                         <th width="5%">Method</th>
                         <th width="10%">Method</th>
                         <th width="15%">URL</th>
-                        <th width="15%">Request</th>
+                        <th width="15%">Message</th>
                         <th width="5%">Status Code</th>
                         <th width="5%">Time Taken</th>
                         <th width="10%">Created At</th>
@@ -73,12 +73,30 @@
                         <th width="10%"><input type="text" class="search form-control tbInput" id="log" name="ip"></th>
                         <th width="5%"><input type="text" class="search form-control tbInput" id="api_name" name="api_name">
                         </th>
-                        <th width="5%"></th>
-                        <th width="10%"><input type="text" name="method" class="search form-control tbInput" id="website">
+                        <th width="10%">
+                            <select name="method_name" class="search form-control tbInput" id="method_name">
+                                <option value="">Select Status Code</option>
+                                @foreach ($all_method_names as $all_method_name)
+                                    <option value="{{ $all_method_name->method_name }}">
+                                        {{ $all_method_name->method_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <!-- <input type="text" name="status" class="search form-control tbInput" id="action"> -->
                         </th>
-                        <th width="15%"><input type="text" name="url" class="search form-control tbInput" id="moduleName">
+
+                        <th width="5%">
+                            <select name="method" class="search form-control tbInput" id="method">
+                                <option value="">Select Status Code</option>
+                                <option value="POST">POST</option>
+                                <option value="GET">GET</option>
+                            </select>
+                            <!-- <input type="text" name="status" class="search form-control tbInput" id="action"> -->
                         </th>
-                        <th width="15%"></th>
+
+                        <th width="15%"><input type="text" name="url" class="search form-control tbInput" id="url"></th>
+                        <th width="15%"><input type="text" name="message" class="search form-control tbInput" id="message">
+                        </th>
                         <!--  <th width="10%"><input type="text" class="search form-control" id="controllerName"></th> -->
                         <th width="5%">
                             <select name="status" class="search form-control tbInput" id="action">
@@ -102,19 +120,19 @@
                         </th>
                         <th width="10%"></th>
                         <!-- <th> <div class='input-group' id='created-date'>
-                                                                   <input type='text' class="form-control " name="phone_date" value="" placeholder="Date" id="created_date" />
-                                                                       <span class="input-group-addon">
-                                                                       <span class="glyphicon glyphicon-calendar"></span>
-                                                                       </span>
-                                                                   </div>
-                                                                   </th>
-                                                                   <th> <div class='input-group' id='updated-date'>
-                                                                   <input type='text' class="form-control " name="phone_date" value="" placeholder="Date" id="updated_date" />
-                                                                       <span class="input-group-addon">
-                                                                       <span class="glyphicon glyphicon-calendar"></span>
-                                                                       </span>
-                                                                   </div>
-                                                                   </th> -->
+                                                                       <input type='text' class="form-control " name="phone_date" value="" placeholder="Date" id="created_date" />
+                                                                           <span class="input-group-addon">
+                                                                           <span class="glyphicon glyphicon-calendar"></span>
+                                                                           </span>
+                                                                       </div>
+                                                                       </th>
+                                                                       <th> <div class='input-group' id='updated-date'>
+                                                                       <input type='text' class="form-control " name="phone_date" value="" placeholder="Date" id="updated_date" />
+                                                                           <span class="input-group-addon">
+                                                                           <span class="glyphicon glyphicon-calendar"></span>
+                                                                           </span>
+                                                                       </div>
+                                                                       </th> -->
                     </tr>
                 </thead>
                 <tbody id="content_data" class="tableLazy">
@@ -158,7 +176,7 @@
         </div>
     </div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
-                                                              50% 50% no-repeat;display:none;">
+                                                                  50% 50% no-repeat;display:none;">
     </div>
 @endsection
 @section('scripts')
@@ -175,13 +193,21 @@
         //Ajax Request For Search
         $(document).ready(function() {
 
-
             $(document).on('keyup', '.tbInput', function() {
 
                 filterResults();
                 // console.log(data);
-            })
+            });
+
             $(document).on('change', 'select[name="status"]', function() {
+                filterResults();
+            });
+
+            $(document).on('change', 'select[name="method"]', function() {
+                filterResults();
+            });
+
+            $(document).on('change', 'select[name="method_name"]', function() {
                 filterResults();
             });
 
@@ -195,20 +221,9 @@
                     var formatedValue = e.date.format(e.date._f);
                     created = $('#created_date').val();
 
-
                     filterResults();
 
-
-
-
-                })
-
-
-
-
-
-
-
+                });
 
             $(window).on('scroll', function() {
 
@@ -223,7 +238,7 @@
 
 
                     $.ajax({
-                        url: '{{ route('api-log-list') }}' + '?page=' + page_no,
+                        url: `{{ route('api-log-list') }}` + '?page=' + page_no,
                         dataType: "json",
                         data: row,
                         method: 'post',
@@ -252,16 +267,15 @@
 
                 }
 
-            })
+            });
 
             function filterResults() {
                 $('#noresult_tr').remove();
 
                 var row = getFilterValues();
 
-
                 $.ajax({
-                    url: '{{ route('api-log-list') }}',
+                    url: `{{ route('api-log-list') }}`,
                     dataType: "json",
                     data: row,
                     method: 'post',
@@ -280,6 +294,7 @@
 
                         $logsRecords = res.logs.data;
                         $(".page-total").html(res.count);
+
 
                     } else
                         $('.tableLazy').html(res.html)
@@ -319,7 +334,7 @@
                     }
                 })
                 $('#api_response_modal').modal('show');
-            })
+            });
 
             var logsRecords = @json($logs);
             $logsRecords = logsRecords.data;
@@ -345,14 +360,10 @@
                 }).fail(function(res) {
                     $("#loading-image").hide();
                 });
+
             });
 
-            $(".datepicker-block").datetimepicker({
-                format: 'YYYY-MM-DD'
-            });
-
-            // console.log($logsRecords);
-
-        })
+        });
+        // console.log($logsRecords);
     </script>
 @endsection

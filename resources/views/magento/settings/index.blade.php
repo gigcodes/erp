@@ -384,10 +384,15 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
     <div class="modal-dialog" role="document">
         <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Sync Logs</h5>
+                    <h4 class="modal-title">Sync Logs</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
+                </div>
+                <div class="modal-header">
+                    <input type="date" name="sync_search_date" class="form-control sync_search_date" placeholder="Please select Date" style="width: 200px;">&nbsp;
+                    <button type="button" class="btn btn-default search_sync" >Search</button>
+                    <button type="button" class="btn btn-default search_sync_clear" >Clear</button>
                 </div>
                 <div class="modal-body" id="modal-body">
                     <table class="table table-bordered">
@@ -395,13 +400,15 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 							<tr>
 								<th>Website </th>
 								<th>Synced on</th>
+                                <th>Error Status</th>
 							</tr>
 						</thead>
-						<tbody>
+						<tbody id="sync_data_log">
 						@foreach($pushLogs as $pushLog)
 							<tr>
 								<td>{{$pushLog['website']}}</td>
 								<td>{{$pushLog['created_at'] }}</td>
+                                <td>@if($pushLog['status'] == '') Success @else {{$pushLog['status']}} @endif</td>
 							</tr>
 						@endforeach
 						</tbody>
@@ -642,6 +649,71 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
             $('#add-setting-popup .website_store_view_form').removeClass('d-none');
         } 
     })
+
+    $(document).on('click', '.search_sync_clear', function(){
+        var syncDate = $('.sync_search_date').val(); 
+        
+        $.ajax({
+            url: '{{ route("get.magento.sync.data") }}',
+            method: 'get',
+            data: {
+                _token : '{{ csrf_token() }}',
+                },
+        beforeSend: function() {
+            $("#loading-image").show();
+        }
+        }).done(function(response) {
+            $("#loading-image").hide();
+            var html = '';
+            response.data.forEach(function(value, index){
+                var statusError = 'Success';
+                if(value.status){
+                    statusError = value.status;
+                }
+                html += `<tr><td>${value.website}</td>`;
+                html += `<td>${value.created_at}</td>`;
+                html += `<td>${statusError}</td></tr>`;
+            }) 
+            $('#sync_data_log').html(html);
+            toastr['success'](response.msg);
+        }).fail(function() {
+            $("#loading-image").hide();
+            toastr['error'](response.msg);
+        });
+    });
+
+    $(document).on('click', '.search_sync', function(){
+        var syncDate = $('.sync_search_date').val(); 
+        
+        $.ajax({
+            url: '{{ route("get.magento.sync.data") }}',
+            method: 'get',
+            data: {
+                _token : '{{ csrf_token() }}',
+                sync_date : syncDate
+                },
+        beforeSend: function() {
+            $("#loading-image").show();
+        }
+        }).done(function(response) {
+            $("#loading-image").hide();
+            var html = '';
+            response.data.forEach(function(value, index){
+                var statusError = 'Success';
+                if(value.status){
+                    statusError = value.status;
+                }
+                html += `<tr><td>${value.website}</td>`;
+                html += `<td>${value.created_at}</td>`;
+                html += `<td>${statusError}</td></tr>`;
+            }) 
+            $('#sync_data_log').html(html);
+            toastr['success'](response.msg);
+        }).fail(function() {
+            $("#loading-image").hide();
+            toastr['error'](response.msg);
+        });
+    });
 
     $(document).on('change', '#add-setting-popup .website', function(){
         var scope = $('#add-setting-popup .scope:checked').val(); 

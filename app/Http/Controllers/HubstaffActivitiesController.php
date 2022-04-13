@@ -426,7 +426,7 @@ class HubstaffActivitiesController extends Controller
 				'message'       => $email->to
 			]);
 
-            \App\Jobs\SendEmail::dispatch($email);
+            \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
         }
         

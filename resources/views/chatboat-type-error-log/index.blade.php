@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Chat Bot Message Log')
+@section('title', 'Twillio Missing Keywrods')
 
 @section("styles")
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
@@ -59,7 +59,7 @@
   </div>
   <div class="row m-0">
     <div class="col-lg-12 margin-tb">
-      <h2 class="page-heading">Chat Bot Type Log
+      <h2 class="page-heading">Twillio Missing Keywrods
       {!! Session::has('msg') ? Session::get("msg") : '' !!}
       <div class="pull-right">
         <button type="button" class="btn btn-image pr-0" onclick="refreshPage()"><img src="/images/resend2.png" /></button>

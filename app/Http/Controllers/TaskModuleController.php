@@ -13,6 +13,7 @@ use App\User;
 use App\Task;
 use App\TaskCategory;
 use App\TaskStatus;
+use App\TaskDueDateHistoryLog;
 use App\Contact;
 use App\Setting;
 use App\Remark;
@@ -62,13 +63,30 @@ class TaskModuleController extends Controller
 
     public function index(Request $request)
     {
-
         if ($request->input('selected_user') == '') {
             $userid = Auth::id();
-            $userquery = ' AND (assign_from = ' . $userid . ' OR  second_master_user_id = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
+
+            $searchMasterUserId = $userid;
+            if($request->search_master_user_id !='')
+                $searchMasterUserId = $request->search_master_user_id;
+
+            $searchSecondMasterUserId = $userid;
+            if($request->search_second_master_user_id !='')
+                $searchSecondMasterUserId = $request->search_second_master_user_id;
+                
+            $userquery = ' AND (assign_from = ' . $userid . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ' OR  master_user_id = ' . $searchMasterUserId . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
         } else {
             $userid = $request->input('selected_user');
-            $userquery = ' AND (master_user_id = ' . $userid . ' OR  second_master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
+            
+            $searchMasterUserId = $userid;
+            if($request->search_master_user_id !='')
+                $searchMasterUserId = $request->search_master_user_id;
+
+            $searchSecondMasterUserId = $userid;
+            if($request->search_second_master_user_id !='')
+                $searchSecondMasterUserId = $request->search_second_master_user_id;
+
+            $userquery = ' AND (master_user_id = ' . $searchMasterUserId . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
         }
         
         if (!$request->input('type') || $request->input('type') == '') {
@@ -2833,18 +2851,41 @@ class TaskModuleController extends Controller
         return response()->json(['histories' => $task_histories]);
 	}
 	
+    /**
+     * This function is use for create task due data log history
+     * 
+     * @param mixed $request
+     * @return JsonResponce
+     */
+    public function createTaskDueDateHistoryLog($request)
+    {
+        try {
+            TaskDueDateHistoryLog::create([
+                'task_id' => $request->task_id,
+                'task_type' => $request->type,
+                'updated_by' => Auth::id(),
+                'old_due_date' => $request->old_due_date,
+                'new_due_date' => $request->date,
+            ]);
+            return response()->json(['code' => 200,'message' => 'Successfully updated'],200);
+        } catch(\Exception $e) {
+            return response()->json(['code' => 500, 'error' => $e->getMessage],200);
+        }
+    }
+
 	public function updateTaskDueDate(Request $request) {
-		
 		
 		if($request->type == 'TASK'){
 			$task = Task::find($request->task_id);
 			if($request->date) {
 				$task->update(['due_date' => $request->date]);
-			}
+                $this->createTaskDueDateHistoryLog($request);
+            }
 		}else{
 			if($request->date) {
 				DeveloperTask::where('id',$request->task_id)
 					->update(['due_date' => $request->date]);
+                    $this->createTaskDueDateHistoryLog($request);
 			}
 		}
 		
@@ -2852,6 +2893,25 @@ class TaskModuleController extends Controller
             'message' => 'Successfully updated'
         ],200);
 	}
+
+    public function getTaskDueDateHistoryLog(Request $request)
+    {
+        $taskHistory = TaskDueDateHistoryLog::where([['task_id', '=', $request->task_id]])->get();
+        
+        if (count($taskHistory)>0) {
+            $html = "";
+            foreach($taskHistory as $taskHistoryData) {
+                $html .= "<td>".$taskHistoryData->id."</td>";
+                $html .= "<td>".$taskHistoryData->users->name."</td>";
+                $html .= "<td>".$taskHistoryData->old_due_date."</td>";
+                $html .= "<td>".$taskHistoryData->new_due_date."</td>";
+                $html .= "<td>".$taskHistoryData->created_at."</td>";
+            }
+            return response()->json(['code'=>200 , 'data' => $html, 'msg' => 'Task Due Date History successfully loaded']);
+        } else {
+            return response()->json(['code' => 500, 'msg' => 'Task Due Date history long not found'], 200);
+        }
+    }
 
 	public function createHubstaffManualTask(Request $request) {
 		$task = Task::find($request->id);
@@ -3332,6 +3392,85 @@ class TaskModuleController extends Controller
      //   return view('task-module.partials.site-development-task', compact('merged'));
 
         return response()->json(["code" => 200, "taskStatistics" => $merged]);
+    }
+
+
+    /*
+    * AssignMultipleTaskToUser : Assign multiple task to user
+    * DEVTASK-21672
+    */
+    public function AssignMultipleTaskToUser(Request $request){
+        $tasks = $request->get('taskIDs');
+        if(count($tasks) > 0) {
+            foreach($tasks as $tsk){
+                $task = Task::find($tsk);
+                $old_id = $task->assign_to;
+                if (!$old_id) {
+                    $old_id = 0;
+                }else{
+                    DB::delete('delete from task_users where task_id = ? AND user_id = ? AND type = ?', array($task->id,$old_id, User::class));
+                }
+                $task->assign_to = $request->get('user_assigned_to');
+                $task->save();
+            //    $task->users()->attach([$request->input('assign_to') => ['type' => User::class]]);
+
+
+                    
+                //   $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+            $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
+                $assignedUser = HubstaffMember::where('user_id', $request->input('user_assigned_to'))->first();
+                // $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
+            
+                $hubstaffUserId = null;
+                if ($assignedUser) {
+                    $hubstaffUserId = $assignedUser->hubstaff_user_id;
+                }
+                if ($task->is_statutory != 1) {
+                    $message = "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details;
+                } else {
+                    $message = $task->task_subject . ". " . $task->task_details;
+                }
+
+                $taskSummery = substr($message, 0, 200);
+                    
+            
+                $hubstaffTaskId = $this->createHubstaffTask(
+                    $taskSummery,
+                    $hubstaffUserId,
+                    $hubstaff_project_id
+                );
+            
+                if ($hubstaffTaskId) {
+                    $task->hubstaff_task_id = $hubstaffTaskId;
+                    $task->save();
+                }
+                if ($hubstaffUserId) {
+                    $task = new HubstaffTask();
+                    $task->hubstaff_task_id = $hubstaffTaskId;
+                    $task->project_id = $hubstaff_project_id;
+                    $task->hubstaff_project_id = $hubstaff_project_id;
+                    $task->summary = $message;
+                    $task->save();
+                }
+                
+                $taskUser = new TaskUserHistory;
+                $taskUser->model = 'App\Task';
+                $taskUser->model_id = $task->id;
+                $taskUser->old_id = $old_id;
+                $taskUser->new_id = $request->get('user_assigned_to');
+                $taskUser->user_type = 'developer';
+                $taskUser->updated_by = Auth::user()->name;
+                $taskUser->save();
+
+
+                $values = array('task_id' => $task->id,'user_id' => $request->get('user_assigned_to'), 'type' => 'App\User');
+                DB::table('task_users')->insert($values);
+            }
+        }
+        
+
+        return redirect('/development/automatic/tasks')->withSuccess('You have successfully assigned task!');
     }
    
 }

@@ -10,19 +10,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class SiteDevelopmentCategory extends Model
 {
-      /**
+     /**
      * @var string
-
      */
     protected $fillable = ['title', 'master_category_id'];
 
 
     public function development()
     {
-    	return $this->hasOne(SiteDevelopment::class,'site_development_category_id','id');
+    	return $this->hasOne(SiteDevelopment::class,'site_development_category_id', 'id');
     }
 
-    public function getDevelopment($categoryId,$websiteId, $id = null)
+    public function getDevelopment($categoryId, $websiteId, $id = null)
     {
 
         $development =null;
@@ -30,8 +29,8 @@ class SiteDevelopmentCategory extends Model
         if($id){
             $development = SiteDevelopment::where('id', $id);
         }else{
-            $development = SiteDevelopment::where('website_id',$websiteId)
-                ->where('site_development_category_id',$categoryId)
+            $development = SiteDevelopment::where('website_id', $websiteId)
+                ->where('site_development_category_id', $categoryId)
                 ->orderBy('created_at', 'DESC');
         }
 
