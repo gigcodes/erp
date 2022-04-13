@@ -39,8 +39,8 @@
                   </td>
                   <td>
                       <a href="javascript::void(0)" class="deleteQue" data-id="{{$rjData->id}}"><i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a> | 
-                      <a href="javascript::void(0)" class="clearQ" data-id="{{$rjData->id}}"  data-id="{{$rjData->name}}">Clear Queue</a> | 
-                      <a href="javascript::void(0)" class="restartManagement" data-id="{{$rjData->id}}"  data-id="{{$rjData->name}}">Restart Management</a>
+                      <a href="javascript::void(0)" class="clearQ" data-id="{{$rjData->id}}"  data-name="{{$rjData->name}}">Clear Queue</a> | 
+                      <a href="javascript::void(0)" class="restartManagement" data-id="{{$rjData->id}}"  data-name="{{$rjData->name}}">Restart Management</a>
                   </td>
                 </tr>
               @endforeach()
