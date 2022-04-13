@@ -223,7 +223,7 @@ class GiftCardController extends Controller
                 'is_draft'         => 0,
             ]);
 
-            \App\Jobs\SendEmail::dispatch($email);
+            \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
         }
 

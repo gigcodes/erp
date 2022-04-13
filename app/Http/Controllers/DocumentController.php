@@ -325,7 +325,7 @@ class DocumentController extends Controller
                     'bcc' => $bcc ? : null,
                 ]);
 
-                \App\Jobs\SendEmail::dispatch($email);
+                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                 /*$mail->send(new DocumentEmail($request->subject, $request->message, $file_paths));
 
@@ -377,7 +377,7 @@ class DocumentController extends Controller
                     'bcc'             => $bcc ? : null,
                 ]);
 
-                \App\Jobs\SendEmail::dispatch($email);
+                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
             }
 
         } elseif ($request->user_type == 3) {
@@ -409,7 +409,7 @@ class DocumentController extends Controller
                     'bcc'             => $bcc ? : null,
                 ]);
 
-                \App\Jobs\SendEmail::dispatch($email);
+                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
                 
             }
         } elseif (isset($request->emailcontact) && $request->emailcontact != null){
