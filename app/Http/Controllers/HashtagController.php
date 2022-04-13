@@ -730,7 +730,7 @@ class HashtagController extends Controller
 					'email_log' => 'Email initiated',
 					'message'       => $email->to
 				]);    
-            \App\Jobs\SendEmail::dispatch($email);
+            \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 		}
 		   return response()->json(['message' => 'Successfull.'],200);
 	}

@@ -1675,7 +1675,7 @@ class LiveChatController extends Controller
 								]);
 
                                 try{
-                                    \App\Jobs\SendEmail::dispatch($email);
+                                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
                                 } catch (\Exception $e) {
                                     $post = array(
                                         'email-id' => $email->id,
@@ -2109,7 +2109,7 @@ class LiveChatController extends Controller
             'email_log' => 'Email initiated',
             'message'       => $email->to
         ]);
-        \App\Jobs\SendEmail::dispatch($email);
+        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
         \App\CouponCodeRuleLog::create([
             'rule_id' => $ruleId,
             'coupon_code' => $couponCodeRule->coupon_code,

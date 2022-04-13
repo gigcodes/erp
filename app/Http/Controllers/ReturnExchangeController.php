@@ -159,7 +159,7 @@ class ReturnExchangeController extends Controller
                         'store_website_id' => null,
                     ]);
 
-                    \App\Jobs\SendEmail::dispatch($email);
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                 } else if ($request->type == "return") {
                     
@@ -179,7 +179,7 @@ class ReturnExchangeController extends Controller
                         'is_draft'        => 1,
                     ]);
 
-                    \App\Jobs\SendEmail::dispatch($email);
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
                     
                 } else if ($request->type == "exchange") {
                     
@@ -199,7 +199,7 @@ class ReturnExchangeController extends Controller
                         'is_draft'        => 1,
                     ]);
 
-                    \App\Jobs\SendEmail::dispatch($email);
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
                     
                 }
             }
@@ -459,7 +459,7 @@ class ReturnExchangeController extends Controller
                         return response()->json(["code" => 500, "data" => [], "message" => json_decode($response->getContent())->message,"error" => json_decode($response->getContent())->error]);
                     }
                     if($response->type == 'error'){
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
                     }
                 } catch (Exception $e) {
                     return response()->json(["code" => 500, "data" => [], "message" => "Something went wrong"]);
@@ -488,7 +488,7 @@ class ReturnExchangeController extends Controller
                             'is_draft'        => 1,
                         ]);
                         
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                         $receiverNumber = $returnExchange->customer->phone;
                         \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
@@ -509,7 +509,7 @@ class ReturnExchangeController extends Controller
                             'store_website_id' => null,
                             'is_draft'        => 1,
                         ]);
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                         $receiverNumber = $returnExchange->customer->phone;
                         \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
@@ -531,7 +531,7 @@ class ReturnExchangeController extends Controller
                             'is_draft'        => 1,
                         ]);
 
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                         $receiverNumber = $returnExchange->customer->phone;
                         \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
@@ -964,7 +964,7 @@ class ReturnExchangeController extends Controller
                         'is_draft'        => 1,
                     ]);
 
-                    \App\Jobs\SendEmail::dispatch($email);
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
 
                 } else if ($request->type == "return") {
@@ -985,7 +985,7 @@ class ReturnExchangeController extends Controller
                         'is_draft'        => 1,
                     ]);
 
-                    \App\Jobs\SendEmail::dispatch($email);
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
 
                 } else if ($request->type == "exchange") {
@@ -1006,7 +1006,7 @@ class ReturnExchangeController extends Controller
                         'is_draft'        => 1,
                     ]);
 
-                    \App\Jobs\SendEmail::dispatch($email);
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                 }
             } catch (\Exception $e) {
