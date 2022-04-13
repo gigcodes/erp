@@ -33,7 +33,7 @@
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
             <strong>Module Type:</strong>
-            {!! Form::select('module_type', ['3rd Party' => '3rd Party', 'Custom' => 'Custom'], null, ['placeholder' => 'Select Module Type', 'class' => 'form-control']) !!}
+            {!! Form::select('module_type', $magento_module_types, null, ['placeholder' => 'Select Module Type', 'class' => 'form-control']) !!}
             @if ($errors->has('module_type'))
                 <span style="color:red">{{ $errors->first('module_type') }}</span>
             @endif

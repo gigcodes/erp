@@ -77,6 +77,11 @@
     </div>
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
+            <strong>Module Description : </strong> {{ $magento_module->module_description }}
+        </div>
+    </div>
+    <div class="col-xs-6 col-sm-6">
+        <div class="form-group">
             <strong>Created At : </strong> {{ $magento_module->created_at->format('d-m-Y') }}
         </div>
     </div>

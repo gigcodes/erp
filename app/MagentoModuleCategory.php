@@ -4,8 +4,10 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ModuleCategory extends Model
+class MagentoModuleCategory extends Model
 {
+    protected $table = "magento_module_categories";
+
     protected $guarded = ['id'];
 
     protected $fillable = [

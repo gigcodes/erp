@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\MagentoModule\MagentoModuleRemarkRequest;
 use Illuminate\Http\Request;
-use App\ModuleCategory;
+use App\MagentoModuleCategory;
 use App\MagentoModule;
 use App\Setting;
 use App\Http\Requests\MagentoModule\MagentoModuleRequest;
 use App\MagentoModuleRemark;
+use App\MagentoModuleType;
 use App\TaskStatus;
 use Auth;
 
@@ -34,19 +35,19 @@ class MagentoModuleController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            // dd($request->all(), $request->module_category_id);
             
             $items = MagentoModule::with(['lastRemark'])
-                ->join('module_categories', 'module_categories.id', 'magento_modules.module_category_id')
-                ->leftJoin('task_statuses', 'task_statuses.id', 'magento_modules.task_status')
-                ->select('magento_modules.*', 'module_categories.category_name', 'task_statuses.name as task_name');
+            ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
+            ->join('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
+            ->leftJoin('task_statuses', 'task_statuses.id', 'magento_modules.task_status')
+                ->select('magento_modules.*', 'magento_module_categories.category_name', 'magento_module_types.magento_module_type', 'task_statuses.name as task_name');
 
             if (isset($request->module) && !empty($request->module)) {
                 $items->where('magento_modules.module', 'Like', '%'. $request->module .'%');
             }
 
             if (isset($request->module_type) && !empty($request->module_type)) {
-                $items->where('magento_modules.module_type', 'Like', '%'. $request->module_type .'%');
+                $items->where('magento_modules.module_type', $request->module_type );
             }
 
             if (isset($request->task_status) && !empty($request->task_status)) {
@@ -64,9 +65,10 @@ class MagentoModuleController extends Controller
             return datatables()->eloquent($items)->toJson();
         } else {
             $title = 'Magento Module';
-            $module_categories = ModuleCategory::where('status',1)->get()->pluck('category_name', 'id');
+            $module_categories = MagentoModuleCategory::where('status',1)->get()->pluck('category_name', 'id');
+            $magento_module_types = MagentoModuleType::get()->pluck('magento_module_type', 'id');
             $task_statuses = TaskStatus::pluck("name", "id");
-            return view($this->index_view, compact('title', 'module_categories', 'task_statuses'));
+            return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses'));
         }
     }
 
@@ -78,9 +80,10 @@ class MagentoModuleController extends Controller
     public function create()
     {
         $title = 'Magento Module';
-        $module_categories = ModuleCategory::where('status',1)->get()->pluck('category_name', 'id');
+        $module_categories = MagentoModuleCategory::where('status',1)->get()->pluck('category_name', 'id');
+        $magento_module_types = MagentoModuleType::get()->pluck('magento_module_type', 'id');
         $task_statuses = TaskStatus::pluck("name", "id");
-        return view($this->create_view, compact('module_categories', 'title', 'task_statuses'));
+        return view($this->create_view, compact('module_categories', 'title', 'task_statuses', 'magento_module_types'));
     }
 
     /**
@@ -137,7 +140,7 @@ class MagentoModuleController extends Controller
     public function edit(MagentoModule $magento_module)
     {
         $title = 'Magento Module';
-        $module_categories = ModuleCategory::where('status',1)->get()->pluck('category_name', 'id');
+        $module_categories = MagentoModuleCategory::where('status',1)->get()->pluck('category_name', 'id');
         $task_statuses = TaskStatus::pluck("name", "id");
         return view($this->edit_view, compact('module_categories', 'title', 'magento_module', 'task_statuses'));
     }

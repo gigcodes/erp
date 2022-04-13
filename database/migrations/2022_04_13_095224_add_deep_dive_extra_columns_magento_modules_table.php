@@ -14,9 +14,9 @@ class AddDeepDiveExtraColumnsMagentoModulesTable extends Migration
     public function up()
     {
         Schema::table('magento_modules', function (Blueprint $table) {
+            $table->integer('task_status')->nullable();
             $table->text('last_message')->nullable();
             $table->string('cron_time', 45)->nullable();
-            $table->integer('task_status')->nullable();
             $table->boolean('is_sql')->nullable();
             $table->boolean('is_third_party_plugin')->nullable();
             $table->boolean('is_third_party_js')->nullable();

@@ -30,7 +30,7 @@ class MagentoModule extends Model
 
     public function module_category()
     {
-        return $this->belongsTo(ModuleCategory::class, 'module_category_id');
+        return $this->belongsTo(MagentoModuleCategory::class, 'module_category_id');
     }
 
 
