@@ -36,75 +36,18 @@
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
     </div>
-
-    @php
-    $message_send_to = [
-        'to_master' => 'Send To Master Developer',
-        'to_developer' => 'Send To Developer',
-        'to_team_lead' => 'Send To Team Lead',
-        'to_tester' => 'Send To Tester',
-    ];
-    @endphp
-
     <div class="row ">
         <div class="col-lg-12 ">
             <h2 class="page-heading">{{ $title }}
 
                 <div class="pull-right">
-                    <a href="{{ route('magento_modules.create') }}" class="btn btn-secondary">+</a>
+                    <a href="{{ route('magento_module_categories.create') }}" class="btn btn-secondary">+</a>
                 </div>
             </h2>
-
-            <form method="POST" action="#" id="dateform">
-
-                <div class="row m-4">
-                    <div class="col-xs-3 col-sm-3">
-                        <div class="form-group">
-                            <strong>Module Name:</strong>
-                            {!! Form::text('module', null, ['placeholder' => 'Module Name', 'class' => 'form-control']) !!}
-                        </div>
-                    </div>
-                    <div class="col-xs-3 col-sm-3">
-                        <div class="form-group">
-                            <strong>Module Type:</strong>
-                            {!! Form::select('module_type', $magento_module_types, null, ['placeholder' => 'Select Module Type', 'class' => 'form-control']) !!}
-                        </div>
-                    </div>
-                    <div class="col-xs-3 col-sm-3">
-                        <div class="form-group">
-                            <strong>Module Category:</strong>
-                            {!! Form::select('module_category_id', $module_categories, null, ['placeholder' => 'Select Module Category', 'class' => 'form-control']) !!}
-                        </div>
-                    </div>
-                    <div class="col-xs-3 col-sm-3">
-                        <div class="form-group">
-                            <strong>Task Status:</strong>
-                            {!! Form::select('task_status', $task_statuses, null, ['placeholder' => 'Select Task Status', 'class' => 'form-control']) !!}
-                        </div>
-                    </div>
-                    <div class="col-xs-3 col-sm-3">
-                        <div class="form-group">
-                            <strong>Customized:</strong>
-                            {!! Form::select('is_customized', ['No', 'Yes'], null, ['placeholder' => 'Customized', 'class' => 'form-control']) !!}
-                        </div>
-                    </div>
-                </div>
-                <div class="row ml-4 mr-4">
-                    <div class="col-xs-12 col-sm-12">
-                        <div class="form-group pull-right ">
-                            <button type="submit" class="btn btn-secondary ml-3" style="width:100px">Search</button>
-                        </div>
-
-                        <div class="form-group  pull-right">
-                            <button type="reset" id="searchReset" class="btn btn-secondary ml-3 "
-                                style="width:100px">Reset</button>
-                        </div>
-                    </div>
-            </form>
         </div>
     </div>
 
-    <div class="table-responsive mt-3 mr-5 ml-5">
+    <div class="table-responsive mt-3 pr-3 pl-3">
         @if ($message = Session::get('success'))
             <div class="col-lg-12">
                 <div class="alert alert-success">
@@ -129,25 +72,13 @@
             <thead>
                 <tr>
                     <th> Id </th>
-                    <th> Communication </th>
-                    <th> Category </th>
-                    <th> Name </th>
-                    <th> Version </th>
-                    <th> Type </th>
-                    <th> Payment Status</th>
-                    <th> Status </th>
-                    <th> Task Status </th>
-                    <th> Developer Name</th>
-                    <th> Customized </th>
+                    <th> Category Name </th>
                     <th> Action </th>
-
                 </tr>
             </thead>
         </table>
     </div>
 
-    @include('partials.plain-modal');
-    @include('magento_module.partials.remark_list');
 @endsection
 
 
@@ -177,19 +108,6 @@
             return false;
         });
 
-        var message_send_to_array = {
-            'to_master': 'Send To Master Developer',
-            'to_developer': 'Send To Developer',
-            'to_team_lead': 'Send To Team Lead',
-            'to_tester': 'Send To Tester',
-        };
-
-        var dropdown_options = '';
-        @foreach ($message_send_to as $key => $value)
-            dropdown_options +=
-            `<option value="{{ $key }}"> {{ $value }} </option>`;
-        @endforeach
-
         $('#extraSearch').on('click', function(e) {
             e.preventDefault();
             oTable.draw();
@@ -214,13 +132,13 @@
                     $(row).find("td").last().addClass('text-danger');
                 },
                 ajax: {
-                    "url": "{{ route('magento_modules.index') }}",
+                    "url": "{{ route('magento_module_categories.index') }}",
                     data: function(d) {
-                        d.module = $('input[name=module]').val();
-                        d.module_type = $('select[name=module_type]').val();
-                        d.is_customized = $('select[name=is_customized]').val();
-                        d.module_category_id = $('select[name=module_category_id]').val();
-                        d.task_status = $('select[name=task_status]').val();
+                        // d.module = $('input[name=module]').val();
+                        // d.module_type = $('select[name=module_type]').val();
+                        // d.is_customized = $('select[name=is_customized]').val();
+                        // d.module_category_id = $('select[name=module_category_id]').val();
+                        // d.task_status = $('select[name=task_status]').val();
                         // d.view_all = $('input[name=view_all]:checked').val(); // for Check box
                     },
                 },
@@ -232,96 +150,30 @@
                 }],
                 columns: [{
                         data: 'id',
-                        name: 'magento_modules.id',
+                        name: 'id',
                         render: function(data, type, row, meta) {
                             return data;
                         }
                     },
                     {
-                        data: 'last_message',
-                        name: 'magento_modules.last_message',
-                        render: function(data, type, row, meta) {
-
-                            var message =
-                                `<input type="text" id="remark_${row['id']}" name="remark" class="form-control" placeholder="Remark" />`
-
-                            var dropdown =
-                                `<select id="send_to_${row['id']}" name="send_to" class="form-control mt-3" style="width:85% !important;display: inline;">`;
-                            dropdown += dropdown_options;
-                            dropdown += `</select>`;
-
-                            var remark_history_button =
-                                `<button type="button" class="btn btn-xs btn-image load-module-remark" data-id="${row['id']}" style="margin-top: 2%;" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
-
-                            var remark_send_button =
-                                `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']})"><img src="/images/filled-sent.png"></button>`;
-
-                            data = (data == null) ? '' : data;
-                            return data + message + dropdown + remark_send_button +
-                                remark_history_button;
-                        }
-                    },
-                    {
                         data: 'category_name',
-                        name: 'magento_module_categories.category_name',
-                    },
-                    {
-                        data: 'module',
-                        name: 'magento_modules.module',
-                    },
-                    {
-                        data: 'current_version',
-                        name: 'magento_modules.current_version',
-                    },
-                    {
-                        data: 'magento_module_type',
-                        name: 'magento_module_types.magento_module_type',
-                        render: function(data, type, row, meta) {
-                            return `<div class="flex items-center justify-left">${data}</div>`;
-                        }
-                    },
-                    {
-                        data: 'payment_status',
-                        name: 'magento_modules.payment_status',
-                    },
-                    {
-                        data: 'status',
-                        name: 'magento_modules.status',
-                        render: function(data, type, row, meta) {
-                            var status_array = ['Disabled', 'Enable'];
-                            return `<div class="flex items-center justify-left">${status_array[data]}</div>`;
-                        }
-                    },
-                    {
-                        data: 'task_name',
-                        name: 'task_statuses.name',
-                    },
-                    {
-                        data: 'developer_name',
-                        name: 'magento_modules.developer_name',
-                    },
-
-                    {
-                        data: 'is_customized',
-                        name: 'magento_modules.is_customized',
-                        render: function(data, type, row, meta) {
-                            return (data == 1) ? 'Yes' : 'No';
-                        }
+                        name: 'category_name',
                     },
                     {
                         data: 'id',
-                        name: 'magento_modules.id',
+                        name: 'id',
                         // visible:false,
                         render: function(data, type, row, meta) {
-                            var edit_url = `{{ url('/') }}/magento_modules/` + row['id'] +
+                            var edit_url = `{{ url('/') }}/magento_module_categories/` + row[
+                                    'id'] +
                                 `/edit/`;
-                            // var show_url = `{{ url('/') }}/magento_modules/` + row['id'] +
+                            // var show_url = `{{ url('/') }}/magento_module_categories/` + row['id'] +
                             //     ``;
                             var edit_data = actionEditButton(edit_url, row['id']);
                             var show_data = actionShowButtonWithClass('show-details', row['id']);
 
                             var del_data = actionDeleteButton(row['id']);
-                            return `<div class="flex justify-left items-center"> ${show_data} ${edit_data} ${del_data} </div>`;
+                            return `<div class="flex justify-left items-center"> ${edit_data} ${del_data} </div>`;
                         }
                     },
                 ],
@@ -331,14 +183,14 @@
         $(document).on('click', '.clsdelete', function() {
             var id = $(this).attr('data-id');
             var e = $(this).parent().parent();
-            var url = `{{ url('/') }}/magento_modules/` + id;
+            var url = `{{ url('/') }}/magento_module_categories/` + id;
             tableDeleteRow(url, oTable);
         });
 
         $(document).on('click', '.clsstatus', function() {
             var id = $(this).attr('data-id');
             var status = $(this).attr('data-status');
-            var url = `{{ url('/') }}/magento_modules/status/` + id + `/` + status;
+            var url = `{{ url('/') }}/magento_module_categories/status/` + id + `/` + status;
             tableChnageStatus(url, oTable);
         });
 
@@ -376,7 +228,7 @@
             var id = $(this).attr('data-id');
             $.ajax({
                 method: "GET",
-                url: `{{ url('/') }}/magento_modules/` + id,
+                url: `{{ url('/') }}/magento_module_categories/` + id,
                 data: {
                     id: id
                 },

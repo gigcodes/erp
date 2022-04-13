@@ -1545,6 +1545,15 @@ if (!empty($notifications)) {
 											<li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('magento-productt-errors.index') }}">Magento product push errors</a>
                                             </li>
+											<li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('magento_module_categories.index') }}">Magento Module Category</a>
+                                            </li>
+											<li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('magento_module_types.index') }}">Magento Module Type</a>
+                                            </li>
+											<li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('magento_modules.index') }}">Magento Modules</a>
+                                            </li>
 											
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
