@@ -14,8 +14,15 @@ class MagentoModule extends Model
         'module',
         'module_description',
         'current_version',
+        'task_status',
+        'last_message',
+        'cron_time',
         'module_type',
         'status',
+        'is_sql',
+        'is_third_party_plugin',
+        'is_third_party_js',
+        'is_js_css',
         'payment_status',
         'developer_name',
         'is_customized',
@@ -25,4 +32,21 @@ class MagentoModule extends Model
     {
         return $this->belongsTo(ModuleCategory::class, 'module_category_id');
     }
+
+
+    public function lastRemark()
+    {
+    	return $this->hasOne(MagentoModuleRemark::class, 'magento_module_id','id')->orderBy('created_at', 'desc')->latest();
+    }
+    
+    public function remarks()
+    {
+    	return $this->hasMany(MagentoModuleRemark::class, 'magento_module_id','id')->orderBy('created_at', 'desc');
+    }
+    
+    public function task_status_data()
+    {
+    	return $this->belongsTo(TaskStatus::class, 'task_status','id');
+    }
+
 }

@@ -78,11 +78,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('product-location', 'ProductLocationController');
 
     Route::get('show-magento-cron-data', 'Cron\ShowMagentoCronDataController@MagentoCron')->name('magento-cron-data');
-
+    
 });
 
 /** Magento Module */
 Route::middleware('auth')->group(function () {
+    Route::get('magento_modules/remark/{magento_module}', 'MagentoModuleController@getRemarks')->name('magento_module_remark.get_remarks');
+    Route::post('magento_modules/remark', 'MagentoModuleController@storeRemark')->name('magento_module_remark.store');
     Route::resource('magento_modules', 'MagentoModuleController');
 });
 

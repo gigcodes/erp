@@ -64,8 +64,8 @@
 <div class="row ml-2 mr-2">
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
-            <strong>Payment Status:</strong>
-            {!! Form::select('task_status', ['1' => 'yogesh', '2' => 'Design'], null, ['placeholder' => 'Select Payment Status', 'class' => 'form-control']) !!}
+            <strong>Task Status:</strong>
+            {!! Form::select('task_status', $task_statuses, null, ['placeholder' => 'Select Payment Status', 'class' => 'form-control']) !!}
             @if ($errors->has('task_status'))
                 <span style="color:red">{{ $errors->first('task_status') }}</span>
             @endif
@@ -74,7 +74,7 @@
 
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
-            <strong>Cron Time :</strong>
+            <strong>Cron Time (Min) :</strong>
             {!! Form::text('cron_time', null, ['placeholder' => 'Cron Time', 'class' => 'form-control']) !!}
             @if ($errors->has('cron_time'))
                 <span style="color:red">{{ $errors->first('cron_time') }}</span>
