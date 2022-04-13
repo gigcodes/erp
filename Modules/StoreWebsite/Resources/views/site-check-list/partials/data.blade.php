@@ -2,7 +2,9 @@
     @foreach ($site_development_categories as $sdc)
         <tr>
             <td>
-                {{ $sdc->title }}
+                <span class="break-text"
+                    title="{{ $sdc->title }}">{{ strlen($sdc->title) > 25 ? substr_replace($sdc->title, '...', 25) : $sdc->title }}
+                </span>
             </td>
             @foreach ($store_websites as $sw)
                 @php

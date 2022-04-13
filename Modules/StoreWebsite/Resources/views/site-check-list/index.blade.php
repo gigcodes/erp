@@ -93,6 +93,10 @@
             border-right: 1px #dedede solid !important;
         }
 
+        .break-text {
+            word-wrap: break-word;
+        }
+
     </style>
 @endsection
 
@@ -150,9 +154,9 @@
                     <table class="table table-bordered" id="documents-table">
                         <thead>
                             <tr>
-                                <th width="15%">Categories</th>
+                                <th width="20px">Categories</th>
                                 @foreach ($store_websites as $sw)
-                                    <th>{{ $sw->title }}</th>
+                                    <th> <span class="break-text">{{ $sw->title }} </span></th>
                                 @endforeach
                             </tr>
                         </thead>
