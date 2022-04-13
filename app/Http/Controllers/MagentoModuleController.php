@@ -44,9 +44,15 @@ class MagentoModuleController extends Controller
             if (isset($request->module) && !empty($request->module)) {
                 $items->where('magento_modules.module', 'Like', '%'. $request->module .'%');
             }
+
             if (isset($request->module_type) && !empty($request->module_type)) {
                 $items->where('magento_modules.module_type', 'Like', '%'. $request->module_type .'%');
             }
+
+            if (isset($request->task_status) && !empty($request->task_status)) {
+                $items->where('magento_modules.task_status', $request->task_status );
+            }
+            
             if (isset($request->is_customized)) {
                 $items->where('magento_modules.is_customized', $request->is_customized );
             }

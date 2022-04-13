@@ -78,6 +78,12 @@
                     </div>
                     <div class="col-xs-3 col-sm-3">
                         <div class="form-group">
+                            <strong>Task Status:</strong>
+                            {!! Form::select('task_status', $task_statuses, null, ['placeholder' => 'Select Task Status', 'class' => 'form-control']) !!}
+                        </div>
+                    </div>
+                    <div class="col-xs-3 col-sm-3">
+                        <div class="form-group">
                             <strong>Customized:</strong>
                             {!! Form::select('is_customized', ['No', 'Yes'], null, ['placeholder' => 'Customized', 'class' => 'form-control']) !!}
                         </div>
@@ -214,6 +220,7 @@
                         d.module_type = $('select[name=module_type]').val();
                         d.is_customized = $('select[name=is_customized]').val();
                         d.module_category_id = $('select[name=module_category_id]').val();
+                        d.task_status = $('select[name=task_status]').val();
                         // d.view_all = $('input[name=view_all]:checked').val(); // for Check box
                     },
                 },
@@ -374,8 +381,6 @@
                 },
                 dataType: "json",
                 success: function(response) {
-                    console.log(response);
-                    console.log(response.code);
                     if (response.code == 200) {
                         $("#blank-modal").find(".modal-title").html(response.title);
                         $("#blank-modal").find(".modal-body").html(response.data);
