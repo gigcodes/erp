@@ -1215,7 +1215,7 @@ class OrderController extends Controller
                             'message'       => $email->to
                         ]);
 
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                         /*try {
 
@@ -1537,7 +1537,7 @@ class OrderController extends Controller
                             'is_draft' => 1,
                         ]);
 
-                        \App\Jobs\SendEmail::dispatch($emailObject);
+                        \App\Jobs\SendEmail::dispatch($emailObject)->onQueue("send_email");
 
                     }
                 }
@@ -1664,7 +1664,7 @@ class OrderController extends Controller
                     'message'       => $email->to
                 ]);
 
-                \App\Jobs\SendEmail::dispatch($email);
+                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
             }
         }
 
@@ -1709,7 +1709,7 @@ class OrderController extends Controller
                     'message'       => $email->to
                 ]);
 
-                \App\Jobs\SendEmail::dispatch($email);
+                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                 // $params = [
                 //   'number'      => NULL,
@@ -2159,7 +2159,7 @@ class OrderController extends Controller
                 'message'       => $email->to
             ]);
 
-            \App\Jobs\SendEmail::dispatch($email);
+            \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
         }
 
@@ -3182,7 +3182,7 @@ class OrderController extends Controller
                     'is_draft' => 0,
                 ]);
 
-                \App\Jobs\SendEmail::dispatch($email);
+                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
             }
         }
@@ -3900,7 +3900,7 @@ class OrderController extends Controller
                                         'message'       => $email->to
                                     ]);
 
-                                    \App\Jobs\SendEmail::dispatch($email);
+                                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                                 }
                             }
@@ -4029,7 +4029,7 @@ class OrderController extends Controller
                     'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
                     'is_draft' => 0,
                 ]);
-                \App\Jobs\SendEmail::dispatch($email);
+                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
             }
             $message = "Order delivery date has been changed to " . $newdeldate;
             if (in_array('sms', $order_via)) {
@@ -4235,7 +4235,7 @@ class OrderController extends Controller
             'is_draft' => 1,
         ]);
 
-        \App\Jobs\SendEmail::dispatch($email);
+        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
         return response()->json(['message' => 'unable to add reply', 'status' => 500]);
 
@@ -4462,7 +4462,7 @@ class OrderController extends Controller
                     'is_draft' => 0,
                 ]);
 
-                \App\Jobs\SendEmail::dispatch($email);
+                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                 $shouldSaveInChatMessage = true;
 

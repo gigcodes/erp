@@ -421,7 +421,7 @@ class PurchaseProductController extends Controller
                 'is_draft' => 0,
             ]);
 
-            \App\Jobs\SendEmail::dispatch($email);
+            \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
             // START - Purpose : Add Record for Inquiry - DEVTASK-4048
 
@@ -504,7 +504,7 @@ class PurchaseProductController extends Controller
 				'message'       => $email->to
 			]);
 
-            \App\Jobs\SendEmail::dispatch($email);
+            \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
             // START - Purpose : Add Record for Inquiry - DEVTASK-4048
             $products_data = Product::whereIn('id', $product_ids)->get()->toArray();
@@ -1185,7 +1185,7 @@ class PurchaseProductController extends Controller
 					'message'       => $email->to
 				]);
 
-                \App\Jobs\SendEmail::dispatch($email);
+                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
             }
 
             if ($send_options == 'whatsapp' || $send_options == 'both') {
@@ -1505,7 +1505,7 @@ class PurchaseProductController extends Controller
             'is_draft' => 0,
         ]);
 
-        \App\Jobs\SendEmail::dispatch($email);
+        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
         return response()->json(['code' => 200, 'message' => 'Email Send Successfully'], 200);
     }
