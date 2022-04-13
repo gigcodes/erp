@@ -86,6 +86,15 @@ Route::middleware('auth')->group(function () {
     Route::resource('magento_modules', 'MagentoModuleController');
 });
 
+/** redis Job Module */
+Route::middleware('auth')->group(function () {
+    Route::get('redis-jobs', 'RedisjobController@index')->name('redis.jobs');
+    Route::get('redis-jobs-list', 'RedisjobController@listData')->name('redis.jobs.list');
+    Route::post('redis-jobs-add', 'RedisjobController@store')->name('redis.add_radis_job');
+    Route::delete('redis-jobs-delete/{id?}', 'RedisjobController@removeQue')->name('redis.delete_radis_job');
+    Route::post('redis-jobs-delete/{id?}', 'RedisjobController@clearQue')->name('redis.clear_que');
+});
+
 /** Magento Settings */
 Route::middleware('auth')->group(function () {
 

@@ -2002,7 +2002,9 @@ if (!empty($notifications)) {
                                         </ul>
                                     </li>
                                 @endif
-
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
+                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">{{{ isset(Auth::user()->name) ? Auth::user()->name : 'Settings' }}} <span class="caret"></span></a>
 
