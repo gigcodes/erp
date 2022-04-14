@@ -50,6 +50,11 @@ function actionShowButton(url) {
     return `<a href="${url}" title="Details Page" class="btn btn-image"><img src="/images/view.png" /></a>`;
 }
 
+// Show details page button
+function actionShowButtonWithClass(cls, id) {
+    return `<button type="button" title="Details Page"  class="btn btn-image ${cls}" data-id="${id}"><img src="/images/view.png" /></button>`;
+}
+
 // Title or String persent to better way
 function actionShowTitle(url, stringTitle) {
     return `<a class="btn btn-sm btn-clean" href="` + url + `" title="` + stringTitle + `">` + stringTitle + `</a>`;

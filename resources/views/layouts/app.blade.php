@@ -660,6 +660,9 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="/languages">Language</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('logging.magento.product_push_journey') }}">Product Push Journey</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1359,7 +1362,6 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
                                         </li>
-
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1542,6 +1544,15 @@ if (!empty($notifications)) {
                                             </li>
 											<li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('magento-productt-errors.index') }}">Magento product push errors</a>
+                                            </li>
+											<li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('magento_module_categories.index') }}">Magento Module Category</a>
+                                            </li>
+											<li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('magento_module_types.index') }}">Magento Module Type</a>
+                                            </li>
+											<li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('magento_modules.index') }}">Magento Modules</a>
                                             </li>
 											
                                             <li class="nav-item">
@@ -2000,7 +2011,9 @@ if (!empty($notifications)) {
                                         </ul>
                                     </li>
                                 @endif
-
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
+                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">{{{ isset(Auth::user()->name) ? Auth::user()->name : 'Settings' }}} <span class="caret"></span></a>
 

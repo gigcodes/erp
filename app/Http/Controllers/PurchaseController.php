@@ -913,7 +913,7 @@ class PurchaseController extends Controller
             'message'       => $email->to
         ]);
 
-        \App\Jobs\SendEmail::dispatch($email);
+        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
         return redirect()->back()->withSuccess('You have successfully sent an email!');
     }

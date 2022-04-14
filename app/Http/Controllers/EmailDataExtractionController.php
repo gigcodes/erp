@@ -456,7 +456,7 @@ class EmailDataExtractionController extends Controller
             'is_draft' => 1,
         ]);
         //$replyemails = (new ReplyToEmail($email, $request->message))->build();
-        \App\Jobs\SendEmail::dispatch($emailsLog);
+        \App\Jobs\SendEmail::dispatch($emailsLog)->onQueue("send_email");
         //Mail::send(new ReplyToEmail($email, $request->message));
         
         return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
@@ -496,7 +496,7 @@ class EmailDataExtractionController extends Controller
             'is_draft' => 1,
         ]);
 
-        \App\Jobs\SendEmail::dispatch($email);
+        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
         //Mail::to($request->email)->send(new ForwardEmail($email, $email->message));
 
