@@ -78,12 +78,28 @@ Route::middleware('auth')->group(function () {
     Route::resource('product-location', 'ProductLocationController');
 
     Route::get('show-magento-cron-data', 'Cron\ShowMagentoCronDataController@MagentoCron')->name('magento-cron-data');
-
+    
 });
 
 /** Magento Module */
 Route::middleware('auth')->group(function () {
+    Route::get('magento_modules/remark/{magento_module}', 'MagentoModuleController@getRemarks')->name('magento_module_remark.get_remarks');
+    Route::post('magento_modules/remark', 'MagentoModuleController@storeRemark')->name('magento_module_remark.store');
     Route::resource('magento_modules', 'MagentoModuleController');
+
+    Route::resource('magento_module_categories', 'MagentoModuleCategoryController');
+
+    Route::resource('magento_module_types', 'MagentoModuleTypeController');
+});
+
+/** redis Job Module */
+Route::middleware('auth')->group(function () {
+    Route::get('redis-jobs', 'RedisjobController@index')->name('redis.jobs');
+    Route::get('redis-jobs-list', 'RedisjobController@listData')->name('redis.jobs.list');
+    Route::post('redis-jobs-add', 'RedisjobController@store')->name('redis.add_radis_job');
+    Route::delete('redis-jobs-delete/{id?}', 'RedisjobController@removeQue')->name('redis.delete_radis_job');
+    Route::post('redis-jobs-clearQue/{id?}', 'RedisjobController@clearQue')->name('redis.clear_que');
+    Route::post('redis-jobs-restart_management/{id?}', 'RedisjobController@restartManagement')->name('redis.restart_management');
 });
 
 /** Magento Settings */

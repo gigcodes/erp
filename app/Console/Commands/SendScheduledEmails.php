@@ -44,7 +44,7 @@ class SendScheduledEmails extends Command
 		
 		
 		foreach ($emails as $email) {
-			  $result = \App\Jobs\SendEmail::dispatch($email); 
+			  $result = \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email"); 
 		}
 		
     }
