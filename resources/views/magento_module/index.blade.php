@@ -27,6 +27,25 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+        
+        .disabled{
+            pointer-events: none;
+            background: #bababa;
+        }
+        .glyphicon-refresh-animate {
+            -animation: spin .7s infinite linear;
+            -webkit-animation: spin2 .7s infinite linear;
+        }
+
+        @-webkit-keyframes spin2 {
+            from { -webkit-transform: rotate(0deg);}
+            to { -webkit-transform: rotate(360deg);}
+        }
+
+        @keyframes spin {
+            from { transform: scale(1) rotate(0deg);}
+            to { transform: scale(1) rotate(360deg);}
+        }
 
     </style>
 @endsection
@@ -49,10 +68,6 @@
     <div class="row ">
         <div class="col-lg-12 ">
             <h2 class="page-heading">{{ $title }}
-
-                <div class="pull-right">
-                    <a href="{{ route('magento_modules.create') }}" class="btn btn-secondary">+</a>
-                </div>
             </h2>
 
             <form method="POST" action="#" id="dateform">
@@ -88,23 +103,58 @@
                             {!! Form::select('is_customized', ['No', 'Yes'], null, ['placeholder' => 'Customized', 'class' => 'form-control']) !!}
                         </div>
                     </div>
-                </div>
-                <div class="row ml-4 mr-4">
-                    <div class="col-xs-12 col-sm-12">
-                        <div class="form-group pull-right ">
-                            <button type="submit" class="btn btn-secondary ml-3" style="width:100px">Search</button>
-                        </div>
-
-                        <div class="form-group  pull-right">
-                            <button type="reset" id="searchReset" class="btn btn-secondary ml-3 "
-                                style="width:100px">Reset</button>
+                    <div class="col-xs-3 col-sm-3">
+                        <div class="form-group">
+                            <strong>Store Website:</strong>
+                            {!! Form::select('store_website_id', $store_websites, null, ['placeholder' => 'Store Website', 'class' => 'form-control']) !!}
                         </div>
                     </div>
+
+                    <div class="col-xs-2 col-sm-2 pt-4">
+                       
+                        <div class="form-group pull-left ">
+                            <button type="submit" class="btn btn-image search">
+                                <img src="/images/search.png" alt="Search" style="cursor: inherit;">
+                            </button>
+                        </div>
+                        <div class="form-group pull-left ">
+                            <button type="submit" id="searchReset" class="btn btn-image search ml-3">
+                                <img src="/images/resend2.png" alt="Search" style="cursor: inherit;">
+                            </button>
+                        </div>
+
+                        {{-- <div class="form-group  pull-right">
+                            <button type="reset" id="searchReset" class="btn btn-secondary ml-3 "
+                                style="width:100px">Reset</button>
+                        </div> --}}
+                    </div>
+                </div>
+               
             </form>
+            <div class="row ml-4 mr-4">
+                <div class="col-xs-12 col-sm-12">
+                    <div class="form-group pull-right ml-3">
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleTypeCreateModal"> Module Type Create </button>
+                    </div>
+
+                    <div class="form-group pull-right ml-3">
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleCategoryCreateModal"> Module Category Create </button>
+                    </div>
+
+                    <div class="form-group pull-right ml-3">
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleCreateModal"> Magneto Module Create </button>
+                    </div>
+                    
+                    {{-- <div class="form-group  pull-right">
+                        <button type="reset" id="searchReset" class="btn btn-secondary ml-3 disabled "
+                            style="width:100px"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...</button>
+                    </div> --}}
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="table-responsive mt-3 mr-5 ml-5">
+    <div class="table-responsive mt-3 pr-2 pl-2">
         @if ($message = Session::get('success'))
             <div class="col-lg-12">
                 <div class="alert alert-success">
@@ -131,6 +181,7 @@
                     <th> Id </th>
                     <th> Communication </th>
                     <th> Category </th>
+                    <th> Website </th>
                     <th> Name </th>
                     <th> Version </th>
                     <th> Type </th>
@@ -146,8 +197,11 @@
         </table>
     </div>
 
-    @include('partials.plain-modal');
-    @include('magento_module.partials.remark_list');
+    @include('partials.plain-modal')
+    @include('magento_module.partials.remark_list')
+    @include('magento_module.partials.form_modals_type')
+    @include('magento_module.partials.form_modals_category')
+    @include('magento_module.partials.form_modals')
 @endsection
 
 
@@ -160,7 +214,6 @@
     {{-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> --}}
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     {{-- <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap.min.js"></script> --}}
-    <script type="text/javascript" src="{{ asset('js/common-function.js') }}"></script>
 
     <script>
         $(document).on('click', '#searchReset', function(e) {
@@ -221,6 +274,7 @@
                         d.is_customized = $('select[name=is_customized]').val();
                         d.module_category_id = $('select[name=module_category_id]').val();
                         d.task_status = $('select[name=task_status]').val();
+                        d.store_website_id = $('select[name=store_website_id]').val();
                         // d.view_all = $('input[name=view_all]:checked').val(); // for Check box
                     },
                 },
@@ -264,6 +318,14 @@
                     {
                         data: 'category_name',
                         name: 'magento_module_categories.category_name',
+                    },
+                    {
+                        data: 'website',
+                        name: 'store_websites.website',
+                        render: function(data, type, row, meta) {
+                            var status_array = ['Disabled', 'Enable'];
+                            return `<div class="flex items-center justify-left" title="${data}">${setStringLength(data, 15)}</div>`;
+                        }
                     },
                     {
                         data: 'module',
@@ -313,12 +375,9 @@
                         name: 'magento_modules.id',
                         // visible:false,
                         render: function(data, type, row, meta) {
-                            var edit_url = `{{ url('/') }}/magento_modules/` + row['id'] +
-                                `/edit/`;
-                            // var show_url = `{{ url('/') }}/magento_modules/` + row['id'] +
-                            //     ``;
-                            var edit_data = actionEditButton(edit_url, row['id']);
+
                             var show_data = actionShowButtonWithClass('show-details', row['id']);
+                            var edit_data = actionEditButtonWithClass('edit-magento-module', JSON.stringify(row));
 
                             var del_data = actionDeleteButton(row['id']);
                             return `<div class="flex justify-left items-center"> ${show_data} ${edit_data} ${del_data} </div>`;

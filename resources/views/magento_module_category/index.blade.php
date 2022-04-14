@@ -91,7 +91,6 @@
     {{-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> --}}
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     {{-- <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap.min.js"></script> --}}
-    <script type="text/javascript" src="{{ asset('js/common-function.js') }}"></script>
 
     <script>
         $(document).on('click', '#searchReset', function(e) {
