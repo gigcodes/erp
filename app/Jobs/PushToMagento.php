@@ -253,4 +253,9 @@ class PushToMagento implements ShouldQueue
         //     Log::channel('listMagento')->info( "[Queued job result] Successfully pushed product with ID " . $product->id . " to Magento" );
         // }
     }
+
+    public function tags() 
+    {
+        return [ 'magento', $this->email->id ];
+    }
 }
