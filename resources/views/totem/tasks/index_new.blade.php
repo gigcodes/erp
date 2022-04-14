@@ -85,7 +85,7 @@ table tr td {
 @section('large_content')
     <script src="/js/jquery.jscroll.min.js"></script>
 
-
+    
 	<div class="ajax-loader" style="display: none;">
 		<div class="inner_loader">
 		<img src="{{ asset('/images/loading2.gif') }}">
@@ -94,7 +94,7 @@ table tr td {
 
     <div class="row">
         <div class="col-12" style="padding:0px;">
-            <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">Cron Tasks
+            <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">Cron Tasks {{'('.$total_tasks.')'}}</h2>
                 <div class="margin-tb" style="flex-grow: 1;">
                     <div class="pull-right ">
                         <button type="button" class="btn btn-default btn-sm add-remark mr-1" data-toggle="modal" data-target="#addEditTaskModal">
@@ -103,11 +103,8 @@ table tr td {
                     </div>
                 </div>
             </h2>
-
-
-
         </div>
-         <div class="col-12 pl-2" style="padding-left:0px;">
+        <div class="col-12 pl-2" style="padding-left:0px;">
             <div >
                 <form class="form-inline" action="" method="GET">
                     <div class="form-group col-md-2 pd-3">
@@ -137,6 +134,7 @@ table tr td {
                             <th width="8%">Average Runtime</th>
                             <th width="5%">Last Run</th>
                             <th width="5%">Next Run</th>
+                            <th width="5%">Frequencies</th>
                             <th width="5%">Action</th> 
                         </tr>    
                     </thead>
@@ -161,6 +159,12 @@ table tr td {
                                 @endif
                                 <td>
                                     {{$task->upcoming}}
+                                </td>
+                                <td>
+                                    @if(isset($task->frequencies) && count($task->frequencies) > 0)
+                                    {{$task->frequencies[0]->frequency}}
+                                    @endif
+                                    
                                 </td>
                                 <td class="uk-text-center@m">
                                     <a style="padding:1px;" class="btn d-inline btn-image view-task" href="#" data-id="{{$task->id}}" title="view task" data-expression="{{$task->getCronExpression()}}"><img src="/images/view.png" style="cursor: pointer; width: 0px;"></a>
