@@ -41,7 +41,7 @@
             <h2 class="page-heading">{{ $title }}
 
                 <div class="pull-right">
-                    <a href="{{ route('magento_module_types.create') }}" class="btn btn-secondary">+</a>
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleTypeCreateModal"> + </button>
                 </div>
             </h2>
         </div>
@@ -78,7 +78,7 @@
             </thead>
         </table>
     </div>
-
+    @include('magento_module_type.partials.form_modals')
 @endsection
 
 
@@ -166,7 +166,7 @@
                             
                             var edit_data = actionEditButtonWithClass('edit-magento-module-type', JSON.stringify(row));
                             var del_data = actionDeleteButton(row['id']);
-                            
+
                             return `<div class="flex justify-left items-center"> ${edit_data} ${del_data} </div>`;
                         }
                     },

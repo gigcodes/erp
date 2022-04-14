@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
-            {{-- {!! Form::open(['route' => 'magento_module_categories.store', 'method' => 'POST', 'id'=>'module_category_form', 'class' => 'form mb-15', 'enctype' => 'multipart/form-data']) !!} --}}
+            {{-- {!! Form::open(['route' => 'module_category_categories.store', 'method' => 'POST', 'id'=>'module_category_form', 'class' => 'form mb-15', 'enctype' => 'multipart/form-data']) !!} --}}
             <form id="module_category_form" class="form mb-15" >
             @csrf
             <div class="modal-header">
@@ -30,9 +30,10 @@
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
-            <form action="" method="POST">
+            <form id="module_category_edit_form" method="POST">
                 @csrf
                 @method('PUT')
+                {!! Form::hidden('id', null, ['id'=>'id']) !!}
                 <div class="modal-header">
                     <h4 class="modal-title">Edit Module Category</h4>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -41,7 +42,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <strong>Module Category :</strong>
-                            {!! Form::text('category_name', null, ['placeholder' => 'Module Type', 'id' => 'category_name', 'class' => 'form-control', 'required' => 'required']) !!}
+                            {!! Form::text('category_name', null, ['id' => 'category_name', 'placeholder' => 'Module Type','class' => 'form-control', 'required' => 'required']) !!}
                             @if ($errors->has('category_name'))
                                 <div class="alert alert-danger">{{ $errors->first('category_name') }}</div>
                             @endif
@@ -93,6 +94,61 @@
                 $('#moduleCategoryCreateModal #module_category_form').find('.alert').remove();
                 toastr["success"](response.message);
                 location.reload();
+            },
+            error: function(xhr, status, error) { // if error occured
+                if(xhr.status == 422){
+                    var errors = JSON.parse(xhr.responseText).errors;
+                    customFnErrors(self, errors);
+                }
+                else{
+                    Swal.fire('Oops...', 'Something went wrong with ajax !', 'error');
+                }
+            },
+        });
+    });
+
+    $(document).on('click', '.edit-magento-module-category', function() {
+        var module_category = $(this).data('row');
+          console.log({module_category})
+          console.log(module_category.category_name);
+          $('#module_category_edit_form #id').val(module_category.id);
+          $('#module_category_edit_form #category_name').val(module_category.category_name);
+          $('#moduleCategoryEditModal').modal('show');
+    });
+
+    $(document).on('submit', '#module_category_edit_form', function(e){
+        e.preventDefault();
+        var self = $(this);
+        let formData = new FormData(document.getElementById("module_category_edit_form"));
+        var module_category_id = $('#module_category_edit_form #id').val();
+        console.log(formData, module_category_id);
+        var button = $(this).find('[type="submit"]');
+        console.log(button);
+        $.ajax({
+            url: '{{ route("magento_module_categories.update", '') }}/' + module_category_id,
+            type: "POST",
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            dataType: 'json',
+            data: formData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            beforeSend: function() {
+                button.html(spinner_html);
+                button.prop('disabled', true);
+                button.addClass('disabled');
+            },
+            complete: function() {
+                button.html('Update');
+                button.prop('disabled', false);
+                button.removeClass('disabled');
+            },
+            success: function(response) {
+                $('#moduleCreateModal #module_category_edit_form').find('.error-help-block').remove();
+                $('#moduleCreateModal #module_category_edit_form').find('.invalid-feedback').remove();
+                $('#moduleCreateModal #module_category_edit_form').find('.alert').remove();
+                oTable.draw();
+                toastr["success"](response.message);
             },
             error: function(xhr, status, error) { // if error occured
                 if(xhr.status == 422){

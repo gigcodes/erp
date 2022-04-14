@@ -22,7 +22,7 @@
                     </div>
                     <div class="col-xs-6 col-sm-6">
                         <div class="form-group">
-                            <strong>Module Category :</strong>
+                            <strong>Website :</strong>
                             {!! Form::select('store_website_id', $store_websites, null, ['id'=>'module_category_id', 'placeholder' => 'Select Module Category', 'class' => 'form-control', 'required' => 'required']) !!}
                             @if ($errors->has('module_category_id'))
                                 <span style="color:red">{{ $errors->first('module_category_id') }}</span>
@@ -224,6 +224,18 @@
                     
                         <div class="col-xs-6 col-sm-6">
                             <div class="form-group">
+                                <strong>Website :</strong>
+                                {!! Form::select('store_website_id', $store_websites, null, ['id'=>'module_category_id', 'placeholder' => 'Select Module Category', 'class' => 'form-control', 'required' => 'required']) !!}
+                                @if ($errors->has('module_category_id'))
+                                    <span style="color:red">{{ $errors->first('module_category_id') }}</span>
+                                @endif
+                            </div>
+                        </div>
+                    
+                    </div>
+                    <div class="row ml-2 mr-2">
+                        <div class="col-xs-12 col-sm-12">
+                            <div class="form-group">
                                 <strong>Module Name:</strong>
                                 {!! Form::text('module', null, ['id'=>'module', 'placeholder' => 'Module Name', 'class' => 'form-control', 'required' => 'required']) !!}
                                 @if ($errors->has('module'))
@@ -385,32 +397,6 @@
 @push('scripts')
     <script>
 
-    $(document).on('click', '.edit-magento-module', function() {
-        var magento_module = $(this).data('row');
-          console.log({magento_module})
-          console.log(magento_module.category_name);
-          $('#magento_module_edit_form #id').val(magento_module.id);
-          $('#magento_module_edit_form #module_category_id').val(magento_module.module_category_id);
-          $('#magento_module_edit_form #module').val(magento_module.module);
-          $('#magento_module_edit_form #current_version').val(magento_module.current_version);
-          $('#magento_module_edit_form #module_type').val(magento_module.module_type);
-          $('#magento_module_edit_form #payment_status').val(magento_module.payment_status);
-          $('#magento_module_edit_form #status').val(magento_module.status);
-          $('#magento_module_edit_form #task_status').val(magento_module.task_status);
-          $('#magento_module_edit_form #cron_time').val(magento_module.cron_time);
-          $('#magento_module_edit_form #is_js_css').val(magento_module.is_js_css);
-          $('#magento_module_edit_form #is_third_party_js').val(magento_module.is_third_party_js);
-          $('#magento_module_edit_form #is_sql').val(magento_module.is_sql);
-          $('#magento_module_edit_form #is_third_party_plugin').val(magento_module.is_third_party_plugin);
-          $('#magento_module_edit_form #developer_name').val(magento_module.developer_name);
-          $('#magento_module_edit_form #is_customized').val(magento_module.is_customized);
-          $('#magento_module_edit_form #module_description').val(magento_module.module_description);
-
-          $('#moduleEditModal').modal('show');
-
-
-    });
-
     $(document).on('submit', '#magento_module_form', function(e){
         e.preventDefault();
         var self = $(this);
@@ -454,6 +440,30 @@
                 }
             },
         });
+    });
+
+    $(document).on('click', '.edit-magento-module', function() {
+        var magento_module = $(this).data('row');
+          console.log({magento_module})
+          console.log(magento_module.category_name);
+          $('#magento_module_edit_form #id').val(magento_module.id);
+          $('#magento_module_edit_form #module_category_id').val(magento_module.module_category_id);
+          $('#magento_module_edit_form #module').val(magento_module.module);
+          $('#magento_module_edit_form #current_version').val(magento_module.current_version);
+          $('#magento_module_edit_form #module_type').val(magento_module.module_type);
+          $('#magento_module_edit_form #payment_status').val(magento_module.payment_status);
+          $('#magento_module_edit_form #status').val(magento_module.status);
+          $('#magento_module_edit_form #task_status').val(magento_module.task_status);
+          $('#magento_module_edit_form #cron_time').val(magento_module.cron_time);
+          $('#magento_module_edit_form #is_js_css').val(magento_module.is_js_css);
+          $('#magento_module_edit_form #is_third_party_js').val(magento_module.is_third_party_js);
+          $('#magento_module_edit_form #is_sql').val(magento_module.is_sql);
+          $('#magento_module_edit_form #is_third_party_plugin').val(magento_module.is_third_party_plugin);
+          $('#magento_module_edit_form #developer_name').val(magento_module.developer_name);
+          $('#magento_module_edit_form #is_customized').val(magento_module.is_customized);
+          $('#magento_module_edit_form #module_description').val(magento_module.module_description);
+
+          $('#moduleEditModal').modal('show');
     });
 
     $(document).on('submit', '#magento_module_edit_form', function(e){

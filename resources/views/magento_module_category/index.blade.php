@@ -41,7 +41,9 @@
             <h2 class="page-heading">{{ $title }}
 
                 <div class="pull-right">
-                    <a href="{{ route('magento_module_categories.create') }}" class="btn btn-secondary">+</a>
+                    
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleCategoryCreateModal"> + </button>
+
                 </div>
             </h2>
         </div>
@@ -78,6 +80,8 @@
             </thead>
         </table>
     </div>
+
+    @include('magento_module_category.partials.form_modals')
 
 @endsection
 
@@ -163,7 +167,7 @@
                         name: 'id',
                         // visible:false,
                         render: function(data, type, row, meta) {
-                            
+
                             var edit_data = actionEditButtonWithClass('edit-magento-module-category', JSON.stringify(row));
                             var show_data = actionShowButtonWithClass('show-details', row['id']);
 

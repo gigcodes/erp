@@ -199,11 +199,10 @@
 
     @include('partials.plain-modal')
     @include('magento_module.partials.remark_list')
-    @include('magento_module.partials.form_modals_type')
-    @include('magento_module.partials.form_modals_category')
+    @include('magento_module_type.partials.form_modals')
+    @include('magento_module_category.partials.form_modals')
     @include('magento_module.partials.form_modals')
 @endsection
-
 
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">

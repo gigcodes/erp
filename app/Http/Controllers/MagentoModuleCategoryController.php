@@ -132,9 +132,21 @@ class MagentoModuleCategoryController extends Controller
     {
         $input = $request->except(['_token']);
 
-        $category = $magento_module_category->update($input);
+        $data = $magento_module_category->update($input);
 
-        return redirect()->back()->with('success', "Updated Successfully ");
+        if ($data) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Updated successfully',
+                'status_name' => 'success'
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Updated unsuccessfully',
+                'status_name' => 'error'
+            ], 500);
+        }
     }
 
     /**

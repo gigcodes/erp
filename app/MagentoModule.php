@@ -11,6 +11,7 @@ class MagentoModule extends Model
 
     protected $fillable = [
         'module_category_id',
+        'store_website_id',
         'module',
         'module_description',
         'current_version',
