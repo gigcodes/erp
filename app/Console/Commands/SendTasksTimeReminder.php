@@ -25,7 +25,7 @@ class SendTasksTimeReminder extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Tasks Time Reminder';
 
     /**
      * Create a new command instance.
