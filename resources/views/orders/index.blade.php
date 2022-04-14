@@ -165,7 +165,7 @@
     </div>
 <div class="row">
     <div class="infinite-scroll" style="width:100%;">
-	<div class="table-responsive mt-2">
+	<div class=" mt-2" style="overflow-x: scroll;">
       <table class="table table-bordered order-table table-condensed" style="border: 1px solid #5A6268 !important; color:black;">
         <thead>
         <tr>
