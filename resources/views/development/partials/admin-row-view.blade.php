@@ -226,4 +226,7 @@
     No 
     @endif
     </td>
+    <td>
+        <button class="btn btn-image set-remark" data-task_id="{{ $issue->id }}"  data-task_type="Dev-task" ><i class="fa fa-comment" aria-hidden="true"></i></button>
+    </td>
 </tr>

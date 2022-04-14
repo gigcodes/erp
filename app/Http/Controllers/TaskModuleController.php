@@ -2917,7 +2917,7 @@ class TaskModuleController extends Controller
                 $html .= "<td>".$taskRemark->id."</td>";
                 $html .= "<td>".$taskRemark->users->name."</td>";
                 $html .= "<td>".$taskRemark->remark."</td>";
-                $html .= "<td>".$taskRemark->create_at."</td>";
+                $html .= "<td>".$taskRemark->created_at."</td>";
                 $html .= "<td><i class='fa fa-copy copy_remark' data-remark_text='".$taskRemark->remark."'></i></td>";
             }
             return response()->json(['code' => 200, 'data'=> $html, 'message' => 'Remark '.$msg.' listed Successfully']);
