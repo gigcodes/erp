@@ -163,14 +163,10 @@
                         name: 'id',
                         // visible:false,
                         render: function(data, type, row, meta) {
-                            var edit_url = `{{ url('/') }}/magento_module_types/` + row['id'] +
-                                `/edit/`;
-                            // var show_url = `{{ url('/') }}/magento_module_types/` + row['id'] +
-                            //     ``;
-                            var edit_data = actionEditButton(edit_url, row['id']);
-                            var show_data = actionShowButtonWithClass('show-details', row['id']);
-
+                            
+                            var edit_data = actionEditButtonWithClass('edit-magento-module-type', JSON.stringify(row));
                             var del_data = actionDeleteButton(row['id']);
+                            
                             return `<div class="flex justify-left items-center"> ${edit_data} ${del_data} </div>`;
                         }
                     },
