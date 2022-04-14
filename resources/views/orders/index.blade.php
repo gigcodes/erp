@@ -53,8 +53,6 @@
 .table.table-bordered.order-table th a{
   color:black!important;
 }
-
-
 </style>
 @endsection
 
@@ -64,7 +62,6 @@
 		<img src="{{ asset('/images/loading2.gif') }}">
 		</div>
 	</div>
-
   <div class="row">
         <div class="col-12" style="padding:0px;">
             <h2 class="page-heading">Orders List ({{$totalOrders}})</h2>
@@ -72,7 +69,6 @@
            <div class="col-10" style="padding-left:0px;">
             <div >
             <form class="form-inline" action="{{ route('order.index') }}" method="GET">
-                
                 <div class="form-group col-md-3 pd-3">
                   <input style="width:100%;" name="term" type="text" class="form-control"
                          value="{{ isset($term) ? $term : '' }}"
@@ -82,31 +78,22 @@
                  <div class="form-group col-md-2 pd-3 status-select-cls">
                   <select class="form-control select-multiple" name="status[]" multiple>
                     <option value="">Select a Status</option>
-
-
-                     @foreach ($order_status_list as $id => $order_st)
-                      <option value="{{ $id }}" {{ isset($order_status) && in_array($id, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
-                    @endforeach
+                      @foreach ($order_status_list as $id => $order_st)
+                        <option value="{{ $id }}" {{ isset($order_status) && in_array($id, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
+                      @endforeach
                   </select>
                 </div>
-
-
                  <!-- <div class="form-group col-md-2 pd-3">
                   <?php echo Form::select("brand_id[]",["" => "-- Select Brands --"]+$brandList,request('brand_id',[]),["class" => "form-control select2"]); ?>
                 </div> -->
-
-
                  <div class="form-group col-md-2 pd-3">
                   <div class='input-group date' id='order-datetime'>
                     <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" />
-
-
                      <span class="input-group-addon">
                       <span class="glyphicon glyphicon-calendar"></span>
                     </span>
                   </div>
                 </div>
-
                    <div class="form-group col-md-2 pd-3">
                   <div class="form-group ml-3">	
                       <select class="form-control select2" name="store_website_id">
@@ -118,12 +105,10 @@
                       </select>
                   </div>
                   </div>
-
                    <div class="form-group col-md-1 pd-3">
                 <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
                   </div>
               </form>
-               
             </div>
              </div>
           <div class="col-md-2" style="padding:0px;">
@@ -149,20 +134,15 @@
     <?php } ?>  
 </div>
 
-
 <div class="row">
-        <div class="col-md-12" style="padding:0px;">
-            <div class="pull-right">
-              <a href="#" class="btn btn-xs btn-secondary magento-order-status">Magento Order Status Mapping</a>
-              <a href="#" class="btn btn-xs btn-secondary delete-orders">
-                            Archive
-              </a>
-              <a href="#" class="btn btn-xs update-customer btn-secondary">
-                            Update
-              </a>
-            </div>
-        </div>
+  <div class="col-md-12" style="padding:0px;">
+      <div class="pull-right">
+        <a href="#" class="btn btn-xs btn-secondary magento-order-status">Magento Order Status Mapping</a>
+        <a href="#" class="btn btn-xs btn-secondary delete-orders">Archive</a>
+        <a href="#" class="btn btn-xs update-customer btn-secondary">Update</a>
     </div>
+  </div>
+</div>
 <div class="row">
     <div class="infinite-scroll" style="width:100%;">
 	<div class=" mt-2" style="overflow-x: scroll;">
@@ -575,7 +555,6 @@
                       <th>Date</th>
                     </tr>
                   </thead>
-
                   <tbody id="order_errorlogtd">
                    
                   </tbody>
@@ -609,7 +588,6 @@
                       <th>Date</th>
                     </tr>
                   </thead>
-
                   <tbody id="order_emailsendlogtd">
                    
                   </tbody>
@@ -668,89 +646,89 @@
     <div class="modal-dialog modal-lg">
       <!-- Modal content-->
       <div class="modal-content ">
-      <div class="modal-header">
-                    <h4 class="modal-title">Update Customers</h4>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <div class="modal-header">
+            <h4 class="modal-title">Update Customers</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <form action="" id="customerUpdateForm" method="POST">
+          @csrf
+          <div class="modal-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="col-md-2">
+                    <strong>Status:</strong>
+                  </div>
+                  <div class="col-md-8">
+                    <div class="form-group">
+                      <select data-placeholder="Order Status" name="order_status" class="form-control select2" >
+                          <optgroup label="Order Status">
+                            <option value="">Select Order Status</option>
+                            @foreach ($order_status_list as $id => $status)
+                              <option value="{{ $id }}" {{ (isset($order->order_status_id) && $order->order_status_id == $id) ? 'selected' : '' }}>{{ $status }}</option>
+                            @endforeach
+                          </optgroup>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-                <form action="" id="customerUpdateForm" method="POST">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="col-md-2">
-                                    <strong>Status:</strong>
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="form-group">
-                                      <select data-placeholder="Order Status" name="order_status" class="form-control select2" >
-                                              <optgroup label="Order Status">
-                                                <option value="">Select Order Status</option>
-                                                  @foreach ($order_status_list as $id => $status)
-                                                      <option value="{{ $id }}" {{ (isset($order->order_status_id) && $order->order_status_id == $id) ? 'selected' : '' }}>{{ $status }}</option>
-                                                  @endforeach
-                                              </optgroup>
-                                      </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-2">
-                                    <strong>Add New Reply:</strong>
-                                </div>
-                                <div class="col-md-8">
-                                <div class="form-group">
-                                  <input type="text" class="addnewreply" placeholder="add new reply">
-                                  <button class="btn btn-secondary addnewreplybtn">+</button>
-                                </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-2">
-                                    <strong>Quick Reply:</strong>
-                                </div>
-                                <div class="col-md-8">
-                                <div class="form-group">
-                                  <select class="quickreply">
-                                  <option value="">Select quick reply</option>
-                                  @if($quickreply)
-                                    @foreach($quickreply as $quickrep)
-                                      <option value="{{$quickrep->id}}">{{$quickrep->reply}}</option>
-                                    @endforeach
-                                 @endif
-                                </select>
-                                </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-2">
-                                    <strong>Message:</strong>
-                                </div>
-                                <div class="col-md-8">
-                                <div class="form-group">
-                                  <textarea cols="45" class="form-control" name="customer_message"></textarea>
-                                </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-2">
-                                    <strong>Update type:</strong>
-                                </div>
-                                <div class="col-md-8">
-                                <div class="form-group">
-                                  <select name="update_type" class="form-control">
-                                    <option value="1">Only send message</option>
-                                    <option value="2">Send message and update status</option>
-                                  </select>
-                                </div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="col-md-12">
+                  <div class="col-md-2">
+                    <strong>Add New Reply:</strong>
+                  </div>
+                  <div class="col-md-8">
+                    <div class="form-group">
+                      <input type="text" class="addnewreply" placeholder="add new reply">
+                      <button class="btn btn-secondary addnewreplybtn">+</button>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-secondary">Update</button>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="col-md-2">
+                    <strong>Quick Reply:</strong>
+                  </div>
+                  <div class="col-md-8">
+                      <div class="form-group">
+                        <select class="quickreply">
+                          <option value="">Select quick reply</option>
+                          @if($quickreply)
+                            @foreach($quickreply as $quickrep)
+                              <option value="{{$quickrep->id}}">{{$quickrep->reply}}</option>
+                            @endforeach
+                          @endif
+                      </select>
                     </div>
-                </form>
+                  </div>
+                </div>
+                  <div class="col-md-12">
+                      <div class="col-md-2">
+                          <strong>Message:</strong>
+                      </div>
+                      <div class="col-md-8">
+                      <div class="form-group">
+                        <textarea cols="45" class="form-control" name="customer_message"></textarea>
+                      </div>
+                      </div>
+                  </div>
+                  <div class="col-md-12">
+                      <div class="col-md-2">
+                          <strong>Update type:</strong>
+                      </div>
+                      <div class="col-md-8">
+                      <div class="form-group">
+                        <select name="update_type" class="form-control">
+                          <option value="1">Only send message</option>
+                          <option value="2">Send message and update status</option>
+                        </select>
+                      </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Update</button>
+          </div>
+        </form>
       </div>
     </div>
 </div>
@@ -806,29 +784,21 @@
       </div>
     </div>
 </div>
-<div id="purchaseCommonModal" class="modal fade" role="dialog" style="padding-top: 0px !important;
-    padding-right: 12px;
-    padding-bottom: 0px !important;">
-    <div class="modal-dialog" style="width: 100%;
-    max-width: none;
-    height: auto;
-    margin: 0;">
-      <div class="modal-content " style="
-    border: 0;
-    border-radius: 0;">
+<div id="purchaseCommonModal" class="modal fade" role="dialog" style="padding-top: 0px !important;padding-right: 12px; padding-bottom: 0px !important;">
+  <div class="modal-dialog" style="width: 100%;max-width: none;height: auto;margin: 0;">
+    <div class="modal-content " style="border: 0;border-radius: 0;">
       <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                    <div class="modal-body" id="common-contents">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body" id="common-contents">
 
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>
+  </div>
 </div>
-
 
 <div id="estdelhistoryresponse"></div>
 @endsection
@@ -844,8 +814,6 @@
 @include('partials.modals.estimated-delivery-date-histories')
 @section('scripts')
 
-
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="{{ asset('/js/order-awb.js') }}"></script>
@@ -858,7 +826,6 @@
     CKEDITOR.replace('editableFile');
   </script>
   <script type="text/javascript">
-
   
     $(document).on('click','.magento-order-status',function(event){ 
       event.preventDefault();
@@ -1579,10 +1546,6 @@
            $("#addInvoice").hide();
         });
     });
-
-	
-	
-
 
     var selected_orders = [];
          $(document).on('click', '.selectedOrder', function () {
