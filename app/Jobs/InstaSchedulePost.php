@@ -15,6 +15,9 @@ class InstaSchedulePost implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $post;
+    public $tries = 5;
+    public $backoff = 5;
+    
     /**
      * Create a new job instance.
      *
@@ -32,13 +35,21 @@ class InstaSchedulePost implements ShouldQueue
      */
     public function handle()
     {   
-        
-        $media = json_decode( $this->post->ig, true);
-        $ig  = [
-            'media'    => $media['media'],
-            'location' => $media['location'],
-        ];
-        $this->post->ig = $ig;
-        new PublishPost( $this->post );
+        try{
+            $media = json_decode( $this->post->ig, true);
+            $ig  = [
+                'media'    => $media['media'],
+                'location' => $media['location'],
+            ];
+            $this->post->ig = $ig;
+            new PublishPost( $this->post );
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
+    
+    public function tags() 
+    {
+        return [ 'InstaSchedulePost', $this->post->id];
     }
 }
