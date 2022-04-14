@@ -24,6 +24,7 @@ class SendMessageToSelected implements ShouldQueue
     protected $groupId;
 
     public $tries = 5;
+    public $backoff = 5;
 
     /**
      * Create a new job instance.
@@ -46,21 +47,30 @@ class SendMessageToSelected implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->content[ 'message' ]) {
-            $message = $this->content[ 'message' ];
+        try{
+            if ($this->content[ 'message' ]) {
+                $message = $this->content[ 'message' ];
 
-            app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $this->whatsAppNumber, $message, false);
-        }
-
-        if (isset($this->content[ 'image' ])) {
-            foreach ($this->content[ 'image' ] as $image) {
-                app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $this->whatsAppNumber, null, str_replace(' ', '%20', $image[ 'url' ]));
-
+                app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $this->whatsAppNumber, $message, false);
             }
-        }
 
-        $message_queue = MessageQueue::find($this->messageQueueId);
-        $message_queue->sent = 1;
-        $message_queue->save();
+            if (isset($this->content[ 'image' ])) {
+                foreach ($this->content[ 'image' ] as $image) {
+                    app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $this->whatsAppNumber, null, str_replace(' ', '%20', $image[ 'url' ]));
+
+                }
+            }
+
+            $message_queue = MessageQueue::find($this->messageQueueId);
+            $message_queue->sent = 1;
+            $message_queue->save();
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
+    public function tags() 
+    {
+        return [ 'SendMessageToSelected', $this->whatsAppNumber];
     }
 }

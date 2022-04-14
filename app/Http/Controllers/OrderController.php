@@ -1208,14 +1208,14 @@ class OrderController extends Controller
                             'status' => 'pre-send',
                             'is_draft' => 1,
                         ]);
-						
-						\App\EmailLog::create([
-							'email_id'   => $email->id,
-							'email_log' => 'Email initiated',
-							'message'       => $email->to
-						]);
+                        
+                        \App\EmailLog::create([
+                            'email_id'   => $email->id,
+                            'email_log' => 'Email initiated',
+                            'message'       => $email->to
+                        ]);
 
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                         /*try {
 
@@ -1537,7 +1537,7 @@ class OrderController extends Controller
                             'is_draft' => 1,
                         ]);
 
-                        \App\Jobs\SendEmail::dispatch($emailObject);
+                        \App\Jobs\SendEmail::dispatch($emailObject)->onQueue("send_email");
 
                     }
                 }
@@ -1657,14 +1657,14 @@ class OrderController extends Controller
                     'status' => 'pre-send',
                     'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
                 ]);
-				
-				\App\EmailLog::create([
-					'email_id'   => $email->id,
-					'email_log' => 'Email initiated',
-					'message'       => $email->to
-				]);
+                
+                \App\EmailLog::create([
+                    'email_id'   => $email->id,
+                    'email_log' => 'Email initiated',
+                    'message'       => $email->to
+                ]);
 
-                \App\Jobs\SendEmail::dispatch($email);
+                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
             }
         }
 
@@ -1702,14 +1702,14 @@ class OrderController extends Controller
                     'status' => 'pre-send',
                     'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
                 ]);
-				
-				\App\EmailLog::create([
-					'email_id'   => $email->id,
-					'email_log' => 'Email initiated',
-					'message'       => $email->to
-				]);
+                
+                \App\EmailLog::create([
+                    'email_id'   => $email->id,
+                    'email_log' => 'Email initiated',
+                    'message'       => $email->to
+                ]);
 
-                \App\Jobs\SendEmail::dispatch($email);
+                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                 // $params = [
                 //   'number'      => NULL,
@@ -2152,14 +2152,14 @@ class OrderController extends Controller
                 'status' => 'pre-send',
                 'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
             ]);
-			
-			\App\EmailLog::create([
-				'email_id'   => $email->id,
-				'email_log' => 'Email initiated',
-				'message'       => $email->to
-			]);
+            
+            \App\EmailLog::create([
+                'email_id'   => $email->id,
+                'email_log' => 'Email initiated',
+                'message'       => $email->to
+            ]);
 
-            \App\Jobs\SendEmail::dispatch($email);
+            \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
         }
 
@@ -2875,7 +2875,7 @@ class OrderController extends Controller
                                     'is_draft' => 0,
                                 ]);
 
-                                \App\Jobs\SendEmail::dispatch($email);
+                                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
                                 $this->createEmailSendJourneyLog($id, "Email type via Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $emailClass->fromMailer, $order->customer->email, $emailClass->subject, $request->message, "", "", $storeWebsiteOrder->website_id);
             
                             } else {
@@ -2903,7 +2903,7 @@ class OrderController extends Controller
                                     'is_draft' => 0,
                                 ]);
 
-                                \App\Jobs\SendEmail::dispatch($email);
+                                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
                                 $this->createEmailSendJourneyLog($id, "Email type via Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $emailClass->fromMailer, $order->customer->email, $emailClass->subject, $request->message, "", "", $storeWebsiteOrder->website_id);
                             }
 
@@ -2933,7 +2933,7 @@ class OrderController extends Controller
                             'is_draft' => 0,
                         ]);
 
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
                         $this->createEmailSendJourneyLog($id, "Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $emailClass->fromMailer, $order->customer->email, $emailClass->subject, $request->message, "", "", $storeWebsiteOrder->website_id);
                     }
                 }
@@ -3182,7 +3182,7 @@ class OrderController extends Controller
                     'is_draft' => 0,
                 ]);
 
-                \App\Jobs\SendEmail::dispatch($email);
+                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
             }
         }
@@ -3893,14 +3893,14 @@ class OrderController extends Controller
                                         'status' => 'pre-send',
                                         'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
                                     ]);
-									
-									\App\EmailLog::create([
-										'email_id'   => $email->id,
-										'email_log' => 'Email initiated',
-										'message'       => $email->to
-									]);
+                                    
+                                    \App\EmailLog::create([
+                                        'email_id'   => $email->id,
+                                        'email_log' => 'Email initiated',
+                                        'message'       => $email->to
+                                    ]);
 
-                                    \App\Jobs\SendEmail::dispatch($email);
+                                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                                 }
                             }
@@ -4029,7 +4029,7 @@ class OrderController extends Controller
                     'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
                     'is_draft' => 0,
                 ]);
-                \App\Jobs\SendEmail::dispatch($email);
+                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
             }
             $message = "Order delivery date has been changed to " . $newdeldate;
             if (in_array('sms', $order_via)) {
@@ -4235,7 +4235,7 @@ class OrderController extends Controller
             'is_draft' => 1,
         ]);
 
-        \App\Jobs\SendEmail::dispatch($email);
+        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
         return response()->json(['message' => 'unable to add reply', 'status' => 500]);
 
@@ -4263,14 +4263,14 @@ class OrderController extends Controller
 
         $template = str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $statusModal->status], $template);
         $from = "customercare@sololuxury.co.in";
-		$preview = "";
+        $preview = "";
         if (strtolower($statusModal->status) == "cancel") {
 
             $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
             $storeWebsiteOrder = $order->storeWebsiteOrder;
-			if($emailClass != null) {
-				$preview = $emailClass->render();
-			}
+            if($emailClass != null) {
+                $preview = $emailClass->render();
+            }
             if ($storeWebsiteOrder) {
                 $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteOrder->website_id)->first();
                 if ($emailAddress) {
@@ -4292,9 +4292,9 @@ class OrderController extends Controller
             $this->createEmailSendJourneyLog($order->id, "Status Change to ".$statusModal->status, "\App\Order",  "outgoing", "0" , $from, "", "Order # " . $order->id . " Status has been changed", $preview, $template, "", $storeWebsiteOrder->website_id);
         } else {
             $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
-			if($emailClass != null) {
-				$preview = $emailClass->render();
-			}
+            if($emailClass != null) {
+                $preview = $emailClass->render();
+            }
             $storeWebsiteOrder = $order->storeWebsiteOrder;
             if ($storeWebsiteOrder) {
                 $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteOrder->website_id)->first();
@@ -4462,7 +4462,7 @@ class OrderController extends Controller
                     'is_draft' => 0,
                 ]);
 
-                \App\Jobs\SendEmail::dispatch($email);
+                \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                 $shouldSaveInChatMessage = true;
 

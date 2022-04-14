@@ -19,6 +19,7 @@ class CreateFlowLogMessagesTable extends Migration
             $table->text('messages')->nullable();
             $table->string('flow_action')->nullable();  
             $table->string('modalType')->nullable();
+            $table->string('customer_name', 200)->nullable();
             $table->text('leads')->nullable();
             $table->integer('store_website_id')->nullable();
             $table->timestamps();

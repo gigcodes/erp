@@ -322,6 +322,9 @@ Route::prefix('site-assets')->group(function () {
     Route::get('/', 'SiteAssetController@index')->name('site-asset.index');
     Route::post('/download-site-asset-data', 'SiteAssetController@downaloadSiteAssetData')->name('site-asset.download');
  });
- Route::get('site-check-list', 'SiteAssetController@siteCheckList'); 
+ Route::get('site-check-list', 'SiteAssetController@siteCheckList')->name('site-check-list'); 
+ Route::post('site-check-list/upload-document', 'SiteAssetController@uploadDocument')->name("site-check-list.upload-document");
+ Route::get('site-check-list/get-document', 'SiteAssetController@getDocument')->name("site-check-list.get-document");
+ Route::post('site-check-list/download', 'SiteAssetController@downaloadSiteCheckListData')->name('site-check-list.download');
+ 
 });
-

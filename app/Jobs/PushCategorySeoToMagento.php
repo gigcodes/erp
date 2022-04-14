@@ -20,6 +20,9 @@ class PushCategorySeoToMagento implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     protected $category;
     protected $stores;
+    public $tries = 5;
+    public $backoff = 5;
+
     /**
      * Create a new job instance.
      *
@@ -38,8 +41,17 @@ class PushCategorySeoToMagento implements ShouldQueue
      */
     public function handle()
     {
-        // Set time limit
-        set_time_limit(0);
-        Category::pushStoreWebsiteCategory($this->category,$this->stores);
+        try{
+            // Set time limit
+            set_time_limit(0);
+            Category::pushStoreWebsiteCategory($this->category,$this->stores);
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
     } 
+
+    public function tags() 
+    {
+        return [ 'magetwo', $this->category->id];
+    }
 }

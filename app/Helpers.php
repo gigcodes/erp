@@ -415,8 +415,9 @@ class Helpers
         ];
 
         $mainQueue = [
-            'fetch_email','product','magento','mageone','magetwo','magethree','supplier_products','customer_message','watson_push','email','high','image_search','command_execution','failed_magento_job'
+            'fetch_email','product','magento','mageone','magetwo','magethree','supplier_products','customer_message','watson_push','email','high','image_search','command_execution','failed_magento_job','send_email'
         ];
+
 
         $queue = array_merge($webpushQueue,$mainQueue);
 
