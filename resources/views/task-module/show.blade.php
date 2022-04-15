@@ -887,9 +887,10 @@ input.cmn-toggle-round + label {
                                         @endif
                                         
                                         <div class="col-md-12 expand-col" style="padding:0px;">
+                                            <input style="min-width: 30px;" placeholder="Remark" value="" type="text" class="form-control mb-2 update_approximate" name="track_time_remark_{{$task->id}}" id="track_time_remark_{{$task->id}}" data-id="{{$task->id}}" >
                                             <div class="d-flex">
                                             <br>
-                                                <input  type="text" placeholder="ED" class="update_approximate form-control input-sm" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
+                                                <input  type="text" placeholder="ED" class="update_approximate form-control input-sm" name="approximate_{{$task->id}}" id="approximate_{{$task->id}}" data-id="{{$task->id}}" value="{{$task->approximate}}">
                                                 <button type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$task->id}}" data-user_id="{{$task->assign_to}}"><i class="fa fa-info-circle"></i></button>
                                                 <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
                                                 <input type="text" placeholder="Cost" class="update_cost form-control input-sm" name="cost" data-id="{{$task->id}}" value="{{$task->cost}}">
@@ -3194,19 +3195,23 @@ input.cmn-toggle-round + label {
             var thiss = $(this);
             if (key == 13) {
                 e.preventDefault();
-                var approximate = $(thiss).val();
+                // var approximate = $(thiss).val();
                 var task_id = $(thiss).data('id');
-
+                var approximate = $("#approximate_" + task_id).val();
+                var track_time_remark = $("#track_time_remark_" + task_id).val();
+            if((approximate !== '') && (track_time_remark !== '') ){
                 $.ajax({
                     type: 'POST',
                     url: "{{ route('task.update.approximate') }}",
                     data: {
                         _token: "{{ csrf_token() }}",
                         approximate: approximate,
+                        remark: track_time_remark,
                         task_id: task_id
                     }
                 }).done(function () {
                     $(thiss).closest("td").find(".apx-val").html(approximate);
+                    $("#track_time_remark_" + task_id).val('');
                     $(thiss).closest('td').find('.update_approximate_msg').fadeIn(400);
                     setTimeout(function () {
                         $(thiss).closest('td').find('.update_approximate_msg').fadeOut(400);
@@ -3215,6 +3220,10 @@ input.cmn-toggle-round + label {
                 }).fail(function (response) {
                     alert('Could not update!!');
                 });
+            } else {
+                toastr["warning"]("Tracked time and remark fields are required", "Message");
+            }
+
             }
         });
 
@@ -3317,11 +3326,14 @@ input.cmn-toggle-round + label {
                                 var checked = ''; 
                             }
                             $('#time_history_div table tbody').append(
-                                '<tr>\
-                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
-                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td><td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
-                                </tr>'
+                                `<tr>
+                                    <td>${ moment(item['created_at']).format('DD/MM/YYYY') }</td>
+                                    <td>${ ((item['old_value'] != null) ? item['old_value'] : '-') }</td>
+                                    <td>${item['new_value']}</td>
+                                    <td>${item['name']}</td>
+                                    <td align="center"><span title="${item['remark']}">${(item['remark'] !== null ) ? item['remark'] : '-'}</td>
+                                    <td><input type="radio" name="approve_time" value="${item['id']}" ${checked} class="approve_time"/></td>
+                                </tr>`
                             );
                         });
 
