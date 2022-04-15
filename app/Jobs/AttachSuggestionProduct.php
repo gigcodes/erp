@@ -16,6 +16,8 @@ class AttachSuggestionProduct implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $suggestion;
+    public $tries = 5;
+    public $backoff = 5;
 
     /**
      * Create a new job instance.
@@ -36,12 +38,21 @@ class AttachSuggestionProduct implements ShouldQueue
      */
     public function handle(Request $request)
     {
-        $suggestion = $this->suggestion;
+        try {
+            $suggestion = $this->suggestion;
 
-        if (!empty($suggestion)) {
-            // check with customer
-            SuggestedProduct::attachMoreProducts($suggestion);
+            if (!empty($suggestion)) {
+                // check with customer
+                SuggestedProduct::attachMoreProducts($suggestion);
+            }
+        } catch (\Exception $e) {
+            \Log::info("Issue fom customer_message ".$e->getMessage());
+            throw new \Exception($e->getMessage());
         }
     }
 
+    public function tags() 
+    {
+        return [ 'customer_message', $this->suggestion->chat_message_id ];
+    }
 }

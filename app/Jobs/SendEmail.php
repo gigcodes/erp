@@ -134,4 +134,5 @@ class SendEmail implements ShouldQueue
     {
         return [ 'SendEmail', $this->email->id ];
     }
+
 }
