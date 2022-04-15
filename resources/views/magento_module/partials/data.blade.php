@@ -7,6 +7,12 @@
 
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
+            <strong>Website : </strong> {{ isset($magento_module->store_website) && !empty($magento_module->store_website)? $magento_module->store_website->website: '' }}
+        </div>
+    </div>
+
+    <div class="col-xs-6 col-sm-6">
+        <div class="form-group">
             <strong>Module Name : </strong> {{ $magento_module->module }}
         </div>
     </div>

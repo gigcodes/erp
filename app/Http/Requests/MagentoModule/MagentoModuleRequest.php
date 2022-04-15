@@ -25,6 +25,7 @@ class MagentoModuleRequest extends FormRequest
     {
         return [
             'module_category_id' => 'required',
+            'store_website_id' => 'required',
             'module' => 'required|max:150',
             'module_description' => 'required',
             // 'current_version' => 'required',
