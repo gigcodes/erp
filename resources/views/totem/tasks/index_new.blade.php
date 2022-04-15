@@ -162,7 +162,7 @@ table tr td {
                                 </td>
                                 <td>
                                     @if(isset($task->frequencies) && count($task->frequencies) > 0)
-                                    {{$task->frequencies[0]->frequency}}
+                                    {{$task->frequencies[0]->interval}}
                                     @endif
                                     
                                 </td>
