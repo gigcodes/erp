@@ -3195,7 +3195,6 @@ input.cmn-toggle-round + label {
             var thiss = $(this);
             if (key == 13) {
                 e.preventDefault();
-                // var approximate = $(thiss).val();
                 var task_id = $(thiss).data('id');
                 var approximate = $("#approximate_" + task_id).val();
                 var track_time_remark = $("#track_time_remark_" + task_id).val();
