@@ -1013,41 +1013,85 @@ class DevelopmentController extends Controller
     {
         $users = Helpers::getUserArray(User::orderBy('name')->get());
         $title = 'Automatic Task List';
+  
         $task =  Task::leftJoin('site_developments', 'site_developments.id', 'tasks.site_developement_id')
 		->leftJoin('store_websites', 'store_websites.id', 'site_developments.website_id')
 		->with('timeSpent')->where('is_flow_task', '1'); 
       
-        if ((int) $request->get('assigned_to') > 0) {
-            $task = $task->where('tasks.assign_to', $request->get('assigned_to'));
-        }    
-        $whereTaskCondition = "";
-        if ($request->get('subject') != '') {
-            $whereTaskCondition = ' and message like  "%' . $request->get('subject') . '%"';
+        $devCheckboxs = $request->get("devCheckboxs");
+        $dev = [];
+        
+        if (isset($request->term) && !empty($request->term)) {
+
             $task = $task->where(function ($query) use ($request) {
-                $subject = $request->get('subject');
-                $query->where('tasks.id', 'LIKE', "%$subject%")->orWhere('task_subject', 'LIKE', "%$subject%")->orWhere("task_details", "LIKE", "%$subject%")
-                    ->orwhere("chat_messages.message", 'LIKE', "%$subject%");
+                $term = $request->get('term');
+                $query->where('tasks.id', 'LIKE', "%$term%")
+                ->orWhere('store_websites.website', 'LIKE', "%$term%")
+                ->orWhere('tasks.parent_task_id', 'LIKE', "%$term%")
+                ->orWhere('tasks.task_subject', 'LIKE', "%$term%")
+                ->orWhere("tasks.task_details", "LIKE", "%$term%")
+                ->orwhere("chat_messages.message", 'LIKE', "%$term%");
             });
+        }
+        
+
+        if (isset($request->assigned_to) && !empty($request->assigned_to)) {
+            $task = $task->where('tasks.assign_to', $request->assigned_to);
+        }
+
+        if (isset($request->task_status) && !empty($request->task_status)) {
+            $task = $task->where('tasks.status', $request->task_status);
         }
     
-        $task = $task->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, task_id, message  FROM `chat_messages` where task_id > 0 ' . $whereTaskCondition . ' GROUP BY task_id ) m_max'), 'm_max.task_id', '=', 'tasks.id');
+        $task = $task->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, task_id, message  FROM `chat_messages` where task_id > 0 GROUP BY task_id ) m_max'), 'm_max.task_id', '=', 'tasks.id');
         $task = $task->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
-        $task = $task->select("tasks.*", "chat_messages.message", "store_websites.title as website_title");
+        $task = $task->select("tasks.*", "chat_messages.message", "store_websites.website", "store_websites.title as website_title");
         
-        if (!auth()->user()->isReviwerLikeAdmin()) {
-          $task = $task->where(function ($query) use ($request) {
-                $query->where("tasks.assign_to", auth()->user()->id)
-                ->orWhere("tasks.master_user_id", auth()->user()->id);
-            });
+        // dd($task->get());
+
+        if($devCheckboxs){
+            $count = 1;
+            foreach($request->get("devCheckboxs") as $devCheckbox){
+                if($count == 1)
+                    $task = $task->where('tasks.assign_to', $devCheckbox);
+                else
+                    $task = $task->orWhere('tasks.assign_to', $devCheckbox);
+                $count++;
+                $dev[$devCheckbox] = 1;
+            }
         }
+
+        if (!auth()->user()->isReviwerLikeAdmin()) {
+            if(count($dev) == 0){
+                $task = $task->where(function ($query) use ($request) {
+                    $query->where("tasks.assign_to", auth()->user()->id)
+                    ->orWhere("tasks.master_user_id", auth()->user()->id);
+                });
+            }
+        }
+        
+        $tasks = $task->paginate(50);//dd($statusList);
+
         $task_statuses=TaskStatus::all();
-        $tasks = $task->paginate(Setting::get('pagination'));//dd($statusList);
+
+        if ($request->ajax()) {
+         
+            return response()->json([
+                'tbody' => view('task-module.partials.flagsummarydata', compact('users', 'request', 'title', 'task_statuses', 'tasks', 'dev'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string)$tasks->render(),
+                'count' => $tasks->total(),
+            ], 200); 
+        }
+        
+        
        return view('task-module.automatictask', [
             'users' => $users,
             'request' => $request,
             'title' => $title,
             'task_statuses' => $task_statuses,
-            'tasks'=>$tasks
+            'tasks'=>$tasks,
+            'dev' => $dev,
+            'count' => $tasks->total(),
         ]);
     }
 

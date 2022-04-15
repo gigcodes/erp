@@ -362,7 +362,7 @@ class MagentoOrderHandleHelper extends Model
                             'is_draft'        => 1,
                         ]);
 
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                     }catch(\Exception $e) {
                         \Log::info("Order email was not send due to template not setup" . $orderSaved->id);

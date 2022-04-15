@@ -23,6 +23,8 @@ class CreateLogRequestsTable extends Migration
 
             $table->string("url", 1024)->nullable();
 
+            $table->string("api_name")->nullable();
+
             $table->string("ip")->nullable();
 
             $table->string("method")->nullable();

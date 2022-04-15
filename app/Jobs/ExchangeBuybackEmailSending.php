@@ -19,6 +19,8 @@ class ExchangeBuybackEmailSending implements ShouldQueue
     protected $to;
     protected $success;
     protected $emailObject;
+    public $tries = 5;
+    public $backoff = 5;
     
     /**
      * Create a new job instance.
@@ -47,12 +49,17 @@ class ExchangeBuybackEmailSending implements ShouldQueue
             $emailObject->is_draft = 0;
 
         } catch (\Throwable $th) {
-
+            
             $emailObject->error_message = $th->getMessage();
-
+            throw new \Exception($th->getMessage());
         }
 
         $emailObject->save();
         
+    }
+
+    public function tags() 
+    {
+        return [ $this->success, $this->to];
     }
 }

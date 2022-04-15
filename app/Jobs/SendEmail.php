@@ -17,6 +17,9 @@ class SendEmail implements ShouldQueue
 
     public $email;
 
+    public $tries = 3;
+    public $backoff = 5;
+
     /**
      * Create a new job instance.
      *
@@ -108,8 +111,10 @@ class SendEmail implements ShouldQueue
             $email->is_draft = 0;
             $email->status   = 'send';
         } catch (\Exception $e) {
+            
             $email->is_draft = 1;
             $email->error_message = $e->getMessage();
+            
             \Log::info("Issue fom SendEmail ".$e->getMessage());
             //\Log::info("Issue fom SendEmail ");
             \App\EmailLog::create([
@@ -117,6 +122,7 @@ class SendEmail implements ShouldQueue
                 'email_log' =>  'Error in Sending Email',
                 'message'       => $e->getMessage()
                 ]);
+            throw new \Exception($e->getMessage());
         }
 
         $email->save();
@@ -128,4 +134,5 @@ class SendEmail implements ShouldQueue
     {
         return [ 'SendEmail', $this->email->id ];
     }
+
 }
