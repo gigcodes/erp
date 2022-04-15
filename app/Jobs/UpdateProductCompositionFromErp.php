@@ -18,6 +18,9 @@ class UpdateProductCompositionFromErp implements ShouldQueue
     public $to;
     public $user_id;
 
+    public $tries = 3;
+    public $backoff = 5;
+
     /**
      * Create a new job instance.
      *
@@ -44,23 +47,34 @@ class UpdateProductCompositionFromErp implements ShouldQueue
      */
     public function handle()
     {
-        self::putLog("Job update product composition from erp start time : " . date("Y-m-d H:i:s"));
+            try{
+            self::putLog("Job update product composition from erp start time : " . date("Y-m-d H:i:s"));
 
-        $affectedProducts = ScrapedProducts::matchedComposition($this->from);
+            $affectedProducts = ScrapedProducts::matchedComposition($this->from);
 
-        //$sku = [];
-        if (!empty($affectedProducts)) {
-            foreach ($affectedProducts as $affectedProduct) {
-                $affectedProduct->composition = $this->to;
-                $affectedProduct->save();
-                //$sku[] = $affectedProduct->sku;
+            //$sku = [];
+            if (!empty($affectedProducts)) {
+                foreach ($affectedProducts as $affectedProduct) {
+                    $affectedProduct->composition = $this->to;
+                    $affectedProduct->save();
+                    //$sku[] = $affectedProduct->sku;
+                }
             }
-        }
 
-        //\Log::info(print_r($sku,true));
+            //\Log::info(print_r($sku,true));
 
-        self::putLog("Job update product composition from erp end time : " . date("Y-m-d H:i:s"));
+            self::putLog("Job update product composition from erp end time : " . date("Y-m-d H:i:s"));
 
-        return true;
+            return true;
+        } catch (\Exception $e) {
+            self::putLog("Job update product composition from erp end time : " . date("Y-m-d H:i:s"). ' => '.$e->getMessage());
+            throw new \Exception($e->getMessage());
+            return false;
+        }  
+    }
+
+    public function tags() 
+    {
+        return [ 'supplier_products', $this->user_id];
     }
 }

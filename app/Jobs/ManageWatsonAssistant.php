@@ -23,6 +23,8 @@ class ManageWatsonAssistant implements ShouldQueue
     protected $messageModel;
     protected $userType;
     protected $chat_message_log_id;
+    public $tries = 5;
+    public $backoff = 5;
 
     /**
      * Create a new job instance.
@@ -48,45 +50,54 @@ class ManageWatsonAssistant implements ShouldQueue
      */
     public function handle()
     {
-        if (isset($this->chat_message_log_id)) {
-            \App\ChatbotMessageLogResponse::StoreLogResponse([
-                'chatbot_message_log_id' => $this->chat_message_log_id,
-                'request'                => "",
-                'response'               => "Watson asistantant function job dispatched started",
-                'status'                 => 'success',
-            ]);
-        }
-
-        $store_website_id = ($this->customer->store_website_id > 0) ? $this->customer->store_website_id : 1;
-
-        $account = WatsonAccount::where('store_website_id', $store_website_id)->first();
-        if ($account) {
-            $asistant = new AssistantService(
-                "apiKey",
-                $account->api_key
-            );
-            $asistant->set_url($account->url);
-
+        try{
             if (isset($this->chat_message_log_id)) {
                 \App\ChatbotMessageLogResponse::StoreLogResponse([
                     'chatbot_message_log_id' => $this->chat_message_log_id,
                     'request'                => "",
-                    'response'               => "Watson asistantant function send message from job started with account".$account->api_key,
+                    'response'               => "Watson asistantant function job dispatched started",
                     'status'                 => 'success',
                 ]);
             }
 
-            Model::sendMessageFromJob($this->customer, $account, $asistant, $this->inputText, $this->contextReset, $this->message_application_id, $this->messageModel, $this->userType, $this->chat_message_log_id);
-        } else {
-            if (isset($this->chat_message_log_id)) {
-                \App\ChatbotMessageLogResponse::StoreLogResponse([
-                    'chatbot_message_log_id' => $this->chat_message_log_id,
-                    'request'                => "",
-                    'response'               => "Watson asistantant function job account not found",
-                    'status'                 => 'success',
-                ]);
+            $store_website_id = ($this->customer->store_website_id > 0) ? $this->customer->store_website_id : 1;
+
+            $account = WatsonAccount::where('store_website_id', $store_website_id)->first();
+            if ($account) {
+                $asistant = new AssistantService(
+                    "apiKey",
+                    $account->api_key
+                );
+                $asistant->set_url($account->url);
+
+                if (isset($this->chat_message_log_id)) {
+                    \App\ChatbotMessageLogResponse::StoreLogResponse([
+                        'chatbot_message_log_id' => $this->chat_message_log_id,
+                        'request'                => "",
+                        'response'               => "Watson asistantant function send message from job started with account".$account->api_key,
+                        'status'                 => 'success',
+                    ]);
+                }
+
+                Model::sendMessageFromJob($this->customer, $account, $asistant, $this->inputText, $this->contextReset, $this->message_application_id, $this->messageModel, $this->userType, $this->chat_message_log_id);
+            } else {
+                if (isset($this->chat_message_log_id)) {
+                    \App\ChatbotMessageLogResponse::StoreLogResponse([
+                        'chatbot_message_log_id' => $this->chat_message_log_id,
+                        'request'                => "",
+                        'response'               => "Watson asistantant function job account not found",
+                        'status'                 => 'success',
+                    ]);
+                }
             }
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
         }
+    }
+
+    public function tags() 
+    {
+        return [ 'watson_push', $this->message_application_id];
     }
 
     public function fail($exception = null)

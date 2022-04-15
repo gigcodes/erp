@@ -2751,6 +2751,7 @@ if (!empty($notifications)) {
 }(document, 'script', 'facebook-jssdk'));</script> --}}
 
     @yield('scripts')
+    
     <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
     <script type="text/javascript" src="{{asset('js/jquery.cookie.js')}}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
@@ -2758,6 +2759,7 @@ if (!empty($notifications)) {
 
     <script type="text/javascript" src="{{url('js/jquery-ui.js')}}"></script>
     <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
+    <script type="text/javascript" src="{{ asset('js/common-function.js') }}"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
@@ -2878,6 +2880,8 @@ if (!empty($notifications)) {
         })
 
     </script>
+
+    @stack('scripts')
 
     <script>
         $(document).ready(function() {
