@@ -3,7 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class OrderMagentoErrorLog extends Model
 {
     protected $table= 'order_magento_error_logs';
