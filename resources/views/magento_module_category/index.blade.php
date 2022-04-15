@@ -41,7 +41,9 @@
             <h2 class="page-heading">{{ $title }}
 
                 <div class="pull-right">
-                    <a href="{{ route('magento_module_categories.create') }}" class="btn btn-secondary">+</a>
+                    
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleCategoryCreateModal"> + </button>
+
                 </div>
             </h2>
         </div>
@@ -79,6 +81,8 @@
         </table>
     </div>
 
+    @include('magento_module_category.partials.form_modals')
+
 @endsection
 
 
@@ -91,7 +95,6 @@
     {{-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> --}}
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     {{-- <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap.min.js"></script> --}}
-    <script type="text/javascript" src="{{ asset('js/common-function.js') }}"></script>
 
     <script>
         $(document).on('click', '#searchReset', function(e) {
@@ -164,12 +167,8 @@
                         name: 'id',
                         // visible:false,
                         render: function(data, type, row, meta) {
-                            var edit_url = `{{ url('/') }}/magento_module_categories/` + row[
-                                    'id'] +
-                                `/edit/`;
-                            // var show_url = `{{ url('/') }}/magento_module_categories/` + row['id'] +
-                            //     ``;
-                            var edit_data = actionEditButton(edit_url, row['id']);
+
+                            var edit_data = actionEditButtonWithClass('edit-magento-module-category', JSON.stringify(row));
                             var show_data = actionShowButtonWithClass('show-details', row['id']);
 
                             var del_data = actionDeleteButton(row['id']);

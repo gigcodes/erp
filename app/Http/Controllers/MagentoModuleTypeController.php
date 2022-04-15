@@ -11,7 +11,6 @@ use App\TaskStatus;
 class MagentoModuleTypeController extends Controller
 {
 
-
     public function __construct()
     {
         //view files
@@ -19,7 +18,6 @@ class MagentoModuleTypeController extends Controller
         $this->create_view = 'magento_module_type.create';
         $this->detail_view = 'magento_module_type.details';
         $this->edit_view = 'magento_module_type.edit';
-
     }
 
     /**
@@ -31,18 +29,18 @@ class MagentoModuleTypeController extends Controller
     {
         if ($request->ajax()) {
             // dd($request->all(), $request->module_category_id);
-            
+
             $items = MagentoModuleType::query();
 
             return datatables()->eloquent($items)->toJson();
         } else {
             $title = 'Magento Module Type';
-            $module_categories = MagentoModuleCategory::where('status',1)->get()->pluck('category_name', 'id');
+            $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
             $task_statuses = TaskStatus::pluck("name", "id");
             return view($this->index_view, compact('title', 'module_categories', 'task_statuses'));
         }
     }
-    
+
     /**
      * Show the form for creating a new resource.
      *
@@ -51,7 +49,7 @@ class MagentoModuleTypeController extends Controller
     public function create()
     {
         $title = 'Magento Module Type';
-        $module_categories = MagentoModuleCategory::where('status',1)->get()->pluck('category_name', 'id');
+        $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
         $task_statuses = TaskStatus::pluck("name", "id");
         return view($this->create_view, compact('module_categories', 'title', 'task_statuses'));
     }
@@ -67,10 +65,26 @@ class MagentoModuleTypeController extends Controller
         // dd($request->all());
         $input = $request->except(['_token']);
 
-        $magento_module_type = MagentoModuleType::create($input);
+        $data = MagentoModuleType::create($input);
 
-        return redirect()->route('magento_module_types.index')
-            ->with('success', "Created Successfully ");
+        if ($data) {
+            return response()->json([
+                'status' => true,
+                'data' => $data,
+                'message' => 'Stored successfully',
+                'status_name' => 'success'
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'something error occurred',
+                'status_name' => 'error'
+            ], 500);
+        }
+
+
+        // return redirect()->route('magento_module_types.index')
+        //     ->with('success', "Created Successfully ");
     }
 
     /**
@@ -89,16 +103,15 @@ class MagentoModuleTypeController extends Controller
                 'title' => $title,
                 'code' => 200
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 'data' => "",
                 'title' => $title,
                 'code' => 500
             ], 500);
-
         }
-        
-        return view($this->detail_view, compact( 'title', 'magento_module_type'));
+
+        return view($this->detail_view, compact('title', 'magento_module_type'));
     }
 
     /**
@@ -110,7 +123,7 @@ class MagentoModuleTypeController extends Controller
     public function edit(MagentoModuleType $magento_module_type)
     {
         $title = 'Magento Module Type';
-        $module_categories = MagentoModuleCategory::where('status',1)->get()->pluck('category_name', 'id');
+        $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
         $task_statuses = TaskStatus::pluck("name", "id");
         return view($this->edit_view, compact('module_categories', 'title', 'magento_module_type', 'task_statuses'));
     }
@@ -126,9 +139,21 @@ class MagentoModuleTypeController extends Controller
     {
         $input = $request->except(['_token']);
 
-        $category = $magento_module_type->update($input);
-        
-        return redirect()->back()->with('success', "Updated Successfully ");
+        $data = $magento_module_type->update($input);
+
+        if ($data) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Updated successfully',
+                'status_name' => 'success'
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Updated unsuccessfully',
+                'status_name' => 'error'
+            ], 500);
+        }
     }
 
     /**
@@ -140,8 +165,8 @@ class MagentoModuleTypeController extends Controller
     public function destroy(MagentoModuleType $magento_module_type)
     {
         $data = $magento_module_type->delete();
-        
-        if($data){
+
+        if ($data) {
             return response()->json([
                 'status' => true,
                 'message' => 'Deleted successfully',
@@ -155,5 +180,4 @@ class MagentoModuleTypeController extends Controller
             ], 500);
         }
     }
-
 }

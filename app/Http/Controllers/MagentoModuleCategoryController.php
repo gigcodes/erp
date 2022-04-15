@@ -16,7 +16,6 @@ class MagentoModuleCategoryController extends Controller
         $this->create_view = 'magento_module_category.create';
         $this->detail_view = 'magento_module_category.details';
         $this->edit_view = 'magento_module_category.edit';
-
     }
 
     /**
@@ -28,18 +27,18 @@ class MagentoModuleCategoryController extends Controller
     {
         if ($request->ajax()) {
             // dd($request->all(), $request->module_category_id);
-            
+
             $items = MagentoModuleCategory::query();
 
             return datatables()->eloquent($items)->toJson();
         } else {
             $title = 'Magento Module Category';
-            $module_categories = MagentoModuleCategory::where('status',1)->get()->pluck('category_name', 'id');
+            $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
             $task_statuses = TaskStatus::pluck("name", "id");
             return view($this->index_view, compact('title', 'module_categories', 'task_statuses'));
         }
     }
-    
+
     /**
      * Show the form for creating a new resource.
      *
@@ -48,7 +47,7 @@ class MagentoModuleCategoryController extends Controller
     public function create()
     {
         $title = 'Magento Module Category';
-        $module_categories = MagentoModuleCategory::where('status',1)->get()->pluck('category_name', 'id');
+        $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
         $task_statuses = TaskStatus::pluck("name", "id");
         return view($this->create_view, compact('module_categories', 'title', 'task_statuses'));
     }
@@ -61,13 +60,24 @@ class MagentoModuleCategoryController extends Controller
      */
     public function store(MagentoModuleCategoryRequest $request)
     {
-        // dd($request->all());
         $input = $request->except(['_token']);
 
-        $magento_module_category = MagentoModuleCategory::create($input);
+        $data = MagentoModuleCategory::create($input);
 
-        return redirect()->route('magento_module_categories.index')
-            ->with('success', "Created Successfully ");
+        if ($data) {
+            return response()->json([
+                'status' => true,
+                'data' => $data,
+                'message' => 'Stored successfully',
+                'status_name' => 'success'
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'something error occurred',
+                'status_name' => 'error'
+            ], 500);
+        }
     }
 
     /**
@@ -86,16 +96,15 @@ class MagentoModuleCategoryController extends Controller
                 'title' => $title,
                 'code' => 200
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 'data' => "",
                 'title' => $title,
                 'code' => 500
             ], 500);
-
         }
-        
-        return view($this->detail_view, compact( 'title', 'magento_module_category'));
+
+        return view($this->detail_view, compact('title', 'magento_module_category'));
     }
 
     /**
@@ -107,7 +116,7 @@ class MagentoModuleCategoryController extends Controller
     public function edit(MagentoModuleCategory $magento_module_category)
     {
         $title = 'Magento Module Category';
-        $magento_module_categories = MagentoModuleCategory::where('status',1)->get()->pluck('category_name', 'id');
+        $magento_module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
         $task_statuses = TaskStatus::pluck("name", "id");
         return view($this->edit_view, compact('magento_module_categories', 'title', 'magento_module_category', 'task_statuses'));
     }
@@ -123,9 +132,21 @@ class MagentoModuleCategoryController extends Controller
     {
         $input = $request->except(['_token']);
 
-        $category = $magento_module_category->update($input);
-        
-        return redirect()->back()->with('success', "Updated Successfully ");
+        $data = $magento_module_category->update($input);
+
+        if ($data) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Updated successfully',
+                'status_name' => 'success'
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Updated unsuccessfully',
+                'status_name' => 'error'
+            ], 500);
+        }
     }
 
     /**
@@ -137,8 +158,8 @@ class MagentoModuleCategoryController extends Controller
     public function destroy(MagentoModuleCategory $magento_module_category)
     {
         $data = $magento_module_category->delete();
-        
-        if($data){
+
+        if ($data) {
             return response()->json([
                 'status' => true,
                 'message' => 'Deleted successfully',
@@ -152,5 +173,4 @@ class MagentoModuleCategoryController extends Controller
             ], 500);
         }
     }
-
 }
