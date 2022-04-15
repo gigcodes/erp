@@ -108,9 +108,12 @@
                 <i class="fa fa-info-circle"></i>
             </button>
     </td>
- 
+    <td>
+        <button class="btn btn-image set-remark" data-task_id="{{ $issue->id }}"  data-task_type="Quick-dev-task" ><i class="fa fa-comment" aria-hidden="true"></i></button>
+    </td>
 </tr>
 <script>
+    
     $(document).on('click', '.flag-task', function () {
             var task_id = $(this).data('id');
             var thiss = $(this);

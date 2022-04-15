@@ -322,6 +322,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('ScrapperImage:REMOVE')->hourly(); // Remove scrapper iamges older than 1 day
 
         $schedule->command('ScrapperImage:REMOVE')->hourly(); //jenkins status detail
+        
+        $schedule->command('tasks-time-reminder')->dailyAt('01:00'); // status detail
 
         // $schedule->command('reminder:send-to-dubbizle')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         // $schedule->command('reminder:send-to-vendor')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');

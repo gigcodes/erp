@@ -3,7 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="AutoRefreshPage"))
+ */
 class MagentoModuleRemark extends Model
 {
      /**

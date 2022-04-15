@@ -3,7 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class ProductPriceDiscountLog extends Model
 {
        /**
@@ -14,7 +16,6 @@ class ProductPriceDiscountLog extends Model
      * @SWG\Property(property="stage",type="string")
      * @SWG\Property(property="log",type="longText")
      * @SWG\Property(property="created_by",type="datetime")
-     * @SWG\Property(property="product_id",type="interger")
      */
 	public $table  = "product_price_discount_logs";
     protected $fillable = ['id', 'order_id','product_id', 'customer_id','stage', 'oparetion', 'product_price', 'product_discount', 'log', 'created_at', 'updated_at', 'store_website_id', 'product_total_price'];

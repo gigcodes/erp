@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddDeepDiveExtraColumnsMagentoModulesTable extends Migration
+class AddWebsiteIdColumnsMagentoModulesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AddDeepDiveExtraColumnsMagentoModulesTable extends Migration
     public function up()
     {
         Schema::table('magento_modules', function (Blueprint $table) {
-            //
+            $table->integer('store_website_id')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddDeepDiveExtraColumnsMagentoModulesTable extends Migration
     public function down()
     {
         Schema::table('magento_modules', function (Blueprint $table) {
-            //
+            $table->dropColumn('store_website_id');
         });
     }
 }

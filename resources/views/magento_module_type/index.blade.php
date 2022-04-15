@@ -41,7 +41,7 @@
             <h2 class="page-heading">{{ $title }}
 
                 <div class="pull-right">
-                    <a href="{{ route('magento_module_types.create') }}" class="btn btn-secondary">+</a>
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleTypeCreateModal"> + </button>
                 </div>
             </h2>
         </div>
@@ -78,7 +78,7 @@
             </thead>
         </table>
     </div>
-
+    @include('magento_module_type.partials.form_modals')
 @endsection
 
 
@@ -91,7 +91,6 @@
     {{-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> --}}
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     {{-- <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap.min.js"></script> --}}
-    <script type="text/javascript" src="{{ asset('js/common-function.js') }}"></script>
 
     <script>
         $(document).on('click', '#searchReset', function(e) {
@@ -164,14 +163,10 @@
                         name: 'id',
                         // visible:false,
                         render: function(data, type, row, meta) {
-                            var edit_url = `{{ url('/') }}/magento_module_types/` + row['id'] +
-                                `/edit/`;
-                            // var show_url = `{{ url('/') }}/magento_module_types/` + row['id'] +
-                            //     ``;
-                            var edit_data = actionEditButton(edit_url, row['id']);
-                            var show_data = actionShowButtonWithClass('show-details', row['id']);
-
+                            
+                            var edit_data = actionEditButtonWithClass('edit-magento-module-type', JSON.stringify(row));
                             var del_data = actionDeleteButton(row['id']);
+
                             return `<div class="flex justify-left items-center"> ${edit_data} ${del_data} </div>`;
                         }
                     },
