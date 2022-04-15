@@ -155,9 +155,11 @@
             <thead>
                 <tr>
                     <th> Id </th>
-                    <th width="270px"> Communication </th>
+                    <th width="270px"> Remark </th>
                     <th> Category </th>
                     <th> Website </th>
+                    <th> API </th>
+                    <th> Cron </th>
                     <th> Name </th>
                     <th> Version </th>
                     <th> Type </th>
@@ -172,11 +174,25 @@
         </table>
     </div>
 
+    {{-- #blank-modal --}}
     @include('partials.plain-modal')
+    {{-- #remark-area-list --}}
     @include('magento_module.partials.remark_list')
+    {{-- moduleTypeCreateModal --}} {{-- moduleTypeEditModal --}}
     @include('magento_module_type.partials.form_modals')
+    {{-- moduleCategoryCreateModal --}} {{-- moduleCategoryEditModal --}}
     @include('magento_module_category.partials.form_modals')
+    {{-- moduleCreateModal --}} {{-- moduleEditModal --}}
     @include('magento_module.partials.form_modals')
+    {{-- apiDataAddModal --}}
+    @include('magento_module.partials.api_form_modals')
+    {{-- cronJobDataAddModal --}}
+    @include('magento_module.partials.cron_form_modals')
+    {{-- apiDataShowModal --}}
+    @include('magento_module.partials.api_data_show_modals')
+    {{-- cronJobDataShowModal --}}
+    @include('magento_module.partials.cron_data_show_modals')
+
 @endsection
 
 @section('scripts')
@@ -209,6 +225,7 @@
             oTable.draw();
         });
 
+        // START Print Table Using datatable
         var oTable;
         $(document).ready(function() {
             oTable = $('#erp_table').DataTable({
@@ -286,6 +303,33 @@
                         }
                     },
                     {
+                        data: 'api',
+                        name: 'magento_modules.api',
+                        render: function(data, type, row, meta) {
+                            let add_button = `<button type="button" class="btn btn-xs add-api-data-modal" title="Show History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
+                            let show_button = `<button type="button" class="btn btn-xs show-api-modal" title="Show History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
+                            data = (data == 1) ? 'Yes' : 'No';
+                            let html_data = ``;
+                            if(data){
+                                html_data = `<div class="d-flex"> ${data} ${add_button} ${show_button} </div>`;
+                            }else{
+                                html_data = `<div class="d-flex"> ${data} ${show_button} </div>`;
+                            }
+                            return html_data;
+                        }
+                    },
+                    {
+                        data: 'cron_job',
+                        name: 'magento_modules.cron_job',
+                        render: function(data, type, row, meta) {
+                            let add_button = `<button type="button" class="btn btn-xs add-cron_job-modal" title="Show History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
+                            let show_button = `<button type="button" class="btn btn-xs show-cron_job-modal" title="Show History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
+                            data = (data == 1) ? 'Yes' : 'No';
+                            let html_data = `<div class="d-flex"> ${data} ${add_button} ${show_button} </div>`;
+                            return html_data;
+                        }
+                    },
+                    {
                         data: 'module',
                         name: 'magento_modules.module',
                     },
@@ -314,7 +358,7 @@
                     },
                     {
                         data: 'developer_name',
-                        name: 'magento_modules.developer_name',
+                        name: 'users.name',
                     },
 
                     {
@@ -340,7 +384,9 @@
                 ],
             });
         });
+        // END Print Table Using datatable
 
+        // Delete Module 
         $(document).on('click', '.clsdelete', function() {
             var id = $(this).attr('data-id');
             var e = $(this).parent().parent();
@@ -348,6 +394,7 @@
             tableDeleteRow(url, oTable);
         });
 
+        //Status Update 
         $(document).on('click', '.clsstatus', function() {
             var id = $(this).attr('data-id');
             var status = $(this).attr('data-status');
@@ -355,35 +402,7 @@
             tableChnageStatus(url, oTable);
         });
 
-        $(document).on('click', '.load-module-remark', function() {
-            var id = $(this).attr('data-id');
-            $.ajax({
-                method: "GET",
-                url: `{{ route('magento_module_remark.get_remarks', '') }}/` + id,
-                dataType: "json",
-                success: function(response) {
-                    if (response.status) {
-                        var html = "";
-                        $.each(response.data, function(k, v) {
-                            html = `<tr>
-                                        <td> ${v.id } </td>
-                                        <td> ${v.remark } </td>
-                                        <td> ${ message_send_to_array[v.send_to] } </td>
-                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${v.created_at } </td>
-                                    </tr>`;
-                        });
-                        $("#remark-area-list").find(".remark-action-list-view").html(html);
-                        // $("#blank-modal").find(".modal-title").html(response.title);
-                        // $("#blank-modal").find(".modal-body").html(response.data);
-                        $("#remark-area-list").modal("show");
-                    } else {
-                        toastr["error"](response.error, "Message");
-                    }
-                }
-            });
-        });
-
+        // Load All Module Details
         $(document).on("click", ".show-details", function() {
 
             var id = $(this).attr('data-id');
@@ -406,7 +425,7 @@
             });
         });
 
-
+        // Store Reark
         function saveRemarks(row_id) {
             console.log(row_id);
             var remark = $("#remark_" + row_id).val();
@@ -450,6 +469,111 @@
                 $("#loading-image").hide();
             });
         }
+
+        // Load Remark
+        $(document).on('click', '.load-module-remark', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento_module_remark.get_remarks', '') }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html = `<tr>
+                                        <td> ${v.id } </td>
+                                        <td> ${v.remark } </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at } </td>
+                                    </tr>`;
+                        });
+                        $("#remark-area-list").find(".remark-action-list-view").html(html);
+                        // $("#blank-modal").find(".modal-title").html(response.title);
+                        // $("#blank-modal").find(".modal-body").html(response.data);
+                        $("#remark-area-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+
+        $(document).on("click", ".add-api-data-modal", function() {
+            let magento_module_id = $(this).data('id');
+            $("#apiDataAddModal").find('[name="magento_module_id"]').val(magento_module_id);
+            $('#apiDataAddModal').modal('show');
+        });
+
+        $(document).on("click", ".add-cron_job-modal", function() {
+            let magento_module_id = $(this).data('id');
+            $("#cronJobDataAddModal").find('[name="magento_module_id"]').val(magento_module_id);
+            $('#cronJobDataAddModal').modal('show');
+        });
+
+          // Load Api Modal
+          $(document).on('click', '.show-api-modal', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento_module_api_histories.show', '') }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html = `<tr>
+                                        <td> ${v.id } </td>
+                                        <td> ${v.resources } </td>
+                                        <td> ${v.frequency } </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at } </td>
+                                    </tr>`;
+                        });
+                        $("#apiDataShowModal").find(".api-details-data-view").html(html);
+                        // $("#blank-modal").find(".modal-title").html(response.title);
+                        // $("#blank-modal").find(".modal-body").html(response.data);
+                        $("#apiDataShowModal").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        // Load cron job Modal
+        $(document).on('click', '.show-cron_job-modal', function() {
+            var id = $(this).attr('data-id');
+            
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento_module_cron_job_histories.show', '') }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html = `<tr>
+                                        <td> ${v.id } </td>
+                                        <td> ${v.cron_time } </td>
+                                        <td> ${v.frequency } </td>
+                                        <td> ${v.cpu_memory } </td>
+                                        <td> ${v.comments } </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at } </td>
+                                    </tr>`;
+                        });
+                        $("#cronJobDataShowModal").find(".cron-job-details-data-view").html(html);
+                        // $("#blank-modal").find(".modal-title").html(response.title);
+                        // $("#blank-modal").find(".modal-body").html(response.data);
+                        $("#cronJobDataShowModal").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
     </script>
 
 @endsection
