@@ -1038,6 +1038,7 @@ input.cmn-toggle-round + label {
                                                     <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/unflagged.png')}}"/></button>
                                                 @endif
                                                 <button class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
+                                                <button class="btn btn-image set-remark" data-task_id="{{ $task->id }}"  data-task_type="TASK" ><i class="fa fa-comment" aria-hidden="true"></i></button>
                                             </div>
                                         </div>
                                     </td>
@@ -1296,6 +1297,39 @@ input.cmn-toggle-round + label {
         </div>
     </div>
 </div>
+
+<div id="preview-task-create-get-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Task Remark</h4>
+                <input type="text" name="remark_pop" class="form-control remark_pop" placeholder="Please enter remark" style="width: 200px;">
+                <button type="button" class="btn btn-default sub_remark" data-task_id="{{$task->id}}">Save</button>
+            </div>
+        	<div class="modal-body">
+    			<div class="col-md-12">
+                    <table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th style="width:1%;">ID</th>
+					        <th style=" width: 12%">Update By</th>
+					        <th style="word-break: break-all; width:12%">Remark</th>
+                            <th style="width: 11%">Created at</th>
+                            <th style="width: 11%">Action</th>
+                          </tr>
+					    </thead>
+					    <tbody class="task-create-get-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="preview-task-due-date-history-log-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -2269,7 +2303,7 @@ input.cmn-toggle-round + label {
             if (date != '') {
                 $.ajax({
                         url: "{{route('task.update.due_date')}}",
-                        type: 'POST',
+                        type: 'post',
                         headers: {
                             'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                         },
@@ -2288,6 +2322,69 @@ input.cmn-toggle-round + label {
                 alert('Please enter a date first');
             }
         });
+
+        $(document).on("click",".set-remark",function(e) {
+            $('.remark_pop').val("");
+            var task_id = $(this).data('task_id');
+            $('.sub_remark').attr( "data-task_id", task_id );
+        });
+        $(document).on("click",".set-remark, .sub_remark",function(e) {
+            var thiss = $(this);
+            var task_id = $(this).data('task_id');
+            var remark = $('.remark_pop').val();
+            $.ajax({
+                type: "POST",
+                url: "{{route('task.create.get.remark')}}",
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    task_id : task_id,
+                    remark : remark,
+                    type : "TASK",
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function (response) {
+                if(response.code == 200) {
+                    $("#loading-image").hide();
+                    $("#preview-task-create-get-modal").modal("show");
+                    $(".task-create-get-list-view").html(response.data);
+                    $('.remark_pop').val("");
+                    toastr['success'](response.message);
+                }else{
+                    $("#loading-image").hide();
+                    $("#preview-task-create-get-modal").modal("show");
+                    $(".task-create-get-list-view").html("");
+                    toastr['error'](response.message);
+                }
+                
+            }).fail(function (response) {
+                $("#loading-image").hide();
+                $("#preview-task-create-get-modal").modal("show");
+                $(".task-create-get-list-view").html("");
+                toastr['error'](response.message);
+            });
+        });
+
+        $(document).on("click",".copy_remark",function(e) {
+            var thiss = $(this);
+            var remark_text = thiss.data('remark_text');
+            copyToClipboard(remark_text);
+            /* Alert the copied text */
+            toastr['success']("Copied the text: " + remark_text);
+            //alert("Copied the text: " + remark_text);
+        });
+
+        function copyToClipboard(text) {
+            var sampleTextarea = document.createElement("textarea");
+            document.body.appendChild(sampleTextarea);
+            sampleTextarea.value = text; //save main text in it
+            sampleTextarea.select(); //select textarea contenrs
+            document.execCommand("copy");
+            document.body.removeChild(sampleTextarea);
+        }
 
 
         $(document).on("click",".get_due_date_history_log",function(e) {
