@@ -15,6 +15,9 @@ class CallHelperForZeroStockQtyUpdate implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private $products;
+    public $tries = 5;
+    public $backoff = 5;
+
     /**
      * Create a new job instance.
      *
@@ -32,27 +35,37 @@ class CallHelperForZeroStockQtyUpdate implements ShouldQueue
      */
     public function handle()
     {
-        $zeroStock = [];
-        if (!empty($this->products)) {
-            foreach ($this->products as $item) {
-                $websiteArrays = ProductHelper::getStoreWebsiteNameFromPushed($item['id']);
-                if (count($websiteArrays) > 0) {
-                    foreach ($websiteArrays as $websiteArray) {
-                        $zeroStock[$websiteArray]['stock'][] = array('sku' => $item['sku'], 'qty' => 0);
-                        \App\StoreWebsiteProduct::where('product_id',$item['id'])
-              ->where('store_website_id',$websiteArray['id'])->delete();
+        try {
+            $zeroStock = [];
+            if (!empty($this->products)) {
+                foreach ($this->products as $item) {
+                    $websiteArrays = ProductHelper::getStoreWebsiteNameFromPushed($item['id']);
+                    if (count($websiteArrays) > 0) {
+                        foreach ($websiteArrays as $websiteArray) {
+                            $zeroStock[$websiteArray]['stock'][] = array('sku' => $item['sku'], 'qty' => 0);
+                            \App\StoreWebsiteProduct::where('product_id',$item['id'])
+                ->where('store_website_id',$websiteArray['id'])->delete();
 
+                        }
                     }
                 }
             }
-        }
 
-        if(!empty($zeroStock)) {
-            if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                MagentoHelper::callHelperForZeroStockQtyUpdate($zeroStock);
-                \Log::info('inventory:update Jobs Run');
+            if(!empty($zeroStock)) {
+                if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                    MagentoHelper::callHelperForZeroStockQtyUpdate($zeroStock);
+                    \Log::info('inventory:update Jobs Run');
+                }
             }
-        }
 
+        }catch (\Exception $e) {
+            \Log::info("Issue fom MagentoHelperForZeroStockQtyUpdate ".$e->getMessage());
+            throw new \Exception($e->getMessage());
+        }
+    }
+
+    public function tags() 
+    {
+        return [ 'MagentoHelperForZeroStockQtyUpdate', $this->products[0]->id];
     }
 }

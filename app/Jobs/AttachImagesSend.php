@@ -55,27 +55,36 @@ class AttachImagesSend implements ShouldQueue
      */
     public function handle(Request $request)
     {
-        // Set time limit
-        set_time_limit(0);
+        try {
+            // Set time limit
+            set_time_limit(0);
 
-        $requestData = new Request();
-        $requestData->setMethod('POST');
-        $requestData->request->add([
-            '_token'          => $this->_token,
-            'send_pdf'        => $this->send_pdf,
-            'pdf_file_name'   => $this->pdf_file_name,
-            'images'          => $this->images,
-            'image'           => $this->image,
-            'screenshot_path' => $this->screenshot_path,
-            'message'         => $this->message,
-            'customer_id'     => $this->customer_id,
-            'status'          => $this->status,
-            'type'          => $this->type
-        ]);
-        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+            $requestData = new Request();
+            $requestData->setMethod('POST');
+            $requestData->request->add([
+                '_token'          => $this->_token,
+                'send_pdf'        => $this->send_pdf,
+                'pdf_file_name'   => $this->pdf_file_name,
+                'images'          => $this->images,
+                'image'           => $this->image,
+                'screenshot_path' => $this->screenshot_path,
+                'message'         => $this->message,
+                'customer_id'     => $this->customer_id,
+                'status'          => $this->status,
+                'type'          => $this->type
+            ]);
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 
+        } catch (\Exception $e) {
+            \Log::info("Issue fom customer_message ".$e->getMessage());
+            throw new \Exception($e->getMessage());
+        }
 
+    }
 
+    public function tags() 
+    {
+        return [ 'customer_message', $this->customer_id ];
     }
 
 }
