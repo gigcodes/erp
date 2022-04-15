@@ -439,34 +439,42 @@
                 format: 'HH:mm'
             });
 
-            $(".estimate-date").each(function() {
-                // ...
-                $(this).datetimepicker({
-                    format: 'YYYY-MM-DD HH:mm'
-                }).on('dp.change', function(e){
-                   // alert("dddd");
-                    var formatedValue = e.date.format(e.date._f);
-                   // alert(formatedValue);
-                     let issueId = $(this).data('id');
-                //     alert(issueId);
-                        let estimate_date_ = $("#estimate_date_" + issueId).val();
-                        $.ajax({
-                            url: "{{action('DevelopmentController@saveEstimateDate')}}",
-                            data: {
-                                estimate_date : formatedValue,
-                                issue_id: issueId
-                            },
-                            success: function () {
-                                toastr["success"]("Estimate Date updated successfully!", "Message");
-                            }
-                        });
+            $(".estimate-date").datetimepicker({
+                format: 'YYYY-MM-DD HH:mm'
+            });
+
+            $(document).on('click', '.save-est-date', function (event) {
+
+                let issueId = $(this).attr('data-id');
+
+                var estimate_date = $("#estimate_date_" + issueId).val();
+                // var est_remark = $("#est_remark_" + issueId).val();
+
+                // if((est_remark !== '') && (estimate_date !== '') ){
+                if(estimate_date !== '' ){
+                    $.ajax({
+                        url: "{{action('DevelopmentController@saveEstimateDate')}}",
+                        data: {
+                            estimate_date : estimate_date,
+                            // est_remark: est_remark,
+                            issue_id: issueId
+                        },
+                        success: function () {
+                            // $("#est_remark_" + issueId).val('');
+                            toastr["success"]("Estimate Date updated successfully!", "Message");
+                        }
                     });
+                }else{
+                    // toastr["warning"]("Remark and Datetime fields are required  ", "Message");
+                    toastr["warning"]("EST Datetime field is required  ", "Message");
+                }
+
+
             });
       
             $('#estimate_date_picker').datepicker({
                 dateformat: 'yyyy-mm-dd'
             });
-            
            
         });
 
@@ -558,7 +566,6 @@
             var textBox = $(this).closest(".panel-footer").find(".send-message-textbox");
             var sendToStr  = $(this).closest(".panel-footer").find(".send-message-number").val();
 
-
             let issueId = textBox.attr('data-id');
             let message = textBox.val();
             if (message == '') {
@@ -593,8 +600,7 @@
                 }
             });
         });
-
-
+        
 
         $(document).on('click', '.send-message-open', function (event) {
             var textBox = $(this).closest(".expand-row").find(".send-message-textbox");
@@ -815,17 +821,25 @@
                 return;
             }
             let issueId = $(this).data('id');
+            let est_time_remark = $("#est_time_remark_" + issueId).val();
             let estimate_minutes = $("#estimate_minutes_" + issueId).val();
-            $.ajax({
-                url: "{{action('DevelopmentController@saveEstimateMinutes')}}",
-                data: {
-                    estimate_minutes: estimate_minutes,
-                    issue_id: issueId
-                },
-                success: function () {
-                    toastr["success"]("Estimate Minutes updated successfully!", "Message");
-                }
-            });
+            if((est_time_remark !== '') && (estimate_minutes !== '') ){
+                $.ajax({
+                    url: "{{action('DevelopmentController@saveEstimateMinutes')}}",
+                    data: {
+                        estimate_minutes: estimate_minutes,
+                        remark: est_time_remark,
+                        issue_id: issueId
+                    },
+                    success: function () {
+                        $("#est_time_remark_" + issueId).val('');
+                        toastr["success"]("Estimate Minutes updated successfully!", "Message");
+                    }
+                });
+            }else{
+                // toastr["warning"]("Remark and Datetime fields are required  ", "Message");
+                toastr["warning"]("Remark and EST Time fields are required", "Message");
+            }
 
         });
         $(document).on('keyup', '.lead-estimate-time-change', function (event) {
@@ -894,12 +908,14 @@
                                 var checked = ''; 
                             }
                             $('#time_history_div table tbody').append(
-                                '<tr>\
-                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
-                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td>\
-                                    <td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
-                                </tr>'
+                                `<tr>
+                                    <td>${ moment(item['created_at']).format('DD/MM/YYYY') }</td>
+                                    <td>${ ((item['old_value'] != null) ? item['old_value'] : '-') }</td>
+                                    <td>${item['new_value']}</td>
+                                    <td>${item['name']}</td>
+                                    <td align="center"><span title="${item['remark']}">${(item['remark'] !== null ) ? item['remark'] : '-'}</td>
+                                    <td><input type="radio" name="approve_time" value="${item['id']}" ${checked} class="approve_time"/></td>
+                                </tr>`
                             );  
                         });
                         $('#time_history_div table tbody').append(
@@ -994,11 +1010,13 @@
                                 var checked = ''; 
                             }
                             $('#date_history_modal table tbody').append(
-                                '<tr>\
-                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
-                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td><td><input type="radio" name="approve_date" value="'+item['id']+'" '+checked+' class="approve_date"/></td>\
-                                </tr>'
+                                `<tr>
+                                    <td>${ moment(item['created_at']).format('DD/MM/YYYY') }</td>
+                                    <td>${ ((item['old_value'] != null) ? item['old_value'] : '-') }</td>
+                                    <td>${item['new_value']}</td>
+                                    <td>${item['name']}</td>
+                                    <td><input type="radio" name="approve_date" value="${item['id']}" ${checked} class="approve_date"/></td>
+                                </tr>`
                             );
                         });
                     }

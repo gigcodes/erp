@@ -2765,6 +2765,7 @@ if (!empty($notifications)) {
     <script type="text/javascript" src="{{ asset('js/common-function.js') }}"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    @stack('scripts')
 
     <script>
         // $('#chat-list-history').on('hidden.bs.modal', function (e) {
