@@ -75,82 +75,58 @@
                 <div class="row m-4">
                     <div class="col-xs-3 col-sm-3">
                         <div class="form-group">
-                            <strong>Module Name:</strong>
                             {!! Form::text('module', null, ['placeholder' => 'Module Name', 'class' => 'form-control']) !!}
                         </div>
                     </div>
-                    <div class="col-xs-3 col-sm-3">
+
+                    <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            <strong>Module Type:</strong>
                             {!! Form::select('module_type', $magento_module_types, null, ['placeholder' => 'Select Module Type', 'class' => 'form-control']) !!}
                         </div>
                     </div>
-                    <div class="col-xs-3 col-sm-3">
+
+                    <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            <strong>Module Category:</strong>
                             {!! Form::select('module_category_id', $module_categories, null, ['placeholder' => 'Select Module Category', 'class' => 'form-control']) !!}
                         </div>
                     </div>
-                    <div class="col-xs-3 col-sm-3">
+
+                    <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            <strong>Task Status:</strong>
-                            {!! Form::select('task_status', $task_statuses, null, ['placeholder' => 'Select Task Status', 'class' => 'form-control']) !!}
-                        </div>
-                    </div>
-                    <div class="col-xs-3 col-sm-3">
-                        <div class="form-group">
-                            <strong>Customized:</strong>
                             {!! Form::select('is_customized', ['No', 'Yes'], null, ['placeholder' => 'Customized', 'class' => 'form-control']) !!}
                         </div>
                     </div>
-                    <div class="col-xs-3 col-sm-3">
+
+                    <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            <strong>Store Website:</strong>
                             {!! Form::select('store_website_id', $store_websites, null, ['placeholder' => 'Store Website', 'class' => 'form-control']) !!}
                         </div>
                     </div>
 
-                    <div class="col-xs-2 col-sm-2 pt-4">
-                       
-                        <div class="form-group pull-left ">
-                            <button type="submit" class="btn btn-image search">
-                                <img src="/images/search.png" alt="Search" style="cursor: inherit;">
-                            </button>
+                    <div class="col-xs-2 col-sm-1 pt-2 ">
+                        <div class="d-flex" >
+                            <div class="form-group pull-left ">
+                                <button type="submit" class="btn btn-image search">
+                                    <img src="/images/search.png" alt="Search" style="cursor: inherit;">
+                                </button>
+                            </div>
+                            <div class="form-group pull-left ">
+                                <button type="submit" id="searchReset" class="btn btn-image search ml-3">
+                                    <img src="/images/resend2.png" alt="Search" style="cursor: inherit;">
+                                </button>
+                            </div>
                         </div>
-                        <div class="form-group pull-left ">
-                            <button type="submit" id="searchReset" class="btn btn-image search ml-3">
-                                <img src="/images/resend2.png" alt="Search" style="cursor: inherit;">
-                            </button>
-                        </div>
-
-                        {{-- <div class="form-group  pull-right">
-                            <button type="reset" id="searchReset" class="btn btn-secondary ml-3 "
-                                style="width:100px">Reset</button>
-                        </div> --}}
                     </div>
-                </div>
-               
-            </form>
-            <div class="row ml-4 mr-4">
-                <div class="col-xs-12 col-sm-12">
-                    <div class="form-group pull-right ml-3">
+
+                    <div class="form-group pull-right ml-3 mt-3">
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleTypeCreateModal"> Module Type Create </button>
-                    </div>
-
-                    <div class="form-group pull-right ml-3">
+                    
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleCategoryCreateModal"> Module Category Create </button>
-                    </div>
 
-                    <div class="form-group pull-right ml-3">
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleCreateModal"> Magneto Module Create </button>
                     </div>
-                    
-                    {{-- <div class="form-group  pull-right">
-                        <button type="reset" id="searchReset" class="btn btn-secondary ml-3 disabled "
-                            style="width:100px"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...</button>
-                    </div> --}}
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -179,7 +155,7 @@
             <thead>
                 <tr>
                     <th> Id </th>
-                    <th> Communication </th>
+                    <th width="270px"> Communication </th>
                     <th> Category </th>
                     <th> Website </th>
                     <th> Name </th>
@@ -187,7 +163,6 @@
                     <th> Type </th>
                     <th> Payment Status</th>
                     <th> Status </th>
-                    <th> Task Status </th>
                     <th> Developer Name</th>
                     <th> Customized </th>
                     <th> Action </th>
@@ -229,19 +204,6 @@
             return false;
         });
 
-        var message_send_to_array = {
-            'to_master': 'Send To Master Developer',
-            'to_developer': 'Send To Developer',
-            'to_team_lead': 'Send To Team Lead',
-            'to_tester': 'Send To Tester',
-        };
-
-        var dropdown_options = '';
-        @foreach ($message_send_to as $key => $value)
-            dropdown_options +=
-            `<option value="{{ $key }}"> {{ $value }} </option>`;
-        @endforeach
-
         $('#extraSearch').on('click', function(e) {
             e.preventDefault();
             oTable.draw();
@@ -257,6 +219,9 @@
                 order: [
                     [0, 'desc']
                 ],
+                targets: 'no-sort',
+                bSort: false,
+
                 oLanguage: {
                     sLengthMenu: "Show _MENU_",
                 },
@@ -295,23 +260,17 @@
                         name: 'magento_modules.last_message',
                         render: function(data, type, row, meta) {
 
-                            var message =
-                                `<input type="text" id="remark_${row['id']}" name="remark" class="form-control" placeholder="Remark" />`
+                            let message = `<input type="text" id="remark_${row['id']}" name="remark" class="form-control" placeholder="Remark" />`;
 
-                            var dropdown =
-                                `<select id="send_to_${row['id']}" name="send_to" class="form-control mt-3" style="width:85% !important;display: inline;">`;
-                            dropdown += dropdown_options;
-                            dropdown += `</select>`;
+                            let remark_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-module-remark ml-2" data-id="${row['id']}" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
 
-                            var remark_history_button =
-                                `<button type="button" class="btn btn-xs btn-image load-module-remark" data-id="${row['id']}" style="margin-top: 2%;" title="Load messages"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
-
-                            var remark_send_button =
+                            let remark_send_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']})"><img src="/images/filled-sent.png"></button>`;
-
-                            data = (data == null) ? '' : data;
-                            return data + message + dropdown + remark_send_button +
-                                remark_history_button;
+                                data = (data == null) ? '' : data;
+                            let retun_data = `${data} <div class="d-flex"> ${message} ${remark_send_button} ${remark_history_button} </div>`;
+                            
+                            return retun_data;
                         }
                     },
                     {
@@ -352,10 +311,6 @@
                             var status_array = ['Disabled', 'Enable'];
                             return `<div class="flex items-center justify-left">${status_array[data]}</div>`;
                         }
-                    },
-                    {
-                        data: 'task_name',
-                        name: 'task_statuses.name',
                     },
                     {
                         data: 'developer_name',
@@ -455,7 +410,7 @@
         function saveRemarks(row_id) {
             console.log(row_id);
             var remark = $("#remark_" + row_id).val();
-            var send_to = $("#send_to_" + row_id).val();
+            // var send_to = $("#send_to_" + row_id).val();
 
             var val = $("#remark_" + row_id).val();
 
@@ -467,7 +422,7 @@
                 },
                 data: {
                     remark: remark,
-                    send_to: send_to,
+                    // send_to: send_to,
                     magento_module_id: row_id
                 },
                 beforeSend: function() {

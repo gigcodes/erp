@@ -12,6 +12,7 @@ use App\MagentoModuleRemark;
 use App\MagentoModuleType;
 use App\StoreWebsite;
 use App\TaskStatus;
+use App\User;
 use Auth;
 
 class MagentoModuleController extends Controller
@@ -70,11 +71,16 @@ class MagentoModuleController extends Controller
             return datatables()->eloquent($items)->toJson();
         } else {
             $title = 'Magento Module';
+            if (env('PRODUCTION', true)) {
+                $users = User::role('Developer')->orderby('name', 'asc')->where('is_active', 1)->get();
+            } else {
+                $users = User::orderby('name', 'asc')->where('is_active', 1)->get();
+            }
             $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
             $magento_module_types = MagentoModuleType::get()->pluck('magento_module_type', 'id');
             $task_statuses = TaskStatus::pluck("name", "id");
             $store_websites = StoreWebsite::pluck("website", "id");
-            return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites'));
+            return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users'));
         }
     }
 
