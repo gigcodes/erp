@@ -1912,6 +1912,9 @@ if (!empty($notifications)) {
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{ url('/github/sync') }}">Synchronise from online</a>
                                                     </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('gitDeplodError') }}">Migration Error</a>
+                                                    </li>
                                                 </ul>
                                             </li>
 

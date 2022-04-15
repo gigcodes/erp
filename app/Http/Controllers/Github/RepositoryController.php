@@ -6,6 +6,7 @@ use App\DeveloperTask;
 use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubBranchState;
 use App\Github\GithubRepository;
+use App\GitMigrationErrorLog;
 use App\Helpers\githubTrait;
 use App\Helpers\MessageHelper;
 use Illuminate\Http\Request;
@@ -142,6 +143,21 @@ class RepositoryController extends Controller
 
         } catch (Exception $e) {
             print_r($e->getMessage());
+            $errorArr = array();
+            $errorArr = $e->getMessage();
+            if(!is_array($errorArr))
+                $arrErr[] = $errorArr;
+            else
+                $arrErr = $errorArr;
+            $errorArr = implode(" ",$arrErr);
+            if (str_contains($errorArr, 'database/migrations') || str_contains($errorArr, 'Database/Migrations')) { 
+                if($source == 'master') {
+                    $this->createGitMigrationErrorLog($repoId, $destination, $errorArr);
+                } else if($destination == 'master') {
+                    $this->createGitMigrationErrorLog($repoId, $source, $errorArr);
+                }
+            }
+            
             return redirect(url('/github/pullRequests'))->with(
                 [
                     'message' => $e->getMessage(),
@@ -154,6 +170,37 @@ class RepositoryController extends Controller
             'message' => print_r($allOutput, true),
             'alert-type' => 'success'
         ]);
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param [mix] $repoId
+     * @param [mix] $branchName
+     * @param [array] $errorLog
+     * @return void
+     */
+    public function createGitMigrationErrorLog($repoId, $branchName, $errorLog)
+    {
+        $comparison = $this->compareRepoBranches($repoId, $branchName);
+        GitMigrationErrorLog::create([
+                'repository_id'               => $repoId,
+                'branch_name'                 => $branchName,
+                'ahead_by'                    => $comparison['ahead_by'],
+                'behind_by'                   => $comparison['behind_by'],
+                'last_commit_author_username' => $comparison['last_commit_author_username'],
+                'last_commit_time'            => $comparison['last_commit_time'],
+                'error'                       => $errorLog
+            ]);
+    }
+
+    public function getGitMigrationErrorLog(){
+        try{
+            $gitDbError = GitMigrationErrorLog::orderBy('id', 'desc')->take(100)->get();
+            return view('github.deploy_branch_error', compact('gitDbError'));
+        } catch(\Exception $e) {
+            return redirect()->back()->withErrors($e->getMessage());
+        }
     }
 
     private function updateBranchState($repoId, $branchName){

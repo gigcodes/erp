@@ -3071,6 +3071,7 @@ Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], fu
         Route::post('/linkUser', 'Github\UserController@linkUser');
         Route::post('/modifyUserAccess', 'Github\UserController@modifyUserAccess');
         Route::get('/pullRequests', 'Github\RepositoryController@listAllPullRequests');
+        Route::get('/gitDeplodError', 'Github\RepositoryController@getGitMigrationErrorLog')->name('gitDeplodError');
     });
 });
 
