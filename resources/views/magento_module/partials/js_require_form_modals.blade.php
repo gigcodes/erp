@@ -1,48 +1,44 @@
-<div id="moduleCreateModal" class="modal fade " role="dialog">
+<div id="JsRequireDataAddModal" class="modal fade " role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
         <div class="modal-content">
             {{-- {!! Form::open(['route' => 'magento_module_types.store', 'method' => 'POST', 'class' => 'form mb-15', 'enctype' => 'multipart/form-data']) !!} --}}
-            <form id="magento_module_form" class="form mb-15" >
+            <form id="magento_module_ja_require_form" class="form mb-15" >
+            {!! Form::hidden('magento_module_id', null, ['id'=>'magento_module_id']) !!}
             @csrf
             <div class="modal-header">
-                <h4 class="modal-title">Add {{ $title }}</h4>
+                <h4 class="modal-title">Add JsRequire Details</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <div class="modal-body">
-                @include('magento_module.partials.form')
 
+            <div class="modal-body">
+                <div class="row ml-2 mr-2">
+                    <div class="col-xs-6 col-sm-6">
+                        <div class="form-group">
+                            {!! Form::text('resources', null, ['id'=>'resources', 'placeholder' => 'Resources', 'class' => 'form-control', 'required' => 'required']) !!}
+                            @if ($errors->has('resources'))
+                                <span style="color:red">{{ $errors->first('resources') }}</span>
+                            @endif
+                        </div>
+                    </div>
+                
+                    <div class="col-xs-6 col-sm-6">
+                        <div class="form-group">
+                            {!! Form::text('frequency', null, ['id'=>'frequency', 'placeholder' => 'frequency', 'class' => 'form-control', 'required' => 'required']) !!}
+                            @if ($errors->has('frequency'))
+                                <span style="color:red">{{ $errors->first('frequency') }}</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="submit" class="btn btn-secondary">Add</button>
             </div>
             </form>
             {{-- {!! Form::close() !!} --}}
-        </div>
-    </div>
-</div>
-
-<div id="moduleEditModal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <form id="magento_module_edit_form" method="POST">
-                @csrf
-                @method('PUT')
-                {!! Form::hidden('id', null, ['id'=>'id']) !!}
-                <div class="modal-header">
-                    <h4 class="modal-title">Update Store Color</h4>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    @include('magento_module.partials.form')
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-secondary">Update</button>
-                </div>
-            </form>
         </div>
     </div>
 </div>

@@ -30,7 +30,7 @@ class MagentoModuleRequest extends FormRequest
             'module_description' => 'required',
             // 'current_version' => 'required',
             // 'cron_time' => 'required',
-            'task_status' => 'required',
+            // 'task_status' => 'required',
             'module_type' => 'required',
             'status' => 'required',
             'payment_status' => 'required',

@@ -49,12 +49,12 @@ function actionShowButton(url) {
 
 // Show details page button
 function actionShowButtonWithClass(cls, id) {
-    return `<button type="button" title="Details Page"  class="btn btn-image ${cls}" data-id="${id}"><img src="/images/view.png" /></button>`;
+    return `<button type="button" title="Details Page"  class="btn btn-image padding-10-3 ${cls}" data-id="${id}"><img src="/images/view.png" /></button>`;
 }
 
 // Edit Button
 function actionEditButtonWithClass(cls, data) {
-    return `<button type='button' title='Edit'  class='btn btn-image ${cls}' data-row='${data}'><img src='/images/edit.png' /></button>`;
+    return `<button type='button' title='Edit'  class='btn btn-image padding-10-3 ${cls}' data-row='${data}'><img src='/images/edit.png' /></button>`;
 }
 
 // Title or String persent to better way
@@ -64,7 +64,7 @@ function actionShowTitle(url, stringTitle) {
 
 // delete button
 function actionDeleteButton(id, deleteclass = "clsdelete") {
-	return `<a  class="btn btn-image ${deleteclass}" data-id="${id}"><img src="/images/delete.png" /></a>`;
+	return `<a  class="btn btn-image padding-10-3 ${deleteclass}" data-id="${id}"><img src="/images/delete.png" /></a>`;
 }
 
 // status Button 

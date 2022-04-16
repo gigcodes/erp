@@ -1,4 +1,4 @@
-<div id="remark-area-list" class="modal fade" role="dialog">
+<div id="cronJobDataShowModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-body">
@@ -7,13 +7,16 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th width="10%">No</th>
-                                <th width="30%">Remark</th>
-                                <th width="20%">BY</th>
+                                <th width="5%">No</th>
+                                <th width="10%">Time</th>
+                                <th width="15%">Frequency</th>
+                                <th width="10%">CPU Memory</th>
+                                <th width="30%">Comments</th>
+                                <th width="30%">BY</th>
                                 <th width="20%">Date</th>
                             </tr>
                         </thead>
-                        <tbody class="remark-action-list-view">
+                        <tbody class="cron-job-details-data-view">
                         </tbody>
                     </table>
                 </div>

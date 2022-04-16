@@ -1,4 +1,4 @@
-<div id="remark-area-list" class="modal fade" role="dialog">
+<div id="apiDataShowModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-body">
@@ -8,12 +8,13 @@
                         <thead>
                             <tr>
                                 <th width="10%">No</th>
-                                <th width="30%">Remark</th>
-                                <th width="20%">BY</th>
-                                <th width="20%">Date</th>
+                                <th width="20%">Resources</th>
+                                <th width="20%">Frequency</th>
+                                <th width="30%">BY</th>
+                                <th width="30%">Date</th>
                             </tr>
                         </thead>
-                        <tbody class="remark-action-list-view">
+                        <tbody class="api-details-data-view">
                         </tbody>
                     </table>
                 </div>
