@@ -128,11 +128,10 @@
 				<thead>
 					<tr>
 						<th><input type="checkbox" id="checkAll" title="click here to select all" /></th>
-						<th width="10%">Website</th>
-						@forelse($site_development_categories as $sdc)
-							<th>{{ $sdc->title }}</th>
-						@empty
-						@endforelse
+						<th width="10%">Categories</th>
+						@foreach($store_websites as $sw) 
+							<th>{{ $sw->title }}</th>
+						@endforeach
 					</tr>
 				</thead>
 				<tbody class="infinite-scroll-pending-inner">

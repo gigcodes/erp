@@ -261,6 +261,26 @@ input.cmn-toggle-round + label {
                             </select>
                         </div>
                     </div>
+                    <div class="col-xs-12  col-md-1 pd-2">
+                        <div class="form-group ml-3">
+                            <select id="master_user_id" class="form-control select2" name="search_master_user_id" id="search_master_user_id">
+                                <option value="">Lead 1 Select</option>
+                                @foreach($users as $leadId => $leadName)
+                                    <option value="{{ $leadId }}">{{ $leadName }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12  col-md-1 pd-2">
+                        <div class="form-group ml-3">
+                            <select id="master_user_id" class="form-control select2" name="search_second_master_user_id" id="search_second_master_user_id">
+                                <option value="">Lead 2 Select<option>
+                                @foreach($users as $leadId => $leadName)
+                                    <option value="{{ $leadId }}">{{ $leadName }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                     @endif
                     <div class="col-xs-12 col-md-1 pd-2">
                         <div class="form-group">
@@ -634,7 +654,9 @@ input.cmn-toggle-round + label {
                             @if(count($data['task']['pending']) >0)
                             @foreach($data['task']['pending'] as $task)
 
-                            @php $task->due_date='';
+                            @php
+                                $taskDueDate =  $task->due_date;
+                                $task->due_date='';
                                  //$task->lead_hubstaff_task_id=0;
                                  //$task->status=1;
                                 @endphp
@@ -813,7 +835,7 @@ input.cmn-toggle-round + label {
                                                 <div class="form-group" style="padding-top:5px;">
                                                     <div class='input-group date due-datetime'>
 
-                                                        <input type="text" class="form-control input-sm due_date_cls" name="due_date" value="{{$task->due_date}}"/>
+                                                        <input type="text" class="form-control input-sm due_date_cls" name="due_date" value="{{$taskDueDate}}"/>
 
                                                         <span class="input-group-addon">
                                                             <span class="glyphicon glyphicon-calendar"></span>
@@ -821,7 +843,8 @@ input.cmn-toggle-round + label {
 
                                                     </div>
                                                 </div>
-                                                <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{ $task->id }}"><img style="padding: 0;margin-top: -14px;" src="{{asset('images/filled-sent.png')}}"/></button>
+                                                <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{ $task->id }}" data-old_due_date="{{$taskDueDate}}"><img style="padding: 0;margin-top: -14px;" src="{{asset('images/filled-sent.png')}}"/></button>
+                                                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs" title="Show History" data-task_type="TASK" data-taskid="{{ $task->id }}"><i class="fa fa-info-circle get_due_date_history_log" data-task_type="TASK" data-taskid="{{ $task->id }}"></i></button>
                                             </div>
 
                                             @if($task->is_milestone)
@@ -864,9 +887,10 @@ input.cmn-toggle-round + label {
                                         @endif
                                         
                                         <div class="col-md-12 expand-col" style="padding:0px;">
+                                            <input style="min-width: 30px;" placeholder="Remark" value="" type="text" class="form-control mb-2 update_approximate" name="track_time_remark_{{$task->id}}" id="track_time_remark_{{$task->id}}" data-id="{{$task->id}}" >
                                             <div class="d-flex">
                                             <br>
-                                                <input  type="text" placeholder="ED" class="update_approximate form-control input-sm" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
+                                                <input  type="text" placeholder="ED" class="update_approximate form-control input-sm" name="approximate_{{$task->id}}" id="approximate_{{$task->id}}" data-id="{{$task->id}}" value="{{$task->approximate}}">
                                                 <button type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$task->id}}" data-user_id="{{$task->assign_to}}"><i class="fa fa-info-circle"></i></button>
                                                 <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
                                                 <input type="text" placeholder="Cost" class="update_cost form-control input-sm" name="cost" data-id="{{$task->id}}" value="{{$task->cost}}">
@@ -978,8 +1002,8 @@ input.cmn-toggle-round + label {
                                                 </button>                                                
 
                                     
-
-                                                @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id()  || $task->master_user_id == Auth::id())
+                                                
+                                                @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id()  || $task->master_user_id == Auth::id() || $task->second_master_user_id == Auth::id())
                                                     <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>
                                                     @if ($task->assign_from == Auth::id())
                                                         <button type="button" title="Verify the task by admin" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/completed-green.png"/></button>
@@ -1015,6 +1039,7 @@ input.cmn-toggle-round + label {
                                                     <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/unflagged.png')}}"/></button>
                                                 @endif
                                                 <button class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
+                                                <button class="btn btn-image set-remark" data-task_id="{{ $task->id }}"  data-task_type="TASK" ><i class="fa fa-comment" aria-hidden="true"></i></button>
                                             </div>
                                         </div>
                                     </td>
@@ -1273,6 +1298,65 @@ input.cmn-toggle-round + label {
         </div>
     </div>
 </div>
+
+<div id="preview-task-create-get-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Task Remark</h4>
+                <input type="text" name="remark_pop" class="form-control remark_pop" placeholder="Please enter remark" style="width: 200px;">
+                <button type="button" class="btn btn-default sub_remark" data-task_id="{{$task->id}}">Save</button>
+            </div>
+        	<div class="modal-body">
+    			<div class="col-md-12">
+                    <table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th style="width:1%;">ID</th>
+					        <th style=" width: 12%">Update By</th>
+					        <th style="word-break: break-all; width:12%">Remark</th>
+                            <th style="width: 11%">Created at</th>
+                            <th style="width: 11%">Action</th>
+                          </tr>
+					    </thead>
+					    <tbody class="task-create-get-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="preview-task-due-date-history-log-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th style="width:1%;">ID</th>
+					        <th style=" width: 12%">Update By</th>
+					        <th style="word-break: break-all; width:12%">Old Due date</th>
+                            <th style="word-break: break-all; width:12%">New Due date</th>
+					        <th style="width: 11%">Created at</th>
+                          </tr>
+					    </thead>
+					    <tbody class="task-due-date-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="file-upload-area-section" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -1463,6 +1547,13 @@ input.cmn-toggle-round + label {
         $('#search_by_user').select2({
                 width: "100%"
         });
+
+        $('#search_by_user').change(function () {
+            $("#priority_user_id").select2({tags: true,width: '100%'}).val($(this).val()).trigger('change');
+        });
+
+
+
         $(document).ready(function () {
 
         $('#priority_user_id').select2({
@@ -1603,6 +1694,7 @@ input.cmn-toggle-round + label {
             });
 
             function getPriorityTaskList(id) {
+                console.log('id',id)
                 var selected_issue = [0];
 
                 $('input[name ="selected_issue[]"]').each(function () {
@@ -1652,8 +1744,8 @@ input.cmn-toggle-round + label {
             });
 
             $('.priority_model_btn').click(function () {
-                $("#priority_user_id").val('0');
-                $("#sel_user_id").val('0');
+                //$("#priority_user_id").val('0');
+                //$("#sel_user_id").val('0');
                 $(".show_task_priority").html('');
                 <?php if (auth()->user()->isAdmin()) { ?>
                 getPriorityTaskList($('#priority_user_id').val());
@@ -1666,8 +1758,8 @@ input.cmn-toggle-round + label {
 
             $('#priority_user_id').change(function () {
                 $("#sel_user_id").val($(this).val());
-                getPriorityTaskList($(this).val())
-
+                if($('#priority_model').is(':visible')){                  getPriorityTaskList($(this).val())
+                }
             });
 
             $(document).on('submit', '#priorityForm', function (e) {
@@ -2208,25 +2300,123 @@ input.cmn-toggle-round + label {
             var thiss = $(this);
             var task_id = $(this).data('taskid');
             var date = $(this).siblings().find('.due_date_cls').val();
+            var oldDueDate = $(this).data('old_due_date');
             if (date != '') {
                 $.ajax({
                         url: "{{route('task.update.due_date')}}",
-                        type: 'POST',
+                        type: 'post',
                         headers: {
                             'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                         },
                         "data": {
                             task_id : task_id,
-                            date : date
+                            date : date,
+                            type : "TASK",
+                            old_due_date : oldDueDate
                         }
                     }).done(function (response) {
                         toastr['success']('Successfully updated');
                     }).fail(function (errObj) {
-                    
+                        toastr['error'](errObj.message);
                     });
             } else {
                 alert('Please enter a date first');
             }
+        });
+
+        $(document).on("click",".set-remark",function(e) {
+            $('.remark_pop').val("");
+            var task_id = $(this).data('task_id');
+            $('.sub_remark').attr( "data-task_id", task_id );
+        });
+        $(document).on("click",".set-remark, .sub_remark",function(e) {
+            var thiss = $(this);
+            var task_id = $(this).data('task_id');
+            var remark = $('.remark_pop').val();
+            $.ajax({
+                type: "POST",
+                url: "{{route('task.create.get.remark')}}",
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    task_id : task_id,
+                    remark : remark,
+                    type : "TASK",
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function (response) {
+                if(response.code == 200) {
+                    $("#loading-image").hide();
+                    $("#preview-task-create-get-modal").modal("show");
+                    $(".task-create-get-list-view").html(response.data);
+                    $('.remark_pop').val("");
+                    toastr['success'](response.message);
+                }else{
+                    $("#loading-image").hide();
+                    $("#preview-task-create-get-modal").modal("show");
+                    $(".task-create-get-list-view").html("");
+                    toastr['error'](response.message);
+                }
+                
+            }).fail(function (response) {
+                $("#loading-image").hide();
+                $("#preview-task-create-get-modal").modal("show");
+                $(".task-create-get-list-view").html("");
+                toastr['error'](response.message);
+            });
+        });
+
+        $(document).on("click",".copy_remark",function(e) {
+            var thiss = $(this);
+            var remark_text = thiss.data('remark_text');
+            copyToClipboard(remark_text);
+            /* Alert the copied text */
+            toastr['success']("Copied the text: " + remark_text);
+            //alert("Copied the text: " + remark_text);
+        });
+
+        function copyToClipboard(text) {
+            var sampleTextarea = document.createElement("textarea");
+            document.body.appendChild(sampleTextarea);
+            sampleTextarea.value = text; //save main text in it
+            sampleTextarea.select(); //select textarea contenrs
+            document.execCommand("copy");
+            document.body.removeChild(sampleTextarea);
+        }
+
+
+        $(document).on("click",".get_due_date_history_log",function(e) {
+            var task_id = $(this).data('taskid');
+            var task_type = $(this).data('task_type');
+            $.ajax({
+                type: "POST",
+                url: "{{route('task.get.due_date_history_log')}}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    task_id : task_id,
+                    type : task_type,
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function (response) {
+                if(response.code == 200) {
+                    $("#loading-image").hide();
+                    $("#preview-task-due-date-history-log-modal").modal("show");
+                    $(".task-due-date-list-view").html(response.data);
+                    toastr['success'](response.msg);
+                }else{
+                    $("#loading-image").hide();
+                    toastr['error'](response.msg);
+                }
+                
+            }).fail(function (response) {
+                $("#loading-image").hide();
+                toastr['error'](response.msg);
+            });
         });
         // $(document).on('click', '.create-task-btn', function () {
         //     $.ajax({
@@ -3102,19 +3292,22 @@ input.cmn-toggle-round + label {
             var thiss = $(this);
             if (key == 13) {
                 e.preventDefault();
-                var approximate = $(thiss).val();
                 var task_id = $(thiss).data('id');
-
+                var approximate = $("#approximate_" + task_id).val();
+                var track_time_remark = $("#track_time_remark_" + task_id).val();
+            if((approximate !== '') && (track_time_remark !== '') ){
                 $.ajax({
                     type: 'POST',
                     url: "{{ route('task.update.approximate') }}",
                     data: {
                         _token: "{{ csrf_token() }}",
                         approximate: approximate,
+                        remark: track_time_remark,
                         task_id: task_id
                     }
                 }).done(function () {
                     $(thiss).closest("td").find(".apx-val").html(approximate);
+                    $("#track_time_remark_" + task_id).val('');
                     $(thiss).closest('td').find('.update_approximate_msg').fadeIn(400);
                     setTimeout(function () {
                         $(thiss).closest('td').find('.update_approximate_msg').fadeOut(400);
@@ -3123,6 +3316,10 @@ input.cmn-toggle-round + label {
                 }).fail(function (response) {
                     alert('Could not update!!');
                 });
+            } else {
+                toastr["warning"]("Tracked time and remark fields are required", "Message");
+            }
+
             }
         });
 
@@ -3225,11 +3422,14 @@ input.cmn-toggle-round + label {
                                 var checked = ''; 
                             }
                             $('#time_history_div table tbody').append(
-                                '<tr>\
-                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
-                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td><td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
-                                </tr>'
+                                `<tr>
+                                    <td>${ moment(item['created_at']).format('DD/MM/YYYY') }</td>
+                                    <td>${ ((item['old_value'] != null) ? item['old_value'] : '-') }</td>
+                                    <td>${item['new_value']}</td>
+                                    <td>${item['name']}</td>
+                                    <td align="center"><span title="${item['remark']}">${(item['remark'] !== null ) ? item['remark'] : '-'}</td>
+                                    <td><input type="radio" name="approve_time" value="${item['id']}" ${checked} class="approve_time"/></td>
+                                </tr>`
                             );
                         });
 
@@ -3568,7 +3768,6 @@ $(document).on("click",".btn-save-documents",function(e){
 
 
         $(document).on("keyup",".search-category",function() {
-            console.log("aaaaaa");
             var input, filter, ul, li, a, i, txtValue;
             input = document.getElementById("myInput");
             filter = input.value.toUpperCase();

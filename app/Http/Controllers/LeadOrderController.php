@@ -6,6 +6,8 @@ use App\Leads;
 use App\Order;
 use Illuminate\Http\Request;
 use App\Setting;
+use App\ProductPriceDiscountLog;
+use App\LeadProductPriceCountLogs;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Helpers;
 use Illuminate\Support\Facades\DB;
@@ -69,12 +71,12 @@ class LeadOrderController extends Controller
                             //->leftJoin('users','erp_leads.customer_id','=','users.id')
                             ->join('brands','erp_leads.brand_id','=','brands.id')->with('storeWebsite')->with('storeWebsite.storeWebsiteProductPrice');                            
             else:
-                $leads = ErpLeads::select('erp_leads.id','erp_leads.customer_id','erp_leads.product_id','erp_leads.created_at as order_date','products.name','brands.name as brand_name','products.price_inr','products.price_inr_discounted','customers.name as customer_name','brands.id as brand_id')
+                $leads = ErpLeads::select('erp_leads.id','erp_leads.customer_id','erp_leads.store_website_id','erp_leads.product_id','erp_leads.created_at as order_date','products.name','brands.name as brand_name','products.price_inr','products.price_inr_discounted','customers.name as customer_name','brands.id as brand_id')
                             ->join('products','erp_leads.product_id','=','products.id')
                             ->leftJoin('customers','erp_leads.customer_id','=','customers.id')
                             //->leftJoin('users','erp_leads.customer_id','=','users.id')
-                            ->join('brands','erp_leads.brand_id','=','brands.id')->with('storeWebsite')->with('storeWebsite.storeWebsiteProductPrice')
-                            ->union($orders);
+                            ->join('brands','erp_leads.brand_id','=','brands.id')->with('storeWebsite')->with('storeWebsite.storeWebsiteProductPrice');
+                            //->union($orders);
             endif;
             
 
@@ -110,6 +112,71 @@ class LeadOrderController extends Controller
         
         return view('lead-order.index', compact('leadOrder_array','leads','brandList', 'term', 'orderOrLead'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
+    }
+
+    /**
+     * This funcrtion is use for get product suggested log
+     * @param Request $request
+     * 
+     * @return JsonResponse
+     */
+    public function leadProductPriceLog(Request $request) 
+    {
+        try {
+            $prodPriceDis = ProductPriceDiscountLog::where(["product_id" => $request->prod_id, 'customer_id' => $request->cust_id])->get();
+            if($prodPriceDis->toArray()) {
+                $html = '';
+                foreach($prodPriceDis AS $prodDisData) {
+                    $html .='<tr style="height:32px;width:100%;">';
+                    $html .='<td with="5%">'.$prodDisData->id.'</td>';
+                    $html .='<td with="10%">'.$prodDisData->order_id.'</td>';
+                    $html .='<td with="10%">'.$prodDisData->product_id.'</td>';
+                    $html .='<td with="20%"><span class="expand-text" style="float:left;height:24px;overflow:hidden;cursor: pointer;">'.$prodDisData->stage.'</span></td>';
+                    $html .='<td with="5%">'.$prodDisData->product_price.'</td>';
+                    $html .='<td with="5%">'.$prodDisData->product_total_price.'</td>';
+                    $html .='<td with="5%">'.$prodDisData->product_discount.'</td>';
+                    $html .='<td with="35%"><span class="expand-text" style="float:left;height:24px;overflow:hidden;cursor: pointer;">'.$prodDisData->log.'</span></td>';
+                    $html .='</tr>';
+                }
+                return response()->json(['code' => 200, 'data'=> $html, 'message' => 'Log listed Successfully']);   
+            }
+            return response()->json(['code' => 500, 'message' => "Log not found"]);   
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);   
+        }
+    }
+
+    /**
+     * This funcrtion is use for get Lead product Cal log
+     * @param Request $request
+     * 
+     * @return JsonResponse
+     */
+    public function leadProductPriceCalLog(Request $request) 
+    {
+        try {
+            $prodPriceDis = LeadProductPriceCountLogs::where(["product_id" => $request->prod_id, 'customer_id' => $request->cust_id])->get();
+            if($prodPriceDis->toArray()) {
+                $html = '';
+                foreach($prodPriceDis AS $prodDisData) {
+                    $html .='<tr style="height:32px;width:100%;">';
+                    $html .='<td with="5%">'.$prodDisData->id.'</td>';
+                    $html .='<td with="10%">'.$prodDisData->product_id.'</td>';
+                    $html .='<td with="10%">'.$prodDisData->original_price.'</td>';
+                    $html .='<td with="10%">'.$prodDisData->promotion_per.'%</td>';
+                    $html .='<td with="10%">'.$prodDisData->promotion.'</td>';
+                    $html .='<td with="10%">'.$prodDisData->segment_discount.'</td>';
+                    $html .='<td with="10%">'.$prodDisData->segment_discount_per.'%</td>';
+                    $html .='<td with="10%">'.$prodDisData->total_price.'</td>';
+                    $html .='<td with="10%">'.$prodDisData->euro_to_inr_price.'</td>';
+                    $html .='</tr>';
+                }
+                return response()->json(['code' => 200, 'data'=> $html, 'message' => 'Calculation Log listed Successfully']);   
+            }
+            return response()->json(['code' => 500, 'message' => "Calculation Log not found"]);   
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);   
+        }
     }
     
 }
