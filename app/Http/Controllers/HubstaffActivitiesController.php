@@ -419,8 +419,14 @@ class HubstaffActivitiesController extends Controller
                 'cc'              => null,
                 'bcc'             => null,
             ]);
+			
+			\App\EmailLog::create([
+				'email_id'   => $email->id,
+				'email_log' => 'Email initiated',
+				'message'       => $email->to
+			]);
 
-            \App\Jobs\SendEmail::dispatch($email);
+            \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
         }
         

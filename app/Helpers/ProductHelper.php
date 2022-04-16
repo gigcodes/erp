@@ -15,6 +15,7 @@ use App\ProductPushErrorLog;
 use App\SystemSizeManager;
 use App\Helpers\ProductHelper;
 use App\PushToMagentoCondition;
+use App\ProductPushJourney;
         
 class ProductHelper extends Model
 {
@@ -733,6 +734,9 @@ class ProductHelper extends Model
         // Check for price range
 		$priceRangeCheck = PushToMagentoCondition::where(['condition'=>'price_range_check', 'status'=>1])->first();
 		if($priceRangeCheck != null) {
+			if($log) {
+			    ProductPushJourney::create(['log_list_magento_id'=>$log->id, 'condition'=>'assign_product_references', 'product_id'=>$product->id,  'is_checked'=>1]);
+			}
 			if (((int)$product->price < 62.5 || (int)$product->price > 5000) && !$product->isCharity()) {
 				// Log info
 				//LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency', $storeWebsiteId);

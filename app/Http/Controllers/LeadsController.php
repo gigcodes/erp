@@ -570,6 +570,7 @@ class LeadsController extends Controller
 
     public function sendPrices(Request $request, GuzzleClient $client)
     {
+        
         $params = [
             'number' => null,
             'user_id' => Auth::id() ?? 6,
@@ -595,11 +596,25 @@ class LeadsController extends Controller
         $website = \App\StoreWebsite::find(15);
         foreach ($request->selected_product as $product_id) {
 
+            // count adding for leads
+            $store_website_product_price = array();
+            $store_website_product_price['product_id'] = $product_id;
+            $productData =  \App\Product::find($product_id);
+            $getPrice = $productData->getPrice($website, 'IN', null, true, null, null, null, null, null, null, null, $product_id, $customer->id);
+            $getDuty = $productData->getDuty('IN');
+            $store_website_product_price['default_price']  = $getPrice['original_price'];
+            $store_website_product_price["duty_price"] = (float)$getDuty["duty"];
+            $store_website_product_price["segment_discount"] = (float)$getPrice['segment_discount'];
+            $store_website_product_price["override_price"] = $getPrice['total'];
+            $store_website_product_price["status"] = 1;
+            $store_website_product_price['store_website_id'] =15;
+            \App\StoreWebsiteProductPrice::insert($store_website_product_price);
+            
             $product = Product::find($product_id);
             $brand_name = $product->brands->name ?? '';
             $special_price = (int) $product->price_special_offer > 0 ? (int) $product->price_special_offer : $product->price_inr_special;
             $dutyPrice = $product->getDuty($cnt);
-            $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
+            $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice, null, null, null, null, null, null, $product_id, $customer->id);
             if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
                 $special_price = $discountPrice['total'];
                 $brand = $product->brands;
@@ -615,6 +630,27 @@ class LeadsController extends Controller
             if (is_numeric($special_price)) {
                 $special_price = ceil($special_price / 10) * 10;
             }
+
+            $condition = [
+                'product_id' => $product_id, 
+                'customer_id' =>  $customer->id
+            ];
+
+            $fields = [
+                'product_id' => $product_id,
+                'customer_id' => $customer->id,
+                'original_price' => $getPrice['original_price'] ?? '',
+                'promotion_per' => $getPrice['promotion_per'] ?? '',
+                'promotion' => $getPrice['promotion'] ?? '',
+                'segment_discount' => $getPrice['segment_discount'] ?? '',
+                'segment_discount_per' => $getPrice['segment_discount_per'] ?? '',
+                'total_price' => $getPrice['total'] ?? '',
+                'before_iva_product_price' => $getPrice['before_iva_product_price'] ?? '',
+                'euro_to_inr_price' => $special_price,
+                'log' => $getPrice['last_log'] ?? '',
+            ];
+            \App\LeadProductPriceCountLogs::updateOrCreate($condition, $fields);
+
 
             if ($request->has('dimension')) {
 
@@ -1645,8 +1681,14 @@ class LeadsController extends Controller
                             'status' => 'pre-send',
                             'is_draft' => 0,
                         ]);
+						
+						\App\EmailLog::create([
+							'email_id'   => $email->id,
+							'email_log' => 'Email initiated',
+							'message'       => $email->to
+						]);
 
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                     } catch (\Exception $e) {
                         \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
@@ -1668,7 +1710,7 @@ class LeadsController extends Controller
                         'is_draft' => 0,
                     ]);
 
-                    \App\Jobs\SendEmail::dispatch($email);
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                 }
 

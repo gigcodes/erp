@@ -19,6 +19,7 @@ use App\Supplier;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\PushToMagentoCondition;
+use App\ProductPushJourney;
 
 /**
  * Get Magento service request
@@ -90,7 +91,8 @@ class MagentoService
 		$website = $this->storeWebsite;
         // start to send request if there is token
         if (($this->topParent == "NEW" && in_array('check_if_website_token_exists', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('check_if_website_token_exists',$this->upteamconditions))) {
-            if (!$this->validateToken()) {
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'product_id'=>$this->product->id, 'condition'=>'check_if_website_token_exists', 'is_checked'=>1]);
+			if (!$this->validateToken()) {
                 return false;
             }
         } else{
@@ -99,34 +101,38 @@ class MagentoService
 
         // started to check for the category
         if (($this->topParent == "NEW" && in_array('validate_category', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('validate_category',$this->upteamconditions))) {
-           
-		   if ($this->charity == 0 && !$this->validateCategory()) {
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'product_id'=>$this->product->id, 'condition'=>'validate_category', 'is_checked'=>1]);
+			if ($this->charity == 0 && !$this->validateCategory()) {
                 return false;
             }
         }
 
         // started to check the product rediness test
         if (($this->topParent == "NEW" && in_array('validate_readiness', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('validate_readiness',$this->upteamconditions))) {
-            if (!$this->validateReadiness()) {
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'validate_readiness', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+			if (!$this->validateReadiness()) {
                 return false;
             }
         }
 
         if (($this->topParent == "NEW" && in_array('validate_brand', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('validate_brand',$this->upteamconditions))) {
-            if (!$this->validateBrand()) {
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'validate_brand', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+			if (!$this->validateBrand()) {
                 return false;
             }
         }
 		
         if (($this->topParent == "NEW" && in_array('validate_product_category', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('validate_product_category',$this->upteamconditions))) {
-            if (!$this->validateProductCategory()) {
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'validate_product_category', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+			if (!$this->validateProductCategory()) {
                 return false;
             }
         }
 
         // assign reference
         if (($this->topParent == "NEW" && in_array('assign_product_references', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('assign_product_references',$this->upteamconditions))) {
-            $this->assignReference();
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'assign_product_references', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+			$this->assignReference();
         }
 
         return $this->assignOperation();
@@ -138,26 +144,31 @@ class MagentoService
         //assign all default datas so we can use on calculation
         \Log::info($this->product->id . " #1 => " . date("Y-m-d H:i:s"));
         if (($this->topParent == "NEW" && in_array('get_website_ids', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_website_ids',$this->upteamconditions))) {
-            $this->websiteIds = $this->getWebsiteIds();
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'get_website_ids', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+			$this->websiteIds = $this->getWebsiteIds();
         }
 
         \Log::info($this->product->id . " #2 => " . date("Y-m-d H:i:s"));
         if (($this->topParent == "NEW" && in_array('get_website_attributes', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_website_attributes',$this->upteamconditions))) {
-            $this->websiteAttributes = $this->getWebsiteAttributes();
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'get_website_attributes', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+			$this->websiteAttributes = $this->getWebsiteAttributes();
         }
         \Log::info($this->product->id . " #3 => " . date("Y-m-d H:i:s"));
         // start for translation
         if (($this->topParent == "NEW" && in_array('google_translation', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('google_translation',$this->upteamconditions))) {
-            $this->startTranslation();
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'google_translation', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+			$this->startTranslation();
         }
         \Log::info($this->product->id . " #4 => " . date("Y-m-d H:i:s"));
         if (($this->topParent == "NEW" && in_array('translate_meta', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('translate_meta',$this->upteamconditions))) {
-            $this->meta = $this->getMeta();
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'translate_meta', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+			$this->meta = $this->getMeta();
         }
         \Log::info($this->product->id . " #5 => " . date("Y-m-d H:i:s"));
         $this->translations = [];
         if (($this->topParent == "NEW" && in_array('get_langauages_translation', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_langauages_translation',$this->upteamconditions))) {
-            $this->translations = $this->getTranslations();
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'get_langauages_translation', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+			$this->translations = $this->getTranslations();
             if (!$this->translations) {
                 $this->storeLog("translation_not_found", "No translations found for the product total translation " . count($this->translations), null, null);
                 return false;
@@ -182,12 +193,14 @@ class MagentoService
         $this->sku = $this->getSku();
         \Log::info($this->product->id . " #9 => " . date("Y-m-d H:i:s"));
         if (($this->topParent == "NEW" && in_array('get_description', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_description',$this->upteamconditions))) {
-            $this->description = $this->getDescription();
+           ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'get_description', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+		   $this->description = $this->getDescription();
         }
         \Log::info($this->product->id . " #10 => " . date("Y-m-d H:i:s"));
         
 		if (($this->topParent == "NEW" && in_array('get_magento_brand', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_magento_brand',$this->upteamconditions))) {
-            $this->magentoBrand = $this->getMagentoBrand();
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'get_magento_brand', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+		    $this->magentoBrand = $this->getMagentoBrand();
 			$this->storeLog("success", "brand found" . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_magento_brand']]);
         }
         \Log::info($this->product->id . " #11 => " . date("Y-m-d H:i:s"));
@@ -195,7 +208,8 @@ class MagentoService
         \Log::info($this->product->id . " #12 => " . date("Y-m-d H:i:s"));
         
 		if (($this->topParent == "NEW" && in_array('get_store_website_size', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_store_website_size',$this->upteamconditions))) {
-            $this->storeWebsiteSize = $this->storeWebsiteSize();
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'get_store_website_size', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+		    $this->storeWebsiteSize = $this->storeWebsiteSize();
 			$this->storeLog("success", "get store website size" . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_store_website_size']]);
            if (($this->topParent == "NEW" && in_array('validate_store_website_size', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('validate_store_website_size',$this->upteamconditions))) {
 				$this->storeLog("success", "validate store website size" . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_store_website_size']]);
@@ -208,31 +222,36 @@ class MagentoService
         \Log::info($this->product->id . " #13 => " . date("Y-m-d H:i:s"));
         
 		if (($this->topParent == "NEW" && in_array('get_store_website_color', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_store_website_color',$this->upteamconditions))) {
-            $this->storeLog("success", "fetch colors for website " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_store_website_color']]);
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'get_store_website_color', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+		    $this->storeLog("success", "fetch colors for website " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_store_website_color']]);
             $this->storeWebsiteColor = $this->storeWebsiteColor();
         }
         \Log::info($this->product->id . " #14 => " . date("Y-m-d H:i:s"));
         
 		if (($this->topParent == "NEW" && in_array('get_measurements', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_measurements',$this->upteamconditions))) {
-            $this->storeLog("success", "fetch measurements for website " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_measurements']]);
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'get_measurements', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+		    $this->storeLog("success", "fetch measurements for website " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_measurements']]);
             $this->measurement = $this->getMeasurements();
         }
         \Log::info($this->product->id . " #15 => " . date("Y-m-d H:i:s"));
 
         if (($this->topParent == "NEW" && in_array('get_estimate_minimum_days', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_estimate_minimum_days',$this->upteamconditions))) {
-            $this->storeLog("success", "estimate minimum for website " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_estimate_minimum_days']]);
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'get_estimate_minimum_days', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+		    $this->storeLog("success", "estimate minimum for website " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_estimate_minimum_days']]);
             $this->estMinimumDays = $this->getEstimateMinimumDays();
         }
         \Log::info($this->product->id . " #16 => " . date("Y-m-d H:i:s"));
         
 		if (($this->topParent == "NEW" && in_array('get_size_chart', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_size_chart',$this->upteamconditions))) {
-            $this->storeLog("success", "get size chart for website " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_size_chart']]);
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'get_size_chart', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+		    $this->storeLog("success", "get size chart for website " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_size_chart']]);
             $this->sizeChart = $this->getSizeChart();
         }
         \Log::info($this->product->id . " #17 => " . date("Y-m-d H:i:s"));
         
 		if (($this->topParent == "NEW" && in_array('get_store_color', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_store_color',$this->upteamconditions))) {
-            $this->storeLog("success", "fetch store color" . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_store_color']]);
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'get_store_color', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+		    $this->storeLog("success", "fetch store color" . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_store_color']]);
             $this->storeColor = $this->getStoreColor();
         }
         \Log::info($this->product->id . " #18 => " . date("Y-m-d H:i:s"));
@@ -240,7 +259,8 @@ class MagentoService
         // get normal and special prices
         
 		if (($this->topParent == "NEW" && in_array('get_price', $this->conditions))  || ($this->topParent == "PREOWNED" && in_array('get_price',$this->upteamconditions))) {
-            $this->storeLog("success", "fetch pricing " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_price']]);
+            ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'get_price', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+		    $this->storeLog("success", "fetch pricing " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_price']]);
             $this->getPricing();
             $this->storeLog("success", "fetched pricing " . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_price']]);
         }
@@ -416,6 +436,7 @@ class MagentoService
         $mainCategory = $this->category;
 
         $pushSingle = false;
+        ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'check_category_pushtype', 'product_id'=>$this->product->id,  'is_checked'=>1]);
 
         if ($mainCategory->push_type == 0 && !is_null($mainCategory->push_type)) {
             \Log::info("Product push type single via category");
@@ -461,6 +482,8 @@ class MagentoService
         // started to check that request issue
         $platform_id = 0;
         if (isset($result->id)) {
+			ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'add_update_store_website_product', 'product_id'=>$this->product->id,  'is_checked'=>1]);
+		    
             $platform_id = $result->id;
             $sp = \App\StoreWebsiteProduct::where('product_id', $this->product->id)
                 ->where('store_website_id', $this->storeWebsite->id)->first();
@@ -1065,6 +1088,7 @@ class MagentoService
                         ];
                     }
                 } else {
+					ProductPushJourney::create(['log_list_magento_id'=>$this->log->id, 'condition'=>'add_update_price_data', 'product_id'=>$this->product->id,  'is_checked'=>1]);
                     $countries = !empty($webStore->countries) ? json_decode($webStore->countries) : [];
                     $magentoPrice          = $product->price;
                     $specialPrice   = 0;

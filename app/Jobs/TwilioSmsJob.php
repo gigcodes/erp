@@ -23,6 +23,9 @@ class TwilioSmsJob implements ShouldQueue
     public $message;
     public $store_website_id;
 
+    public $tries = 5;
+    public $backoff = 5;
+
     /**
      * Create a new job instance.
      *
@@ -84,6 +87,12 @@ class TwilioSmsJob implements ShouldQueue
             ChatMessage::create($chat);
         } catch (Exception $e) {
             \Log::info("Sending SMS issue #2215 ->" . $e->getMessage());
+            throw new \Exception($e->getMessage());
         }
+    }
+
+    public function tags() 
+    {
+        return [ 'TwilioSmsJob', $this->store_website_id];
     }
 }

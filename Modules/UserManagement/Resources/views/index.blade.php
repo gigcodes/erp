@@ -618,7 +618,7 @@
           
         });
         $('.select-multiple').select2({width: '100%'});
-        $(document).on("click", ".number .whatsapp_number", function(e) {
+        $(document).on("change", ".number .whatsapp_number", function(e) {
           //  alert("ddddd");        
             e.preventDefault();
             $("#loading-image").show();

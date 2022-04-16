@@ -551,6 +551,8 @@ class LaravelLogController extends Controller
 
     public function apiLogs(Request $request)
     {
+        
+
         $logs = new \App\LogRequest;
 
         //echo '<pre>';print_r($request->all());
@@ -567,9 +569,18 @@ class LaravelLogController extends Controller
             $logs = $logs->where('method', 'like', $request->method . '%');
         }
 
+        if ($request->method_name) {
+            $logs = $logs->where('method_name', 'like', $request->method_name . '%');
+        }
+
+        if ($request->message) {
+            $logs = $logs->where('message', 'like', '%' . $request->message . '%');
+        }
+
         if ($request->status) {
             $logs = $logs->where('status_code', 'like', $request->status . '%');
         }
+
         if ($request->url) {
             $logs = $logs->where('url', 'like', '%' . $request->url . '%');
         }
@@ -597,7 +608,10 @@ class LaravelLogController extends Controller
                 return array('status' => 0, 'html' => '<tr id="noresult_tr"><td colspan="7">No More Records</td></tr>');
             }
         }
-        return view('logging.apilog', compact('logs', 'count','status_codes'));
+        
+        $all_method_names = \App\LogRequest::select('method_name')->whereNotNull('method_name')->groupBy('method_name')->get();
+
+        return view('logging.apilog', compact('logs', 'count','status_codes', 'all_method_names'));
     }
 
     public function generateReport(Request $request)

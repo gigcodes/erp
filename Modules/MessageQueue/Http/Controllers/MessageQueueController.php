@@ -9,6 +9,7 @@ use App\Services\Whatsapp\ChatApi\ChatApi;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use App\Setting;
 use DB;
 use Excel;
 
@@ -75,10 +76,30 @@ class MessageQueueController extends Controller
             })
             ->groupBy("group_id")
             ->orderBy("group_id", "desc")
-            ->get();
+            ->paginate(Setting::get('pagination'));
+            //->get();
 
         return view('messagequeue::approve', compact('groupList', 'messageData', 'group_id'));
 
+    }
+
+    /**
+     * This funcrtion is use for delete records
+     * @param Request $request
+     * 
+     * @return JsonResponse
+     */
+    public function deleteMessageQueue(Request $request) {
+        try {
+            $idArr = explode(",",$request->ids);
+            $chatMess = ChatMessage::whereIn("id", $idArr)->delete();
+            if($chatMess!=0) {
+                return response()->json(['code' => 200, 'message' => 'Successfully Deleted']);   
+            }
+            return response()->json(['code' => 500, 'message' => "Please select any record"]);   
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);   
+        }
     }
 
 

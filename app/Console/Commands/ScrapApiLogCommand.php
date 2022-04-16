@@ -100,11 +100,8 @@ class ScrapApiLogCommand extends Command
                         $api_log->log_messages = $log;
                         $api_log->save();
                     }
-
                 }
-
             }
-
         }
     }
 }

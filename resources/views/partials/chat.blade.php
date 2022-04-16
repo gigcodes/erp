@@ -384,7 +384,8 @@ const instance_1 = AccountsSDK.init({
 	 response_type: "token",
 	onIdentityFetched: (error, data) => {
 		if (error){
-			console.log(error)
+			//alert(error.oauth_exception);
+			console.log(error.oauth_exception);
 		} 
 		if (data) {
 			console.log("User authorized!");
@@ -408,9 +409,6 @@ const instance_1 = AccountsSDK.init({
 			}catch{
 
 			}	
-			
-			
-			//console.log("License number: " + data.license);
 		}
 	}
 });
