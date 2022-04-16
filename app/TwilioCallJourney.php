@@ -14,4 +14,8 @@ class TwilioCallJourney extends Model
         return $this->belongsTo(TwilioCredential::class, 'account_sid', 'account_id');
     }
 
+    public function customer() {
+        return $this->belongsTo(Customer::class, 'phone', 'phone');
+    }
+
 }
