@@ -135,7 +135,7 @@ class getLiveChatIncTickets extends Command
                                 'status'          => 'pre-send',
                                 'is_draft'        => 1,
                             ]);
-                            \App\Jobs\SendEmail::dispatch($email);
+                            \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
                         }
                     }
                 }

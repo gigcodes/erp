@@ -63,6 +63,7 @@ class ScheduleEmails extends Command
 		$leads_new = [];
 
 	    $flows = Flow::select('id', 'flow_name as name')->get();
+		// dd($flows);
 		//$flows = Flow::whereIn('flow_name', ['task_pr'])->select('id', 'flow_name as name')->get();  
 		FlowLog::log(["flow_id" => 0, "messages" => "Flow action started to check and found total flows : " . $flows->count()]);
 
@@ -87,7 +88,6 @@ class ScheduleEmails extends Command
 				->where('flows.id', '=', $flow['id'])->whereNull('flow_paths.parent_action_id')->orderBy('flow_actions.rank', 'asc')
 				->get();
 			$flowlog = FlowLog::log(["flow_id" => $flow['id'], "messages" => $flow["name"] . " has found total Action  : " . $flowActions->count()]);
-			
 
 			if ($flowActions != null) {
 				$i = 0;
@@ -102,7 +102,11 @@ class ScheduleEmails extends Command
 							$created_date = $created_date->addMinutes($flowAction['time_delay']);
 						}
 					}
-					$leadsFlowArray = ['add_to_cart', 'attach_images_for_product', 'dispatch_send_price', 'new_erp_lead', 'out_of_stock_subscribe', 'payment_failed'];
+					
+					$leadsFlowArray = ['add_to_cart', 'add to cart', 'attach_images_for_product', 'dispatch_send_price', 'new_erp_lead', 'out_of_stock_subscribe', 'payment_failed'];
+					
+					// dd( $leadsFlowArray, $flow['name']);
+					// dd(($key == 0 and (in_array($flow['name'], $leadsFlowArray))));
 					if ($key == 0 and (in_array($flow['name'], $leadsFlowArray))) {
 						$nameInDB = str_replace('_', '-', $flow['name']);
 						$leads = ErpLeads::select(
@@ -120,6 +124,7 @@ class ScheduleEmails extends Command
 							->whereNotNull('customers.email')
 							->get();
 						$i = 1;
+
 						$modalType =  ErpLeads::class;
 					} else if ($key == 0 and $flow['name'] == 'wishlist') {
 						$leads = \App\CustomerBasketProduct::join("customer_baskets as cb", "cb.id", "customer_basket_products.customer_basket_id");
@@ -229,6 +234,7 @@ class ScheduleEmails extends Command
 							$modalType =  Orders::class;
 
 					}
+					// dd($leads, "leads");
 					$this->doProcess($flowAction, $modalType, $leads, $flow['store_website_id'], $created_date, $flowlog["id"], 'customer', $allflowconditions, $flow);
 					
 				}
@@ -302,18 +308,18 @@ class ScheduleEmails extends Command
 					$flowLogMessage = FlowLogMessages::where([
 						"flow_action" => $flowAction['type'],
 						"modalType" => $modalType,
-						"leads" => $lead['customer_email'],
+						"leads" => $lead->customer_id,
 						"store_website_id" => $store_website_id,
 						"messages" => $bodyText.' ('.$created_date.')',
 						"flow_log_id" => $flow_log_id,
 						"scraper_id" => $scraper_id
 					])->first();
-					
+
 					if($flowLogMessage == null) {
 						FlowLogMessages::log([
 							"flow_action" => $flowAction['type'],
 							"modalType" => $modalType,
-							"leads" => $lead['customer_email'],
+							"leads" => $lead->customer_id,
 							"store_website_id" => $store_website_id,
 							"messages" => $bodyText.' ('.$created_date.')',
 							"flow_log_id" => $flow_log_id,
@@ -321,8 +327,7 @@ class ScheduleEmails extends Command
 						]);
 					}
 				}
-			}
-			else{
+			} else {
 				FlowLogMessages::log([
 					"flow_action" => $flowAction['type'],
 					"modalType" => $modalType,
@@ -397,7 +402,7 @@ class ScheduleEmails extends Command
 					$order_status = $lead['order_status']??'';
 
 					$insertParams = [
-						"user_id"            => $lead->customer_id,
+						"user_id"            	 => $lead->customer_id,
 						"message"                => $flowAction['message_title'],
 						"status"                 => 1,
 						"is_queue"               => 1,

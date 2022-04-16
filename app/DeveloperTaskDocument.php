@@ -9,7 +9,7 @@ use Plank\Mediable\Mediable;
 
 class DeveloperTaskDocument extends Model
 {
-			     /**
+    /**
      * @var string
    * @SWG\Property(property="subject",type="string")
    * @SWG\Property(property="description",type="string")

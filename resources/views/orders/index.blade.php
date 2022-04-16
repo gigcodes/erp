@@ -53,8 +53,6 @@
 .table.table-bordered.order-table th a{
   color:black!important;
 }
-
-
 </style>
 @endsection
 
@@ -64,7 +62,6 @@
 		<img src="{{ asset('/images/loading2.gif') }}">
 		</div>
 	</div>
-
   <div class="row">
         <div class="col-12" style="padding:0px;">
             <h2 class="page-heading">Orders List ({{$totalOrders}})</h2>
@@ -72,7 +69,6 @@
            <div class="col-10" style="padding-left:0px;">
             <div >
             <form class="form-inline" action="{{ route('order.index') }}" method="GET">
-                
                 <div class="form-group col-md-3 pd-3">
                   <input style="width:100%;" name="term" type="text" class="form-control"
                          value="{{ isset($term) ? $term : '' }}"
@@ -82,31 +78,22 @@
                  <div class="form-group col-md-2 pd-3 status-select-cls">
                   <select class="form-control select-multiple" name="status[]" multiple>
                     <option value="">Select a Status</option>
-
-
-                     @foreach ($order_status_list as $id => $order_st)
-                      <option value="{{ $id }}" {{ isset($order_status) && in_array($id, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
-                    @endforeach
+                      @foreach ($order_status_list as $id => $order_st)
+                        <option value="{{ $id }}" {{ isset($order_status) && in_array($id, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
+                      @endforeach
                   </select>
                 </div>
-
-
                  <!-- <div class="form-group col-md-2 pd-3">
                   <?php echo Form::select("brand_id[]",["" => "-- Select Brands --"]+$brandList,request('brand_id',[]),["class" => "form-control select2"]); ?>
                 </div> -->
-
-
                  <div class="form-group col-md-2 pd-3">
                   <div class='input-group date' id='order-datetime'>
                     <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" />
-
-
                      <span class="input-group-addon">
                       <span class="glyphicon glyphicon-calendar"></span>
                     </span>
                   </div>
                 </div>
-
                    <div class="form-group col-md-2 pd-3">
                   <div class="form-group ml-3">	
                       <select class="form-control select2" name="store_website_id">
@@ -118,12 +105,10 @@
                       </select>
                   </div>
                   </div>
-
                    <div class="form-group col-md-1 pd-3">
                 <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
                   </div>
               </form>
-               
             </div>
              </div>
           <div class="col-md-2" style="padding:0px;">
@@ -149,23 +134,18 @@
     <?php } ?>  
 </div>
 
-
 <div class="row">
-        <div class="col-md-12" style="padding:0px;">
-            <div class="pull-right">
-              <a href="#" class="btn btn-xs btn-secondary magento-order-status">Magento Order Status Mapping</a>
-              <a href="#" class="btn btn-xs btn-secondary delete-orders">
-                            Archive
-              </a>
-              <a href="#" class="btn btn-xs update-customer btn-secondary">
-                            Update
-              </a>
-            </div>
-        </div>
+  <div class="col-md-12" style="padding:0px;">
+      <div class="pull-right">
+        <a href="#" class="btn btn-xs btn-secondary magento-order-status">Magento Order Status Mapping</a>
+        <a href="#" class="btn btn-xs btn-secondary delete-orders">Archive</a>
+        <a href="#" class="btn btn-xs update-customer btn-secondary">Update</a>
     </div>
+  </div>
+</div>
 <div class="row">
     <div class="infinite-scroll" style="width:100%;">
-	<div class="table-responsive mt-2">
+	<div class=" mt-2" style="overflow-x: scroll;">
       <table class="table table-bordered order-table table-condensed" style="border: 1px solid #5A6268 !important; color:black;">
         <thead>
         <tr>
@@ -351,7 +331,9 @@
               <td>{{$duty_shipping[$order->id]['shipping']}}</td>
               <td>{{$duty_shipping[$order->id]['duty']}}</td>
               <td>
-                <div class="d-flex">
+                <div class="d-flex"> <button type="button" title="Payment history" class="btn cancel-transaction-btn btn-xs pull-left" data-id="{{$order->id}}">
+                      <i class="fa fa-close"></i>
+                  </button>
                  <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" data-id="{{$order->id}}">
                       <i class="fa fa-history"></i>
                   </button>
@@ -428,6 +410,19 @@
                   <i class="fa fa-download"></i>
                </a>
                 @endif
+                <button type="button" class="btn btn-xs btn-image load-log-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="order" data-id="{{$order->id}}" data-load-type="text" data-all="1" title="Show Error Log"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                <button type="button" title="Payment history" class="btn magento-log-btn btn-xs pull-left" data-id="{{$order->id}}">
+                  <i class="fa fa-eye"></i>
+                </button>
+                <button type="button" title="Order Email send error" class="btn  btn-xs btn-image pd-5 email_exception_list" data-id="{{$order->id}}">
+                  <i style="color:#6c757d;" class="fa fa-info-circle" data-id="{{$order->id}}"  aria-hidden="true"></i>
+                </button>
+                <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 order_email_send_log" data-id="{{$order->id}}">
+                    <img src="http://erp.local:8080/images/chat.png" alt="">
+                </button>
+                <button type="button" title="Order email send model" class="btn  btn-xs btn-image pd-5 order-resend-popup" data-status_id="{{ $order->order_status_id }}" data-id="{{$order->id}}">
+                  <i style="color:#6c757d;" class="fa fa-address-card" data-id="{{$order->id}}"  aria-hidden="true"></i>
+                </button>
                 </div>
               </td>
             </tr>
@@ -483,6 +478,129 @@
       </div>
     </div>
 
+    <div id="order-magento-history-modal" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Order Status Change Log</h4>
+          </div>
+          <div class="modal-body">
+            <div class="col-md-12">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Log Detail</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody class="order-magento-list">
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="order_error_log" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h4 class="modal-title">Order Logs</h4>
+              </div>
+              <div class="modal-body">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Order ID</th>
+                        <th style="width: 20%;">Log Type</th>
+                        <th style="width: 20%;">Error Log</th>
+                        <th>Date</th>
+                      </tr>
+                    </thead>
+
+                    <tbody id="order_logtd">
+                     
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+ 
+  <div id="order_exception_error_log" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Order Logs</h4>
+            </div>
+            <div class="modal-body">
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Order ID</th>
+                      <th style="width: 20%;">Error Log</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="order_errorlogtd">
+                   
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div id="order_email_send_log" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Order Logs</h4>
+            </div>
+            <div class="modal-body">
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Order ID</th>
+                      <th>Type</th>
+                      <th>From</th>
+                      <th>To</th>
+                      <th>Subject</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="order_emailsendlogtd">
+                   
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
     <div id="order-status-map" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -528,89 +646,89 @@
     <div class="modal-dialog modal-lg">
       <!-- Modal content-->
       <div class="modal-content ">
-      <div class="modal-header">
-                    <h4 class="modal-title">Update Customers</h4>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <div class="modal-header">
+            <h4 class="modal-title">Update Customers</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <form action="" id="customerUpdateForm" method="POST">
+          @csrf
+          <div class="modal-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="col-md-2">
+                    <strong>Status:</strong>
+                  </div>
+                  <div class="col-md-8">
+                    <div class="form-group">
+                      <select data-placeholder="Order Status" name="order_status" class="form-control select2" >
+                          <optgroup label="Order Status">
+                            <option value="">Select Order Status</option>
+                            @foreach ($order_status_list as $id => $status)
+                              <option value="{{ $id }}" {{ (isset($order->order_status_id) && $order->order_status_id == $id) ? 'selected' : '' }}>{{ $status }}</option>
+                            @endforeach
+                          </optgroup>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-                <form action="" id="customerUpdateForm" method="POST">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="col-md-2">
-                                    <strong>Status:</strong>
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="form-group">
-                                      <select data-placeholder="Order Status" name="order_status" class="form-control select2" >
-                                              <optgroup label="Order Status">
-                                                <option value="">Select Order Status</option>
-                                                  @foreach ($order_status_list as $id => $status)
-                                                      <option value="{{ $id }}" {{ (isset($order->order_status_id) && $order->order_status_id == $id) ? 'selected' : '' }}>{{ $status }}</option>
-                                                  @endforeach
-                                              </optgroup>
-                                      </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-2">
-                                    <strong>Add New Reply:</strong>
-                                </div>
-                                <div class="col-md-8">
-                                <div class="form-group">
-                                  <input type="text" class="addnewreply" placeholder="add new reply">
-                                  <button class="btn btn-secondary addnewreplybtn">+</button>
-                                </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-2">
-                                    <strong>Quick Reply:</strong>
-                                </div>
-                                <div class="col-md-8">
-                                <div class="form-group">
-                                  <select class="quickreply">
-                                  <option value="">Select quick reply</option>
-                                  @if($quickreply)
-                                    @foreach($quickreply as $quickrep)
-                                      <option value="{{$quickrep->id}}">{{$quickrep->reply}}</option>
-                                    @endforeach
-                                 @endif
-                                </select>
-                                </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-2">
-                                    <strong>Message:</strong>
-                                </div>
-                                <div class="col-md-8">
-                                <div class="form-group">
-                                  <textarea cols="45" class="form-control" name="customer_message"></textarea>
-                                </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-2">
-                                    <strong>Update type:</strong>
-                                </div>
-                                <div class="col-md-8">
-                                <div class="form-group">
-                                  <select name="update_type" class="form-control">
-                                    <option value="1">Only send message</option>
-                                    <option value="2">Send message and update status</option>
-                                  </select>
-                                </div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="col-md-12">
+                  <div class="col-md-2">
+                    <strong>Add New Reply:</strong>
+                  </div>
+                  <div class="col-md-8">
+                    <div class="form-group">
+                      <input type="text" class="addnewreply" placeholder="add new reply">
+                      <button class="btn btn-secondary addnewreplybtn">+</button>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-secondary">Update</button>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="col-md-2">
+                    <strong>Quick Reply:</strong>
+                  </div>
+                  <div class="col-md-8">
+                      <div class="form-group">
+                        <select class="quickreply">
+                          <option value="">Select quick reply</option>
+                          @if($quickreply)
+                            @foreach($quickreply as $quickrep)
+                              <option value="{{$quickrep->id}}">{{$quickrep->reply}}</option>
+                            @endforeach
+                          @endif
+                      </select>
                     </div>
-                </form>
+                  </div>
+                </div>
+                  <div class="col-md-12">
+                      <div class="col-md-2">
+                          <strong>Message:</strong>
+                      </div>
+                      <div class="col-md-8">
+                      <div class="form-group">
+                        <textarea cols="45" class="form-control" name="customer_message"></textarea>
+                      </div>
+                      </div>
+                  </div>
+                  <div class="col-md-12">
+                      <div class="col-md-2">
+                          <strong>Update type:</strong>
+                      </div>
+                      <div class="col-md-8">
+                      <div class="form-group">
+                        <select name="update_type" class="form-control">
+                          <option value="1">Only send message</option>
+                          <option value="2">Send message and update status</option>
+                        </select>
+                      </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Update</button>
+          </div>
+        </form>
       </div>
     </div>
 </div>
@@ -666,29 +784,21 @@
       </div>
     </div>
 </div>
-<div id="purchaseCommonModal" class="modal fade" role="dialog" style="padding-top: 0px !important;
-    padding-right: 12px;
-    padding-bottom: 0px !important;">
-    <div class="modal-dialog" style="width: 100%;
-    max-width: none;
-    height: auto;
-    margin: 0;">
-      <div class="modal-content " style="
-    border: 0;
-    border-radius: 0;">
+<div id="purchaseCommonModal" class="modal fade" role="dialog" style="padding-top: 0px !important;padding-right: 12px; padding-bottom: 0px !important;">
+  <div class="modal-dialog" style="width: 100%;max-width: none;height: auto;margin: 0;">
+    <div class="modal-content " style="border: 0;border-radius: 0;">
       <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                    <div class="modal-body" id="common-contents">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body" id="common-contents">
 
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>
+  </div>
 </div>
-
 
 <div id="estdelhistoryresponse"></div>
 @endsection
@@ -704,8 +814,6 @@
 @include('partials.modals.estimated-delivery-date-histories')
 @section('scripts')
 
-
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="{{ asset('/js/order-awb.js') }}"></script>
@@ -718,7 +826,6 @@
     CKEDITOR.replace('editableFile');
   </script>
   <script type="text/javascript">
-
   
     $(document).on('click','.magento-order-status',function(event){ 
       event.preventDefault();
@@ -825,6 +932,114 @@
 				alert("Could not find any data");
 			});
 		});
+
+    
+    $(document).on("click",".email_exception_list",function() { 
+			  console.log(this);
+        var order_id = $(this).data("id");
+        $.ajax({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{route("order.get.email.error.logs")}}',
+          type: "post",
+          data : { order_id: order_id },
+          beforeSend: function() {
+            $("loading-image").show();
+          }
+        }).done( function(response) {
+          if(response.code == 200) {
+            var t = '';
+            $.each(response.data,function(k,v) {
+              t += `<tr><td>`+v.id+`</td>`;
+              t += `<td>`+v.order_id+`</td>`;
+              t += `<td>`+v.exception_error+`</td>`;
+              t += `<td>`+v.created_at+`</td></tr>`;
+            });
+
+            $("#order_exception_error_log").find("#order_errorlogtd").html(t);
+            $('#order_exception_error_log').modal("show");
+            $("loading-image").hide();
+          } else if(response.code == 500){
+            toastr['error']('Could not find any error Log', 'Error');
+          }
+        }).fail(function(error) {
+          toastr['error']('Could not find any error Log', 'Error');
+        });
+		  });
+
+      $(document).on("click",".order_email_send_log",function() { 
+			  console.log(this);
+        var order_id = $(this).data("id");
+        $.ajax({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{route("order.get.email.send.logs")}}',
+          type: "post",
+          data : { order_id: order_id },
+          beforeSend: function() {
+            $("loading-image").show();
+          }
+        }).done( function(response) {
+          if(response.code == 200) {
+            var t = '';
+            $.each(response.data,function(k,v) {
+              t += `<tr><td>`+v.id+`</td>`;
+              t += `<td>`+v.model_id+`</td>`;
+              t += `<td>`+v.type+`</td>`;
+              t += `<td>`+v.from+`</td>`;
+              t += `<td>`+v.to+`</td>`;
+              t += `<td>`+v.subject+`</td>`;
+              t += `<td>`+v.created_at+`</td></tr>`;
+            });
+
+            $("#order_email_send_log").find("#order_emailsendlogtd").html(t);
+            $('#order_email_send_log').modal("show");
+            $("loading-image").hide();
+          } else if(response.code == 500){
+            toastr['error']('Could not find any error Log', 'Error');
+          }
+        }).fail(function(error) {
+          toastr['error']('Could not find any error Log', 'Error');
+        });
+		  });
+
+    $(document).on("click",".load-log-modal",function() { 
+			  console.log(this);
+        var order_id = $(this).data("id");
+        $.ajax({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{url("order/get-error-logs")}}',
+          type: "post",
+          data : { order_id: order_id },
+          beforeSend: function() {
+            $("loading-image").show();
+          }
+        }).done( function(response) {
+          if(response.code == 200) {
+            var t = '';
+            $.each(response.data,function(k,v) {
+              t += `<tr><td>`+v.id+`</td>`;
+              t += `<td>`+v.order_id+`</td>`;
+              t += `<td>`+v.event_type+`</td>`;
+              t += `<td>`+v.log+`</td>`;
+              t += `<td>`+v.created_at+`</td></tr>`;
+            });
+
+            $("#order_error_log").find("#order_logtd").html(t);
+            $('#order_error_log').modal("show");
+            $("loading-image").hide();
+          } else if(response.code == 500){
+            alert(response.message);
+          }
+        }).fail(function(errObj) {
+          alert("Could not find any data");
+        });
+		  });
+      
 
       $(document).on("click",".generate-awb",function() {
           var customer = $(this).data("customer");
@@ -1006,7 +1221,39 @@
           var message = 'Do you want to send message to customer for status change';
           ConfirmDialog(message,id,status);
       });*/
-
+      $(document).on("click",".order-resend-popup",function() {
+          var id = $(this).data("id");
+          var status = $(this).data('status_id');
+          $("#preview").hide();
+          $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "order/"+id+"/change-status-template",
+            type: "post",
+            data : {
+              order_id: id, 
+              order_status_id : status
+            },
+            beforeSend: function() {
+              $("loading-image").show();
+            }
+          }).done( function(response) {
+            $("loading-image").hide();
+            if(response.code == 200) {
+              $("#order-id-status-tpl").val(id);
+              $("#preview").html(response.preview);
+              CKEDITOR.replace( 'editableFile' );
+              $("#order-status-id-status-tpl").val(status);
+              $("#order-template-status-tpl").val(response.template);
+              $(".msg_platform").prop('checked', false);
+              $("#update-status-message-tpl").modal("show");
+            }
+            
+          }).fail(function(errObj) {
+              alert("Could not change status");
+          });
+      });
       $(document).on("change",".order-status-select",function() {
           var id = $(this).data("id");
           var status = $(this).val();
@@ -1072,8 +1319,8 @@
             }).done( function(response) {
               $("#update-status-message-tpl").modal("hide");
             }).fail(function(errObj) {
-              alert("Could not change status");
-            });
+              toastr['error'](errObj.responseText);
+           });
           }
           
       });
@@ -1184,7 +1431,62 @@
         });
     });
 
-    $('.payment-history-btn').click(function(){
+    $('.cancel-transaction-btn').click(function(){
+          var order_id = $(this).data('id');
+          console.log(order_id);
+          //return false;
+          $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('order.canceltransaction') }}",
+            data: {
+              order_id:order_id,
+            },
+        }).done(response => {
+          //$('#payment-history-modal').find('.payment-history-list-view').html('');
+            if(response.success==true){
+              console.log(response);
+              message = JSON.parse(response.message);
+              alert(message.message);
+              //$('#payment-history-modal').find('.payment-history-list-view').html(response.html);
+              //$('#payment-history-modal').modal('show');
+            }
+
+        }).fail(function(response) {
+          alert(response.responseJSON.message);
+        });
+      });
+
+      $('.magento-log-btn').click(function(){
+          var order_id = $(this).data('id');
+          $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('order.magento.log.list') }}",
+            data: {
+              order_id:order_id,
+            },
+        }).done(response => {
+          $('.order-magento-list').html('');
+            if(response.code == '200' && response.data !=''){
+              $('.order-magento-list').html(response.data);
+              $('#order-magento-history-modal').modal('show');
+            } else {
+              alert('Could not fetch log list');
+            }
+
+        }).fail(function(response) {
+          alert('Could not fetch log list');
+        });
+      });
+
+ $('.payment-history-btn').click(function(){
+    event.stopPropagation();
+    event.stopImmediatePropagation(); 
           var order_id = $(this).data('id');
           $.ajax({
             type: 'POST',
@@ -1207,7 +1509,6 @@
           alert('Could not fetch payments');
         });
       });
-
     $(document).on("click",".send-order-email-btn",function(e){
        e.preventDefault();
        var $this = $(this);
@@ -1245,10 +1546,6 @@
            $("#addInvoice").hide();
         });
     });
-
-	
-	
-
 
     var selected_orders = [];
          $(document).on('click', '.selectedOrder', function () {

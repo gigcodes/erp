@@ -63,7 +63,7 @@ class BroadcastController extends Controller
     {
        
         // return $request->all();
-        $data = \App\BroadcastMessageNumber::where(['broadcast_message_id'=>$request->id])->orderBy('id', 'desc')->limit(1)->get();
+        $data = \App\BroadcastMessageNumber::where(['broadcast_message_id'=>$request->id])->orderBy('id', 'desc')->groupBy('type_id')->get();
         
         $params = [];
         $message = [];
@@ -191,6 +191,22 @@ class BroadcastController extends Controller
 
             }
         return response()->json(["code" => 200, "data" => [], "message" => "Data added successfully"]);
+    }
+
+    /**
+     * This function user for get the broadcast user group list
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function getSendType(Request $request) 
+    {
+        try {
+            $broadData = \App\BroadcastMessageNumber::with(['customer','vendor','supplier'])->where(['broadcast_message_id'=>$request->id])->orderBy('id', 'desc')->get();
+            return response()->json(["code" => 200, "data" => $broadData, "message" => "Data Listed successfully"]);
+        }catch(\Exception $e) {
+            return response()->json([ 'message' => $e->getMessage()], 500);
+        }
     }
 
     public function resendMessage(Request $request){

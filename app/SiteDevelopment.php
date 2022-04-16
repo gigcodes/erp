@@ -33,12 +33,16 @@ class SiteDevelopment extends Model
      */
     use Mediable;
 
-    protected $fillable = ['site_development_category_id','site_development_master_category_id','status','title','description','developer_id','designer_id','website_id','html_designer','artwork_status','tester_id'];
+    protected $fillable = ['site_development_category_id','site_development_master_category_id','status','title','description','developer_id','designer_id','website_id','html_designer','artwork_status','tester_id', 'is_site_list'];
 
 
     public function category()
     {
-    	$this->belongsTo(SiteDevelopmentCategory::class,'id','site_development_category_id');
+    	return $this->belongsTo(SiteDevelopmentCategory::class,'site_development_category_id');
+    }
+    public function store_website()
+    {
+    	return $this->belongsTo(StoreWebsite::class,'website_id');
     }
 
     public function lastChat()
@@ -79,10 +83,16 @@ class SiteDevelopment extends Model
         return $this->hasMany(\App\SiteDevelopmentStatusHistory::class,'site_development_id','id');
     }
 
+    public function site_development_status()
+    {
+        return $this->belongsTo(SiteDevelopmentStatus::class, 'status', 'id');
+    }
+
     public static function getLastRemark($scci, $web_id){
         $site_devs = self::where('site_development_category_id', $scci)->where('website_id', $web_id)->get()->pluck('id')->toArray();
         $remark = StoreDevelopmentRemark::whereIn('store_development_id',$site_devs)->latest()->first();
         return $remark->remarks ?? '';
     }
 
+   
 }

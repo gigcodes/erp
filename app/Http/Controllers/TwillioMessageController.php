@@ -214,12 +214,10 @@ class TwillioMessageController extends Controller
             'is_sent' => 0,
             'message_group_id' => $request->message_group_id,
         ]);
-        if ($request->id != null) {
-            $customers = MessagingGroupCustomer::where('message_group_id', $request->message_group_id)->get();
-            foreach ($customers as $customer) {
-                MarketingMessageCustomer::firstOrCreate(['marketing_message_id' => $data['id'], 'customer_id' => $customer['customer_id']],
-                    ['marketing_message_id' => $data['id'], 'customer_id' => $customer['customer_id']]);
-            }
+        $customers = MessagingGroupCustomer::where('message_group_id', $request->message_group_id)->get();
+        foreach ($customers as $customer) {
+            MarketingMessageCustomer::firstOrCreate(['marketing_message_id' => $data['id'], 'customer_id' => $customer['customer_id']],
+                ['marketing_message_id' => $data['id'], 'customer_id' => $customer['customer_id']]);
         }
         return response()->json(['status' => 'success', 'statusCode' => 200, 'message' => 'Message Created successfully']);
     }

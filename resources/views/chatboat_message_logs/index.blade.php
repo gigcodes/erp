@@ -166,6 +166,7 @@
                          }
                     @endphp
                      <input type="hidden" name="question[]" value="{{$message}}" >
+                     <input type="hidden" name="log_id" value="{{$item->id}}" >
                     <span class="show-short-message-{{$item->id}}">{{ str_limit($message, 36, '...')}}</span>
                     <span style="word-break:break-all;" class="show-full-message-{{$item->id}} hidden">{{$message}}</span>
                   </td>

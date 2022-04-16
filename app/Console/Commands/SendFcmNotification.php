@@ -91,14 +91,17 @@ class SendFcmNotification extends Command
                         //PushFcmNotification::where('id', $Notification->id)->update(['sent_on' => date('Y-m-d H:i')]);
                         $this->info('Message Sent Succesfully');
                         \Log::info("fcm:send Message Sent Succesfully");
+                        $Notification->status = 'Success';
                         $success = true;
                     } elseif ($downstreamResponse->numberFailure()) {
+                        $Notification->status = 'Failed';
                         $this->info(json_encode($downstreamResponse->tokensWithError()));
                         $errorMessage = json_encode($downstreamResponse->tokensWithError());
                         \Log::info("fcm:send Message Error message =>".$errorMessage);
                     }
 
                 }catch(\Exception $e){
+                    $Notification->status = 'Failed';
                     $success = false;
                     $errorMessage = $e->getMessage();
                     \Log::info("fcm:send Exception Error message =>".$errorMessage);

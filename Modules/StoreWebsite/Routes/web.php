@@ -280,9 +280,13 @@ Route::middleware('auth')->group(function()
     Route::get('/status-history/{site_id}', 'SiteDevelopmentController@statusHistory')->name("site-development.status-history");
     Route::post('/send-sop', 'SiteDevelopmentController@SendTaskSOP')->name('site-development.sendSop');
     Route::post('/send', 'SiteDevelopmentController@SendTask')->name('site-development.senduser');
-
+    Route::post('/check-site-asset', 'SiteDevelopmentController@checkSiteAsset')->name('site-development.check-site-asset');
+    Route::post('/check-site-list', 'SiteDevelopmentController@checkSiteList')->name('site-development.check-site-list');
+    Route::post('/set-site-asset', 'SiteDevelopmentController@setSiteAsset')->name('site-development.set-site-asset');
+    Route::post('/set-site-list', 'SiteDevelopmentController@setSiteList')->name('site-development.set-site-list');
     Route::get('/latest-reamrks/{website_id}', 'SiteDevelopmentController@latestRemarks')->name("site-development.latest-reamrks");
     Route::get('/artwork-history/all-histories/{website_id}', 'SiteDevelopmentController@allartworkHistory')->name("site-development.artwork-history.all-histories");
+    Route::post('/save-site-asset-data', 'SiteDevelopmentController@saveSiteAssetData')->name('site-development.save-site-asset-data');
     Route::prefix('{id}')->group(function () {
         Route::get('list-documents', 'SiteDevelopmentController@listDocuments')->name("site-development.list-documents");
         Route::prefix('remarks')->group(function () {
@@ -313,5 +317,14 @@ Route::prefix('country-group')->group(function () {
         Route::get('delete', 'CountryGroupController@delete')->name('store-website.country-group.delete');
     });
 });
-});
 
+Route::prefix('site-assets')->group(function () {
+    Route::get('/', 'SiteAssetController@index')->name('site-asset.index');
+    Route::post('/download-site-asset-data', 'SiteAssetController@downaloadSiteAssetData')->name('site-asset.download');
+ });
+ Route::get('site-check-list', 'SiteAssetController@siteCheckList')->name('site-check-list'); 
+ Route::post('site-check-list/upload-document', 'SiteAssetController@uploadDocument')->name("site-check-list.upload-document");
+ Route::get('site-check-list/get-document', 'SiteAssetController@getDocument')->name("site-check-list.get-document");
+ Route::post('site-check-list/download', 'SiteAssetController@downaloadSiteCheckListData')->name('site-check-list.download');
+ 
+});
