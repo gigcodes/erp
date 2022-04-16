@@ -93,10 +93,9 @@
     </td>
     <td data-id="{{ $issue->id }}">
         <div class="form-group">
+            <input style="min-width: 30px;" placeholder="Remark" value="" type="text" class="form-control mb-2 estimate-time-change" name="est_time_remark_{{$issue->id}}" data-id="{{$issue->id}}" id="est_time_remark_{{$issue->id}}">
             <div class='input-group estimate_minutes'>
-                @if (auth()->user()->isAdmin() ||
-    auth()->user()->id == $issue->assigned_to ||
-    auth()->user()->id == $issue->master_user_id)
+                @if (auth()->user()->isAdmin() || auth()->user()->id == $issue->assigned_to || auth()->user()->id == $issue->master_user_id)
                     <input style="min-width: 30px;" placeholder="E.minutes" value="{{ $issue->estimate_minutes }}"
                         type="text" class="form-control estimate-time-change"
                         name="estimate_minutes_{{ $issue->id }}" data-id="{{ $issue->id }}"

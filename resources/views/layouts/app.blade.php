@@ -1912,6 +1912,9 @@ if (!empty($notifications)) {
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{ url('/github/sync') }}">Synchronise from online</a>
                                                     </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('gitDeplodError') }}">Migration Error</a>
+                                                    </li>
                                                 </ul>
                                             </li>
 
@@ -2762,6 +2765,7 @@ if (!empty($notifications)) {
     <script type="text/javascript" src="{{ asset('js/common-function.js') }}"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    @stack('scripts')
 
     <script>
         // $('#chat-list-history').on('hidden.bs.modal', function (e) {

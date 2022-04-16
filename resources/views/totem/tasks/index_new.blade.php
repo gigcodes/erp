@@ -79,6 +79,9 @@ table tr td {
     background: #fff;
     color: #757575;
 }
+.select2-container {
+    width: 100% !important;
+}
 </style>
 @endsection
 
@@ -320,7 +323,7 @@ table tr td {
                         </div>
                         <div class="form-group">
                             <label>Command</label><i class="fa fa-info-circle" title="Select an artisan command to schedule"></i>
-                            <select id="command" name="command" class="form-control select2" placeholder="Click here to select one of the available commands">
+                            <select id="command" name="command" class="form-control select2" width="100%" placeholder="Click here to select one of the available commands">
                                 <option value="">Select a command</option>
                                 @forelse ($commands as $k => $command)
                                 <optgroup label="{{$command->getName()}}">
@@ -496,6 +499,10 @@ table tr td {
                 initialize_select2();
             }
         });
+    });
+
+    $('#command').select2({
+        dropdownParent: $('#addEditTaskModal')
     });
 
     var freq = 0;
@@ -730,6 +737,7 @@ table tr td {
     }); 
 
     $('.submit_btn').click(function(){
+        
         $('.error').remove();
         let url = $('#addEditTaskModal').attr('data-id') == '' ? '/totem/tasks/create' : `/totem/tasks/${$('#addEditTaskModal').attr('data-id')}/edit`
         var form_data =  $('.taskForm').serialize();
@@ -755,22 +763,25 @@ table tr td {
                         window.location.reload(1);
                     }, 1000);
                 }else{
+                    debugger;
                     let errors = response.responseJSON.errors;
+                    let error = '';
                     for (var key in errors) {
                         if($(`input[name="${key}"]`).length == 0){
-                            let error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
+                             error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
                             $(`select[name="${key}"]`).parent().after(error);
                         }else{
-                            let error = `<p class="error" style="color:red">${errors[key][0]}</p>`;
+                            error = `<p class="error" style="color:red">${errors[key][0]}</p>`;
                             $(`input[name="${key}"]`).after(error);
                         }
                         if(key == 'frequencies'){
-                            let error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
+                            error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
                             $('.frequencies').after(error);
                         }
                     }
-                    // toastr['error']('Something went wrong!');
+                    toastr['error'](error);
                 }
+                toastr['error'](errors.message);
             }
         });
 
