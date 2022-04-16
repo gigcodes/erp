@@ -167,7 +167,7 @@ class BuyBackController extends Controller
                             'is_draft'         => 1
                         ]);
 
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                          // start a request to send message for refund 
                          $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-refund')->first();
@@ -198,7 +198,7 @@ class BuyBackController extends Controller
                             'is_draft'         => 1
                         ]);
 
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                         // start a request to send message for refund 
                          $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-return')->first();
@@ -229,7 +229,7 @@ class BuyBackController extends Controller
                             'is_draft'         => 1
                         ]);
 
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                         // start a request to send message for refund 
                          $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-exchange')->first();
@@ -260,7 +260,7 @@ class BuyBackController extends Controller
                             'is_draft'         => 1
                         ]);
 
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                         // start a request to send message for refund 
                          $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-cancellation')->first();

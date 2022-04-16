@@ -108,8 +108,12 @@ class TicketController extends Controller
             'status' => 'pre-send',
             'is_draft' => 1,
         ]);
-
-        \App\Jobs\SendEmail::dispatch($email);
+         \App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Email initiated',
+            'message'       => $email->to
+        ]);
+        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
         if (!is_null($success)) {
             $message = $this->generate_erp_response("ticket.success", 0, $default = 'Ticket #' . $data['ticket_id'] . ' created successfully', request('lang_code'));

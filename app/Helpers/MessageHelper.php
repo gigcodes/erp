@@ -10,6 +10,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use \App\ChatMessage;
+use \App\WatsonChatJourney;
 use \App\KeywordAutoGenratedMessageLog; //Purpose : Add KeywordAutoGenratedMessageLog - DEVTASK-4233
 use \App\Product;
 
@@ -565,6 +566,10 @@ class MessageHelper
 
         if (!empty($message)) {
 
+            WatsonChatJourney::updateOrCreate(['chat_message_id'=>$messageModel->id], ['chat_entered'=>1]);
+            WatsonChatJourney::updateOrCreate(['chat_message_id'=>$messageModel->id], ['message_received'=>$message]);
+            
+
             // auto mated reply here
             $auto_replies = \App\AutoReply::where('is_active', 1)->get();
             if (!$auto_replies->isEmpty()) {
@@ -650,7 +655,14 @@ class MessageHelper
                                     ];
                                     $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
                                 }
+
+								WatsonChatJourney::updateOrCreate(['chat_message_id'=>$messageModel->id], ['reply_searched_in_watson'=>1]);
+								WatsonChatJourney::updateOrCreate(['chat_message_id'=>$messageModel->id], ['reply'=>$chatbotReply->reply]);
+            
                             } else {
+								WatsonChatJourney::updateOrCreate(['chat_message_id'=>$messageModel->id], ['reply_found_in_database'=>1]);
+								
+
                                 $log_comment = $log_comment . ' Message status is not equal to chat auto watson reply ';
                             }
 
@@ -658,7 +670,12 @@ class MessageHelper
                             if ($temp_params['message'] || $temp_params['media_url']) {
                                 if ($status == 2) {
                                     $sendResult = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone, isset($instanceNumber) ? $instanceNumber : null, $temp_params['message'], $temp_params['media_url']);
+
+                                    WatsonChatJourney::updateOrCreate(['chat_message_id'=>$messageModel->id], ['response_sent_to_cusomer'=>1]);
+            
+
                                     if ($sendResult) {
+
                                         $message->unique_id = $sendResult['id'] ?? '';
                                         $message->save();
                                     }

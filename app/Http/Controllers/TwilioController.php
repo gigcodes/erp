@@ -78,6 +78,7 @@ use App\TwilioCallBlock;
 use App\TwilioCallStatistic;
 use App\TwilioDequeueCall;
 use App\TwilioPriority;
+use App\TwilioCallJourney;
 
 use App\TwilioMessageTone;
 use Twilio\Jwt\TaskRouter\WorkerCapability;
@@ -325,11 +326,17 @@ class TwilioController extends FindByNumberController
     public function incomingCall(Request $request)
     {
         $number = $request->get("From");
+        $twilioNumber = $request->get("To");
 
         Log::channel('customerDnd')->info('Enter in Incoming Call Section '.$number);
         $response = new VoiceResponse();
 
-        list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
+        $storeId = null;
+        $activeNumber = TwilioActiveNumber::where('phone_number', '+' . trim($twilioNumber, '+'))->first();
+        if($activeNumber) {
+            $storeId = StoreWebsiteTwilioNumber::where('twilio_active_number_id', $activeNumber->id)->first();
+        }
+        list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number), $storeId->store_website_id ?? null);
         if (!$context) {
             $context='customers';
             $object = new Customer;
@@ -376,6 +383,7 @@ class TwilioController extends FindByNumberController
         $conditions = array_keys($conditionsWithIds);
 
 		$number = $request->get("From");
+		$twilioNumber = $request->get("To");
 		$call_sid = $request->get("CallSid");
 		$account_sid = $request->get("AccountSid");
         // Create Twilio Log
@@ -387,12 +395,16 @@ class TwilioController extends FindByNumberController
         $call_with_agent = ($request->get("call_with_agent") != null ? $request->get("call_with_agent") : 0);
 
         TwilioLog::create(['log'=>'After call received, from Mobile No '.$number.' Call with Agent is :'.$call_with_agent, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
-
+        TwilioCallJourney::create(['account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number, 'call_entered'=>1]);
         //Log::channel('customerDnd')->info('call_with_agent:'.$call_with_agent);
-
-		$this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
+        $storeId = null;
+        $activeNumber = TwilioActiveNumber::where('phone_number', '+' . trim($twilioNumber, '+'))->first();
+        if($activeNumber) {
+            $storeId = StoreWebsiteTwilioNumber::where('twilio_active_number_id', $activeNumber->id)->first();
+        }
+		$this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number), $storeId->store_website_id ?? null);
    
-        list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
+        list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number), $storeId->store_website_id ?? null);
 
         $this->createTwilioLog($request, $inputArray, 'log '. $object);
         //TwilioLog::create(['log'=>'log '. $object, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
@@ -570,7 +582,7 @@ class TwilioController extends FindByNumberController
 
                 if(in_array('morning', $conditions) && in_array('evening', $conditions) && $morning != '' && $evening != '' &&  !$time->between($morning, $evening, true))  
                 {
-
+                   TwilioCallJourney::updateOrCreate(['account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number], ['called_in_working_hours'=>0]);
                    TwilioLog::create(['log'=>' Oops call is not landed in working hours Closing the call for mobile number '.$number, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
 
 			       //Log::channel('customerDnd')->info(' End work >> ');
@@ -593,7 +605,8 @@ class TwilioController extends FindByNumberController
                         $response->play($endworkRing);
                 }else{
 
-
+                    TwilioCallJourney::updateOrCreate(['account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number], ['called_in_working_hours'=>1]);
+                   
                     TwilioLog::create(['log'=>' Call is landed on working hours for mobile number, '.$number, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
 
 			        //Log::channel('customerDnd')->info(' working Hours >> ');
@@ -703,7 +716,9 @@ class TwilioController extends FindByNumberController
                             }else{
                                 $is_available = 1;
                             }
-
+                            TwilioCallJourney::updateOrCreate(['account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number], ['agent_available'=>$is_available]);
+                            TwilioCallJourney::updateOrCreate(['account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number], ['agent_online'=>$is_online]);
+                   
 
                             TwilioLog::create(['log'=>' Agent Availblity after checking the call status is '.$is_available, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
 
@@ -1072,6 +1087,8 @@ class TwilioController extends FindByNumberController
                                     'call_data' => 'client',
                                     'aget_user_id' => $client['agent_id']
                                 ]);
+								TwilioCallJourney::updateOrCreate(['account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number], ['call_answered'=>1]);
+                   
                                 //Call History - END
                             }
                         }
@@ -1382,6 +1399,13 @@ class TwilioController extends FindByNumberController
                     </Response>'
                     ]
                 );
+            } else {
+                CallBusyMessage::updateOrCreate([
+                    'caller_sid' => json_decode($request->get("TaskAttributes"))->call_sid
+                ],[
+                    'message' => 'Missed Call',
+                    'twilio_call_sid' => json_decode($request->get("TaskAttributes"))->caller
+                ]);
             }
 
             $call = $call->calls(json_decode($request->get("TaskAttributes"))->call_sid)->fetch();
@@ -1622,7 +1646,12 @@ class TwilioController extends FindByNumberController
         $AccountSid = $request->get("AccountSid");
         $CallSid = $request->get("CallSid");
   	    
-        list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
+        $storeId = null;
+        $activeNumber = TwilioActiveNumber::where('phone_number', '+' . trim($to, '+'))->first();
+        if($activeNumber) {
+            $storeId = StoreWebsiteTwilioNumber::where('twilio_active_number_id', $activeNumber->id)->first();
+        }
+        list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number), $storeId->store_website_id ?? null);
         $store_website_id = (isset($object->store_website_id) ? $object->store_website_id : 0 );
         try {
 
@@ -1651,6 +1680,8 @@ class TwilioController extends FindByNumberController
 
         Log::channel('customerDnd')->info('time_store_web_id: '.$time_store_web_id);
 		$inputs = $request->input();
+		TwilioCallJourney::updateOrCreate(['account_sid'=> $AccountSid,'call_sid'=>$CallSid, 'phone'=>$number], ['handled_by_chatbot'=>1]);
+                   
 		if(isset($inputs['Digits'])) {
 			$selectedOption = $request->input('Digits');
 			$key_data = TwilioKeyOption::where('website_store_id',$time_store_web_id)->orderBy('key', 'ASC')->get();
@@ -2414,7 +2445,10 @@ class TwilioController extends FindByNumberController
 
     public function getWaitingCallList()
     {
-        $waitingCalls = $waitingCalls = \App\TwilioCallWaiting::with('storeWebsite')->leftJoin("customers as c", "c.phone", \DB::raw('REPLACE(twilio_call_waitings.from, "+", "")'))->orderBy("twilio_call_waitings.created_at", "desc")
+        $agentId = Auth::id();
+        $agentData = TwilioAgent::where('user_id', $agentId)->where('status', 1)->first();
+
+        $waitingCalls = \App\TwilioCallWaiting::with('storeWebsite')->leftJoin("customers as c", "c.phone", \DB::raw('REPLACE(twilio_call_waitings.from, "+", "")'))->where('c.store_website_id', $agentData->store_website_id)->orderBy("twilio_call_waitings.created_at", "desc")
         ->select(["twilio_call_waitings.*", "c.name", "c.email"])->get();
         
         return response()->json([
@@ -2646,10 +2680,14 @@ class TwilioController extends FindByNumberController
      * @uses Customer
      */
     public function getLeadByNumber(Request $request)
-    {
+    {   
         $number = $request->get("number");
-
-        list($context, $object) = $this->findCustomerAndRelationsByNumber(str_replace("+", "", $number));
+        $twilioNumber = $request->get("twilio_number");
+        $activeNumber = TwilioActiveNumber::where('phone_number', '+' . trim($twilioNumber, '+'))->first();
+        if($activeNumber) {
+            $storeId = StoreWebsiteTwilioNumber::where('twilio_active_number_id', $activeNumber->id)->first();
+        }
+        list($context, $object) = $this->findCustomerAndRelationsByNumber(str_replace("+", "", $number), $storeId->store_website_id ?? null);
 
         if (!$context) {
             return response()->json(['found' => FALSE, 'number' => $number]);
@@ -4571,6 +4609,115 @@ class TwilioController extends FindByNumberController
 	    return view('twilio.speech_to_text_logs', compact('twilioLogs','input'));
 	}
 
+    /**
+     * This function is use for list of Twilio call block
+     * 
+     * @param Request $request
+     * @return view
+     */
+    public function callBlocks(Request $request) 
+    {
+        $title = "Twilio Call Blocks";
+		try {
+            $input = $request->input();
+            $twilioCallBlocks = TwilioCallBlock::select('twilio_call_blocks.customer_id', 'twilio_call_blocks.id', 'twilio_call_blocks.twilio_credentials_id', 'twilio_call_blocks.customer_website_id', 'twilio_call_blocks.twilio_number_website_id', 'twilio_call_blocks.customer_number', 'twilio_call_blocks.twilio_number', 'twilio_call_blocks.created_at', 'c.name AS customerName', 'tc.twilio_email', 'sw.website AS customerWebsite', 'swtc.website AS twWebsite')
+            ->leftjoin("customers AS c", "c.id", "twilio_call_blocks.customer_id")
+            ->leftjoin("twilio_credentials AS tc", "tc.id", "twilio_call_blocks.twilio_credentials_id")
+            ->leftjoin("store_websites AS sw", "sw.id", "twilio_call_blocks.customer_website_id")
+            ->leftjoin("store_websites AS swtc", "swtc.id", "twilio_call_blocks.twilio_number_website_id")
+            ->orderBy('twilio_call_blocks.id', 'desc');
+            
+            if(isset($input['search_twilio_number'])) {
+                $twilioCallBlocks = $twilioCallBlocks->where('twilio_call_blocks.twilio_number', 'like', '%'. $input['search_twilio_number'].'%');
+            }
+            if(isset($input['search_customer_number'])) {
+                $twilioCallBlocks = $twilioCallBlocks->where('twilio_call_blocks.customer_number', 'like', '%'. $input['search_customer_number'].'%');
+            }
+            $twilioCallBlocks = $twilioCallBlocks->paginate(20);		
+            //$twilioCallBlocks = $twilioCallBlocks->get();		
+            //dd($twilioCallBlocks);
+            return view('twilio.twilio-call-block   ', compact('twilioCallBlocks','input'));
+        } catch(\Exception $e) {
+            return redirect()->back()->with('error','please try again');
+        }
+	}
+
+    /**
+     * This funcrtion is use for delete Call block
+     * @param Request $request
+     * 
+     * @return JsonResponse
+     */
+    public function deleteCallBlocks(Request $request, $ids="") 
+    {
+        try {
+            $idArr = explode(",",$request->ids);
+            $callBlock = TwilioCallBlock::whereIn("id", $idArr)->delete();
+            if($callBlock!=0) {
+                return response()->json(['code' => 200, 'message' => 'Successfully Deleted']);   
+            }
+            return response()->json(['code' => 500, 'message' => "Please select any record"]);   
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);   
+        }
+    }
+
+    /**
+     * This function is use for list of Twilio call Statistic
+     * 
+     * @param Request $request
+     * @return view
+     */
+    public function callStatistic(Request $request) 
+    {
+        $title = "Twilio Call Statistic";
+		try {
+            $input = $request->input();
+            $twilioCallStatistic = TwilioCallStatistic::select('twilio_call_statistics.id', 'twilio_call_statistics.account_sid', 'twilio_call_statistics.call_sid', 'twilio_call_statistics.customer_website_id', 'twilio_call_statistics.twilio_number_website_id', 'twilio_call_statistics.customer_number', 'twilio_call_statistics.twilio_number', 'twilio_call_statistics.created_at', 'c.name AS customerName', 'tc.twilio_email', 'sw.website AS customerWebsite', 'swtc.website AS twWebsite')
+            ->leftjoin("customers AS c", "c.id", "twilio_call_statistics.customer_id")
+            ->leftjoin("twilio_credentials AS tc", "tc.id", "twilio_call_statistics.twilio_credentials_id")
+            ->leftjoin("store_websites AS sw", "sw.id", "twilio_call_statistics.customer_website_id")
+            ->leftjoin("store_websites AS swtc", "swtc.id", "twilio_call_statistics.twilio_number_website_id")
+            ->orderBy('twilio_call_statistics.id', 'desc');
+            
+            if(isset($input['search_account_sid'])) {
+                $twilioCallStatistic = $twilioCallStatistic->where('twilio_call_statistics.account_sid', 'like', '%'. $input['search_account_sid'].'%');
+            }
+            if(isset($input['search_twilio_number'])) {
+                $twilioCallStatistic = $twilioCallStatistic->where('twilio_call_statistics.twilio_number', 'like', '%'. $input['search_twilio_number'].'%');
+            }
+            if(isset($input['search_customer_number'])) {
+                $twilioCallStatistic = $twilioCallStatistic->where('twilio_call_statistics.customer_number', 'like', '%'. $input['search_customer_number'].'%');
+            }
+            $twilioCallStatistic = $twilioCallStatistic->paginate(20);		
+            //$twilioCallBlocks = $twilioCallBlocks->get();		
+            //dd($twilioCallBlocks);
+            return view('twilio.twilio-call-statistic', compact('twilioCallStatistic','input'));
+        } catch(\Exception $e) {
+            return redirect()->back()->with('error','please try again');
+        }
+	}
+
+     /**
+     * This funcrtion is use for delete Call block
+     * @param Request $request
+     * 
+     * @return JsonResponse
+     */
+    public function deleteCallStatistic(Request $request) 
+    {
+        try {
+            $idArr = explode(",",$request->ids);
+            $callStatistic = TwilioCallStatistic::whereIn("id", $idArr)->delete();
+            if($callStatistic!=0) {
+                return response()->json(['code' => 200, 'message' => 'Successfully Deleted']);   
+            }
+            return response()->json(['code' => 500, 'message' => "Please select any record"]);   
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);   
+        }
+    }
+
     public function twilioAccountLogs()
     {
         $accountLogs = TwilioAccountLog::paginate(50);
@@ -4628,5 +4775,54 @@ class TwilioController extends FindByNumberController
 		$twilioMessageTones = StoreWebsite::leftJoin('twilio_message_tones', 'twilio_message_tones.store_website_id','store_websites.id')
 		->select('twilio_message_tones.*', 'store_websites.title as website','store_websites.id as websiteId')->get();
 		return view('twilio.manage-tones', compact('twilioMessageTones'));
+	}  
+	
+	public function twilioCallJourney(Request $request){
+		$call_Journeies = TwilioCallJourney::query();
+
+        // if ($request->id) {
+        //     $call_Journeies = $call_Journeies->where('id', $request->id);
+        // }
+
+        if ($request->customer_name) {
+            // Custome name with search query
+            $call_Journeies = $call_Journeies->where('customers.name', 'like', '%'.$request->customer_name . '%');
+        }
+        if ($request->phone) {
+            // phone number with search query
+            $call_Journeies = $call_Journeies->where('twilio_call_journey.phone', 'like', '%'.$request->phone . '%');
+        }
+        if ($request->website) {
+            // webste with search query
+            $call_Journeies = $call_Journeies->where('store_websites.website', 'like', '%'.$request->website . '%');
+        }
+        if ($request->store_id) {
+            // twilio_credential ID with search query
+            $call_Journeies = $call_Journeies->where('twilio_credentials.id', 'like', '%'.$request->store_id . '%');
+        }
+
+        $call_Journeies = $call_Journeies->join('twilio_credentials', 'twilio_credentials.account_id', 'twilio_call_journey.account_sid')
+            ->leftJoin('customers', 'customers.phone', 'twilio_call_journey.phone')
+            ->leftJoin('store_websites', 'store_websites.id', 'customers.store_website_id')
+            // with(['twilio_credential:id,account_id,twilio_email', 'customer:id,phone,name', 'customer.storeWebsite' ])
+            ->orderBy('twilio_call_journey.id', 'desc')
+            ->select('twilio_call_journey.*', 'twilio_credentials.twilio_email', 'twilio_credentials.id as twilio_credential_id', 'customers.name as customer_name', 'store_websites.website', 'store_websites.title' )
+            ->paginate(Setting::get('pagination'));
+            // ->get();
+
+                // dd($call_Journeies);
+        if ($request->ajax()) {
+            $count = $call_Journeies->count();
+
+            $html = view('twilio.partials.call_journey_data', compact('call_Journeies'))->render();
+
+            if (count($call_Journeies)) {
+                return array('status' => 1, 'html' => $html, 'count' => $count, 'call_Journeies' => $call_Journeies);
+            } else {
+                return array('status' => 0, 'html' => '<tr id="noresult_tr"><td colspan="7">No More Records</td></tr>');
+            }
+        }
+
+		return view('twilio.call_journey', compact('call_Journeies'));
 	}
 } 

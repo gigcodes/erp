@@ -11,6 +11,8 @@ use App\Complaint;
 use App\CreditHistory;
 use App\CreditLog;
 use App\Customer;
+use App\CustomerPriorityPoint;
+use App\CustomerPriorityRangePoint;
 use App\CustomerAddressData;
 use App\Email;
 use App\EmailAddress;
@@ -43,6 +45,7 @@ use App\SuggestedProduct;
 use App\Suggestion;
 use App\Supplier;
 use App\User;
+use App\TwilioPriority;
 use Auth;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
@@ -1731,8 +1734,12 @@ class CustomerController extends Controller
             'status' => 'pre-send',
             'store_website_id' => null,
         ]);
-
-        \App\Jobs\SendEmail::dispatch($email);
+        \App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Email initiated',
+            'message'       => $email->to
+        ]);
+        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
         return redirect()->route('customer.show', $customer->id)->withSuccess('You have successfully sent an email!');
     }
@@ -1894,8 +1901,12 @@ class CustomerController extends Controller
             'additional_data' => '',
             'status' => 'pre-send',
         ]);
-
-        \App\Jobs\SendEmail::dispatch($email);
+        \App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Email initiated',
+            'message'       => $email->to
+        ]);
+        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
         $message = "Dear $customer->name, this is to confirm that an amount of Rs. $customer->credit - is credited with us against your previous order. You can use this credit note for reference on your next purchase. Thanks & Regards, Solo Luxury Team";
         $requestData = new Request();
@@ -3125,4 +3136,187 @@ class CustomerController extends Controller
 
     }
 
+    /**
+     * This function is use for get all proirity data
+     *
+     * @param Request $request
+     * @param [int] $id
+     * @return Jsonresponse
+     */
+    public function customerPriorityPoints(Request $request) 
+    {
+        $custPriority = CustomerPriorityPoint::leftjoin('store_websites', 'store_websites.id', 'customer_priority_points.store_website_id')->get(
+        ['customer_priority_points.store_website_id',
+        'customer_priority_points.website_base_priority',
+        'customer_priority_points.lead_points',
+        'customer_priority_points.order_points',
+        'customer_priority_points.refund_points',
+        'customer_priority_points.ticket_points',
+        'customer_priority_points.return_points',
+        'store_websites.website']);
+        
+        $storeWebsite = StoreWebsite::all();
+        
+        return view('customers.customer_priority_point', compact('storeWebsite', 'custPriority'));
+    }
+
+    /**
+     * This function is use for get proirity data
+     *
+     * @param [int] $id
+     * @return Jsonresponse
+     */
+    public function getCustomerPriorityPoints($webSiteId) 
+    {
+        try {
+            $custPriority = CustomerPriorityPoint::where('store_website_id', $webSiteId)->get();
+            if ($custPriority) {
+               return response()->json(["code" => 200 ,"data" => compact('custPriority') , "message" => "Priority listed successfully"]);
+            }
+            return response()->json(["code" => 500 ,"data" => [] , "message" => "Sorry there is no Website exist"]);
+        } catch (\Exception $exception) {
+            return response()->json(["code" => 500 ,"data" => [] , "message" => $exception->getMessage()]);
+        }
+    }
+
+    /**
+     * This function is use for save proirity data
+     *
+     * @param Request $request
+     * @return Jsonresponse
+     */
+    public function addCustomerPriorityPoints(Request $request) 
+    {
+        $custPri = CustomerPriorityPoint::updateOrCreate([
+            'store_website_id'   => $request->get('store_website_id'),
+        ],
+        [
+            'website_base_priority' => $request->get('website_base_priority'),
+            'store_website_id'      => $request->get('store_website_id'),
+            'lead_points'           => $request->get('lead_points'),
+            'refund_points'         => $request->get('refund_points'),
+            'order_points'          => $request->get("order_points"),
+            'ticket_points'         => $request->get('ticket_points'),
+            'return_points'         => $request->get('return_points'),
+        ]);
+
+        return response()->json(['message' => "Record added successfully", 'code' => 200, 'data' => $custPri, 'status' => 'success']);
+    }
+
+    /**
+     * This function is use for get all proirity Range data
+     *
+     * @param Request $request
+     * @param [int] $id
+     * @return Jsonresponse
+     */
+    public function getCustomerPriorityRangePoints(Request $request) 
+    {
+        $custRangePoint = CustomerPriorityRangePoint::leftjoin('store_websites', 'store_websites.id', 'customer_priority_range_points.store_website_id')
+        ->leftjoin('twilio_priorities', 'twilio_priorities.id', 'customer_priority_range_points.twilio_priority_id')
+        ->where('customer_priority_range_points.deleted_at', '=', null)
+        ->get(
+        ['customer_priority_range_points.id',
+        'customer_priority_range_points.store_website_id',
+        'customer_priority_range_points.twilio_priority_id',
+        'customer_priority_range_points.min_point',
+        'customer_priority_range_points.max_point',
+        'customer_priority_range_points.range_name',
+        'customer_priority_range_points.created_at',
+        'store_websites.website',
+        'twilio_priorities.priority_name']);
+        
+        $storeWebsite = StoreWebsite::all();
+        return view('customers.customer_priority_range_point', compact('storeWebsite', 'custRangePoint'));
+    }
+
+    /**
+     * This function is use for get all proirity Range data
+     *
+     * @param Request $request
+     * @param [int] $id
+     * @return Jsonresponse
+     */
+    public function getSelectCustomerPriorityRangePoints(Request $request, $id) 
+    {
+        $custRangePoint = CustomerPriorityRangePoint::select(['customer_priority_range_points.id',
+        'customer_priority_range_points.store_website_id',
+        'customer_priority_range_points.twilio_priority_id',
+        'customer_priority_range_points.min_point',
+        'customer_priority_range_points.max_point',
+        'customer_priority_range_points.created_at',
+        'store_websites.website',
+        'twilio_priorities.priority_name'])->
+        leftjoin('store_websites', 'store_websites.id', 'customer_priority_range_points.store_website_id')
+        ->leftjoin('twilio_priorities', 'twilio_priorities.id', 'customer_priority_range_points.twilio_priority_id')
+        ->where('customer_priority_range_points.deleted_at', '=', null)
+        ->where('customer_priority_range_points.id', $id)
+        ->first();
+        
+        $storeWebsite = StoreWebsite::all();
+        $twilioPriority = TwilioPriority::where('account_id', function($query) use ($custRangePoint){
+            $query->select('twilio_credentials_id')
+            ->from("store_website_twilio_numbers")
+            ->where('store_website_twilio_numbers.store_website_id', $custRangePoint->store_website_id);
+        })->get();
+        $twilioPriority  = $twilioPriority->toArray();
+
+        return response()->json(['message' => "Record Listed successfully", 'code' => 200, 'data' => compact('custRangePoint', 'storeWebsite', 'twilioPriority'), 'status' => 'success']);
+    }
+
+
+    /**
+     * This function is use for get all proirity Range data
+     *
+     * @param Request $request
+     * @param [int] $id
+     * @return Jsonresponse
+     */
+    public function selectCustomerPriorityRangePoints(Request $request, $id) 
+    {
+        $twilioPriority = TwilioPriority::where('account_id', function($query) use ($id){
+            $query->select('twilio_credentials_id')
+            ->from("store_website_twilio_numbers")
+            ->where('store_website_id', $id);
+        })->get();
+        
+        return response()->json(['message' => "Record Listed successfully", 'code' => 200, 'data' => $twilioPriority->toArray(), 'status' => 'success']);
+    }
+
+    /**
+     * This function is use for save proirity range data
+     *
+     * @param Request $request
+     * @return Jsonresponse
+     */
+    public function addCustomerPriorityRangePoints(Request $request) 
+    {
+        $custPri = CustomerPriorityRangePoint::updateOrCreate([
+            'twilio_priority_id'      => $request->get('twilio_priority_id'),
+            'store_website_id'    => $request->get('store_website_id'),
+        ],
+        [
+            'twilio_priority_id'    => $request->get('twilio_priority_id'),
+            'store_website_id'    => $request->get('store_website_id'),
+            'min_point'      => $request->get('min_point'),
+            'max_point'      => $request->get('max_point'),
+            'deleted_at'     => NULL
+        ]);
+
+        return response()->json(['message' => "Record added successfully", 'code' => 200, 'data' => $custPri, 'status' => 'success']);
+    }
+
+     /**
+     * This function is use for save proirity range delete data 
+     *
+     * @param Request $request
+     * @return Jsonresponse
+     */
+    public function deleteCustomerPriorityRangePoints(Request $request) 
+    {
+        $custPri = CustomerPriorityRangePoint::where('id', '=', $request->id)->update([
+            'deleted_at'    => date('Y-m-d H:i:s')
+        ]);
+        return redirect()->back()->withSuccess('You have successfully Deleted');
+    }
 }

@@ -40,10 +40,10 @@
 
 
                             <div class="form-group mr-2">
-	                            <div class="col pr-0">
-	                                <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
-	                            </div>
-	                        </div>
+                                <div class="col pr-0">
+                                    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword", "id"=> "search-keywords"]) ?>
+                                </div>
+                            </div>
 
                             <div class="form-group mr-2">
                                 <div class="col pr-0">
@@ -81,10 +81,10 @@
                             
                             
                             <div class="pull-right">
-	                            <button type="button" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-secondary btn-search-action">
-						  			<img src="/images/search.png" style="cursor: default;">
-						  		</button>
-		                	</div>
+                                <button type="button" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-secondary btn-search-action">
+                                    <img src="/images/search.png" style="cursor: default;">
+                                </button>
+                            </div>
 
                         
                             
@@ -123,18 +123,33 @@
                     </table>
                      <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
                 </div>
-			</div>
+            </div>
         </div>
     </div>
 </div>
-    
+<div class="modal fade" id="leaf-editor-model" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Are you sure wants to search all keywords? </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary search" data-id="no" data-dismiss="modal">No</button>
+        <button type="button" class="btn btn-secondary save-dialog-btn search" data-id="yes">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">
 </div>
 
 <div class="common-modal modal" role="dialog">
-  	<div class="modal-dialog" role="document" style="width: 1000px; max-width: 1000px;">
-  	</div>	
+    <div class="modal-dialog" role="document" style="width: 1000px; max-width: 1000px;">
+    </div>  
 </div>
 
 @include("custom-chat-message.templates.list-template")
@@ -148,28 +163,45 @@
 <!-- <script type="text/javascript" src="{{ asset('/js/custom_chat_message.js') }}"></script> -->
 
 <script type="text/javascript">
-	// page.init({
-	// 	bodyView : $("#common-page-layout"),
-	// 	baseUrl : "//echo url("/"); ?>"
-	// });
+    $(document).on('submit','.form-search-data',function(e){
+        e.preventDefault();
+        var keyword = $("#search-keywords").val();
+        if(keyword != null) {
+            if(keyword.indexOf(",") != -1 || keyword.indexOf("/") != -1) {
+                $("#leaf-editor-model").modal('show');
+            } else {
+                page = 0;
+                $("#page-view-result #chatmessagecontent").html('');
+                loadMore('no')
+            }
+        }
+
+    });
+    $(document).on("click",".search", function(e) {
+        e.preventDefault();
+        page = 0;
+        $("#page-view-result #chatmessagecontent").html('');
+        var _this = $(this);
+        var search = _this.attr('data-id');
+        loadMore(search)
+    });
+    // page.init({
+    //  bodyView : $("#common-page-layout"),
+    //  baseUrl : "//echo url("/"); ?>"
+    // });
 
 var isLoading = false;
 var page = 0;
 
-function loadMore() {
+function loadMore(search = null) {
     if (isLoading)
         return;
-    
     isLoading = true;
-
     type = $("#tasktype").val();
-    
     var $loader = $('.infinite-scroll-products-loader');
-    
     page = page + 1;
-    
     $.ajax({
-        url: "/custom-chat-message/records?page="+page,
+        url: "/custom-chat-message/records?page="+page+"&search="+search,
         type: 'GET',
         data: $('.form-search-data').serialize(),
         beforeSend: function() {
@@ -177,15 +209,12 @@ function loadMore() {
         },
         success: function (response) {
             $loader.hide();
-
             var addProductTpl = $.templates("#template-result-block");
             var tplHtml       = addProductTpl.render(response);
-
             $(".count-text").html("("+response.total+")");
-
             $("#page-view-result #chatmessagecontent").append(tplHtml);
-
             isLoading = false;
+            $("#leaf-editor-model").modal('hide');
         },
         error: function () {
             $loader.hide();
@@ -196,15 +225,12 @@ function loadMore() {
 
         
 $(document).ready(function () {
-    
     loadMore();
-
     $(window).scroll(function() {
         if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
             loadMore();
         }
     });
-
     $("#common-page-layout").on("click",".btn-search-action",function(e) {
         e.preventDefault();
         page = 0;
