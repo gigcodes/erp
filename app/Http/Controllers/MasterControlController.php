@@ -41,7 +41,6 @@ class MasterControlController extends Controller
      */
     public function index(Request $request)
     {
-        
         $start = $request->range_start ?  "$request->range_start 00:00" : Carbon::now()->subDay()->format('Y-m-d 00:00');
         $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->subDay()->format('Y-m-d 23:59');
 

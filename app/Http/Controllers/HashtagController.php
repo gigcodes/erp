@@ -725,8 +725,12 @@ class HashtagController extends Controller
                               'status'          => 'pre-send',
                               'is_draft'        => 1,
                            ]);
-
-            \App\Jobs\SendEmail::dispatch($email);
+				\App\EmailLog::create([
+					'email_id'   => $email->id,
+					'email_log' => 'Email initiated',
+					'message'       => $email->to
+				]);    
+            \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 		}
 		   return response()->json(['message' => 'Successfull.'],200);
 	}

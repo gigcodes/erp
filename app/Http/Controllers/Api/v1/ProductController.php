@@ -42,7 +42,7 @@ class ProductController extends Controller
         }
 
         if ($product) {
-            $price              = $product->getPrice($request->store_website, $request->country_code);
+            $price              = $product->getPrice($request->store_website, $request->country_code, '', '', '', '', '', '', '', '', $request->order_id, $product->id);
             $price["sub_total"] = $price["total"];
             $price["duty"]      = $product->getDuty($request->store_website);
             $extra              = ($price["total"] * $price["duty"]) / 100;

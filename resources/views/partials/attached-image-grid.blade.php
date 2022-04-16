@@ -159,10 +159,16 @@
                     &nbsp;
                     <button type="submit" class="btn btn-image image-filter-btn"><img src="/images/filter.png"/></button>
                     
-                    <button type="button" class="btn btn-xs btn-secondary forward-all-products mr-3" title="Attach images to new Customer"><i class="fa fa-paperclip" aria-hidden="true"></i></button>
+                    <button type="button" class="btn btn-xs btn-secondary mr-3" title="Delete Records"><i class="fa fa-paperclip" aria-hidden="true"></i></button>
 
                     </div>
                 </form>
+                <br/>
+                <div class="row mt-3">
+                    <div class="col-11 ">
+                        <button type="button" class="delete-all-record btn btn-xs btn-secondary my-3 mx-4" id="select-all-product">Delete All</button>
+                    </div>
+                </div>
   
             <!-- <div class="row mt-3">
                 <div class="col-11 btn-group-actions">
@@ -194,6 +200,7 @@
         <div class="table-responsive">
             <table class="table table-bordered" style="table-layout:fixed;">
                 <thead>
+                <th style="width:4%"><input type="checkbox" id="sugIdAll"/> </th>
                 <th style="width:7%">Date</th>
                 <th style="width:8%">Id</th>
                 <th style="width:15%">Name</th>
@@ -221,7 +228,7 @@
     </div> -->
     @php
         $action = url('whatsapp/updateAndCreate/');
-
+    
         if ($model_type == 'images') {
             $action =  route('image.grid.attach');
         } else if ($model_type == 'customers') {
@@ -278,6 +285,7 @@
                     <div class="form-group mr-3">
                         <strong class="mr-3">Custom File Name</strong>
                         <input type="text" name="file_name" id="pdf-file-name" />
+                        <input type="hidden" id="hidden_suggestedproductid" />
                     </div>
                     <div class="form-group mr-3">
                         <strong class="mr-3">Is Queue?</strong>
@@ -285,12 +293,36 @@
                             <option>Select queue</option>
                             <option value="1">in Queue</option>
                             <option value="0">Send later</option>
+                            <option value="2">Send now</option>
                         </select>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary btn-approve-pdf">PDF</button>
                     <button type="button" class="btn btn-secondary btn-ignore-pdf">Images</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="suggetsedLog" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><p>Logs</p></h2>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>ID</th>
+                            <th>Log Name</th>
+                        </tr>
+                        <tbody id="logtr">
+
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -352,6 +384,81 @@
     <script src="/js/bootstrap-multiselect.min.js"></script>
     <script src="/js/jquery.jscroll.min.js"></script>
     <script>
+        $(function(){
+            $('#sugIdAll').click(function(){
+                var idchecked = $('input:checkbox').not(this).prop('checked', this.checked);
+                if($("#sugIdAll").prop('checked') == true){
+                    //alert('Yes');
+                }
+            });
+        });
+            
+        $('.delete-all-record').on('click', function(e) {
+
+            var val = [];
+            $('input[name="sugId[]"]:checkbox:checked').each(function(i, elem) {
+                val[i] = $(this).val();
+            });
+
+            if(val.length == 0) {
+                alert("Please select any one row you want to delete record!!!");
+                //confirm('Please select any letestrecord records?')
+            } else {
+                if(confirm('Are you sure really want to Delete records?')) {
+                    e.preventDefault();
+                    var ids = val.toString();
+                    $.ajax({
+                        url: '{{route("suggestedProduct.delete")}}/'+ids,
+                        type:"get",
+                        data: { 
+                                "_token": $('meta[name="csrf-token"]').attr('content'),
+                                ids : ids
+                                },
+                        dataType: 'json',
+                    }).done(function (response) {
+                        if(response.code == 200) {
+                            toastr['success'](response.message);
+                            location.reload();
+                        }else{
+                            errorMessage = response.message ? response.message : 'Record not found!';
+                            toastr['error'](errorMessage);
+                        }        
+                    }).fail(function (response) {
+                        toastr['error'](response.message);
+                    });
+                }
+
+            }
+        });
+
+        $(document).on("click", ".load-log", function (event) {
+            var suggestedproductid = $(this).data("suggestedproductid");
+             $.ajax({
+                    url: '{{route("suggestedProduct.log")}}',
+                    type:"get",
+                    data: { 
+                            "_token": $('meta[name="csrf-token"]').attr('content'),
+                            id : suggestedproductid,
+                            },
+                dataType: 'json'
+            }).done(function (response) {
+                if(response.code == 200) {
+                    //$loader.hide();
+                    $("#suggetsedLog").modal('show');
+                    $('#logtr').html(response.data);
+                    toastr['success'](response.message);
+                }else{
+                    //$loader.hide();
+                    errorMessage = response.message ? response.message : 'Log not found!';
+                    $('#logtr').html("<td colspan='2'>No Log found</td>");
+                    toastr['error'](errorMessage);
+                }        
+            }).fail(function (response) {
+                //$loader.hide();
+                $('#logtr').html("<td colspan='2'>No Log found</td>");
+                toastr['error'](response.message);
+            });
+        });
 
             $('.customer-search').select2({
                 width: "100%"
@@ -838,6 +945,7 @@
              var customer_cls = ".customer-"+suggestedproductid+" .select-pr-list-chk";
              var $input = $(customer_cls).eq(i);
             var productCard = $input.parent().parent().find(".attach-photo");
+            $('#hidden_suggestedproductid').val(suggestedproductid);
                 if (productCard.length > 0) {
                     var image = productCard.data("image");
                     var product = productCard.data("product");
@@ -880,6 +988,7 @@
             $("#is_queue_setting").val($("#is_queue_option").val());
             $("#pdf_file_name").val($("#pdf-file-name").val());
             $("#hidden-json").val(true);
+            $('#attachImageForm').append('<input type="hidden" name="hidden_suggestedproductid" value="'+$("#hidden_suggestedproductid").val()+'" /> ');
             $('#attachImageForm').submit();
         });
         // });
@@ -1071,6 +1180,28 @@
             if (container.has(event.target).length === 0) {
                 $('.load-chat-images-actions').parent().removeClass('open');
             }
+        });
+
+        $(document).on("click", ".load-more-log", function (event) {
+            customer_id = $(this).data('id');
+            suggested_products_id = $(this).data('suggestedproductid');
+            $.ajax({
+                url: '/load-product-suggest-log/'+suggested_products_id,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}"
+                },
+                beforeSend: function () {  
+                              $("#loading-image").show();
+                },
+                success: function(result){
+                     $("#loading-image").hide();
+                     console.log(result.url);
+                     location.reload();
+                    //  window.location.href = result.url;
+             }
+         });
         });
 
         $(document).on("click", ".add-more-products", function (event) {

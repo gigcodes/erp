@@ -382,6 +382,7 @@ class BrandController extends Controller
     public function brandReference()
     {
         $brands = Brand::select('name', 'references')->get();
+        $referenceArray = array(); // Got undifined referenceArray error so assigne array here
         foreach ($brands as $brand) {
             $referenceArray[] = $brand->name;
             if (!empty($brand->references)) {

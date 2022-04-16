@@ -26,7 +26,8 @@ class FetchEmail implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $emailAddress;
-
+    public $tries = 5;
+    public $backoff = 5;
     /**
      * Create a new job instance.
      *
@@ -320,8 +321,14 @@ class FetchEmail implements ShouldQueue
             ];
             EmailRunHistories::create($historyParam);
             \App\CronJob::insertLastError("fetch:all_emails", $e->getMessage());
+            throw new \Exception($e->getMessage());
         }
        
+    }
+
+    public function tags() 
+    {
+        return [ 'FetchEmail', $this->emailAddress->id];
     }
 
     private function getModel($email, $email_list)

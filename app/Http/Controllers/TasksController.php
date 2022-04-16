@@ -11,6 +11,7 @@ use Studio\Totem\Http\Requests\TaskRequest;
 use Studio\Totem\Http\Controllers\ExportTasksController;
 use File;
 use function storage_path;
+use Studio\Totem\Parameter;
 class TasksController extends Controller
 {
     
@@ -23,17 +24,18 @@ class TasksController extends Controller
     {
 
         return view('totem.tasks.index_new', [
-            'tasks' => Task::
-                orderBy('description')
+            'tasks' => Task::with('frequencies')
+                ->orderBy('description')
                 ->when(request('q'), function ($query) {
                     $query->where('description', 'LIKE', '%'.request('q').'%');
                 })
-                ->paginate(20),
+                ->paginate(50),
             'task'          => null,
             'commands'      => Totem::getCommands(),
             'timezones'     => timezone_identifiers_list(),
             'frequencies'   => Totem::frequencies(),
-        ])->with('i', (request()->input('page', 1) - 1) * 10);
+            'total_tasks'   => Task::count(),
+        ])->with('i', (request()->input('page', 1) - 1) * 50);
     } 
 
     public function create()
@@ -58,6 +60,7 @@ class TasksController extends Controller
 
     public function view(Task $task)
     {
+        
         return response()->json([
             'task'  => $task,
             'results'  => $task->results->count() > 0 ? number_format(  $task->results->sum('duration') / (1000 * $task->results->count()) , 2) : '0', 

@@ -14,6 +14,7 @@ use App\Reply;
 use App\ReturnExchange;
 use App\ReturnExchangeHistory;
 use App\ReturnExchangeStatus;
+use App\ReturnExchangeStatusLog;
 use App\Email;
 use App\AutoReply;
 use Illuminate\Support\Facades\Mail;
@@ -25,6 +26,10 @@ use Dompdf\Dompdf;
 use Qoraiche\MailEclipse\MailEclipse;
 use Twilio\Rest\Client;
 use Exception;
+use App\OrderStatus;
+use seo2websites\MagentoHelper\MagentoHelperv2;
+
+
 
 
 class ReturnExchangeController extends Controller
@@ -154,7 +159,7 @@ class ReturnExchangeController extends Controller
                         'store_website_id' => null,
                     ]);
 
-                    \App\Jobs\SendEmail::dispatch($email);
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                 } else if ($request->type == "return") {
                     
@@ -174,7 +179,7 @@ class ReturnExchangeController extends Controller
                         'is_draft'        => 1,
                     ]);
 
-                    \App\Jobs\SendEmail::dispatch($email);
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
                     
                 } else if ($request->type == "exchange") {
                     
@@ -194,7 +199,7 @@ class ReturnExchangeController extends Controller
                         'is_draft'        => 1,
                     ]);
 
-                    \App\Jobs\SendEmail::dispatch($email);
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
                     
                 }
             }
@@ -292,14 +297,78 @@ class ReturnExchangeController extends Controller
             $item["date_of_issue_formated"]   = !empty($item->date_of_issue) ? date('d-m-Y', strtotime($item->date_of_issue)) : '-';
 
         }
-
+        $order_status_list = \DB::table('return_exchange_statuses')->get();
+        
         return response()->json([
             "code"       => 200,
             "data"       => $items,
+            "order_status_list" => $order_status_list,
             "pagination" => (string) $returnExchange->links(),
             "total"      => $returnExchange->total(),
             "page"       => $returnExchange->currentPage(),
         ]);
+    }
+
+    /**
+     * This function is used for Create retuen Exchange status Log
+     *
+     * @param Request $request
+     * @return JsonResponce
+     */
+    public function createReturnExchangeStatusLog($request) 
+    {
+        try{
+            $data = ReturnExchangeStatusLog::create([
+                'return_exchanges_id' => $request->id,
+                'status_name' => $request->status_name,
+                'status' => $request->status_id,
+                'updated_by' => Auth::user()->id,
+            ]);
+            return response()->json(["code" => 200, "data" => $data]);
+        } catch(\Exception $e) {
+            return response()->json(["code" => 500, "data" => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * This function is used for update retuen Exchange status Log
+     *
+     * @param Request $request
+     * @return JsonResponce
+     */
+    public function updateExchangeStatuses(Request $request) 
+    {
+        try {
+            $data = ReturnExchange::where('id', $request->id)->first();
+            $data->status = $request->return_exchange_status;
+            $data->save();
+            $this->createReturnExchangeStatusLog($request);
+            return response()->json(["code" => 200, "data" => $data]);
+        } catch(\Exception $e) {
+            return response()->json(["code" => 500, "data" => []]);
+        }
+    }
+
+    /**
+     * This function is used for List retuen Exchange status Log
+     *
+     * @param Request $request
+     * @return JsonResponce
+     */
+    public function listExchangeStatusesLog(Request $request) 
+    {
+        try {
+            $data = ReturnExchangeStatusLog::select('return_exchange_status_logs.*', 'users.name AS updatedby_name')
+            ->leftJoin('users', 'users.id', '=', 'return_exchange_status_logs.updated_by')
+            ->where('return_exchanges_id', $request->id)
+            ->get();
+            if(!empty($data->toArray()))
+                return response()->json(["code" => 200, "data" => $data]);
+            else
+                return response()->json(["code" => 500, "message" => 'Logs not found']);
+        } catch(\Exception $e) {
+            return response()->json(["code" => 500, "data" => $e->getMessage()]);
+        }
     }
 
     public function detail(Request $request, $id)
@@ -324,6 +393,15 @@ class ReturnExchangeController extends Controller
 
         $returnExchange = \App\ReturnExchange::find($id);
         $status =  ReturnExchangeStatus::find($request->status);
+
+        //Sending request to magento
+        $magentoHelper = new MagentoHelperv2;
+        $result = $magentoHelper->changeReturnOrderStatus($status,$returnExchange);
+        $response=$result->getData();
+                            
+        if(isset($response) && isset($response->status) && $response->status==false){
+            return response()->json($response->error,500);
+        }
 
         if (!empty($returnExchange)) {
             $returnExchange->fill($params);
@@ -381,7 +459,7 @@ class ReturnExchangeController extends Controller
                         return response()->json(["code" => 500, "data" => [], "message" => json_decode($response->getContent())->message,"error" => json_decode($response->getContent())->error]);
                     }
                     if($response->type == 'error'){
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
                     }
                 } catch (Exception $e) {
                     return response()->json(["code" => 500, "data" => [], "message" => "Something went wrong"]);
@@ -410,7 +488,7 @@ class ReturnExchangeController extends Controller
                             'is_draft'        => 1,
                         ]);
                         
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                         $receiverNumber = $returnExchange->customer->phone;
                         \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
@@ -431,7 +509,7 @@ class ReturnExchangeController extends Controller
                             'store_website_id' => null,
                             'is_draft'        => 1,
                         ]);
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                         $receiverNumber = $returnExchange->customer->phone;
                         \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
@@ -453,7 +531,7 @@ class ReturnExchangeController extends Controller
                             'is_draft'        => 1,
                         ]);
 
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                         $receiverNumber = $returnExchange->customer->phone;
                         \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
@@ -886,7 +964,7 @@ class ReturnExchangeController extends Controller
                         'is_draft'        => 1,
                     ]);
 
-                    \App\Jobs\SendEmail::dispatch($email);
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
 
                 } else if ($request->type == "return") {
@@ -907,7 +985,7 @@ class ReturnExchangeController extends Controller
                         'is_draft'        => 1,
                     ]);
 
-                    \App\Jobs\SendEmail::dispatch($email);
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
 
                 } else if ($request->type == "exchange") {
@@ -928,7 +1006,7 @@ class ReturnExchangeController extends Controller
                         'is_draft'        => 1,
                     ]);
 
-                    \App\Jobs\SendEmail::dispatch($email);
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                 }
             } catch (\Exception $e) {
@@ -942,15 +1020,54 @@ class ReturnExchangeController extends Controller
     public function status(Request $request)
     {
         $status = ReturnExchangeStatus::query();
-
+        $websites = \App\StoreWebsite::all();
         if ($request->search != null) {
             $status = $status->where("status_name", "like", "%" . $request->search . "%");
         }
 
         $status = $status->get();
 
-        return view("return-exchange.status", compact('status'));
+        return view("return-exchange.status", compact('status','websites'));
     }
+
+    public function getStatusByWebsite(Request $request)
+    {
+        $website = \App\StoreWebsite::find($request->id);
+        $status = $website->returnExchangeStatus;
+        return view("return-exchange.partial.list-status", compact('status'));
+    }
+
+    public function fetchMagentoStatus(Request $request)
+    {
+        $website = \App\StoreWebsite::find($request->id);
+        $magentoHelper = new MagentoHelperv2;
+        $results = $magentoHelper->getReturnOrderStatus($website);
+        
+        if(!is_array($results)){
+            $response=$results->getData();
+                            
+            if(isset($response) && isset($response->status) && $response->status==false){
+                return response()->json($response->error,500);
+            }   
+        }
+        
+
+        foreach($results as $result){
+            $checkIfExist = app(ReturnExchangeStatus::class)->where('status_name',$result->status)->where('store_website_id',$website->id)->first();
+            if(!$checkIfExist){
+                $newStatus = new ReturnExchangeStatus;
+                $newStatus->status_name = $result->status;
+                $newStatus->store_website_id = $website->id;
+                $newStatus->save();
+            }
+        }
+        $website->refresh();
+        $status = $website->returnExchangeStatus;
+        return view("return-exchange.partial.list-status", compact('status'));
+    //}
+
+    }
+
 
     public function saveStatusField(Request $request)
     {
@@ -977,6 +1094,29 @@ class ReturnExchangeController extends Controller
             }
         }
 
+        return response()->json(["code" => 500, "data" => [], "message" => "No data found"]);
+    }
+
+    public function statusWebsiteSave(Request $request)
+    {
+        $website = \App\StoreWebsite::find($request->id);
+        $magentoHelper = new MagentoHelperv2;
+        $result= $magentoHelper->addReturnOrderStatus($website,$request->status);
+        $response=$result->getData();
+        if(isset($response) && isset($response->status) && $response->status==false){
+            return response()->json($response->error,500);
+        }
+        if($result){
+                $newStatus = new ReturnExchangeStatus;
+                $newStatus->status_name = $request->status;
+                $newStatus->store_website_id = $website->id;
+                $newStatus->save();
+                $website->refresh();
+                $status = $website->returnExchangeStatus;
+                return view("return-exchange.partial.list-status", compact('status'));
+            
+            //return response()->json(["code" => 200, "data" => $status, "message" => "Added successfully"]);
+        }
         return response()->json(["code" => 500, "data" => [], "message" => "No data found"]);
     }
 

@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('title', 'Google Ads Account')
 @section('favicon' , 'task.png')
 @section('styles')
 
@@ -21,7 +22,7 @@
     </div>
     <div class="pull-left">
         <div class="form-group">
-            <div class="row">
+            <div class="row"> 
                 <div class="col-md-5">
                     <select class="form-control select-multiple" id="website-select">
                         <option value="">Select Store Website</option>
@@ -43,10 +44,10 @@
         </div>
     </div>
 
-
     <form method="get" action="/google-campaigns/ads-account/create">
         <button type="submit" class="float-right custom-button btn  custom-button mb-3">New Account</button>
     </form>
+    <button type="button" class="float-right custom-button btn mb-3 mr-3" data-toggle="modal" data-target="#refreshTokenModal">Generate Access/Refresh Token</button>
 
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="adsaccount-table">
@@ -83,6 +84,41 @@
         </table>
     </div>
     {{ $googleadsaccount->links() }}
+</div>
+
+<div class="modal fade" id="refreshTokenModal" role="dialog" style="z-index: 3000;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form action="{{ route('googleadsaccount.refresh_token') }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Generate Access/Refresh Token</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-4 mb-4">
+                        <label>Client ID</label>
+                    </div>
+                    <div class="col-md-8 mb-4">
+                        <input type="input" class="form-control" name="client_id" required />
+                    </div>
+                    <br />
+                    <div class="col-md-4 mb-4">
+                        <label>Client Secret</label>
+                    </div>
+                    <div class="col-md-8 mb-4">
+                        <input type="input" class="form-control" name="client_secret" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-secondary">Generate</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 @endsection
 

@@ -11,6 +11,7 @@
         <th style="width:12%;">Status</th>
         <th style="width:6%;">Cost</th>
         <th style="width:8%;">Milestone</th>
+        <th style="width:8%;">Actons</th>
     </tr>
     <?php
         $isReviwerLikeAdmin =  auth()->user()->isReviwerLikeAdmin();

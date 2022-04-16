@@ -1095,8 +1095,12 @@ class CouponController extends Controller
             'store_website_id' => $couponCodeRule->store_website_id,
             'is_draft'         => 0,
         ]);
-
-        \App\Jobs\SendEmail::dispatch($email);
+        \App\EmailLog::create([
+            'email_id'   => $email->id,
+            'email_log' => 'Email initiated',
+            'message'       => $email->to
+        ]);
+        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
         CouponCodeRuleLog::create([
             'rule_id' => $ruleId,
             'coupon_code' => $couponCodeRule->coupon_code,
