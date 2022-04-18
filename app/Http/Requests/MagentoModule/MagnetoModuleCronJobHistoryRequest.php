@@ -4,7 +4,7 @@ namespace App\Http\Requests\MagentoModule;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class MagentoModuleRemarkRequest extends FormRequest
+class MagnetoModuleCronJobHistoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,9 +24,11 @@ class MagentoModuleRemarkRequest extends FormRequest
     public function rules()
     {
         return [
-            'remark' => 'required',
-            // 'send_to' => 'required',
             'magento_module_id' => 'required',
+            'cron_time' => 'required',
+            // 'frequency' => 'required',
+            // 'cpu_memory' => 'required',
+            // 'comments' => 'required',
         ];
     }
 
@@ -34,8 +36,6 @@ class MagentoModuleRemarkRequest extends FormRequest
     {
         return [
             'remark.required' => __('validation.required', ['attribute' => 'remark']),
-            // 'send_to.required' => __('validation.required', ['attribute' => 'Status']),
-            'magento_module_id.required' => __('validation.required', ['attribute' => 'module']),
         ];
     }
 }

@@ -21,6 +21,8 @@ class MagentoModule extends Model
         'module_type',
         'status',
         'is_sql',
+        'api',
+        'cron_job',
         'is_third_party_plugin',
         'is_third_party_js',
         'is_js_css',

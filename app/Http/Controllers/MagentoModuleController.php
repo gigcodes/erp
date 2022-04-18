@@ -12,6 +12,7 @@ use App\MagentoModuleRemark;
 use App\MagentoModuleType;
 use App\StoreWebsite;
 use App\TaskStatus;
+use App\User;
 use Auth;
 
 class MagentoModuleController extends Controller
@@ -40,11 +41,24 @@ class MagentoModuleController extends Controller
                 ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
                 ->join('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
                 ->join('store_websites', 'store_websites.id', 'magento_modules.store_website_id')
+                ->join('users', 'users.id', 'magento_modules.developer_name')
                 ->leftJoin('task_statuses', 'task_statuses.id', 'magento_modules.task_status')
-                ->select('magento_modules.*', 'magento_module_categories.category_name', 'magento_module_types.magento_module_type', 'task_statuses.name as task_name', 'store_websites.website', 'store_websites.title');
+                ->select(
+                    'magento_modules.*',
+                    'magento_module_categories.category_name',
+                    'magento_module_types.magento_module_type',
+                    'task_statuses.name as task_name',
+                    'store_websites.website',
+                    'store_websites.title',
+                    'users.name as developer_name'
+                );
 
             if (isset($request->module) && !empty($request->module)) {
                 $items->where('magento_modules.module', 'Like', '%' . $request->module . '%');
+            }
+
+            if (isset($request->user_id) && !empty($request->user_id)) {
+                $items->where('users.user_id', $request->user_id);
             }
 
             if (isset($request->store_website_id) && !empty($request->store_website_id)) {
@@ -70,11 +84,16 @@ class MagentoModuleController extends Controller
             return datatables()->eloquent($items)->toJson();
         } else {
             $title = 'Magento Module';
+            if (env('PRODUCTION', true)) {
+                $users = User::role('Developer')->orderby('name', 'asc')->where('is_active', 1)->get()->pluck('name', 'id');
+            } else {
+                $users = User::orderby('name', 'asc')->where('is_active', 1)->get()->pluck('name', 'id');
+            }
             $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
             $magento_module_types = MagentoModuleType::get()->pluck('magento_module_type', 'id');
             $task_statuses = TaskStatus::pluck("name", "id");
             $store_websites = StoreWebsite::pluck("website", "id");
-            return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites'));
+            return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users'));
         }
     }
 

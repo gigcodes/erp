@@ -11453,9 +11453,7 @@ table.table-striped-custom tbody tr td {
     text-overflow: unset;
     white-space: initial;
 }
-.input-button{
-    width: 20%;
-}
+
 .scrapper-python-image .image-1 img{
     width:100% !important;
     object-fit: cover;
@@ -11478,6 +11476,11 @@ table.table-striped-custom tbody tr td {
     word-break: break-all;
 }
 tbody tr:hover .Website-task{
+    overflow: visible !important;
+    white-space: normal !important;
+    word-break: break-all; 
+}
+thead tr:hover .Website-task{
     overflow: visible !important;
     white-space: normal !important;
     word-break: break-all; 

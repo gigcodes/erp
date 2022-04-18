@@ -1,16 +1,55 @@
-<div id="moduleCreateModal" class="modal fade " role="dialog">
+<div id="cronJobDataAddModal" class="modal fade " role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
         <div class="modal-content">
             {{-- {!! Form::open(['route' => 'magento_module_types.store', 'method' => 'POST', 'class' => 'form mb-15', 'enctype' => 'multipart/form-data']) !!} --}}
-            <form id="magento_module_form" class="form mb-15" >
-            @csrf
+            <form id="magento_module_cron_job_form" class="form mb-15" >
+                @csrf
+                {!! Form::hidden('magento_module_id', null, ['id'=>'magento_module_id']) !!}
             <div class="modal-header">
-                <h4 class="modal-title">Add {{ $title }}</h4>
+                <h4 class="modal-title">Add Cron Job Details  </h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                @include('magento_module.partials.form')
+                <div class="row ml-2 mr-2">
+                    <div class="col-xs-6 col-sm-6">
+                        <div class="form-group">
+                            {!! Form::text('cron_time', null, ['id'=>'cron_time', 'placeholder' => 'Cron Time', 'class' => 'form-control', 'required' => 'required']) !!}
+                            @if ($errors->has('cron_time'))
+                                <span style="color:red">{{ $errors->first('cron_time') }}</span>
+                            @endif
+                        </div>
+                    </div>
+                
+                    <div class="col-xs-6 col-sm-6">
+                        <div class="form-group">
+                            {!! Form::text('frequency', null, ['id'=>'frequency', 'placeholder' => 'Cron frequency', 'class' => 'form-control', 'required' => 'required']) !!}
+                            @if ($errors->has('frequency'))
+                                <span style="color:red">{{ $errors->first('frequency') }}</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row ml-2 mr-2">
+                    <div class="col-xs-6 col-sm-6">
+                        <div class="form-group">
+                            {!! Form::text('cpu_memory', null, ['id'=>'cpu_memory', 'placeholder' => 'CPU Memory', 'class' => 'form-control', 'required' => 'required']) !!}
+                            @if ($errors->has('cpu_memory'))
+                                <span style="color:red">{{ $errors->first('cpu_memory') }}</span>
+                            @endif
+                        </div>
+                    </div>
+                
+                    <div class="col-xs-6 col-sm-6">
+                        <div class="form-group">
+                            {!! Form::text('comments', null, ['id'=>'comments', 'placeholder' => 'Comments', 'class' => 'form-control', 'required' => 'required']) !!}
+                            @if ($errors->has('comments'))
+                                <span style="color:red">{{ $errors->first('comments') }}</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
 
             </div>
             <div class="modal-footer">
@@ -23,41 +62,18 @@
     </div>
 </div>
 
-<div id="moduleEditModal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <form id="magento_module_edit_form" method="POST">
-                @csrf
-                @method('PUT')
-                {!! Form::hidden('id', null, ['id'=>'id']) !!}
-                <div class="modal-header">
-                    <h4 class="modal-title">Update Store Color</h4>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    @include('magento_module.partials.form')
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-secondary">Update</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 @push('scripts')
     <script>
 
-    $(document).on('submit', '#magento_module_form', function(e){
+    $(document).on('submit', '#magento_module_cron_job_form', function(e){
         e.preventDefault();
+        alert("Sdfs");
         var self = $(this);
-        let formData = new FormData(document.getElementById("magento_module_form"));
+        let formData = new FormData(document.getElementById("magento_module_cron_job_form"));
         var button = $(this).find('[type="submit"]');
         console.log(button);
         $.ajax({
-            url: '{{ route("magento_modules.store") }}',
+            url: '{{ route("magento_module_cron_job_histories.store") }}',
             type: "POST",
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             dataType: 'json',
@@ -76,10 +92,10 @@
                 button.removeClass('disabled');
             },
             success: function(response) {
-                $('#moduleCreateModal #magento_module_form').trigger('reset');
-                $('#moduleCreateModal #magento_module_form').find('.error-help-block').remove();
-                $('#moduleCreateModal #magento_module_form').find('.invalid-feedback').remove();
-                $('#moduleCreateModal #magento_module_form').find('.alert').remove();
+                $('#cronJobDataAddModal #magento_module_cron_job_form').trigger('reset');
+                $('#cronJobDataAddModal #magento_module_cron_job_form').find('.error-help-block').remove();
+                $('#cronJobDataAddModal #magento_module_cron_job_form').find('.invalid-feedback').remove();
+                $('#cronJobDataAddModal #magento_module_cron_job_form').find('.alert').remove();
                 oTable.draw();
                 toastr["success"](response.message);
             },

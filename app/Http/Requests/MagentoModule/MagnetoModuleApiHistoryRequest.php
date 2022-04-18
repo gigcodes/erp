@@ -4,7 +4,7 @@ namespace App\Http\Requests\MagentoModule;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class MagentoModuleRemarkRequest extends FormRequest
+class MagnetoModuleApiHistoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,9 +24,9 @@ class MagentoModuleRemarkRequest extends FormRequest
     public function rules()
     {
         return [
-            'remark' => 'required',
-            // 'send_to' => 'required',
             'magento_module_id' => 'required',
+            'resources' => 'required',
+            'frequency' => 'required',
         ];
     }
 
