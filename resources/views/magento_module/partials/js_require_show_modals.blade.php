@@ -8,10 +8,8 @@
                         <thead>
                             <tr>
                                 <th width="5%">No</th>
-                                <th width="10%">Time</th>
-                                <th width="15%">Frequency</th>
-                                <th width="10%">CPU Memory</th>
-                                <th width="30%">Comments</th>
+                                <th width="10%">Files Include</th>
+                                <th width="15%">Native Functionality</th>
                                 <th width="30%">BY</th>
                                 <th width="20%">Date</th>
                             </tr>

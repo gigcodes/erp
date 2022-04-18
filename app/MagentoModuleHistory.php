@@ -4,12 +4,12 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class MagentoModule extends Model
+class MagentoModuleHistory extends Model
 {
-
     protected $guarded = ['id'];
 
     protected $fillable = [
+        'magento_module_id',
         'module_category_id',
         'store_website_id',
         'module',
@@ -17,7 +17,6 @@ class MagentoModule extends Model
         'current_version',
         'task_status',
         'last_message',
-        'cron_time',
         'module_type',
         'status',
         'is_sql',
@@ -29,7 +28,23 @@ class MagentoModule extends Model
         'payment_status',
         'developer_name',
         'is_customized',
+        'user_id',
     ];
+
+    public function magento_module()
+    {
+        return $this->belongsTo(MagentoModule::class, 'magento_module_id');
+    }
+
+    public function developer_name_data()
+    {
+        return $this->belongsTo(User::class, 'developer_name');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     public function module_category()
     {
@@ -39,16 +54,6 @@ class MagentoModule extends Model
     public function store_website()
     {
         return $this->belongsTo(StoreWebsite::class, 'store_website_id');
-    }
-
-    public function lastRemark()
-    {
-        return $this->hasOne(MagentoModuleRemark::class, 'magento_module_id', 'id')->orderBy('created_at', 'desc')->latest();
-    }
-
-    public function remarks()
-    {
-        return $this->hasMany(MagentoModuleRemark::class, 'magento_module_id', 'id')->orderBy('created_at', 'desc');
     }
 
     public function task_status_data()

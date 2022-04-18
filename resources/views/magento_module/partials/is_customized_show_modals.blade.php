@@ -8,8 +8,8 @@
                         <thead>
                             <tr>
                                 <th width="5%">No</th>
-                                <th width="10%">Files Include</th>
-                                <th width="15%">Native Functionality</th>
+                                <th width="10%">Magento Standards</th>
+                                <th width="15%">Remark</th>
                                 <th width="30%">BY</th>
                                 <th width="20%">Date</th>
                             </tr>

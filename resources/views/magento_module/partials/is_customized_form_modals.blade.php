@@ -15,13 +15,14 @@
                 <div class="row ml-2 mr-2">
                     <div class="col-xs-6 col-sm-6">
                         <div class="form-group">
-                            {!! Form::checkbox('magento_standards', 'Yes' , null, ['id'=>'magento_standards', 'placeholder' => 'Magento standards', 'class' => 'form-control', 'required' => 'required']) !!}
+                            <label> Magento Standards </label>
+                            {!! Form::checkbox('magento_standards', 1 , null, ['id'=>'magento_standards', 'placeholder' => 'Magento standards', 'class' => '', 'required' => 'required']) !!}
                             @if ($errors->has('magento_standards'))
                                 <span style="color:red">{{ $errors->first('magento_standards') }}</span>
                             @endif
                         </div>
                     </div>
-                
+                    
                     <div class="col-xs-6 col-sm-6">
                         <div class="form-group">
                             {!! Form::text('remark', null, ['id'=>'remark', 'placeholder' => 'Remark', 'class' => 'form-control', 'required' => 'required']) !!}
@@ -53,7 +54,7 @@
         var button = $(this).find('[type="submit"]');
         console.log(button);
         $.ajax({
-            url: '{{ route("magento_modules.store") }}',
+            url: '{{ route("magento_module_customized_histories.store") }}',
             type: "POST",
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             dataType: 'json',
