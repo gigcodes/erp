@@ -13,20 +13,29 @@
 
             <div class="modal-body">
                 <div class="row ml-2 mr-2">
-                    <div class="col-xs-6 col-sm-6">
-                        <div class="form-group">
-                            {!! Form::text('resources', null, ['id'=>'resources', 'placeholder' => 'Resources', 'class' => 'form-control', 'required' => 'required']) !!}
-                            @if ($errors->has('resources'))
-                                <span style="color:red">{{ $errors->first('resources') }}</span>
+                    <div class="col-xs-11 col-sm-11">
+                            <label for="files_include">files are included only on the pages where they are required</label>
+                    </div>
+                    <div class="col-xs-1 col-sm-1">
+                        
+                            {!! Form::checkbox('files_include', 'Yes' , null, ['id'=>'files_include', 'placeholder' => 'Magento standards', 'class' => '', 'required' => 'required']) !!}
+                            @if ($errors->has('files_include'))
+                                <span style="color:red">{{ $errors->first('files_include') }}</span>
                             @endif
+                    </div>
+                </div>
+                
+                <div class="row ml-2 mr-2">
+                    <div class="col-xs-11 col-sm-11">
+                        <div class="form-group">
+                            <label for="native_functionality">Loaded through the native Magento functionality known as RequireJs</label>
                         </div>
                     </div>
-                
-                    <div class="col-xs-6 col-sm-6">
+                    <div class="col-xs-1 col-sm-1">
                         <div class="form-group">
-                            {!! Form::text('frequency', null, ['id'=>'frequency', 'placeholder' => 'frequency', 'class' => 'form-control', 'required' => 'required']) !!}
-                            @if ($errors->has('frequency'))
-                                <span style="color:red">{{ $errors->first('frequency') }}</span>
+                            {!! Form::checkbox('native_functionality', 'Yes' , null, ['id'=>'native_functionality', 'placeholder' => 'native functionality', 'class' => '', 'required' => 'required']) !!}
+                            @if ($errors->has('native_functionality'))
+                                <span style="color:red">{{ $errors->first('native_functionality') }}</span>
                             @endif
                         </div>
                     </div>

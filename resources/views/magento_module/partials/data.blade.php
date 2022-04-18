@@ -62,8 +62,6 @@
             <strong>Third Party Plugin : </strong> {{ $magento_module->is_third_party_plugin == 1 ? 'Yes' : 'No' }}
         </div>
     </div>
-
-
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
             <strong>Developer Name : </strong> {{ $magento_module->developer_name }}
