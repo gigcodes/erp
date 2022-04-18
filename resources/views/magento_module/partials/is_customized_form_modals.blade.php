@@ -16,7 +16,7 @@
                     <div class="col-xs-6 col-sm-6">
                         <div class="form-group">
                             <label> Magento Standards </label>
-                            {!! Form::checkbox('magento_standards', 1 , null, ['id'=>'magento_standards', 'placeholder' => 'Magento standards', 'class' => '', 'required' => 'required']) !!}
+                            {!! Form::checkbox('magento_standards', 1 , null, ['id'=>'magento_standards', 'placeholder' => 'Magento standards', 'class' => '']) !!}
                             @if ($errors->has('magento_standards'))
                                 <span style="color:red">{{ $errors->first('magento_standards') }}</span>
                             @endif
