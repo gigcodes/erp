@@ -3194,7 +3194,8 @@ class TwilioController extends FindByNumberController
                 TwilioCredential::where('id','=',$request->id)->update([
                     'twilio_email' => $request->email,
                     'account_id' => $request->account_id,
-                    'auth_token' => $request->auth_token
+                    'auth_token' => $request->auth_token,
+                    'twilio_recovery_code' => $request->recovery_code
                 ]);
                 return redirect()->back()->with('success','Twilio details updated successfully');
 
@@ -3202,7 +3203,8 @@ class TwilioController extends FindByNumberController
                 $create_new = TwilioCredential::create([
                    'twilio_email' => $request->email,
                    'account_id' => $request->account_id,
-                   'auth_token' => $request->auth_token
+                   'auth_token' => $request->auth_token,
+                   'twilio_recovery_code' => $request->recovery_code
                 ]);
 
                 //Create TwiML Apps - START
@@ -4784,33 +4786,23 @@ class TwilioController extends FindByNumberController
         //     $call_Journeies = $call_Journeies->where('id', $request->id);
         // }
 
-        if ($request->customer_name) {
-            // Custome name with search query
-            $call_Journeies = $call_Journeies->where('customers.name', 'like', '%'.$request->customer_name . '%');
-        }
         if ($request->phone) {
             // phone number with search query
-            $call_Journeies = $call_Journeies->where('twilio_call_journey.phone', 'like', '%'.$request->phone . '%');
-        }
-        if ($request->website) {
-            // webste with search query
-            $call_Journeies = $call_Journeies->where('store_websites.website', 'like', '%'.$request->website . '%');
-        }
-        if ($request->store_id) {
-            // twilio_credential ID with search query
-            $call_Journeies = $call_Journeies->where('twilio_credentials.id', 'like', '%'.$request->store_id . '%');
+            $call_Journeies = $call_Journeies->where('phone', 'like', $request->phone . '%');
         }
 
-        $call_Journeies = $call_Journeies->join('twilio_credentials', 'twilio_credentials.account_id', 'twilio_call_journey.account_sid')
-            ->leftJoin('customers', 'customers.phone', 'twilio_call_journey.phone')
-            ->leftJoin('store_websites', 'store_websites.id', 'customers.store_website_id')
-            // with(['twilio_credential:id,account_id,twilio_email', 'customer:id,phone,name', 'customer.storeWebsite' ])
-            ->orderBy('twilio_call_journey.id', 'desc')
-            ->select('twilio_call_journey.*', 'twilio_credentials.twilio_email', 'twilio_credentials.id as twilio_credential_id', 'customers.name as customer_name', 'store_websites.website', 'store_websites.title' )
-            ->paginate(Setting::get('pagination'));
-            // ->get();
+        if($request->store_id){
+            // relation with search query
+            $call_Journeies = $call_Journeies->whereHas('twilio_credential', function ($query) use ($request){
+                $query->where('id', 'like', $request->store_id);
+            });
+        }
+        
 
-                // dd($call_Journeies);
+        $call_Journeies = $call_Journeies->with(['twilio_credential:id,account_id,twilio_email'])
+                ->orderBy('id', 'desc')
+                ->paginate(Setting::get('pagination'));
+        
         if ($request->ajax()) {
             $count = $call_Journeies->count();
 
