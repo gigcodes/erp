@@ -389,6 +389,14 @@
                 <div class="alert alert-danger">{{$errors->first('signature_website')}}</div>
               @endif
             </div>
+            <div class="form-group col-md-4">
+              <strong>Twilio Recovery Code:</strong>
+              <input type="text" name="twilio_recovery_code" class="form-control" value="{{ old('twilio_recovery_code') }}">
+
+              @if ($errors->has('twilio_recovery_code'))
+                <div class="alert alert-danger">{{$errors->first('twilio_recovery_code')}}</div>
+              @endif
+            </div>
           </div>
           <div class="row">
             <div class="form-group col-md-6">
@@ -683,6 +691,14 @@
                 <div class="alert alert-danger">{{$errors->first('signature_website')}}</div>
               @endif
             </div>
+            <div class="form-group col-md-4">
+              <strong>Twilio Recovery Code:</strong>
+              <input type="text" name="twilio_recovery_code" class="form-control" value="{{ old('twilio_recovery_code') }}" >
+
+              @if ($errors->has('twilio_recovery_code'))
+                <div class="alert alert-danger">{{$errors->first('twilio_recovery_code')}}</div>
+              @endif
+            </div>
           </div>
           <div class="row">
             <div class="form-group col-md-6">
@@ -804,10 +820,21 @@
       $('#emailAddressEditModal').find('input[name="signature_email"]').val(emailAddress.signature_email);
       $('#emailAddressEditModal').find('input[name="signature_phone"]').val(emailAddress.signature_phone);
       $('#emailAddressEditModal').find('input[name="signature_website"]').val(emailAddress.signature_website);
+      $('#emailAddressEditModal').find('input[name="twilio_recovery_code"]').val(emailAddress.twilio_recovery_code);
       $('#emailAddressEditModal').find('textarea[name="signature_address"]').val(emailAddress.signature_address);
       $('#emailAddressEditModal').find('textarea[name="signature_social"]').val(emailAddress.signature_social);
-      $("#img1").attr("src",  "{{url('/')}}/uploads/" + emailAddress.signature_logo);
-      $("#img2").attr("src",  "{{url('/')}}/uploads/" + emailAddress.signature_image);
+      $("#img1").hide();
+      $("#img2").hide();
+      if(emailAddress && emailAddress.signature_logo){
+        $("#img1").attr("src",  "{{url('/')}}/uploads/" + emailAddress.signature_logo);
+        $("#img1").show();
+      }
+      if(emailAddress && emailAddress.signature_logo){
+        $("#img2").attr("src",  "{{url('/')}}/uploads/" + emailAddress.signature_image);
+        $("#img2").show();
+      }
+      
+      
       tinymce.init({
     selector: '#address1',
     menubar: false
