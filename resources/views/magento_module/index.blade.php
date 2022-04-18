@@ -310,7 +310,7 @@
 
                             let remark_send_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']})"><img src="/images/filled-sent.png"></button>`;
-                                data = (data == null) ? '' : data;
+                                data = (data == null) ? '' : `<div class="flex items-center justify-left" title="${data}">${setStringLength(data, 15)}</div>`;
                             let retun_data = `${data} <div class="d-flex"> ${message} ${remark_send_button} ${remark_history_button} </div>`;
                             
                             return retun_data;

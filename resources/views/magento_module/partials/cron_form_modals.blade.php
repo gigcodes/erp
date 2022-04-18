@@ -67,7 +67,6 @@
 
     $(document).on('submit', '#magento_module_cron_job_form', function(e){
         e.preventDefault();
-        alert("Sdfs");
         var self = $(this);
         let formData = new FormData(document.getElementById("magento_module_cron_job_form"));
         var button = $(this).find('[type="submit"]');
