@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\MagnetoModuleCronJobHistory;
-use App\Http\Requests\MagentoModule\MagnetoModuleCronJobHistoryRequest;
+use App\MagentoModuleCronJobHistory;
+use App\Http\Requests\MagentoModule\MagentoModuleCronJobHistoryRequest;
 
-class MagnetoModuleCronJobHistoryController extends Controller
+class MagentoModuleCronJobHistoryController extends Controller
 {
 
     public function __construct()
@@ -18,12 +18,12 @@ class MagnetoModuleCronJobHistoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(MagnetoModuleCronJobHistoryRequest $request)
+    public function store(MagentoModuleCronJobHistoryRequest $request)
     {
         $input = $request->except(['_token']);
         $input['user_id'] = auth()->user()->id;
 
-        $data = MagnetoModuleCronJobHistory::create($input);
+        $data = MagentoModuleCronJobHistory::create($input);
 
         if ($data) {
             return response()->json([
@@ -50,7 +50,7 @@ class MagnetoModuleCronJobHistoryController extends Controller
     public function show($magento_module)
     {
         $title = 'Magento Module Type Details';
-        $magento_module_cron_job_histories = MagnetoModuleCronJobHistory::with(['user'])->where('magento_module_id', $magento_module)->get();
+        $magento_module_cron_job_histories = MagentoModuleCronJobHistory::with(['user'])->where('magento_module_id', $magento_module)->get();
 
         if (request()->ajax() && $magento_module_cron_job_histories) {
             return response()->json([

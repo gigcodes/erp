@@ -88,11 +88,21 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('magento_module_categories', 'MagentoModuleCategoryController');
 
-    Route::post('magento_module_api_histories', 'MagnetoModuleApiHistoryController@store')->name('magento_module_api_histories.store');
-    Route::get('magento_module_api_histories/{magento_module}', 'MagnetoModuleApiHistoryController@show')->name('magento_module_api_histories.show');
+    Route::post('magento_module_api_histories', 'MagentoModuleApiHistoryController@store')->name('magento_module_api_histories.store');
+    Route::get('magento_module_api_histories/{magento_module}', 'MagentoModuleApiHistoryController@show')->name('magento_module_api_histories.show');
 
-    Route::post('magento_module_cron_job_histories', 'MagnetoModuleCronJobHistoryController@store')->name('magento_module_cron_job_histories.store');
-    Route::get('magento_module_cron_job_histories/{magento_module}', 'MagnetoModuleCronJobHistoryController@show')->name('magento_module_cron_job_histories.show');
+    Route::post('magento_module_cron_job_histories', 'MagentoModuleCronJobHistoryController@store')->name('magento_module_cron_job_histories.store');
+    Route::get('magento_module_cron_job_histories/{magento_module}', 'MagentoModuleCronJobHistoryController@show')->name('magento_module_cron_job_histories.show');
+
+    Route::post('magento_module_js_require_histories', 'MagentoModuleJsRequireHistoryController@store')->name('magento_module_js_require_histories.store');
+    Route::get('magento_module_js_require_histories/{magento_module}', 'MagentoModuleJsRequireHistoryController@show')->name('magento_module_js_require_histories.show');
+
+    Route::post('magento_module_customized_histories', 'MagentoModuleCustomizedHistoryController@store')->name('magento_module_customized_histories.store');
+    Route::get('magento_module_customized_histories/{magento_module}', 'MagentoModuleCustomizedHistoryController@show')->name('magento_module_customized_histories.show');
+
+
+    Route::get('magento_module_histories/{magento_module}', 'MagentoModuleHistoryController@show')->name('magento_module_histories.show');
+
 
     Route::resource('magento_module_types', 'MagentoModuleTypeController');
 });
