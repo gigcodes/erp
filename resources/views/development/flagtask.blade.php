@@ -252,7 +252,7 @@
 
     @include('partials.flash_messages')
     <div class="infinite-scroll">
-        <div class=" mt-3 data-tb-custom" style="">
+        <div class="table-responsive mt-3 data-tb-custom">
             <table class="table table-bordered table-striped" id="reply_history_div" style="table-layout:fixed;margin-bottom:0px;">
                 <thead>
                     <tr>
@@ -291,7 +291,8 @@
                             @include("task-module.partials.flagdeveloper-row-view")
                         @endif
                     @endforeach
-                    
+
+
                 </tbody>
             </table>
         </div>

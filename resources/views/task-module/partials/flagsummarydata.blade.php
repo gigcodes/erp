@@ -5,6 +5,19 @@
         <td style="display:table-cell;vertical-align: baseline;">
             {{ $task->id }}
         </td>
+        <td style="vertical-align: baseline;"> {{ $task->created_at->format('d-m-y') }} </td>
+        <td style="vertical-align: baseline;">
+            @php
+                $website = substr($task->website, 0, 10) . '...';
+            @endphp
+            <span title="{{ $task->website }}"> {{ $website }} </span>
+        </td>
+        <td>
+            {{ $task->parent_task_id }}
+        </td>
+        <td style="vertical-align: baseline;">
+            {{ $website = substr($task->task_subject, 0, 10) . '...' }}
+        </td>
         <td>
             <div class="d-flex">
                 <select class="form-control assign-task-user select2" data-id="{{ $task->id }}" name="assign_to"
@@ -24,8 +37,6 @@
                     data-type="task"><i class="fa fa-info-circle"></i></button>
             </div>
         </td>
-        
-        
         <td style="vertical-align: baseline;">
             @if (isset($special_task->timeSpent) && $special_task->timeSpent->task_id > 0)
                 {{ formatDuration($special_task->timeSpent->tracked) }}
@@ -36,6 +47,7 @@
             @endif
         </td>
         <td style="vertical-align: baseline;">
+
             @php
                 echo date('d-m-y H:i:s', strtotime($task->approximate));
             @endphp
@@ -93,7 +105,7 @@
                     </div>
                 </span>
             </div>
-        </td>   
+        </td>
 
         <td class="communication-td devtask-com " style="border-bottom: none; display: block;">
             <!-- class="expand-row" -->
@@ -126,45 +138,11 @@
                 @endif
             </p>
         </td>
+
         <td style="vertical-align: initial;">
             <i class="fa fa-comments-o" aria-hidden="true"></i>
             <i class="fa fa-history" aria-hidden="true"></i>
         </td>
-
-
-
-
-
-        
-        {{-- <td style="vertical-align: baseline;"> {{ $task->created_at->format('d-m-y') }} </td>
-        
-        <td style="vertical-align: baseline;">
-            @php
-                $website = substr($task->website, 0, 10) . '...';
-            @endphp
-            <span title="{{ $task->website }}"> {{ $website }} </span>
-        </td>
-        <td>
-            {{ $task->parent_task_id }}
-        </td>
-        <td style="vertical-align: baseline;">
-            {{ $website = substr($task->task_subject, 0, 10) . '...' }}
-        </td> --}}
-        
-        
-        
-
-
-
-
-        
-        
-
-        
-
-        
-
-        
 
 
     </tr>
