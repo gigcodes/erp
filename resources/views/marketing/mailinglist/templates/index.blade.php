@@ -181,7 +181,7 @@
 
                         <div class="form-group col-md-12">
                             <label for="image">Template HTML</label><br/>
-                            <textarea cols="80" id="editor1" name="html" rows="10"></textarea>
+                            <textarea cols="80" id="editor1" name="html_text" rows="10"></textarea>
                         </div>
                         <br/>
                         <br/>
