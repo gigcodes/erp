@@ -37,7 +37,8 @@
         </td>
         <td style="vertical-align: baseline;">
             @php
-                echo date('d-m-y H:i:s', strtotime($task->approximate));
+                if($task->approximate != '0') { echo date('H:i:s', strtotime($task->approximate)); }
+                
             @endphp
             <button type="button" style="float:right;" class="btn btn-xs show-time-history-task" title="Show History"
                 data-id="{{ $task->id }}" data-user_id="{{ $task->assign_to }}" style="background: none;"><i
@@ -47,7 +48,8 @@
             <div class="d-flex">
 
                 @php
-                    echo date('d-m-y H:i:s', strtotime($task->due_date));
+                   if($task->due_date != '') {  echo date('d-m-y H:i:s', strtotime($task->due_date)); }
+                   
                 @endphp
                 {{-- <span> 2021-12-07 00:00:00</span> --}}
                 <button type="button" class="btn btn-xs show-date-history" title="Show tracked time History"
