@@ -102,6 +102,9 @@
             
             @foreach ($category as $cat)
                 @php
+                    if($user_id !=''){
+                        $cat->user_id = $user_id;
+                    }
                     $latest_messages = App\ChatMessage::where('user_feedback_id', $cat->user_id)->where('user_feedback_category_id', $cat->id)->orderBy('id','DESC')->first();
                     if ($latest_messages) {
                         $latest_msg = $latest_messages->message;

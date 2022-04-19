@@ -13,10 +13,11 @@ class UserManagementController extends Controller
     {
         $status = UserFeedbackStatus::get();
 
-        $user_id = $request->user_id;
+        $user_id = '';
         $category = UserFeedbackCategory::groupBy('category');
         if($request->user_id){
-            $category = $category->where('user_id', $request->user_id);
+            //$category = $category->where('user_id', $request->user_id);
+            $user_id = $request->user_id;
         }
         $users = User::all();
         $category = $category->paginate(25);
