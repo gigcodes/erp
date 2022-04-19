@@ -17,6 +17,7 @@
 @endsection
 
 @section('content')
+<script src="https://cdn.ckeditor.com/4.18.0/standard/ckeditor.js"></script>
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
     </div>
@@ -177,13 +178,20 @@
                             <label for="image">Template Example</label>
                             <input type="hidden" name="old_image" class="py-3" id="form_image">
                         </div>
-                        
+
+                        <div class="form-group col-md-12">
+                            <label for="image">Template HTML</label><br/>
+                            <textarea cols="80" id="editor1" name="html" rows="10"></textarea>
+                        </div>
+                        <br/>
+                        <br/>
+                        <br/>
                         <!-- <div class="form-group d-flex flex-column">
                             <label for="image">File</label>
                             <input required type="file" name="file" class="py-3" id="image">
                             <span class="text-danger"></span>
                         </div> -->
-                        <button id="store" type="submit" class="btn custom-button" style="margin-left: -34px;">Submit</button>
+                        <button id="store" type="submit" class="btn custom-button">Submit</button>
                     </form>
                 </div>
             </div>
@@ -340,7 +348,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    
     <script>
+        CKEDITOR.replace( 'editor1' );
+        
         $(document).ready(function () {
             $(".select-multiple").multiselect();
             $(".select-multiple2").select2();
