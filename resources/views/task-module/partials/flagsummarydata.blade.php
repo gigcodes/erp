@@ -131,11 +131,7 @@
             <i class="fa fa-history" aria-hidden="true"></i>
         </td>
 
-
-
-
-
-        
+       
         {{-- <td style="vertical-align: baseline;"> {{ $task->created_at->format('d-m-y') }} </td>
         
         <td style="vertical-align: baseline;">
@@ -151,19 +147,6 @@
             {{ $website = substr($task->task_subject, 0, 10) . '...' }}
         </td> --}}
         
-        
-        
-
-
-
-
-        
-        
-
-        
-
-        
-
         
 
 
