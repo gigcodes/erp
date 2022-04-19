@@ -8,6 +8,7 @@ use App\MagentoModuleCategory;
 use App\MagentoModule;
 use App\Setting;
 use App\Http\Requests\MagentoModule\MagentoModuleRequest;
+use App\MagentoModuleHistory;
 use App\MagentoModuleRemark;
 use App\MagentoModuleType;
 use App\StoreWebsite;
@@ -50,7 +51,8 @@ class MagentoModuleController extends Controller
                     'task_statuses.name as task_name',
                     'store_websites.website',
                     'store_websites.title',
-                    'users.name as developer_name'
+                    'users.name as developer_name',
+                    'users.id as developer_id'
                 );
 
             if (isset($request->module) && !empty($request->module)) {
@@ -125,6 +127,11 @@ class MagentoModuleController extends Controller
         $data = MagentoModule::create($input);
 
         if ($data) {
+            $input_data = $data->toArray();
+            $input_data['magento_module_id'] = $data->id;
+            unset($input_data['id']);
+            $input_data['user_id'] = auth()->user()->id;
+            MagentoModuleHistory::create($input_data);
             return response()->json([
                 'status' => true,
                 'data' => $data,
@@ -194,6 +201,13 @@ class MagentoModuleController extends Controller
         $data = $magento_module->update($input);
 
         if ($data) {
+            $input_data = $magento_module->toArray();
+            $input_data['magento_module_id'] = $magento_module->id;
+            unset($input_data['id']);
+            $input_data['user_id'] = auth()->user()->id;
+            // dd($input_data);
+            MagentoModuleHistory::create($input_data);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Updated successfully',

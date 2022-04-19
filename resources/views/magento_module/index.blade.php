@@ -11,6 +11,13 @@
             display: none;
         }
 
+        table.dataTable thead th {
+            padding: 5px 5px !important;
+        }
+        table.dataTable tbody th, table.dataTable tbody td {
+            padding: 5px 5px !important;
+        }
+
     </style>
 
     <link rel="stylesheet" type="text/css"
@@ -123,7 +130,7 @@
                     
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleCategoryCreateModal"> Module Category Create </button>
 
-                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleCreateModal"> Magneto Module Create </button>
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleCreateModal"> Magento Module Create </button>
                     </div>
                 </div>
             </form>
@@ -155,22 +162,29 @@
             <thead>
                 <tr>
                     <th> Id </th>
-                    <th width="270px"> Remark </th>
+                    <th width="200px"> Remark </th>
                     <th> Category </th>
+                    <th> Description </th>
                     <th> Website </th>
+                    <th> Name </th>
                     <th> API </th>
                     <th> Cron </th>
-                    <th> Name </th>
                     <th> Version </th>
                     <th> Type </th>
                     <th> Payment Status</th>
                     <th> Status </th>
-                    <th> Developer Name</th>
+                    <th> Developer Name </th>
                     <th> Customized </th>
+                    <th> js/css </th>
+                    <th> 3rd Party Js </th>
+                    <th> Sql </th>
+                    <th> 3rd Party plugin </th>
                     <th> Action </th>
 
                 </tr>
             </thead>
+            <tbody>
+            </tbody>
         </table>
     </div>
 
@@ -192,6 +206,17 @@
     @include('magento_module.partials.api_data_show_modals')
     {{-- cronJobDataShowModal --}}
     @include('magento_module.partials.cron_data_show_modals')
+    {{-- JsRequireDataAddModal --}}
+    @include('magento_module.partials.js_require_form_modals')
+    {{-- JsRequireDataShowModal --}}
+    @include('magento_module.partials.js_require_show_modals')
+    {{-- isCustomizedDataAddModal --}}
+    @include('magento_module.partials.is_customized_form_modals')
+    {{-- isCustomizedDataShowModal --}}
+    @include('magento_module.partials.is_customized_show_modals')
+    {{-- magentoModuleHistoryShowModal --}}
+    @include('magento_module.partials.show_history_modals')
+
 
 @endsection
 
@@ -233,6 +258,7 @@
                 searchDelay: 500,
                 processing: true,
                 serverSide: true,
+                // sScrollX: true,
                 order: [
                     [0, 'desc']
                 ],
@@ -284,7 +310,7 @@
 
                             let remark_send_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveRemarks(${row['id']})"><img src="/images/filled-sent.png"></button>`;
-                                data = (data == null) ? '' : data;
+                                data = (data == null) ? '' : `<div class="flex items-center justify-left" title="${data}">${setStringLength(data, 15)}</div>`;
                             let retun_data = `${data} <div class="d-flex"> ${message} ${remark_send_button} ${remark_history_button} </div>`;
                             
                             return retun_data;
@@ -295,6 +321,14 @@
                         name: 'magento_module_categories.category_name',
                     },
                     {
+                        data: 'module_description',
+                        name: 'magento_modules.module_description',
+                        render: function(data, type, row, meta) {
+                            var status_array = ['Disabled', 'Enable'];
+                            return `<div class="flex items-center justify-left" title="${data}">${setStringLength(data, 15)}</div>`;
+                        }
+                    },
+                    {
                         data: 'website',
                         name: 'store_websites.website',
                         render: function(data, type, row, meta) {
@@ -303,17 +337,21 @@
                         }
                     },
                     {
+                        data: 'module',
+                        name: 'magento_modules.module',
+                    },
+                    {
                         data: 'api',
                         name: 'magento_modules.api',
                         render: function(data, type, row, meta) {
-                            let add_button = `<button type="button" class="btn btn-xs add-api-data-modal" title="Show History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
-                            let show_button = `<button type="button" class="btn btn-xs show-api-modal" title="Show History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
-                            data = (data == 1) ? 'Yes' : 'No';
+                            let add_button = `<button type="button" class="btn btn-xs add-api-data-modal" title="Add Api Details" data-id="${row['id']}"><i class="fa fa-plus"></i></button>`;
+                            let show_button = `<button type="button" class="btn btn-xs show-api-modal" title="Show Api History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
                             let html_data = ``;
-                            if(data){
-                                html_data = `<div class="d-flex"> ${data} ${add_button} ${show_button} </div>`;
+                            let data_status = (data == 1) ? 'Yes' : 'No';
+                            if(data == 1){
+                                html_data = `<div class="d-flex"> ${data_status} ${add_button} ${show_button} </div>`;
                             }else{
-                                html_data = `<div class="d-flex"> ${data} ${show_button} </div>`;
+                                html_data = `<div class="d-flex"> ${data_status} ${show_button} </div>`;
                             }
                             return html_data;
                         }
@@ -322,17 +360,18 @@
                         data: 'cron_job',
                         name: 'magento_modules.cron_job',
                         render: function(data, type, row, meta) {
-                            let add_button = `<button type="button" class="btn btn-xs add-cron_job-modal" title="Show History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
-                            let show_button = `<button type="button" class="btn btn-xs show-cron_job-modal" title="Show History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
-                            data = (data == 1) ? 'Yes' : 'No';
-                            let html_data = `<div class="d-flex"> ${data} ${add_button} ${show_button} </div>`;
+                            let add_button = `<button type="button" class="btn btn-xs add-cron_job-modal" title="Add Cron Details" data-id="${row['id']}"><i class="fa fa-plus"></i></button>`;
+                            let show_button = `<button type="button" class="btn btn-xs show-cron_job-modal" title="Show Cron History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
+                            let data_status = (data == 1) ? 'Yes' : 'No';
+                            if(data == 1){
+                                html_data = `<div class="d-flex"> ${data_status} ${add_button} ${show_button} </div>`;
+                            }else{
+                                html_data = `<div class="d-flex"> ${data_status} ${show_button} </div>`;
+                            }
                             return html_data;
                         }
                     },
-                    {
-                        data: 'module',
-                        name: 'magento_modules.module',
-                    },
+                    
                     {
                         data: 'current_version',
                         name: 'magento_modules.current_version',
@@ -360,10 +399,54 @@
                         data: 'developer_name',
                         name: 'users.name',
                     },
-
                     {
                         data: 'is_customized',
-                        name: 'magento_modules.is_customized',
+                        name: 'magento_modules.is_customized', 
+                        render: function(data, type, row, meta) {
+                            let add_button = `<button type="button" class="btn btn-xs add-is_customized-modal" title="Add 3rd party JS Details" data-id="${row['id']}"><i class="fa fa-plus"></i></button>`;
+                            let show_button = `<button type="button" class="btn btn-xs show-is_customized-modal" title="Show 3rd party JS History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
+                            let data_status = (data == 1) ? 'Yes' : 'No';
+                            if(data == 1){
+                                html_data = `<div class="d-flex"> ${data_status} ${add_button} ${show_button} </div>`;
+                            }else{
+                                html_data = `<div class="d-flex"> ${data_status} ${show_button} </div>`;
+                            }
+                            return html_data;
+                        }
+                    },
+                    {
+                        data: 'is_js_css',
+                        name: 'magento_modules.is_js_css',
+                        render: function(data, type, row, meta) {
+                            return (data == 1) ? 'Yes' : 'No';
+                        }
+                    },
+                    {
+                        data: 'is_third_party_js',
+                        name: 'magento_modules.is_third_party_js',
+                        render: function(data, type, row, meta) {
+                            let add_button = `<button type="button" class="btn btn-xs add-third_party_js-modal" title="Add Customized Details" data-id="${row['id']}"><i class="fa fa-plus"></i></button>`;
+                            let show_button = `<button type="button" class="btn btn-xs show-third_party_js-modal" title="Show Customized History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
+                            let data_status =  (data == 1) ? 'Yes' : 'No';
+                            
+                            if(data == 1){
+                                html_data = `<div class="d-flex"> ${data_status} ${add_button} ${show_button} </div>`;
+                            }else{
+                                html_data = `<div class="d-flex"> ${data_status} ${show_button} </div>`;
+                            }
+                            return html_data;
+                        }
+                    },
+                    {
+                        data: 'is_sql',
+                        name: 'magento_modules.is_sql',
+                        render: function(data, type, row, meta) {
+                            return (data == 1) ? 'Yes' : 'No';
+                        }
+                    },
+                    {
+                        data: 'is_third_party_plugin',
+                        name: 'magento_modules.is_third_party_plugin',
                         render: function(data, type, row, meta) {
                             return (data == 1) ? 'Yes' : 'No';
                         }
@@ -376,9 +459,9 @@
 
                             var show_data = actionShowButtonWithClass('show-details', row['id']);
                             var edit_data = actionEditButtonWithClass('edit-magento-module', JSON.stringify(row));
-
+                            let history_button = `<button type="button" class="btn btn-xs show-magenato_module_history-modal" title="Show History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
                             var del_data = actionDeleteButton(row['id']);
-                            return `<div class="flex justify-left items-center"> ${show_data} ${edit_data} ${del_data} </div>`;
+                            return `<div class="flex justify-left items-center"> ${show_data} ${history_button} ${edit_data} ${del_data} </div>`;
                         }
                     },
                 ],
@@ -461,7 +544,7 @@
                 if (jqXHR.responseJSON.errors !== undefined) {
                     $.each(jqXHR.responseJSON.errors, function(key, value) {
                         // $('#validation-errors').append('<div class="alert alert-danger">' + value + '</div');
-                        toastr["error"](value);
+                        toastr["warning"](value);
                     });
                 } else {
                     toastr["error"]("Oops,something went wrong");
@@ -470,6 +553,31 @@
             });
         }
 
+
+        $(document).on("click", ".add-api-data-modal", function() {
+            let magento_module_id = $(this).data('id');
+            $("#apiDataAddModal").find('[name="magento_module_id"]').val(magento_module_id);
+            $('#apiDataAddModal').modal('show');
+        });
+
+        $(document).on("click", ".add-cron_job-modal", function() {
+            let magento_module_id = $(this).data('id');
+            $("#cronJobDataAddModal").find('[name="magento_module_id"]').val(magento_module_id);
+            $('#cronJobDataAddModal').modal('show');
+        });
+
+        $(document).on("click", ".add-third_party_js-modal", function() {
+            let magento_module_id = $(this).data('id');
+            $("#JsRequireDataAddModal").find('[name="magento_module_id"]').val(magento_module_id);
+            $('#JsRequireDataAddModal').modal('show');
+        });
+
+        $(document).on("click", ".add-is_customized-modal", function() {
+            let magento_module_id = $(this).data('id');
+            $("#isCustomizedDataAddModal").find('[name="magento_module_id"]').val(magento_module_id);
+            $('#isCustomizedDataAddModal').modal('show');
+        });
+        
         // Load Remark
         $(document).on('click', '.load-module-remark', function() {
             var id = $(this).attr('data-id');
@@ -485,7 +593,7 @@
                                         <td> ${v.id } </td>
                                         <td> ${v.remark } </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${v.created_at } </td>
+                                        <td> ${getDateByFormat(v.created_at) } </td>
                                     </tr>`;
                         });
                         $("#remark-area-list").find(".remark-action-list-view").html(html);
@@ -499,21 +607,8 @@
             });
         });
 
-
-        $(document).on("click", ".add-api-data-modal", function() {
-            let magento_module_id = $(this).data('id');
-            $("#apiDataAddModal").find('[name="magento_module_id"]').val(magento_module_id);
-            $('#apiDataAddModal').modal('show');
-        });
-
-        $(document).on("click", ".add-cron_job-modal", function() {
-            let magento_module_id = $(this).data('id');
-            $("#cronJobDataAddModal").find('[name="magento_module_id"]').val(magento_module_id);
-            $('#cronJobDataAddModal').modal('show');
-        });
-
-          // Load Api Modal
-          $(document).on('click', '.show-api-modal', function() {
+        // Load Api Modal
+        $(document).on('click', '.show-api-modal', function() {
             var id = $(this).attr('data-id');
             $.ajax({
                 method: "GET",
@@ -523,12 +618,12 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            html = `<tr>
+                            html += `<tr>
                                         <td> ${v.id } </td>
                                         <td> ${v.resources } </td>
                                         <td> ${v.frequency } </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${v.created_at } </td>
+                                        <td> ${getDateByFormat(v.created_at) } </td>
                                     </tr>`;
                         });
                         $("#apiDataShowModal").find(".api-details-data-view").html(html);
@@ -554,14 +649,14 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            html = `<tr>
+                            html += `<tr>
                                         <td> ${v.id } </td>
                                         <td> ${v.cron_time } </td>
                                         <td> ${v.frequency } </td>
                                         <td> ${v.cpu_memory } </td>
                                         <td> ${v.comments } </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${v.created_at } </td>
+                                        <td> ${getDateByFormat(v.created_at) } </td>
                                     </tr>`;
                         });
                         $("#cronJobDataShowModal").find(".cron-job-details-data-view").html(html);
@@ -574,6 +669,115 @@
                 }
             });
         });
+        
+        // Load Js Require Modal
+        $(document).on('click', '.show-third_party_js-modal', function() {
+            var id = $(this).attr('data-id');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento_module_js_require_histories.show', '') }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${v.id } </td>
+                                        <td> ${(v.files_include  == 1)? 'Yes': 'No'  } </td>
+                                        <td> ${(v.native_functionality  == 1)? 'Yes': 'No'  } </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${getDateByFormat(v.created_at) } </td>
+                                    </tr>`;
+                        });
+                        $("#JsRequireDataShowModal").find(".js-require-details-data-view").html(html);
+                        // $("#blank-modal").find(".modal-title").html(response.title);
+                        // $("#blank-modal").find(".modal-body").html(response.data);
+                        $("#JsRequireDataShowModal").modal("show");
+                        
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        // Load Js Require Modal
+        $(document).on('click', '.show-is_customized-modal', function() {
+            var id = $(this).attr('data-id');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento_module_customized_histories.show', '') }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${v.id } </td>
+                                        <td> ${(v.magento_standards == 1)? 'Yes': 'No' } </td>
+                                        <td> ${v.remark } </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${getDateByFormat(v.created_at) } </td>
+                                    </tr>`;
+                        });
+                        $("#isCustomizedDataShowModal").find(".is-customized-details-data-view").html(html);
+                        // $("#blank-modal").find(".modal-title").html(response.title);
+                        // $("#blank-modal").find(".modal-body").html(response.data);
+                        $("#isCustomizedDataShowModal").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        // Show History
+        $(document).on('click', '.show-magenato_module_history-modal', function() {
+            var id = $(this).attr('data-id');
+
+            $.ajax({
+                method: "GET",
+                url: `{{ route('magento_module_histories.show', '') }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> <span title="" > ${v.id } </span> </td>
+                                        <td> <span title="${(v.module_category !== null) ? v.module_category.category_name : ' - ' }" > ${(v.module_category !== null) ? v.module_category.category_name : ' - ' } </span> </td>
+                                        <td> <span title="${(v.store_website !== null) ? v.store_website.website : ' - ' }" > ${(v.store_website !== null) ? setStringLength(v.store_website.website) : ' - ' } </span> </td>
+                                        <td> <span title="${ v.module }" > ${ v.module } </span> </td>
+                                        <td> <span title="${ v.module_description }" > ${ setStringLength(v.module_description) } </span> </td>
+                                        <td> <span title="${ v.current_version }" > ${ v.current_version } </span> </td>
+                                        <td> <span title="${(v.module_type_data !== null) ? v.module_type_data.magento_module_type : ' - ' }" > ${(v.module_type_data !== null) ? v.module_type_data.magento_module_type : ' - ' } </span> </td>
+                                        <td> <span title="${(v.task_status_data !== null) ? v.task_status_data.name : ' - ' }" > ${(v.task_status_data !== null) ? v.task_status_data.name : ' - ' } </span> </td>
+                                        <td> <span title="${(v.is_sql == 1)? 'Yes': 'No' }" > ${(v.is_sql == 1)? 'Yes': 'No' } </span> </td>
+                                        <td> <span title="${(v.api == 1)? 'Yes': 'No' }" > ${(v.api == 1)? 'Yes': 'No' } </span> </td>
+                                        <td> <span title="${(v.cron_job == 1)? 'Yes': 'No' }" > ${(v.cron_job == 1)? 'Yes': 'No' } </span> </td>
+                                        <td> <span title="${(v.is_third_party_plugin == 1)? 'Yes': 'No' }" > ${(v.is_third_party_plugin == 1)? 'Yes': 'No' } </span> </td>
+                                        <td> <span title="${(v.is_third_party_js == 1)? 'Yes': 'No' }" > ${(v.is_third_party_js == 1)? 'Yes': 'No' } </span> </td>
+                                        <td> <span title="${(v.is_customized == 1)? 'Yes': 'No' }" > ${(v.is_customized == 1)? 'Yes': 'No' } </span> </td>
+                                        <td> <span title="${(v.is_js_css == 1)? 'Yes': 'No' }" > ${(v.is_js_css == 1)? 'Yes': 'No' } </span> </td>
+                                        <td> <span title="${v.payment_status }" > ${v.payment_status } </span> </td>
+                                        <td> <span title="${(v.developer_name_data !== null) ? v.developer_name_data.name : ' - ' }" > ${(v.developer_name_data !== null) ? v.developer_name_data.name : ' - ' } </span> </td>
+                                        <td> <span title="${(v.user !== null) ? v.user.name : ' - ' }" > ${(v.user !== null) ? v.user.name : ' - ' } </span> </td>
+                                        <td> <span title="" > ${getDateByFormat(v.created_at) } </span> </td>
+                                    </tr>`;
+                        });
+                        $("#magentoModuleHistoryShowModal").find(".js-magento-module-history-data-view").html(html);
+                        // $("#blank-modal").find(".modal-title").html(response.title);
+                        // $("#blank-modal").find(".modal-body").html(response.data);
+                        $("#magentoModuleHistoryShowModal").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
     </script>
 
 @endsection

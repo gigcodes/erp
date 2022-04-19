@@ -52,10 +52,11 @@
 
     $(document).on('submit', '#magento_module_form', function(e){
         e.preventDefault();
+
         var self = $(this);
         let formData = new FormData(document.getElementById("magento_module_form"));
         var button = $(this).find('[type="submit"]');
-        console.log(button);
+        console.log("Submit magento_module_form");
         $.ajax({
             url: '{{ route("magento_modules.store") }}',
             type: "POST",
@@ -107,14 +108,16 @@
           $('#magento_module_edit_form #payment_status').val(magento_module.payment_status);
           $('#magento_module_edit_form #status').val(magento_module.status);
           $('#magento_module_edit_form #task_status').val(magento_module.task_status);
-          $('#magento_module_edit_form #cron_time').val(magento_module.cron_time);
+        //   $('#magento_module_edit_form #cron_time').val(magento_module.cron_time);
           $('#magento_module_edit_form #is_js_css').val(magento_module.is_js_css);
           $('#magento_module_edit_form #is_third_party_js').val(magento_module.is_third_party_js);
           $('#magento_module_edit_form #is_sql').val(magento_module.is_sql);
           $('#magento_module_edit_form #is_third_party_plugin').val(magento_module.is_third_party_plugin);
-          $('#magento_module_edit_form #developer_name').val(magento_module.developer_name);
+          $('#magento_module_edit_form #developer_name').val( parseInt(magento_module.developer_id) );
           $('#magento_module_edit_form #is_customized').val(magento_module.is_customized);
           $('#magento_module_edit_form #module_description').val(magento_module.module_description);
+          $('#magento_module_edit_form #api').val(magento_module.api);
+          $('#magento_module_edit_form #cron_job').val(magento_module.cron_job);
 
           $('#moduleEditModal').modal('show');
     });
@@ -126,7 +129,7 @@
         var magento_module_id = $('#magento_module_edit_form #id').val();
         console.log(formData, magento_module_id);
         var button = $(this).find('[type="submit"]');
-        console.log(button);
+        console.log("#magento_module_edit_form submit");
         $.ajax({
             url: '{{ route("magento_modules.update", '') }}/' + magento_module_id,
             type: "POST",
@@ -164,6 +167,7 @@
             },
         });
     });
+
     </script>
 
 @endpush

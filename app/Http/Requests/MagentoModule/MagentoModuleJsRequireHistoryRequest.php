@@ -4,7 +4,7 @@ namespace App\Http\Requests\MagentoModule;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class MagnetoModuleCronJobHistoryRequest extends FormRequest
+class MagentoModuleJsRequireHistoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,13 +23,7 @@ class MagnetoModuleCronJobHistoryRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'magento_module_id' => 'required',
-            'cron_time' => 'required',
-            // 'frequency' => 'required',
-            // 'cpu_memory' => 'required',
-            // 'comments' => 'required',
-        ];
+        return [];
     }
 
     public function messages()
