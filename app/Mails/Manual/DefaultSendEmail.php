@@ -59,6 +59,24 @@ class DefaultSendEmail extends Mailable
             'message'       => json_encode($headerData)
             ]);
 
+        \App\EmailLog::create([
+        'email_id'   => $email->id,
+        'email_log' => 'Sending Email From',
+        'message'       => $email->from,
+        ]); 
+        
+        \App\EmailLog::create([
+        'email_id'   => $email->id,
+        'email_log' => 'Sending Email To',
+        'message'       => $email->to,
+        ]);   
+        
+        \App\EmailLog::create([
+        'email_id'   => $email->id,
+        'email_log' => 'Sending Email Subject',
+        'message'       => $email->subject,
+        ]);   
+
         $header = $this->asString($headerData);
         
         \App\EmailLog::create([
@@ -91,8 +109,7 @@ class DefaultSendEmail extends Mailable
                 ]);
         }
 		
-		
-        return $mailObj;
+		return $mailObj;
 
     }
 	private function asJSON($data)
