@@ -258,7 +258,7 @@
                 searchDelay: 500,
                 processing: true,
                 serverSide: true,
-                // sScrollX: true,
+                sScrollX: true,
                 order: [
                     [0, 'desc']
                 ],
