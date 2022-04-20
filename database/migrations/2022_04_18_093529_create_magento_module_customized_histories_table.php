@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMagentoModuleApiHistoriesTable extends Migration
+class CreateMagentoModuleCustomizedHistoriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateMagentoModuleApiHistoriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('magento_module_api_histories', function (Blueprint $table) {
+        Schema::create('magento_module_customized_histories', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('magento_module_id');
-            $table->string('resources', 200)->nullable();
-            $table->string('frequency', 200)->nullable();
+            $table->boolean('magento_standards', 200)->default(0);
+            $table->text('remark')->nullable();
             $table->integer('user_id')->nullable();
             $table->timestamps();
         });
@@ -30,6 +30,6 @@ class CreateMagentoModuleApiHistoriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('magento_module_api_histories');
+        Schema::dropIfExists('magento_module_customized_histories');
     }
 }
