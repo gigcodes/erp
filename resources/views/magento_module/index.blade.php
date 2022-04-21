@@ -179,6 +179,7 @@
                     <th> 3rd Party Js </th>
                     <th> Sql </th>
                     <th> 3rd Party plugin </th>
+                    <th> Site Impact </th>
                     <th> Action </th>
 
                 </tr>
@@ -216,6 +217,8 @@
     @include('magento_module.partials.is_customized_show_modals')
     {{-- magentoModuleHistoryShowModal --}}
     @include('magento_module.partials.show_history_modals')
+    {{-- magentoModuleRemarkAddModal --}}
+    @include('magento_module.partials.remark_modals')
 
 
 @endsection
@@ -452,6 +455,19 @@
                         }
                     },
                     {
+                        data: 'site_impact',
+                        name: 'magento_modules.site_impact',
+                        render: function(data, type, row, meta) {
+                            let show_button = `<button type="button" class="btn btn-xs show-third_party_js-modal" title="Show Customized History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
+                            let data_status =  (data == 1) ? 'Yes' : 'No';
+                            
+                            if(data == 1){
+                                html_data = `<div class="d-flex"> ${data_status}  ${show_button} </div>`;
+                            }
+                            return html_data;
+                        }
+                    },
+                    {
                         data: 'id',
                         name: 'magento_modules.id',
                         // visible:false,
@@ -460,8 +476,9 @@
                             var show_data = actionShowButtonWithClass('show-details', row['id']);
                             var edit_data = actionEditButtonWithClass('edit-magento-module', JSON.stringify(row));
                             let history_button = `<button type="button" class="btn btn-xs show-magenato_module_history-modal" title="Show History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
+                            let remark = `<button class="btn btn-image set-remark" data-mm_id="${row['id']}" data-task_type="TASK"><i class="fa fa-comment" aria-hidden="true"></i></button>`;
                             var del_data = actionDeleteButton(row['id']);
-                            return `<div class="flex justify-left items-center"> ${show_data} ${history_button} ${edit_data} ${del_data} </div>`;
+                            return `<div class="flex justify-left items-center"> ${show_data} ${history_button} ${edit_data} ${del_data} ${remark} </div>`;
                         }
                     },
                 ],
@@ -507,7 +524,7 @@
                 }
             });
         });
-
+        
         // Store Reark
         function saveRemarks(row_id) {
             console.log(row_id);
@@ -777,7 +794,43 @@
                 }
             });
         });
-
+        $(document).on('click', '.set-remark', function() {
+            var id = $(this).attr('data-mm_id');
+            $.ajax({
+                type: "POST",
+                url: "{{route('task.create.get.remark')}}",
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    task_id : task_id,
+                    remark : remark,
+                    type : "TASK",
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function (response) {
+                if(response.code == 200) {
+                    $("#loading-image").hide();
+                    $("#preview-task-create-get-modal").modal("show");
+                    $(".task-create-get-list-view").html(response.data);
+                    $('.remark_pop').val("");
+                    toastr['success'](response.message);
+                }else{
+                    $("#loading-image").hide();
+                    $("#preview-task-create-get-modal").modal("show");
+                    $(".task-create-get-list-view").html("");
+                    toastr['error'](response.message);
+                }
+                
+            }).fail(function (response) {
+                $("#loading-image").hide();
+                $("#preview-task-create-get-modal").modal("show");
+                $(".task-create-get-list-view").html("");
+                toastr['error'](response.message);
+            });
+        });
     </script>
 
 @endsection

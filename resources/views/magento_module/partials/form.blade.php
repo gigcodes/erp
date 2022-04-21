@@ -137,19 +137,28 @@
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
             <strong>Developer Name :</strong>
-            {!! Form::select('developer_name', $users, null, ['id'=>'developer_name', 'placeholder' => 'Select developer name', 'class' => 'form-control', 'required' => 'required']) !!}
+            {!! Form::select('developer_name', $users, null, ['id'=>'developer_name', 'placeholder' => 'Select developer name', 'class' => 'form-control']) !!}
             @if ($errors->has('developer_name'))
                 <span style="color:red">{{ $errors->first('developer_name') }}</span>
             @endif
         </div>
     </div>
 
-    <div class="col-xs-6 col-sm-6">
+    <div class="col-xs-3 col-sm-3">
         <div class="form-group">
             <strong>Customized:</strong>
             {!! Form::select('is_customized', ['No', 'Yes'], null, ['id'=>'is_customized', 'placeholder' => 'Customized', 'class' => 'form-control', 'required' => 'required']) !!}
             @if ($errors->has('is_customized'))
                 <span style="color:red">{{ $errors->first('is_customized') }}</span>
+            @endif
+        </div>
+    </div>
+    <div class="col-xs-3 col-sm-3">
+        <div class="form-group">
+            <strong>Site Impact:</strong>
+            {!! Form::select('site_impact', ['No', 'Yes'], null, ['id'=>'site_impact', 'placeholder' => 'Site Impact', 'class' => 'form-control', 'required' => 'required']) !!}
+            @if ($errors->has('site_impact'))
+                <span style="color:red">{{ $errors->first('site_impact') }}</span>
             @endif
         </div>
     </div>
