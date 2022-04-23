@@ -17,7 +17,9 @@
         table.dataTable tbody th, table.dataTable tbody td {
             padding: 5px 5px !important;
         }
-
+        .copy_remark{
+            cursor: pointer;
+        }
     </style>
 
     <link rel="stylesheet" type="text/css"
@@ -217,8 +219,6 @@
     @include('magento_module.partials.is_customized_show_modals')
     {{-- magentoModuleHistoryShowModal --}}
     @include('magento_module.partials.show_history_modals')
-    {{-- magentoModuleRemarkAddModal --}}
-    @include('magento_module.partials.remark_modals')
 
 
 @endsection
@@ -458,13 +458,7 @@
                         data: 'site_impact',
                         name: 'magento_modules.site_impact',
                         render: function(data, type, row, meta) {
-                            let show_button = `<button type="button" class="btn btn-xs show-third_party_js-modal" title="Show Customized History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
-                            let data_status =  (data == 1) ? 'Yes' : 'No';
-                            
-                            if(data == 1){
-                                html_data = `<div class="d-flex"> ${data_status}  ${show_button} </div>`;
-                            }
-                            return html_data;
+                            return (data == 1) ? 'Yes' : 'No';
                         }
                     },
                     {
@@ -476,9 +470,8 @@
                             var show_data = actionShowButtonWithClass('show-details', row['id']);
                             var edit_data = actionEditButtonWithClass('edit-magento-module', JSON.stringify(row));
                             let history_button = `<button type="button" class="btn btn-xs show-magenato_module_history-modal" title="Show History" data-id="${row['id']}"><i class="fa fa-info-circle"></i></button>`;
-                            let remark = `<button class="btn btn-image set-remark" data-mm_id="${row['id']}" data-task_type="TASK"><i class="fa fa-comment" aria-hidden="true"></i></button>`;
                             var del_data = actionDeleteButton(row['id']);
-                            return `<div class="flex justify-left items-center"> ${show_data} ${history_button} ${edit_data} ${del_data} ${remark} </div>`;
+                            return `<div class="flex justify-left items-center"> ${show_data} ${history_button} ${edit_data} ${del_data} </div>`;
                         }
                     },
                 ],
@@ -606,11 +599,12 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            html = `<tr>
-                                        <td> ${v.id } </td>
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
                                         <td> ${v.remark } </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${getDateByFormat(v.created_at) } </td>
+                                        <td> ${v.created_at} </td>
+                                        <td><i class='fa fa-copy copy_remark' data-remark_text='${v.remark}'></i></td>
                                     </tr>`;
                         });
                         $("#remark-area-list").find(".remark-action-list-view").html(html);
@@ -831,6 +825,23 @@
                 toastr['error'](response.message);
             });
         });
+        $(document).on("click",".copy_remark",function(e) {
+            var thiss = $(this);
+            var remark_text = thiss.data('remark_text');
+            copyToClipboard(remark_text);
+            /* Alert the copied text */
+            toastr['success']("Copied the text: " + remark_text);
+            
+        });
+        function copyToClipboard(text) {
+            var sampleTextarea = document.createElement("textarea");
+            document.body.appendChild(sampleTextarea);
+            sampleTextarea.value = text; //save main text in it
+            sampleTextarea.select(); //select textarea contenrs
+            document.execCommand("copy");
+            document.body.removeChild(sampleTextarea);
+        }
+
     </script>
 
 @endsection

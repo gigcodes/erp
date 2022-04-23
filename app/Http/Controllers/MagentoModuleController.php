@@ -288,7 +288,7 @@ class MagentoModuleController extends Controller
     {
 
         $remarks = MagentoModuleRemark::with(['user'])->where('magento_module_id', $magento_module)->get();
-
+        
         return response()->json([
             'status' => true,
             'data' => $remarks,
