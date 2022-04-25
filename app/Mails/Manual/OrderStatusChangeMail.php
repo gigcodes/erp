@@ -61,21 +61,30 @@ class OrderStatusChangeMail extends Mailable
         }
 
         if ($template) {
+            
             if ($template->from_email != '') {
                 $this->fromMailer = $template->from_email;
             }
 
             $this->subject = $template->subject;
             if (!empty($template->mail_tpl)) {
+                //dd($template->mail_tpl);
+                $content = $template->html_text;
+                $arrToReplace = ['{FIRST_NAME}', '{ORDER_STATUS}', '{ORDER_ID}'];
+                $valToReplace = [$order->customer->name, $order->order_status, $order->order_id];
+                $content = str_replace($arrToReplace, $valToReplace, $content);
+                
                 // need to fix the all email address
                 return $this->from($this->fromMailer)
                     ->subject($this->subject)
                     ->view($template->mail_tpl, compact(
-                        'order', 'customer', 'order_products'
+                        'order', 'customer', 'order_products', 'content'
                     ));
             } else {
 
-                $content = $template->static_template;
+                //$content = $template->static_template;
+                $content = $template->html_text;
+                
                 $arrToReplace = ['{FIRST_NAME}', '{ORDER_STATUS}', '{ORDER_ID}'];
                 $valToReplace = [$order->customer->name, $order->order_status, $order->order_id];
                 $content = str_replace($arrToReplace, $valToReplace, $content);
