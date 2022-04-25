@@ -36,6 +36,18 @@ class MagentoModuleController extends Controller
      */
     public function index(Request $request)
     {
+
+        if (env('PRODUCTION', true)) {
+            $users = User::select('name','id')->role('Developer')->orderby('name', 'asc')->where('is_active', 1)->get();
+        } else {
+            $users = User::select('name','id')->where('is_active', 1)->orderby('name', 'asc')->get();
+        }
+        $module_categories = MagentoModuleCategory::select('category_name', 'id')->where('status', 1)->get();
+        $magento_module_types = MagentoModuleType::select('magento_module_type', 'id')->get();
+        $task_statuses = TaskStatus::select('name','id')->get();
+        $store_websites = StoreWebsite::select("website", "id")->get();
+
+
         if ($request->ajax()) {
 
             $items = MagentoModule::with(['lastRemark'])
@@ -54,7 +66,7 @@ class MagentoModuleController extends Controller
                     'users.name as developer_name',
                     'users.id as developer_id'
                 );
-
+                
             if (isset($request->module) && !empty($request->module)) {
                 $items->where('magento_modules.module', 'Like', '%' . $request->module . '%');
             }
@@ -82,19 +94,16 @@ class MagentoModuleController extends Controller
             if (isset($request->module_category_id) && !empty($request->module_category_id)) {
                 $items->where('magento_modules.module_category_id', $request->module_category_id);
             }
-
-            return datatables()->eloquent($items)->toJson();
+           
+            
+            return datatables()->eloquent($items)->addColumn("m_types",$magento_module_types)->addColumn("developer_list", $users)->addColumn("categories",$module_categories)->addColumn("website_list", $store_websites)->toJson();
         } else {
             $title = 'Magento Module';
-            if (env('PRODUCTION', true)) {
-                $users = User::role('Developer')->orderby('name', 'asc')->where('is_active', 1)->get()->pluck('name', 'id');
-            } else {
-                $users = User::orderby('name', 'asc')->where('is_active', 1)->get()->pluck('name', 'id');
-            }
-            $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
-            $magento_module_types = MagentoModuleType::get()->pluck('magento_module_type', 'id');
-            $task_statuses = TaskStatus::pluck("name", "id");
-            $store_websites = StoreWebsite::pluck("website", "id");
+            $users = $users->pluck('name', 'id');
+            $module_categories = $module_categories->pluck('category_name', 'id');
+            $magento_module_types = $magento_module_types->pluck('magento_module_type', 'id');
+            $task_statuses = $task_statuses->pluck("name", "id");
+            $store_websites = $store_websites->pluck("website", "id");
             return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users'));
         }
     }
@@ -295,5 +304,27 @@ class MagentoModuleController extends Controller
             'message' => 'Remark added successfully',
             'status_name' => 'success'
         ], 200);
+    }
+
+    public function updateMagentoModuleOptions(Request $request){
+        
+
+       $updateMagentoModule = MagentoModule::where('id', (int)$request->id)->update([$request->columnName => $request->data]);
+       
+        if($updateMagentoModule){
+            return response()->json([
+                'status' => true,
+                'message' => 'Updated successfully',
+                'status_name' => 'success',
+                'code' => 200
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Updated unsuccessfully',
+                'status_name' => 'error'
+            ], 500);
+        }        
+
     }
 }

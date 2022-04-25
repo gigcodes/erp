@@ -98,7 +98,8 @@
     });
 
     $(document).on('click', '.edit-magento-module', function() {
-        var magento_module = $(this).data('row');
+          var magento_module = $(this).data('row');
+          console.log((magento_module));
           $('#magento_module_edit_form #id').val(magento_module.id);
           $('#magento_module_edit_form #module_category_id').val(magento_module.module_category_id);
           $('#magento_module_edit_form #module').val(magento_module.module);
