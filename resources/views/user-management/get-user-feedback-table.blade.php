@@ -45,7 +45,10 @@
                                         <select name="user_id" class="form-control  select-multiple">
                                             <option>-select-</option>
                                             <?php foreach ($users as $key => $user) {
-                                                    echo '<option value="'.$user->id.'">'.$user->name.'</option>';
+                                                    $selectedUser = '';
+                                                    if($user->id == $request->user_id)
+                                                        $selectedUser = 'selected="selected"';
+                                                    echo '<option value="'.$user->id.'" '.$selectedUser.'>'.$user->name.'</option>';
                                             }?>
                                         </select>
                                     </div>
@@ -105,14 +108,14 @@
                     if($user_id !=''){
                         $cat->user_id = $user_id;
                     }
-                    $latest_messages = App\ChatMessage::where('user_feedback_id', $cat->user_id)->where('user_feedback_category_id', $cat->id)->orderBy('id','DESC')->first();
+                    $latest_messages = App\ChatMessage::select('message')->where('user_feedback_id', $cat->user_id)->where('user_feedback_category_id', $cat->id)->orderBy('id','DESC')->first();
                     if ($latest_messages) {
                         $latest_msg = $latest_messages->message;
                         if (strlen($latest_msg) > 20) {
                             $latest_msg = substr($latest_messages->message,0,20).'...';
                         }
                     }
-                    $feedback_status = App\UserFeedbackStatusUpdate::where('user_id', $cat->user_id)->where('user_feedback_category_id', $cat->id)->first();
+                    $feedback_status = App\UserFeedbackStatusUpdate::select('user_feedback_status_id')->where('user_id', $cat->user_id)->where('user_feedback_category_id', $cat->id)->first();
                     $status_id = 0;
                     if ($feedback_status) {
                         $status_id = $feedback_status->user_feedback_status_id;
