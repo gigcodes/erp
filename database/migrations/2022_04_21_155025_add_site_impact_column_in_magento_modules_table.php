@@ -14,7 +14,7 @@ class AddSiteImpactColumnInMagentoModulesTable extends Migration
     public function up()
     {
         Schema::table('magento_modules', function (Blueprint $table) {
-            $table->boolean('site_impact')->nullable();
+            $table->boolean('site_impact')->default(0);
         });
     }
 
