@@ -17,6 +17,7 @@
 @endsection
 
 @section('content')
+<script src="https://cdn.ckeditor.com/4.18.0/standard/ckeditor.js"></script>
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
     </div>
@@ -177,13 +178,20 @@
                             <label for="image">Template Example</label>
                             <input type="hidden" name="old_image" class="py-3" id="form_image">
                         </div>
-                        
+
+                        <div class="form-group col-md-12">
+                            <label for="image">Template HTML</label><br/>
+                            <textarea cols="80" id="form_html_text" name="html_text" rows="10"></textarea>
+                        </div>
+                        <br/>
+                        <br/>
+                        <br/>
                         <!-- <div class="form-group d-flex flex-column">
                             <label for="image">File</label>
                             <input required type="file" name="file" class="py-3" id="image">
                             <span class="text-danger"></span>
                         </div> -->
-                        <button id="store" type="submit" class="btn custom-button" style="margin-left: -34px;">Submit</button>
+                        <button id="store" type="submit" class="btn custom-button">Submit</button>
                     </form>
                 </div>
             </div>
@@ -340,7 +348,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    
     <script>
+        CKEDITOR.replace( 'form_html_text' );
+        
         $(document).ready(function () {
             $(".select-multiple").multiselect();
             $(".select-multiple2").select2();
@@ -357,6 +368,35 @@
         $('#store').on('click', function (e) {
             e.preventDefault();
 
+            var id = $("#form-store").find("#form_id").val();
+            var name = $("#form-store").find("#form_name").val();
+            var subject = $("#form-store").find('#form_subject').val();
+            var from_email = $("#form-store").find("#form_from_email").val();
+            var salutation = $("#form-store").find("#form_salutation").val();
+            var introduction = $("#form-store").find("#form_introduction").val();
+            var static_template = $("#form-store").find("#form_static_template").val();
+            var mail_tpl = $("#form-store").find("#form_mail_tpl").val();
+            var category = $("#form-store").find("#template_category").val();
+            var store_website = $("#form-store").find("#store_website").val();
+            var logo = $("#form-store").find("#logo")[0].files[0];
+            debugger;
+            var html_text = CKEDITOR.instances['form_html_text'].getData();
+            
+            var productForm = new FormData();
+            productForm.append("id", id);
+            productForm.append("name", name);
+            productForm.append("subject", subject);
+            productForm.append("from_email", from_email);
+            productForm.append("salutation", salutation);
+            productForm.append("introduction", introduction);
+            productForm.append("static_template", static_template);
+            productForm.append("mail_tpl", mail_tpl);
+            productForm.append("category", category);
+            productForm.append("store_website", store_website);
+            productForm.append("logo", logo);
+            productForm.append("html_text", html_text);
+           
+
             var form = $('#form-store')[0];
             var formData = new FormData(form);
             $.ajax({
@@ -367,7 +407,7 @@
                 contentType: false,
                 processData: false,
                 type: 'POST',
-                data: formData
+                data: productForm
             }).done(function (response) {
                 if (response.errors) {
                     var obj = response.errors;
@@ -494,7 +534,11 @@
                 if (formField.length > 0) {
                     var tagName = formField.prop("tagName").toLowerCase();
                     if(tagName == "input" || tagName == "hidden" || tagName == "textarea") {
-                        formField.val(v);
+                        if(k === 'html_text') {
+                            CKEDITOR.instances['form_html_text'].setData(v);    
+                        } else {
+                            formField.val(v);
+                        }
                     } else if (tagName == "select") {
                         var options = formField.find("option");
                         if (options.length > 0) {
