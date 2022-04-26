@@ -1447,6 +1447,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('dailyActivity/start/{id}', 'DailyActivityController@start');
     Route::get('dailyActivity/get', 'DailyActivityController@get')->name('dailyActivity.get');
 
+    Route::get('/get/feedback-table/data', 'UserManagementController@addFeedbackTableData')->name("user.get-feedback-table-data");
+
     // Complete the task
     // Route::get('/task/count/{taskid}', 'TaskModuleController@taskCount')->name('task.count');
     Route::get('delete/task/note', 'TaskModuleController@deleteTaskNote')->name('delete/task/note');
