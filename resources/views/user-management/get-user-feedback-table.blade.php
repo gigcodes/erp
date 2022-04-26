@@ -83,10 +83,11 @@
     <div class="table-responsive">
         <table class="table table-bordered" style="margin-top: 25px">
             <tr>
-                <th width="20%">Category</th>
-                <th width="25%">Admin Response</th>
-                <th width="25%">User Response</th>
-                <th width="20%">Status</th>
+                <th width="17%">Category</th>
+                <th width="15%">SOP</th>
+                <th width="15%">Admin Response</th>
+                <th width="15%">User Response</th>
+                <th width="15%">Status</th>
                 <th width="10%">History</th>
             </tr>
             @if (Auth::user()->isAdmin())
@@ -124,8 +125,18 @@
                 <tr data-cat_id="{{ $cat->id }}" data-user_id="{{ $cat->user_id }}">
                     <td>{{ $cat->category }}</td>
                     <td class="communication-td">
+                        <input type="text" class="form-control" data-id="{{$cat->id}}" id="sop_{{$cat->id}}" name="sop_{{$cat->id}}" placeholder="Enter SOP name...."  style="margin-bottom:5px;width:77%;display:inline;"/>
+                        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-save" data-sop="sop_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" ><img src="/images/filled-sent.png"/></button>
+                        <div id="comment_div_{{$cat->id}}">
+                            <input type="radio" name="accept_reject_{{$cat->id}}" id="accept_reject_{{$cat->id}}" value="Yes" style="width: 12px !important;height: 12px !important;"> Yes &nbsp;
+                            <input type="radio" name="accept_reject_{{$cat->id}}" id="accept_rejectN_{{$cat->id}}" value="No" style="width: 12px !important;height: 12px !important;"> No
+                            <input type="text" class="form-control " data-id="{{$cat->id}}" id="comment_{{$cat->id}}" name="comment_{{$cat->id}}" placeholder="Enter comment ...."  style="margin-bottom:5px;width:77%;display:inline;"/>
+                            <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-comment-save" data-sop_id="{{$cat->sop_id}}" data-id="{{$cat->id}}" data-comment="comment_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}"  type="submit" id="submit_message" ><img src="/images/filled-sent.png"/></button>
+                        </div>
+                    </td>
+                    <td class="communication-td">
                         <input type="text" class="form-control send-message-textbox" data-id="{{$cat->user_id}}" id="send_message_{{$cat->user_id}}" name="send_message_{{$cat->user_id}}" placeholder="Enter Message...." style="margin-bottom:5px;width:77%;display:inline;" @if (!Auth::user()->isAdmin()) {{ "readonly" }} @endif/>
-                        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->user_id}}" ><img src="/images/filled-sent.png"/></button></button>
+                        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->user_id}}" ><img src="/images/filled-sent.png"/></button>
                         @if ($latest_messages && $latest_messages->user_feedback_category_id == $cat->id)
                             <span class="latest_message">@if ($latest_messages->send_by) {{ $latest_msg }} @endif</span>
                         @else
@@ -224,6 +235,56 @@
                             var html = '<option value="' + all_status[i].id+'">'+all_status[i].status+'</option>'; 
                             $('.user_feedback_status').append(html);
                         }
+                    }
+                }
+            });
+        });
+        $(document).on('click','.user-sop-save',function(){
+            var id = $(this).data('id');
+            //debugger;
+            var sop_id = $(this).data('sop');
+            var sop = $("#"+sop_id).val();
+            var cat = $(this).data("feedback_cat_id");
+            
+            $("#send_message_"+$(this).data('id')).val('');
+
+            $.ajax({
+                type: "get",
+                url: '{{ route("user.save.sop") }}',
+                data: {
+                        'cat_id': cat,
+                        'sop_text': sop
+                        },
+                success:function(response){
+                    if (response.code == 200) {
+                        $("#"+sop_id).val('');
+                        var res_sop = response.sop;
+                        toastr["success"](response.message);
+                    } else {
+                        toastr["error"](response.message);
+                    }
+                }
+            });
+        });
+        $(document).on('click','.user-sop-comment-save',function(){
+            var id = $(this).data('id');
+            var comment = $("#comment_"+id).val();
+            var acceptReject = $('input[name="accept_reject_'+id+'"]:checked').val();
+            var sopHistoryId = $(this).data("sop_id");
+            
+            $("#send_message_"+$(this).data('id')).val('');
+
+            $.ajax({
+                type: "get",
+                url: '{{ route("user.save.sop.comment") }}',
+                data: {'sop_history_id': sopHistoryId,
+                        'comment': comment,
+                        'accept_reject': acceptReject
+                        },
+                success:function(response){
+                    if (response.status == true) {
+                        $('#comment_'+id).val('');
+                        var res_sop = response.sop;
                     }
                 }
             });
