@@ -84,6 +84,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('magento_modules/remark/{magento_module}', 'MagentoModuleController@getRemarks')->name('magento_module_remark.get_remarks');
     Route::post('magento_modules/remark', 'MagentoModuleController@storeRemark')->name('magento_module_remark.store');
+    Route::post('/updateOptions', 'MagentoModuleController@updateMagentoModuleOptions')->name('magento_module.update.option');
     Route::resource('magento_modules', 'MagentoModuleController');
 
     Route::resource('magento_module_categories', 'MagentoModuleCategoryController');

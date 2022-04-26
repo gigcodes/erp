@@ -29,6 +29,7 @@ class MagentoModule extends Model
         'payment_status',
         'developer_name',
         'is_customized',
+        'site_impact'
     ];
 
     public function module_category()
