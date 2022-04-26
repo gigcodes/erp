@@ -84,6 +84,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('magento_modules/remark/{magento_module}', 'MagentoModuleController@getRemarks')->name('magento_module_remark.get_remarks');
     Route::post('magento_modules/remark', 'MagentoModuleController@storeRemark')->name('magento_module_remark.store');
+    Route::post('/updateOptions', 'MagentoModuleController@updateMagentoModuleOptions')->name('magento_module.update.option');
     Route::resource('magento_modules', 'MagentoModuleController');
 
     Route::resource('magento_module_categories', 'MagentoModuleCategoryController');
@@ -1445,6 +1446,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('dailyActivity/complete/{id}', 'DailyActivityController@complete');
     Route::get('dailyActivity/start/{id}', 'DailyActivityController@start');
     Route::get('dailyActivity/get', 'DailyActivityController@get')->name('dailyActivity.get');
+
+    Route::get('/get/feedback-table/data', 'UserManagementController@addFeedbackTableData')->name("user.get-feedback-table-data");
 
     // Complete the task
     // Route::get('/task/count/{taskid}', 'TaskModuleController@taskCount')->name('task.count');
