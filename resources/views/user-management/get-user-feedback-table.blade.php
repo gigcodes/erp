@@ -45,7 +45,10 @@
                                         <select name="user_id" class="form-control  select-multiple">
                                             <option>-select-</option>
                                             <?php foreach ($users as $key => $user) {
-                                                    echo '<option value="'.$user->id.'">'.$user->name.'</option>';
+                                                    $selectedUser = '';
+                                                    if($user->id == $request->user_id)
+                                                        $selectedUser = 'selected="selected"';
+                                                    echo '<option value="'.$user->id.'" '.$selectedUser.'>'.$user->name.'</option>';
                                             }?>
                                         </select>
                                     </div>
