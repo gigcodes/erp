@@ -17,6 +17,8 @@ class UserManagementController extends Controller
             $category = UserFeedbackCategory::groupBy('category');
         } else {
             $category = UserFeedbackCategory::where('user_id', \Auth::user()->id)->groupBy('category');
+            if(empty($category->get()))
+                $category = UserFeedbackCategory::groupBy('category');
         }
             
         //\Auth::user()->isAdmin()
