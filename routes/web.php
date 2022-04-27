@@ -1448,6 +1448,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('dailyActivity/get', 'DailyActivityController@get')->name('dailyActivity.get');
 
     Route::get('/get/feedback-table/data', 'UserManagementController@addFeedbackTableData')->name("user.get-feedback-table-data");
+    Route::get('/save/user-category/sop', 'UserManagementController@sopHistory')->name("user.save.sop");
+    Route::get('/get/user-category/sop', 'UserManagementController@getSopHistory')->name("user.get.sop.data");
+    Route::get('/save/user-category/sop-comment', 'UserManagementController@sopHistoryComment')->name("user.save.sop.comment");
+    Route::get('/get/user-category/sop-comment', 'UserManagementController@getSopCommentHistory')->name("user.get.sop-comment.data");
 
     // Complete the task
     // Route::get('/task/count/{taskid}', 'TaskModuleController@taskCount')->name('task.count');
