@@ -56,6 +56,31 @@ class UserManagementController extends Controller
             return response()->json(['code'=>'500',  'message' => $e->getMessage()]);
         }
     }
+    
+    public function getSopHistory(Request $request)
+    {
+        try{
+            if($request->cat_id == '')
+                return response()->json(['code'=>'500',  'message' => 'History not found']);
+            $sop = UserFeedbackCategorySopHistory::where('category_id', $request->cat_id)->get();
+            return response()->json(['code'=>'200', 'data' => $sop, 'message' => 'Data listed successfully']);
+        } catch(\Exception $e){
+            return response()->json(['code'=>'500',  'message' => $e->getMessage()]);
+        }
+    }
+
+    public function getSopCommentHistory(Request $request)
+    {
+        try{
+            if($request->sop_history_id == '')
+                return response()->json(['code'=>'500',  'message' => 'History not found']);
+            $sopComment = UserFeedbackCategorySopHistoryComment::where('sop_history_id', $request->sop_history_id)->get();
+            
+            return response()->json(['code'=>'200', 'data' => $sopComment, 'message' => 'Data listed successfully']);
+        } catch(\Exception $e){
+            return response()->json(['code'=>'500',  'message' => $e->getMessage()]);
+        }
+    }
 
     public function sopHistoryComment(Request $request)
     {

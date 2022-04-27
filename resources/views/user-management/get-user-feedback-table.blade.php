@@ -121,18 +121,35 @@
                     if ($feedback_status) {
                         $status_id = $feedback_status->user_feedback_status_id;
                     }
+                    $latest_comment = App\UserFeedbackCategorySopHistoryComment::select('comment', 'id')->where('sop_history_id', $cat->sop_id)->orderBy('id','DESC')->first();
+                    $comment = '';
+                    if(isset($latest_comment->comment))
+                        $comment = $latest_comment->comment.'...';
+                    $commentId = '';
+                    if(isset($latest_comment->comment))
+                        $commentId = $latest_comment->id;
                 @endphp
                 <tr data-cat_id="{{ $cat->id }}" data-user_id="{{ $cat->user_id }}">
                     <td>{{ $cat->category }}</td>
                     <td class="communication-td">
-                        <input type="text" class="form-control" data-id="{{$cat->id}}" id="sop_{{$cat->id}}" name="sop_{{$cat->id}}" placeholder="Enter SOP name...."  style="margin-bottom:5px;width:77%;display:inline;"/>
-                        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-save" data-sop="sop_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" ><img src="/images/filled-sent.png"/></button>
-                        <div id="comment_div_{{$cat->id}}">
-                            <input type="radio" name="accept_reject_{{$cat->id}}" id="accept_reject_{{$cat->id}}" value="Yes" style="width: 12px !important;height: 12px !important;"> Yes &nbsp;
-                            <input type="radio" name="accept_reject_{{$cat->id}}" id="accept_rejectN_{{$cat->id}}" value="No" style="width: 12px !important;height: 12px !important;"> No
-                            <input type="text" class="form-control " data-id="{{$cat->id}}" id="comment_{{$cat->id}}" name="comment_{{$cat->id}}" placeholder="Enter comment ...."  style="margin-bottom:5px;width:77%;display:inline;"/>
-                            <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-comment-save" data-sop_id="{{$cat->sop_id}}" data-id="{{$cat->id}}" data-comment="comment_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}"  type="submit" id="submit_message" ><img src="/images/filled-sent.png"/></button>
-                        </div>
+                        @if(\Auth::user()->isAdmin() == true)
+                            <input type="text" class="form-control" data-id="{{$cat->id}}" id="sop_{{$cat->id}}" name="sop_{{$cat->id}}" placeholder="Enter SOP name...."  style="margin-bottom:5px;width:77%;display:inline;"/>
+                            <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-save" data-sop="sop_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" ><img src="/images/filled-sent.png"/></button>
+                            <div class="sop-text-{{$cat->id}}">
+                                <div style='width:50%;'>{{$cat->sop}}...</div> <img class='sop-history' src='/images/chat.png' data-cat_id="{{$cat->id}}" data-sop_id="{{$cat->sop_id}}" alt='history' style='width:17px;cursor: nwse-resize;'>
+                            </div>
+                        @else
+                            <div id="comment_div_{{$cat->id}}">
+                                <input type="radio" name="accept_reject_{{$cat->id}}" id="accept_reject_{{$cat->id}}" value="Yes" style="width: 12px !important;height: 12px !important;"> Yes &nbsp;
+                                <input type="radio" name="accept_reject_{{$cat->id}}" id="accept_rejectN_{{$cat->id}}" value="No" style="width: 12px !important;height: 12px !important;"> No
+                                <input type="text" class="form-control " data-id="{{$cat->id}}" id="comment_{{$cat->id}}" name="comment_{{$cat->id}}" placeholder="Enter comment ...."  style="margin-bottom:5px;width:77%;display:inline;"/>
+                                <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-comment-save" data-sop_id="{{$cat->sop_id}}" data-id="{{$cat->id}}" data-comment="comment_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}"  type="submit" id="submit_message" ><img src="/images/filled-sent.png"/></button>
+                                <div class="sop-comment-text-{{$cat->id}}">
+                                    <div style='width:50%;'>{{$comment}}</div> <img class='sop-comment-history' src='/images/chat.png' data-id="{{$cat->id}}" data-sop_history_id="{{$cat->sop_id}}" data-sop_comment_id="{{$commentId}}" alt='history' style='width:17px;cursor: nwse-resize;'>
+                                </div>
+                            </div>
+                        @endif                        
+                        
                     </td>
                     <td class="communication-td">
                         <input type="text" class="form-control send-message-textbox" data-id="{{$cat->user_id}}" id="send_message_{{$cat->user_id}}" name="send_message_{{$cat->user_id}}" placeholder="Enter Message...." style="margin-bottom:5px;width:77%;display:inline;" @if (!Auth::user()->isAdmin()) {{ "readonly" }} @endif/>
@@ -176,6 +193,68 @@
                 <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
             </div>
             <div class="modal-body" style="background-color: #999999;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="sop-history" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sop history</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Sop Name</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody class="show-sop-history-records">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="sop-comment-history" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sop comment history</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Comment</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody class="show-sop-comment-history-records">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -239,9 +318,72 @@
                 }
             });
         });
+        $(document).on('click','.sop-history',function(){
+            var id = $(this).data('id');
+            var catId = $(this).data("cat_id");
+            $.ajax({
+                type: "get",
+                url: '{{ route("user.get.sop.data") }}',
+                data: {
+                        'cat_id': catId,
+                        },
+                success:function(response){
+                    if (response.code == 200) {
+                        toastr["success"](response.message);
+                        var t = '';
+                        $.each(response.data, function(k, v) {
+                            t += `<tr><td>` + v.id + `</td>`;
+                            t += `<td>` + v.sop + `</td>`;
+                            t += `<td>` + v.created_at + `</td></tr>`;
+                        });
+                        if (t == '') {
+                            t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
+                        }
+                        $("#sop-history").find(".show-sop-history-records").html(t);
+                        $("#sop-history").modal("show");
+
+                    } else {
+                        toastr["error"](response.message);
+                    }
+                }
+            });
+        });
+
+        $(document).on('click','.sop-comment-history',function(){
+            var id = $(this).data('id');
+            var sopId = $(this).data("sop_history_id");
+            $.ajax({
+                type: "get",
+                url: '{{ route("user.get.sop-comment.data") }}',
+                data: {
+                        'sop_history_id': sopId,
+                        },
+                success:function(response){
+                    if (response.code == 200) {
+                        toastr["success"](response.message);
+                        
+                        var t = '';
+                        $.each(response.data, function(k, v) {
+                            t += `<tr><td>` + v.id + `</td>`;
+                            t += `<td>` + v.comment + `</td>`;
+                            t += `<td>` + v.created_at + `</td></tr>`;
+                        });
+                        if (t == '') {
+                            t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
+                        }
+                        $("#sop-comment-history").find(".show-sop-comment-history-records").html(t);
+                        $("#sop-comment-history").modal("show");
+
+                    } else {
+                        toastr["error"](response.message);
+                    }
+                }
+            });
+        });
+
+        
         $(document).on('click','.user-sop-save',function(){
             var id = $(this).data('id');
-            //debugger;
             var sop_id = $(this).data('sop');
             var sop = $("#"+sop_id).val();
             var cat = $(this).data("feedback_cat_id");
@@ -258,8 +400,10 @@
                 success:function(response){
                     if (response.code == 200) {
                         $("#"+sop_id).val('');
-                        var res_sop = response.sop;
+                        var resSop = response.data.sop;
+                        var resSopId = response.data.id;
                         toastr["success"](response.message);
+                        $(".sop-text-"+id).html("<div style='width:50%;'>"+resSop+"...</div> <img class='sop-history' data-cat_id='"+id+"' data-sop_id='"+resSopId+"' src='/images/chat.png' alt='history' style='width:17px;cursor: nwse-resize;'>");
                     } else {
                         toastr["error"](response.message);
                     }
@@ -271,7 +415,7 @@
             var comment = $("#comment_"+id).val();
             var acceptReject = $('input[name="accept_reject_'+id+'"]:checked').val();
             var sopHistoryId = $(this).data("sop_id");
-            
+           
             $("#send_message_"+$(this).data('id')).val('');
 
             $.ajax({
@@ -282,9 +426,15 @@
                         'accept_reject': acceptReject
                         },
                 success:function(response){
-                    if (response.status == true) {
+                    if (response.code == 200) {
                         $('#comment_'+id).val('');
-                        var res_sop = response.sop;
+                        var resSopComm = response.data.comment;
+                        var resSopCommId = response.data.id;
+                        var resSopId = response.data.sop_history_id;
+                        toastr["success"](response.message);
+                        $(".sop-comment-text-"+id).html("<div style='width:50%;'>"+resSopComm+"...</div> <img class='sop-comment-history' data-id='"+id+"' data-sop_history_id='"+resSopId+"' data-sop_comment_id='"+resSopCommId+"' src='/images/chat.png' alt='history' style='width:17px;cursor: nwse-resize;'>");
+                    } else {
+                        toastr["error"](response.message);
                     }
                 }
             });
