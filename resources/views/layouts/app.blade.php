@@ -1072,6 +1072,9 @@ if (!empty($notifications)) {
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
+                            <a class="dropdown-item" href="{{ route('get.model.name') }}">Model Name</a>
+                        </li>
+                        <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Platforms <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
