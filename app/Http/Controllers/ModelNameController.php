@@ -65,7 +65,13 @@ class ModelNameController extends Controller
      */
     public function update(Request $request, ModelName $modelName)
     {
-        //
+        try{
+            $modelName = ModelName::where('id', $request->model_id)->update(['name' => $request->name]);
+            $modelNameData = ModelName::where('id', $request->model_id)->first();
+            return response()->json(['code' => 200, 'data' => $modelNameData, 'message' => 'Updated successfully!']);
+        } catch(\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
     }
 
     /**
