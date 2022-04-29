@@ -49,7 +49,7 @@ class ContactBloggerController extends Controller
             'email_log' => 'Email initiated',
             'message'       => $email->to
         ]);
-        \App\Jobs\SendEmail::dispatch($email);
+        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
         return redirect()->back()->withSuccess('Information stored successfully along with push email to the blogger!');
     }

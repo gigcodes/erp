@@ -3,6 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 
 class CategoryCancellationPolicyLog extends Model
 {
@@ -10,6 +13,7 @@ class CategoryCancellationPolicyLog extends Model
      * @var string
      * @SWG\Property(property="id",type="integer")
      * @SWG\Property(property="category_id",type="string")
+     * @SWG\Property(property="change_parent_id",type="integer")
      * @SWG\Property(property="day_type",type="integer")
      * @SWG\Property(property="day_change",type="string")
      * @SWG\Property(property="day_old",type="integer")

@@ -1739,7 +1739,7 @@ class CustomerController extends Controller
             'email_log' => 'Email initiated',
             'message'       => $email->to
         ]);
-        \App\Jobs\SendEmail::dispatch($email);
+        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
         return redirect()->route('customer.show', $customer->id)->withSuccess('You have successfully sent an email!');
     }
@@ -1906,7 +1906,7 @@ class CustomerController extends Controller
             'email_log' => 'Email initiated',
             'message'       => $email->to
         ]);
-        \App\Jobs\SendEmail::dispatch($email);
+        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
         $message = "Dear $customer->name, this is to confirm that an amount of Rs. $customer->credit - is credited with us against your previous order. You can use this credit note for reference on your next purchase. Thanks & Regards, Solo Luxury Team";
         $requestData = new Request();

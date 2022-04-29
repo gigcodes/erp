@@ -4107,7 +4107,7 @@ class WhatsAppController extends FindByNumberController
             'is_draft' => 1,
             ]);
 
-            \App\Jobs\SendEmail::dispatch($email);
+            \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
             $message->update([
             'approved' => 1,
@@ -5809,7 +5809,7 @@ class WhatsAppController extends FindByNumberController
                             'is_draft' => 0,
                         ]);
 
-                        \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
                     }
                 }
 
@@ -6269,7 +6269,7 @@ class WhatsAppController extends FindByNumberController
             'is_draft' => 1,
         ]);
 
-        \App\Jobs\SendEmail::dispatch($email);
+        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
     }
 
 }

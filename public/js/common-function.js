@@ -1,7 +1,4 @@
-// Edit Button
-function actionEditButton(url) {
-    return `<a href="${url}" title="Edit" class="btn btn-image"><img src="/images/edit.png" /></a>`;
-}
+var spinner_html = `<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...`;
 
 // String Limit set
 function setStringLength(string_value, length = 20) {
@@ -50,6 +47,16 @@ function actionShowButton(url) {
     return `<a href="${url}" title="Details Page" class="btn btn-image"><img src="/images/view.png" /></a>`;
 }
 
+// Show details page button
+function actionShowButtonWithClass(cls, id) {
+    return `<button type="button" title="Details Page"  class="btn btn-image ${cls}" data-id="${id}"><img src="/images/view.png" /></button>`;
+}
+
+// Edit Button
+function actionEditButtonWithClass(cls, data) {
+    return `<button type='button' title='Edit'  class='btn btn-image ${cls}' data-row='${data}'><img src='/images/edit.png' /></button>`;
+}
+
 // Title or String persent to better way
 function actionShowTitle(url, stringTitle) {
     return `<a class="btn btn-sm btn-clean" href="` + url + `" title="` + stringTitle + `">` + stringTitle + `</a>`;
@@ -74,7 +81,7 @@ function actionActiveButton(data, attr, statusclass = "clsstatus") {
 function tableDeleteRow(url, oTable) {
     Swal.fire({
         title: 'Are you sure?',
-        text: "You won't be able to revert this!",
+        text: "You want be able to delete this!",
         type: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -146,6 +153,40 @@ function tableChnageStatus(url, oTable, message = 'You will be able to revert th
     });
 }
 
+//Errors print
+function customFnErrors(form, element_errors){
+    form.find('.invalid-feedback').remove();
+    $.each(element_errors, function(key, element_error){
+        var html = `<div id="`+key+`-error" class="error invalid-feedback d-block">`;
+        $.each(element_error, function(index, error){
+            html = html + error + `<br>`;
+        });
+        html = html + `</div>`;
+        console.log({customFnErrors_html : html});
+        console.log(key.indexOf(".") != -1, key,key.indexOf(".") );
+
+        if(key.indexOf(".") != -1){
+            var arr = key.split(".");
+            var selector = "[name='"+arr[0];
+            for(var i = 1;i < arr.length; i++){
+                selector = selector + "["+arr[i]+"]";
+            }
+            selector = selector + "']";
+            console.log({customFnErrors_selector : selector});
+            form.find(selector).closest('.form-group').append(html);
+        }
+        else{
+            
+            if(form.find('[name="'+key+'"]').length){
+                form.find('[name="'+key+'"]').closest('.form-group').append(html);
+            }
+            else if(form.find('[name="'+key+'[]"]').length){
+                form.find('[name="'+key+'[]"]').closest('.form-group').append(html);
+            }
+        }
+    });
+}
+
 $(document).ready(function() {
     setTimeout(function() {
         if ($('#ns').length > 0) {
@@ -153,4 +194,5 @@ $(document).ready(function() {
         }
     }, 5000)
 });
+
 

@@ -2,7 +2,9 @@
     @foreach ($site_development_categories as $sdc)
         <tr>
             <td>
-                {{ $sdc->title }}
+                <span class="break-text"
+                    title="{{ $sdc->title }}">{{ strlen($sdc->title) > 25 ? substr_replace($sdc->title, '...', 25) : $sdc->title }}
+                </span>
             </td>
             @foreach ($store_websites as $sw)
                 @php
@@ -21,21 +23,13 @@
                         $websitenamestr = $sw ? $sw->title : '';
                     @endphp
                     <div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1">
-                        <p class="m-0 p-0">
-                            <input style="margin-top: 0px;width:auto !important;" type="text"
-                                class="form-control quick-message-field" name="message" placeholder="Message" value=""
-                                id="remark_{{ $sdc->id . $sw->id }}" data-catId="{{ $sdc->id }}"
-                                data-siteId="{{ $site ? $site->id : '' }}"
-                                data-websiteId="{{ $website ? $website->id : '' }}" />
-                        </p>
-                        <p class="m-0 p-0">
+                        <input style="margin-top: 0px;" type=" text" class="form-control width-auto quick-message-field"
+                            name="message" placeholder="Message" value="" id="remark_{{ $sdc->id . $sw->id }}"
+                            data-catId="{{ $sdc->id }}" data-siteId="{{ $site ? $site->id : '' }}"
+                            data-websiteId="{{ $website ? $website->id : '' }}" />
 
-                        <div style="margin-top: 0px;" class="d-flex p-0">
-                            <button class="btn pr-0 btn-xs btn-image "
-                                onclick="saveRemarks({{ $sdc->id . $sw->id }})"><img
-                                    src="/images/filled-sent.png" /></button>
-                        </div>
-                        </p>
+                        <button class="btn pr-0 btn-xs btn-image " onclick="saveRemarks({{ $sdc->id . $sw->id }})"><img
+                                src="/images/filled-sent.png" /></button>
                     </div>
                     <div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1">
                         {{ Form::select('status', ['' => '-- Select --'] + $allStatus, $site['status'], [

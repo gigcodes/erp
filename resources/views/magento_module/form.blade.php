@@ -33,7 +33,7 @@
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
             <strong>Module Type:</strong>
-            {!! Form::select('module_type', ['3rd Party' => '3rd Party', 'Custom' => 'Custom'], null, ['placeholder' => 'Select Module Type', 'class' => 'form-control']) !!}
+            {!! Form::select('module_type', $magento_module_types, null, ['placeholder' => 'Select Module Type', 'class' => 'form-control']) !!}
             @if ($errors->has('module_type'))
                 <span style="color:red">{{ $errors->first('module_type') }}</span>
             @endif
@@ -61,6 +61,72 @@
         </div>
     </div>
 </div>
+<div class="row ml-2 mr-2">
+    <div class="col-xs-6 col-sm-6">
+        <div class="form-group">
+            <strong>Task Status:</strong>
+            {!! Form::select('task_status', $task_statuses, null, ['placeholder' => 'Select Payment Status', 'class' => 'form-control']) !!}
+            @if ($errors->has('task_status'))
+                <span style="color:red">{{ $errors->first('task_status') }}</span>
+            @endif
+        </div>
+    </div>
+
+    <div class="col-xs-6 col-sm-6">
+        <div class="form-group">
+            <strong>Cron Time (Min) :</strong>
+            {!! Form::text('cron_time', null, ['placeholder' => 'Cron Time', 'class' => 'form-control']) !!}
+            @if ($errors->has('cron_time'))
+                <span style="color:red">{{ $errors->first('cron_time') }}</span>
+            @endif
+        </div>
+    </div>
+</div>
+
+<div class="row ml-2 mr-2">
+    <div class="col-xs-6 col-sm-6">
+        <div class="form-group">
+            <strong>Javascript/css Require :</strong>
+            {!! Form::select('is_js_css', ['0' => 'No', '1' => 'Yes'], null, ['placeholder' => 'Select Javascript/css Require', 'class' => 'form-control']) !!}
+            @if ($errors->has('is_js_css'))
+                <span style="color:red">{{ $errors->first('is_js_css') }}</span>
+            @endif
+        </div>
+    </div>
+
+    <div class="col-xs-6 col-sm-6">
+        <div class="form-group">
+            <strong>Third Party JS Require :</strong>
+            {!! Form::select('is_third_party_js', ['0' => 'No', '1' => 'Yes'], null, ['placeholder' => 'Select Third Third Party JS Require ', 'class' => 'form-control']) !!}
+            @if ($errors->has('is_third_party_js'))
+                <span style="color:red">{{ $errors->first('is_third_party_js') }}</span>
+            @endif
+        </div>
+    </div>
+</div>
+
+<div class="row ml-2 mr-2">
+    <div class="col-xs-6 col-sm-6">
+        <div class="form-group">
+            <strong>Sql Query :</strong>
+            {!! Form::select('is_sql', ['0' => 'No', '1' => 'Yes'], null, ['placeholder' => 'Select Sql Query Status', 'class' => 'form-control']) !!}
+            @if ($errors->has('is_sql'))
+                <span style="color:red">{{ $errors->first('is_sql') }}</span>
+            @endif
+        </div>
+    </div>
+
+    <div class="col-xs-6 col-sm-6">
+        <div class="form-group">
+            <strong>Third Party Plugin :</strong>
+            {!! Form::select('is_third_party_plugin', ['0' => 'No', '1' => 'Yes'], null, ['placeholder' => 'Select Third Party Plugin', 'class' => 'form-control']) !!}
+            @if ($errors->has('is_third_party_plugin'))
+                <span style="color:red">{{ $errors->first('is_third_party_plugin') }}</span>
+            @endif
+        </div>
+    </div>
+</div>
+
 <div class="row ml-2 mr-2">
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
@@ -93,7 +159,7 @@
         </div>
     </div>
 
-    <div class="col-xs-12 col-sm-10 ml-5 text-right">
+    {{-- <div class="col-xs-12 col-sm-10 ml-5 text-right">
         <button type="submit" class="btn btn-primary">Submit</button>
-    </div>
+    </div> --}}
 </div>

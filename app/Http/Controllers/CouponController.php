@@ -1100,7 +1100,7 @@ class CouponController extends Controller
             'email_log' => 'Email initiated',
             'message'       => $email->to
         ]);
-        \App\Jobs\SendEmail::dispatch($email);
+        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
         CouponCodeRuleLog::create([
             'rule_id' => $ruleId,
             'coupon_code' => $couponCodeRule->coupon_code,

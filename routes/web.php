@@ -78,12 +78,28 @@ Route::middleware('auth')->group(function () {
     Route::resource('product-location', 'ProductLocationController');
 
     Route::get('show-magento-cron-data', 'Cron\ShowMagentoCronDataController@MagentoCron')->name('magento-cron-data');
-
+    
 });
 
 /** Magento Module */
 Route::middleware('auth')->group(function () {
+    Route::get('magento_modules/remark/{magento_module}', 'MagentoModuleController@getRemarks')->name('magento_module_remark.get_remarks');
+    Route::post('magento_modules/remark', 'MagentoModuleController@storeRemark')->name('magento_module_remark.store');
     Route::resource('magento_modules', 'MagentoModuleController');
+
+    Route::resource('magento_module_categories', 'MagentoModuleCategoryController');
+
+    Route::resource('magento_module_types', 'MagentoModuleTypeController');
+});
+
+/** redis Job Module */
+Route::middleware('auth')->group(function () {
+    Route::get('redis-jobs', 'RedisjobController@index')->name('redis.jobs');
+    Route::get('redis-jobs-list', 'RedisjobController@listData')->name('redis.jobs.list');
+    Route::post('redis-jobs-add', 'RedisjobController@store')->name('redis.add_radis_job');
+    Route::delete('redis-jobs-delete/{id?}', 'RedisjobController@removeQue')->name('redis.delete_radis_job');
+    Route::post('redis-jobs-clearQue/{id?}', 'RedisjobController@clearQue')->name('redis.clear_que');
+    Route::post('redis-jobs-restart_management/{id?}', 'RedisjobController@restartManagement')->name('redis.restart_management');
 });
 
 /** Magento Settings */
@@ -949,6 +965,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('/task/assign/master-user', 'TaskModuleController@assignMasterUser')->name('task.asign.master-user');
     Route::get('task/CommunicationTaskStatus', 'TaskModuleController@CommunicationTaskStatus')->name('task.CommunicationTaskStatus'); // Purpose : Create Route for Assign Task To User - DEVTASK-21234
     Route::get('task/AssignTaskToUser', 'TaskModuleController@AssignTaskToUser')->name('task.AssignTaskToUser'); // Purpose : Create Route for Assign Task To User - DEVTASK-21234
+    Route::post('task/AssignMultipleTaskToUser', 'TaskModuleController@AssignMultipleTaskToUser')->name('task.AssignMultipleTaskToUser');
     Route::post('/task/upload-documents', 'TaskModuleController@uploadDocuments')->name("task.upload-documents");
     Route::post('/task/save-documents', 'TaskModuleController@saveDocuments')->name("task.save-documents");
     Route::get('/task/preview-img/{id}', 'TaskModuleController@previewTaskImage')->name('task.preview-img');
@@ -1491,6 +1508,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/getlogtasktimemessage', 'DevelopmentController@getlogtasktimemessage')->name('development.getlogtasktimemessage');
 
     Route::get('development/automatic/tasks', 'DevelopmentController@automaticTasks')->name('development.automatic.tasks');
+    Route::post('development/automatic/tasks', 'DevelopmentController@automaticTasks')->name('development.automatic.tasks_post');
  
     Route::post('save/task/message', 'DevelopmentController@saveTaskMessage')->name('development.taskmessage');
     Route::post('save/tasktime/message', 'DevelopmentController@saveTaskTimeMessage')->name('development.tasktimemessage');
