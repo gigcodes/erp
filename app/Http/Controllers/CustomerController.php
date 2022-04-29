@@ -2989,7 +2989,7 @@ class CustomerController extends Controller
             ->leftjoin('credit_history', 'customers.id', 'credit_history.customer_id');
         $customers_all->select("customers.*", "store_websites.title", \DB::raw("( select created_at from credit_history where credit_history.customer_id = customers.id ORDER BY id DESC LIMIT 0,1) as date"));
         $customers_all->latest('date')->groupBy('customers.id')->orderBy("date", "desc");
-
+        
         if ($request->name != '') {
             $customers_all->where('name', $request->name);
         }
