@@ -191,6 +191,67 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
   </div>
 </div>
  
+
+
+
+<div class="modal fade" id="create-customer-credit-modal" role="dialog" aria-labelledby="create-customer-credit-modal-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="create-customer-credit-modal-label">Create Credit</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+
+          <div class="modal-body">
+              <form id="credit_form">
+                  <input type="hidden" id="credit_customer_id" name="credit_customer_id">
+                  <input type="hidden" id="source_of_credit" name="source_of_credit" value="customer">
+                  <div class="form-group">
+                      <label for="credit" class="col-form-label">Customer:</label>
+                      <select class="form-control select2" name="customer_id" id="customer_id" >
+                        <option></option>
+                        @foreach ($customers as $customer)
+                            <option value="{{$customer->id}}">{{$customer->name}}</option>
+                        @endforeach
+                      </select>
+                      <span class="text-danger" id="customer_id"></span>
+                  </div>
+                  <div class="form-group">
+                    <label for="credit" class="col-form-label">Store Website:</label>
+                    <select class="form-control select2" name="customer_id" id="customer_id" >
+                      <option></option>
+                      @foreach ($customers as $customer)
+                          <option value="{{$customer->id}}">{{$customer->name}}</option>
+                      @endforeach
+                    </select>
+                    <span class="text-danger" id="customer_id"></span>
+                  </div>
+                  <div class="form-group">
+                    <label for="credit" class="col-form-label">Credit:</label>
+                    <input type="number" min="0" class="form-control" name="credit" id="credit">
+                    <span class="text-danger" id="credit_error"></span>
+                  </div>
+                  <div class="form-group">
+                      <input type="radio" class="d-inline" name="credit_type" value="PLUS" checked id="">PLUS
+                      <input type="radio" class="d-inline" name="credit_type" value="MINUS" id="">MINUS
+                  </div>
+                  <div class="form-group">
+                      <label for="currency" class="col-form-label">Currency:</label>
+                      <?php echo Form::select('currency',\App\Currency::pluck('name','code')->toArray(),request('currency','EUR'),['class' => 'form-control select2','style' => "width:250px;","tabindex" => 1]);  ?>
+                      <span class="text-danger" id="currency_error"></span>
+                  </div>
+              </form>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" id="submit_credit_form" class="btn btn-primary">Submit</button>
+          </div>
+      </div>
+  </div>
+</div>
+
  
  
 @endsection
