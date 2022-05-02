@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddSiteImpactColumnInMagentoModulesTable extends Migration
+class CreateModelNamesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class AddSiteImpactColumnInMagentoModulesTable extends Migration
      */
     public function up()
     {
-        Schema::table('magento_modules', function (Blueprint $table) {
-            $table->boolean('site_impact')->default(0);
+        Schema::create('model_names', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name')->nullable();
+            $table->char('status')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -25,9 +28,6 @@ class AddSiteImpactColumnInMagentoModulesTable extends Migration
      */
     public function down()
     {
-        Schema::table('magento_modules', function (Blueprint $table) {
-
-            $table->dropColumn('site_impact');
-        });
+        Schema::dropIfExists('model_names');
     }
 }

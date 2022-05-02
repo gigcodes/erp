@@ -859,7 +859,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('orders/download', 'OrderController@downloadOrderInPdf');
     Route::get('order/email/download/{order_id?}/{email_id?}', 'OrderController@downloadOrderMailPdf')->name('order.generate.order-mail.pdf');
     Route::post('order/{id}/change-status-template', 'OrderController@statusChangeTemplate');
-    Route::get('order/change-status', 'OrderController@statusChange');
+    Route::post('order/change-status', 'OrderController@statusChange');
     Route::post('order/preview-sent-mails', 'OrderController@orderPreviewSentMails');
     Route::get('customer/getcustomerinfo', 'CustomerController@customerinfo')->name('customer.getcustomerinfo');
 
@@ -1446,6 +1446,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('dailyActivity/complete/{id}', 'DailyActivityController@complete');
     Route::get('dailyActivity/start/{id}', 'DailyActivityController@start');
     Route::get('dailyActivity/get', 'DailyActivityController@get')->name('dailyActivity.get');
+
+    Route::get('/get/feedback-table/data', 'UserManagementController@addFeedbackTableData')->name("user.get-feedback-table-data");
+    Route::get('/save/user-category/sop', 'UserManagementController@sopHistory')->name("user.save.sop");
+    Route::get('/get/user-category/sop', 'UserManagementController@getSopHistory')->name("user.get.sop.data");
+    Route::get('/save/user-category/sop-comment', 'UserManagementController@sopHistoryComment')->name("user.save.sop.comment");
+    Route::get('/get/user-category/sop-comment', 'UserManagementController@getSopCommentHistory')->name("user.get.sop-comment.data");
 
     // Complete the task
     // Route::get('/task/count/{taskid}', 'TaskModuleController@taskCount')->name('task.count');
@@ -3051,6 +3057,12 @@ Route::get('/wetransfer/logs', 'WeTransferController@logs')->middleware('auth')-
 Route::post('/wetransfer/re-downloads-files', 'WeTransferController@reDownloadFiles')->middleware('auth')->name('wetransfer.reDownload.files');
 
 Route::post('/supplier/manage-scrap-brands', 'SupplierController@manageScrapedBrands')->middleware('auth')->name('manageScrapedBrands');
+
+Route::get('/model/name/get', 'ModelNameController@index')->middleware('auth')->name('get.model.name');
+Route::post('/model/name/store', 'ModelNameController@store')->middleware('auth')->name('model.name.store');
+Route::delete('/model/name/delete', 'ModelNameController@destroy')->middleware('auth')->name('model.name.delete');
+Route::post('/model/name/edit', 'ModelNameController@edit')->middleware('auth')->name('model.name.edit');
+Route::post('/model/name/update', 'ModelNameController@update')->middleware('auth')->name('model.name.update');
 
 Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], function () {
     Route::prefix('github')->group(function () {

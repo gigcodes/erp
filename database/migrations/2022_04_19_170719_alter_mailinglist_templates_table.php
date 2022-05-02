@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddSiteImpactColumnInMagentoModulesTable extends Migration
+class AlterMailinglistTemplatesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddSiteImpactColumnInMagentoModulesTable extends Migration
      */
     public function up()
     {
-        Schema::table('magento_modules', function (Blueprint $table) {
-            $table->boolean('site_impact')->default(0);
+        Schema::table('mailinglist_templates', function (Blueprint $table) {
+            $table->longText('html_text')->nullable();
         });
     }
 
@@ -25,9 +25,8 @@ class AddSiteImpactColumnInMagentoModulesTable extends Migration
      */
     public function down()
     {
-        Schema::table('magento_modules', function (Blueprint $table) {
-
-            $table->dropColumn('site_impact');
+        Schema::table('mailinglist_templates', function (Blueprint $table) {
+            $table->dropColumn('html_text');
         });
     }
 }
