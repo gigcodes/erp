@@ -343,9 +343,42 @@ class ReturnExchangeController extends Controller
             $data->status = $request->return_exchange_status;
             $data->save();
             $this->createReturnExchangeStatusLog($request);
-            return response()->json(["code" => 200, "data" => $data]);
+
+            
+            
+            $template = \App\ReturnExchange::ORDER_EXCHANGE_STATUS_TEMPLATE;
+            $template = str_replace(["#{id}", "#{status}"], [$data->id, $data->status], $template);
+            $mailing_item = MailinglistTemplate::where("id",18)->first();
+            $storeWebsiteID = $data->customer->storeWebsite->id;
+            if ($storeWebsiteID) {
+                $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteID)->first();
+                if ($emailAddress) {
+                    $from = $emailAddress->from_address;
+                }
+            }
+            
+            $emailClass = (new \App\Mails\Manual\DefaultSendEmail($data->customer->email, '', $mailing_item->html_text, $data, $data->returnExchangeProducts, $from))->build();
+            
+            if($emailClass != null) {
+                $preview = $emailClass->render();
+            }
+            
+            $preview = "<table>
+                    <tr>
+                    <td>To</td><td>
+                    <input type='email' required id='email_to_mail' class='form-control' name='to_mail' value='" . $data->customer->email . "' >
+                    </td></tr><tr>
+                    <td>From </td> <td>
+                    <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >
+                    </td></tr><tr>
+                    <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $preview . "</textarea></td>
+                    </tr>
+            </table>";
+            
+ 
+            return response()->json(["code" => 200, "data" => compact('data', 'preview', 'template')]);
         } catch(\Exception $e) {
-            return response()->json(["code" => 500, "data" => []]);
+            return response()->json(["code" => 500, "data" => $e->getMessage()]);
         }
     }
 

@@ -34,6 +34,7 @@ class ReturnExchange extends Model
     use Mediable;
     use SoftDeletes;
     protected $fillable = [
+        'id',
         'customer_id',
         'type',
         'reason_for_refund',
@@ -65,6 +66,8 @@ class ReturnExchange extends Model
         6 => 'Return rejected',
     ];
     
+    const ORDER_EXCHANGE_STATUS_TEMPLATE = 'Greetings from Solo Luxury Ref: Exchange number #{id} we have updated your Exchange with status : #{status}.';
+
     public function notifyToUser()
     {
         if ($this->type == "refund") {
