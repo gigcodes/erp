@@ -5,6 +5,7 @@ namespace App\Mails\Manual;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Arr;
 
 class OrderStatusChangeMail extends Mailable
 {
@@ -23,6 +24,19 @@ class OrderStatusChangeMail extends Mailable
     {
         $this->order = $data;
         $this->fromMailer = 'customercare@sololuxury.co.in';
+    }
+
+    public function getDataFromHTML($order,$htmlData){
+        preg_match_all('/{{(.*?)}}/i', $htmlData, $matches);
+        if (count($matches) != 0) {
+            $matches = $matches[0];
+            foreach ($matches as $match) {
+                $matchString  = str_replace(["{{", "}}"], '', $match);
+                $value = Arr::get($order, trim($matchString));
+                $htmlData  = str_replace($match, $value, $htmlData);
+            }
+        }
+        return $htmlData;
     }
 
     /**
@@ -61,29 +75,74 @@ class OrderStatusChangeMail extends Mailable
         }
 
         if ($template) {
+            
             if ($template->from_email != '') {
                 $this->fromMailer = $template->from_email;
             }
 
             $this->subject = $template->subject;
             if (!empty($template->mail_tpl)) {
-                // need to fix the all email address
-                return $this->from($this->fromMailer)
-                    ->subject($this->subject)
-                    ->view($template->mail_tpl, compact(
-                        'order', 'customer', 'order_products'
-                    ));
+                if(!empty($template->html_text)){
+                    $htmlData = $template->html_text;
+                    $re = '/<loop-orderProducts>((.|\n)*?)<\/loop-orderProducts>/m';
+                    preg_match_all($re, $htmlData, $matches, PREG_SET_ORDER, 0);
+                    if (count($matches) != 0) {
+                        foreach ($matches as $index => $match) {
+                            $data = null;
+                            foreach($order->orderProducts as $orderProduct){
+                                $data .= $this->getDataFromHTML($orderProduct,$match[1]);
+                            }
+                            if($data){
+                                $htmlData = str_replace($match[1], $data, $htmlData);
+                            }
+                        }
+                    }
+                    $content =  $this->getDataFromHTML($order,$htmlData);
+                    return $this->from($this->fromMailer)
+                        ->subject($this->subject)
+                        ->view('email-templates.content', compact(
+                             'content'
+                        ));
+                } else {
+                    // need to fix the all email address
+                    return $this->from($this->fromMailer)
+                        ->subject($this->subject)
+                        ->view($template->mail_tpl, compact(
+                            'order', 'customer', 'order_products'
+                        ));
+                }
             } else {
 
-                $content = $template->static_template;
-                $arrToReplace = ['{FIRST_NAME}', '{ORDER_STATUS}', '{ORDER_ID}'];
-                $valToReplace = [$order->customer->name, $order->order_status, $order->order_id];
-                $content = str_replace($arrToReplace, $valToReplace, $content);
+                if(!empty($template->html_text)){
+                    $htmlData = $template->html_text;
+                    $re = '/<loop-orderProducts>((.|\n)*?)<\/loop-orderProducts>/m';
+                    preg_match_all($re, $htmlData, $matches, PREG_SET_ORDER, 0);
+                    if (count($matches) != 0) {
+                        foreach ($matches as $index => $match) {
+                            $data = null;
+                            foreach($order->orderProducts as $orderProduct){
+                                $data .= $this->getDataFromHTML($orderProduct,$match[1]);
+                            }
+                            if($data){
+                                $htmlData = str_replace($match[1], $data, $htmlData);
+                            }
+                        }
+                    }
+                    $content =  $this->getDataFromHTML($order,$htmlData);
+                    return $this->from($this->fromMailer)
+                        ->subject($this->subject)
+                        ->view('email-templates.content', compact('content'));
+                } else {
+                    $content = $template->static_template;
+                    $arrToReplace = ['{FIRST_NAME}', '{ORDER_STATUS}', '{ORDER_ID}'];
+                    $valToReplace = [$order->customer->name, $order->order_status, $order->order_id];
+                    $content = str_replace($arrToReplace, $valToReplace, $content);
 
-                return $this->from($this->fromMailer)->subject($this->subject)
-                    ->view('emails.blank_content', compact(
-                        'order', 'customer', 'order_products', 'content'
-                    ));
+                    return $this->from($this->fromMailer)->subject($this->subject)
+                        ->view('emails.blank_content', compact(
+                            'order', 'customer', 'order_products', 'content'
+                        ));
+                }
             }
         }
 

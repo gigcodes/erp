@@ -1142,15 +1142,18 @@
                       <td >`+v.from+`</td>
                       <td >`+v.to+`</td>
                       <td >`+v.subject+`</td>
-                      <td >`+v.message+`</td> 
+                      <td class="htmlgenerated`+k+`"></td> 
                       <td >`+v.status+`</td>
                       <td >`+v.is_draft+`</td>
                       <td >`+v.error_message+`</td>
                     </tr>`;
-
+                    
                 });
               
-              $("#previewSendMailsModal").find(".product-items-list").html(itemsHtml);
+              $(".product-items-list").html(itemsHtml);
+              $.each(items, function(k,v) {
+                $(".htmlgenerated"+k).html(v.message);
+              });
             }
 
             $("#previewSendMailsModal").modal("show");
@@ -1303,8 +1306,11 @@
             return;
           }else{
             $.ajax({
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
             url: "/order/change-status",
-            type: "GET",
+            type: "post",
             async : false,
             data : {
               id : $("#order-id-status-tpl").val(),
