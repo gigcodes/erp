@@ -40,7 +40,9 @@
         .dataTables_scrollHeadInner,table.dataTable{
             width: 100% !important;
         }
-
+        table.dataTable .text-danger{
+            color:#333 !important;
+        }
     </style>
 @endsection
 
@@ -57,7 +59,6 @@
                         <th width="5%"> Id </th>
                         <th width="40%"> Name </th>
                         <th width="40%"> Source </th>
-                        <th width="15%"> Action </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -143,15 +144,7 @@
                         render: function(data, type, row, meta) {
                             return  data;
                         }
-                    },
-                    {
-                        data: 'null',
-                        name: 'gt_metrix_categories.id',
-                        
-                        render: function(data, type, row, meta) {
-                            return '';
-                        }
-                    },
+                    }
                 ],
             });
         });
