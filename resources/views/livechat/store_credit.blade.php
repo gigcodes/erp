@@ -95,7 +95,7 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
        <thead>
          <tr>
            <th>Name</th>
-           <th>Email</th>data-toggle="modal" data-target="#create-customer-credit-modal"
+           <th>Email</th>
            <th>Phone</th>
            <th>Store Website</th>
            <th>Date</th>
