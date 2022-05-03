@@ -82,6 +82,7 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
            <div class="pull-right">
           
            </div>
+           <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#create-customer-credit-modal">Add Credit</button>
        </div>
    </div>
  
@@ -94,7 +95,7 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
        <thead>
          <tr>
            <th>Name</th>
-           <th>Email</th>
+           <th>Email</th>data-toggle="modal" data-target="#create-customer-credit-modal"
            <th>Phone</th>
            <th>Store Website</th>
            <th>Date</th>
@@ -125,7 +126,10 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
              <td>{{ $used_credit }}</td>
              <td>{{ ($c->credit + $credit_in ) - $used_credit }}</td>
              <td><a href="#" onclick="getLogs('{{ $c->id}}')"><i class="fa fa-eye"></i></a></td>
-             <td><a href="#" onclick="getHistories('{{ $c->id}}')"><i class="fa fa-eye"></i></a></td>
+             <td>
+                <a href="#" onclick="getHistories('{{ $c->id}}')"><i class="fa fa-eye"></i></a> |
+                <a href="#" ><i class="fa fa-envelope-square get_email_log" data-cust_id="{{$c->id}}"></i></a>
+            </td>
            </tr>
          @endforeach
        </tbody>
@@ -202,28 +206,27 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
 
           <div class="modal-body">
               <form id="credit_form">
-                  <input type="hidden" id="credit_customer_id" name="credit_customer_id">
                   <input type="hidden" id="source_of_credit" name="source_of_credit" value="customer">
                   <div class="form-group">
                       <label for="credit" class="col-form-label">Customer:</label>
-                      <select class="form-control select2" name="customer_id" id="customer_id" >
+                      <select class="form-control select2" name="credit_customer_id" id="credit_customer_id" >
                         <option></option>
                         @foreach ($customers as $customer)
                             <option value="{{$customer->id}}">{{$customer->name}}</option>
                         @endforeach
                       </select>
-                      <span class="text-danger" id="customer_id"></span>
+                      <span class="text-danger" id="credit_customer_id"></span>
                   </div>
-                  <div class="form-group">
+                  {{-- <div class="form-group">
                     <label for="credit" class="col-form-label">Store Website:</label>
-                    <select class="form-control select2" name="customer_id" id="customer_id" >
+                    <select class="form-control select2" name="store_website_id" id="store_website_id" >
                       <option></option>
-                      @foreach ($customers as $customer)
-                          <option value="{{$customer->id}}">{{$customer->name}}</option>
+                      @foreach ($store_website as $website)
+                          <option value="{{$website->id}}">{{$website->website}}</option>
                       @endforeach
                     </select>
-                    <span class="text-danger" id="customer_id"></span>
-                  </div>
+                    <span class="text-danger" id="store_website_id"></span>
+                  </div> --}}
                   <div class="form-group">
                     <label for="credit" class="col-form-label">Credit:</label>
                     <input type="number" min="0" class="form-control" name="credit" id="credit">
@@ -247,7 +250,31 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
       </div>
   </div>
 </div>
- 
+<div id="credit_email_log" class="modal fade" role="dialog" style="display: none;">
+  <div class="modal-dialog modal-lg">
+  <!-- Modal content-->
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title">Credit Email Histories</h5>
+            <button type="button" class="close" data-dismiss="modal">×</button>
+        </div>
+        <div class="col-md-12" id="">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th width='25%'>ID</th>
+                        <th width='25%'>From </th>
+                        <th width='25%'>To</th>
+                        <th width='25%'>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="email_log_histories"></tbody>
+            </table>
+        </div>
+      </div>
+    </div>
+</div>
+
  
 @endsection
  
@@ -296,7 +323,81 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
            }           
        });
  
-     
+    $('#submit_credit_form').click(function (e) {
+        e.preventDefault();
+        if ($('#credit').val() == '') {
+            $('#credit_error').text('Credit filed is required.');
+            return false;
+        } else {
+            $('#credit_error').text('');
+        }
+        
+        $.ajax({
+            type: "POST",
+            url: window.location.origin + '/livechat/create-credit',
+            data: $('#credit_form').serialize(), // serializes the form's elements.
+            success: function (data)
+            {
+                if (data.status == 'success') {
+                    alert('credit updated successfully.');
+                    $('#credit_form').trigger("reset");
+                    $('#create-customer-credit-modal').modal('toggle');
+                }else{
+                    console.log(data);
+                    //var msg = JSON.parse(JSON.parse(data[0]));
+                    alert(data.msg);
+                }
+            }, error: function (jqXHR, exception) {
+                var msg = '';
+                if (jqXHR.status === 0) {
+                    msg = 'Not connect.\n Verify Network.';
+                } else if (jqXHR.status == 404) {
+                    msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {
+                    msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') {
+                    msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') {
+                    msg = 'Time out error.';
+                } else if (exception === 'abort') {
+                    msg = 'Ajax request aborted.';
+                } else {
+                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                }
+                alert(msg);
+            }
+        });
+    });
+
+    $('.get_email_log').click(function (e) {
+      var cust_id = $(this).data('cust_id');
+      //alert(cust_id);
+      $.ajax({
+          type: "POST",
+          url: "{{route('credit.get.email.log')}}",
+          headers: {
+                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          data: {
+            cust_id : cust_id
+          },
+          success: function (data)
+          {
+              if (data.code == '200') {
+                  //alert('credit updated successfully.');
+                  $('#email_log_histories').html(data.data);
+                  $('#credit_email_log').modal('toggle');
+              }else{
+                  //console.log(data);
+                  //var msg = JSON.parse(JSON.parse(data[0]));
+                  alert(data.msg);
+              }
+          }, error: function (jqXHR, exception) {
+              alert(jqXHR.msg);
+          }
+      });
+    });
+    
 		function getLogs(customerId) {
 			$('#display_logs').html('');
                $.ajax({

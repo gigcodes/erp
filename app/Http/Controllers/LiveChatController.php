@@ -32,6 +32,7 @@ use App\LiveChatEventLog;
 use App\GoogleTranslate;
 use App\WatsonChatJourney;
 use App\ChatbotReply;
+use App\CreditEmailLog;
 
 class LiveChatController extends Controller
 {
@@ -1673,7 +1674,14 @@ class LiveChatController extends Controller
 									'email_log' => 'Email initiated',
 									'message'       => $email->to
 								]);
-
+                                
+                                CreditEmailLog::create([
+                                    'customer_id' => $customer_id,
+									'subject' => $emailClass->subject,
+                                    'from' => $emailClass->fromMailer,
+                                    'to' => $customer->email,
+									'message' => $emailClass->render(),
+                                ]);
                                 try{
                                     \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
                                 } catch (\Exception $e) {
@@ -1682,7 +1690,7 @@ class LiveChatController extends Controller
                                         'customer-id' => $customer->id,
                                     );
                                     CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => $e->getMessage(), 'status' => 'failure']);
-                                    return response()->json(['mail not sent', 'code' => 400, 'status' => 'error']);
+                                    return response()->json(['msg' => 'mail not sent', 'code' => 400, 'status' => 'error']);
                                 }
 
                             }else{
@@ -1690,15 +1698,15 @@ class LiveChatController extends Controller
                                     'customer-id' => $customer->id,
                                 );
                                 CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => 'email template not found', 'status' => 'failure']);
-                                return response()->json(['email template not found', 'code' => 400, 'status' => 'error']);
+                                return response()->json(['msg' => 'email template not found', 'code' => 400, 'status' => 'error']);
                             }
 
                             $status = "success";
                             CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => json_encode($result), 'status' => $status]);
-                            return response()->json(['credit updated successfully', 'code' => 200, 'status' => 'success']);
+                            return response()->json(['msg' => 'credit updated successfully', 'code' => 200, 'status' => 'success']);
                         }else{
                             CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => json_encode($result), 'status' => $status]);
-                            return response()->json([json_encode($result), 'code' => 400, 'status' => 'error']);
+                            return response()->json(['msg' => json_encode($result), 'code' => 400, 'status' => 'error']);
                         }
 
                     }else{
@@ -1706,7 +1714,7 @@ class LiveChatController extends Controller
                             'customer-id' => $customer->id,
                         );
                         CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => 'store website and platform not found', 'status' => 'failure']);
-                        return response()->json(['store website and platform not found', 'code' => 400, 'status' => 'error']);
+                        return response()->json(['msg' => 'store website and platform not found', 'code' => 400, 'status' => 'error']);
                     }
                 }
             }else{
@@ -1714,11 +1722,11 @@ class LiveChatController extends Controller
                     'customer-id' => $customer->id,
                 );
                 CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => 'host not found', 'status' => 'failure']);
-                return response()->json(['host not found', 'code' => 400, 'status' => 'error']);
+                return response()->json(['msg' => 'host not found', 'code' => 400, 'status' => 'error']);
             }
 
         }else{
-            return response()->json(['customer not found', 'code' => 400, 'status' => 'error']);
+            return response()->json(['msg' => 'customer not found', 'code' => 400, 'status' => 'error']);
         }
 
     }

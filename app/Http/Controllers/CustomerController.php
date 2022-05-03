@@ -3005,7 +3005,7 @@ class CustomerController extends Controller
         if ($request->store_website != '') {
             $customers_all->where('store_website_id', $request->store_website);
         }
-
+        $customers = $customers_all->get();
         $customers_all = $customers_all->paginate(Setting::get('pagination'));
         $store_website = StoreWebsite::all();
 
@@ -3013,14 +3013,33 @@ class CustomerController extends Controller
             return view('livechat.store_credit_ajax', [
                 'customers_all' => $customers_all,
                 'store_website' => $store_website,
-
+                'customers'     => $customers,
             ]);
         } else {
             return view('livechat.store_credit', [
                 'customers_all' => $customers_all,
                 'store_website' => $store_website,
-
+                'customers'     => $customers,
             ]);
+        }
+    }
+
+    public function creditEmailLog(Request $request) {
+        $creditEmailLog = \App\CreditEmailLog::where('customer_id', $request->cust_id)->get();
+        
+        if(count($creditEmailLog)>0) {
+            $html = '';
+            foreach($creditEmailLog as $log){
+                $html .= '<tr>';
+                $html .= '<td>'.$log->id.'</td>';
+                $html .= '<td>'.$log->from_email.'</td>';
+                $html .= '<td>'.$log->to_email.'</td>';
+                $html .= '<td>'.$log->created_at.'</td>';
+                $html .= '</tr>';
+            }
+            return response()->json(['msg' => "Listed successfully", 'code' => 200, 'data' => $html]);
+        } else {
+            return response()->json(['msg' => "Record not found", 'code' => 500, 'data' => '']);
         }
     }
 
