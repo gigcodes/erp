@@ -17,13 +17,13 @@ class UserManagementController extends Controller
         $status = UserFeedbackStatus::get();
         $user_id = '';
         if(\Auth::user()->isAdmin() == true) {
-            $category = UserFeedbackCategory::select('id', 'user_id', 'sop_id', 'category')->groupBy('category');
+            $category = UserFeedbackCategory::select('id', 'user_id', 'sop_id', 'category', 'sop')->groupBy('category');
             //if($request->user_id)
             //    $category = $category->where('user_id', $request->user_id)->groupBy('category');
         } else {
-            $category = UserFeedbackCategory::select('id', 'user_id', 'sop_id', 'category')->where('user_id', \Auth::user()->id)->groupBy('category');
+            $category = UserFeedbackCategory::select('id', 'user_id', 'sop_id', 'category', 'sop')->where('user_id', \Auth::user()->id)->groupBy('category');
             if(empty($category->get())) {
-                $category = UserFeedbackCategory::select('id', 'user_id', 'sop_id', 'category')->groupBy('category');
+                $category = UserFeedbackCategory::select('id', 'user_id', 'sop_id', 'category', 'sop')->groupBy('category');
             }
         }
             
