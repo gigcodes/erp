@@ -3058,6 +3058,12 @@ Route::post('/wetransfer/re-downloads-files', 'WeTransferController@reDownloadFi
 
 Route::post('/supplier/manage-scrap-brands', 'SupplierController@manageScrapedBrands')->middleware('auth')->name('manageScrapedBrands');
 
+Route::get('/model/name/get', 'ModelNameController@index')->middleware('auth')->name('get.model.name');
+Route::post('/model/name/store', 'ModelNameController@store')->middleware('auth')->name('model.name.store');
+Route::delete('/model/name/delete', 'ModelNameController@destroy')->middleware('auth')->name('model.name.delete');
+Route::post('/model/name/edit', 'ModelNameController@edit')->middleware('auth')->name('model.name.edit');
+Route::post('/model/name/update', 'ModelNameController@update')->middleware('auth')->name('model.name.update');
+
 Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], function () {
     Route::prefix('github')->group(function () {
         Route::get('/repos', 'Github\RepositoryController@listRepositories');
