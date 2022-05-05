@@ -1954,6 +1954,9 @@ if (!empty($notifications)) {
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{ url('hubstaff-activities/activities') }}">Activities</a>
                                                     </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('hubstaff-acitivties.acitivties.userTreckTime') }}">User Track Time</a>
+                                                    </li>
                                                 </ul>
                                             </li>
                                             <li class="nav-item dropdown dropdown-submenu">
