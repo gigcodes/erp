@@ -1831,6 +1831,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::post('/approved/payment', 'HubstaffActivitiesController@submitPaymentRequest')->name("hubstaff-acitivties.payment-request.submit");
             Route::post('/add-efficiency', 'HubstaffActivitiesController@AddEfficiency')->name('hubstaff-acitivties.efficiency.save');
             Route::get('/task-activity', 'HubstaffActivitiesController@taskActivity')->name('hubstaff-acitivties.acitivties.task-activity');
+            Route::get('/userTreckTime', 'HubstaffActivitiesController@userTreckTime')->name('hubstaff-acitivties.acitivties.userTreckTime');
+            
         });
 
         Route::post('save', 'HubstaffPaymentController@save')->name('hubstaff-payment.save');
@@ -3617,7 +3619,9 @@ Route::post('gtmetrix/toggle', 'gtmetrix\WebsiteStoreViewGTMetrixController@togg
 Route::get('gtmetrix/getpagespeedstats/{type}/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstats')->name('gtmetrix.getPYstats');
 Route::post('gtmetrix/savegtmetrixcron', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCron');
 Route::get('gtmetrix/getstatscomparison/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstatsComparison')->name('gtmetrix.getstatsCmp');
-
+Route::any('gtmetrix/categories','gtmetrix\WebsiteStoreViewGTMetrixController@listGTmetrixCategories')->name('gtmetrix.category.list');
+Route::any('gtmetrix/gtmetrixReport','gtmetrix\WebsiteStoreViewGTMetrixController@listWebsiteWiseCategories')->name('gtmetrix.Report.list');
+Route::post('gtmetrix/gtmetrixReportData','gtmetrix\WebsiteStoreViewGTMetrixController@WebsiteWiseCategoriesReport')->name('gtmetrix.single.report');
 // Route::resource('GtMetrixAccounts', StoreGTMetrixAccountController::class);
 Route::get('gtmetrix-accounts', 'StoreGTMetrixAccountController@index')->name('GtMetrixAccount.index');
 Route::get('gtmetrixAccount/edit-info/{id}', 'StoreGTMetrixAccountController@edit')->name('account.edit');
@@ -3626,6 +3630,7 @@ Route::DELETE('gtmetrixAccount/delete/{id?}', 'StoreGTMetrixAccountController@de
 Route::get('gtmetrixAccount/show', 'StoreGTMetrixAccountController@show')->name('account.show');
 Route::post('gtmetrixAccount/update', 'StoreGTMetrixAccountController@update')->name('account.update');
 Route::post('gtmetrixAccount/store', 'StoreGTMetrixAccountController@store')->name('account.store');
+
 
 Route::get('product-pricing', 'product_price\ProductPriceController@index')->name('product.pricing');
 Route::post('store-website-product-prices/approve', 'product_price\ProductPriceController@approve');
@@ -3815,4 +3820,7 @@ Route::get('command', function () {
     /* php artisan migrate */
     /* \Artisan::call('command:schedule_emails');
     dd("Done");*/
+});
+Route::get('test-cron', function () {
+    \Artisan::call('GT-metrix-test-get-report');
 });

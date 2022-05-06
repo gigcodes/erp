@@ -1072,9 +1072,6 @@ if (!empty($notifications)) {
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="dropdown-item" href="{{ route('get.model.name') }}">Model Name</a>
-                        </li>
-                        <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Platforms <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
@@ -1522,12 +1519,8 @@ if (!empty($notifications)) {
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast messages</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="dropdown-item" href="{{route('plan.index')}}">Plan</a>
-                        </li>
+                        
+                        
                     </ul>
                     <div>
                         <div id="nav-dotes"  class="nav-item dropdown dots mr-3 ml-3">
@@ -1655,6 +1648,7 @@ if (!empty($notifications)) {
                                             </li>
                                         </ul>
                                     </li>
+                                    
                                 @endif
                                 @if(auth()->user()->isAdmin())
                                     <li class="nav-item dropdown dropdown-submenu">
@@ -1663,8 +1657,7 @@ if (!empty($notifications)) {
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Admin<span class="caret"></span></a>
 										
 										<ul class="dropdown-menu multi-level">
-										
-											<li class="nav-item dropdown dropdown-submenu">
+                                            <li class="nav-item dropdown dropdown-submenu">
 												<a id="twilioDropdown" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Twilio<span class="caret"></span></a>
 												<ul class="dropdown-menu dropdown-menu-right"aria-labelledby="twilioDropdown">
 													<li class="nav-item dropdown">
@@ -1714,7 +1707,15 @@ if (!empty($notifications)) {
 													</li>
 												</ul>
 											</li>
-
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast messages</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('get.model.name') }}">Model Name</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('plan.index')}}">Plan</a>
+                                            </li>
                                             <li class="nav-item dropdown">
                                                 <a href="{{ route('custom-chat-message.index') }}">Chat Messages</a>
                                             </li>
@@ -1952,6 +1953,9 @@ if (!empty($notifications)) {
                                                     </li>
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{ url('hubstaff-activities/activities') }}">Activities</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('hubstaff-acitivties.acitivties.userTreckTime') }}">User Track Time</a>
                                                     </li>
                                                 </ul>
                                             </li>
