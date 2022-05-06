@@ -82,7 +82,7 @@ class DefaultSendEmail extends Mailable
                     }
                 }
             }
-            $content =  $this->getDataFromHTML($this->returnExchangeProducts,$htmlData);
+            $content =  $this->getDataFromHTML($this->dataArr,$htmlData);
             return $this->from($this->fromMailer)
                 ->subject($this->subject)
                 ->view('email-templates.content', compact(

@@ -350,6 +350,7 @@ class ReturnExchangeController extends Controller
             $template = str_replace(["#{id}", "#{status}"], [$data->id, $data->status], $template);
             $mailing_item = MailinglistTemplate::where("id",18)->first();
             $storeWebsiteID = $data->customer->storeWebsite->id;
+            
             if ($storeWebsiteID) {
                 $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteID)->first();
                 if ($emailAddress) {
