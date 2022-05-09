@@ -809,8 +809,10 @@ class WebsiteStoreViewGTMetrixController extends Controller
             $catName = [];
             foreach($resourcedata as $datar) {
                 //$inc++;
-                $pagespeedData[] = $datar->website_url;
+                $pagespeedData[] = $datar->website_url; 
 
+                $catScrore = [];
+                $catImpact = [];
                 if(!empty($datar['pagespeed_json']) && is_file(public_path().$datar['pagespeed_json'])){
                     //if(){
                         $pagespeeddata1 = strip_tags(file_get_contents(public_path().$datar['pagespeed_json']));
@@ -818,8 +820,6 @@ class WebsiteStoreViewGTMetrixController extends Controller
                         //dd($jsondata['rules']);
                         if(is_array($jsondata) && !empty($jsondata['rules'])){
                             //$jsondata = json_decode($pagespeeddata1, true);
-                            //$catScrore = [];
-                            //$catImpact = [];
                             foreach ($jsondata['rules'] as $key=>$pagespeed) {
                                 //$pagespeedData = [];
                                 // $iKey++;
@@ -838,10 +838,12 @@ class WebsiteStoreViewGTMetrixController extends Controller
                                 $inc++;
                                 
                             }
-                            $pagespeedDatanew[] = array('website' => $pagespeedData, 'score' => $catScrore, 'impact' => $catImpact, 'catName' => $catName);
+                            
                         }
+
                     //}
                 }
+                $pagespeedDatanew[] = array('website' => $datar->website_url, 'score' => $catScrore, 'impact' => $catImpact, 'catName' => $catName);
 
                 /*
                 $InsightTypeData['type'] = 'PageSpeed Insight';
