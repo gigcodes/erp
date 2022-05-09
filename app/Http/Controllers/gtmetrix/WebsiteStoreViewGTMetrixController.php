@@ -802,8 +802,8 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
     public function CategoryWiseWebsiteReport() {
         try{
-            $resourcedata = StoreViewsGTMetrix::select('id', 'website_url', 'test_id', 'pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->where('test_id', '!=', '')->orderBy("created_at", "desc")->get();
-            $title = "GTmetrix Report Data";
+            $resourcedata = StoreViewsGTMetrix::select('id', 'website_url', 'test_id', 'pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->where('test_id', '!=', '')->where('status','completed')->orderBy("created_at", "desc")->get();
+            $title = "GTmetrix Website Report Data";
             $iKey = "0";
             $inc = 0;
             $catName = [];
@@ -823,7 +823,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                             foreach ($jsondata['rules'] as $key=>$pagespeed) {
                                 //$pagespeedData = [];
                                 // $iKey++;
-                               $catName['name'][] = $pagespeed['name'];
+                               $catName[] = $pagespeed['name'];
                                 if(isset($pagespeed['score'])){
                                     $catScrore[] =  $pagespeed['score']; 
                                 } else {
@@ -854,7 +854,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                             // $iKey++;
                             $inc++;
                                 //$pagespeedData['name'][$inc] = $pagespeed['id'];
-                                $catName['name'][] = $pagespeed['id'];
+                                $catName[] = $pagespeed['id'];
                                 /*if(array_key_exists("scoreDisplayMode",$pagespeed)){
                                     $pagespeedData['website'][$iKey][$inc]['scoreDisplayMode'] = ucfirst($pagespeed['scoreDisplayMode']);
                                 }else{
@@ -893,7 +893,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                                 //$iKey++;
                                 $inc++;
                                 //$pagespeedData['name'][$inc] = trans('lang.'.$key);
-                                $catName['name'][] = trans('lang.'.$key);
+                                $catName[] = trans('lang.'.$key);
                                 if(isset($yslow['score'])){
                                     //$pagespeedData['website'][$iKey][$inc]['score'] = $yslow['score']; 
                                     $catScrore[] =  $yslow['score']; 
@@ -906,13 +906,14 @@ class WebsiteStoreViewGTMetrixController extends Controller
                         }
                     }
                 }
-               
                 
                 $iKey++;
-                $pagespeedDatanew[] = array('website' => $datar->website_url, 'score' => $catScrore, 'impact' => $catImpact, 'catName' => $catName);
-  
+                $pagespeedDatanew[] = array('website' => $datar->website_url, 'score' => $catScrore, 'impact' => $catImpact, 'catName' => array_unique($catName));
+                $catArr = array_unique($catName);
             }
-            dd($pagespeedDatanew);
+            //dd($pagespeedDatanew);
+            return view('gtmetrix.gtmetrixWebsiteCategoryReport', compact('pagespeedDatanew','title','catArr'));
+            
         } catch(\Exception $e) {
             dd($e->getMessage());
         }
