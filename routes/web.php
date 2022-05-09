@@ -3630,7 +3630,7 @@ Route::DELETE('gtmetrixAccount/delete/{id?}', 'StoreGTMetrixAccountController@de
 Route::get('gtmetrixAccount/show', 'StoreGTMetrixAccountController@show')->name('account.show');
 Route::post('gtmetrixAccount/update', 'StoreGTMetrixAccountController@update')->name('account.update');
 Route::post('gtmetrixAccount/store', 'StoreGTMetrixAccountController@store')->name('account.store');
-
+Route::get('gtmetrixcategoryWeb', 'gtmetrix\WebsiteStoreViewGTMetrixController@CategoryWiseWebsiteReport')->name('gtm.cetegory.web');
 
 Route::get('product-pricing', 'product_price\ProductPriceController@index')->name('product.pricing');
 Route::post('store-website-product-prices/approve', 'product_price\ProductPriceController@approve');
