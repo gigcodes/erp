@@ -801,94 +801,105 @@ class WebsiteStoreViewGTMetrixController extends Controller
     }
 
     public function CategoryWiseWebsiteReport() {
-        $resourcedata = StoreViewsGTMetrix::select('id', 'website_url', 'pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->orderBy("created_at", "desc")->get();
-       
-        $title = "GTmetrix Report Data";
-        $iKey = "0";
-        $inc = 0;
-        foreach($resourcedata as $datar) {
-            if(!empty($datar['pagespeed_json'])){
-                if(is_file(public_path().$datar['pagespeed_json'])){
-                    $pagespeeddata1 = strip_tags(file_get_contents(public_path().$datar['pagespeed_json']));
-                    $jsondata = json_decode($pagespeeddata1, true);
-                    foreach ($jsondata['rules'] as $key=>$pagespeed) {
-                       // $iKey++;
-                       $inc++;
-                        $pagespeedData['name'][$inc] = $pagespeed['name'];
-                        if(isset($pagespeed['score'])){
-                            $pagespeedData['website'][$iKey][$inc]['score'] = $pagespeed['score']; 
-                        } else {
-                            $pagespeedData['website'][$iKey][$inc]['score'] = 'n/a';
-                        }  
-                    
-                        if(array_key_exists("impact",$pagespeed)){
-                            $pagespeedData['website'][$iKey][$inc]['impact'] = round($pagespeed['impact'],2);
-                        }else{
-                            $pagespeedData['website'][$iKey][$inc]['impact'] = 'n/a';
+        try{
+
+            $resourcedata = StoreViewsGTMetrix::select('id', 'website_url', 'pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->orderBy("created_at", "desc")->get();
+            $title = "GTmetrix Report Data";
+            $iKey = "0";
+            $inc = 0;
+            foreach($resourcedata as $datar) {
+                if(!empty($datar['pagespeed_json'])){
+                    if(is_file(public_path().$datar['pagespeed_json'])){
+                        $pagespeeddata1 = strip_tags(file_get_contents(public_path().$datar['pagespeed_json']));
+                        if(is_object($pagespeeddata1)){
+                            $jsondata = json_decode($pagespeeddata1, true);
+                            foreach ($jsondata['rules'] as $key=>$pagespeed) {
+                            // $iKey++;
+                            $inc++;
+                                $pagespeedData['name'][$inc] = $pagespeed['name'];
+                                if(isset($pagespeed['score'])){
+                                    $pagespeedData['website'][$iKey][$inc]['score'] = $pagespeed['score']; 
+                                } else {
+                                    $pagespeedData['website'][$iKey][$inc]['score'] = 'n/a';
+                                }  
+                            
+                                if(array_key_exists("impact",$pagespeed)){
+                                    $pagespeedData['website'][$iKey][$inc]['impact'] = round($pagespeed['impact'],2);
+                                }else{
+                                    $pagespeedData['website'][$iKey][$inc]['impact'] = 'n/a';
+                                }
+                            }
                         }
                     }
                 }
-            }
 
 
-            $InsightTypeData['type'] = 'PageSpeed Insight';
-            if(!empty($datar['pagespeed_insight_json'])){
-                if(is_file(public_path().$datar['pagespeed_insight_json'])){
-                    $pagespeedInsightdata = strip_tags(file_get_contents(public_path().$datar['pagespeed_insight_json']));
-                    $jsondata = json_decode($pagespeedInsightdata, true);
-                    foreach ($jsondata['lighthouseResult']['audits'] as $key=>$pagespeed) {
-                       // $iKey++;
-                       $inc++;
-                        $pagespeedData['name'][$inc] = $pagespeed['id'];
-                        if(array_key_exists("scoreDisplayMode",$pagespeed)){
-                            $pagespeedData['website'][$iKey][$inc]['scoreDisplayMode'] = ucfirst($pagespeed['scoreDisplayMode']);
-                        }else{
-                            $pagespeedData['website'][$iKey][$inc]['scoreDisplayMode'] = 'n/a';
+                $InsightTypeData['type'] = 'PageSpeed Insight';
+                if(!empty($datar['pagespeed_insight_json'])){
+                    if(is_file(public_path().$datar['pagespeed_insight_json'])){
+                        $pagespeedInsightdata = strip_tags(file_get_contents(public_path().$datar['pagespeed_insight_json']));
+                        if(is_object($pagespeedInsightdata)){
+                            $jsondata = json_decode($pagespeedInsightdata, true);
+                            foreach ($jsondata['lighthouseResult']['audits'] as $key=>$pagespeed) {
+                            // $iKey++;
+                            $inc++;
+                                $pagespeedData['name'][$inc] = $pagespeed['id'];
+                                if(array_key_exists("scoreDisplayMode",$pagespeed)){
+                                    $pagespeedData['website'][$iKey][$inc]['scoreDisplayMode'] = ucfirst($pagespeed['scoreDisplayMode']);
+                                }else{
+                                    $pagespeedData['website'][$iKey][$inc]['scoreDisplayMode'] = 'n/a';
+                                }
+                                if(array_key_exists("numericValue",$pagespeed)){
+                                    $pagespeedData['website'][$iKey][$inc]['numericValue'] = ucfirst($pagespeed['numericValue']);
+                                }else{
+                                    $pagespeedData['website'][$iKey][$inc]['numericValue'] = 'n/a';
+                                }
+                                if(array_key_exists("numericUnit",$pagespeed)){
+                                    $pagespeedData['website'][$iKey][$inc]['numericUnit'] = ucfirst($pagespeed['numericUnit']);
+                                }else{
+                                    $pagespeedData['website'][$iKey][$inc]['numericUnit'] = 'n/a';
+                                }
+                                if(isset($pagespeed['score'])){
+                                    $pagespeedData['website'][$iKey][$inc]['score'] = $pagespeed['score']; 
+                                }else{
+                                    $pagespeedData['website'][$iKey][$inc]['score'] = 'n/a';
+                                }  
+                            }
                         }
-                        if(array_key_exists("numericValue",$pagespeed)){
-                            $pagespeedData['website'][$iKey][$inc]['numericValue'] = ucfirst($pagespeed['numericValue']);
-                        }else{
-                            $pagespeedData['website'][$iKey][$inc]['numericValue'] = 'n/a';
+                    }
+                } 
+                
+                if(!empty($datar['yslow_json'])){
+                    $y_typeData['type'] = 'YSlow';
+                    if(is_file(public_path().$datar['yslow_json'])){
+                        $yslowdata = strip_tags(file_get_contents(public_path().$datar['yslow_json']));
+                        if(is_object($yslowdata)){
+                            $jsondata = json_decode($yslowdata, true);
+                            $i=0;
+                            foreach ($jsondata['g'] as $key=>$yslow) {
+                                //$iKey++;
+                                $inc++;
+                                $pagespeedData['name'][$inc] = trans('lang.'.$key);
+                                if(isset($yslow['score'])){
+                                    $pagespeedData['website'][$iKey][$inc]['score'] = $yslow['score']; 
+                                }else{
+                                    $pagespeedData['website'][$iKey][$inc]['score'] = 'n/a'; 
+                                } 
+                                $i++;                 
+                            }
                         }
-                        if(array_key_exists("numericUnit",$pagespeed)){
-                            $pagespeedData['website'][$iKey][$inc]['numericUnit'] = ucfirst($pagespeed['numericUnit']);
-                        }else{
-                            $pagespeedData['website'][$iKey][$inc]['numericUnit'] = 'n/a';
-                        }
-                        if(isset($pagespeed['score'])){
-                            $pagespeedData['website'][$iKey][$inc]['score'] = $pagespeed['score']; 
-                        }else{
-                            $pagespeedData['website'][$iKey][$inc]['score'] = 'n/a';
-                        }  
                     }
                 }
-            } 
-            
-            if(!empty($datar['yslow_json'])){
-                $y_typeData['type'] = 'YSlow';
-                if(is_file(public_path().$datar['yslow_json'])){
-                    $yslowdata = strip_tags(file_get_contents(public_path().$datar['yslow_json']));
-                    $jsondata = json_decode($yslowdata, true);
-                    $i=0;
-                    foreach ($jsondata['g'] as $key=>$yslow) {
-                        //$iKey++;
-                        $inc++;
-                        $pagespeedData['name'][$inc] = trans('lang.'.$key);
-                        if(isset($yslow['score'])){
-                            $pagespeedData['website'][$iKey][$inc]['score'] = $yslow['score']; 
-                        }else{
-                            $pagespeedData['website'][$iKey][$inc]['score'] = 'n/a'; 
-                        } 
-                        $i++;                 
-                    }
-                }
+                
+                $pagespeedData['website'][$iKey] = $datar->website_url;
+                $iKey++;
+                
             }
-            
-            $pagespeedData['website'][$iKey] = $datar->website_url;
-            $iKey++;
-            
+            dd($pagespeedData);
+        } catch(\Exception $e) {
+            dd($e->getMessage());
         }
-
-        dd($pagespeedData);
+        
+        
     }
 }
