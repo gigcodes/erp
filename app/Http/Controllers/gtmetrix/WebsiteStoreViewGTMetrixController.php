@@ -802,15 +802,15 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
     public function CategoryWiseWebsiteReport() {
         try{
-            $resourcedata = StoreViewsGTMetrix::select('id', 'website_url', 'test_id', 'pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->orderBy("created_at", "desc")->get();
+            $resourcedata = StoreViewsGTMetrix::select('id', 'website_url', 'test_id', 'pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->where('test_id', '!=', '')->orderBy("created_at", "desc")->get();
             $title = "GTmetrix Report Data";
             $iKey = "0";
             $inc = 0;
             $catName = [];
             foreach($resourcedata as $datar) {
                 //$inc++;
-                $pagespeedData[] = $datar->website_url; 
-
+                //$pagespeedData[] = $datar->website_url; 
+                
                 $catScrore = [];
                 $catImpact = [];
                 if(!empty($datar['pagespeed_json']) && is_file(public_path().$datar['pagespeed_json'])){
@@ -843,9 +843,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
                     //}
                 }
-                $pagespeedDatanew[] = array('website' => $datar->website_url, 'score' => $catScrore, 'impact' => $catImpact, 'catName' => $catName);
-
-                /*
+                
                 $InsightTypeData['type'] = 'PageSpeed Insight';
                 if(!empty($datar['pagespeed_insight_json'])){
                     if(is_file(public_path().$datar['pagespeed_insight_json'])){
@@ -855,8 +853,9 @@ class WebsiteStoreViewGTMetrixController extends Controller
                             foreach ($jsondata['lighthouseResult']['audits'] as $key=>$pagespeed) {
                             // $iKey++;
                             $inc++;
-                                $pagespeedData['name'][$inc] = $pagespeed['id'];
-                                if(array_key_exists("scoreDisplayMode",$pagespeed)){
+                                //$pagespeedData['name'][$inc] = $pagespeed['id'];
+                                $catName['name'][] = $pagespeed['id'];
+                                /*if(array_key_exists("scoreDisplayMode",$pagespeed)){
                                     $pagespeedData['website'][$iKey][$inc]['scoreDisplayMode'] = ucfirst($pagespeed['scoreDisplayMode']);
                                 }else{
                                     $pagespeedData['website'][$iKey][$inc]['scoreDisplayMode'] = 'n/a';
@@ -870,11 +869,13 @@ class WebsiteStoreViewGTMetrixController extends Controller
                                     $pagespeedData['website'][$iKey][$inc]['numericUnit'] = ucfirst($pagespeed['numericUnit']);
                                 }else{
                                     $pagespeedData['website'][$iKey][$inc]['numericUnit'] = 'n/a';
-                                }
+                                }*/
                                 if(isset($pagespeed['score'])){
-                                    $pagespeedData['website'][$iKey][$inc]['score'] = $pagespeed['score']; 
+                                    //$pagespeedData['website'][$iKey][$inc]['score'] = $pagespeed['score']; 
+                                    $catScrore[] =  $pagespeed['score']; 
                                 }else{
-                                    $pagespeedData['website'][$iKey][$inc]['score'] = 'n/a';
+                                    $catScrore[] = 'n\a';
+                                    //$pagespeedData['website'][$iKey][$inc]['score'] = 'n/a';
                                 }  
                             }
                         }
@@ -891,21 +892,25 @@ class WebsiteStoreViewGTMetrixController extends Controller
                             foreach ($jsondata['g'] as $key=>$yslow) {
                                 //$iKey++;
                                 $inc++;
-                                $pagespeedData['name'][$inc] = trans('lang.'.$key);
+                                //$pagespeedData['name'][$inc] = trans('lang.'.$key);
+                                $catName['name'][] = trans('lang.'.$key);
                                 if(isset($yslow['score'])){
-                                    $pagespeedData['website'][$iKey][$inc]['score'] = $yslow['score']; 
+                                    //$pagespeedData['website'][$iKey][$inc]['score'] = $yslow['score']; 
+                                    $catScrore[] =  $yslow['score']; 
                                 }else{
-                                    $pagespeedData['website'][$iKey][$inc]['score'] = 'n/a'; 
+                                    //$pagespeedData['website'][$iKey][$inc]['score'] = 'n/a'; 
+                                    $catScrore[] =  'n/a'; 
                                 } 
                                 $i++;                 
                             }
                         }
                     }
                 }
-                */
+               
                 
                 $iKey++;
-                
+                $pagespeedDatanew[] = array('website' => $datar->website_url, 'score' => $catScrore, 'impact' => $catImpact, 'catName' => $catName);
+  
             }
             dd($pagespeedDatanew);
         } catch(\Exception $e) {
