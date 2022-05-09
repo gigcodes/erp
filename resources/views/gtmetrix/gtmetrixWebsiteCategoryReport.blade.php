@@ -57,7 +57,7 @@
             <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
           </div>  
         </div>
-        <div class="gtmetrix_table_data" style="overflow-x: auto;">
+        <div class="gtmetrix_table_data" style="overflow-x: auto;height:600px;">
             <table class="table table-bordered " id="gtmetrix_table">
                 <thead>
                     <tr>
