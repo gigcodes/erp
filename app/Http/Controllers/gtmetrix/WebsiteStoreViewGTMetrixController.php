@@ -811,8 +811,9 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 if(!empty($datar['pagespeed_json'])){
                     if(is_file(public_path().$datar['pagespeed_json'])){
                         $pagespeeddata1 = strip_tags(file_get_contents(public_path().$datar['pagespeed_json']));
-                        if(is_object($pagespeeddata1)){
-                            $jsondata = json_decode($pagespeeddata1, true);
+                        $jsondata = json_decode($pagespeeddata1, true);
+                        if(is_array($jsondata) && !empty($jsondata['rules'])){
+                            //$jsondata = json_decode($pagespeeddata1, true);
                             foreach ($jsondata['rules'] as $key=>$pagespeed) {
                             // $iKey++;
                             $inc++;
@@ -838,8 +839,8 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 if(!empty($datar['pagespeed_insight_json'])){
                     if(is_file(public_path().$datar['pagespeed_insight_json'])){
                         $pagespeedInsightdata = strip_tags(file_get_contents(public_path().$datar['pagespeed_insight_json']));
-                        if(is_object($pagespeedInsightdata)){
-                            $jsondata = json_decode($pagespeedInsightdata, true);
+                        $jsondata = json_decode($pagespeedInsightdata, true);
+                        if(is_array($jsondata) && !empty($jsondata['lighthouseResult']['audits'])){
                             foreach ($jsondata['lighthouseResult']['audits'] as $key=>$pagespeed) {
                             // $iKey++;
                             $inc++;
@@ -873,8 +874,8 @@ class WebsiteStoreViewGTMetrixController extends Controller
                     $y_typeData['type'] = 'YSlow';
                     if(is_file(public_path().$datar['yslow_json'])){
                         $yslowdata = strip_tags(file_get_contents(public_path().$datar['yslow_json']));
-                        if(is_object($yslowdata)){
-                            $jsondata = json_decode($yslowdata, true);
+                        $jsondata = json_decode($yslowdata, true);
+                        if(is_array($jsondata) && !empty($jsondata['g'])){
                             $i=0;
                             foreach ($jsondata['g'] as $key=>$yslow) {
                                 //$iKey++;
