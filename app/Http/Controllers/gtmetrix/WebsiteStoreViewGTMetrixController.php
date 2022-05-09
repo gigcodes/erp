@@ -802,44 +802,56 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
     public function CategoryWiseWebsiteReport() {
         try{
-
-            $resourcedata = StoreViewsGTMetrix::select('id', 'website_url', 'pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->orderBy("created_at", "desc")->get();
+            $resourcedata = StoreViewsGTMetrix::select('id', 'website_url', 'test_id', 'pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->orderBy("created_at", "desc")->get();
             $title = "GTmetrix Report Data";
             $iKey = "0";
             $inc = 0;
+            $catName = [];
             foreach($resourcedata as $datar) {
-                if(!empty($datar['pagespeed_json'])){
-                    if(is_file(public_path().$datar['pagespeed_json'])){
+                //$inc++;
+                $pagespeedData[] = $datar->website_url; 
+
+                $catScrore = [];
+                $catImpact = [];
+                if(!empty($datar['pagespeed_json']) && is_file(public_path().$datar['pagespeed_json'])){
+                    //if(){
                         $pagespeeddata1 = strip_tags(file_get_contents(public_path().$datar['pagespeed_json']));
-                        if(is_object($pagespeeddata1)){
-                            $jsondata = json_decode($pagespeeddata1, true);
+                        $jsondata = json_decode($pagespeeddata1, true);
+                        //dd($jsondata['rules']);
+                        if(is_array($jsondata) && !empty($jsondata['rules'])){
+                            //$jsondata = json_decode($pagespeeddata1, true);
                             foreach ($jsondata['rules'] as $key=>$pagespeed) {
-                            // $iKey++;
-                            $inc++;
-                                $pagespeedData['name'][$inc] = $pagespeed['name'];
+                                //$pagespeedData = [];
+                                // $iKey++;
+                               $catName['name'][] = $pagespeed['name'];
                                 if(isset($pagespeed['score'])){
-                                    $pagespeedData['website'][$iKey][$inc]['score'] = $pagespeed['score']; 
+                                    $catScrore[] =  $pagespeed['score']; 
                                 } else {
-                                    $pagespeedData['website'][$iKey][$inc]['score'] = 'n/a';
+                                    $catScrore[] = 'n\a';
                                 }  
                             
                                 if(array_key_exists("impact",$pagespeed)){
-                                    $pagespeedData['website'][$iKey][$inc]['impact'] = round($pagespeed['impact'],2);
+                                    $catImpact[] = round($pagespeed['impact'],2);
                                 }else{
-                                    $pagespeedData['website'][$iKey][$inc]['impact'] = 'n/a';
+                                    $catImpact[] = 'n\a';
                                 }
+                                $inc++;
+                                
                             }
+                            
                         }
-                    }
+
+                    //}
                 }
+                $pagespeedDatanew[] = array('website' => $datar->website_url, 'score' => $catScrore, 'impact' => $catImpact, 'catName' => $catName);
 
-
+                /*
                 $InsightTypeData['type'] = 'PageSpeed Insight';
                 if(!empty($datar['pagespeed_insight_json'])){
                     if(is_file(public_path().$datar['pagespeed_insight_json'])){
                         $pagespeedInsightdata = strip_tags(file_get_contents(public_path().$datar['pagespeed_insight_json']));
-                        if(is_object($pagespeedInsightdata)){
-                            $jsondata = json_decode($pagespeedInsightdata, true);
+                        $jsondata = json_decode($pagespeedInsightdata, true);
+                        if(is_array($jsondata) && !empty($jsondata['lighthouseResult']['audits'])){
                             foreach ($jsondata['lighthouseResult']['audits'] as $key=>$pagespeed) {
                             // $iKey++;
                             $inc++;
@@ -873,8 +885,8 @@ class WebsiteStoreViewGTMetrixController extends Controller
                     $y_typeData['type'] = 'YSlow';
                     if(is_file(public_path().$datar['yslow_json'])){
                         $yslowdata = strip_tags(file_get_contents(public_path().$datar['yslow_json']));
-                        if(is_object($yslowdata)){
-                            $jsondata = json_decode($yslowdata, true);
+                        $jsondata = json_decode($yslowdata, true);
+                        if(is_array($jsondata) && !empty($jsondata['g'])){
                             $i=0;
                             foreach ($jsondata['g'] as $key=>$yslow) {
                                 //$iKey++;
@@ -890,12 +902,12 @@ class WebsiteStoreViewGTMetrixController extends Controller
                         }
                     }
                 }
+                */
                 
-                $pagespeedData['website'][$iKey] = $datar->website_url;
                 $iKey++;
                 
             }
-            dd($pagespeedData);
+            dd($pagespeedDatanew);
         } catch(\Exception $e) {
             dd($e->getMessage());
         }
