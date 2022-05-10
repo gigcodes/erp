@@ -49,47 +49,11 @@ class DefaultSendEmail extends Mailable
     //     ->view('emails.blank_content', compact('content'));
     // }
 
-    public function getDataFromHTML($order,$htmlData){
-        preg_match_all('/{{(.*?)}}/i', $htmlData, $matches);
-        if (count($matches) != 0) {
-            $matches = $matches[0];
-            foreach ($matches as $match) {
-                $matchString  = str_replace(["{{", "}}"], '', $match);
-                $value = Arr::get($order, trim($matchString));
-                $htmlData  = str_replace($match, $value, $htmlData);
-            }
-        }
-        return $htmlData;
-    }
-
+    
     public function build()
     {
         $email   = $this->email;
-        $content = $this->template;//$email->message;
-		
-        if(!empty($this->template)){
-            $htmlData = $this->template;
-            $re = '/<loop-(.*?)>((.|\n)*?)<\/loop-(.*?)>/m';
-            preg_match_all($re, $htmlData, $matches, PREG_SET_ORDER, 0);
-            if (count($matches) != 0) {
-                foreach ($matches as $index => $match) {
-                    $data = null;
-                    foreach($this->dataArr as $orderProduct){
-                        $data .= $this->getDataFromHTML($orderProduct,$match[1]);
-                    }
-                    if($data){
-                        $htmlData = str_replace($match[1], $data, $htmlData);
-                    }
-                }
-            }
-            $content =  $this->getDataFromHTML($this->dataArr,$htmlData);
-            return $this->from($this->fromMailer)
-                ->subject($this->subject)
-                ->view('email-templates.content', compact(
-                     'content'
-                ));
-        
-        }
+        $content = $email->message;
 		$headerData = [
             'unique_args' => [
                 'email_id' =>$email->id 

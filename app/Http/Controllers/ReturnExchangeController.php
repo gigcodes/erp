@@ -358,7 +358,7 @@ class ReturnExchangeController extends Controller
                 }
             }
             
-            $emailClass = (new \App\Mails\Manual\DefaultSendEmail($data->customer->email, '', $mailing_item->html_text, $data, $data->returnExchangeProducts, $from))->build();
+            $emailClass = (new \App\Mails\Manual\DefaultEmailPriview($data->customer->email, '', $mailing_item->html_text, $data, $data->returnExchangeProducts, $from))->build();
             
             if($emailClass != null) {
                 $preview = $emailClass->render();
@@ -382,6 +382,147 @@ class ReturnExchangeController extends Controller
             return response()->json(["code" => 500, "data" => $e->getMessage()]);
         }
     }
+
+    public function updateStatusEmailSend(Request $request)
+    {
+        $params = $request->all();
+        $id = $request->id;
+        $returnExchange = \App\ReturnExchange::find($id);
+        if(isset( $request->status ) && $request->status != '' ){
+
+            $code = 'REFUND-'.date('Ym').'-'.rand(1000,9999);
+                
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $requestData->request->add([
+                    'name'             => $code,
+                    'store_website_id' => $returnExchange->customer->storeWebsite->id,
+                    'website_ids'      => [0  => 0],
+                    'start'            => date('Y-m-d H:i:s'),
+                    'active'           => '1',
+                    'uses_per_coustomer' => 1,
+                    'customer_groups' => [0 => 0],
+                    'coupon_type' => 'SPECIFIC_COUPON',
+                    'code' => $code,
+                    'simple_action' => 'by_fixed',
+                    'discount_amount' => $request->refund_amount,
+                ]);
+
+            try {
+
+                $response = app('App\Http\Controllers\CouponController')->addRules($requestData);
+                // return $response;
+                $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
+                $email = Email::create([
+                    'model_id'         => $returnExchange->id,
+                    'model_type'       => \App\ReturnExchange::class,
+                    'from'             => $request->from_mail,
+                    'to'               => $request->to_mail,
+                    'subject'          => $request->message,
+                    'message'          => 'Your refund coupon :'.$code. $request->custom_email_content,
+                    'template'         => 'refund-coupon',
+                    'additional_data'  => $returnExchange->id,
+                    'status'           => 'pre-send',
+                    'store_website_id' => null,
+                    'is_draft'        => 1,
+                ]);
+                
+                $receiverNumber = $returnExchange->customer->phone;
+                
+                //\App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
+
+                \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, 'Your refund coupon :'.$code, $returnExchange->customer->storeWebsite->id);
+                
+                $response = json_decode($response->getContent());
+                if( $response->type == 'error' ){
+                    return response()->json(["code" => 500, "data" => [], "message" => json_decode($response->getContent())->message,"error" => json_decode($response->getContent())->error]);
+                }
+
+                if($response->type == 'error'){
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
+                }
+            } catch (Exception $e) {
+                return response()->json(["code" => 500, "data" => [], "message" => "Something went wrong"]);
+            }
+        }
+
+            //Sending Mail on changing of order status
+        if (isset($request->send_message) && $request->send_message == '1') {
+            //sending order message to the customer
+            UpdateReturnStatusMessageTpl::dispatch($returnExchange->id, request('message', null))->onQueue("customer_message");
+            try {
+                if ($returnExchange->type == "refund") {
+
+                    $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
+                    $email = \App\Email::create([
+                        'model_id'         => $returnExchange->id,
+                        'model_type'       => \App\ReturnExchange::class,
+                        'from'             => $request->from_mail,
+                        'to'               => $request->to_mail,
+                        'subject'          => $request->message,
+                        'message'          => 'Your refund coupon :'.$code. $request->custom_email_content,
+                        'template'         => 'refund-request',
+                        'additional_data'  => $returnExchange->id,
+                        'status'           => 'pre-send',
+                        'store_website_id' => null,
+                        'is_draft'        => 1,
+                    ]);
+                    
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
+
+                    $receiverNumber = $returnExchange->customer->phone;
+                    \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
+
+                } else if ($returnExchange->type == "return") {
+
+                    $emailClass = (new \App\Mails\Manual\StatusChangeReturn($returnExchange))->build();
+                    $email = \App\Email::create([
+                        'model_id'         => $returnExchange->id,
+                        'model_type'       => \App\ReturnExchange::class,
+                        'from'             => $request->from_mail,
+                        'to'               => $request->to_mail,
+                        'subject'          => $emailClass->subject,
+                        'message'          => $request->custom_email_content, //$emailClass->render(),
+                        'template'         => 'return-request',
+                        'additional_data'  => $returnExchange->id,
+                        'status'           => 'pre-send',
+                        'store_website_id' => null,
+                        'is_draft'        => 1,
+                    ]);
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
+
+                    $receiverNumber = $returnExchange->customer->phone;
+                    \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
+
+                } else if ($returnExchange->type == "exchange") {
+
+                    $emailClass = (new \App\Mails\Manual\StatusChangeExchange($returnExchange))->build();
+                    $email = \App\Email::create([
+                        'model_id'         => $returnExchange->id,
+                        'model_type'       => \App\ReturnExchange::class,
+                        'from'             => $request->from_mail,
+                        'to'               => $request->to_mail,
+                        'subject'          => $emailClass->subject,
+                        'message'          => $request->custom_email_content, //$emailClass->render(),
+                        'template'         => 'exchange-request',
+                        'additional_data'  => $returnExchange->id,
+                        'status'           => 'pre-send',
+                        'store_website_id' => null,
+                        'is_draft'        => 1,
+                    ]);
+
+                    \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
+
+                    $receiverNumber = $returnExchange->customer->phone;
+                    \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
+                }
+            } catch (\Exception $e) {
+                \Log::channel('productUpdates')->info("Sending mail issue at the returnexchangecontroller #158 ->" . $e->getMessage());
+            }
+        }
+        return response()->json(["code" => 200, "data" => [], "message" => "Request updated succesfully!!"]);
+    }
+
 
     /**
      * This function is used for List retuen Exchange status Log

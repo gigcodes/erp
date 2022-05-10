@@ -280,6 +280,47 @@
     	});
 	});
 
+	$(document).on("click",".update-status-with-message",function(e) {
+          e.preventDefault();
+          console.log($("#email_from_mail").val());
+          console.log($("#email_to_mail").val());
+          var selected_array = [];
+          console.log(selected_array);
+          $('.msg_platform:checkbox:checked').each(function() {
+            selected_array.push($(this).val());
+          });
+          
+          if(selected_array.length == 0){
+            alert('Please at least select one option');
+            return;
+          }else{
+            $.ajax({
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{route("return-exchange.status-send-email")}}',
+            type: "post",
+            async : false,
+            data : {
+              id : $("#order-id-status-tpl").val(),
+              status : $("#order-status-id-status-tpl").val(),
+              sendmessage:'1',
+              message:$("#order-template-status-tpl").val(),
+              custom_email_content:$("#customEmailContent").val(),
+              from_mail:$("#email_from_mail").val(),
+              to_mail:$("#email_to_mail").val(),
+              order_via: selected_array,
+            }
+            }).done( function(response) {
+				toastr['success'](response.message);
+              $("#update-status-message-tpl").modal("hide");
+            }).fail(function(errObj) {
+              toastr['error'](errObj.responseText);
+           });
+          }
+          
+      });
+
 	    $(document).on('click', '.expand-row', function () {
 			var id = $(this).data('id');
 			console.log(id);
