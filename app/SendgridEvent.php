@@ -30,7 +30,7 @@ class SendgridEvent extends Model
      * @var array
      */
     protected $dates = ['timestamp'];
-	protected $fillable = ['timestamp', 'email', 'event', 'sg_event_id', 'sg_message_id', 'categories', 'payload'];
+	protected $fillable = ['timestamp', 'email', 'event', 'sg_event_id', 'sg_message_id', 'categories', 'payload','email_id'];
     /**
      * The attributes that should be cast to native types.
      *
