@@ -348,7 +348,12 @@ class ReturnExchangeController extends Controller
             
             $template = \App\ReturnExchange::ORDER_EXCHANGE_STATUS_TEMPLATE;
             $template = str_replace(["#{id}", "#{status}"], [$data->id, $data->status], $template);
-            $mailing_item = MailinglistTemplate::where("id",18)->first();
+            $mailing_item_cat = MailinglistTemplateCategory::where("name",'Status Return exchange')->first();
+            if(empty($mailing_item_cat)){
+                return response()->json(["code" => 500, "data" => 'Please add caregory "Status Return exchange"']);
+            }
+
+            $mailing_item = MailinglistTemplate::where("category_id",$mailing_item_cat->id)->first();
             $storeWebsiteID = $data->customer->storeWebsite->id;
             
             if ($storeWebsiteID) {
