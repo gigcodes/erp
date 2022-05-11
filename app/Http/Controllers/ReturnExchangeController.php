@@ -359,7 +359,7 @@ class ReturnExchangeController extends Controller
             if ($storeWebsiteID) {
                 $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteID)->first();
                 if ($emailAddress) {
-                    $from = $emailAddress->from_address;
+                    $from = ($emailAddress->from_address) ? $emailAddress->from_address : 'care@veralusso.com';
                 }
             }
             
