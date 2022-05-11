@@ -14,6 +14,7 @@ use Entrecore\GTMetrixClient\GTMetrixTest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
+use App\GTMetrixCategories;
 
 class WebsiteStoreViewGTMetrixController extends Controller
 {
@@ -676,5 +677,247 @@ class WebsiteStoreViewGTMetrixController extends Controller
         return response()->json(["code" => 200, "message" => "Request has been send for queue successfully"]);
        
      
+    }
+    public function listGTmetrixCategories(Request $request){
+        $title = "GTmetrix Categories";
+        if ($request->ajax()) {
+            $items = GTMetrixCategories::select('id', 'name','source');            
+            if (isset($request->name) && !empty($request->name)) {
+                $items->where('name', 'Like', '%' . $request->name . '%');
+            }
+
+            if (isset($request->source) && !empty($request->source)) {
+                $items->where('source', $request->source);
+            }
+            return datatables()->eloquent($items)->toJson();    
+        }
+        return view('gtmetrix.category', compact('cateogry','title'));
+
+    }
+    public function listWebsiteWiseCategories(Request $request)  
+    {
+        $title = "GTmetrix Report Data";
+        if ($request->ajax()) {
+            $items = StoreViewsGTMetrix::where('status','completed');
+            
+            if (isset($request->website_url) && !empty($request->website_url)) {
+                $items->where('website_url', 'Like', '%' . $request->name . '%');
+            }
+
+            if (isset($request->test_id) && !empty($request->test_id)) {
+                $items->where('test_id', $request->test_id);
+            }
+            $items->orderBy('id', 'desc');
+            return datatables()->eloquent($items)->toJson();    
+        }
+        return view('gtmetrix.gtmetrixReport', compact('cateogry','title'));
+
+    }
+
+    public function WebsiteWiseCategoriesReport(Request $request)
+    {
+        $id = $request->id;
+        $Insightdata = array();
+        $InsightTypeData = array();
+        $pagespeedData = [];
+        $yslowData = [];
+        $report = "";
+        $data = array();
+        $g_typeData = array();
+        $y_typeData = array();
+        $resourcedata = StoreViewsGTMetrix::select('id','pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->where('id', $id)->orderBy("created_at", "desc")->first();
+        $title = "GTmetrix Report Data";
+        
+           if($id){   
+            $g_typeData['type'] = 'PageSpeed';
+                if(!empty($resourcedata['pagespeed_json'])){
+                    $pagespeeddata = strip_tags(file_get_contents(public_path().$resourcedata['pagespeed_json']));
+                    $jsondata = json_decode($pagespeeddata, true);
+                    foreach ($jsondata['rules'] as $key=>$pagespeed) {
+                       
+                        $pagespeedData[$key]['name'] = $pagespeed['name'];
+                        if(isset($pagespeed['score'])){
+                            $pagespeedData[$key]['score'] = $pagespeed['score']; 
+                        }else{
+                            $pagespeedData[$key]['score'] = 'n/a';
+                        }  
+                       
+                        if(array_key_exists("impact",$pagespeed)){
+                            $pagespeedData[$key]['impact'] = round($pagespeed['impact'],2);
+                        }else{
+                            $pagespeedData[$key]['impact'] = 'n/a';
+                        }
+                    }
+                }
+                
+            }
+            if($id){
+                $InsightTypeData['type'] = 'PageSpeed Insight';
+                if(!empty($resourcedata['pagespeed_insight_json'])){
+                    $pagespeedInsightdata = strip_tags(file_get_contents(public_path().$resourcedata['pagespeed_insight_json']));
+                    $jsondata = json_decode($pagespeedInsightdata, true);
+                    foreach ($jsondata['lighthouseResult']['audits'] as $key=>$pagespeed) {
+                        $Insightdata[$key]['name'] = $pagespeed['id'];
+                        if(array_key_exists("scoreDisplayMode",$pagespeed)){
+                            $Insightdata[$key]['scoreDisplayMode'] = ucfirst($pagespeed['scoreDisplayMode']);
+                        }else{
+                            $Insightdata[$key]['scoreDisplayMode'] = 'n/a';
+                        }
+                        if(array_key_exists("numericValue",$pagespeed)){
+                            $Insightdata[$key]['numericValue'] = ucfirst($pagespeed['numericValue']);
+                        }else{
+                            $Insightdata[$key]['numericValue'] = 'n/a';
+                        }
+                        if(array_key_exists("numericUnit",$pagespeed)){
+                            $Insightdata[$key]['numericUnit'] = ucfirst($pagespeed['numericUnit']);
+                        }else{
+                            $Insightdata[$key]['numericUnit'] = 'n/a';
+                        }
+                        if(isset($pagespeed['score'])){
+                            $Insightdata[$key]['score'] = $pagespeed['score']; 
+                        }else{
+                            $Insightdata[$key]['score'] = 'n/a';
+                        }  
+                    }
+                }   
+            }
+            if(!empty($resourcedata['yslow_json'])){
+                $y_typeData['type'] = 'YSlow';
+                $yslowdata = strip_tags(file_get_contents(public_path().$resourcedata['yslow_json']));
+                $jsondata = json_decode($yslowdata, true);
+                $i=0;
+                foreach ($jsondata['g'] as $key=>$yslow) {
+                    $yslowData[$i]['name'] = trans('lang.'.$key);
+                    if(isset($yslow['score'])){
+                        $yslowData[$i]['score'] = $yslow['score']; 
+                    }else{
+                        $yslowData[$i]['score'] = 'n/a'; 
+                    } 
+                    $i++;                 
+                }
+            }
+            
+        return view('gtmetrix.gtmetrix_report', compact('data','title','g_typeData','y_typeData','Insightdata','InsightTypeData','Insightdata','pagespeedData','yslowData'));
+    }
+
+    public function CategoryWiseWebsiteReport() {
+        try{
+            $resourcedata = StoreViewsGTMetrix::select('id', 'website_url', 'test_id', 'pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->where('test_id', '!=', '')->where('status','completed')->orderBy("created_at", "desc")->get();
+            $title = "GTmetrix Website Report Data";
+            $iKey = "0";
+            $inc = 0;
+            $catName = [];
+            foreach($resourcedata as $datar) {
+                //$inc++;
+                //$pagespeedData[] = $datar->website_url; 
+                
+                $catScrore = [];
+                $catImpact = [];
+                if(!empty($datar['pagespeed_json']) && is_file(public_path().$datar['pagespeed_json'])){
+                    //if(){
+                        $pagespeeddata1 = strip_tags(file_get_contents(public_path().$datar['pagespeed_json']));
+                        $jsondata = json_decode($pagespeeddata1, true);
+                        //dd($jsondata['rules']);
+                        if(is_array($jsondata) && !empty($jsondata['rules'])){
+                            //$jsondata = json_decode($pagespeeddata1, true);
+                            foreach ($jsondata['rules'] as $key=>$pagespeed) {
+                                //$pagespeedData = [];
+                                // $iKey++;
+                               $catName[] = $pagespeed['name'];
+                                if(isset($pagespeed['score'])){
+                                    $catScrore[] =  $pagespeed['score']; 
+                                } else {
+                                    $catScrore[] = 'n\a';
+                                }  
+                            
+                                if(array_key_exists("impact",$pagespeed)){
+                                    $catImpact[] = round($pagespeed['impact'],2);
+                                }else{
+                                    $catImpact[] = 'n\a';
+                                }
+                                $inc++;
+                                
+                            }
+                            
+                        }
+
+                    //}
+                }
+                
+                $InsightTypeData['type'] = 'PageSpeed Insight';
+                if(!empty($datar['pagespeed_insight_json'])){
+                    if(is_file(public_path().$datar['pagespeed_insight_json'])){
+                        $pagespeedInsightdata = strip_tags(file_get_contents(public_path().$datar['pagespeed_insight_json']));
+                        $jsondata = json_decode($pagespeedInsightdata, true);
+                        if(is_array($jsondata) && !empty($jsondata['lighthouseResult']['audits'])){
+                            foreach ($jsondata['lighthouseResult']['audits'] as $key=>$pagespeed) {
+                            // $iKey++;
+                            $inc++;
+                                //$pagespeedData['name'][$inc] = $pagespeed['id'];
+                                $catName[] = $pagespeed['id'];
+                                /*if(array_key_exists("scoreDisplayMode",$pagespeed)){
+                                    $pagespeedData['website'][$iKey][$inc]['scoreDisplayMode'] = ucfirst($pagespeed['scoreDisplayMode']);
+                                }else{
+                                    $pagespeedData['website'][$iKey][$inc]['scoreDisplayMode'] = 'n/a';
+                                }
+                                if(array_key_exists("numericValue",$pagespeed)){
+                                    $pagespeedData['website'][$iKey][$inc]['numericValue'] = ucfirst($pagespeed['numericValue']);
+                                }else{
+                                    $pagespeedData['website'][$iKey][$inc]['numericValue'] = 'n/a';
+                                }
+                                if(array_key_exists("numericUnit",$pagespeed)){
+                                    $pagespeedData['website'][$iKey][$inc]['numericUnit'] = ucfirst($pagespeed['numericUnit']);
+                                }else{
+                                    $pagespeedData['website'][$iKey][$inc]['numericUnit'] = 'n/a';
+                                }*/
+                                if(isset($pagespeed['score'])){
+                                    //$pagespeedData['website'][$iKey][$inc]['score'] = $pagespeed['score']; 
+                                    $catScrore[] =  $pagespeed['score']; 
+                                }else{
+                                    $catScrore[] = 'n\a';
+                                    //$pagespeedData['website'][$iKey][$inc]['score'] = 'n/a';
+                                }  
+                            }
+                        }
+                    }
+                } 
+                
+                if(!empty($datar['yslow_json'])){
+                    $y_typeData['type'] = 'YSlow';
+                    if(is_file(public_path().$datar['yslow_json'])){
+                        $yslowdata = strip_tags(file_get_contents(public_path().$datar['yslow_json']));
+                        $jsondata = json_decode($yslowdata, true);
+                        if(is_array($jsondata) && !empty($jsondata['g'])){
+                            $i=0;
+                            foreach ($jsondata['g'] as $key=>$yslow) {
+                                //$iKey++;
+                                $inc++;
+                                //$pagespeedData['name'][$inc] = trans('lang.'.$key);
+                                $catName[] = trans('lang.'.$key);
+                                if(isset($yslow['score'])){
+                                    //$pagespeedData['website'][$iKey][$inc]['score'] = $yslow['score']; 
+                                    $catScrore[] =  $yslow['score']; 
+                                }else{
+                                    //$pagespeedData['website'][$iKey][$inc]['score'] = 'n/a'; 
+                                    $catScrore[] =  'n/a'; 
+                                } 
+                                $i++;                 
+                            }
+                        }
+                    }
+                }
+                
+                $iKey++;
+                $pagespeedDatanew[] = array('website' => $datar->website_url, 'score' => $catScrore, 'impact' => $catImpact, 'catName' => array_unique($catName));
+                $catArr = array_unique($catName);
+            }
+            //dd($pagespeedDatanew);
+            return view('gtmetrix.gtmetrixWebsiteCategoryReport', compact('pagespeedDatanew','title','catArr'));
+            
+        } catch(\Exception $e) {
+            dd($e->getMessage());
+        }
+        
+        
     }
 }
