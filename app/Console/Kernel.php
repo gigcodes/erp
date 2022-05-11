@@ -70,7 +70,7 @@ use App\Console\Commands\ProjectDirectory;
 use App\Console\Commands\ProjectFileManagerDateAndSize;
 use App\Console\Commands\RecieveResourceImages;
 use App\Console\Commands\RemoveScrapperImages;
-
+use App\Console\Commands\WebsiteCreateLog;
 //use App\Console\Commands\SaveProductsImages;
 
 use App\Console\Commands\ResetDailyPlanner;
@@ -300,7 +300,8 @@ class Kernel extends ConsoleKernel
         UpdateLanguageToGroup::class,
         BuildStatus::class,
         GetPytonLogs::class,
-        HubstuffActivityCommand::class
+        HubstuffActivityCommand::class,
+        WebsiteCreateLog::class
     ];
 
     /**
@@ -324,6 +325,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('ScrapperImage:REMOVE')->hourly(); //jenkins status detail
         
         $schedule->command('tasks-time-reminder')->dailyAt('01:00'); // status detail
+
+        $schedule->command('websitelog')->daily(); // website log
 
         // $schedule->command('reminder:send-to-dubbizle')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         // $schedule->command('reminder:send-to-vendor')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
