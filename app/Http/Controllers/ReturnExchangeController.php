@@ -348,12 +348,15 @@ class ReturnExchangeController extends Controller
             
             $template = \App\ReturnExchange::ORDER_EXCHANGE_STATUS_TEMPLATE;
             $template = str_replace(["#{id}", "#{status}"], [$data->id, $data->status], $template);
-            $mailing_item_cat = MailinglistTemplateCategory::where("name",'Status Return exchange')->first();
+            $mailing_item_cat = MailinglistTemplateCategory::where("title",'Status Return exchange')->first();
+            //dd($mailing_item_cat);
             if(empty($mailing_item_cat)){
-                return response()->json(["code" => 500, "data" => 'Please add caregory "Status Return exchange"']);
+                \Log::channel('returnExchange')->info("Sending mail issue at the returnexchangecontroller  -> Please add caregory Status Return exchange" );
+                return response()->json(["code" => 500, "message" => 'Please add caregory "Status Return exchange"']);
             }
 
             $mailing_item = MailinglistTemplate::where("category_id",$mailing_item_cat->id)->first();
+            //dd($mailing_item);
             $storeWebsiteID = $data->customer->storeWebsite->id;
             
             if ($storeWebsiteID) {
@@ -384,7 +387,8 @@ class ReturnExchangeController extends Controller
  
             return response()->json(["code" => 200, "data" => compact('data', 'preview', 'template')]);
         } catch(\Exception $e) {
-            return response()->json(["code" => 500, "data" => $e->getMessage()]);
+            \Log::channel('returnExchange')->info("Sending mail issue at the returnexchangecontroller  ->" . $e->getMessage());
+            return response()->json(["code" => 500, "message" => $e->getMessage()]);
         }
     }
 
