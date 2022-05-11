@@ -2163,6 +2163,7 @@ Route::get('tickets/emails/{ticketId}', 'LiveChatController@fetchEmailsOnTicket'
 Route::post('livechat/create-ticket', 'LiveChatController@createTickets')->name('livechat.create.ticket');
 Route::get('livechat/get-tickets-data', 'LiveChatController@getTicketsData')->name('livechat.get.tickets.data');
 Route::post('livechat/create-credit', 'LiveChatController@createCredits')->name('livechat.create.credit');
+Route::post('credit/email-credit-log', 'CustomerController@creditEmailLog')->name('credit.get.email.log');
 Route::get('livechat/get-credits-data', 'LiveChatController@getCreditsData')->name('livechat.get.credits.data');
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
