@@ -690,6 +690,9 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('social-webhook-log.index') }}">Social Webhook Log</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('website.file.list.log') }}">Website Logs</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
