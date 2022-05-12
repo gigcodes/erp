@@ -1227,8 +1227,8 @@ class EmailController extends Controller
         $events = [];
         $eventData = '';
         if ($exist != null) {
-            $events = \App\SendgridEvent::where('payload', 'like', '%"email_id":'.$emailId.'%')->select('timestamp', 'event')->orderBy('id', 'desc')->get();
-       }
+            $events = \App\SendgridEvent::where('email_id',$emailId)->select('timestamp', 'event')->orderBy('id', 'desc')->get();
+        }
         foreach ($events as $event) {
             $eventData .= "<tr><td>" . $event['timestamp'] . "</td><td>" . $event['event'] . "</td></tr>";
         }
