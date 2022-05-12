@@ -343,8 +343,6 @@ class ReturnExchangeController extends Controller
             $data->status = $request->return_exchange_status;
             $data->save();
             $this->createReturnExchangeStatusLog($request);
-
-            
             
             $template = \App\ReturnExchange::ORDER_EXCHANGE_STATUS_TEMPLATE;
             $template = str_replace(["#{id}", "#{status}"], [$data->id, $data->status], $template);
@@ -352,18 +350,22 @@ class ReturnExchangeController extends Controller
             //dd($mailing_item_cat);
             if(empty($mailing_item_cat)){
                 \Log::channel('returnExchange')->info("Sending mail issue at the returnexchangecontroller  -> Please add caregory Status Return exchange" );
-                return response()->json(["code" => 500, "message" => 'Please add caregory "Status Return exchange"']);
+                return response()->json(["code" => 500, "message" => 'Please add caregory "Status Return exchange ExchangeID : #"'.$request->id]);
             }
 
             $mailing_item = MailinglistTemplate::where("category_id",$mailing_item_cat->id)->first();
             //dd($mailing_item);
             $storeWebsiteID = $data->customer->storeWebsite->id;
-            
+
             if ($storeWebsiteID) {
                 $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteID)->first();
                 if ($emailAddress) {
-                    $from = ($emailAddress->from_address) ? $emailAddress->from_address : 'care@veralusso.com';
+                    $from = $emailAddress->from_address;
+                }else{
+                    return response()->json(["code" => 500, "message" => 'Cannot Find Email address ExchangeID : #"'.$request->id]);
                 }
+            } else {
+                return response()->json(["code" => 500, "message" => 'Website Id not found ExchangeID : #"'.$request->id]);
             }
             
             $emailClass = (new \App\Mails\Manual\DefaultEmailPriview($data->customer->email, '', $mailing_item->html_text, $data, $data->returnExchangeProducts, $from))->build();
@@ -372,7 +374,7 @@ class ReturnExchangeController extends Controller
             if($emailClass != null) {
                 $preview = $emailClass->render();
             } else {
-                return response()->json(["code" => 500, "message" => 'Email priview not found. Please check e-mail template']);
+                return response()->json(["code" => 500, "message" => 'Email priview not found. Please check e-mail template ExchangeID : #"'.$request->id]);
             }
             
             $preview = "<table>
