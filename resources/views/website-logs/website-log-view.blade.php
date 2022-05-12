@@ -11,7 +11,7 @@
 @section('content')
 	<div class="row">
 		<div class="col-lg-12 margin-tb">
-		    <h2 class="page-heading">Website Logs</h2>
+		    <h2 class="page-heading">Website Logs View</h2>
 		</div>
 	</div>
 	{{-- <div class="mt-3 col-md-12">
@@ -80,17 +80,17 @@
 		<table class="table table-bordered table-striped" id="log-table">
 		    <thead>
 			    <tr>
-			    	<th width="10%">S.No</th>
-			        <th width="10%">File Name</th>
-                    <th width="30%">Folder Path</th>
+			    	<th width="3%">ID</th>
+			        <th width="10%">File Path</th>
+                    <th width="30%">SQL</th>
 			        
 			    </tr>
 		    	<tbody>
                     @foreach ($dataArr as $data)
                         <tr>
-                            <td>{{$data['S_No']}}</td>
-                            <td><a href="{{route('website.log.file.view')}}?path={{$data['File_Path']}}">{{$data['File_name']}}</a></td>
-                            <td>{{$data['File_Path']}}</td>
+                            <td>{{$data->id}}</td>
+							<td>{{$data->module}}</td>
+							<td>{{$data->sql_query}}</td>
                         </tr>                        
                     @endforeach
 		    	</tbody>
