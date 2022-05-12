@@ -1088,8 +1088,8 @@ class HubstaffActivitiesController extends Controller
 
     public function userTreckTime(Request $request, $params = null, $where = null) {
         $title      = "Hubstaff Activities";
-        $start_date = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-50 days"));
-        $end_date   = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-50 days"));
+        $start_date = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
+        $end_date   = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-1 days"));
         $user_id    = $request->user_id ? $request->user_id : null;
         $task_id    = $request->task_id ? $request->task_id : null;
         $task_status    = $request->task_status ? $request->task_status : null;
@@ -1157,6 +1157,7 @@ class HubstaffActivitiesController extends Controller
             )->orderBy('date', 'desc')->get();
         
         $title = "User Track";
+        $userTrack = [];
        foreach($activities as $activity) {
             $hubActivitySummery = HubstaffActivitySummary::where('date', $activity->date)->where('user_id', $activity->system_user_id)->orderBy('created_at', 'desc')->first();
             //dd($hubActivitySummery);
@@ -1174,6 +1175,8 @@ class HubstaffActivitiesController extends Controller
                 'difference_hours' => isset($hubActivitySummery->accepted)? ($activity['tracked'] - $hubActivitySummery->accepted) : '0', 
                 'total_hours' => $activity['tracked'], 
                 'activity_levels' => $activity['overall'] / $activity['tracked'] * 100, 
+                'overall' => $activity['overall'],
+
                 
             ];
         }
@@ -1194,7 +1197,7 @@ class HubstaffActivitiesController extends Controller
         */
         //dd($userTrack);
         $users = User::get();
-        return view("hubstaff.activities.track-users", compact('userTrack','title', 'users', 'start_date','end_date', 'status'));
+        return view("hubstaff.activities.track-users", compact('userTrack','title', 'users', 'start_date','end_date', 'status', 'user_id'));
     }
 
     //Purpose : Add activityUsers parameter - DEVATSK-4300
