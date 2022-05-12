@@ -125,8 +125,8 @@ $statuses = \App\ticketStatuses::all();
                         $('#create-customer-credit-modal').modal('toggle');
                     }else{
                         //console.log(data[0]);
-                        var msg = JSON.parse(JSON.parse(data[0]));
-                        alert(msg.message);
+                        //var msg = JSON.parse(JSON.parse(data[0]));
+                        alert(data.msg);
                     }
                 }, error: function (jqXHR, exception) {
                     var msg = '';
