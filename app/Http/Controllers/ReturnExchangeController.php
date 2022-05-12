@@ -368,8 +368,11 @@ class ReturnExchangeController extends Controller
             
             $emailClass = (new \App\Mails\Manual\DefaultEmailPriview($data->customer->email, '', $mailing_item->html_text, $data, $data->returnExchangeProducts, $from))->build();
             
+            $preview = '';
             if($emailClass != null) {
                 $preview = $emailClass->render();
+            } else {
+                return response()->json(["code" => 500, "message" => 'Email priview not found. Please check e-mail template']);
             }
             
             $preview = "<table>
