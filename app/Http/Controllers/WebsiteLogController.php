@@ -76,14 +76,79 @@ class WebsiteLogController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
     public function store()
+    {
+        $mainPath = env('WEBSITES_LOGS_FOLDER');
+        $mainPath = $mainPath;//.'/'.$websiteName;
+        $ifPathExist = File::isDirectory($mainPath);
+        if($ifPathExist){
+            $filesDirectories = scandir($mainPath);
+
+            foreach($filesDirectories as $websiteName) {
+                // find the Directory
+                if(File::isDirectory($mainPath)){
+                    $website = StoreWebsite::select('website')->where('website',  'like', '%' . $websiteName. '%')->first();
+                    $fullPath = File::allFiles($mainPath);
+                    foreach ($fullPath as $key => $val) {
+                        if(file_exists($mainPath.'/'.$val->getFilename()) && $val->getFilename() == 'db.log')
+                        {
+                            if($val->getFilename() == 'db.log')
+                                $fileTypeName = 'db';
+                            else   
+                                $fileTypeName = $val->getFilename();
+                            $content = File::get($mainPath.'/'.$val->getFilename());
+                            //dd($content);
+                            $logs = preg_split('/\n\n/', $content);
+                            $totalLogs = [];
+                            foreach ($logs as $log) {
+                                $entries = explode(PHP_EOL, $log);
+                                $sql = null;
+                                $time = null;
+                                $module = null;
+                                foreach ($entries as $entry) {
+                                    if (strpos($entry, 'SQL') !== false) {
+                                        //dd($entry);
+                                        $sql = $entry;
+                                    }
+                                    //if (strpos($entry, 'TIME') !== false) {
+                                    if (strpos($entry, '[20') !== false) {
+                                        $time = $this->string_between_two_string($entry, '[', ']');
+                                    }
+                                    if (strpos($entry, '#8') !== false) {
+                                        $module = $entry;
+                                        //dd($module);l
+                                    }
+
+                                    if(!is_null($sql) && !is_null($time) && !is_null($module)){
+                                        $totalLogs[] = ['sql_query' => $sql,'time'=>$time,'module' => $module ];
+                                        $find = WebsiteLog::where([['sql_query', '=', $sql],['time','=',$time],['module', '=', $module]])->first();
+                                        if(empty($find)){
+                                            $ins = new WebsiteLog;
+                                            $ins->sql_query = $sql;
+                                            $ins->time = $time;
+                                            $ins->module = $module;
+                                            $ins->website_id = $website->website ?? '';
+                                            $ins->type = $fileTypeName;
+                                            $ins->save();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }    
+        }
+    }
+   /* public function store()
     {
         //$fullPath = '/Users/satyamtripathi/Work/sololux-erp/public/db.log';
         $websiteFolderArr = array('customers', 'chatapi', 'whatsapp', 'logs');
         foreach($websiteFolderArr as $websiteName) {
             // find the Directory
             $mainPath = env('WEBSITES_LOGS_FOLDER');
-            $mainPath = $mainPath;//.'/'.$websiteName;
+            $mainPath = $mainPath.'/'.$websiteName;
             //dd(File::isDirectory($mainPath));
             if(File::isDirectory($mainPath)){
                 $website = StoreWebsite::select('website')->where('website',  'like', '%' . $websiteName. '%');
@@ -141,6 +206,7 @@ class WebsiteLogController extends Controller
             } // if directory exist
         }
     }
+    */
 
     public function websiteLogStoreView()
     {
