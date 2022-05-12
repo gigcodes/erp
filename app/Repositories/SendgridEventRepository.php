@@ -22,9 +22,14 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function exists($sg_event_id): bool
+    public function exists($sg_event_id,$email_id,$event)
     {
-        return $this->model->newQuery()->where('sg_event_id', $sg_event_id)->exists();
+        if($email_id){
+            return $this->model->newQuery()->where('sg_event_id', $sg_event_id)->where('email_id',$email_id)->where('event',$event)->exists();
+        }else{
+            return $this->model->newQuery()->where('sg_event_id', $sg_event_id)->where('event',$event)->exists();    
+        }
+        
     }
 
     /**
