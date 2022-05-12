@@ -1088,12 +1088,13 @@ class HubstaffActivitiesController extends Controller
 
     public function userTreckTime(Request $request, $params = null, $where = null) {
         $title      = "Hubstaff Activities";
-        $start_date = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
-        $end_date   = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-1 days"));
+        $start_date = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-50 days"));
+        $end_date   = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-50 days"));
         $user_id    = $request->user_id ? $request->user_id : null;
         $task_id    = $request->task_id ? $request->task_id : null;
         $task_status    = $request->task_status ? $request->task_status : null;
         $developer_task_id    = $request->developer_task_id ? $request->developer_task_id : null;
+        $status = $request->task_status ? $request->task_status : null;
         
         $taskIds = [];
         if(!empty($developer_task_id)) {
@@ -1191,7 +1192,9 @@ class HubstaffActivitiesController extends Controller
             'status' => '', 
             ]);
         */
-        return view("hubstaff.activities.track-users", compact('userTrack','title'));
+        //dd($userTrack);
+        $users = User::get();
+        return view("hubstaff.activities.track-users", compact('userTrack','title', 'users', 'start_date','end_date', 'status'));
     }
 
     //Purpose : Add activityUsers parameter - DEVATSK-4300

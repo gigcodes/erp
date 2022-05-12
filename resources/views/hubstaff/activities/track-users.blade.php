@@ -15,7 +15,64 @@
 <div class="row" id="common-page-layout">
     <div class="col-lg-12 margin-tb">
         <div class="col-md-12">
-        
+            <div class="col-md-12 margin-tb">
+                <form class="form-check-inline" action="{{route('hubstaff-acitivties.activities')}}" method="get">
+                    <div class="row">
+                        <div class="form-group col-md-2">
+                            <?php //echo Form::select("user_id",["" => "-- Select User --"]+$users,$user_id,["class" => "form-control select2"]); ?>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <?php echo Form::text("developer_task_id",request('developer_task_id'),["class" => "form-control","placeholder" => "Developer Task ID"]); ?>
+                        </div>
+                        <div class="form-group col-md-1">
+                            
+                            <?php echo Form::text("task_id",request('task_id'),["class" => "form-control","placeholder" => "Task ID"]); ?>
+                        </div>
+                        <div class="form-group col-md-1">
+                            <select name="task_status" class="form-control">
+                                <option value="" >Select Status</option>
+                                <option value="Done" {{ request('task_status') ==  'Done' ? 'selected' : ''}}>Done</option>
+                                <option value="Discussing" {{ request('task_status') == 'Discussing' ? 'selected' : ''}}>Discussing</option>
+                                <option value="In Progress"  {{ request('task_status') ==  'In Progress' ? 'selected' : ''}}>In Progress</option>
+                                <option value="Issue" {{ request('task_status') ==  'Issue' ? 'selected' : ''}}>Issue</option>
+                                <option value="Planned" {{ request('task_status') ==  'Planned' ? 'selected' : ''}}>Planned</option>
+                                <option value="Discuss with Lead" {{ request('task_status') ==  'Discuss with Lead' ? 'selected' : ''}}>Discuss with Lead</option>
+                                <option value="Note" {{ request('task_status') ==  'Note' ? 'selected' : ''}}>Note</option>
+                                <option value="Lead Response Needed" {{ request('task_status') == 'Lead Response Needed' ? 'selected' : ''}}>Lead Response Needed</option>
+                                <option value="Errors in Task" {{ request('task_status') == 'Errors in Task' ? 'selected' : ''}}>Errors in Task</option>
+                                <option value="In Review" {{ request('task_status') == 'In Review' ? 'selected' : ''}}>In Review</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <input type="text" value="{{$start_date}}" name="start_date" hidden/>
+                            <input type="text" value="{{$end_date}}" name="end_date" hidden/>
+                            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                <i class="fa fa-calendar"></i>&nbsp;
+                                <span></span> <i class="fa fa-caret-down"></i>
+                            </div>
+                        </div>
+                       
+                        <div class="form-group col-md-1">
+                            <select name="status" id="" class="form-control">
+                            <option value="">Select</option>
+                            <option value="new" {{$status == 'new' ? 'selected' : ''}}>New</option>
+                            <option value="forwarded_to_admin" {{$status == 'forwarded_to_admin' ? 'selected' : ''}}>Forwarded to admin</option>
+                            <option value="forwarded_to_lead" {{$status == 'forwarded_to_lead' ? 'selected' : ''}}>Forwarded to team lead</option>
+                            <option value="approved" {{$status == 'approved' ? 'selected' : ''}}>Approved by admin</option>
+                            <option value="pending" {{$status == 'pending' ? 'selected' : ''}}>Pending by admin</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <button type="submit" name="submit" class="btn mt-2 btn-xs text-dark">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            <button type="submit" name="submit" value="report_download" title="Download report" class="btn  custom-button  btn-secondary"style="height: 34px;width:184px;">
+                                Download report
+                            </button>
+                        </div>  
+                    </div>   
+                </form> 
+            </div>
             <div class="col-md-12 margin-tb p-0">
                 <div class="table-responsive">
                     <table class="table table-bordered"style='table-layout: fixed;'>
@@ -32,6 +89,42 @@
                             <th width="10%">Activity Levels</th>
                             {{-- <th width="6%">Action</th> --}}
                         </tr>
+                        @php
+                        
+                            $userNew = [];
+                            foreach ($userTrack as $index => $user){
+                                if(isset($userNew[$user['date'].'_'.$user['user_id']]) && $user['date'] == $userNew[$user['date'].'_'.$user['user_id']]['date'] &&  $user['user_id'] == $userNew[$user['date'].'_'.$user['user_id']]['user_id']){
+                                    $userNew[$user['date'].'_'.$user['user_id']][] = [
+                                            'date' => $user['date'],
+                                            'user_id' => $user['user_id'], 
+                                            'userName' => $user['name'], 
+                                            'hubstaff_tracked_hours' => $user['tracked'], 
+                                            'hours_tracked_with' => $user['task_id'] !=0 ? $user['tracked'] : '0', 
+                                            'hours_tracked_without' => $user['task_id'] ==0 ? $user['tracked'] : '0', 
+                                            'task_id' => $user['task_id'], 
+                                            'approved_hours' => $user['approved_hours'] ?? '0', 
+                                            'difference_hours' => isset($user['approved_hours'])? ($user['tracked'] - $user['approved_hours']) : '0', 
+                                            'total_hours' => $user['tracked'], 
+                                            'activity_levels' => ($user['overall'] / $user['tracked']) * 100, 
+                                                ];
+                                }else {
+                                    $userNew[$user['date'].'_'.$user['user_id']][] = [
+                                            'date' => $user['date'],
+                                            'user_id' => $user['user_id'], 
+                                            'userName' => $user['name'], 
+                                            'hubstaff_tracked_hours' => $user['tracked'], 
+                                            'hours_tracked_with' => $user['task_id'] !=0 ? $user['tracked'] : '0', 
+                                            'hours_tracked_without' => $user['task_id'] ==0 ? $user['tracked'] : '0', 
+                                            'task_id' => $user['task_id'], 
+                                            'approved_hours' => $user['approved_hours'] ?? '0', 
+                                            'difference_hours' => isset($user['approved_hours'])? ($user['tracked'] - $user['approved_hours']) : '0', 
+                                            'total_hours' => $user['tracked'], 
+                                            'activity_levels' => ($user['overall'] / $user['tracked']) * 100, 
+                                                ];
+                                }
+                            }
+                        @endphp
+                        
                         @foreach ($userTrack as $index => $user)
                         <tr>
                             <td>{{ \Carbon\Carbon::parse($user['date'])->format('d-m') }} </td>
