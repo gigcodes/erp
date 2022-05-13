@@ -68,7 +68,7 @@ class DefaultEmailPriview extends Mailable
             $email   = $this->email;
             $content = $this->template;//$email->message;
             
-            if(!empty($this->template)){
+            if($this->template!=''){
                 $htmlData = $this->template;
                 $re = '/<loop-(.*?)>((.|\n)*?)<\/loop-(.*?)>/m';
                 preg_match_all($re, $htmlData, $matches, PREG_SET_ORDER, 0);
@@ -90,6 +90,8 @@ class DefaultEmailPriview extends Mailable
                         'content'
                     ));
             
+            } else {
+                return 'Template not found';
             }
         } catch (\Throwable $th) {
             return $th->getMessage();
