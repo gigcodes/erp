@@ -81,8 +81,6 @@ class WebsiteCreateLog extends Command
                                         $module = null;
 
                                         foreach ($entries as $entry) {
-                                            $this->info("DB log not found ".$entry);
-
                                             if (strpos($entry, 'SQL') !== false) {
                                                 $sql = str_replace('SQL:','',$entry);
                                             }
@@ -108,7 +106,7 @@ class WebsiteCreateLog extends Command
                                         }
                                     }
                                 }else{
-                                    $this->info("DB log not found ".$websiteName);
+                                    $this->info("DB log not found for ".$websiteName);
                                 }
                             }  
                         }

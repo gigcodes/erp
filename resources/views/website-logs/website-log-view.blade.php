@@ -81,17 +81,18 @@
 		    <thead>
 			    <tr>
 			    	<th width="3%">ID</th>
+			        <th width="30%">SQL</th>
+			        <th width="30%">Time</th>
 			        <th width="10%">File Path</th>
-                    <th width="30%">SQL</th>
-			        
-			    </tr>
+                </tr>
 		    	<tbody>
                     @foreach ($dataArr as $data)
                         <tr>
                             <td>{{$data->id}}</td>
-							<td>{{$data->module}}</td>
 							<td>{{$data->sql_query}}</td>
-                        </tr>                        
+							<td>{{$data->time}}</td>
+							<td>{{$data->module}}</td>
+						</tr>                        
                     @endforeach
 		    	</tbody>
 		    </thead>
