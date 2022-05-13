@@ -82,7 +82,8 @@
 			    <tr>
 			    	<th width="10%">S.No</th>
 			        <th width="10%">File Name</th>
-                    <th width="30%">Folder Path</th>
+			        <th width="10%">Website</th>
+			        <th width="30%">Folder Path</th>
 			        
 			    </tr>
 		    	<tbody>
@@ -90,8 +91,9 @@
                         <tr>
                             <td>{{$data['S_No']}}</td>
                             <td><a href="{{route('website.log.file.view')}}?path={{$data['File_Path']}}">{{$data['File_name']}}</a></td>
+                            <td>{{$data['Website']}}</td>
                             <td>{{$data['File_Path']}}</td>
-                        </tr>                        
+						</tr>                        
                     @endforeach
 		    	</tbody>
 		    </thead>
