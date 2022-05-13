@@ -22,13 +22,13 @@ class DefaultEmailPriview extends Mailable
      *
      * @return void
      */
-    public function __construct($email, $attchments = [], $template = "", $dataArr = '', $rxProducts = '', $fromMailer)
+    public function __construct($email, $attchments = [], $template = "", $dataArr = '',  $fromMailer)
     {
         $this->email      = $email;
         $this->attchments = $attchments;
         $this->template   = $template;
         $this->dataArr = $dataArr;
-        $this->returnExchangeProducts = $rxProducts;
+        //$this->returnExchangeProducts = $rxProducts;
         $this->fromMailer = $fromMailer;
     }
 

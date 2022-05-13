@@ -368,15 +368,15 @@ class ReturnExchangeController extends Controller
                 return response()->json(["code" => 500, "message" => 'Website Id not found ExchangeID : #"'.$request->id]);
             }
             
-            dd($data->customer->email, '=='.$mailing_item->html_text. '==='.$data.'==='.$data->returnExchangeProducts. '==='.$from );
-            $emailClass = (new \App\Mails\Manual\DefaultEmailPriview($data->customer->email, '', $mailing_item->html_text, $data, $data->returnExchangeProducts, $from))->build();
+            //dd($data->customer->email, '=='.$mailing_item->html_text. '==='.$data.'==='.$data->returnExchangeProducts. '==='.$from );
+            $emailClass = (new \App\Mails\Manual\DefaultEmailPriview($data->customer->email, '', $mailing_item->html_text, $data,  $from))->build();
             
             $preview = '';
-            dd($emailClass);
+            //dd($emailClass);
             if($emailClass != null) {
                 $preview = $emailClass->render();
             } else {
-                return response()->json(["code" => 500, "message" => 'Email priview not found. Please check e-mail template ExchangeID : #"'.$request->id]);
+                return response()->json(["code" => 500, "message" => 'Email priview not found. Please check e-mail template ExchangeID : #"'.$request->id. '==='. $emailClass]);
             }
             
             $preview = "<table>
