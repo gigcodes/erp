@@ -64,32 +64,37 @@ class DefaultEmailPriview extends Mailable
 
     public function build()
     {
-        $email   = $this->email;
-        $content = $this->template;//$email->message;
-		
-        if(!empty($this->template)){
-            $htmlData = $this->template;
-            $re = '/<loop-(.*?)>((.|\n)*?)<\/loop-(.*?)>/m';
-            preg_match_all($re, $htmlData, $matches, PREG_SET_ORDER, 0);
-            if (count($matches) != 0) {
-                foreach ($matches as $index => $match) {
-                    $data = null;
-                    foreach($this->dataArr as $orderProduct){
-                        $data .= $this->getDataFromHTML($orderProduct,$match[1]);
-                    }
-                    if($data){
-                        $htmlData = str_replace($match[1], $data, $htmlData);
+        try {
+            $email   = $this->email;
+            $content = $this->template;//$email->message;
+            
+            if(!empty($this->template)){
+                $htmlData = $this->template;
+                $re = '/<loop-(.*?)>((.|\n)*?)<\/loop-(.*?)>/m';
+                preg_match_all($re, $htmlData, $matches, PREG_SET_ORDER, 0);
+                if (count($matches) != 0) {
+                    foreach ($matches as $index => $match) {
+                        $data = null;
+                        foreach($this->dataArr as $orderProduct){
+                            $data .= $this->getDataFromHTML($orderProduct,$match[1]);
+                        }
+                        if($data){
+                            $htmlData = str_replace($match[1], $data, $htmlData);
+                        }
                     }
                 }
+                $content =  $this->getDataFromHTML($this->dataArr,$htmlData);
+                return $this->from($this->fromMailer)
+                    ->subject($this->subject)
+                    ->view('email-templates.content', compact(
+                        'content'
+                    ));
+            
             }
-            $content =  $this->getDataFromHTML($this->dataArr,$htmlData);
-            return $this->from($this->fromMailer)
-                ->subject($this->subject)
-                ->view('email-templates.content', compact(
-                     'content'
-                ));
-        
+        } catch (\Throwable $th) {
+            return $th;
         }
+        
 		
 
     }
