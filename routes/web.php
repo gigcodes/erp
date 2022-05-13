@@ -3025,6 +3025,11 @@ Route::middleware('auth')->group(function () {
     Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
     Route::put('supplier/priority/{id}', 'SupplierController@priority');
     Route::get('temp-task/product-creator', 'TmpTaskController@importProduct');
+    Route::get('website/website-store-log', 'WebsiteLogController@store')->name('website.store.log');
+    Route::get('website/website-log-file-view/{path?}', 'WebsiteLogController@websiteLogFileView')->name('website.log.file.view');
+    Route::get('website/log/file-list', 'WebsiteLogController@index')->name('website.file.list.log');
+    Route::get('website/log/view', 'WebsiteLogController@websiteLogStoreView')->name('website.log.view');
+    
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
