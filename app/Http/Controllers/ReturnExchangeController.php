@@ -353,7 +353,7 @@ class ReturnExchangeController extends Controller
                 return response()->json(["code" => 500, "message" => 'Please add caregory "Status Return exchange ExchangeID : #"'.$request->id]);
             }
 
-            $mailing_item = MailinglistTemplate::where("category_id",$mailing_item_cat->id)->first();
+            $mailing_item = MailinglistTemplate::select('html_text')->where("category_id",$mailing_item_cat->id)->first();
             //dd($mailing_item);
             $storeWebsiteID = $data->customer->storeWebsite->id;
 
