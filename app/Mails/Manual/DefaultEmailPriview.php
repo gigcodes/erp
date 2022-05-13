@@ -92,11 +92,9 @@ class DefaultEmailPriview extends Mailable
             
             }
         } catch (\Throwable $th) {
-            return $th;
+            return $th->getMessage();
         }
-        
-		
-
+     
     }
 	private function asJSON($data)
     {
