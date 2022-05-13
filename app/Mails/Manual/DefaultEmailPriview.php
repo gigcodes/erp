@@ -15,7 +15,7 @@ class DefaultEmailPriview extends Mailable
     public $email;
     public $attchments;
     public $template;
-    public $returnExchangeProducts;
+   // public $returnExchangeProducts;
     public $fromMailer;
     /**
      * Create a new message instance.
