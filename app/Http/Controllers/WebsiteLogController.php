@@ -80,11 +80,14 @@ class WebsiteLogController extends Controller
     public function store()
     {
         $mainPath = env('WEBSITES_LOGS_FOLDER');
+        $mainPath = config('constants.WEBSITES_LOGS_FOLDER');
+        //dd($mainPath);
         $mainPath = $mainPath;//.'/'.$websiteName;
         $ifPathExist = File::isDirectory($mainPath);
+        dd($ifPathExist);
         if($ifPathExist){
             $filesDirectories = scandir($mainPath);
-
+            dd($filesDirectories);
             foreach($filesDirectories as $websiteName) {
                 // find the Directory
                 if(File::isDirectory($mainPath)){
