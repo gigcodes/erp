@@ -18,13 +18,22 @@ class WebsiteLogController extends Controller
      */
     public function index()
     {
-        $fullPath = File::allFiles(env('WEBSITES_LOGS_FOLDER'));
+        $filesDirectories = scandir(env('WEBSITES_LOGS_FOLDER'));
         $dataArr = [];
-        foreach ($fullPath as $key => $val) {
-            $fileName = $val->getFilename();
-            $filePath = env('WEBSITES_LOGS_FOLDER').'/'.$val->getFilename();
-            $dataArr[] = array("S_No" => $key+1, "File_name" => $fileName, "File_Path" => $filePath);
+                
+        foreach ($filesDirectories as $filesDirectory) {
+            if($filesDirectory != '.' && $filesDirectory != '..'){
+                $fullPath = \File::allFiles(env('WEBSITES_LOGS_FOLDER').$filesDirectory);
+                foreach ($fullPath as $key => $val) {
+                    $fileName = $val->getFilename();
+                    $filePath = env('WEBSITES_LOGS_FOLDER').$filesDirectory.'/'.$val->getFilename();
+                    $website = $filesDirectory;
+                    $dataArr[] = array("S_No" => $key+1, "File_name" => $fileName, "Website" => $website, "File_Path" => $filePath);
+                }
+
+            }
         }
+        
         return view('website-logs.index',compact('dataArr')); 
     }
 
