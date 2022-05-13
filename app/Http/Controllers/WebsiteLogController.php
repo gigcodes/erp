@@ -80,22 +80,20 @@ class WebsiteLogController extends Controller
     public function store()
     {
         $mainPath = env('WEBSITES_LOGS_FOLDER');
-        $mainPath = config('constants.WEBSITES_LOGS_FOLDER');
-        //dd($mainPath);
-        $mainPath = $mainPath;//.'/'.$websiteName;
-        $ifPathExist = File::isDirectory($mainPath);
-        dd($ifPathExist);
+        //$mainPath = config('constants.WEBSITES_LOGS_FOLDER');
+        $ifPathExist = file_exists($mainPath);
         if($ifPathExist){
             $filesDirectories = scandir($mainPath);
-            dd($filesDirectories);
             foreach($filesDirectories as $websiteName) {
                 // find the Directory
-                if(File::isDirectory($mainPath)){
+                if(File::isDirectory($mainPath) && $websiteName != '.' && $websiteName != '..'){
                     $website = StoreWebsite::select('website')->where('website',  'like', '%' . $websiteName. '%')->first();
                     $fullPath = File::allFiles($mainPath);
+                    //echo '<pre>';print_r($fullPath);
                     foreach ($fullPath as $key => $val) {
                         if(file_exists($mainPath.'/'.$val->getFilename()) && $val->getFilename() == 'db.log')
                         {
+                            dd($val->getFilename());
                             if($val->getFilename() == 'db.log')
                                 $fileTypeName = 'db';
                             else   
