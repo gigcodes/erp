@@ -52,5 +52,9 @@ return array(
     'GOOGLE_CLIENT_KEY' => env('GOOGLE_CLIENT_KEY'),
     'py_facebook_script' => env('PY_FB_SCRIPT_URL'),
     'py_crop_script' => env('PY_CROP_INSTANCE'),
-    'product_check_py' => env('PRODUCT_CHECK_PY')
+    'product_check_py' => env('PRODUCT_CHECK_PY'),
+
+    /** website root access */
+    'WEBSITES_LOGS_FOLDER' => 'storage/websites',
 );
+

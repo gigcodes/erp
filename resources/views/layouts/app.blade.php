@@ -690,6 +690,13 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('social-webhook-log.index') }}">Social Webhook Log</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('website.file.list.log') }}">Magento Logs</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('website.log.view') }}">Magento Logs View</a>
+                                        </li>
+                                        
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
