@@ -1472,8 +1472,9 @@
               order_via: selected_array,
             }
             }).done( function(response) {
+              $("#product-update-status-message-tpl").modal("hide");
               toastr['success']('Product Status updated succesfully changed.');
-              $("#product-update-statu-message-tpl").modal("hide");
+              
             }).fail(function(errObj) {
               toastr['error'](errObj.responseText);
            });
