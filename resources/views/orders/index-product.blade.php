@@ -158,7 +158,6 @@
             <th class="Website-task" title="Est. Delivery Date"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=estdeldate{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Est. Delivery Date</a></th>
             <th>Brands</th>
             <th class="Website-task" title="Order Status"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
-            <th class="Website-task" title="Product Status"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Product Status</a></th>
             <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=advance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Advance</a></th>
             <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}{{ isset($order_status) ? implode('&', array_map(function($item) {return 'status[]='. $item;}, $order_status)) . '&' : '&' }}sortby=balance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Balance</a></th>
             {{-- <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=action{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Action Status</a></th>
@@ -194,12 +193,9 @@
 
                   }
                }
-               $order_items = \App\OrderProduct::where('order_id', $order->id)->get();
              @endphp
 
-            @foreach ($order_items as $items)
-              
-            
+             
             <tr style="background:#f1f1f1;" class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
               <td><span class="td-mini-container">
                   <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}">
@@ -252,7 +248,7 @@
                   <div class="">
                     @foreach ($order->order_product as $order_product)	                        
                       @if ($order_product->product)	                      
-                        @if ($order_product->product->hasMedia(config('constants.attach_image_tag')) && $order_product->product->id == $items->product_id)	                       
+                        @if ($order_product->product->hasMedia(config('constants.attach_image_tag')))	                       
                           <span class="td-mini-container">	                         
                             @if ($count == 0)	                          
                               <?php foreach($order_product->product->getMedia(config('constants.attach_image_tag')) as $media) { ?> 
@@ -275,7 +271,16 @@
                         @endif	                 
                       @endif	             
                     @endforeach	   
-                   
+
+                    @php
+                      $productQty = count($order->order_product);     
+                    @endphp    
+                  </div>	    
+                  @if (($count - 1) > 1)	           
+                    <span class="ml-1">	         
+                      ({{ ($count - 1) }})	       
+                    </span>	           
+                  @endif	        
                 </div>	        
               </td>
               <td>
@@ -304,18 +309,6 @@
                               <option value="">Select Order Status</option>
                                 @foreach ($order_status_list as $id => $status)
                                     <option value="{{ $id }}" {{ $order->order_status_id == $id ? 'selected' : '' }}>{{ $status }}</option>
-                                @endforeach
-                            </optgroup>
-                    </select>
-                </div>
-              </td>
-              <td class="expand-row table-hover-cell">
-                <div class="form-group" style="margin-bottom:0px;">
-                  <select data-placeholder="Product Status" class="form-control product_order_status_delivery" id="product_delivery_status" data-id={{$order->id}} data-order_product_item_id={{$items->id}} >
-                            <optgroup label="Product Status">
-                              <option value="">Select product Status</option>
-                                @foreach ($order_status_list as $id => $status)
-                                    <option value="{{ $id }}" {{ $items->delivery_status == $id ? 'selected' : '' }}>{{ $status }}</option>
                                 @endforeach
                             </optgroup>
                     </select>
@@ -433,8 +426,6 @@
                 </div>
               </td>
             </tr>
-
-            @endforeach
           @endforeach
         </tbody>
       </table>
@@ -742,61 +733,6 @@
     </div>
 </div>
 
-
-<div id="product-update-status-message-tpl" class="modal fade" role="dialog">
-  <div class="modal-dialog modal-lg">
-    <!-- Modal content-->
-    <div class="modal-content ">
-      <div class="modal-header ml-4 mr-4">
-          <h4 class="modal-title">Change Status</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
-      <form action="" id="product-update-status-message-tpl-frm" method="POST">
-          @csrf
-          <input type="hidden" name="order_id" id="order-product-id-status-tpl" value="">
-          <input type="hidden" name="order_status_id" id="order-product-status-id-status-tpl" value="">
-          <input type="hidden" name="order_product_item_id" id="order_product_item_id" value="">
-          <div class="modal-body">
-              <div class="row">
-                  <div class="col-md-12">
-                    <div class="col-md-2">
-                        <strong>Message:</strong>
-                    </div>
-                    <div class="col-md-5">
-                      <div class="form-group">
-                        <textarea cols="45" class="form-control" id="order-product-template-status-tpl" name="message"style="height: 35px;"></textarea>
-                      </div>
-                    </div>
-                    <div class="col-md-2">
-                      <div class="form-group d-flex">
-                        <div class="checkbox">
-                          <label><input class="msg_platform" onclick="loadproductpreview(this);" type="checkbox" value="email">Email</label>
-                        </div>
-                        <div class="checkbox mt-3 ml-2">
-                          
-                          <label><input class="msg_platform" type="checkbox" value="sms">SMS</label>
-                        </div>
-                      </div>
-                  </div>
-                  <div class="col-md-8">
-                        <div id="product-preview" style="display:none">
-                              
-                        </div>
-                  </div>
-              </div>
-          </div>
-          <div class="modal-footer pb-0">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="button" class="btn custom-button product-update-status-with-message">Submit</button>
-              <!-- <button type="button" class="btn btn-secondary update-status-with-message">With Message</button> -->
-              <!-- <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button> -->
-          </div>
-        </div> 
-      </form>
-    </div>
-  </div>
-</div>
-
 <div id="update-status-message-tpl" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
       <!-- Modal content-->
@@ -844,12 +780,10 @@
                 <!-- <button type="button" class="btn btn-secondary update-status-with-message">With Message</button> -->
                 <!-- <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button> -->
             </div>
-          </div>
         </form>
       </div>
     </div>
 </div>
-
 <div id="purchaseCommonModal" class="modal fade" role="dialog" style="padding-top: 0px !important;padding-right: 12px; padding-bottom: 0px !important;">
   <div class="modal-dialog" style="width: 100%;max-width: none;height: auto;margin: 0;">
     <div class="modal-content " style="border: 0;border-radius: 0;">
@@ -890,8 +824,6 @@
   <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
   <script type="text/javascript">
     CKEDITOR.replace('editableFile');
-    CKEDITOR.replace('editableFileproduct');
-    
   </script>
   <script type="text/javascript">
   
@@ -1392,88 +1324,6 @@
             }
             }).done( function(response) {
               $("#update-status-message-tpl").modal("hide");
-            }).fail(function(errObj) {
-              toastr['error'](errObj.responseText);
-           });
-          }
-          
-      });
-
-      $(document).on("change",".product_order_status_delivery",function() {
-          
-          var id = $(this).data("id");
-          var product_item_id = $(this).data("order_product_item_id");
-          var status = $(this).val();
-          $("#product-preview").hide();
-          $.ajax({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            url: "order/product/change-status-temp",
-            type: "post",
-            data : {
-              id : id,
-              order_id: id, 
-              order_product_item_id: product_item_id,
-              order_status_id : status
-            },
-            beforeSend: function() {
-              $("loading-image").show();
-            }
-          }).done( function(response) {
-            $("loading-image").hide();
-            if(response.code == 200) {
-             
-              $("#order-product-id-status-tpl").val(id);
-              $("#product-preview").html(response.preview);
-              $("#order_product_item_id").val(product_item_id);
-              CKEDITOR.replace( 'editableFileproduct' );
-              $("#order-product-status-id-status-tpl").val(status);
-              $("#order-product-template-status-tpl").val(response.template);
-              $(".msg_platform").prop('checked', false);
-              $("#product-update-status-message-tpl").modal("show");
-            }
-            
-          }).fail(function(errObj) {
-              alert("Could not change status"+errObj);
-          });
-      });
-
-      $(document).on("click",".product-update-status-with-message",function(e) {
-          e.preventDefault();
-          //console.log($("#email_from_mail").val());
-          //console.log($("#email_to_mail").val());
-          var selected_array = [];
-          console.log(selected_array);
-          $('.msg_platform:checkbox:checked').each(function() {
-            selected_array.push($(this).val());
-          });
-          
-          if(selected_array.length == 0){
-            alert('Please at least select one option');
-            return;
-          }else{
-            $.ajax({
-            headers: {
-              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            url: "order/product/change-status",
-            type: "post",
-            async : false,
-            data : {
-              id : $("#order-product-id-status-tpl").val(),
-              order_product_item_id : $("#order_product_item_id").val(),
-              status : $("#order-product-status-id-status-tpl").val(),
-              sendmessage:'1',
-              message:$("#order-product-template-status-tpl").val(),
-              custom_email_content:$("#editableFileproduct").val(),
-              from_mail:$("#email_from_mail_product").val(),
-              to_mail:$("#email_to_mail_product").val(),
-              order_via: selected_array,
-            }
-            }).done( function(response) {
-              toastr['success']('Product Status updated succesfully changed.');
-              $("#product-update-statu-message-tpl").modal("hide");
             }).fail(function(errObj) {
               toastr['error'](errObj.responseText);
            });
@@ -2165,13 +2015,6 @@
 
         });
 
-        function loadproductpreview(t)
-        {
-          $("#product-preview").hide();
-          if (t.checked == true){
-            $("#product-preview").show();
-          }
-        }
         function loadpreview(t)
         {
           $("#preview").hide();
