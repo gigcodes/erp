@@ -55,7 +55,12 @@
             from { transform: scale(1) rotate(0deg);}
             to { transform: scale(1) rotate(360deg);}
         }
-
+        @media(max-width:1200px) {
+            .action_button{
+                display: block;
+                width: 100%;
+            }
+        }
     </style>
 @endsection
 
@@ -111,6 +116,17 @@
                             {!! Form::select('store_website_id', $store_websites, null, ['placeholder' => 'Store Website', 'class' => 'form-control']) !!}
                         </div>
                     </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <div class="form-group">
+                            {!! Form::select('site_impact', ['No', 'Yes'], null, ['id'=>'site_impact', 'placeholder' => 'Select Site Impact', 'class' => 'form-control']) !!}
+                        </div>
+                    </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <div class="form-group">
+                            {!! Form::select('status', ['Disabled', 'Enable'], null, ['placeholder' => 'Select Status', 'class' => 'form-control']) !!}
+                        </div>
+                    </div>
+                    
 
                     <div class="col-xs-2 col-sm-1 pt-2 ">
                         <div class="d-flex" >
@@ -127,7 +143,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group pull-right ml-3 mt-3">
+                    <div class="action_button form-group pull-right ml-3 mt-3">
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleTypeCreateModal"> Module Type Create </button>
                     
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleCategoryCreateModal"> Module Category Create </button>
@@ -288,9 +304,11 @@
                         d.module_category_id = $('select[name=module_category_id]').val();
                         d.task_status = $('select[name=task_status]').val();
                         d.store_website_id = $('select[name=store_website_id]').val();
+                        d.site_impact = $('select[name=site_impact]').val();
+                        d.status = $('select[name=status]').val();
                         // d.view_all = $('input[name=view_all]:checked').val(); // for Check box
                     },
-                },
+                }, 
                 columnDefs: [{
                     targets: [],
                     orderable: false,
@@ -602,6 +620,7 @@
                     },
                 ],
             });
+            
         });
         // END Print Table Using datatable
 

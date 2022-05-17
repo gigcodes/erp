@@ -848,7 +848,7 @@ class ProductController extends Controller
         }
 
         // Prioritize suppliers
-        $newProducts = Product::where('status_id', StatusHelper::$cropApprovalConfirmation);
+        $newProducts = Product::where('status_id', StatusHelper::$cropApprovalConfirmation)->where('stock','!=',0);
 
         $newProducts = QueryHelper::approvedListingOrder($newProducts);
 

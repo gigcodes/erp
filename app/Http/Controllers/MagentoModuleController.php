@@ -94,6 +94,13 @@ class MagentoModuleController extends Controller
             if (isset($request->module_category_id) && !empty($request->module_category_id)) {
                 $items->where('magento_modules.module_category_id', $request->module_category_id);
             }
+            if (isset($request->site_impact)) {
+                $items->where('magento_modules.site_impact', $request->site_impact);
+            }
+             
+            if (isset($request->status)) {
+                $items->where('magento_modules.status', $request->status); 
+            }
            
             
             return datatables()->eloquent($items)->addColumn("m_types",$magento_module_types)->addColumn("developer_list", $users)->addColumn("categories",$module_categories)->addColumn("website_list", $store_websites)->toJson();

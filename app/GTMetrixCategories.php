@@ -15,6 +15,10 @@ class GTMetrixCategories extends Model
 
     protected $fillable = [
         'name', 
-        'source'
+        'source',
+        'created_at',
+        'updated_at'
     ];
+
+
 }

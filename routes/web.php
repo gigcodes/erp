@@ -859,7 +859,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('orders/download', 'OrderController@downloadOrderInPdf');
     Route::get('order/email/download/{order_id?}/{email_id?}', 'OrderController@downloadOrderMailPdf')->name('order.generate.order-mail.pdf');
     Route::post('order/{id}/change-status-template', 'OrderController@statusChangeTemplate');
+    Route::post('order/product/change-status-temp', 'OrderController@prodctStatusChangeTemplate');
     Route::post('order/change-status', 'OrderController@statusChange');
+    Route::post('order/product/change-status', 'OrderController@productItemStatusChange');
     Route::post('order/preview-sent-mails', 'OrderController@orderPreviewSentMails');
     Route::get('customer/getcustomerinfo', 'CustomerController@customerinfo')->name('customer.getcustomerinfo');
 
@@ -1831,6 +1833,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::post('/approved/payment', 'HubstaffActivitiesController@submitPaymentRequest')->name("hubstaff-acitivties.payment-request.submit");
             Route::post('/add-efficiency', 'HubstaffActivitiesController@AddEfficiency')->name('hubstaff-acitivties.efficiency.save');
             Route::get('/task-activity', 'HubstaffActivitiesController@taskActivity')->name('hubstaff-acitivties.acitivties.task-activity');
+            Route::get('/userTreckTime', 'HubstaffActivitiesController@userTreckTime')->name('hubstaff-acitivties.acitivties.userTreckTime');
+            
         });
 
         Route::post('save', 'HubstaffPaymentController@save')->name('hubstaff-payment.save');
@@ -2161,6 +2165,7 @@ Route::get('tickets/emails/{ticketId}', 'LiveChatController@fetchEmailsOnTicket'
 Route::post('livechat/create-ticket', 'LiveChatController@createTickets')->name('livechat.create.ticket');
 Route::get('livechat/get-tickets-data', 'LiveChatController@getTicketsData')->name('livechat.get.tickets.data');
 Route::post('livechat/create-credit', 'LiveChatController@createCredits')->name('livechat.create.credit');
+Route::post('credit/email-credit-log', 'CustomerController@creditEmailLog')->name('credit.get.email.log');
 Route::get('livechat/get-credits-data', 'LiveChatController@getCreditsData')->name('livechat.get.credits.data');
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
@@ -3022,6 +3027,11 @@ Route::middleware('auth')->group(function () {
     Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
     Route::put('supplier/priority/{id}', 'SupplierController@priority');
     Route::get('temp-task/product-creator', 'TmpTaskController@importProduct');
+    Route::get('website/website-store-log', 'WebsiteLogController@store')->name('website.store.log');
+    Route::get('website/website-log-file-view/{path?}', 'WebsiteLogController@websiteLogFileView')->name('website.log.file.view');
+    Route::get('website/log/file-list', 'WebsiteLogController@index')->name('website.file.list.log');
+    Route::get('website/log/view', 'WebsiteLogController@websiteLogStoreView')->name('website.log.view');
+    
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
@@ -3252,7 +3262,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function (
     Route::post('/addNewReply', 'ReturnExchangeController@addNewReply')->name('returnexchange.addNewReply');
     Route::post('/update-status', 'ReturnExchangeController@updateExchangeStatuses')->name('returnexchange.update-status');
     Route::get('/update-status-log/{id?}', 'ReturnExchangeController@listExchangeStatusesLog')->name('returnexchange.update_status_log');
-
+    Route::post('/status-send-email', 'ReturnExchangeController@updateStatusEmailSend')->name('return-exchange.status-send-email');
     Route::prefix('{id}')->group(function () {
         Route::get('/detail', 'ReturnExchangeController@detail')->name('return-exchange.detail');
         Route::get('/delete', 'ReturnExchangeController@delete')->name('return-exchange.delete');
@@ -3617,7 +3627,9 @@ Route::post('gtmetrix/toggle', 'gtmetrix\WebsiteStoreViewGTMetrixController@togg
 Route::get('gtmetrix/getpagespeedstats/{type}/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstats')->name('gtmetrix.getPYstats');
 Route::post('gtmetrix/savegtmetrixcron', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCron');
 Route::get('gtmetrix/getstatscomparison/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstatsComparison')->name('gtmetrix.getstatsCmp');
-
+Route::any('gtmetrix/categories','gtmetrix\WebsiteStoreViewGTMetrixController@listGTmetrixCategories')->name('gtmetrix.category.list');
+Route::any('gtmetrix/gtmetrixReport','gtmetrix\WebsiteStoreViewGTMetrixController@listWebsiteWiseCategories')->name('gtmetrix.Report.list');
+Route::post('gtmetrix/gtmetrixReportData','gtmetrix\WebsiteStoreViewGTMetrixController@WebsiteWiseCategoriesReport')->name('gtmetrix.single.report');
 // Route::resource('GtMetrixAccounts', StoreGTMetrixAccountController::class);
 Route::get('gtmetrix-accounts', 'StoreGTMetrixAccountController@index')->name('GtMetrixAccount.index');
 Route::get('gtmetrixAccount/edit-info/{id}', 'StoreGTMetrixAccountController@edit')->name('account.edit');
@@ -3626,6 +3638,7 @@ Route::DELETE('gtmetrixAccount/delete/{id?}', 'StoreGTMetrixAccountController@de
 Route::get('gtmetrixAccount/show', 'StoreGTMetrixAccountController@show')->name('account.show');
 Route::post('gtmetrixAccount/update', 'StoreGTMetrixAccountController@update')->name('account.update');
 Route::post('gtmetrixAccount/store', 'StoreGTMetrixAccountController@store')->name('account.store');
+Route::get('gtmetrixcategoryWeb', 'gtmetrix\WebsiteStoreViewGTMetrixController@CategoryWiseWebsiteReport')->name('gtm.cetegory.web');
 
 Route::get('product-pricing', 'product_price\ProductPriceController@index')->name('product.pricing');
 Route::post('store-website-product-prices/approve', 'product_price\ProductPriceController@approve');
@@ -3820,4 +3833,7 @@ Route::get('command', function () {
     /* php artisan migrate */
     /* \Artisan::call('command:schedule_emails');
     dd("Done");*/
+});
+Route::get('test-cron', function () {
+    \Artisan::call('GT-metrix-test-get-report');
 });
