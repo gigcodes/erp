@@ -353,7 +353,7 @@ class ReturnExchangeController extends Controller
                 return response()->json(["code" => 500, "message" => 'Please add caregory "Status Return exchange ExchangeID : #"'.$request->id]);
             }
 
-            $mailing_item = MailinglistTemplate::select('html_text')->where("category_id",$mailing_item_cat->id)->first();
+            $mailing_item = MailinglistTemplate::select('html_text')->where("category_id",$mailing_item_cat->id)->where('html_text', '!=', '')->first();
             //dd($mailing_item);
             $storeWebsiteID = $data->customer->storeWebsite->id;
 
@@ -370,13 +370,15 @@ class ReturnExchangeController extends Controller
             
             //dd($data->customer->email, '=='.$mailing_item->html_text. '==='.$data.'==='.$data->returnExchangeProducts. '==='.$from );
             $emailClass = (new \App\Mails\Manual\DefaultEmailPriview($data->customer->email, $mailing_item->html_text, $data,  $from))->build();
-            dd($emailClass);
+            if($emailClass == 'Template not found')
+                return response()->json(["code" => 500, "message" => 'Email priview not found. Please check e-mail template ExchangeID : #"'.$request->id]);
+
             $preview = '';
             //dd($emailClass);
             if($emailClass != null) {
                 $preview = $emailClass->render();
             } else {
-                return response()->json(["code" => 500, "message" => 'Email priview not found. Please check e-mail template ExchangeID : #"'.$request->id. '==='. $emailClass]);
+                return response()->json(["code" => 500, "message" => 'Email priview not found. Please check e-mail template ExchangeID : #"'.$request->id]);
             }
             
             $preview = "<table>
