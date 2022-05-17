@@ -650,11 +650,6 @@ class Product extends Model
         return $this->hasOne('App\Category', 'id', 'category');
     }
 
-    public function category()
-    {
-        return $this->hasOne(Category::class, 'category', 'id');
-    }
-
     public function references()
     {
         return $this->hasMany('App\ProductReference');
