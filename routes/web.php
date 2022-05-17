@@ -859,7 +859,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('orders/download', 'OrderController@downloadOrderInPdf');
     Route::get('order/email/download/{order_id?}/{email_id?}', 'OrderController@downloadOrderMailPdf')->name('order.generate.order-mail.pdf');
     Route::post('order/{id}/change-status-template', 'OrderController@statusChangeTemplate');
+    Route::post('order/product/change-status-temp', 'OrderController@prodctStatusChangeTemplate');
     Route::post('order/change-status', 'OrderController@statusChange');
+    Route::post('order/product/change-status', 'OrderController@productItemStatusChange');
     Route::post('order/preview-sent-mails', 'OrderController@orderPreviewSentMails');
     Route::get('customer/getcustomerinfo', 'CustomerController@customerinfo')->name('customer.getcustomerinfo');
 
@@ -3025,6 +3027,11 @@ Route::middleware('auth')->group(function () {
     Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
     Route::put('supplier/priority/{id}', 'SupplierController@priority');
     Route::get('temp-task/product-creator', 'TmpTaskController@importProduct');
+    Route::get('website/website-store-log', 'WebsiteLogController@store')->name('website.store.log');
+    Route::get('website/website-log-file-view/{path?}', 'WebsiteLogController@websiteLogFileView')->name('website.log.file.view');
+    Route::get('website/log/file-list', 'WebsiteLogController@index')->name('website.file.list.log');
+    Route::get('website/log/view', 'WebsiteLogController@websiteLogStoreView')->name('website.log.view');
+    
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
