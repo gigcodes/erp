@@ -82,7 +82,7 @@ class DefaultEmailPriview extends Mailable
                     }
                 }
                 $content =  $this->getDataFromHTML($this->dataArr,$htmlData);
-                dd( $this->email . '=='.$this->template. '==='.$this->dataArr.'==='. $this->fromMailer );
+                //dd( $this->email . '=='.$this->template. '==='.$this->dataArr.'==='. $this->fromMailer );
         
                 return $this->from($this->fromMailer)
                     ->subject($this->subject)
