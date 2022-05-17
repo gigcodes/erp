@@ -37,7 +37,7 @@ class Category extends Model
 
      */
   
-    public $fillable = [ 'id','title', 'parent_id','status_after_autocrop','magento_id', 'show_all_id','need_to_check_measurement','need_to_check_size','ignore_category','push_type','category_segment_id'];
+    public $fillable = [ 'id','title', 'parent_id','status_after_autocrop','magento_id', 'show_all_id','need_to_check_measurement','need_to_check_size','ignore_category','push_type','category_segment_id', 'days_refund'];
 
     /**
      * Get the index name for the model.
