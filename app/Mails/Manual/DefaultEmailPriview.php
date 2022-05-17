@@ -13,7 +13,6 @@ class DefaultEmailPriview extends Mailable
     use Queueable, SerializesModels;
 
     public $email;
-    public $attchments;
     public $template;
    // public $returnExchangeProducts;
     public $fromMailer;
@@ -22,10 +21,9 @@ class DefaultEmailPriview extends Mailable
      *
      * @return void
      */
-    public function __construct($email, $attchments = [], $template = "", $dataArr = '',  $fromMailer)
+    public function __construct($email, $template = "", $dataArr = '',  $fromMailer)
     {
         $this->email      = $email;
-        $this->attchments = $attchments;
         $this->template   = $template;
         $this->dataArr = $dataArr;
         //$this->returnExchangeProducts = $rxProducts;
@@ -64,6 +62,7 @@ class DefaultEmailPriview extends Mailable
 
     public function build()
     {
+        dd( $this->email . '=='.$this->template. '==='.$this->dataArr.'==='. $this->fromMailer );
         try {
             $email   = $this->email;
             $content = $this->template;//$email->message;
