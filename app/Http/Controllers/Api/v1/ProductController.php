@@ -150,7 +150,7 @@ class ProductController extends Controller
             // $get
             if ($storeWebsite) {
 
-                $returnExchange = StoreWebsiteOrder::select('o.id AS order_ID')->where('website_id', $storeWebsite->id)->where('platform_order_id', $request->order_id)
+                $returnExchange = StoreWebsiteOrder::where('website_id', $storeWebsite->id)->where('platform_order_id', $request->order_id)
                     ->join("orders as o", "o.id", "store_website_orders.order_id")
                     ->join("order_products as op", "op.order_id", "o.id")
                     ->join("return_exchange_products as rep", "rep.order_product_id", "op.id")
