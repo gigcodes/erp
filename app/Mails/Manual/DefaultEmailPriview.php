@@ -62,7 +62,6 @@ class DefaultEmailPriview extends Mailable
 
     public function build()
     {
-        dd( $this->email . '=='.$this->template. '==='.$this->dataArr.'==='. $this->fromMailer );
         try {
             $email   = $this->email;
             $content = $this->template;//$email->message;
@@ -83,6 +82,8 @@ class DefaultEmailPriview extends Mailable
                     }
                 }
                 $content =  $this->getDataFromHTML($this->dataArr,$htmlData);
+                dd( $this->email . '=='.$this->template. '==='.$this->dataArr.'==='. $this->fromMailer );
+        
                 return $this->from($this->fromMailer)
                     ->subject($this->subject)
                     ->view('email-templates.content', compact(
