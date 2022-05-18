@@ -2031,7 +2031,12 @@ if (!empty($notifications)) {
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('gtm.cetegory.web') }}">GTMetrix Category Website</a>
                                             </li>
-                                            
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ url('checklist') }}">Checklist</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ url('sop') }}">SOP</a>
+                                            </li>
                                         </ul>
                                     </li>
                                 @endif
