@@ -284,11 +284,11 @@ class BrandController extends Controller
                     'created_by' => $user->id,
                     'message' => $e->getMessage()
                 ]);
-                return response()->json(["code" => 200, "data" => []]);
+                return response()->json(["code" => 500, "message" => $e->getMessage()]);
             }
         }
 
-        return response()->json(["code" => 200, "data" => []]);
+        return response()->json(["code" => 500, "message" => "Store and brand not found" ]);
 
     }
 

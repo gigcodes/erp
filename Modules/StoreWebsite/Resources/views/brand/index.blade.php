@@ -289,12 +289,21 @@
             	$("#loading-image").show();
             },
             success: function(response) {
+				console.log(ele.attr('id'));
             	$("#loading-image").hide();
-				alert(response.message);
+				if($('#'+ele.attr('id')).prop("checked") == true){
+					$('#'+ele.attr('id')).prop('checked', false);
+				}
+				else if($('#'+ele.attr('id')).prop("checked") == false){
+					$('#'+ele.attr('id')).prop('checked', true);
+				}
+				//alert(response.message);
+				toastr["success"](response.message);
             },
             error: function(response) {
                 $("#loading-image").hide();
-            	alert(response.message);
+				toastr["error"](response.message);
+            	//alert(response.message);
             }
     	});
 	});
