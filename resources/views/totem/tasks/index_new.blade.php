@@ -821,8 +821,14 @@ table tr td {
                 for (var key in task_fields) {
                     if($(`input[name="${key}"]`).length != 0){
                         $(`input[name="${key}"]`).val(task_fields[key]);
+                        if($(`input[type="checkbox"]`) && task_fields[key] == 1)
+                            $(`input[name="${key}"]`).prop( "checked", true );
+                        
+
                     }else if($(`select[name="${key}"]`).length != 0){
                         $(`select[name="${key}"]`).val(task_fields[key]);
+                        $(`select[name="${key}"]`).select2().trigger(task_fields[key]);
+
                     }
                     if(key == 'frequencies'){
                         if(task_fields[key].length){
