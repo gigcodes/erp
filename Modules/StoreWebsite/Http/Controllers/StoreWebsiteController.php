@@ -913,4 +913,15 @@ class StoreWebsiteController extends Controller
 		}
 	}
 
+    public function checkMagentoToken(Request $request){
+        $token = $request->id;
+        $magentoHelper = new MagentoHelperv2();
+        $result = $magentoHelper->checkToken($token,$request->url);
+        if($result){
+            return response()->json(["code" => 200 , "message" => "Token is valid"]);
+        }else{
+            return response()->json(["code" => 500 , "message" => "Token is invalid"]);
+        }
+    }
+
 }

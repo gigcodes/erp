@@ -483,7 +483,10 @@
       </div>
 	   <div class="modal-footer">
 	      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+         <button type="button" class="btn btn-primary test-store-site">Test Magento Token</button>
+         
 	      <button type="button" class="btn btn-primary submit-store-site">Save changes</button>
+
 	   </div>
    </div>
 </form>  	

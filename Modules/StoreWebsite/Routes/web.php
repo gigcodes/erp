@@ -31,6 +31,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         
         Route::get('/sync-stage-to-master', 'StoreWebsiteController@syncStageToMaster');
         
+        Route::get('/token-check/', 'StoreWebsiteController@checkMagentoToken');
+        
 		Route::get('/userhistory', 'StoreWebsiteController@userHistoryList');
 
         Route::get('/store-reindex-history', 'StoreWebsiteController@storeReindexHistory');

@@ -38,6 +38,22 @@ var page = {
             page.editRecord($(this));
         });
 
+        $(".common-modal").on("click",".test-store-site",function(e) {
+            e.preventDefault();
+            var token = $('#api_token').val();
+            var magentoURL = $('#magento_url').val();
+            if(!token){
+                toastr['error']('Please enter token for website', 'error');
+                return;
+            }
+            if(!magentoURL){
+                toastr['error']('Please enter magento URL for website', 'error');
+                return;
+            }
+            page.checkToken(token,magentoURL);
+        });
+
+
         page.config.bodyView.on("click",".btn-edit-cancellation-template",function(e) {
             page.editCancellationRecord($(this));
         });
@@ -324,6 +340,27 @@ var page = {
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
+    },
+
+    checkToken : function(token,url) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+token+"/token-check",
+            method: "get",
+            data:{url},
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterCheckProcess");
+    },
+    afterCheckProcess: function(response) { 
+       if(response.code  == 200) {
+            $("#loading-image").hide();
+            toastr["success"]("Token is valid","");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"]("Token is invalid","");
+        }  
     },
 
     editSeoRecord : function(ele) {
