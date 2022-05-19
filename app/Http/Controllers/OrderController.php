@@ -2971,7 +2971,7 @@ class OrderController extends Controller
                         $magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
                         if ($magento_status) {
                             $magentoHelper = new MagentoHelperv2;
-                            $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value);
+                            $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, '');
                             $this->createEmailSendJourneyLog($id, "Magento Order update status with ".$statuss->status, Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento replay", $request->message, "", "", $storeWebsiteOrder->website_id);
                             /**
                              *check if response has error
@@ -3921,7 +3921,7 @@ class OrderController extends Controller
                                     $magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
                                     if ($magento_status) {
                                         $magentoHelper = new MagentoHelperv2;
-                                        $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value);
+                                        $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, '');
                                     }
                                 }
                             }
@@ -4527,7 +4527,55 @@ class OrderController extends Controller
                 }
 
             }
+
+            //Sending Mail on changing of order status
+            if (isset($request->sendmessage) && $request->sendmessage == '1') {
+                //sending order message to the customer
+                UpdateOrderStatusMessageTpl::dispatch($order->id, request('message', null))->onQueue("customer_message");
+            }
+            $storeWebsiteOrder = StoreWebsiteOrder::where('order_id', $order->id)->first();
+            if ($storeWebsiteOrder) {
+                $website = StoreWebsite::find($storeWebsiteOrder->website_id);
+                if ($website) {
+                    $store_order_status = Store_order_status::where('order_status_id', $status)->where('store_website_id', $storeWebsiteOrder->website_id)->first();
+                    if ($store_order_status) {
+                        $magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
+                        if ($magento_status) {
+                            $magentoHelper = new MagentoHelperv2;
+                            $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, $order_product);
+                            $this->createEmailSendJourneyLog($id, "Magento Order Product Item update status with ".$statuss->status, Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento replay", $request->message, "", "", $storeWebsiteOrder->website_id);
+                            /**
+                             *check if response has error
+                             */
+                            $response=$result->getData();
+                            if(isset($response) && isset($response->status) && $response->status==false){
+                                $this->createOrderMagentoErrorLog($order->id, $response->error); 
+                                $this->createEmailSendJourneyLog($id, "Magento Error", Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error", $response->error, "", "", $storeWebsiteOrder->website_id);
+                                return response()->json($response->error,400);
+                            }
+                        }else{
+                            $this->createOrderMagentoErrorLog($order->id, 'Store MasterStatus Not Present'); 
+                            $this->createEmailSendJourneyLog($id, "Magento Error", Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error Store MasterStatus Not Present", "", "", "", $storeWebsiteOrder->website_id);
+                            return response()->json('Store MasterStatus Not Present',400);
+                        }
+                    }else{
+                        $this->createOrderMagentoErrorLog($order->id, 'Store Order Status Not Present'); 
+                        $this->createEmailSendJourneyLog($id, "Magento Error", Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error Store Order Status Not Present", "", "", "", $storeWebsiteOrder->website_id);
+                        return response()->json('Store Order Status Not Present',400);
+                    }
+                }else{
+                    $this->createOrderMagentoErrorLog($order->id, 'Website Order Not Present'); 
+                    $this->createEmailSendJourneyLog($id, "Magento Error", Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error Store Website Order Not Present", "", "", "", "");
+                    return response()->json('Website Order Not Present',400);
+                }
+                $storeWebsiteOrder->update(['order_id', $status]);
+            }else{
+                $this->createOrderMagentoErrorLog($order->id, 'Store Website Order Not Present'); 
+                $this->createEmailSendJourneyLog($id, "Magento Error", Order::class,  "outgoing", "0" , $request->from_mail, $request->to_mail, "Magento Error Store Website Order Not Present", "", "", "", "");
+                return response()->json('Store Website Order Not Present',400);
+            }
         }
+        return response()->json('Success', 200); 
     }
     public function getInvoiceDetails(Request $request, $invoiceId)
     {
