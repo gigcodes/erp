@@ -120,6 +120,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('live-brands','BrandController@liveBrands')->name("store-website.brand.live-brands");
         Route::get('missing-brands','BrandController@missingBrands')->name("store-website.brand.missing-brands");
         Route::post('reconsile-brand','BrandController@reconsileBrands')->name("store-website.brand.reconsile-brands");
+        Route::post('reconsile-brand-history-log','BrandController@reconsileBrandsHistoryLog')->name("reconsile-brands-history-log");
+        Route::post('push-brand-history-log','BrandController@pushBrandsLog')->name("push-brands-history-log");
     });
 
     Route::prefix('price-override')->group(function () {

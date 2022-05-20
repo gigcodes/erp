@@ -9,7 +9,31 @@
 	  width: auto;
 	}
 </style>
-
+<style>
+	.loader-small {
+		border: 2px solid #b9b7b7;
+		border-radius: 50%;
+		border-top: 4px dotted #4e4949;
+		width: 21px;
+		height: 21px;
+	  	-webkit-animation: spin 2s linear infinite; /* Safari */
+	  	animation: spin 2s linear infinite;
+	  	float: left;
+		margin: 8px;
+		display: none;
+	}
+	
+	/* Safari */
+	@-webkit-keyframes spin {
+	  0% { -webkit-transform: rotate(0deg); }
+	  100% { -webkit-transform: rotate(360deg); }
+	}
+	
+	@keyframes spin {
+	  0% { transform: rotate(0deg); }
+	  100% { transform: rotate(360deg); }
+	}
+	</style>
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
         <h2 class="page-heading">{{ $title }} (<span id="count">{{ $brands->count() }}</span>)</h2>
@@ -31,11 +55,12 @@
 		  			</button>
 		  			<form class="form-inline message-search-handler" action="?" method="get">
 		  				<input type="hidden" name="push" value="1">
-				  		<div class="form-group">
+						<div class="form-group">
 						    <label for="keyword">Store Wesbite:</label>
 						    <?php echo Form::select("store_website_id",\App\StoreWebsite::pluck('title','id')->toArray(),request("store_website_id"),["class"=> "form-control select2","placeholder" => "Select Website"]) ?>
 					  	</div>
-					  	&nbsp;
+						<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-reconsile-history" title="Show History" data-type_history="push-brand"><i class="fa fa-info-circle"></i></button>
+				  		&nbsp;
 						<div class="form-group">
 					  		<label for="button">&nbsp;</label>
 					  		<button type="submit" class="btn btn-secondary">
@@ -46,6 +71,8 @@
 				 </div>
 		    </div>
 		    <div class="col reconsile-brand-form">
+				<div class="loader-small"></div>
+				<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-reconsile-history" title="Show History" data-type_history="reconsile"><i class="fa fa-info-circle"></i></button>
 		    	<div class="h" style="margin-bottom:10px;">
 					<div class="row">
 						<div class="form-group">
@@ -57,7 +84,7 @@
             <div class="col">
                 <div class="h" style="margin-bottom:10px;">
                     <div class="row">
-                        <div class="form-group">
+						<div class="form-group">
                             <button class="btn btn-secondary btn-reconsile-brand">Reconsile</button>
                         </div>
                     </div>
@@ -191,6 +218,19 @@
 	        <div class="modal-body"></div>
     	</div>
 	</div>
+</div>
+
+<div id="brand-historys" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+	  <!-- Modal content-->
+	  <div class="modal-content">
+		  <div class="modal-header">
+			  <h4 class="modal-title"></h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+		  </div>
+		  <div class="modal-body brand-historys-data"></div>
+	  </div>
+  </div>
 </div>
 
 <div id="missing-live-data" class="modal fade" role="dialog">
@@ -345,10 +385,10 @@
                     _token : "{{ csrf_token() }}"
                 },
                 beforeSend: function() {
-                  $("#loading-image").show();
+                  $(".loader-small").show();
                 },
                 success: function(response) {
-                    $("#loading-image").hide();
+                    $(".loader-small").hide();
                     if(response.code == 200) {
                         toastr["success"](response.message);
                     }else{
@@ -356,7 +396,7 @@
                     }
                 },
                 error: function(response) {
-                    $("#loading-image").hide();
+                    $(".loader-small").hide();
                     toastr["error"]("Oops, something went wrong");
                 }
             });
@@ -406,6 +446,63 @@
 		}
 	});
 	//End load more functionality
+
+	
+	$(document).on("click",".show-reconsile-history",function(e) {
+	    e.preventDefault();
+		var $this = $(this);
+		var type_history = $this.data("type_history");
+		if(type_history == 'reconsile'){
+			var urls = "/store-website/brand/reconsile-brand-history-log"; 
+			var title = 'Reconsile Brand History Log'
+		} else {
+			var urls = "/store-website/brand/push-brand-history-log"; 
+			var title = 'Push Brand History Log'
+		}
+		$.ajax({
+			url: urls,
+			type: 'POST',
+			data : {
+				_token : "{{ csrf_token() }}",
+			},
+			beforeSend: function() {
+				$("#loading-image").show();
+			},
+			success: function(response) {
+				$("#loading-image").hide();
+				if(response.code == 200) {
+					
+					toastr["success"](response.message);
+					var t = '';
+					t += '<table class="table table-bordered">';
+					t += '<tr>';
+					t += '<th>ID</th><th>Store Webite ID</th><th>Error Type</th><th>Error</th><th>Date</th>';
+					t += '</tr>'
+					$.each(response.data,function(k,v) {
+						t += `<tr><td>`+v.id+`</td>`;
+						t += `<td>`+v.websiteName+`</td>`;
+						t += `<td>`+v.error_type+`</td>`;
+						t += `<td>`+v.error+`</td>`;
+						t += `<td>`+v.created_at+`</td></tr>`;
+					});
+					t += '</table>';
+					
+					$("#brand-historys").find(".modal-body").html("");
+					$("#brand-historys").find(".modal-body").html(t);
+					$("#brand-historys").find(".modal-title").html(title);
+					$('#brand-historys').modal("show");
+					$("#loading-image").hide();
+				}else{
+					$("#loading-image").hide();
+					toastr["error"](response.message);
+				}
+			},
+			error: function(response) {
+				$("#loading-image").hide();
+				toastr["error"]("Oops, something went wrong");
+			}
+		});
+    });
 </script>
 
 @endsection
