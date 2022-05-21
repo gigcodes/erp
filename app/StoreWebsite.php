@@ -101,7 +101,8 @@ class StoreWebsite extends Model
         'border_thickness',
         'sale_old_products',
         'website_address',
-		'twilio_greeting_message'
+		'twilio_greeting_message',
+        'is_debug_true',
     ];
 
     const DB_CONNECTION = [
