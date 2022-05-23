@@ -3030,7 +3030,9 @@ Route::middleware('auth')->group(function () {
     Route::get('website/website-store-log', 'WebsiteLogController@store')->name('website.store.log');
     Route::get('website/website-log-file-view/{path?}', 'WebsiteLogController@websiteLogFileView')->name('website.log.file.view');
     Route::get('website/log/file-list', 'WebsiteLogController@index')->name('website.file.list.log');
+    Route::get('website/search/log/file-list', 'WebsiteLogController@searchWebsiteLog')->name('search.website.file.list.log');
     Route::get('website/log/view', 'WebsiteLogController@websiteLogStoreView')->name('website.log.view');
+    Route::get('website/search/log/view', 'WebsiteLogController@searchWebsiteLogStoreView')->name('website.search.log.view');
     
 });
 
