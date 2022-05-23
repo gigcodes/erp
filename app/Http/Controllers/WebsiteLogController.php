@@ -203,10 +203,7 @@ class WebsiteLogController extends Controller
                 $dataArr =  $dataArr->where('sql_query', 'LIKE', '%'.$request->sql_query.'%');    
             if($request->time)
                 $dataArr =  $dataArr->where('time', 'LIKE', '%'.$request->time.'%');    
-            \DB::enableQueryLog();
             $dataArr =  $dataArr->get();
-            //if(isset($request->sql_query))
-            //dd(\DB::getQueryLog());
             $sqlQuery = $request->sql_query;
             $time = $request->time;
             return view('website-logs.website-log-view',compact('dataArr', 'sqlQuery', 'time')); 
