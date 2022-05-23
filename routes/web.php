@@ -3630,6 +3630,8 @@ Route::get('gtmetrix/getstatscomparison/{id}', 'gtmetrix\WebsiteStoreViewGTMetri
 Route::any('gtmetrix/categories','gtmetrix\WebsiteStoreViewGTMetrixController@listGTmetrixCategories')->name('gtmetrix.category.list');
 Route::any('gtmetrix/gtmetrixReport','gtmetrix\WebsiteStoreViewGTMetrixController@listWebsiteWiseCategories')->name('gtmetrix.Report.list');
 Route::post('gtmetrix/gtmetrixReportData','gtmetrix\WebsiteStoreViewGTMetrixController@WebsiteWiseCategoriesReport')->name('gtmetrix.single.report');
+Route::get('gtmetrix/error-index','GTMatrixErrorLogController@index')->name('gtmetrix.error.index.list');
+Route::any('gtmetrix/error-list','GTMatrixErrorLogController@listGTmetrixError')->name('gtmetrix.error.list');
 // Route::resource('GtMetrixAccounts', StoreGTMetrixAccountController::class);
 Route::get('gtmetrix-accounts', 'StoreGTMetrixAccountController@index')->name('GtMetrixAccount.index');
 Route::get('gtmetrixAccount/edit-info/{id}', 'StoreGTMetrixAccountController@edit')->name('account.edit');
