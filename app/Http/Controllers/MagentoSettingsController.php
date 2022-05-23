@@ -65,6 +65,10 @@ class MagentoSettingsController extends Controller
         if ($request->path != '') {
             $magentoSettings->where('magento_settings.path', 'LIKE', '%' . $request->path . '%');
         }
+        if ($request->status != '') {
+            $magentoSettings->where('magento_settings.status', 'LIKE', '%' . $request->status . '%');
+        }
+        
         $magentoSettings   = $magentoSettings->orderBy('magento_settings.created_at', 'DESC')->paginate(25);
         $storeWebsites     = StoreWebsite::get();
         $websitesStores    = WebsiteStore::get()->pluck('name')->unique()->toArray();
@@ -582,7 +586,6 @@ class MagentoSettingsController extends Controller
 
     public function namehistrory($id)
     {
-
         $ms    = MagentoSettingNameLog::select('magento_setting_name_logs.*', 'users.name')->leftJoin('users', 'magento_setting_name_logs.updated_by', 'users.id')->where('magento_settings_id', $id)->get();
         $table = "<table class='table table-bordered text-nowrap' style='border: 1px solid #ddd;'><thead><tr><th>Date</th><th>Old Value</th><th>New Value</th><th>Created By</th></tr></thead><tbody>";
         foreach ($ms as $m) {
@@ -601,7 +604,7 @@ class MagentoSettingsController extends Controller
         $data = '';
         foreach ($logs as $log) {
             $cmdOutputs = json_decode($log['command_output']);
-            $data .= '<tr><td>' . $log['created_at'] . '</td><td>' . $log['command'] . '</td><td>' . $log['status'] . '</td><td>';
+            $data .= '<tr><td>' . $log['created_at'] . '</td><td style="overflow-wrap: anywhere;">' . $log['command'] . '</td><td style="overflow-wrap: anywhere;">' . $log['status'] . '</td><td>';
             if (!empty($cmdOutputs)) {
                 foreach ($cmdOutputs as $cmdOutput) {
                     $data .= $cmdOutput . '<br/>';
