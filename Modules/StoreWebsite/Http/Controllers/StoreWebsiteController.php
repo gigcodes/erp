@@ -179,6 +179,16 @@ class StoreWebsiteController extends Controller
             $chat_message = ChatMessage::create($params);
         }
 
+        if($request->is_debug_true){
+            if(!$request->server_ip){
+                $outputString = 'Server IP is required to enable db logs';  
+                return response()->json(["code" => 500, "error" => $outputString]);
+            }
+            if($records->is_debug_true !== $request->is_debug_true){
+                return $this->enableDBLog($request);
+            }  
+        }
+
 		if($id == 0) {
 			$siteDevelopmentCategories  =  SiteDevelopmentCategory::all();
 			foreach ($siteDevelopmentCategories as $develop) {
@@ -913,6 +923,15 @@ class StoreWebsiteController extends Controller
 		}
 	}
 
+
+    public function enableDBLog($website){
+        $cmd = "bash " . getenv('DEPLOYMENT_SCRIPTS_PATH') . "magento-debug.sh --server ".$website->server_ip." --debug ".($website->is_debug_true ? 'true' : 'false')."' 2>&1";
+        $allOutput   = array();
+        $allOutput[] = $cmd;
+        $result      = exec($cmd, $allOutput);
+        \Log::info(print_r($allOutput,true));
+        return $result;
+    }
     public function checkMagentoToken(Request $request){
         $token = $request->id;
         $magentoHelper = new MagentoHelperv2();
@@ -922,6 +941,7 @@ class StoreWebsiteController extends Controller
         }else{
             return response()->json(["code" => 500 , "message" => "Token is invalid"]);
         }
+
     }
 
 }
