@@ -60,7 +60,6 @@ class TasksController extends Controller
 
     public function view(Task $task)
     {
-        
         return response()->json([
             'task'  => $task,
             'results'  => $task->results->count() > 0 ? number_format(  $task->results->sum('duration') / (1000 * $task->results->count()) , 2) : '0', 

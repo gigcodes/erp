@@ -923,6 +923,7 @@ class StoreWebsiteController extends Controller
 		}
 	}
 
+
     public function enableDBLog($website){
         $cmd = "bash " . getenv('DEPLOYMENT_SCRIPTS_PATH') . "magento-debug.sh --server ".$website->server_ip." --debug ".($website->is_debug_true ? 'true' : 'false')."' 2>&1";
         $allOutput   = array();
@@ -930,6 +931,17 @@ class StoreWebsiteController extends Controller
         $result      = exec($cmd, $allOutput);
         \Log::info(print_r($allOutput,true));
         return $result;
+    }
+    public function checkMagentoToken(Request $request){
+        $token = $request->id;
+        $magentoHelper = new MagentoHelperv2();
+        $result = $magentoHelper->checkToken($token,$request->url);
+        if($result){
+            return response()->json(["code" => 200 , "message" => "Token is valid"]);
+        }else{
+            return response()->json(["code" => 500 , "message" => "Token is invalid"]);
+        }
+
     }
 
 }
