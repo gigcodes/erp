@@ -65,10 +65,10 @@ class WebsiteCreateLog extends Command
                             $fullPath = File::allFiles($mainPath);
                             foreach ($fullPath as $key => $val) {
 
-                                if(file_exists($mainPath.$websiteName.'/'.$val->getFilename()) && $val->getFilename() == 'db.log')
+                                if(file_exists($mainPath.$websiteName.'/'.$val->getFilename()) && $val->getFilename() == 'debug.log')
                                 {
-                                    if($val->getFilename() == 'db.log')
-                                        $fileTypeName = 'db';
+                                    if($val->getFilename() == 'debug.log')
+                                        $fileTypeName = 'debug';
                                     else   
                                         $fileTypeName = $val->getFilename();
                                     $content = File::get($mainPath.$websiteName.'/'.$val->getFilename());
