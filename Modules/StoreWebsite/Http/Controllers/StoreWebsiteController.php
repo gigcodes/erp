@@ -157,10 +157,7 @@ class StoreWebsiteController extends Controller
                     return response()->json(["code" => 500, "error" => $outputString]);
                 }
                 if($records->is_debug_true !== $request->is_debug_true){
-                    dd($records->is_debug_true);
                     $this->enableDBLog($request);
-                }else{
-                    dd('not here');
                 }  
             }
         }
