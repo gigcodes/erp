@@ -150,9 +150,20 @@ class StoreWebsiteController extends Controller
 
         if (!$records) {
             $records = new StoreWebsite;
+        }else{
+            if($request->is_debug_true){
+                if(!$request->server_ip){
+                    $outputString = 'Server IP is required to enable db logs';  
+                    return response()->json(["code" => 500, "error" => $outputString]);
+                }
+                if($records->is_debug_true !== $request->is_debug_true){
+                    return $this->enableDBLog($request);
+                }  
+            }
         }
        
         $records->fill($post);
+
         $records->save();
 
 		if(isset($post['username'])) {
@@ -179,15 +190,7 @@ class StoreWebsiteController extends Controller
             $chat_message = ChatMessage::create($params);
         }
 
-        if($request->is_debug_true){
-            if(!$request->server_ip){
-                $outputString = 'Server IP is required to enable db logs';  
-                return response()->json(["code" => 500, "error" => $outputString]);
-            }
-            if($records->is_debug_true !== $request->is_debug_true){
-                return $this->enableDBLog($request);
-            }  
-        }
+        
 
 		if($id == 0) {
 			$siteDevelopmentCategories  =  SiteDevelopmentCategory::all();
