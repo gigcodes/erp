@@ -375,7 +375,7 @@ class MagentoSettingsController extends Controller
                         }
                         $m_setting->status = $status;
                         $m_setting->save();
-                        MagentoSettingPushLog::create(['store_website_id' => $storeWebsite['id'], 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
+                        MagentoSettingPushLog::create(['store_website_id' => $storeWebsite['id'], 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($result), 'status' => $status]);
                         \Log::info(print_r(["Command Output", $allOutput], true));
                     else:
                         return response()->json(["code" => 500, "message" => "Request has been failed on stage server please check laravel log"]);
