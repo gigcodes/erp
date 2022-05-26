@@ -926,7 +926,7 @@ class StoreWebsiteController extends Controller
 
     public function enableDBLog($website){
         $cmd = "bash " . getenv('DEPLOYMENT_SCRIPTS_PATH') . "magento-debug.sh --server ".$website->server_ip." --debug ".($website->is_debug_true ? 'true' : 'false')."' 2>&1";
-        \Log::info($cmd);
+        \Log::info('[SatyamTest] '.$cmd);
         $allOutput   = array();
         $allOutput[] = $cmd;
         $result      = exec($cmd, $allOutput);
