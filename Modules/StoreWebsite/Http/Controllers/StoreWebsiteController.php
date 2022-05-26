@@ -151,7 +151,7 @@ class StoreWebsiteController extends Controller
         if (!$records) {
             $records = new StoreWebsite;
         }else{
-            if($request->is_debug_true){
+            if(is_null($request->is_debug_true)){
                 if(!$request->server_ip){
                     $outputString = 'Server IP is required to enable db logs';  
                     return response()->json(["code" => 500, "error" => $outputString]);
@@ -161,6 +161,8 @@ class StoreWebsiteController extends Controller
                 }else{
                     dd('not here');
                 } 
+            }else{
+                dd('not here expected');
             }
         }
        
