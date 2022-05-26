@@ -158,7 +158,9 @@ class StoreWebsiteController extends Controller
                 }
                 if($records->is_debug_true !== $request->is_debug_true){
                     $this->enableDBLog($request);
-                }  
+                }else{
+                    dd('not here');
+                } 
             }
         }
        
