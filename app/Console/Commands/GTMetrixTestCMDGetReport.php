@@ -58,7 +58,7 @@ class GTMetrixTestCMDGetReport extends Command
         $storeViewList = StoreViewsGTMetrix::whereNotNull('test_id')
             ->whereNotIn('status', ['completed','error', 'not_queued'])
             ->orderBY('id', 'desc')
-            ->get();
+            ->get()->take(1);
         dd($storeViewList);   
         $Api_key = env('PAGESPEEDONLINE_API_KEY1'); 
         
