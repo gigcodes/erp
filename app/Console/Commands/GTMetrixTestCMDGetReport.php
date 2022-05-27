@@ -133,7 +133,7 @@ class GTMetrixTestCMDGetReport extends Command
                 //         }
                 //     }
                 // }
-               
+                dd($value->account_id);    
                 if(!empty($value->account_id)){
                     
                     $gtmatrix = StoreGTMetrixAccount::where('account_id', $value->account_id)->where('status', 'active')->first();
