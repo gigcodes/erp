@@ -60,7 +60,7 @@ class GTMetrixTestCMDGetReport extends Command
             ->orderBY('id', 'desc')
             ->get()->take(1);
         
-        $Api_key = env('PAGESPEEDONLINE_API_KEY1'); 
+        $Api_key = env('PAGESPEEDONLINE_API_KEY'); 
         
         foreach ($storeViewList as $value) {
             
