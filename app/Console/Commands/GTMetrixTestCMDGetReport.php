@@ -59,7 +59,7 @@ class GTMetrixTestCMDGetReport extends Command
             ->whereNotIn('status', ['completed','error', 'not_queued'])
             ->orderBY('id', 'desc')
             ->get()->take(1);
-        dd($storeViewList);   
+        
         $Api_key = env('PAGESPEEDONLINE_API_KEY1'); 
         
         foreach ($storeViewList as $value) {
@@ -83,6 +83,7 @@ class GTMetrixTestCMDGetReport extends Command
                 ));
     
                 $response = curl_exec($curl);
+                dd($response);
                   // Get possible error
                 $err = curl_error($curl);
                 
