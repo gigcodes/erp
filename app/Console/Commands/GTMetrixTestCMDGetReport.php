@@ -83,8 +83,7 @@ class GTMetrixTestCMDGetReport extends Command
                 ));
     
                 $response = curl_exec($curl);
-                dd($response);
-                  // Get possible error
+                // Get possible error
                 $err = curl_error($curl);
                 
                 curl_close($curl);
