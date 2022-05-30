@@ -29,7 +29,7 @@ class GooglePageSpeedRepository
         $JsonfileName = '/uploads/speed-insight/' . $gtmatrix->test_id . '_pagespeedInsight.json';
         $Jsonfile     = public_path() . $JsonfileName;
         file_put_contents($Jsonfile,$response);
-        $gtmatrix->pagespeed_json_file = $JsonfileName;
+        $gtmatrix->pagespeed_insight_json = $JsonfileName;
         $gtmatrix->save();
     }
 }
