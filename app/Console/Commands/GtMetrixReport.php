@@ -48,9 +48,9 @@ class GtMetrixReport extends Command
                 $gtMatrixURL->update(['status' => 'error','reason' => 'No gt-metrix account assoicated with this test']);
                 continue;
             }
-            //app(GtMatrixRepository::class)->generateLog($gtMatrixURL);
-            //Getting the record from gt-metrix
-            app(GooglePageSpeedRepository::class)->generateReport($gtMatrixURL,$gtMatrixURL->account);
+            app(GtMatrixRepository::class)->generateLog($gtMatrixURL);
+            //Getting the record from google page speed
+            app(GooglePageSpeedRepository::class)->generateReport($gtMatrixURL);
 
         }
 
