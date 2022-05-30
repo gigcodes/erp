@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use App\GTMetrixCategories;
+use App\Repositories\GtMatrixRepository;
 
 class WebsiteStoreViewGTMetrixController extends Controller
 {
@@ -919,5 +920,22 @@ class WebsiteStoreViewGTMetrixController extends Controller
         }
         
         
+    }
+
+    public function runCurrentUrl(Request $request){
+        if(isset($request->rowid))
+		{
+			try
+            {
+                $gtmetrixURL = StoreViewsGTMetrixUrl::find($request->rowid);
+                app(GtMatrixRepository::class)->pushtoTest($gtmetrixURL);
+                return response()->json(["code" => 200, "message" => "Record Pushed to Queue"]);
+            }
+			catch (\Exception $e) 
+            {
+                return response()->json(["code" => 500, "message" => "Error :" . $e->getMessage()]);
+            }
+			
+		}
     }
 }
