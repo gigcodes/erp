@@ -31,6 +31,7 @@ class GtMatrixRepository
         $update = [
             'test_id' => $test->getId(),
             'status'  => 'queued',
+            'account_id' => $gtAccount->account_id,
         ];
         $gtMatrix->update($update);
         if(!$gtMatrix->test_id){
@@ -54,7 +55,7 @@ class GtMatrixRepository
         }
         dd('Not account exist');
     }
-    
+
     public function getAvailableAccounts($gtmatrixAccount = null){
         if(!$this->checkGtmatrixAccountCredit($gtmatrixAccount)){
             $gtmatrixAccounts = StoreGTMetrixAccount::where('status', 'active')->orderBy('id','desc')->get();
