@@ -138,7 +138,7 @@ class GtMatrixRepository
         }
         //Generate Pagespeed 
         if (!empty($resources['pagespeed'])) {
-            $this->generateFile($resources['yslow'],$gtMatrixAccount,$gtmatrix,'_pagespeed.json','pagespeed_json');
+            $this->generateFile($resources['pagespeed'],$gtMatrixAccount,$gtmatrix,'_pagespeed.json','pagespeed_json');
         }
     }
 
