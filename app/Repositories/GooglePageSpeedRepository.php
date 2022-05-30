@@ -5,12 +5,18 @@ namespace App\Repositories;
 
 class GooglePageSpeedRepository
 {
-    public function generateReport($gtmatrix,$gtMatrixAccount){
+    public function generateReport($gtmatrix){
         
         $Api_key = env('PAGESPEEDONLINE_API_KEY'); 
         $curl = curl_init();
+        $url = $gtmatrix->website_url;
+        $parsed = parse_url($url);
+        if (empty($parsed['scheme'])) {
+            $url = 'https://' . ltrim(strtolower($url), '/');
+        }
+        
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url='.$gtmatrix->website_url.'&key='.$Api_key,
+            CURLOPT_URL => 'https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url='.$url.'&key='.$Api_key,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
