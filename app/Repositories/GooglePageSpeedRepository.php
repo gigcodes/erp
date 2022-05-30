@@ -26,7 +26,7 @@ class GooglePageSpeedRepository
         $response = curl_exec($curl);
         curl_close($curl);
 
-        $JsonfileName = '/uploads/speed-insight/' . $gtMatrixAccount->test_id . '_pagespeedInsight.json';
+        $JsonfileName = '/uploads/speed-insight/' . $gtmatrix->test_id . '_pagespeedInsight.json';
         $Jsonfile     = public_path() . $JsonfileName;
         file_put_contents($Jsonfile,$response);
         $gtmatrix->pagespeed_json_file = $JsonfileName;
