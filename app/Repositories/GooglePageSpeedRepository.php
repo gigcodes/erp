@@ -10,7 +10,7 @@ class GooglePageSpeedRepository
         $Api_key = env('PAGESPEEDONLINE_API_KEY'); 
         $curl = curl_init();
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url='.$gtMatrixAccount->website_url.'&key='.$Api_key,
+            CURLOPT_URL => 'https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url='.$gtmatrix->website_url.'&key='.$Api_key,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
