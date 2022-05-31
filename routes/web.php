@@ -2209,6 +2209,35 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('hubstaff/debug', 'HubstaffController@debug');
     Route::get('hubstaff/payments', 'UserController@payments');
     Route::post('hubstaff/makePayment', 'UserController@makePayment');
+
+    /***
+     * use for Postman 
+     * Created By Nikunj
+     * Date: 25-05-2022
+     */
+    Route::get('postman', 'PostmanRequestCreateController@index');
+    Route::get('postman/search', 'PostmanRequestCreateController@search');
+    Route::post('/postman/create', 'PostmanRequestCreateController@store');
+    Route::post('/postman/edit', 'PostmanRequestCreateController@edit');
+    Route::delete('postman/delete', 'PostmanRequestCreateController@destroy');
+    
+    Route::get('postman/folder', 'PostmanRequestCreateController@folderindex');
+    Route::get('postman/folder/search', 'PostmanRequestCreateController@folderSearch');
+    Route::post('postman/folder/create', 'PostmanRequestCreateController@folderStore');
+    Route::post('/postman/folder/edit', 'PostmanRequestCreateController@folderEdit');
+    Route::delete('postman/folder/delete', 'PostmanRequestCreateController@folderDestroy');
+    Route::post('postman/history', 'PostmanRequestCreateController@postmanHistoryLog');
+    
+    Route::get('postman/call/workspace', 'PostmanRequestCreateController@getPostmanWorkSpaceAPI');
+    Route::get('postman/call/collection', 'PostmanRequestCreateController@getAllPostmanCollectionApi');
+    
+    Route::get('postman/create/collection', 'PostmanRequestCreateController@createPostmanCollectionAPI');
+    //Route::get('postman/create/request', 'PostmanRequestCreateController@createPostmanRequestAPI');
+    Route::get('postman/update/collection', 'PostmanRequestCreateController@updatePostmanCollectionAPI');
+    Route::get('postman/get/collection', 'PostmanRequestCreateController@getPostmanCollectionAndCreateAPI');
+
+    Route::get('postman/create/folder', 'PostmanRequestCreateController@createPostmanFolder');
+    Route::get('postman/create/request', 'PostmanRequestCreateController@createPostmanRequestAPI');
 });
 /*
  * @date 1/13/2019

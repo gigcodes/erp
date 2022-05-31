@@ -153,11 +153,13 @@
                     <input type="hidden" id="post_id" name="id" value=""/>
                     <div class="form-group col-md-12">
                       <label for="title">Folder Name</label>
-                      <select name="folder_name" class="form-control" id="folder_name">
+                      <input type="hidden" name="folder_real_name" id="folder_real_name" >
+                      <select name="folder_name" class="form-control folder_name" id="folder_name" required>
+                        <option>--Folder--</option>
                         <?php 
                           $ops = 'id';
                           foreach($folders as $folder){
-                              echo '<option value="'.$folder->id.'">'.$folder->name.'</option>';
+                              echo '<option value="'.$folder->id.'" data-folder_name="'.$folder->name.'">'.$folder->name.'</option>';
                           }
                         ?>
                       </select>
@@ -255,6 +257,13 @@
       $('#titleUpdate').html("Add");
         $('#postmanform').find("input[type=text], textarea").val("");
     });
+
+    $(document).on("change",".folder_name",function(e){
+        e.preventDefault();
+          var folder_name = $(this).find(':selected').attr('data-folder_name');
+          $('#folder_real_name').val(folder_name);
+    });
+
     $(document).on("click",".delete-postman-btn",function(e){
         e.preventDefault();
         if (confirm("Are you sure?")) {

@@ -87,7 +87,7 @@ class PostmanRequestCreateController extends Controller
             } else {
                 $postman = new PostmanRequestCreate();
                 $type = 'Created';
-                $this->updatePostmanCollectionAPI($request);
+                //$this->updatePostmanCollectionAPI($request);
             }
             $postman->folder_name = $request->folder_name;
             $postman->request_name = $request->request_name;
@@ -103,6 +103,12 @@ class PostmanRequestCreateController extends Controller
             $postman->tests = $request->tests;
             $postman->save();
             $this->createPostmanHistory($postman->id, $type);
+            if($type == 'Created'){
+                $this->createPostmanRequestAPI($postman->folder_name,$request);
+                $res = $this->createPostmanFolder($postman->folder_name, $request->folder_real_name);
+                //dd($res);
+            }
+
             return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
@@ -325,12 +331,15 @@ class PostmanRequestCreateController extends Controller
 
     public function getPostmanCollectionAndCreateAPI(Request $request) 
     {
-        $requestData['folder_name'] = isset($request->folder_name) ? $request->folder_name : 'This is a folder';
+        $requestData['folder_name'] = isset($request->folder_real_name) ? $request->folder_real_name : 'test New Folder';
         $requestData['request_name'] = isset($request->request_name) ? $request->request_name : 'This is New Request';
         $requestData['request_url'] = isset($request->request_url) ? $request->request_url : 'https://google.com';
         $requestData['request_type'] = isset($request->request_type) ? $request->request_type : 'POST';
         $requestData['body_json'] = isset($request->body_json) ? $request->body_json : '{"id": "1", "name":"hello"}';
 
+        // Create folder
+        //$this->createPostmanFolder($request->folder_name, $request->folder_real_name);
+        
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
@@ -356,7 +365,8 @@ class PostmanRequestCreateController extends Controller
         foreach($collect['collection']->item AS $key => $val){
             $vals = (array)$val;
             foreach($vals AS $ikey => $ival){
-                if($ival == 'ERP folder') {    
+                if($ival == $requestData['folder_name']) {   
+                    //print_r($ival); 
                     $collectNew['collection']->item[$key]->item[] = array(
                         "name" => $requestData['request_name'],
                         "request" => array(
@@ -376,10 +386,10 @@ class PostmanRequestCreateController extends Controller
                 }
             }
         } //end foreach
-        // if($request->isjson) {
+        if($request->isjson) {
            
-        //     echo '<pre>';print_r(($collectNew)); exit;
-        // }
+            echo '<pre>';print_r(($collectNew)); exit;
+        }
         return json_encode((object) $collectNew);
     }
 
@@ -400,6 +410,8 @@ class PostmanRequestCreateController extends Controller
                                             "schema" => "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
                                             );
         */
+        
+
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
@@ -467,8 +479,7 @@ class PostmanRequestCreateController extends Controller
         ,
         CURLOPT_HTTPHEADER => array(
             'Content-Type: application/json',
-            'X-API-Key: PMAK-628e2e514dda7828c6d31346-c9d017e28c87fc3ab2f27fee66118eec62
-        '
+            'X-API-Key: PMAK-628e2e514dda7828c6d31346-c9d017e28c87fc3ab2f27fee66118eec62'
         ),
         )
     );
@@ -478,12 +489,53 @@ class PostmanRequestCreateController extends Controller
         curl_close($curl);
         echo $response;
     }
+    
+    public function createPostmanFolder($fID = '', $fName = ''){
+        if($fID == '')
+            $fID = '1';
+        if($fName == '')
+            $fName = 'test New Folder';
+        
+        $curl = curl_init(); 
+        curl_setopt_array($curl, array( CURLOPT_URL => 'https://api.getpostman.com/collections/40e314b8-610d-4396-824f-2d7896ac1914/folders', 
+        CURLOPT_RETURNTRANSFER => true, CURLOPT_ENCODING => '', 
+        CURLOPT_MAXREDIRS => 10, CURLOPT_TIMEOUT => 0, 
+        CURLOPT_FOLLOWLOCATION => true, 
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, 
+        CURLOPT_CUSTOMREQUEST => 'POST', 
+        CURLOPT_POSTFIELDS =>'{ 
+            "id": "'.$fID.'", 
+            "name": "'.$fName.'", 
+            "description": "This is a test collection folder." 
+        }', 
+        CURLOPT_HTTPHEADER => array( 
+            'Accept: application/vnd.postman.v2+json', 
+            'X-API-Key: PMAK-628e2e514dda7828c6d31346-c9d017e28c87fc3ab2f27fee66118eec62', 
+            'Content-Type: application/json' ), 
+        )); 
+        $response = curl_exec($curl);
+        curl_close($curl); 
+        echo $response;
+    }
 
-    public function createPostmanRequestAPI(){
+    public function createPostmanRequestAPI($fID = '',$request = ''){
+        $requestData['id'] = isset($request->id) ? $request->id : '1';
+        $requestData['folder_name'] = isset($request->folder_real_name) ? $request->folder_real_name : 'test New Folder';
+        $requestData['request_name'] = isset($request->request_name) ? $request->request_name : 'This is New Request';
+        $requestData['request_url'] = isset($request->request_url) ? $request->request_url : 'https://google.com';
+        $requestData['request_type'] = isset($request->request_type) ? $request->request_type : 'POST';
+        $requestData['body_json'] = isset($request->body_json) ? $request->body_json : '{"id": "1", "name":"hello"}';
+        $requestData['isjson'] = isset($request->isjson) ? $request->isjson : 'isjson';
+
+        if($fID == '')
+            $fID = '1';
+        if( $requestData['folder_name'] == '')
+            $fName = 'test New Folder';
+        
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://api.getpostman.com/collections',
+        CURLOPT_URL => 'https://api.getpostman.com/collections/40e314b8-610d-4396-824f-2d7896ac1914/requests?folder='.$fID,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -492,51 +544,24 @@ class PostmanRequestCreateController extends Controller
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => 'POST',
         CURLOPT_POSTFIELDS =>'{
-            "collection": {
-                "info": {
-                    "name": "ERP",
-                    "description": "This is just a sample collection.",
-                    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-                },
-                "item": [
-                    {
-                        "name": "ERP Folder",
-                        "item": [
-                            {
-                                "name": "Sample GET Request",
-                                "request": {
-                                    "url": "https://postman-echo.com/post-new",
-                                    "method": "POST",
-                                    "header": [
-                                        {
-                                            "key": "Content-Type",
-                                            "value": "application/json"
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "{\\"data\\": \\"123\\"}"
-                                    },
-                                    "description": "This is a sample POST Request"
-                                }
-                            },
-                            {
-                                "name": "Sample GET Request",
-                                "request": {
-                                    "url": "https://postman-echo/get",
-                                    "method": "GET",
-                                    "description": "This is a sample GET Request"
-                                }
-                            }
-                        ]
-                    }
-                ]
-            }
+            "id": "'.$requestData['id'].'",
+            "name": "'.$requestData['request_name'].'",
+            "description": "This is an '.$requestData['request_name'].'.",
+            "headers": "",
+            "url": "'.$requestData['request_url'].'",
+            "preRequestScript": "",
+            "pathVariables": {},
+            "method": "'.$requestData['request_type'].'",
+            "data": [
+                '.$requestData['body_json'].'
+            ],
+            "dataMode": "params",
+            "tests": "var data = JSON.parse(responseBody);"
         }',
         CURLOPT_HTTPHEADER => array(
+            'Accept: application/vnd.postman.v2+json',
+            'X-api-key: PMAK-628e2e514dda7828c6d31346-c9d017e28c87fc3ab2f27fee66118eec62',
             'Content-Type: application/json',
-            'X-API-Key: PMAK-628e2e514dda7828c6d31346-c9d017e28c87fc3ab2f27fee66118eec62
-        '
         ),
         ));
 
@@ -544,6 +569,89 @@ class PostmanRequestCreateController extends Controller
 
         curl_close($curl);
         echo $response;
+
+
+
+        if($requestData['isjson']) {
+           
+            echo '<pre>';print_r(($response)); exit;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+        // $curl = curl_init();
+
+        // curl_setopt_array($curl, array(
+        // CURLOPT_URL => 'https://api.getpostman.com/collections',
+        // CURLOPT_RETURNTRANSFER => true,
+        // CURLOPT_ENCODING => '',
+        // CURLOPT_MAXREDIRS => 10,
+        // CURLOPT_TIMEOUT => 0,
+        // CURLOPT_FOLLOWLOCATION => true,
+        // CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        // CURLOPT_CUSTOMREQUEST => 'POST',
+        // CURLOPT_POSTFIELDS =>'{
+        //     "collection": {
+        //         "info": {
+        //             "name": "ERP",
+        //             "description": "This is just a sample collection.",
+        //             "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+        //         },
+        //         "item": [
+        //             {
+        //                 "name": "ERP Folder",
+        //                 "item": [
+        //                     {
+        //                         "name": "Sample GET Request",
+        //                         "request": {
+        //                             "url": "https://postman-echo.com/post-new",
+        //                             "method": "POST",
+        //                             "header": [
+        //                                 {
+        //                                     "key": "Content-Type",
+        //                                     "value": "application/json"
+        //                                 }
+        //                             ],
+        //                             "body": {
+        //                                 "mode": "raw",
+        //                                 "raw": "{\\"data\\": \\"123\\"}"
+        //                             },
+        //                             "description": "This is a sample POST Request"
+        //                         }
+        //                     },
+        //                     {
+        //                         "name": "Sample GET Request",
+        //                         "request": {
+        //                             "url": "https://postman-echo/get",
+        //                             "method": "GET",
+        //                             "description": "This is a sample GET Request"
+        //                         }
+        //                     }
+        //                 ]
+        //             }
+        //         ]
+        //     }
+        // }',
+        // CURLOPT_HTTPHEADER => array(
+        //     'Content-Type: application/json',
+        //     'X-API-Key: PMAK-628e2e514dda7828c6d31346-c9d017e28c87fc3ab2f27fee66118eec62
+        // '
+        // ),
+        // ));
+
+        // $response = curl_exec($curl);
+
+        // curl_close($curl);
+        // echo $response;
     }
 
     
