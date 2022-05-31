@@ -53,87 +53,86 @@ class GTMetrixTestCMDGetReport extends Command
             'start_time' => Carbon::now(),
         ]);
 
-
         // Get site report
         $storeViewList = StoreViewsGTMetrix::whereNotNull('test_id')
             ->whereNotIn('status', ['completed','error', 'not_queued'])
             ->orderBY('id', 'desc')
-            ->get()->take(1);
-        
-        $Api_key = env('PAGESPEEDONLINE_API_KEY'); 
+            ->get();
+            
+        $Api_key = env('PAGESPEEDONLINE_API_KEY1'); 
         
         foreach ($storeViewList as $value) {
             
-                // if ($Api_key =="") {
-                //     $this->GTMatrixError($value->id, 'pagespeed',  'API Key not found', 'API Key not found');
-                // }
-                // $curl = curl_init();
-                // curl_setopt_array($curl, array(
-                // CURLOPT_URL => 'https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url='.$value->website_url.'&key='.$Api_key,
-                // CURLOPT_RETURNTRANSFER => true,
-                // CURLOPT_ENCODING => '',
-                // CURLOPT_MAXREDIRS => 10,
-                // CURLOPT_TIMEOUT => 0,
-                // CURLOPT_FOLLOWLOCATION => true,
-                // CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                // CURLOPT_CUSTOMREQUEST => 'GET',
-                // CURLOPT_HTTPHEADER => array(
-                //     'Accept: application/json'
-                // ),
-                // ));
+                if ($Api_key =="") {
+                    $this->GTMatrixError($value->id, 'pagespeed',  'API Key not found', 'API Key not found');
+                }
+                $curl = curl_init();
+                curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url='.$value->website_url.'&key='.$Api_key,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+                CURLOPT_HTTPHEADER => array(
+                    'Accept: application/json'
+                ),
+                ));
     
-                // $response = curl_exec($curl);
-                // // Get possible error
-                // $err = curl_error($curl);
+                $response = curl_exec($curl);
+                  // Get possible error
+                $err = curl_error($curl);
                 
-                // curl_close($curl);
-                // if ($err) {
-                //     $this->GTMatrixError($value->id, 'pagespeed',  'API response error', $err);
-                //     \Log::info('PageSpeedInsight :: Something went Wrong Not able to fetch site  Result' . $err );
-                //     echo "cURL Error #:" . $err;
-                // } else {
-                //     //echo $response;
-                // \Log::info(print_r(["Pagespeed Insight Result started to fetch"],true));
+                curl_close($curl);
+                if ($err) {
+                    $this->GTMatrixError($value->id, 'pagespeed',  'API response error', $err);
+                    \Log::info('PageSpeedInsight :: Something went Wrong Not able to fetch site  Result' . $err );
+                    echo "cURL Error #:" . $err;
+                } else {
+                    //echo $response;
+                \Log::info(print_r(["Pagespeed Insight Result started to fetch"],true));
 
-                //     // $pdfFileName = '/uploads/speed-insight/' . $value->test_id . '.pdf';
-                //     // $pdfFile     = public_path() . $pdfFileName;
-                //     // file_put_contents($pdfFile,$response);
+                    // $pdfFileName = '/uploads/speed-insight/' . $value->test_id . '.pdf';
+                    // $pdfFile     = public_path() . $pdfFileName;
+                    // file_put_contents($pdfFile,$response);
 
-                //     $JsonfileName = '/uploads/speed-insight/' . $value->test_id . '_pagespeedInsight.json';
-                //     $Jsonfile     = public_path() . $JsonfileName;
-                //     if(!file_exists($JsonfileName))
-                //         $this->GTMatrixError($value->id, 'pagespeed', 'File not found', $value->test_id . '_pagespeedInsight.json');
-                //     file_put_contents($Jsonfile,$response);
-                //     $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
+                    $JsonfileName = '/uploads/speed-insight/' . $value->test_id . '_pagespeedInsight.json';
+                    $Jsonfile     = public_path() . $JsonfileName;
+                    if(!file_exists($JsonfileName))
+                        $this->GTMatrixError($value->id, 'pagespeed', 'File not found', $value->test_id . '_pagespeedInsight.json');
+                    file_put_contents($Jsonfile,$response);
+                    $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
 
-                //     if(!$storeview)
-                //         $this->GTMatrixError($value->id, 'pagespeed', 'Store view test_id', 'store view test_id not found');
+                    if(!$storeview)
+                        $this->GTMatrixError($value->id, 'pagespeed', 'Store view test_id', 'store view test_id not found');
                     
-                //     \Log::info(print_r(["Store view found"],true));
+                    \Log::info(print_r(["Store view found"],true));
 
-                //     if ($storeview) {
-                //         $storeview->pagespeed_insight_json = $JsonfileName;
-                //         $storeview->save();
+                    if ($storeview) {
+                        $storeview->pagespeed_insight_json = $JsonfileName;
+                        $storeview->save();
 
-                //         if($response && !empty($response)){
-                //             $responseData = json_decode($response, true);
-                //             if(isset($responseData) && isset($responseData['lighthouseResult']) && $responseData['lighthouseResult'] != ""){
+                        if($response && !empty($response)){
+                            $responseData = json_decode($response, true);
+                            if(isset($responseData) && isset($responseData['lighthouseResult']) && $responseData['lighthouseResult'] != ""){
                                 
-                //                 foreach ($responseData['lighthouseResult']['audits'] as $key => $pageSpeedData) {
-                //                     $key_data = GTMetrixCategories::where('name', $key)->first();
-                //                     if(isset($key_data) && $key_data != "" && $key_data->website_url != $value->website_url && $key_data->test_id != $value->test_id){
+                                foreach ($responseData['lighthouseResult']['audits'] as $key => $pageSpeedData) {
+                                    $key_data = GTMetrixCategories::where('name', $key)->first();
+                                    if(isset($key_data) && $key_data != "" && $key_data->website_url != $value->website_url && $key_data->test_id != $value->test_id){
 
-                //                     }else{
-                //                         $GTMetrixCategories = new GTMetrixCategories();
-                //                         $GTMetrixCategories->name = $key;
-                //                         $GTMetrixCategories->source = 'Pagespeed Insight';
-                //                     }
-                //                 }
-                //             }
-                //         }
-                //     }
-                // }
-                dd($value->account_id);    
+                                    }else{
+                                        $GTMetrixCategories = new GTMetrixCategories();
+                                        $GTMetrixCategories->name = $key;
+                                        $GTMetrixCategories->source = 'Pagespeed Insight';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+               
                 if(!empty($value->account_id)){
                     
                     $gtmatrix = StoreGTMetrixAccount::where('account_id', $value->account_id)->where('status', 'active')->first();
@@ -158,7 +157,7 @@ class GTMetrixTestCMDGetReport extends Command
                         $response = curl_exec($curl);
                         $err = curl_error($curl);
                         if($err)
-                            $this->GTMatrixError($value->id, 'gtmetrix',  'Account ID Not found', 'account_id : '.$value->id.' Error'.$err);
+                            $this->GTMatrixError($value->id, 'gtmetrix',  'API response error', $err);
                         curl_close($curl);
                        // $stdClass = json_decode(json_encode($response));
                         $data = json_decode($response);
@@ -199,11 +198,10 @@ class GTMetrixTestCMDGetReport extends Command
                                 $response = curl_exec($curl);
                                 $err = curl_error($curl);
                                 if($err)
-                                    $this->GTMatrixError($value->id, 'gtmetrix',  'gtmetrix status error', $err);
+                                    $this->GTMatrixError($value->id, 'gtmetrix',  'API response error', $err);
                                 curl_close($curl);
                                 // decode the response 
                                 $data = json_decode($response);
-                                dd($data);
                                 $credits = $data->data->attributes->api_credits;
                                 if($credits!= 0){
                                     $username = $ValueData['email'];
@@ -251,7 +249,7 @@ class GTMetrixTestCMDGetReport extends Command
                                 $curlError  = curl_error($ch);
                                 $err = curl_error($curl);
                                 if($err)
-                                    $this->GTMatrixError($value->id, $resources['report_pdf'],  'Generate report pdf Error', $err);
+                                    $this->GTMatrixError($value->id, $resources['report_pdf'],  'API response error', $err);
                                 curl_close($ch);
             
                                 \Log::info(print_r(["Result started to fetch"],true));
@@ -263,11 +261,12 @@ class GTMetrixTestCMDGetReport extends Command
             
                                 \Log::info(print_r(["Store view found",$storeview],true));
             
-                                    if(!$storeview){
-                                        $this->GTMatrixError($value->id, 'pagespeed', 'Store view test_id', 'store view test_id not found');
-                                    }
+                                if ($storeview) if(!$storeview)
+                                $this->GTMatrixError($value->id, 'pagespeed', 'Store view test_id', 'store view test_id not found');
+                            {
                                     $storeview->pdf_file = $fileName;
                                     $storeview->save();
+                                }
                             }
                            
                             if (!empty($resources['pagespeed'])) {
@@ -283,7 +282,7 @@ class GTMetrixTestCMDGetReport extends Command
                                 $curlError  = curl_error($ch);
                                 $err = curl_error($curl);
                                 if($err)
-                                    $this->GTMatrixError($value->id, 'pagespeed',  'Result started to fetch pagespeed json error', $err);
+                                    $this->GTMatrixError($value->id, 'pagespeed',  'API response error', $err);
                                 curl_close($ch);
             
                                 \Log::info(print_r(["Result started to fetch pagespeed json"],true));
@@ -331,7 +330,7 @@ class GTMetrixTestCMDGetReport extends Command
                                 $curlError  = curl_error($ch);
                                 $err = curl_error($curl);
                                 if($err)
-                                    $this->GTMatrixError($value->id, 'yslow',  'Result started to fetch yslow json error', $err. ' Account ID : '.$value->id);
+                                    $this->GTMatrixError($value->id, 'yslow',  'API response error', $err);
                                 curl_close($ch);
             
                                 \Log::info(print_r(["Result started to fetch yslow json"],true));
@@ -370,11 +369,11 @@ class GTMetrixTestCMDGetReport extends Command
                             $value->error = $e->getMessage();
                             $value->save();
                             if($err)
-                                    $this->GTMatrixError($value->id, 'pagespeed',  'pagespeed catch error', $e->getMessage());
+                                    $this->GTMatrixError($value->id, 'pagespeed',  'catch error', $e->getMessage());
                         }
                 } else {
                     if(empty($value->account_id))
-                        $this->GTMatrixError($value->id, 'pagespeed', 'Store view Account_id', 'pagespeed store view Account id not found');
+                        $this->GTMatrixError($value->id, 'pagespeed', 'Store view Account_id', 'store view Account_id not found');
                     
                 }
             

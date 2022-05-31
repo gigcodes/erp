@@ -21,7 +21,7 @@ class GtMatrixRepository
 		$gtAccount = $this->getAvailableAccounts();
         if(!$gtAccount){
             $this->GTMatrixError($gtMatrix->id, 'Store Views GTMetrix',  'Account Do not found', 'Account Do not found');
-            dd('Not account exist');
+            return 'Account Do not found';
         }
         $client = new GTMetrixClient();
         $client->setUsername($gtAccount->email);
@@ -47,7 +47,7 @@ class GtMatrixRepository
         $gtAccount = $this->getAccount($gtmatrixAccount);
         if(!$gtAccount){
             $this->GTMatrixError($gtMatrix->id, 'Store GT Metrix Accoun',  'account_id ', 'Account account_id not found. Not account exist account_id : '.$gtMatrix->account_id);
-            dd('Not account exist');
+            return 'Account account_id not found. Not account exist account_id : '.$gtMatrix->account_id;
         }
         $this->getGtMatrixRecord($gtAccount,$gtMatrix);
     }
@@ -57,7 +57,7 @@ class GtMatrixRepository
             return $gtmatrixAccount;
         }
         $this->GTMatrixError($gtmatrixAccount->id, 'Store GT Metrix Accoun',  'account_id ', 'Account account_id not found. Not account exist account_id : '.$gtmatrixAccount->account_id);
-        dd('Not account exist');
+        return 'Account account_id not found. Not account exist account_id : '.$gtmatrixAccount->account_id;
     }
 
     public function getAvailableAccounts($gtmatrixAccount = null){

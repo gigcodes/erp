@@ -32,7 +32,7 @@ class GooglePageSpeedRepository
         $response = curl_exec($curl);
         $err = curl_error($curl);
         if($err)
-            $this->GTMatrixError($gtmatrix->account_id, 'gtmetrix',  'Gerateting Report', 'Generating Report Error '.$url.' Error'.$err);
+            $this->GTMatrixError($gtmatrix->account_id, 'Google page speed report',  'Generating Report', 'Generating Report Error '.$url.' Error'.$err);
        
         curl_close($curl);
 
