@@ -3032,6 +3032,7 @@ Route::middleware('auth')->group(function () {
     Route::get('website/log/file-list', 'WebsiteLogController@index')->name('website.file.list.log');
     Route::get('website/log/view', 'WebsiteLogController@websiteLogStoreView')->name('website.log.view');
     
+    Route::get('website/command/log', 'WebsiteLogController@runWebsiteLogCommand')->name('website.command-log');
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
@@ -3701,6 +3702,7 @@ Route::middleware('auth')->prefix('totem')->group(function () {
         Route::post('{task}/delete', 'TasksController@destroy')->name('totem.task.delete');
         Route::post('{task}/status', 'TasksController@status')->name('totem.task.status');
         Route::get('{task}/development-task', 'TasksController@developmentTask')->name('totem.task.developmentTask');
+        Route::post('{task}/get-error', 'TasksController@totemCommandError')->name('totem.task.get-error');
     });
 });
 

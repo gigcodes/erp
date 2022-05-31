@@ -2,8 +2,8 @@
 
 @section("styles")
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+{{-- <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> --}}
 
 @endsection
 
@@ -93,6 +93,7 @@
                             <td><a href="{{route('website.log.file.view')}}?path={{$data['File_Path']}}">{{$data['File_name']}}</a></td>
                             <td>{{$data['Website']}}</td>
                             <td>{{$data['File_Path']}}</td>
+							<td><a style="padding:1px;" class="btn d-inline btn-image execute-task" href="#" data-id="4" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a></td>
 						</tr>                        
                     @endforeach
 		    	</tbody>
@@ -107,6 +108,7 @@
 @section('scripts')
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script>
+	/*
     $(document).ready(function() 
 	{
 		tableData(BASE_URL);
@@ -114,17 +116,17 @@
 			tableData(BASE_URL);
 		});
 		function tableData(BASE_URL) {
-			/*
-            var search = $("input[name='search'").val() != "" ? $("input[name='search'").val() : null;
-			var date = $("#datepicker").val() !="" ? $("#datepicker").val() : null;
-            var download = "?download=" + $("select[name='download_option'").val();
-			var server_id = $('.server_id-value').val();
-            */
+			
+           // var search = $("input[name='search'").val() != "" ? $("input[name='search'").val() : null;
+			//var date = $("#datepicker").val() !="" ? $("#datepicker").val() : null;
+            //var download = "?download=" + $("select[name='download_option'").val();
+			//var server_id = $('.server_id-value').val();
+            
 
             if($("select[name='download_option'").val() == "yes") {
                 window.location.href = BASE_URL+"/scrap-logs/fetch/"+search+"/"+date+"/"+download;
             }
-
+			
 			$.ajax({
 				url: "{{route('website.file.list.log')}}"//BASE_URL+"/scrap-logs/fetch/"+search+"/"+date,
 				method:"get",
@@ -132,7 +134,7 @@
 				    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 				  },
 				data:{ 
-                    /*'server_id':server_id, month : $("#monthpicker").val(),"year" : $("#yearpicker").val()*/
+                    /*'server_id':server_id, month : $("#monthpicker").val(),"year" : $("#yearpicker").val()* /
                 },
 				cache: false,
 				success: function(data) {
@@ -147,6 +149,28 @@
 			});
 		}
 	});
+	*/
+	$(document).on("click",".execute-task",function(e) {
+        thiss = $(this);
+        thiss.html(`<img src="/images/loading_new.gif" style="cursor: pointer; width: 0px;">`);
+        $.ajax({
+            type: "GET",
+            url: "/website/command/log", 
+            dataType : "json",
+            success: function (response) {
+                toastr['success']('Task executed successfully!');
+                thiss.html(`<img src="/images/send.png" style="cursor: pointer; width: 0px;">`);
+            },
+            error: function (response) {
+                if(response.status == 200){
+                    toastr['success']('Task executed successfully!');
+                }else{
+                    toastr['error'](response);
+                }
+                thiss.html(`<img src="/images/send.png" style="cursor: pointer; width: 0px;">`);
+            }
+        });
+    }); 
 </script> 
 @endsection
     
