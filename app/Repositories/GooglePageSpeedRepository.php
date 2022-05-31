@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Repositories;
-
+use App\GTMatrixErrorLog;
 
 class GooglePageSpeedRepository
 {
@@ -30,6 +30,10 @@ class GooglePageSpeedRepository
         ));
 
         $response = curl_exec($curl);
+        $err = curl_error($curl);
+        if($err)
+            $this->GTMatrixError($gtmatrix->account_id, 'gtmetrix',  'Gerateting Report', 'Generating Report Error '.$url.' Error'.$err);
+       
         curl_close($curl);
 
         $JsonfileName = '/uploads/speed-insight/' . $gtmatrix->test_id . '_pagespeedInsight.json';
@@ -37,5 +41,22 @@ class GooglePageSpeedRepository
         file_put_contents($Jsonfile,$response);
         $gtmatrix->pagespeed_insight_json = $JsonfileName;
         $gtmatrix->save();
+    }
+
+    public function GTMatrixError($store_viewGTM_id = '', $erro_type = '', $error_title, $error = ''){
+        try {
+            $GTError = new GTMatrixErrorLog();
+            $GTError->store_viewGTM_id = $store_viewGTM_id;
+            $GTError->error_type = $erro_type;
+            $GTError->error_title = $error_title;
+            $GTError->error = $error;
+            $GTError->save();
+        }catch(\Exception $e) {
+            $GTError = new GTMatrixErrorLog();
+            $GTError->store_viewGTM_id = $store_viewGTM_id;
+            $GTError->error_type = $erro_type;
+            $GTError->error = $e->getMessage();
+            $GTError->save();
+        }
     }
 }

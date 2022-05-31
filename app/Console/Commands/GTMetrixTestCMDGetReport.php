@@ -158,7 +158,7 @@ class GTMetrixTestCMDGetReport extends Command
                         $response = curl_exec($curl);
                         $err = curl_error($curl);
                         if($err)
-                            $this->GTMatrixError($value->id, 'gtmetrix',  'API response error', $err);
+                            $this->GTMatrixError($value->id, 'gtmetrix',  'Account ID Not found', 'account_id : '.$value->id.' Error'.$err);
                         curl_close($curl);
                        // $stdClass = json_decode(json_encode($response));
                         $data = json_decode($response);
@@ -199,7 +199,7 @@ class GTMetrixTestCMDGetReport extends Command
                                 $response = curl_exec($curl);
                                 $err = curl_error($curl);
                                 if($err)
-                                    $this->GTMatrixError($value->id, 'gtmetrix',  'API response error', $err);
+                                    $this->GTMatrixError($value->id, 'gtmetrix',  'gtmetrix status error', $err);
                                 curl_close($curl);
                                 // decode the response 
                                 $data = json_decode($response);
@@ -251,7 +251,7 @@ class GTMetrixTestCMDGetReport extends Command
                                 $curlError  = curl_error($ch);
                                 $err = curl_error($curl);
                                 if($err)
-                                    $this->GTMatrixError($value->id, $resources['report_pdf'],  'API response error', $err);
+                                    $this->GTMatrixError($value->id, $resources['report_pdf'],  'Generate report pdf Error', $err);
                                 curl_close($ch);
             
                                 \Log::info(print_r(["Result started to fetch"],true));
@@ -263,12 +263,11 @@ class GTMetrixTestCMDGetReport extends Command
             
                                 \Log::info(print_r(["Store view found",$storeview],true));
             
-                                if ($storeview) if(!$storeview)
-                                $this->GTMatrixError($value->id, 'pagespeed', 'Store view test_id', 'store view test_id not found');
-                            {
+                                    if(!$storeview){
+                                        $this->GTMatrixError($value->id, 'pagespeed', 'Store view test_id', 'store view test_id not found');
+                                    }
                                     $storeview->pdf_file = $fileName;
                                     $storeview->save();
-                                }
                             }
                            
                             if (!empty($resources['pagespeed'])) {
@@ -284,7 +283,7 @@ class GTMetrixTestCMDGetReport extends Command
                                 $curlError  = curl_error($ch);
                                 $err = curl_error($curl);
                                 if($err)
-                                    $this->GTMatrixError($value->id, 'pagespeed',  'API response error', $err);
+                                    $this->GTMatrixError($value->id, 'pagespeed',  'Result started to fetch pagespeed json error', $err);
                                 curl_close($ch);
             
                                 \Log::info(print_r(["Result started to fetch pagespeed json"],true));
@@ -332,7 +331,7 @@ class GTMetrixTestCMDGetReport extends Command
                                 $curlError  = curl_error($ch);
                                 $err = curl_error($curl);
                                 if($err)
-                                    $this->GTMatrixError($value->id, 'yslow',  'API response error', $err);
+                                    $this->GTMatrixError($value->id, 'yslow',  'Result started to fetch yslow json error', $err. ' Account ID : '.$value->id);
                                 curl_close($ch);
             
                                 \Log::info(print_r(["Result started to fetch yslow json"],true));
@@ -371,11 +370,11 @@ class GTMetrixTestCMDGetReport extends Command
                             $value->error = $e->getMessage();
                             $value->save();
                             if($err)
-                                    $this->GTMatrixError($value->id, 'pagespeed',  'catch error', $e->getMessage());
+                                    $this->GTMatrixError($value->id, 'pagespeed',  'pagespeed catch error', $e->getMessage());
                         }
                 } else {
                     if(empty($value->account_id))
-                        $this->GTMatrixError($value->id, 'pagespeed', 'Store view Account_id', 'store view Account_id not found');
+                        $this->GTMatrixError($value->id, 'pagespeed', 'Store view Account_id', 'pagespeed store view Account id not found');
                     
                 }
             

@@ -20,6 +20,7 @@ class GtMatrixRepository
 		$gtMatrix = StoreViewsGTMetrix::create($gt_metrix);
 		$gtAccount = $this->getAvailableAccounts();
         if(!$gtAccount){
+            $this->GTMatrixError($gtMatrix->id, 'Store Views GTMetrix',  'Account Do not found', 'Account Do not found');
             dd('Not account exist');
         }
         $client = new GTMetrixClient();
@@ -35,6 +36,7 @@ class GtMatrixRepository
         ];
         $gtMatrix->update($update);
         if(!$gtMatrix->test_id){
+            $this->GTMatrixError($gtMatrix->id, 'Store Views GTMetrix',  'Account ', 'Account test_id not found Email : '.$gtAccount->email);
             return false;
         }
         return $gtMatrix;
@@ -44,6 +46,7 @@ class GtMatrixRepository
         $gtmatrixAccount = StoreGTMetrixAccount::where('account_id', $gtMatrix->account_id)->where('status', 'active')->first();
         $gtAccount = $this->getAccount($gtmatrixAccount);
         if(!$gtAccount){
+            $this->GTMatrixError($gtMatrix->id, 'Store GT Metrix Accoun',  'account_id ', 'Account account_id not found. Not account exist account_id : '.$gtMatrix->account_id);
             dd('Not account exist');
         }
         $this->getGtMatrixRecord($gtAccount,$gtMatrix);
@@ -53,6 +56,7 @@ class GtMatrixRepository
         if($this->checkGtmatrixAccountCredit($gtmatrixAccount)){
             return $gtmatrixAccount;
         }
+        $this->GTMatrixError($gtmatrixAccount->id, 'Store GT Metrix Accoun',  'account_id ', 'Account account_id not found. Not account exist account_id : '.$gtmatrixAccount->account_id);
         dd('Not account exist');
     }
 
@@ -70,6 +74,7 @@ class GtMatrixRepository
                 }
             }
         }else{
+            $this->GTMatrixError($gtmatrixAccount->id, 'Store GT Metrix Account check',  'Check Account Credit', 'Checking Gtmatrix Account Credit not found.');
             return $gtmatrixAccount;
         }
     }
@@ -93,6 +98,9 @@ class GtMatrixRepository
         CURLOPT_CUSTOMREQUEST => 'GET',
         ));
         $response = curl_exec($curl);
+        $err = curl_error($curl);
+        if($err)
+            $this->GTMatrixError($gtMatrixAccount->account_id, 'gtmetrix',  'API response error', $err.' Repsonce => '.$response);
         curl_close($curl);
         $data = json_decode($response);
         $credits = '';
@@ -149,6 +157,9 @@ class GtMatrixRepository
         curl_setopt($ch, CURLOPT_USERPWD, $gtMatrixAccount->email . ':' . $gtMatrixAccount->account_id);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 0);
+        $err = curl_error($ch);
+        if($err)
+            $this->GTMatrixError($gtMatrixAccount->account_id, 'gtmetrix',  'Getting PDF Report Error', 'Getting PDF Report Error '.$err);
         $result     = strip_tags(curl_exec($ch));
         $fileName = '/uploads/gt-matrix/' . $gtmatrix->test_id . $filename;
         $file     = public_path() . $fileName;
@@ -157,5 +168,20 @@ class GtMatrixRepository
         $gtmatrix->save();
     }
 
-    
+    public function GTMatrixError($store_viewGTM_id = '', $erro_type = '', $error_title, $error = ''){
+        try {
+            $GTError = new GTMatrixErrorLog();
+            $GTError->store_viewGTM_id = $store_viewGTM_id;
+            $GTError->error_type = $erro_type;
+            $GTError->error_title = $error_title;
+            $GTError->error = $error;
+            $GTError->save();
+        }catch(\Exception $e) {
+            $GTError = new GTMatrixErrorLog();
+            $GTError->store_viewGTM_id = $store_viewGTM_id;
+            $GTError->error_type = $erro_type;
+            $GTError->error = $e->getMessage();
+            $GTError->save();
+        }
+    }
 }
