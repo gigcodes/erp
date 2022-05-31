@@ -84,7 +84,7 @@
 			        <th width="10%">File Name</th>
 			        <th width="10%">Website</th>
 			        <th width="30%">Folder Path</th>
-			        
+			        <th width="10%">Action</th>
 			    </tr>
 		    	<tbody>
                     @foreach ($dataArr as $data)
