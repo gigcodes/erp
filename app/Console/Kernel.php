@@ -148,6 +148,7 @@ use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
 use App\Console\Commands\GetPytonLogs;
 use App\Console\Commands\HubstuffActivityCommand;
+use App\Console\Commands\GtMetrixReport;
 
 class Kernel extends ConsoleKernel
 {
@@ -301,7 +302,8 @@ class Kernel extends ConsoleKernel
         BuildStatus::class,
         GetPytonLogs::class,
         HubstuffActivityCommand::class,
-        WebsiteCreateLog::class
+        WebsiteCreateLog::class,
+        GtMetrixReport::class,
     ];
 
     /**
