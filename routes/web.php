@@ -2796,7 +2796,7 @@ Route::middleware('auth')->group(function () {
     Route::get('dev-task-planner', 'NewDevTaskController@index')->name('newDevTaskPlanner');
     Route::get('dev-task-planner', 'NewDevTaskController@index')->name('filteredNewDevTaskPlanner');
     //Supplier scrapping info
-    Route::get('supplier-scrapping-info', 'ProductController@getSupplierScrappingInfo')->name('getSupplierScrappingInfo');
+    Route::get('supplier-scrapping-info', 'ProductController@getSupplierScrappingInfo')->name('getSupplierScrappingInfo'); 
 });
 //Routes for flows
 Route::group(['middleware' => 'auth', 'prefix' => 'flow'], function () {
