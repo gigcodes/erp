@@ -3031,6 +3031,8 @@ Route::middleware('auth')->group(function () {
     Route::get('website/website-log-file-view/{path?}', 'WebsiteLogController@websiteLogFileView')->name('website.log.file.view');
     Route::get('website/log/file-list', 'WebsiteLogController@index')->name('website.file.list.log');
     Route::get('website/log/view', 'WebsiteLogController@websiteLogStoreView')->name('website.log.view');
+    
+    Route::get('website/command/log', 'WebsiteLogController@runWebsiteLogCommand')->name('website.command-log');
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {

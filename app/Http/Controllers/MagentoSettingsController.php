@@ -368,7 +368,7 @@ class MagentoSettingsController extends Controller
                         $result      = exec($cmd, $allOutput); //Execute command
                         $status      = 'Error';
                         for ($i = 0; $i < count($allOutput); $i++) {
-                            if ($allOutput[$i] == "Pull Request Successfully merged") {
+                            if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged") ) {
                                 $status = 'Success';
                                 break;
                             }
@@ -430,7 +430,7 @@ class MagentoSettingsController extends Controller
                         $result      = exec($cmd, $allOutput); //Execute command
                         $status      = 'Error';
                         for ($i = 0; $i < count($allOutput); $i++) {
-                            if ($allOutput[$i] == "Pull Request Successfully merged") {
+                            if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged") ) {
                                 $status = 'Success';
                                 break;
                             }
@@ -650,7 +650,7 @@ class MagentoSettingsController extends Controller
                                                 $result      = exec($cmd, $allOutput); //Execute command
                                                 $status      = 'Error';
                                                 for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if ($allOutput[$i] == "Pull Request Successfully merged") {
+                                                    if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged") ) {
                                                         $status = 'Success';
                                                         break;
                                                     }
@@ -687,7 +687,7 @@ class MagentoSettingsController extends Controller
                                                 $result      = exec($cmd, $allOutput); //Execute command
                                                 $status      = 'Error';
                                                 for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if ($allOutput[$i] == "Pull Request Successfully merged") {
+                                                    if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged") ) {
                                                         $status = 'Success';
                                                         break;
                                                     }
@@ -725,7 +725,7 @@ class MagentoSettingsController extends Controller
                                                 $result      = exec($cmd, $allOutput); //Execute command
                                                 $status      = 'Error';
                                                 for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged")) {
+                                                    if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged") ) {
                                                         $status = 'Success';
                                                         break;
                                                     }
