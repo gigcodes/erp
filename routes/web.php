@@ -902,6 +902,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/get-email-send-journey-logs', 'OrderController@getOrderEmailSendJourneyLog')->name('order.get.email.send.journey.logs');
     Route::get('order/charity-order', 'OrderController@charity_order');
     Route::post('order/cancel-transaction', 'OrderController@cancelTransaction')->name('order.canceltransaction');
+    Route::post('order/payload', 'OrderController@getOrderPayloadList')->name('order.payload');
 
     Route::resource('order', 'OrderController');
 
