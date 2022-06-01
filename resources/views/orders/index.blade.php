@@ -1836,17 +1836,16 @@
         });
 
         $(document).on('click', '.order_payload', function (e) {
-           
             $('#order_payload_model').modal('show');
-             $.ajax({
-                type: "POST",
-                url: "{{route('order.payload')}}",
-                data: {
-                  order_id : $(this).data('id')
-                },
-                headers: {
-                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
+            $.ajax({
+              type: "POST",
+              url: "{{route('order.payload')}}",
+              data: {
+                order_id : $(this).data('id')
+              },
+              headers: {
+               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
             }).done(function (response) {
               toastr[(response.code == 200) ?'success' : 'error'](response.message);
               $("#order_payloadtd").html(response.data);
