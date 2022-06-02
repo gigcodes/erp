@@ -114,7 +114,7 @@ class PostmanRequestCreateController extends Controller
             } else {
                 $postman = new PostmanRequestCreate();
                 $type = 'Created';
-                //$this->updatePostmanCollectionAPI($request);
+                $this->updatePostmanCollectionAPI($request);
             }
             $postman->folder_name = $request->folder_name;
             $postman->request_name = $request->request_name;
