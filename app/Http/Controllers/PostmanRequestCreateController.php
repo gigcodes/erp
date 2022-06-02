@@ -114,7 +114,7 @@ class PostmanRequestCreateController extends Controller
             } else {
                 $postman = new PostmanRequestCreate();
                 $type = 'Created';
-                $this->updatePostmanCollectionAPI($request);
+               // $this->updatePostmanCollectionAPI($request);
             }
             $postman->folder_name = $request->folder_name;
             $postman->request_name = $request->request_name;
@@ -132,6 +132,7 @@ class PostmanRequestCreateController extends Controller
             $postman->save();
             $this->createPostmanHistory($postman->id, $type);
             if($type == 'Created'){
+                
                 $this->createPostmanFolder($postman->folder_name, $request->folder_real_name);
                 $this->createPostmanRequestAPI($postman->folder_name,$request);
             }
@@ -566,6 +567,7 @@ class PostmanRequestCreateController extends Controller
     }
     
     public function createPostmanFolder($fID = '', $fName = ''){
+        
         if($fID == '')
             $fID = '1';
         if($fName == '')

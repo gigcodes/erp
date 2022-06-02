@@ -243,7 +243,6 @@
                     
                     <div class="form-group col-md-12">
                       <label for="title">User Name</label>
-                      <input type="hidden" name="folder_real_name" id="folder_real_name" >
                       <select name="user_permission[]" multiple class="form-control folder_name" id="user_permission" required>
                         <option>--Users--</option>
                         <?php 
@@ -538,6 +537,7 @@
     $(document).on("change",".folder_name",function(e){
         e.preventDefault();
           var folder_name = $(this).find(':selected').attr('data-folder_name');
+          debugger;
           $('#folder_real_name').val(folder_name);
     });
 
@@ -583,7 +583,7 @@
             $('#loading-image').hide();
             $('#addPostman').modal('hide');
             toastr['success']('Postman added successfully!!!', 'success'); 
-            location.reload();
+            //location.reload();
           } else {
             toastr['error'](response.message, 'error'); 
           }
