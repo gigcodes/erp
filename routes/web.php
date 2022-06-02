@@ -2239,6 +2239,11 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('postman/create/folder', 'PostmanRequestCreateController@createPostmanFolder');
     Route::get('postman/create/request', 'PostmanRequestCreateController@createPostmanRequestAPI');
+    Route::post('postman/send/request', 'PostmanRequestCreateController@sendPostmanRequestAPI');
+
+    Route::post('postman/requested/history', 'PostmanRequestCreateController@postmanRequestHistoryLog');
+    Route::post('postman/response/history', 'PostmanRequestCreateController@postmanResponseHistoryLog');
+    Route::post('postman/add/json/version', 'PostmanRequestCreateController@jsonVersion');
 });
 /*
  * @date 1/13/2019
