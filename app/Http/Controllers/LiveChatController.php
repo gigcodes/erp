@@ -1563,6 +1563,48 @@ class LiveChatController extends Controller
         return response()->json(['ticket created successfully', 'code' => 200, 'status' => 'success']);
     }
 
+    public function creditEmailPriview(Request $request) {
+        $template = str_replace(["#{id}", "#{status}"], [$data->id, $data->status], $template);
+
+        try{
+            $customer_id = $request->credit_customer_id;
+            $customer = Customer::find($customer_id);
+            $mailing_item_cat = \App\MailinglistTemplateCategory::where("title",'Store Credit')->first();
+            if(empty($mailing_item_cat)){
+                \Log::channel('Create Credit Log')->info("Sending mail issue at the LiveChatController->createCredits()  -> Please add caregory 'Store Credit'" );
+                return response()->json(["code" => 500, "message" => 'Please add caregory "Store Credit customerID : #"'.$customer_id]);
+            }
+
+            $mailing_item = \App\MailinglistTemplate::select('html_text')->where("category_id",$mailing_item_cat->id)->where('html_text', '!=', '')->first();
+            
+            $formMailer = 'customercare@sololuxury.co.in';
+            $emailClass = (new \App\Mails\Manual\DefaultEmailPriview($customer->email, $mailing_item->html_text, $customer,  $formMailer))->build();
+            
+            $preview = '';
+            //dd($emailClass);
+            if($emailClass != null) {
+                $preview = $emailClass->render();
+            } else {
+                return response()->json(["code" => 500, "message" => 'Email priview not found. Please check e-mail template ExchangeID : #"'.$request->id]);
+            }
+            
+            $preview = "<table>
+                    <tr>
+                    <td>To</td><td>
+                    <input type='email' required id='email_to_mail' class='form-control' name='to_mail' value='" . $customer->email . "' >
+                    </td></tr><tr>
+                    <td>From </td> <td>
+                    <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $formMailer . "' >
+                    </td></tr><tr>
+                    <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $preview . "</textarea></td>
+                    </tr>
+            </table>";
+            
+        } catch (\Exception $e) {
+            return response()->json(['msg' => 'issue with mailing template', 'code' => 400, 'status' => 'error']);
+        }
+    }
+
     public function createCredits(Request $request)
     {
         $data = [];
@@ -1653,7 +1695,7 @@ class LiveChatController extends Controller
                                 )
                             );
                             try{
-                                $emailClass = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
+                                //$emailClass = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
                                 $mailing_item_cat = \App\MailinglistTemplateCategory::where("title",'Store Credit')->first();
                                 //dd($mailing_item_cat);
                                 if(empty($mailing_item_cat)){
