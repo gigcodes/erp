@@ -6,7 +6,11 @@ use App\PostmanRequestCreate;
 use App\PostmanFolder;
 use App\PostmanHistory;
 use App\Setting;
+use App\User;
 use Illuminate\Http\Request; 
+use App\PostmanRequestHistory;
+use App\PostmanResponse;
+use App\PostmanRequestJsonHistory;
 
 class PostmanRequestCreateController extends Controller
 {
@@ -32,8 +36,15 @@ class PostmanRequestCreateController extends Controller
     {
         $postmans = PostmanRequestCreate::select('postman_request_creates.*', 'pf.name')->leftJoin('postman_folders AS pf', 'pf.id', 'postman_request_creates.folder_name')->paginate(Setting::get('pagination'));
         $folders = PostmanFolder::all();
+        $users = User::all();
+        $userID = \Auth::user()->id;
+        $userAdmin = User::where('id', $userID)->first();
+        $addAdimnAccessID = '';
+        if($userAdmin->isAdmin()){
+            $addAdimnAccessID = $userID;
+        }
         
-        return view("postman.index", compact('postmans', 'folders'));
+        return view("postman.index", compact('postmans', 'folders', 'users', 'userID', 'addAdimnAccessID'));
     }
 
     public function folderIndex()
@@ -56,7 +67,12 @@ class PostmanRequestCreateController extends Controller
         }
         $postmans = $postmans->select('postman_request_creates.*', 'pf.name')->leftJoin('postman_folders AS pf', 'pf.id', 'postman_request_creates.folder_name')->paginate(Setting::get('pagination'));
         $folders = PostmanFolder::all();
-        return view("postman.index", compact('postmans', 'folders'));
+        $userID = \Auth::user()->id;
+        $userAdmin = User::where('id', $userID)->first();
+        $addAdimnAccessID = '';
+        if($userAdmin->isAdmin()){
+            $addAdimnAccessID = $userID;
+        }return view("postman.index", compact('postmans', 'folders', 'users', 'userID', 'addAdimnAccessID'));
     }
 
     public function folderSearch(Request $request)
@@ -84,10 +100,21 @@ class PostmanRequestCreateController extends Controller
             if(isset($request->id) && $request->id > 0){
                 $postman = PostmanRequestCreate::find($request->id);
                 $type = 'Update';
+                if($postman->body_json != $request->body_json){
+                    $jsonVersion = PostmanRequestJsonHistory::create(
+                        [
+                            'user_id' => \Auth::user()->id,
+                            'request_id' => $request->id,
+                            'request_data' => $request->body_json,
+                        ]
+                    );
+                    PostmanRequestJsonHistory::where('id', $jsonVersion->id)->update(['version_json', 'v'.$jsonVersion->id]);
+                    
+                }
             } else {
                 $postman = new PostmanRequestCreate();
                 $type = 'Created';
-                //$this->updatePostmanCollectionAPI($request);
+               // $this->updatePostmanCollectionAPI($request);
             }
             $postman->folder_name = $request->folder_name;
             $postman->request_name = $request->request_name;
@@ -101,12 +128,13 @@ class PostmanRequestCreateController extends Controller
             $postman->body_json = $request->body_json;
             $postman->pre_request_script = $request->pre_request_script;
             $postman->tests = $request->tests;
+            $postman->user_permission = implode(",",$request->user_permission);
             $postman->save();
             $this->createPostmanHistory($postman->id, $type);
             if($type == 'Created'){
+                
+                $this->createPostmanFolder($postman->folder_name, $request->folder_real_name);
                 $this->createPostmanRequestAPI($postman->folder_name,$request);
-                $res = $this->createPostmanFolder($postman->folder_name, $request->folder_real_name);
-                //dd($res);
             }
 
             return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
@@ -117,6 +145,23 @@ class PostmanRequestCreateController extends Controller
 
     }
 
+    public function jsonVersion(Request $request){
+        try{
+            $jsonVersion = PostmanRequestJsonHistory::create(
+                [
+                    'user_id' => \Auth::user()->id,
+                    'request_id' => $request->id,
+                    'request_data' => $request->json_data,
+                ]
+            );
+            PostmanRequestJsonHistory::where('id', $jsonVersion->id)->update(['version_json' => 'v'.$jsonVersion->id]);
+            $jsonVersion = PostmanRequestJsonHistory::where('id', $jsonVersion->id)->first();
+            return response()->json(['code' => 200, 'data' => $jsonVersion, 'message' => 'Added successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
     public function folderStore(Request $request)
     {
         try{
@@ -203,7 +248,7 @@ class PostmanRequestCreateController extends Controller
         try{
             $postHis = PostmanHistory::select('postman_historys.*', 'u.name AS userName')
             ->leftJoin('users AS u', 'u.id', 'postman_historys.user_id')
-            ->where('postman_id', '=', $request->id)->get();
+            ->where('postman_id', '=', $request->id)->orderby('id', 'DESC')->get();
             return response()->json(['code' => 200, 'data' => $postHis,'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
@@ -211,6 +256,37 @@ class PostmanRequestCreateController extends Controller
         }
     }
 
+    public function postmanRequestHistoryLog(Request $request)
+    {
+        try{
+            $postHis = PostmanRequestHistory::select('postman_request_histories.request_url','postman_request_histories.created_at', 'postman_request_histories.id', 'u.name AS userName')
+            ->leftJoin('users AS u', 'u.id', 'postman_request_histories.user_id')
+            ->where('request_id', '=', $request->id)->orderby('id', 'DESC')->get();
+            return response()->json(['code' => 200, 'data' => $postHis,'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+    public function postmanResponseHistoryLog(Request $request)
+    {
+        try{
+            $postHis = PostmanResponse::select('postman_responses.*', 'u.name AS userName')
+            ->leftJoin('users AS u', 'u.id', 'postman_responses.user_id')
+            ->where('request_id', '=', $request->id)->orderby('id', 'DESC')->get();
+            // $html = '';
+            // foreach($postHis AS $postManH) {
+            //     $html += '<td>'.$postManH->id.'</td>';
+            //     $html += '<td>'.$postManH->userName.'</td>';
+            //     $html += '<td>'.json_encode($postManH->response).'</td>';
+            //     $html += '<td>'.$postManH->created_at.'</td>';
+            // }
+            return response()->json(['code' => 200, 'data' => $postHis,'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
 
     public function getPostmanWorkSpaceAPI(){
         $curl = curl_init();
@@ -491,6 +567,7 @@ class PostmanRequestCreateController extends Controller
     }
     
     public function createPostmanFolder($fID = '', $fName = ''){
+        
         if($fID == '')
             $fID = '1';
         if($fName == '')
@@ -526,6 +603,7 @@ class PostmanRequestCreateController extends Controller
         $requestData['request_type'] = isset($request->request_type) ? $request->request_type : 'POST';
         $requestData['body_json'] = isset($request->body_json) ? $request->body_json : '{"id": "1", "name":"hello"}';
         $requestData['isjson'] = isset($request->isjson) ? $request->isjson : 'isjson';
+        $requestData['body_type'] = isset($request->body_type) ? $request->body_type : 'row';
 
         if($fID == '')
             $fID = '1';
@@ -552,6 +630,7 @@ class PostmanRequestCreateController extends Controller
             "preRequestScript": "",
             "pathVariables": {},
             "method": "'.$requestData['request_type'].'",
+            "rawModeData": "'.$requestData['body_type'].'"
             "data": [
                 '.$requestData['body_json'].'
             ],
@@ -576,16 +655,6 @@ class PostmanRequestCreateController extends Controller
            
             echo '<pre>';print_r(($response)); exit;
         }
-
-
-
-
-
-
-
-
-
-
 
 
         // $curl = curl_init();
@@ -652,6 +721,65 @@ class PostmanRequestCreateController extends Controller
 
         // curl_close($curl);
         // echo $response;
+    }
+
+    public function sendPostmanRequestAPI(Request $request){
+
+        try{
+            $postman = PostmanRequestCreate::where('id', $request->id)->first();
+            if(empty($postman)) {
+                return response()->json(['code' => 500, 'message' => 'Request Data not found']);
+            } else {
+                PostmanRequestHistory::create(
+                    [
+                        'user_id' => \Auth::user()->id,
+                        'request_id' => $postman->id,
+                        'request_data' => $postman->body_json,
+                        'request_url' => $postman->request_url,
+                        'request_headers' => "'Content-Type: application/json',
+                                            'Authorization: '".$postman->authorization_type."',
+                                            'Cookie: PHPSESSID=l15g0ovuc3jpr98tol956voan6'"
+                    ]
+                );
+                $curl = curl_init();
+                curl_setopt_array($curl, array(
+                CURLOPT_URL => $postman->request_url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => $postman->request_type,
+                CURLOPT_POSTFIELDS =>$postman->body_json,
+                CURLOPT_HTTPHEADER => array(
+                    'Content-Type: application/json',
+                    'Authorization: '.$postman->authorization_type."'",
+                    'Cookie: PHPSESSID=l15g0ovuc3jpr98tol956voan6'
+                ),
+                ));
+                
+                $response = curl_exec($curl);
+
+                curl_close($curl);
+            
+                //dd($response);
+                PostmanResponse::create(
+                    [
+                        'user_id' => \Auth::user()->id,
+                        'request_id' => $postman->id,
+                        'response' => json_encode($response),
+                        'request_url' => $postman->request_url,
+                        'request_data' => $postman->body_json
+                    ]
+                );
+            }
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'Postman requested successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+        
     }
 
     

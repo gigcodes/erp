@@ -2168,6 +2168,7 @@ Route::get('livechat/get-tickets-data', 'LiveChatController@getTicketsData')->na
 Route::post('livechat/create-credit', 'LiveChatController@createCredits')->name('livechat.create.credit');
 Route::post('credit/email-credit-log', 'CustomerController@creditEmailLog')->name('credit.get.email.log');
 Route::get('livechat/get-credits-data', 'LiveChatController@getCreditsData')->name('livechat.get.credits.data');
+Route::get('livechat/get-credits-email-privew', 'LiveChatController@creditEmailPriview')->name('livechat.get.credits.email.privew');
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
 Route::post('whatsapp/incomingNew', 'WhatsAppController@incomingMessageNew');
@@ -2239,6 +2240,11 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('postman/create/folder', 'PostmanRequestCreateController@createPostmanFolder');
     Route::get('postman/create/request', 'PostmanRequestCreateController@createPostmanRequestAPI');
+    Route::post('postman/send/request', 'PostmanRequestCreateController@sendPostmanRequestAPI');
+
+    Route::post('postman/requested/history', 'PostmanRequestCreateController@postmanRequestHistoryLog');
+    Route::post('postman/response/history', 'PostmanRequestCreateController@postmanResponseHistoryLog');
+    Route::post('postman/add/json/version', 'PostmanRequestCreateController@jsonVersion');
 });
 /*
  * @date 1/13/2019
