@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Arr;
+use Google\Cloud\BigQuery\BigQueryClient;
 
 class TestController extends Controller
 {
@@ -41,6 +42,26 @@ class TestController extends Controller
             }
         }
         return $htmlData;
+    }
+
+
+    public function bigQuery()
+    {
+
+        $config = [
+            'keyFilePath' => '/Users/satyamtripathi/Work/sololux-erp/public/big.json',
+            'projectId' => 'brandsandlabels',
+        ];
+
+        $bigQuery = new BigQueryClient($config);
+        $query = 'SELECT * FROM `brandsandlabels.firebase_crashlytics.com_app_brandslabels_ANDROID_REALTIME` WHERE DATE(event_timestamp) = "2022-06-03"';
+        $queryJobConfig = $bigQuery->query($query)
+          ->parameters([]);
+        $queryResults = $bigQuery->runQuery($queryJobConfig);
+        foreach ($queryResults as $row) {
+            dd($row);
+        }
+
     }
 
 }
