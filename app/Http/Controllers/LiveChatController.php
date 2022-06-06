@@ -1695,19 +1695,7 @@ class LiveChatController extends Controller
                                 )
                             );
                             try{
-                                //$emailClass = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
-                                $mailing_item_cat = \App\MailinglistTemplateCategory::where("title",'Store Credit')->first();
-                                //dd($mailing_item_cat);
-                                if(empty($mailing_item_cat)){
-                                    \Log::channel('Create Credit Log')->info("Sending mail issue at the LiveChatController->createCredits()  -> Please add caregory 'Store Credit'" );
-                                    return response()->json(["code" => 500, "message" => 'Please add caregory "Store Credit customerID : #"'.$customer_id]);
-                                }
-
-                                $mailing_item = \App\MailinglistTemplate::select('html_text')->where("category_id",$mailing_item_cat->id)->where('html_text', '!=', '')->first();
-                                
-                                $formMailer = 'customercare@sololuxury.co.in';
-                                $emailClass = (new \App\Mails\Manual\DefaultEmailPriview($customer->email, $mailing_item->html_text, $customer,  $formMailer))->build();
-                                
+                                $emailClass = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
                             } catch (\Exception $e) {
                                 $post = array(
                                     'customer-id' => $customer->id,
