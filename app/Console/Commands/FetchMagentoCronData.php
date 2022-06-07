@@ -40,7 +40,8 @@ class FetchMagentoCronData extends Command
      */
     public function handle()
     {
-        $website = StoreWebsite::all()->pluck('website','id')->toArray();
+        $website = StoreWebsite::whereNotNull('magento_url')->get()->pluck('magento_url','id')->toArray();
+
         //$date = '2021-7-14';
 		$date = Carbon::yesterday()->format('Y-n-j');
 		$cronstatus = $this->cronStatus();
@@ -69,7 +70,9 @@ class FetchMagentoCronData extends Command
                                 'cron_executed_at'=> $da['executed_at'],
                                 'cron_finished_at' => $da['finished_at']
                             ];
-                            MagentoCronData::create($insert);
+                            MagentoCronData::updateOrCreate($insert);
+                        }else{
+                            $this->info('Log Not available at ' . $api);
                         }
                     }
                 }

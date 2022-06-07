@@ -69,6 +69,7 @@
         <thead>
           <tr>
             <th>ID</th>
+            <th>User Permission</th>
             <th>Folder Name</th>
             <th>Request Name</th>
             <th>request type</th>
@@ -78,18 +79,43 @@
 
         <tbody>
 			  @foreach ($postmans as $key => $postman)
-            <tr>
-            <td>{{$postman->id}}</td>
-            <td>{{$postman->name}}</td>
-            <td>{{$postman->request_name}}</td>
-            <td>{{$postman->request_type}}</td>
-            <td>
-              <a class="btn btn-image edit-postman-btn" data-id="{{ $postman->id }}"><img data-id="{{ $postman->id }}" src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></a>
-              <a class="btn delete-postman-btn"  data-id="{{ $postman->id }}" href="#"><img  data-id="{{ $postman->id }}" src="/images/delete.png" style="cursor: nwse-resize; width: 16px;"></a>
-              <a class="btn postman-history-btn"  data-id="{{ $postman->id }}" href="#"><i class="fa fa-history" aria-hidden="true"></i></a>
-              
-            </td>
-            </tr>
+            @php
+              $userAccessArr = explode(",",$postman->user_permission);
+              array_push($userAccessArr, $addAdimnAccessID)
+            @endphp
+            @if (in_array($userID, $userAccessArr))
+              <tr>
+                <td>{{$postman->id}}</td>
+                <td>
+                    <select name="user_permission[]" multiple class="form-control folder_name" class="user_permission" required>
+                      <option>--Users--</option>
+                      <?php 
+                        foreach($users as $user){
+                          $selected = '';
+                          if(in_array($user->id,$userAccessArr)) { 
+                            $selected = 'selected';
+                            echo '<option value="'.$user->id.'" '.$selected.' data-folder_name="'.$user->name.'">'.$user->name.'</option>';
+                          }
+                        }
+                      ?>
+                    </select>
+                  </td>
+                <td>{{$postman->name}}</td>
+                <td>{{$postman->request_name}}</td>
+                <td>{{$postman->request_type}}</td>
+                <td>
+                  <a title="Send Request" class="btn btn-image postman-send-request-btn pd-5 btn-ht" data-id="{{ $postman->id }}" href="javascript:;">
+                    <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                  </a>
+                  <a class="btn btn-image edit-postman-btn" data-id="{{ $postman->id }}"><img data-id="{{ $postman->id }}" src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></a>
+                  <a class="btn delete-postman-btn"  data-id="{{ $postman->id }}" href="#"><img  data-id="{{ $postman->id }}" src="/images/delete.png" style="cursor: nwse-resize; width: 16px;"></a>
+                  <a class="btn postman-history-btn"  data-id="{{ $postman->id }}" href="#"><i class="fa fa-history" aria-hidden="true"></i></a>
+                  <a title="Preview Response" data-id="{{ $postman->id }}" class="btn btn-image preview_response pd-5 btn-ht" href="javascript:;"><i class="fa fa-product-hunt" aria-hidden="true"></i></a>
+                  <a title="Preview Requested" data-id="{{ $postman->id }}" class="btn btn-image preview_requested pd-5 btn-ht" href="javascript:;"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                </td>
+              </tr>
+            @endif
+            
             @endforeach
         </tbody>
       </table>
@@ -133,6 +159,69 @@
   </div>
 </div>
 
+<div id="postmanRequesteHistoryModel" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div id="add-mail-content">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 class="modal-title">Postman Request History</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>User Name</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody class="tbodayPostmanRequestHistory">
+                </tbody>
+              </table>  
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="postmanResponseHistoryModel" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div id="add-mail-content">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 class="modal-title">Postman Response History</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>User Name</th>
+                    <th>Response</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody class="tbodayPostmanResponseHistory">
+                </tbody>
+              </table>  
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="addPostman" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
       <!-- Modal content-->
@@ -151,6 +240,18 @@
                   @csrf
                   <div class="form-row">
                     <input type="hidden" id="post_id" name="id" value=""/>
+                    
+                    <div class="form-group col-md-12">
+                      <label for="title">User Name</label>
+                      <select name="user_permission[]" multiple class="form-control folder_name" id="user_permission" required>
+                        <option>--Users--</option>
+                        <?php 
+                          foreach($users as $user){
+                              echo '<option value="'.$user->id.'" data-folder_name="'.$user->name.'">'.$user->name.'</option>';
+                          }
+                        ?>
+                      </select>
+                    </div>
                     <div class="form-group col-md-12">
                       <label for="title">Folder Name</label>
                       <input type="hidden" name="folder_real_name" id="folder_real_name" >
@@ -170,7 +271,10 @@
                     </div>
                     <div class="form-group col-md-12">
                       <label for="request_types">Request Type</label>
-                      <input type="text" name="request_types" value="" class="form-control" id="request_types" placeholder="Enter request type">
+                      <select name="request_types" value="" class="form-control" id="request_types" >
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                      </select>
                     </div>
                     <div class="form-group col-md-12">
                       <label for="request_url">Request Url</label>
@@ -182,7 +286,10 @@
                     </div>
                     <div class="form-group col-md-12">
                       <label for="authorization_type">Authorization type</label>
-                      <input type="text" name="authorization_type" value="" class="form-control" id="authorization_type" placeholder="Enter authorization type">
+                      <select name="authorization_type" value="" class="form-control" id="authorization_type" >
+                        <option value="Bearer Token">Bearer Token</option>
+                        <option value="Basic Auth">Basic Auth</option>
+                      </select>
                     </div>
                     <div class="form-group col-md-12">
                       <label for="authorization_token">Authorization token</label>
@@ -194,11 +301,24 @@
                     </div>
                     <div class="form-group col-md-12">
                       <label for="body_type">Body type</label>
-                      <input type="text" name="body_type" value="" class="form-control" id="body_type" placeholder="Enter body type">
+                      <select name="body_type" value="" class="form-control" id="body_type" >
+                        <option value="raw">Raw</option>
+                      </select>
                     </div>
                     <div class="form-group col-md-12">
-                      <label for="body_json">Body Json</label>
-                      <input type="text" name="body_json" value="" class="form-control" id="body_json" placeholder="Enter body json">
+                      <label for="body_json">Body Json
+                        <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#addPostmanJsonModel">Add Json</button>
+                      </label>
+                      <?php
+                        $postJsonVer = \App\PostmanRequestJsonHistory::all();
+                      ?>
+                      <select name="body_json" value="" class="form-control" id="body_json" >
+                        <option value="">select Json</option>
+                        @foreach ($postJsonVer as $jsonVer)
+                            <option value="{{$jsonVer->request_data}}">{{$jsonVer->version_json.'  '.$jsonVer->request_data}}</option>
+                        @endforeach
+                      </select>
+                      {{-- <input type="text" name="body_json" value="" class="form-control" id="body_json" placeholder="Enter body json Ex.  {'name': 'hello', 'type':'not'}"> --}}
                     </div>
                     <div class="form-group col-md-12">
                       <label for="pre_request_script">Pre request script</label>
@@ -215,7 +335,127 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-secondary submit-form">Save</button>
               </div>
-              
+              <div id="addPostman" class="modal fade" role="dialog">
+                <div class="modal-dialog modal-lg">
+                  <!-- Modal content-->
+                  <div class="modal-content ">
+                    <div id="add-mail-content">
+                      
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title"><span id="titleUpdate">Add</span> Postman Request</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                            <form id="postmanform" method="post">
+                              @csrf
+                              <div class="form-row">
+                                <input type="hidden" id="post_id" name="id" value=""/>
+                                
+                                <div class="form-group col-md-12">
+                                  <label for="title">User Name</label>
+                                  <input type="hidden" name="folder_real_name" id="folder_real_name" >
+                                  <select name="user_permission[]" multiple class="form-control folder_name" id="user_permission" required>
+                                    <option>--Users--</option>
+                                    <?php 
+                                      foreach($users as $user){
+                                          echo '<option value="'.$user->id.'" data-folder_name="'.$user->name.'">'.$user->name.'</option>';
+                                      }
+                                    ?>
+                                  </select>
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label for="title">Folder Name</label>
+                                  <input type="hidden" name="folder_real_name" id="folder_real_name" >
+                                  <select name="folder_name" class="form-control folder_name" id="folder_name" required>
+                                    <option>--Folder--</option>
+                                    <?php 
+                                      $ops = 'id';
+                                      foreach($folders as $folder){
+                                          echo '<option value="'.$folder->id.'" data-folder_name="'.$folder->name.'">'.$folder->name.'</option>';
+                                      }
+                                    ?>
+                                  </select>
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label for="request_name">Request Name</label>
+                                  <input type="text" name="request_name" value="" class="form-control" id="request_name" placeholder="Enter request name">
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label for="request_types">Request Type</label>
+                                  <select name="request_types" value="" class="form-control" id="request_types" >
+                                    <option value="GET">GET</option>
+                                    <option value="POST">POST</option>
+                                  </select>
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label for="request_url">Request Url</label>
+                                  <input type="text" name="request_url" value="" class="form-control" id="request_url" placeholder="Enter request url">
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label for="params">Params</label>
+                                  <textarea name="params" value="" class="form-control" id="params" placeholder="Enter params ex. filedName1: value1, filedName2: value2"></textarea>
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label for="authorization_type">Authorization type</label>
+                                  <select name="authorization_type" value="" class="form-control" id="authorization_type" >
+                                    <option value="Bearer Token">Bearer Token</option>
+                                    <option value="Basic Auth">Basic Auth</option>
+                                  </select>
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label for="authorization_token">Authorization token</label>
+                                  <input type="text" name="authorization_token" value="" class="form-control" id="authorization_token" placeholder="Enter authorization token">
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label for="request_headers">headers</label>
+                                  <textarea name="request_headers" value="" class="form-control" id="request_headers" placeholder="Enter headers ex. filedName1: value1, filedName2: value2"></textarea>
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label for="body_type">Body type</label>
+                                  <select name="body_type" value="" class="form-control" id="body_type" >
+                                    <option value="raw">Raw</option>
+                                  </select>
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label for="body_json">Body Json
+                                    <a href="#" id="addJson"> Add</a>
+                                  </label>
+                                  <?php
+                                    $postJsonVer = \App\PostmanRequestJsonHistory::all();
+                                  ?>
+                                  <select name="body_json" class="form-control" id="body_json" >
+                                    <option value="">select Json</option>
+                                    @foreach ($postJsonVer as $jsonVer)
+                                        <option value="{{$jsonVer->request_data}}">{{$jsonVer->version_json.'  '.$jsonVer->request_data}}</option>
+                                    @endforeach
+                                  </select>
+                                  {{-- <input type="text" name="body_json" value="" class="form-control" id="body_json" placeholder="Enter body json Ex.  {'name': 'hello', 'type':'not'}"> --}}
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label for="pre_request_script">Pre request script</label>
+                                  <textarea name="pre_request_script" value="" class="form-control" id="pre_request_script" placeholder="Enter pre_request_script"></textarea>
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label for="tests">Tests</label>
+                                  <input type="text" name="tests" value="" class="form-control" id="tests" placeholder="Enter tests">
+                                </div>
+                              </div>
+                            </form> 
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-secondary submit-form">Save</button>
+                          </div>
+                          
+                        </div>
+                       
+                    </div>
+                  </div>
+                </div>
+            </div>
             </div>
            
         </div>
@@ -223,6 +463,42 @@
     </div>
 </div>
 
+
+<div id="addPostmanJsonModel" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div id="add-mail-content">
+        
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Add Json</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="postmanform" method="post">
+                @csrf
+                <div class="form-row">
+                  <div class="form-group col-md-12">
+                    <label for="jsonVersion">Tests</label>
+                    <input type="text" name="jsonVersion" required value="" class="form-control" id="jsonVersion" placeholder="Enter Json Here">
+                  </div>
+                </div>
+              </form> 
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-secondary postman-addJson">Save</button>
+            </div>
+            
+          </div>
+         
+      </div>
+    </div>
+  </div>
+</div>
 
 
 <div id="view-domain" class="modal fade" role="dialog">
@@ -261,6 +537,7 @@
     $(document).on("change",".folder_name",function(e){
         e.preventDefault();
           var folder_name = $(this).find(':selected').attr('data-folder_name');
+          debugger;
           $('#folder_real_name').val(folder_name);
     });
 
@@ -306,7 +583,7 @@
             $('#loading-image').hide();
             $('#addPostman').modal('hide');
             toastr['success']('Postman added successfully!!!', 'success'); 
-            location.reload();
+            //location.reload();
           } else {
             toastr['error'](response.message, 'error'); 
           }
@@ -343,6 +620,9 @@
                 $( "#folder_name" ).val(v);
               }else if(form.find('[name="'+key+'[]"]').length){
                   form.find('[name="'+key+'[]"]').val(v);
+                  $.each(v.split(","), function(i,e){
+                      $("#user_permission option[value='" + e + "']").prop("selected", true);
+                  });
               }      
             });
             $("#folder_name").html(response.ops);
@@ -393,8 +673,131 @@
            toastr['error'](errObj.message, 'error');
         });
     });
+
+    $(document).on("click",".postman-send-request-btn",function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+        $.ajax({
+          url: "/postman/send/request",
+          type: "post",
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+          data:{
+            id:id
+          }
+        }).done(function(response) {
+          if(response.code = '200') {
+            toastr['success']('Postman requested successfully!!!', 'success'); 
+          } else {
+            toastr['error'](response.message, 'error'); 
+          }
+        }).fail(function(errObj) {
+          $('#loading-image').hide();
+           toastr['error'](errObj.message, 'error');
+        });
+    });
+
+    $(document).on("click",".preview_response",function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+        $.ajax({
+          url: "/postman/response/history/",
+          type: "post",
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+          data:{
+            id:id
+          }
+        }).done(function(response) {
+          if(response.code = '200') {
+            var t = '';
+            $.each(response.data, function(key, v) {
+              t += '<tr><td>'+v.id+'</td>';
+              t += '<td>'+v.userName+'</td>';
+              t += '<td>'+v.response+'</td>';
+              t += '<td>'+v.created_at+'</td></tr>';
+            });
+            $(".tbodayPostmanResponseHistory").html(t);
+            $('#postmanResponseHistoryModel').modal('show');
+            toastr['success']('Postman response listed successfully!!!', 'success'); 
+            
+          } else {
+            toastr['error'](response.message, 'error'); 
+          }
+        }).fail(function(errObj) {
+          $('#loading-image').hide();
+           $("#postmanResponseHistory").hide();
+           toastr['error'](errObj.message, 'error');
+        });
+    });
+
+    $(document).on("click",".preview_requested",function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+        $.ajax({
+          url: "/postman/requested/history/",
+          type: "post",
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+          data:{
+            id:id
+          }
+        }).done(function(response) {
+          if(response.code = '200') {
+            var t = '';
+            $.each(response.data, function(key, v) {
+              t += '<tr><td>'+v.id+'</td>';
+              t += '<td>'+v.userName+'</td>';
+              t += '<td>'+v.created_at+'</td></tr>';
+            });
+            $(".tbodayPostmanRequestHistory").html(t);
+            $('#postmanRequesteHistoryModel').modal('show');
+            toastr['success']('Postman Requeste listed successfully!!!', 'success'); 
+            
+          } else {
+            toastr['error'](response.message, 'error'); 
+          }
+        }).fail(function(errObj) {
+          $('#loading-image').hide();
+           $("#postmanRequesteHistory").hide();
+           toastr['error'](errObj.message, 'error');
+        });
+    });
+    $(document).on("click","addJson",function(e){
+      $('#addPostmanJsonModel').modal('show');
+    });
+    $(document).on("click",".postman-addJson",function(e){
+        e.preventDefault();
+        var jsonData = $('#jsonVersion').val();;
+        $.ajax({
+          url: "postman/add/json/version",
+          type: "post",
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+          data:{
+            json_data:jsonData
+          }
+        }).done(function(response) {
+          if(response.code = '200') {
+            $('#body_json').append(`<option value="${response.request_data}">
+                                       ${response.data.version_json+' '+response.data.request_data}
+                                  </option>`);
+            toastr['success']('Json Added successfully!!!', 'success'); 
+          } else {
+            toastr['error'](response.message, 'error'); 
+          }
+        }).fail(function(errObj) {
+          $('#loading-image').hide();
+           toastr['error'](errObj.message, 'error');
+        });
+    });
     
-
-
   </script>
 @endsection
