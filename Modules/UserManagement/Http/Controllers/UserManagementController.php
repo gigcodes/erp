@@ -1729,10 +1729,7 @@ class UserManagementController extends Controller
         $user = \App\User::find($id);
 
         $list = [];
-        dd('here');
-        
         $tables = \DB::connection($connection)->select('SHOW TABLES');
-
         if(!empty($tables)) {
             foreach($tables as $table) {
                 foreach($table as $t) {
