@@ -40,7 +40,7 @@ class FetchMagentoCronData extends Command
      */
     public function handle()
     {
-        $website = StoreWebsite::all()->pluck('website','id')->toArray();
+        $website = StoreWebsite::whereNotNull('magento_url')->get()->pluck('magento_url','id')->toArray();
         //$date = '2021-7-14';
 		$date = Carbon::yesterday()->format('Y-n-j');
 		$cronstatus = $this->cronStatus();
