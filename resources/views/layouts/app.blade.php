@@ -1654,7 +1654,7 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item" href="{{ route('list.daily-push-log') }}">Magento Daily Product Push Log</a>
                                             </li>
                                             <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('google.bigdata') }}">Google Big data</a>
+                                                <a class="dropdown-item" href="{{ route('google.bigdata') }}">Google Big Data</a>
                                             </li>
                                         </ul>
                                     </li>
