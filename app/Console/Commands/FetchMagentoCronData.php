@@ -53,26 +53,28 @@ class FetchMagentoCronData extends Command
 				} 
 
                 $api = "$web/default/rest/all/V1/cronbystatus/$status/createdat/$date";
-                $data = json_decode($this->getDataApi($api), true); 
-                if(!empty($data)){
-                    foreach($data as $da){
-                        if(isset($da['status']) && ($da['status']== true && $da['Message']=="Cron data returned successfully")){
-                            $insert =[
-                                'store_website_id'=>$storeId,
-                                'website'=>$web,
-                                'cronstatus' => $da['cronstatus'],
-                                'cron_id' =>$da['cron_id'],
-                                'job_code' => $da['job_code'],
-                                'cron_message' => $da['cron_message'],
-                                'cron_created_at' =>$da['created_at'],
-                                'cron_scheduled_at' => $da['scheduled_at'],
-                                'cron_executed_at'=> $da['executed_at'],
-                                'cron_finished_at' => $da['finished_at']
-                            ];
-                            MagentoCronData::create($insert);
-                        }
-                    }
-                }
+                //$data = json_decode($this->getDataApi($api), true); 
+                $this->info('Approved....' . $api);
+                // if(!empty($data)){
+                //     foreach($data as $da){
+                //         //dd($da);
+                //         if(isset($da['status']) && ($da['status']== true && $da['Message']=="Cron data returned successfully")){
+                //             $insert =[
+                //                 'store_website_id'=>$storeId,
+                //                 'website'=>$web,
+                //                 'cronstatus' => $da['cronstatus'],
+                //                 'cron_id' =>$da['cron_id'],
+                //                 'job_code' => $da['job_code'],
+                //                 'cron_message' => $da['cron_message'],
+                //                 'cron_created_at' =>$da['created_at'],
+                //                 'cron_scheduled_at' => $da['scheduled_at'],
+                //                 'cron_executed_at'=> $da['executed_at'],
+                //                 'cron_finished_at' => $da['finished_at']
+                //             ];
+                //             MagentoCronData::create($insert);
+                //         }
+                //     }
+                // }
             }
         }
         return 'successfully';
