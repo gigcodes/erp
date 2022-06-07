@@ -105,7 +105,7 @@ return [
         'sololuxury' => [
             'driver'   => 'mysql',
             'host'     => env('SOLOLUXURY_HOST', 'erp'),
-            'database' => env('SOLOLUXURY_HOST', 'erp'),
+            'database' => env('SOLOLUXURY_DB', 'erp'),
             'username' => env('MAGENTO_DB_USER', 'root'),
             'password' => env('MAGENTO_DB_PASSWORD', ''),
             'strict' => false,
