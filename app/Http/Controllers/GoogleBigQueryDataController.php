@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\GoogleBigQueryData;
+use App\Setting;
 use Illuminate\Http\Request;
 
 class GoogleBigQueryDataController extends Controller
@@ -14,72 +15,40 @@ class GoogleBigQueryDataController extends Controller
      */
     public function index()
     {
-        //
+        $bigData = GoogleBigQueryData::paginate(Setting::get('pagination'));;
+        return view('google.big_data.index', compact('bigData'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function search(Request $request)
     {
-        //
+        $bigData = new GoogleBigQueryData();
+        if (!empty($request->project_id)) {
+            $bigData = $bigData->where("google_project_id", "like", "%".$request->project_id."%");
+        }
+        if (!empty($request->platform)) {
+            $bigData = $bigData->where("platform", "like", "%".$request->platform."%");
+        }
+        if (!empty($request->event_id)) {
+            $bigData = $bigData->where("event_id", "like", "%".$request->event_id."%");
+        }
+        $bigData = $bigData->paginate(Setting::get('pagination'));
+        return view("google.big_data.index", compact('bigData'));
     }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\GoogleBigQueryData  $googleBigQueryData
-     * @return \Illuminate\Http\Response
-     */
-    public function show(GoogleBigQueryData $googleBigQueryData)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\GoogleBigQueryData  $googleBigQueryData
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(GoogleBigQueryData $googleBigQueryData)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\GoogleBigQueryData  $googleBigQueryData
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, GoogleBigQueryData $googleBigQueryData)
-    {
-        //
-    }
-
+    
     /**
      * Remove the specified resource from storage.
      *
      * @param  \App\GoogleBigQueryData  $googleBigQueryData
      * @return \Illuminate\Http\Response
      */
-    public function destroy(GoogleBigQueryData $googleBigQueryData)
+    public function destroy(GoogleBigQueryData $googleBigQueryData, Request $request)
     {
-        //
+        try{
+            $bigData = GoogleBigQueryData::where('id', '=', $request->id)->delete();
+            return response()->json(['code' => 200, 'data' => $bigData,'message' => 'Deleted successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
     }
 }

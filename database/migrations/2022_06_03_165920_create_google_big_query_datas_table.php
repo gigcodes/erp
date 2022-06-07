@@ -43,6 +43,7 @@ class CreateGoogleBigQueryDatasTable extends Migration
             $table->json('exceptions')->nullable();
             $table->json('errors')->nullable();
             $table->json('threads')->nullable();
+            $table->integer('website_id')->nullable();
             $table->timestamps();
         });
     }

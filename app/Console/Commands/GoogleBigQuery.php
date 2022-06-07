@@ -40,52 +40,57 @@ class GoogleBigQuery extends Command
      */
     public function handle()
     {
-        $storewebsites = StoreWebsite::all();  
-        
+        $storewebsites = StoreWebsite::select('id', 'key_file_path', 'project_id')->get();  
+        //dd($storewebsites);
         foreach($storewebsites as $storewebsite){ 
-            $config = [
-                'keyFilePath' => '/Users/satyamtripathi/Work/sololux-erp/public/big.json',
-                'projectId' => 'brandsandlabels',
-            ];
-
-            $bigQuery = new BigQueryClient($config);
-            $query = 'SELECT * FROM `brandsandlabels.firebase_crashlytics.com_app_brandslabels_ANDROID_REALTIME` WHERE DATE(event_timestamp) = "2022-06-03"';
-            $queryJobConfig = $bigQuery->query($query)
-            ->parameters([]);
-            $queryResults = $bigQuery->runQuery($queryJobConfig);
-            foreach ($queryResults as $row) {
-                dd($row);
-                /*
-                $gBigQ = new GoogleBigQueryData();
-                $gBigQ->google_project_id = $row->;
-                $gBigQ->platform = $row->;
-                $gBigQ->bundle_identifier = $row->;
-                $gBigQ->event_id = $row->;
-                $gBigQ->is_fatal = $row->;
-                $gBigQ->issue_id = $row->;
-                $gBigQ->issue_title = $row->;
-                $gBigQ->issue_subtitle = $row->;
-                $gBigQ->event_timestamp = $row->;
-                $gBigQ->received_timestamp = $row->;
-                $gBigQ->device = $row->;
-                $gBigQ->memory = $row->;
-                $gBigQ->storage = $row->;
-                $gBigQ->operating_system = $row->;
-                $gBigQ->application = $row->;
-                $gBigQ->user = $row->;
-                $gBigQ->custom_keys = $row->;
-                $gBigQ->installation_uuid = $row->;
-                $gBigQ->crashlytics_sdk_version = $row->;
-                $gBigQ->app_orientation = $row->;
-                $gBigQ->device_orientation = $row->;
-                $gBigQ->process_state = $row->;
-                $gBigQ->logs = $row->;
-                $gBigQ->breadcrumbs = $row->;
-                $gBigQ->blame_frame = $row->;
-                $gBigQ->exceptions = $row->;
-                $gBigQ->errors = $row->;
-                $gBigQ->threads = $row->;*/
-            }
-        }
+            if($storewebsite->key_file_path && $storewebsite->project_id) {
+                $config = [
+                    'keyFilePath' => public_path('bigData/'.$storewebsite->key_file_path),
+                    'projectId' => $storewebsite->project_id,
+                ];
+                //dd($config);
+                $bigQuery = new BigQueryClient($config);
+                $query = 'SELECT * FROM `brandsandlabels.firebase_crashlytics.com_app_brandslabels_ANDROID_REALTIME` WHERE DATE(event_timestamp) = "'.date('Y-m-d').'"';
+                $queryJobConfig = $bigQuery->query($query)
+                ->parameters([]);
+                $queryResults = $bigQuery->runQuery($queryJobConfig);
+                foreach ($queryResults as $row) {
+                    $row = (object) $row;
+                    //dd($row);
+                    $gBigQ = new GoogleBigQueryData();
+                    $gBigQ->google_project_id = $storewebsite->project_id;
+                    $gBigQ->platform = $row->platform;
+                    $gBigQ->bundle_identifier = $row->bundle_identifier;
+                    $gBigQ->event_id = $row->event_id;
+                    $gBigQ->is_fatal = $row->is_fatal;
+                    $gBigQ->issue_id = $row->issue_id;
+                    $gBigQ->issue_title = $row->issue_title;
+                    $gBigQ->issue_subtitle = $row->issue_subtitle;
+                    $gBigQ->event_timestamp = $row->event_timestamp;
+                    $gBigQ->received_timestamp = $row->received_timestamp;
+                    $gBigQ->device = json_encode($row->device);
+                    $gBigQ->memory = json_encode($row->memory);
+                    $gBigQ->storage = json_encode($row->storage);
+                    $gBigQ->operating_system = json_encode($row->operating_system);
+                    $gBigQ->application = json_encode($row->application);
+                    $gBigQ->user = $row->user;
+                    $gBigQ->custom_keys = json_encode($row->custom_keys);
+                    $gBigQ->installation_uuid = json_encode($row->installation_uuid);
+                    $gBigQ->crashlytics_sdk_version = $row->crashlytics_sdk_version;
+                    $gBigQ->app_orientation = $row->app_orientation;
+                    $gBigQ->device_orientation = $row->device_orientation;
+                    $gBigQ->process_state = $row->process_state;
+                    $gBigQ->logs = json_encode($row->logs);
+                    $gBigQ->breadcrumbs = json_encode($row->breadcrumbs);
+                    $gBigQ->blame_frame = json_encode($row->blame_frame);
+                    $gBigQ->exceptions = json_encode($row->exceptions);
+                    $gBigQ->errors = json_encode($row->errors);
+                    $gBigQ->threads = json_encode($row->threads);
+                    $gBigQ->website_id = $storewebsite->id;
+                    $gBigQ->save();
+                }
+            } // end if
+        } //foreach
+        echo 'Done';
     }
 }
