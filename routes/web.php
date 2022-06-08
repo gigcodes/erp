@@ -2191,7 +2191,9 @@ Route::get('message/resend', 'WhatsAppController@resendMessage2');
 Route::get('message/delete', 'WhatsAppController@delete');
 
 Route::post('list/autoCompleteMessages', 'WhatsAppController@autoCompleteMessages');
-
+Route::get('google/bigData/bigQuery', 'GoogleBigQueryDataController@index')->name('google.bigdata');
+Route::get('google/bigData/search', 'GoogleBigQueryDataController@search')->name('google.bigdata.search');
+Route::delete('google/bigData/delete', 'GoogleBigQueryDataController@destroy')->name('google.bigdata.delete');
 //});
 
 Route::group(['middleware' => ['auth']], function () {
