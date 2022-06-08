@@ -5,6 +5,17 @@
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+    <style>
+      .multiselect {
+            width: 100%;
+        }
+        .multiselect-container li a {
+          line-height: 3;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -87,18 +98,18 @@
               <tr>
                 <td>{{$postman->id}}</td>
                 <td>
-                    <select name="user_permission[]" multiple class="form-control folder_name" class="user_permission" required>
-                      <option>--Users--</option>
                       <?php 
+                        $useNames = '';
                         foreach($users as $user){
-                          $selected = '';
                           if(in_array($user->id,$userAccessArr)) { 
-                            $selected = 'selected';
-                            echo '<option value="'.$user->id.'" '.$selected.' data-folder_name="'.$user->name.'">'.$user->name.'</option>';
+                            //$selected = 'selected';
+                            //echo '<option value="'.$user->id.'" '.$selected.' data-folder_name="'.$user->name.'">'.$user->name.'</option>';
+                            $useNames .= '<b>'.$user->id.'</b>-'.$user->name.' <b>Email => </b>'.$user->email.', <br/>';
                           }
                         }
                       ?>
-                    </select>
+                    
+                    <a href="#" id="see_users" data-user_details="{{$useNames}}" data-toggle="modal" data-target="#postmanUserDetailsModel">See</a>
                   </td>
                 <td>{{$postman->name}}</td>
                 <td>{{$postman->request_name}}</td>
@@ -189,6 +200,26 @@
     </div>
   </div>
 </div>
+<div id="postmanUserDetailsModel" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div id="add-mail-content">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 class="modal-title">Users</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body postmanUserDetailsModelBody">
+              
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div id="postmanResponseHistoryModel" class="modal fade" role="dialog">
   <div class="modal-dialog modal-lg">
@@ -243,7 +274,7 @@
                     
                     <div class="form-group col-md-12">
                       <label for="title">User Name</label>
-                      <select name="user_permission[]" multiple class="form-control folder_name" id="user_permission" required>
+                      <select name="user_permission[]" multiple class="folder_name form-control multiselect" id="user_permission" required>
                         <option>--Users--</option>
                         <?php 
                           foreach($users as $user){
@@ -513,6 +544,9 @@
 </div>
 
 @section('scripts')
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+    <script src="/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript">
 
     // $('ul.pagination').hide();
@@ -529,15 +563,26 @@
     //     }
 		// });
     
+    $('.multiselect').multiselect({
+        enableClickableOptGroups: true
+    });
     $(document).on("click",".openmodeladdpostman",function(e){
       $('#titleUpdate').html("Add");
         $('#postmanform').find("input[type=text], textarea").val("");
     });
 
+    $(document).on("click","#see_users",function(e){
+        e.preventDefault();
+        //debugger;
+        var $this = $(this);
+        var id = $this.data('user_details');
+          $('.postmanUserDetailsModelBody').html(id);
+    });
+
     $(document).on("change",".folder_name",function(e){
         e.preventDefault();
           var folder_name = $(this).find(':selected').attr('data-folder_name');
-          debugger;
+          //debugger;
           $('#folder_real_name').val(folder_name);
     });
 
