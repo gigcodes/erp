@@ -34,7 +34,16 @@ class PostmanRequestCreateController extends Controller
      */
     public function index()
     {
-        $postmans = PostmanRequestCreate::select('postman_request_creates.*', 'pf.name')->leftJoin('postman_folders AS pf', 'pf.id', 'postman_request_creates.folder_name')->paginate(Setting::get('pagination'));
+        $postmans = PostmanRequestCreate::select('postman_request_creates.*', 'pf.name', 'postman_responses.response', 'postman_responses.id AS resId')
+        ->leftJoin('postman_folders AS pf', 'pf.id', 'postman_request_creates.folder_name')
+        ->leftJoin('postman_responses', function($query) 
+        {
+            $query->on('postman_responses.request_id','=','postman_request_creates.id')->orderBy('postman_request_creates.id', 'DESC');
+            //->whereRaw('answers.id IN (select MAX(a2.id) from answers as a2 join users as u2 on u2.id = a2.user_id group by u2.id)');
+        })
+        //->get();
+        ->paginate(Setting::get('pagination'));
+        //dd($postmans);
         $folders = PostmanFolder::all();
         $users = User::all();
         $userID = \Auth::user()->id;
@@ -288,6 +297,22 @@ class PostmanRequestCreateController extends Controller
         }
     }
 
+    public function removeUserPermission(Request $request){
+        try{
+            $postHis = PostmanRequestCreate::select('*')->where('id', '=', $request->id)->orderby('id', 'DESC')->first();
+            $users = explode(",", $postHis->user_permission);
+            //dump($users);
+            if (($key = array_search($request->user_id, $users)) !== false) {
+                unset($users[$key]);
+            }
+            $postHis = PostmanRequestCreate::select('*')->where('id', '=', $request->id)->update(['user_permission' => implode(",",$users)]);
+            return response()->json(['code' => 200, 'data' => $postHis,'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+    
     public function getPostmanWorkSpaceAPI(){
         $curl = curl_init();
         

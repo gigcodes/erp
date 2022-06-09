@@ -2247,6 +2247,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('postman/requested/history', 'PostmanRequestCreateController@postmanRequestHistoryLog');
     Route::post('postman/response/history', 'PostmanRequestCreateController@postmanResponseHistoryLog');
     Route::post('postman/add/json/version', 'PostmanRequestCreateController@jsonVersion');
+    Route::post('postman/removeuser/permission', 'PostmanRequestCreateController@removeUserPermission');
+    
 });
 /*
  * @date 1/13/2019

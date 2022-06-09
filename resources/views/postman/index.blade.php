@@ -16,6 +16,7 @@
           line-height: 3;
         }
     </style>
+   
 @endsection
 
 @section('content')
@@ -83,7 +84,13 @@
             <th>User Permission</th>
             <th>Folder Name</th>
             <th>Request Name</th>
-            <th>request type</th>
+            <th>Type</th>
+            <th>URL</th>
+            <th>Request Parameter</th>
+            <th>Params</th>
+            <th>Headers</th>
+            <th>Request type</th>
+            <th>Request Response</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -104,7 +111,7 @@
                           if(in_array($user->id,$userAccessArr)) { 
                             //$selected = 'selected';
                             //echo '<option value="'.$user->id.'" '.$selected.' data-folder_name="'.$user->name.'">'.$user->name.'</option>';
-                            $useNames .= '<b>'.$user->id.'</b>-'.$user->name.' <b>Email => </b>'.$user->email.', <br/>';
+                            $useNames .= '<span id="'.$postman->id.$user->id.'"><i style="font-size:24px;color:red; cursor: pointer;" class="fa removeuser" data-user_permision_id="'.$user->id.'" data-id="'.$postman->id.'">&#xf00d;</i><b>'.$user->id.'</b>-'.$user->name.' <b>Email => </b>'.$user->email.',<br/></span> ';
                           }
                         }
                       ?>
@@ -114,6 +121,27 @@
                 <td>{{$postman->name}}</td>
                 <td>{{$postman->request_name}}</td>
                 <td>{{$postman->request_type}}</td>
+                <td class="expand-row-msg" data-name="url" data-id="{{$postman->id}}">
+                  <span class="show-short-url-{{$postman->id}}">{{ str_limit($postman->request_url, 12, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-url-{{$postman->id}} hidden">{{$postman->request_url}}</span>
+                </td>
+                <td class="expand-row-msg" data-name="paramiters" data-id="{{$postman->id}}">
+                  <span class="show-short-paramiters-{{$postman->id}}">{{ str_limit($postman->body_json, 12, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-paramiters-{{$postman->id}} hidden">{{$postman->body_json}}</span>
+                </td>
+                <td class="expand-row-msg" data-name="params" data-id="{{$postman->id}}">
+                  <span class="show-short-params-{{$postman->id}}">{{ str_limit($postman->params, 12, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-params-{{$postman->id}} hidden">{{$postman->params}}</span>
+                </td>
+                <td class="expand-row-msg" data-name="headers" data-id="{{$postman->id}}">
+                  <span class="show-short-headers-{{$postman->id}}">{{ str_limit($postman->request_headers, 12, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-headers-{{$postman->id}} hidden">{{$postman->request_headers}}</span>
+                </td>
+                <td>{{$postman->request_type}}</td>
+                <td class="expand-row-msg" data-name="response" data-id="{{$postman->id}}">
+                  <span class="show-short-response-{{$postman->id}}">{{ str_limit($postman->response, 12, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-response-{{$postman->id}} hidden">{{$postman->response}}</span>
+                </td>
                 <td>
                   <a title="Send Request" class="btn btn-image postman-send-request-btn pd-5 btn-ht" data-id="{{ $postman->id }}" href="javascript:;">
                     <i class="fa fa-paper-plane" aria-hidden="true"></i>
@@ -274,14 +302,18 @@
                     
                     <div class="form-group col-md-12">
                       <label for="title">User Name</label>
-                      <select name="user_permission[]" multiple class="folder_name form-control multiselect" id="user_permission" required>
-                        <option>--Users--</option>
-                        <?php 
-                          foreach($users as $user){
-                              echo '<option value="'.$user->id.'" data-folder_name="'.$user->name.'">'.$user->name.'</option>';
-                          }
-                        ?>
-                      </select>
+                      <div class="dropdown-sin-1">
+                          {{-- <select style="display:none" multiple placeholder="Select"></select> multiselect --}}
+                        
+                        <select name="user_permission[]" multiple class="folder_name form-control dropdown-mul-1" id="user_permission" required>
+                          <option>--Users--</option>
+                          <?php 
+                            foreach($users as $user){
+                                echo '<option value="'.$user->id.'" data-folder_name="'.$user->name.'">'.$user->name.'</option>';
+                            }
+                          ?>
+                        </select>
+                      </div>
                     </div>
                     <div class="form-group col-md-12">
                       <label for="title">Folder Name</label>
@@ -388,14 +420,17 @@
                                 <div class="form-group col-md-12">
                                   <label for="title">User Name</label>
                                   <input type="hidden" name="folder_real_name" id="folder_real_name" >
-                                  <select name="user_permission[]" multiple class="form-control folder_name" id="user_permission" required>
-                                    <option>--Users--</option>
-                                    <?php 
-                                      foreach($users as $user){
-                                          echo '<option value="'.$user->id.'" data-folder_name="'.$user->name.'">'.$user->name.'</option>';
-                                      }
-                                    ?>
-                                  </select>
+                                  <div class="dropdown-sin-1">
+                                    {{-- <select style="display:none" multiple placeholder="Select"></select> multiselect --}}
+                                    <select name="user_permission[]" multiple class="form-control folder_name dropdown-mul-1" id="user_permission" required>
+                                      <option>--Users--</option>
+                                      <?php 
+                                        foreach($users as $user){
+                                            echo '<option value="'.$user->id.'" data-folder_name="'.$user->name.'">'.$user->name.'</option>';
+                                        }
+                                      ?>
+                                    </select>
+                                  </div>
                                 </div>
                                 <div class="form-group col-md-12">
                                   <label for="title">Folder Name</label>
@@ -542,11 +577,49 @@
       </div>
     </div>
 </div>
-
+<link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.min.css')}}">
+<link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.css')}}">
 @section('scripts')
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script src="/js/bootstrap-multiselect.min.js"></script>
+
+    <script src="{{asset('js/mock.js')}}"></script>
+    <script src="{{asset('js/jquery.dropdown.min.js')}}"></script>
+    <script src="{{asset('js/jquery.dropdown.js')}}"></script>
+    
+
+    <script>
+      var Random = Mock.Random;
+      var json1 = Mock.mock({
+      "data|10-50": [{
+        name: function () {
+          return Random.name(true)
+        },
+        "id|+1": 1,
+        "disabled|1-2": true,
+        groupName: 'Group Name',
+        "groupId|1-4": 1,
+        "selected": true
+      }]
+    });
+      $('.dropdown-mul-1').dropdown({
+      data: json1.data,
+      limitCount: 40,
+      multipleMode: 'label',
+      choice: function () {
+        // console.log(arguments,this);
+      }
+    });
+
+    $('.dropdown-sin-1').dropdown({
+      readOnly: true,
+      input: '<input type="text" maxLength="20" placeholder="Search">'
+    });
+
+    </script>
+  </div>
+ 
   <script type="text/javascript">
 
     // $('ul.pagination').hide();
@@ -665,6 +738,7 @@
                 $( "#folder_name" ).val(v);
               }else if(form.find('[name="'+key+'[]"]').length){
                   form.find('[name="'+key+'[]"]').val(v);
+                  debugger;
                   $.each(v.split(","), function(i,e){
                       $("#user_permission option[value='" + e + "']").prop("selected", true);
                   });
@@ -843,6 +917,42 @@
            toastr['error'](errObj.message, 'error');
         });
     });
-    
+
+    $(document).on("click",".removeuser",function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+        var user_id = $this.data('user_permision_id');
+        $.ajax({
+          url: "postman/removeuser/permission",
+          type: "post",
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+          data:{
+            id:id,
+            user_id:user_id
+          }
+        }).done(function(response) {
+          if(response.code = '200') {
+            $("#"+id+user_id).css('display', 'none');
+            toastr['success']('User Removed successfully!!!', 'success'); 
+          } else {
+            toastr['error'](response.message, 'error'); 
+          }
+        }).fail(function(errObj) {
+          $('#loading-image').hide();
+           toastr['error'](errObj.message, 'error');
+        });
+    });
+    $(document).on('click', '.expand-row-msg', function () {
+      var name = $(this).data('name');
+      var id = $(this).data('id');
+      var full = '.expand-row-msg .show-short-'+name+'-'+id;
+      var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+      $(full).toggleClass('hidden');
+      $(mini).toggleClass('hidden');
+    });
+
   </script>
 @endsection
