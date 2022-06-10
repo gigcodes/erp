@@ -17,7 +17,7 @@ class LogRequest extends Model
         $r->api_name    = $api_name;
         $r->request     = $request;
         $r->response    = !empty($response) ? json_encode($response) : json_encode([]);
-        $r->message     = isset($response['message']) ? $response['message'] : '';
+        $r->message     = '';
         $r->start_time  = $startTime;
         $r->end_time    = $endTime;
         $r->time_taken  = $timeTaken;
