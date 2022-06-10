@@ -480,7 +480,6 @@ class CouponController extends Controller
         LogRequest::log($startTime,$url,'POST',json_encode($parameters),json_decode($response),$httpcode,'addRules','App\Http\Controllers\CouponController');
 
         \Log::channel('listMagento')->info(print_r([$url,$store_website->api_token,json_encode($parameters),$response],true));
-        curl_close($ch); // Close the connection
         if($result != false){
             if (isset($result->code)) {
                 return response()->json(['type' => 'error', 'message' => $result->message, 'data' => $result], 200);
