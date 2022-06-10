@@ -13,7 +13,7 @@ class AddRequestUrlToPostmanRequestCreatesTable extends Migration
      */
     public function up()
     {
-        Schema::table('postman_request_creates', function (Blueprint $table) {
+        Schema::table('postman_responses', function (Blueprint $table) {
             $table->longText('request_url')->nullable();
         });
     }
@@ -25,7 +25,7 @@ class AddRequestUrlToPostmanRequestCreatesTable extends Migration
      */
     public function down()
     {
-        Schema::table('postman_request_creates', function (Blueprint $table) {
+        Schema::table('postman_responses', function (Blueprint $table) {
             $table->dropColumn('request_url');
         });
     }
