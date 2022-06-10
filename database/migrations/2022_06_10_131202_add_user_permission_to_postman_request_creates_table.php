@@ -14,7 +14,6 @@ class AddUserPermissionToPostmanRequestCreatesTable extends Migration
     public function up()
     {
         Schema::table('postman_request_creates', function (Blueprint $table) {
-            //$table->dropColumn('user_permission');
             $table->text('user_permission')->nullable()->after('tests');
         });
     }
