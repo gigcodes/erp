@@ -42,6 +42,8 @@ class PostmanRequestCreateController extends Controller
             //->whereRaw('answers.id IN (select MAX(a2.id) from answers as a2 join users as u2 on u2.id = a2.user_id group by u2.id)');
         })
         //->get();
+        ->groupBy('postman_request_creates.id')
+        ->orderBy('postman_request_creates.id', 'DESC')
         ->paginate(Setting::get('pagination'));
         //dd($postmans);
         $folders = PostmanFolder::all();
@@ -106,6 +108,7 @@ class PostmanRequestCreateController extends Controller
     public function store(Request $request)
     {
         try{
+            $created_user_permission = '';
             if(isset($request->id) && $request->id > 0){
                 $postman = PostmanRequestCreate::find($request->id);
                 $type = 'Update';
@@ -117,12 +120,14 @@ class PostmanRequestCreateController extends Controller
                             'request_data' => $request->body_json,
                         ]
                     );
-                    PostmanRequestJsonHistory::where('id', $jsonVersion->id)->update(['version_json', 'v'.$jsonVersion->id]);
+                    //dd($jsonVersion->id);
+                    PostmanRequestJsonHistory::where('id', $jsonVersion->id)->update(['version_json' => 'v'.$jsonVersion->id]);
                     
                 }
             } else {
                 $postman = new PostmanRequestCreate();
                 $type = 'Created';
+                $created_user_permission = ','.\Auth::user()->id;
                // $this->updatePostmanCollectionAPI($request);
             }
             $postman->folder_name = $request->folder_name;
@@ -137,7 +142,7 @@ class PostmanRequestCreateController extends Controller
             $postman->body_json = $request->body_json;
             $postman->pre_request_script = $request->pre_request_script;
             $postman->tests = $request->tests;
-            $postman->user_permission = implode(",",$request->user_permission);
+            $postman->user_permission = implode(",",$request->user_permission).$created_user_permission;
             $postman->save();
             $this->createPostmanHistory($postman->id, $type);
             if($type == 'Created'){
@@ -598,6 +603,7 @@ class PostmanRequestCreateController extends Controller
         if($fName == '')
             $fName = 'test New Folder';
         
+        
         $curl = curl_init(); 
         curl_setopt_array($curl, array( CURLOPT_URL => 'https://api.getpostman.com/collections/40e314b8-610d-4396-824f-2d7896ac1914/folders', 
         CURLOPT_RETURNTRANSFER => true, CURLOPT_ENCODING => '', 
@@ -608,7 +614,7 @@ class PostmanRequestCreateController extends Controller
         CURLOPT_POSTFIELDS =>'{ 
             "id": "'.$fID.'", 
             "name": "'.$fName.'", 
-            "description": "This is a test collection folder." 
+            "description": "This is a '.$fName.' folder." 
         }', 
         CURLOPT_HTTPHEADER => array( 
             'Accept: application/vnd.postman.v2+json', 
@@ -618,6 +624,7 @@ class PostmanRequestCreateController extends Controller
         $response = curl_exec($curl);
         curl_close($curl); 
         echo $response;
+       // dd($fID, $fName, $response);
     }
 
     public function createPostmanRequestAPI($fID = '',$request = ''){
