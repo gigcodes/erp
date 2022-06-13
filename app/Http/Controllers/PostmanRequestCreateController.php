@@ -34,18 +34,22 @@ class PostmanRequestCreateController extends Controller
      */
     public function index()
     {
-        $postmans = PostmanRequestCreate::select('postman_request_creates.*', 'pf.name', 'postman_responses.response', 'postman_responses.id AS resId')
+        //\DB::enableQueryLog(); // Enable query log
+        $postmans = PostmanRequestCreate::select('postman_request_creates.*', 'pf.name', 'postman_responses.response','postman_responses.response_code', 'postman_responses.id AS resId')
         ->leftJoin('postman_folders AS pf', 'pf.id', 'postman_request_creates.folder_name')
-        ->leftJoin('postman_responses', function($query) 
-        {
-            $query->on('postman_responses.request_id','=','postman_request_creates.id')->orderBy('postman_request_creates.id', 'DESC');
-            //->whereRaw('answers.id IN (select MAX(a2.id) from answers as a2 join users as u2 on u2.id = a2.user_id group by u2.id)');
+        ->leftJoin('postman_responses', function($query) {
+            $query->on('postman_responses.request_id','=','postman_request_creates.id')
+            ->whereRaw('postman_responses.id IN (select MAX(pr1.id) from postman_responses as pr1)')
+            ->orderBy('id', 'DESC');
         })
-        //->get();
         ->groupBy('postman_request_creates.id')
         ->orderBy('postman_request_creates.id', 'DESC')
+        //->get();
         ->paginate(Setting::get('pagination'));
         //dd($postmans);
+
+        //dd(\DB::getQueryLog());
+
         $folders = PostmanFolder::all();
         $users = User::all();
         $userID = \Auth::user()->id;
@@ -76,7 +80,9 @@ class PostmanRequestCreateController extends Controller
         if (!empty($request->request_name)) {
             $postmans = $postmans->where("request_name", "like", "%".$request->request_name."%");
         }
-        $postmans = $postmans->select('postman_request_creates.*', 'pf.name')->leftJoin('postman_folders AS pf', 'pf.id', 'postman_request_creates.folder_name')->paginate(Setting::get('pagination'));
+        $postmans = $postmans->select('postman_request_creates.*', 'pf.name', 'postman_responses.response','postman_responses.response_code', 'postman_responses.id AS resId')
+        ->leftJoin('postman_folders AS pf', 'pf.id', 'postman_request_creates.folder_name')
+        ->paginate(Setting::get('pagination'));
         $folders = PostmanFolder::all();
         $userID = \Auth::user()->id;
         $userAdmin = User::where('id', $userID)->first();
@@ -143,6 +149,10 @@ class PostmanRequestCreateController extends Controller
             $postman->pre_request_script = $request->pre_request_script;
             $postman->tests = $request->tests;
             $postman->user_permission = implode(",",$request->user_permission).$created_user_permission;
+            $postman->controller_name = $request->controller_name;
+            $postman->method_name = $request->method_name;
+            $postman->remark = $request->remark;
+            
             $postman->save();
             $this->createPostmanHistory($postman->id, $type);
             if($type == 'Created'){
@@ -792,9 +802,10 @@ class PostmanRequestCreateController extends Controller
                 ));
                 
                 $response = curl_exec($curl);
-
+                $http_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
+                //dd($http_code);
                 curl_close($curl);
-            
+                
                 //dd($response);
                 PostmanResponse::create(
                     [
@@ -802,7 +813,8 @@ class PostmanRequestCreateController extends Controller
                         'request_id' => $postman->id,
                         'response' => json_encode($response),
                         'request_url' => $postman->request_url,
-                        'request_data' => $postman->body_json
+                        'request_data' => $postman->body_json,
+                        'response_code' => $http_code
                     ]
                 );
             }

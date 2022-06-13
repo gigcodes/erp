@@ -14,6 +14,8 @@ class PostmanRequestCreate extends Model
         'body_json' => 'array',
     ];
 
-    
+    public function latestRes(){
+        return $this->hasOne(PostmanResponse::class, 'request_id', 'id');
+    }
 }
  
