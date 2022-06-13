@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Customer;
 use App\Mails\AddCoupon;
 use App\CouponCodeRuleLog;
+use App\LogRequest;
 
 class CouponController extends Controller
 {
@@ -404,7 +405,8 @@ class CouponController extends Controller
         $timeUsed  = 6;
         
         $authorization      = "Authorization: Bearer " . $store_website->api_token;
-        
+        $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
+
         $parameters         = [];
         $parameters['rule'] = [
             "name"                  => $request->name,
@@ -473,8 +475,11 @@ class CouponController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
         $response = curl_exec($ch);
         $result   = json_decode($response);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close ($ch);
+        LogRequest::log($startTime,$url,'POST',json_encode($parameters),json_decode($response),$httpcode,'addRules','App\Http\Controllers\CouponController');
+
         \Log::channel('listMagento')->info(print_r([$url,$store_website->api_token,json_encode($parameters),$response],true));
-        curl_close($ch); // Close the connection
         if($result != false){
             if (isset($result->code)) {
                 return response()->json(['type' => 'error', 'message' => $result->message, 'data' => $result], 200);
@@ -543,6 +548,7 @@ class CouponController extends Controller
 
     public function geteratePrimaryCouponCode($code, $magento_rule_id, $uses_per_customer, $end_date, $laravel_rule_id = "", $store_website_id)
     {
+        $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
 
         $authorization        = "Authorization: Bearer " . $store_website_id->api_token;
         $parameters           = [];
@@ -567,8 +573,11 @@ class CouponController extends Controller
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
         $response = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            
         $result   = json_decode($response);
         curl_close($ch); // Close the connection
+        LogRequest::log($startTime,$url,'POST',json_encode($parameters),json_decode($response),$httpcode,'geteratePrimaryCouponCode','App\Http\Controllers\CouponController');
 
         \Log::channel('listMagento')->info(print_r([$url,$store_website_id->api_token,json_encode($parameters)],true));
 
@@ -603,6 +612,8 @@ class CouponController extends Controller
 
     public function deleteCouponCodeRuleByWebsiteId($id,$storeWebsiteID)
     {
+        $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
+
         $store_website = StoreWebsite::where('id', $storeWebsiteID)->first();
         $authorization = "Authorization: Bearer " . $store_website->api_token;
         $url           = $store_website->magento_url . "/rest/V1/salesRules/salesRules/" . $id;
@@ -612,13 +623,18 @@ class CouponController extends Controller
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response   = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $result     = json_decode($response);
+        LogRequest::log($startTime,$url,'DELETE',[],json_decode($response),$httpcode,'deleteCouponCodeRuleByWebsiteId','App\Http\Controllers\CouponController');
+
         
         return true;
     }
 
     public function deleteCouponCodeRuleById($id)
     {
+        $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
+
         $rule_lists    = CouponCodeRules::where('id', $id)->first();
         $store_website = StoreWebsite::where('id', $rule_lists->store_website_id)->first();
         $authorization = "Authorization: Bearer " . $store_website->api_token;
@@ -630,6 +646,9 @@ class CouponController extends Controller
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response   = curl_exec($ch);
         $result     = json_decode($response);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime,$url,'DELETE',[],json_decode($response),$httpcode,'deleteCouponCodeRuleById','App\Http\Controllers\CouponController');
+
         $coupon     = Coupon::where('rule_id', $rule_lists->magento_rule_id)->delete();
         $rule_lists = CouponCodeRules::where('id', $id)->delete();
         return redirect()->route('coupons.index');
@@ -637,6 +656,8 @@ class CouponController extends Controller
 
     public function generateCouponCode(Request $request)
     {
+        $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
+
 
         $rule_id = CouponCodeRules::where('id', $request->rule_id)->first();
         $format  = "alphanum";
@@ -678,6 +699,9 @@ class CouponController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
         $response = curl_exec($ch);
         $result   = json_decode($response);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime,$url,'POST',json_encode($parameters),json_decode($response),$httpcode,'generateCouponCode','App\Http\Controllers\CouponController');
+
         curl_close($ch); // Close the connection
         if (isset($result->message)) {
             return response()->json(['type' => 'error', 'message' => $result->message, 'data' => $result], 200);
@@ -702,6 +726,8 @@ class CouponController extends Controller
 
     public function updateRules(Request $request)
     {
+        $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
+
         $store_lables = [];
         if(!empty($request->store_labels)) {
             foreach ($request->store_labels as $key => $lables) {
@@ -782,6 +808,10 @@ class CouponController extends Controller
         $response = curl_exec($ch);
         $result   = json_decode($response);
 
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime,$url,'POST',json_encode($parameters),json_decode($response),$httpcode,'updateRules','App\Http\Controllers\CouponController');
+
+
         \Log::channel('listMagento')->info(print_r([$url,$store_website->api_token,json_decode($response)],true));
 
         curl_close($ch); // Close the connection
@@ -850,6 +880,7 @@ class CouponController extends Controller
 
     public function deleteCouponByCode(Request $request)
     {
+        $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
 
         $coupon        = Coupon::where('id', $request->id)->first();
         $local_rules   = CouponCodeRules::where('id', $coupon->rule_id)->first();
@@ -870,6 +901,9 @@ class CouponController extends Controller
 
         $response = curl_exec($ch);
         $result   = json_decode($response);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime,$url,'POST',json_encode($parameters),json_decode($response),$httpcode,'deleteCouponByCode','App\Http\Controllers\CouponController');
+
         $coupon   = Coupon::where('id', $request->id)->delete();
         curl_close($ch); // Close the connection
 
@@ -890,6 +924,8 @@ class CouponController extends Controller
     
     public function shortCutFroCreateCoupn(Request $request) {
         
+        $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
+
         $store_website_id = !empty($request->store_website_id) ? $request->store_website_id : 1;
         $website_ids = !empty($request->website_ids) ? $request->website_ids : array("1","2");        
         $store_labels = !empty($request->store_labels) ? $request->store_labels : array("Quck Created Coupon");
@@ -999,6 +1035,9 @@ class CouponController extends Controller
         \Log::channel('listMagento')->info(print_r([$url,$store_website->api_token,json_encode($parameters)],true));
         $response = curl_exec($ch);
         $result   = json_decode($response);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime,$url,'POST',json_encode($parameters),json_decode($response),$httpcode,'shortCutFroCreateCoupn','App\Http\Controllers\CouponController');
+
         curl_close($ch); // Close the connection
         if (isset($result->code)) {
             return response()->json(['type' => 'error', 'message' => $result->message, 'data' => $result], 200);
