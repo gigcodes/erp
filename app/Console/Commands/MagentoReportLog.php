@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\WebsiteLog;
 
 class MagentoReportLog extends Command
 {
@@ -37,23 +38,31 @@ class MagentoReportLog extends Command
      */
     public function handle()
     {
-        //echo 'test';exit;
-        $storewebsite = \App\StoreWebsite::whereNotNull('server_ip')->get();
-        //echo (getenv('DEPLOYMENT_SCRIPTS_PATH'));exit;
-        $arrays = array('unit','integration');
-        foreach($storewebsite AS $stroewebsite){
-            //print_r($stroewebsite->server_ip);exit;
-            foreach($arrays as $array){
-                //$cmd = ' bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh --server '. $stroewebsite->server_ip .' --type tests --test '. $array;
-                $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh --server '. $stroewebsite->server_ip .' --type tests --test '. $array;
-                //echo $cmd; 
-                //chdir($old_path);
-                $allOutput = array();
-                $allOutput[] = $cmd;
-                $result = exec($cmd, $allOutput); //Execute command
-                $status = 'Error';
-                dd($result);
+        try{
+            $storewebsite = \App\StoreWebsite::whereNotNull('server_ip')->get();
+            $types = array('unit','integration', 'integration-all', 'static', 'static-all', 'integrity', 'legacy', 'default');
+            foreach($storewebsite AS $stroewebsite){
+                foreach($types as $type){
+                    //$cmd = ' bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh --server '. $stroewebsite->server_ip .' --type tests --test '. $type;
+                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh --server '. $stroewebsite->server_ip .' --type tests --test '. $type;
+                    $allOutput = array();
+                    $allOutput[] = $cmd;
+                    $result = exec($cmd, $allOutput); //Execute command
+                    $status = 'Error';
+                    //Storing data to log table
+                    if(!empty($result)){
+                        $ins = new WebsiteLog;
+                        $ins->sql_query = json_encode($result);
+                        $ins->time = date('Y-m-d H:s:i');
+                        $ins->website_id = $storewebsite->id ?? '';
+                        $ins->type = 'MagentoLog-'.$type;
+                        $ins->save();
+                    }
+                }
             }
-        }
+            echo '=== DONE ===';
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        } 
     }
 }
