@@ -14,7 +14,7 @@ class AddIpUserNameAssinToAssetsManager extends Migration
     public function up()
     {
         Schema::table('assets_manager', function (Blueprint $table) {
-            $table->text('user_name')->nullable()->after('capcity');
+            $table->text('user_name')->nullable()->after('capacity');
             $table->text('assigned_to')->nullable();
             $table->text('ip')->nullable();
         });
