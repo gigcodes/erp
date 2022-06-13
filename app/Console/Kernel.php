@@ -149,7 +149,6 @@ use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
 use App\Console\Commands\GetPytonLogs;
 use App\Console\Commands\HubstuffActivityCommand;
 use App\Console\Commands\GtMetrixReport;
-use App\Console\Commands\GtMetrixReport;
 use App\Console\Commands\MagentoReportLog;
 
 class Kernel extends ConsoleKernel
