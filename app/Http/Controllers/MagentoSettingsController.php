@@ -12,12 +12,14 @@ use App\WebsiteStore;
 use App\WebsiteStoreView;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\LogRequest;
 
 class MagentoSettingsController extends Controller
 {
 
     public function index(Request $request)
     {
+        $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
 
         $magentoSettings = MagentoSetting::with(
             'storeview.websiteStore.website.storeWebsite',
@@ -105,7 +107,12 @@ class MagentoSettingsController extends Controller
                     // Get response
                     $response = curl_exec($curl);
 
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    LogRequest::log($startTime,$websiteUrl . "/rest/V1/configvalue/get",'POST',json_encode($conf),json_decode($response),$httpcode,'index','App\Http\Controllers\MagentoSettingsController');
+
+
                     $response = json_decode($response, true);
+
 
                     foreach ($settings as $key => $setting) {
                         $newValues[$setting['id']] = isset($response[$key]) ? $response[$key]['value'] : null;
