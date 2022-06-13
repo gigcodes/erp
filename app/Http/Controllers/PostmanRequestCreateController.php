@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\PostmanRequestCreate;
 use App\PostmanFolder;
 use App\PostmanHistory;
+use App\PostmanRemarkHistory;
 use App\Setting;
 use App\User;
 use Illuminate\Http\Request; 
@@ -127,6 +128,17 @@ class PostmanRequestCreateController extends Controller
                     //dd($jsonVersion->id);
                     PostmanRequestJsonHistory::where('id', $jsonVersion->id)->update(['version_json' => 'v'.$jsonVersion->id]);
                     
+                }
+                if($postman->remark != $request->remark){
+                
+                    PostmanRemarkHistory::create(
+                        [
+                            'user_id' => \Auth::user()->id,
+                            'postman_request_create_id' => $request->id,
+                            'old_remark' => $postman->remark,
+                            'remark' => $request->remark,
+                        ]
+                    );
                 }
             } else {
                 $postman = new PostmanRequestCreate();
@@ -271,6 +283,19 @@ class PostmanRequestCreateController extends Controller
             $postHis = PostmanHistory::select('postman_historys.*', 'u.name AS userName')
             ->leftJoin('users AS u', 'u.id', 'postman_historys.user_id')
             ->where('postman_id', '=', $request->id)->orderby('id', 'DESC')->get();
+            return response()->json(['code' => 200, 'data' => $postHis,'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function postmanRemarkHistoryLog(Request $request)
+    {
+        try{
+            $postHis = PostmanRemarkHistory::select('postman_remark_histories.*', 'u.name AS userName')
+            ->leftJoin('users AS u', 'u.id', 'postman_remark_histories.user_id')
+            ->where('postman_request_create_id', '=', $request->id)->orderby('id', 'DESC')->get();
             return response()->json(['code' => 200, 'data' => $postHis,'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();

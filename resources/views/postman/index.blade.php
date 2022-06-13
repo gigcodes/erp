@@ -166,6 +166,7 @@
                   <a class="btn postman-history-btn"  data-id="{{ $postman->id }}" href="#"><i class="fa fa-history" aria-hidden="true"></i></a>
                   <a title="Preview Response" data-id="{{ $postman->id }}" class="btn btn-image preview_response pd-5 btn-ht" href="javascript:;"><i class="fa fa-product-hunt" aria-hidden="true"></i></a>
                   <a title="Preview Requested" data-id="{{ $postman->id }}" class="btn btn-image preview_requested pd-5 btn-ht" href="javascript:;"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                  <a title="Preview Remark History" data-id="{{ $postman->id }}" class="btn btn-image preview_remark_history pd-5 btn-ht" href="javascript:;"><i class="fa fa-history" aria-hidden="true"></i></a>
                 </td>
               </tr>
             @endif
@@ -243,6 +244,38 @@
     </div>
   </div>
 </div>
+<div id="postmanRemarkHistoryModel" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div id="add-mail-content">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 class="modal-title">Postman Remark History</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>User Name</th>
+                    <th>Old Remark</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody class="tbodayPostmanRemarkHistory">
+                </tbody>
+              </table>  
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="postmanUserDetailsModel" class="modal fade" role="dialog">
   <div class="modal-dialog modal-lg">
     <!-- Modal content-->
@@ -931,6 +964,42 @@
         }).fail(function(errObj) {
           $('#loading-image').hide();
            $("#postmanRequesteHistory").hide();
+           toastr['error'](errObj.message, 'error');
+        });
+    });
+
+    $(document).on("click",".preview_remark_history",function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+        $.ajax({
+          url: "/postman/remark/history/",
+          type: "post",
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+          data:{
+            id:id
+          }
+        }).done(function(response) {
+          if(response.code = '200') {
+            var t = '';
+            $.each(response.data, function(key, v) {
+              t += '<tr><td>'+v.id+'</td>';
+              t += '<td>'+v.userName+'</td>';
+              t += '<td>'+v.old_remark+'</td>';
+              t += '<td>'+v.created_at+'</td></tr>';
+            });
+            $(".tbodayPostmanRemarkHistory").html(t);
+            $('#postmanRemarkHistoryModel').modal('show');
+            toastr['success']('Postman Remark History listed successfully!!!', 'success'); 
+            
+          } else {
+            toastr['error'](response.message, 'error'); 
+          }
+        }).fail(function(errObj) {
+          $('#loading-image').hide();
+           $("#postmanRemarkHistoryModel").hide();
            toastr['error'](errObj.message, 'error');
         });
     });

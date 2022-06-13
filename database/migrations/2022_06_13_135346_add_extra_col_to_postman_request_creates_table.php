@@ -16,7 +16,7 @@ class AddExtraColToPostmanRequestCreatesTable extends Migration
         Schema::table('postman_request_creates', function (Blueprint $table) {
             $table->text('controller_name')->nullable();
             $table->string('method_name')->nullable();
-            $table->text('Remark')->nullable();
+            $table->text('remark')->nullable();
             $table->text('collection')->nullable();
         });
     }
@@ -31,7 +31,7 @@ class AddExtraColToPostmanRequestCreatesTable extends Migration
         Schema::table('postman_request_creates', function (Blueprint $table) {
             $table->dropColumn('controller_name');
             $table->dropColumn('method_name');
-            $table->dropColumn('Remark');
+            $table->dropColumn('remark');
             $table->dropColumn('collection');
         });
     }
