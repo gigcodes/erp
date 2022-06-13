@@ -83,6 +83,8 @@
             <th>ID</th>
             <th>User Permission</th>
             <th>Folder Name</th>
+            <th>Controller Name</th>
+            <th>Method Name</th>
             <th>Request Name</th>
             <th>Type</th>
             <th>URL</th>
@@ -91,6 +93,7 @@
             <th>Headers</th>
             <th>Request type</th>
             <th>Request Response</th>
+            <th>Response Code</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -119,6 +122,14 @@
                     <a href="#" id="see_users" data-user_details="{{$useNames}}" data-toggle="modal" data-target="#postmanUserDetailsModel">See</a>
                   </td>
                 <td>{{$postman->name}}</td>
+                <td class="expand-row-msg" data-name="controller_name" data-id="{{$postman->id}}">
+                  <span class="show-short-controller_name-{{$postman->id}}">{{ str_limit($postman->controller_name, 12, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-controller_name-{{$postman->id}} hidden">{{$postman->controller_name}}</span>
+                </td>
+                <td class="expand-row-msg" data-name="method_name" data-id="{{$postman->id}}">
+                  <span class="show-short-method_name-{{$postman->id}}">{{ str_limit($postman->method_name, 12, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-method_name-{{$postman->id}} hidden">{{$postman->method_name}}</span>
+                </td>
                 <td>{{$postman->request_name}}</td>
                 <td>{{$postman->request_type}}</td>
                 <td class="expand-row-msg" data-name="url" data-id="{{$postman->id}}">
@@ -142,6 +153,10 @@
                   <span class="show-short-response-{{$postman->id}}">{{ str_limit($postman->response, 12, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-response-{{$postman->id}} hidden">{{$postman->response}}</span>
                 </td>
+                <td class="expand-row-msg" data-name="response_code" data-id="{{$postman->id}}">
+                  <span class="show-short-response_code-{{$postman->id}}">{{ str_limit($postman->response_code  , 8, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-response_code-{{$postman->id}} hidden">{{$postman->response_code}}</span>
+                </td>
                 <td>
                   <a title="Send Request" class="btn btn-image postman-send-request-btn pd-5 btn-ht" data-id="{{ $postman->id }}" href="javascript:;">
                     <i class="fa fa-paper-plane" aria-hidden="true"></i>
@@ -151,6 +166,7 @@
                   <a class="btn postman-history-btn"  data-id="{{ $postman->id }}" href="#"><i class="fa fa-history" aria-hidden="true"></i></a>
                   <a title="Preview Response" data-id="{{ $postman->id }}" class="btn btn-image preview_response pd-5 btn-ht" href="javascript:;"><i class="fa fa-product-hunt" aria-hidden="true"></i></a>
                   <a title="Preview Requested" data-id="{{ $postman->id }}" class="btn btn-image preview_requested pd-5 btn-ht" href="javascript:;"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                  <a title="Preview Remark History" data-id="{{ $postman->id }}" class="btn btn-image preview_remark_history pd-5 btn-ht" href="javascript:;"><i class="fa fa-history" aria-hidden="true"></i></a>
                 </td>
               </tr>
             @endif
@@ -228,6 +244,38 @@
     </div>
   </div>
 </div>
+<div id="postmanRemarkHistoryModel" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div id="add-mail-content">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 class="modal-title">Postman Remark History</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>User Name</th>
+                    <th>Old Remark</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody class="tbodayPostmanRemarkHistory">
+                </tbody>
+              </table>  
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="postmanUserDetailsModel" class="modal fade" role="dialog">
   <div class="modal-dialog modal-lg">
     <!-- Modal content-->
@@ -268,6 +316,7 @@
                     <th>ID</th>
                     <th>User Name</th>
                     <th>Response</th>
+                    <th>Response code</th>
                     <th>Request</th>
                     <th>Parmiters</th>
                     <th>Date</th>
@@ -345,6 +394,19 @@
                       <label for="request_url">Request Url</label>
                       <input type="text" name="request_url" value="" class="form-control" id="request_url" placeholder="Enter request url">
                     </div>
+                    <div class="form-group col-md-12">
+                      <label for="controller_name">Controller Name</label>
+                      <input type="text" name="controller_name" value="" class="form-control" id="controller_name" placeholder="Enter Controller Name">
+                    </div>
+                    <div class="form-group col-md-12">
+                      <label for="method_name">Method Name</label>
+                      <input type="text" name="method_name" value="" class="form-control" id="method_name" placeholder="Enter Method Name">
+                    </div>
+                    <div class="form-group col-md-12">
+                      <label for="remark">Remark</label>
+                      <input type="text" name="remark" value="" class="form-control" id="remark" placeholder="Enter Remark">
+                    </div>
+
                     <div class="form-group col-md-12">
                       <label for="params">Params</label>
                       <textarea name="params" value="" class="form-control" id="params" placeholder="Enter params ex. filedName1: value1, filedName2: value2"></textarea>
@@ -461,6 +523,18 @@
                                 <div class="form-group col-md-12">
                                   <label for="request_url">Request Url</label>
                                   <input type="text" name="request_url" value="" class="form-control" id="request_url" placeholder="Enter request url">
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label for="controller_name">Controller Name</label>
+                                  <input type="text" name="controller_name" value="" class="form-control" id="controller_name" placeholder="Enter Controller Name">
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label for="method_name">Method Name</label>
+                                  <input type="text" name="method_name" value="" class="form-control" id="method_name" placeholder="Enter Method Name">
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label for="remark">Remark</label>
+                                  <input type="text" name="remark" value="" class="form-control" id="remark" placeholder="Enter Remark">
                                 </div>
                                 <div class="form-group col-md-12">
                                   <label for="params">Params</label>
@@ -840,6 +914,7 @@
               t += '<tr><td>'+v.id+'</td>';
               t += '<td>'+v.userName+'</td>';
               t += '<td  class="expand-row-msg" data-name="response" data-id="'+v.id+'" ><span class="show-short-response-'+v.id+'">'+v.response.substring(0,10)+'...</span>    <span style="word-break:break-all;" class="show-full-response-'+v.id+' hidden">'+v.response+'</span></td>';
+              t += '<td>'+v.response_code+'</td>';
               t += '<td  class="expand-row-msg" data-name="request_url" data-id="'+v.id+'" ><span class="show-short-request_url-'+v.id+'">'+v.request_url.substring(0,10)+'...</span>    <span style="word-break:break-all;" class="show-full-request_url-'+v.id+' hidden">'+v.request_url+'</span></td>';
               t += '<td  class="expand-row-msg" data-name="request_data" data-id="'+v.id+'" ><span class="show-short-request_data-'+v.id+'">'+v.request_data.substring(0,10)+'...</span>    <span style="word-break:break-all;" class="show-full-request_data-'+v.id+' hidden">'+v.request_data+'</span></td>';
               t += '<td>'+v.created_at+'</td></tr>';
@@ -889,6 +964,42 @@
         }).fail(function(errObj) {
           $('#loading-image').hide();
            $("#postmanRequesteHistory").hide();
+           toastr['error'](errObj.message, 'error');
+        });
+    });
+
+    $(document).on("click",".preview_remark_history",function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+        $.ajax({
+          url: "/postman/remark/history/",
+          type: "post",
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+          data:{
+            id:id
+          }
+        }).done(function(response) {
+          if(response.code = '200') {
+            var t = '';
+            $.each(response.data, function(key, v) {
+              t += '<tr><td>'+v.id+'</td>';
+              t += '<td>'+v.userName+'</td>';
+              t += '<td>'+v.old_remark+'</td>';
+              t += '<td>'+v.created_at+'</td></tr>';
+            });
+            $(".tbodayPostmanRemarkHistory").html(t);
+            $('#postmanRemarkHistoryModel').modal('show');
+            toastr['success']('Postman Remark History listed successfully!!!', 'success'); 
+            
+          } else {
+            toastr['error'](response.message, 'error'); 
+          }
+        }).fail(function(errObj) {
+          $('#loading-image').hide();
+           $("#postmanRemarkHistoryModel").hide();
            toastr['error'](errObj.message, 'error');
         });
     });
