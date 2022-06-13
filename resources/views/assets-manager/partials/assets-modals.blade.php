@@ -30,11 +30,42 @@
           </div>
 
           <div class="form-group">
+            <strong>User Name:</strong>
+            <input type="text" name="user_name"  class="form-control" value="{{ old('user_name') }}">
+
+            @if ($errors->has('user_name'))
+              <div class="alert alert-danger">{{$errors->first('user_name')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
             <strong>Password:</strong>
             <input type="text" name="password" class="form-control" value="{{ old('password') }}" >
 
             @if ($errors->has('password'))
               <div class="alert alert-danger">{{$errors->first('password')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>IP:</strong>
+            <input type="text" name="ip"  class="form-control" value="{{ old('ip') }}">
+
+            @if ($errors->has('ip'))
+              <div class="alert alert-danger">{{$errors->first('ip')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Assigen to</strong>
+            <select class="form-control select-multiple" name="assigned_to" >
+              <option value="">Select</option>
+              @foreach($users as $user)
+                <option value="{{$user->id}}" {{ $user->id == old('assigned_to') ? 'selected' : '' }}>{{$user->name}}</option>
+              @endforeach
+          </select>
+            @if ($errors->has('assigned_to'))
+              <div class="alert alert-danger">{{$errors->first('assigned_to')}}</div>
             @endif
           </div>
 
@@ -288,13 +319,43 @@
             @endif
           </div>
 
+          <div class="form-group">
+            <strong>User Name:</strong>
+            <input type="text" name="user_name"  id="user_name"  class="form-control" value="{{ old('user_name') }}">
+            <input type="hidden" name="old_user_name"  id="old_user_name"  class="form-control" value="{{ old('old_user_name') }}">
+            @if ($errors->has('user_name'))
+              <div class="alert alert-danger">{{$errors->first('user_name')}}</div>
+            @endif
+          </div>
 
           <div class="form-group">
             <strong>Password:</strong>
             <input type="text" name="password" class="form-control" value="{{ old('password') }}" id="password" required>
-
+            <input type="hidden" name="old_password" class="form-control" value="{{ old('old_password') }}" id="old_password">
             @if ($errors->has('password'))
               <div class="alert alert-danger">{{$errors->first('password')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>IP:</strong>
+            <input type="text" name="ip" id="ip" class="form-control" value="{{ old('ip') }}">
+            <input type="hidden" name="old_ip" class="form-control" value="{{ old('old_ip') }}" id="old_ip">
+            @if ($errors->has('ip'))
+              <div class="alert alert-danger">{{$errors->first('ip')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Assigen to</strong>
+            <select class="form-control select-multiple" name="assigned_to" id="assigned_to">
+              <option value="">Select</option>
+              @foreach($users as $user)
+                <option value="{{$user->id}}" {{ $user->id == old('assigned_to') ? 'selected' : '' }}>{{$user->name}}</option>
+              @endforeach
+          </select>
+            @if ($errors->has('assigned_to'))
+              <div class="alert alert-danger">{{$errors->first('assigned_to')}}</div>
             @endif
           </div>
 
@@ -418,6 +479,43 @@
           <button type="submit" class="btn btn-secondary">Update</button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<div id="showAssetsHistoryLogModel" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Asset Manament Log</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="mt-3 col-md-12">
+        <div class="infinite-scroll">
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th width="4%">ID</th>
+                <th width="9%">Change by</th>
+                <th width="8%">Old User name</th>
+                <th width="6%">Old Pwd</th>
+                <th width="6%">Date</th>
+              </tr>
+            </thead>
+  
+            <tbody id="showAssetsHistoryLogView">
+              
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
     </div>
   </div>
 </div>
