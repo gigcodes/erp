@@ -39,15 +39,13 @@ class PostmanRequestCreateController extends Controller
         ->leftJoin('postman_folders AS pf', 'pf.id', 'postman_request_creates.folder_name')
         ->leftJoin('postman_responses', function($query) {
             $query->on('postman_responses.request_id','=','postman_request_creates.id')
-            ->whereRaw('postman_responses.id IN (select MAX(pr1.id) from postman_responses as pr1)')
-            ->orderBy('id', 'DESC');
+            ->whereRaw('postman_responses.id IN (select MAX(pr1.id) from postman_responses as pr1 WHERE pr1.request_id = postman_request_creates.id  ORDER BY id DESC )');
         })
         ->groupBy('postman_request_creates.id')
         ->orderBy('postman_request_creates.id', 'DESC')
         //->get();
         ->paginate(Setting::get('pagination'));
         //dd($postmans);
-
         //dd(\DB::getQueryLog());
 
         $folders = PostmanFolder::all();

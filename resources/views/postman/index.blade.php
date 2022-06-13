@@ -283,6 +283,7 @@
                     <th>ID</th>
                     <th>User Name</th>
                     <th>Response</th>
+                    <th>Response code</th>
                     <th>Request</th>
                     <th>Parmiters</th>
                     <th>Date</th>
@@ -880,6 +881,7 @@
               t += '<tr><td>'+v.id+'</td>';
               t += '<td>'+v.userName+'</td>';
               t += '<td  class="expand-row-msg" data-name="response" data-id="'+v.id+'" ><span class="show-short-response-'+v.id+'">'+v.response.substring(0,10)+'...</span>    <span style="word-break:break-all;" class="show-full-response-'+v.id+' hidden">'+v.response+'</span></td>';
+              t += '<td>'+v.response_code+'</td>';
               t += '<td  class="expand-row-msg" data-name="request_url" data-id="'+v.id+'" ><span class="show-short-request_url-'+v.id+'">'+v.request_url.substring(0,10)+'...</span>    <span style="word-break:break-all;" class="show-full-request_url-'+v.id+' hidden">'+v.request_url+'</span></td>';
               t += '<td  class="expand-row-msg" data-name="request_data" data-id="'+v.id+'" ><span class="show-short-request_data-'+v.id+'">'+v.request_data.substring(0,10)+'...</span>    <span style="word-break:break-all;" class="show-full-request_data-'+v.id+' hidden">'+v.request_data+'</span></td>';
               t += '<td>'+v.created_at+'</td></tr>';
