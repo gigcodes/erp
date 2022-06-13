@@ -6,7 +6,7 @@ use App\AssetsManager;
 use App\CashFlow;
 use DB;
 use App\User;
-use App\AssetManamentupdateLog;
+use App\AssetManamentUpdateLog;
 use Illuminate\Http\Request;
 
 class AssetsManagerController extends Controller
@@ -203,7 +203,7 @@ class AssetsManagerController extends Controller
             $data['category_id'] = $catid;
         }
         if($request->input('old_user_name') != $request->input('user_name') || $request->input('old_password') != $request->input('password')){
-            $assetLog = new AssetManamentupdateLog();
+            $assetLog = new AssetManamentUpdateLog();
             $assetLog->assetmenament_id =  $id;
             $assetLog->user_id =  \Auth::user()->id;
             $assetLog->user_name =  $request->input('old_user_name');
@@ -287,7 +287,7 @@ class AssetsManagerController extends Controller
         //dd($asset_id);
         $html = '';
         //\DB::enableQueryLog(); 
-        $assetLogs = AssetManamentupdateLog::select('asset_manamentupdate_logs.*', 'users.name AS userName')
+        $assetLogs = AssetManamentUpdateLog::select('asset_manamentupdate_logs.*', 'users.name AS userName')
             ->leftJoin('users', 'users.id', '=', 'asset_manamentupdate_logs.user_id')
             ->where('asset_manamentupdate_logs.assetmenament_id', $asset_id)
             ->orderBy('asset_manamentupdate_logs.id', 'DESC')
