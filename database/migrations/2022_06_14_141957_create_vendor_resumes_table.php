@@ -16,21 +16,43 @@ class CreateVendorResumesTable extends Migration
         Schema::create('vendor_resumes', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('vendor_id')->nullable();
+            $table->string('pre_name')->nullable();
             $table->string('first_name')->nullable();
             $table->string('second_name')->nullable();
             $table->string('email')->nullable();
             $table->string('mobile')->nullable();
             $table->text('career_objective')->nullable();
+            $table->string('salary_in_usd')->nullable();
+            $table->string('expected_salary_in_usd')->nullable();
+            
+            $table->string('preferred_working_hours')->nullable();
+            $table->string('start_time')->nullable();
+            $table->string('end_time')->nullable();
+            $table->string('time_zone')->nullable();
+            $table->string('preferred_working_days')->nullable();
+            $table->string('start_day')->nullable();
+            $table->string('end_day')->nullable();
+            $table->string('full_time')->nullable();
+            $table->string('part_time')->nullable();
+            $table->string('job_responsibilities')->nullable();
+            $table->text('projects_worked')->nullable();
+            $table->text('tool_used')->nullable();
+            $table->longText('current_assignments')->nullable();
+            $table->longText('current_assignments_description')->nullable();
+            $table->longText('current_assignments_hours_utilisted')->nullable();
+
+
             $table->longText('work_experiance')->nullable();
             $table->longText('reason_for_leaving')->nullable();
             $table->longText('date_from')->nullable();
             $table->longText('date_to')->nullable();
-            $table->longText('destination')->nullable();
+            $table->longText('designation')->nullable();
             $table->longText('organization')->nullable();
             $table->longText('project')->nullable();
             $table->longText('dev_role')->nullable();
             $table->longText('tools')->nullable();
             $table->string('soft_framework')->nullable();
+            $table->string('soft_proficiency')->nullable();
             $table->string('soft_description')->nullable();
             $table->string('soft_experience')->nullable();
             $table->string('soft_remark')->nullable();
@@ -40,7 +62,11 @@ class CreateVendorResumesTable extends Migration
             $table->string('marital_status')->nullable();
             $table->string('langauge_know')->nullable();
             $table->string('hobbies')->nullable();
-            $table->text('address')->nullable();
+            $table->string('city')->nullable();
+            $table->string('state')->nullable();
+            $table->string('country')->nullable();
+            $table->string('pin_code')->nullable();
+            $table->longText('address')->nullable();
             $table->timestamps();
         });
     }

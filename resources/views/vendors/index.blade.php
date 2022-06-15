@@ -699,7 +699,7 @@ $(document).on('click', '.expand-row-msg', function () {
 
         $(document).on('click', '.create-cv', function () {
             var id = $(this).data('id');
-            $("#hidden-vendor-id").val(id);
+            $(".hidden-vendor-id").val(id);
             $("#createVendorCvModal").modal('show');
         });
 

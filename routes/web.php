@@ -1774,6 +1774,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('vendors', 'VendorController');
     Route::post('vendors/update-status', 'VendorController@updateStatus')->name('vendor.status.update');
     Route::post('vendors/cv/store', 'VendorResumeController@store')->name('vendor.cv.store');
+    Route::get('vendors/cv/index', 'VendorResumeController@index')->name('vendor.cv.index');
+    Route::get('vendors/cv/search', 'VendorResumeController@search')->name('vendor.cv.search');
+    
 
     Route::get('vendor/status/history', 'VendorController@vendorStatusHistory')->name('vendor.status.history.get');
 
