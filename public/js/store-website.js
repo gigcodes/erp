@@ -511,6 +511,7 @@ var page = {
         var mailing_service_id = $('[name="mailing_service_id"]').val();
         var sale_old_products = $('[name="sale_old_products"]').val();
         var is_debug_true = $('[name="is_debug_true"]').val();
+        var is_dev_website = $('[name="is_dev_website"]').val();
         var description = $('[name="description"]').val();
         var send_in_blue_account = $('[name="send_in_blue_account"]').val();
         var send_in_blue_api = $('[name="send_in_blue_api"]').val();
@@ -561,6 +562,7 @@ var page = {
         formData.append("semrush_project_id", semrush_project_id);
         formData.append("mailing_service_id", mailing_service_id);
         formData.append("is_debug_true", is_debug_true);
+        formData.append("is_dev_website", is_dev_website);
         formData.append("description", description);
         formData.append("send_in_blue_account", send_in_blue_account);
         formData.append("send_in_blue_api", send_in_blue_api);

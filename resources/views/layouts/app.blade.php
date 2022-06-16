@@ -1568,6 +1568,9 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
                                             </li>
                                             <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('payment-responses.index') }}">Payment Responses</a>
+                                            </li>
+                                            <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('site-development-status.stats') }}">Multi Site status</a>
                                             </li>
                                             <li class="nav-item">

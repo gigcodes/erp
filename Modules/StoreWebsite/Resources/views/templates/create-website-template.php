@@ -61,8 +61,17 @@
                <div class="form-group">
                   <label for="is_debug_true">Database Log</label>
                     <select name="is_debug_true" class="form-control">
-                  <option value="0" {{if data.is_debug_true==0}} SELECTED {{/if}} > No </option>
-                  <option value="1" {{if data.is_debug_true==1}} SELECTED {{/if}} > Yes </option>
+                  <option value="0" {{if data.is_debug_true=='0'}} SELECTED {{/if}} > No </option>
+                  <option value="1" {{if data.is_debug_true=='1'}} SELECTED {{/if}} > Yes </option>
+                    </select>
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="is_dev_website">Is Dev Website</label>
+                    <select name="is_dev_website" class="form-control">
+                  <option value="0" {{if data.is_dev_website=='0'}} SELECTED {{/if}} > No </option>
+                  <option value="1" {{if data.is_dev_website=='1'}} SELECTED {{/if}} > Yes </option>
                     </select>
                </div>
             </div>

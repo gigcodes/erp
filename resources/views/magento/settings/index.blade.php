@@ -51,6 +51,9 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                        <input class="form-control" name="path" placeholder="path"  value="{{ request('path')  ? request('path') : '' }}"style="width: 160px!important;">
                     </div> 
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                        <input class="form-control" name="status" placeholder="status"  value="{{ request('status')  ? request('status') : '' }}"style="width: 160px!important;">
+                     </div> 
                      <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                         <a href="{{ route('magento.setting.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                         <button type="submit" style="" class="btn btn-image pl-0"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
@@ -807,13 +810,19 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
             });
 
             function loadMore() {
+                var searchOpt = location.search
                 if (isLoading)
                     return;
                 isLoading = true;
                 var $loader = $('.infinite-scroll-products-loader');
                 page = page + 1;
+                if(searchOpt) {
+                    searchOptUrl = searchOpt+"&ajax=1&page="+page;
+                } else {
+                    searchOptUrl = "?ajax=1&page="+page;
+                }
                 $.ajax({
-                    url: "{{url('magento-admin-settings')}}?ajax=1&page="+page,
+                    url: "{{url('magento-admin-settings')}}"+searchOptUrl,
                     type: 'GET',
                     data: $('.form-search-data').serialize(),
                     beforeSend: function() {
