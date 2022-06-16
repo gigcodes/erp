@@ -68,7 +68,7 @@
             </div>
             <div class="col-md-4">
                <div class="form-group">
-                  <label for="is_dev_website">Database Log</label>
+                  <label for="is_dev_website">Is Dev Website</label>
                     <select name="is_dev_website" class="form-control">
                   <option value="0" {{if data.is_dev_website==0}} SELECTED {{/if}} > No </option>
                   <option value="1" {{if data.is_dev_website==1}} SELECTED {{/if}} > Yes </option>
