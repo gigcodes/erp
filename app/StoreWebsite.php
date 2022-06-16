@@ -104,7 +104,8 @@ class StoreWebsite extends Model
 		'twilio_greeting_message',
         'is_debug_true',
         'key_file_path',
-        'project_id'
+        'project_id',
+        'is_dev_website'
     ];
 
     const DB_CONNECTION = [
