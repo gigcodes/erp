@@ -12,12 +12,14 @@ use App\WebsiteStore;
 use App\WebsiteStoreView;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\LogRequest;
 
 class MagentoSettingsController extends Controller
 {
 
     public function index(Request $request)
     {
+        $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
 
         $magentoSettings = MagentoSetting::with(
             'storeview.websiteStore.website.storeWebsite',
@@ -109,7 +111,12 @@ class MagentoSettingsController extends Controller
                     // Get response
                     $response = curl_exec($curl);
 
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    LogRequest::log($startTime,$websiteUrl . "/rest/V1/configvalue/get",'POST',json_encode($conf),json_decode($response),$httpcode,'index','App\Http\Controllers\MagentoSettingsController');
+
+
                     $response = json_decode($response, true);
+
 
                     foreach ($settings as $key => $setting) {
                         $newValues[$setting['id']] = isset($response[$key]) ? $response[$key]['value'] : null;
@@ -372,14 +379,14 @@ class MagentoSettingsController extends Controller
                         $result      = exec($cmd, $allOutput); //Execute command
                         $status      = 'Error';
                         for ($i = 0; $i < count($allOutput); $i++) {
-                            if ($allOutput[$i] == "Pull Request Successfully merged") {
+                            if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged") ) {
                                 $status = 'Success';
                                 break;
                             }
                         }
                         $m_setting->status = $status;
                         $m_setting->save();
-                        MagentoSettingPushLog::create(['store_website_id' => $storeWebsite['id'], 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
+                        MagentoSettingPushLog::create(['store_website_id' => $storeWebsite['id'], 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($result), 'status' => $status]);
                         \Log::info(print_r(["Command Output", $allOutput], true));
                     else:
                         return response()->json(["code" => 500, "message" => "Request has been failed on stage server please check laravel log"]);
@@ -434,7 +441,7 @@ class MagentoSettingsController extends Controller
                         $result      = exec($cmd, $allOutput); //Execute command
                         $status      = 'Error';
                         for ($i = 0; $i < count($allOutput); $i++) {
-                            if ($allOutput[$i] == "Pull Request Successfully merged") {
+                            if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged") ) {
                                 $status = 'Success';
                                 break;
                             }
@@ -653,7 +660,7 @@ class MagentoSettingsController extends Controller
                                                 $result      = exec($cmd, $allOutput); //Execute command
                                                 $status      = 'Error';
                                                 for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if ($allOutput[$i] == "Pull Request Successfully merged") {
+                                                    if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged") ) {
                                                         $status = 'Success';
                                                         break;
                                                     }
@@ -690,7 +697,7 @@ class MagentoSettingsController extends Controller
                                                 $result      = exec($cmd, $allOutput); //Execute command
                                                 $status      = 'Error';
                                                 for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if ($allOutput[$i] == "Pull Request Successfully merged") {
+                                                    if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged") ) {
                                                         $status = 'Success';
                                                         break;
                                                     }
@@ -728,7 +735,7 @@ class MagentoSettingsController extends Controller
                                                 $result      = exec($cmd, $allOutput); //Execute command
                                                 $status      = 'Error';
                                                 for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged")) {
+                                                    if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged") ) {
                                                         $status = 'Success';
                                                         break;
                                                     }

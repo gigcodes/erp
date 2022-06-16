@@ -1653,6 +1653,9 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('list.daily-push-log') }}">Magento Daily Product Push Log</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('google.bigdata') }}">Google Big Data</a>
+                                            </li>
                                         </ul>
                                     </li>
                                     
@@ -2033,6 +2036,12 @@ if (!empty($notifications)) {
                                             </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('gtmetrix.error.index.list') }}">GTMetrix Error log</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ url('/postman') }}">Magento Request</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('email.event.journey') }}">Sendgrid Event Journey</a>
                                             </li>
                                             
                                         </ul>
