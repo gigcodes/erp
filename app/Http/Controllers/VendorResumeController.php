@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\VendorResume;
 use App\Setting;
 use Illuminate\Http\Request;
-use PhpParser\Node\Stmt\Foreach_;
+use App\Models\File;
 
 class VendorResumeController extends Controller
 {
@@ -80,17 +80,28 @@ class VendorResumeController extends Controller
      */
     public function store(Request $request)
     {
+        $requestData = $request->all();
         $project = [];
         $dev_role = [];
         $tools = [];
-        foreach($request->work_experiance as $key => $val){
-            foreach($request->input('project'.$key) as $pKey => $pval){
-                $project[$key][$pKey] = $pval;
-                $dev_role[$key][$pKey] = $request->input('dev_role'.$key);
-                $tools[$key][$pKey] = $request->input('tools'.$key);
+
+        foreach($requestData['work_experiance'] as $key => $val){
+            if(isset($requestData['project'.$key])) {
+                foreach($requestData['project'.$key] as $pKey => $pval){
+                    $project[$key][$pKey] = $pval;
+                    $dev_role[$key][$pKey] = $request->input('dev_role'.$key);
+                    $tools[$key][$pKey] = $request->input('tools'.$key);
+                }
             }
         }
-        //dd($project);
+
+        $path = public_path('vendorResume');
+        if (!file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
+        $file = $request->file('soft_upload_document');
+        $vendorResumeName = uniqid() . '_' . trim($file->getClientOriginalName());
+        $file->move($path, $vendorResumeName);
         try{
             $vendorResume = new VendorResume();
             $vendorResume->vendor_id = $request->vendor_id;
@@ -109,10 +120,14 @@ class VendorResumeController extends Controller
             $vendorResume->preferred_working_days = $request->preferred_working_days;
             $vendorResume->start_day = $request->start_day;
             $vendorResume->end_day = $request->end_day;
-            $vendorResume->full_time = $request->full_time;
-            $vendorResume->part_time = $request->part_time;
-            $vendorResume->job_responsibilities = $request->job_responsibilities;
-            $vendorResume->projects_worked = $request->projects_worked;
+            $vendorResume->full_time = serialize($request->full_time);
+            $vendorResume->part_time = serialize($request->part_time);
+            $vendorResume->job_responsibilities = serialize($request->job_responsibilities);
+            $vendorResume->projects_worked = serialize($request->projects_worked);
+            $vendorResume->tool_used = serialize($request->tool_used);
+            $vendorResume->work_remark = serialize($request->work_remark);
+            $vendorResume->soft_upload_document = $vendorResumeName;
+
             $vendorResume->fulltime_freelancer = serialize($request->fulltime_freelancer);
             $vendorResume->current_assignments = serialize($request->current_assignments);
             $vendorResume->current_assignments_description = serialize($request->current_assignments_description);
@@ -130,7 +145,15 @@ class VendorResumeController extends Controller
             $vendorResume->soft_proficiency = $request->soft_proficiency;
             $vendorResume->soft_description = $request->soft_description;
             $vendorResume->soft_experience = $request->soft_experience;
-            $vendorResume->soft_remark = $request->soft_remark;
+            $vendorResume->soft_remark = serialize($request->soft_remark);
+
+            $vendorResume->edu_date_from = serialize($request->edu_date_from);
+            $vendorResume->edu_date_to = serialize($request->edu_date_to);
+            $vendorResume->edu_institute_programme = serialize($request->edu_institute_programme);
+            $vendorResume->edu_course_name = serialize($request->edu_course_name);
+            $vendorResume->edu_grades = serialize($request->edu_grades);
+            $vendorResume->edu_remark = serialize($request->edu_remark);
+
             $vendorResume->father_name = $request->father_name;
             $vendorResume->dob = $request->dob;
             $vendorResume->gender = $request->gender;
@@ -143,9 +166,11 @@ class VendorResumeController extends Controller
             $vendorResume->pin_code = $request->pin_code;
             $vendorResume->address = serialize($request->address);
             $vendorResume->save();
-            return response()->json(["code" => 200, "data" => $vendorResume, "message" => 'Data stored successfully!!!']);
+           return back()->with('success', 'Data stored successfully!!!');
+            //return response()->json(["code" => 200, "data" => $vendorResume, "message" => 'Data stored successfully!!!']);
         } catch (\Exception $e) {
-            return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
+            //return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
+            return back()->with('message', $e->getMessage());
         }
     }
     

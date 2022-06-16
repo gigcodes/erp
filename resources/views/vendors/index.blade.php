@@ -703,12 +703,18 @@ $(document).on('click', '.expand-row-msg', function () {
             $("#createVendorCvModal").modal('show');
         });
 
-        $(document).on('submit', '#vandor-cv-form', function (e) {
-            e.preventDefault();
+        $(document).on('submit', 'form#vandor-cv-form', function (e) {
+            //e.preventDefault();
+            var file = $("#addProductForm").find("input[type=file]")[0].files[0];
+            var name = $("#addProductForm")
+            
+            var productForm = new FormData();
+                productForm.append("product_name", name);
+                productForm.append("product_image", file);
             $.ajax({
                 type: "POST",
                 url: "{{route('vendor.cv.store')}}",
-                data: $('#vandor-cv-form').serialize()
+                data: formData //$('#vandor-cv-form').serialize()
             })
             .done(function(data){
                 toastr["success"](data.message);
