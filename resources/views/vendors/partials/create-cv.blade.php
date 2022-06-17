@@ -18,18 +18,18 @@
               <option>Miss.</option>
               <option>Mrs.</option>
             </select>
-            <input type="text" id="first_name" name="first_name" class="form-control validate" placeholder="First name" style="width: 63%;float: left;">
+            <input type="text" id="first_name" name="first_name" class="form-control validate" placeholder="First name" style="width: 63%;float: left;" required>
           </div>
           <div class="form-group col-3">
-            <input type="text" id="second_name" name="second_name" class="form-control validate" placeholder="Second name">
+            <input type="text" id="second_name" name="second_name" class="form-control validate" placeholder="Second name" required>
           </div>
 
           <div class="form-group  col-3">
-            <input type="email" id="email" name="email" class="form-control validate" placeholder="Your email">
+            <input type="email" id="email" name="email" class="form-control validate" placeholder="Your email" required>
           </div>
 
           <div class="form-group col-3">
-            <input type="text" id="mobile" name="mobile" class="form-control validate" placeholder="Contact No. Ex. 987654321">
+            <input type="text" id="mobile" name="mobile" class="form-control validate" placeholder="Contact No. Ex. 987654321" required>
           </div>
           <div class="form-group col-12">
             <textarea type="text" id="career_objective" name="career_objective" class="md-textarea form-control" rows="3" placeholder="Career Objective"></textarea>
