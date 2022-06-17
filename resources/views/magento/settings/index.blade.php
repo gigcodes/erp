@@ -3,10 +3,15 @@
 @section('title', 'Magento Settings')
 
 @section('content')
+<link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 <div class="row m-0">
     <div class="col-12 p-0">
 <style>
 div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
+.checkbox input {
+    height: unset;
+}
 </style>
         <h2 class="page-heading">Magento Settings</h2>
     </div>
@@ -24,7 +29,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
          <div class="col-lg-12 margin-tb pl-3">
              <?php $base_url = URL::to('/');?> 
              <div class="pull-left cls_filter_box">
-                 <form class="form-inline" action="{{ route('magento.setting.index') }}" method="GET"> 
+                 <form class="form-inline" action="{{ route('magento.setting.index') }}" method="GET" style="width: 100%;"> 
                     <div class="form-group cls_filter_inputbox" >
                         <button style="color: #999999;border:1px solid #ddd;" type="button" class="btn btn-default" data-toggle="modal" data-target="#add-setting-popup">ADD Setting</button>
                     </div>  
@@ -37,19 +42,53 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                        </select>
                     </div> 
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                       <select class="form-control websites select2" name="website" data-placeholder="website" style="width: 100px !important;">
-                           <option value=""></option>
+                        <?php $webArr = request('website') ? request('website') : [];?>
+                       <select class="form-control multiselect" multiple name="website[]"  style="width: 100px !important;">
                            @foreach($storeWebsites as $w)
-                               <option value="{{ $w->id }}" {{ request('website') && request('website') == $w->id ? 'selected' : '' }}>{{ $w->website }}</option>
+                                <?php $selected = '';?>
+                                @if(in_array($w->id, $webArr))
+                                    <?php $selected = 'selected';?>
+                                @endif
+                               <option value="{{ $w->id }}" {{ $selected }}>{{ $w->website }}</option>
                            @endforeach
                        </select>
                     </div>  
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                       <input class="form-control" name="name" placeholder="name" value="{{ request('name')  ? request('name') : '' }}" style="width: 162px!important;">
-                          
+                       {{-- <input class="form-control" name="name" placeholder="name" value="{{ request('name')  ? request('name') : '' }}" style="width: 162px!important;"> --}}
+                       <?php
+                        $chkName = [];
+                        $chkPath = [];
+                       ?>
+                       @foreach ($magentoSettings as $magentoSetting) 
+                            <?php array_push($chkName, $magentoSetting->name); ?>    
+                            <?php array_push($chkPath, $magentoSetting->path); ?>    
+                       @endforeach
+                       <?php $chkName = array_unique($chkName); ?>
+                       <?php $chkPath = array_unique($chkPath); ?>
+                       
+                        <select name="name" class="form-control select2"  style="width: 162px!important;" data-placeholder="name">
+                            <option value="">Name</option>
+                            @foreach ($chkName as $name) 
+                                <?php $selected = '';?>
+                                @if(in_array($w->id, $webArr))
+                                    <?php $selected = 'selected';?>
+                                @endif
+                                <option value="{{$name}}" {{$selected}}>{{$name}}</option>
+                            @endforeach
+                        </select>  
                     </div>  
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                       <input class="form-control" name="path" placeholder="path"  value="{{ request('path')  ? request('path') : '' }}"style="width: 160px!important;">
+                       {{-- <input class="form-control" name="path" placeholder="path"  value="{{ request('path')  ? request('path') : '' }}"style="width: 160px!important;"> --}}
+                       <select name="path" class="form-control select2"  style="width: 162px!important;" data-placeholder="Path">
+                        <option value="">Path</option>
+                        @foreach ($chkPath as $path) 
+                            <?php $selected = '';?>
+                            @if(in_array($w->id, $webArr))
+                                <?php $selected = 'selected';?>
+                            @endif
+                            <option value="{{$path}}" {{$selected}}>{{$path}}</option>
+                        @endforeach
+                    </select>  
                     </div> 
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                         <input class="form-control" name="status" placeholder="status"  value="{{ request('status')  ? request('status') : '' }}"style="width: 160px!important;">
@@ -473,8 +512,15 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 @endsection
 
 @section('scripts')
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script> 
 <script type="text/javascript">
+$(document).ready(function() {
+    $(".multiselect").multiselect({
+        nonSelectedText: 'Website',
+        allSelectedText: 'All',
+        includeSelectAllOption: true
+    });
+});
     
     $(document).on('change', '[name="single_website"]', function(e) {
         //$('#add-setting-popup [name="website[]"]').select2("val", this.value);
@@ -572,7 +618,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
             $('#edit-setting-popup .website_store_form').removeClass('d-none');
             $('#edit-setting-popup .website_store_view_form').removeClass('d-none');
         }
-        $('.websites').trigger('change.select2');
+        //$('.websites').trigger('change.select2');
 
         $('#edit-setting-popup').attr('data-id', data.id).modal('show');
     });
