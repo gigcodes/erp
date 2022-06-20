@@ -65,7 +65,6 @@
             <th width="10%">Second Name</th>
             <th width="10%">Email</th>
             <th width="10%">Mobile</th>
-            <th width="10%">Salary</th>
             <th width="10%">Expected Salary</th>
             <th width="10%">Work Hour</th>
             <th width="10%">Time Zone</th>
@@ -73,6 +72,8 @@
             <th width="10%">End Day</th>
             <th width="10%">Career Objective</th>
             <th width="10%">Work Experience</th>
+            <th width="10%">Education</th>
+            <th width="10%">Address</th>
           </tr>
         </thead>
 
@@ -86,7 +87,6 @@
                 <td>{{$resume->second_name}}</td>
                 <td>{{$resume->email}}</td>
                 <td>{{$resume->mobile }}</td>
-                <td>{{$resume->salary_in_usd}}</td>
                 <td>{{$resume->expected_salary_in_usd}}</td>
                 <td>{{$resume->preferred_working_hours }}</td>
                 <td>{{$resume->time_zone}}</td>
@@ -101,7 +101,9 @@
                   {{ $resume->career_objective }}
                 </span>
                 </td>
-                <td><a href="#" class="workExpariense">See</a></td>
+                <td><a href="#" class="see_work_experience" data-id="{{ $resume->id }}">See</a></td>
+                <td><a href="#" class="education" data-id="{{ $resume->id }}">See</a></td>
+                <td><a href="#" class="address" data-id="{{ $resume->id }}">See</a></td>
               
               {{-- <td>
                 <div class="d-flex">
@@ -122,16 +124,24 @@
 
     
 
-    <div id="paymentShowModal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
+    <div id="see_work_experience_model" class="modal fade" role="dialog">
+        <div class="modal-dialog  modal-lg">
             <!-- Modal content-->
             <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">Payment Detail</h4>
+                        <h4 class="modal-title">Work Experience</h4>
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
-
+                      <div class="table-responsive mt-3">
+                        <table class="table table-bordered">
+                          <thead>
+                            
+                          </thead>
+                  
+                          <tbody id="workExpTbody">
+                          </tbody>
+                        </table>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -139,7 +149,67 @@
             </div>
 
         </div>
+      </div>
     </div>
+
+
+    <div id="education_details_model" class="modal fade" role="dialog">
+      <div class="modal-dialog  modal-lg">
+          <!-- Modal content-->
+          <div class="modal-content">
+                  <div class="modal-header">
+                      <h4 class="modal-title">Educational Qualifications</h4>
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="table-responsive mt-3">
+                      <table class="table table-bordered">
+                        <thead>
+                          
+                        </thead>
+                
+                        <tbody id="eductionTbody">
+                        </tbody>
+                      </table>
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+          </div>
+
+      </div>
+  </div>
+</div>
+
+<div id="address_model" class="modal fade" role="dialog">
+  <div class="modal-dialog  modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content">
+              <div class="modal-header">
+                  <h4 class="modal-title">Address</h4>
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+              </div>
+              <div class="modal-body">
+                <div class="table-responsive mt-3">
+                  <table class="table table-bordered">
+                    <thead>
+                      
+                    </thead>
+            
+                    <tbody id="addressTbody">
+                    </tbody>
+                  </table>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+      </div>
+
+  </div>
+</div>
+</div>
+
+   
 
 @endsection
 
@@ -164,7 +234,80 @@
               '<div class="col-6">Description: <p>'+payment.description+'</p> </div>' +
               '</div>'
           modal.find('.modal-body').html(html);
-      })
+      });
+
+      $(document).on('click', '.see_work_experience', function(){
+          var id = $(this).data('id');
+          $.ajax({
+              url: '{{ route("vendors.cv.get-work-experience") }}',
+              method: 'post',
+              data: {
+                  _token : '{{ csrf_token() }}',
+                  id : id
+                  },
+          beforeSend: function() {
+            // $("#loading-image").show();
+          }
+          }).done(function(response) {
+              //$("#loading-image").hide();
+              
+              $('#workExpTbody').html(response.data);
+              $('#see_work_experience_model').modal("show");
+              toastr['success'](response.message);
+          }).fail(function() {
+              $("#loading-image").hide();
+              toastr['error'](response.msg);
+          });
+      });
+
+      $(document).on('click', '.education', function(){
+          var id = $(this).data('id');
+          $.ajax({
+              url: '{{ route("vendors.cv.education") }}',
+              method: 'post',
+              data: {
+                  _token : '{{ csrf_token() }}',
+                  id : id
+                  },
+          beforeSend: function() {
+            // $("#loading-image").show();
+          }
+          }).done(function(response) {
+              //$("#loading-image").hide();
+              
+              $('#eductionTbody').html(response.data);
+              $('#education_details_model').modal("show");
+              toastr['success'](response.message);
+          }).fail(function() {
+              $("#loading-image").hide();
+              toastr['error'](response.msg);
+          });
+      });
+
+      $(document).on('click', '.address', function(){
+          var id = $(this).data('id');
+          $.ajax({
+              url: '{{ route("vendors.cv.address") }}',
+              method: 'post',
+              data: {
+                  _token : '{{ csrf_token() }}',
+                  id : id
+                  },
+          beforeSend: function() {
+            // $("#loading-image").show();
+          }
+          }).done(function(response) {
+              //$("#loading-image").hide();
+              
+              $('#addressTbody').html(response.data);
+              $('#address_model').modal("show");
+              toastr['success'](response.message);
+          }).fail(function() {
+              $("#loading-image").hide();
+              toastr['error'](response.msg);
+          });
+      });
+
 
       
   </script>
