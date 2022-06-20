@@ -828,13 +828,13 @@ class PostmanRequestCreateController extends Controller
                 $http_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
                 //dd($http_code);
                 curl_close($curl);
-                
+                $response =  $response?json_encode($response) : 'Not found response';
                 //dd($response);
                 PostmanResponse::create(
                     [
                         'user_id' => \Auth::user()->id,
                         'request_id' => $postman->id,
-                        'response' => json_encode($response),
+                        'response' => $response,
                         'request_url' => $postman->request_url,
                         'request_data' => $postman->body_json,
                         'response_code' => $http_code
