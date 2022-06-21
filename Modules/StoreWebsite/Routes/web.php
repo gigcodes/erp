@@ -14,6 +14,7 @@
 Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::get('/', 'StoreWebsiteController@index')->name("store-website.index");
     Route::post('generate-reindex', 'StoreWebsiteController@generateReIndexfile');
+    
 
     Route::get('/magento-user-lising', 'StoreWebsiteController@magentoUserList')->name("store-website.user-list");
 
@@ -29,6 +30,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::post('/update-company-website-address', 'StoreWebsiteController@updateCompanyWebsiteAddress');
     Route::prefix('{id}')->group(function () {
 
+        Route::post('magento-setting-update-history', 'StoreWebsiteController@getMagentoUpdateWebsiteSetting');
+        
         Route::get('/sync-stage-to-master', 'StoreWebsiteController@syncStageToMaster');
 
         Route::get('/token-check/', 'StoreWebsiteController@checkMagentoToken');

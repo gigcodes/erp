@@ -28,7 +28,7 @@ use App\SiteDevelopment;
 use App\LogStoreWebsiteUser;
 use Carbon\Carbon;
 use App\Github\GithubRepository;
-
+use App\MagentoSettingUpdateResponseLog;
 
 class StoreWebsiteController extends Controller
 {
@@ -882,6 +882,28 @@ class StoreWebsiteController extends Controller
         }
         return response()->json(["code" => 500, "error" => "Wrong site id!"]);     
 	}
+
+    public function getMagentoUpdateWebsiteSetting(Request $request,$store_website_id) 
+    {
+        $responseLog = MagentoSettingUpdateResponseLog::where('website_id', '=', $store_website_id)->get();
+        //dd($responseLog);
+        if ($responseLog != null ) {
+            $html = '';
+            foreach($responseLog as $res){
+                //dd($res->created_at);
+                $html .= '<tr>';
+                $html .= '<td>'.$res->created_at.'</td>';
+                $html .= '<td>'.$res->response.'</td>';
+                $html .= '</tr>';
+            }
+		    return response()->json([
+                "code" => 200, 
+                "data" => $html,                
+            ]);
+        }
+        return response()->json(["code" => 500, "error" => "Wrong site id!"]);     
+	}
+	
 	
     /**
      * This function is use to Update company's website address.

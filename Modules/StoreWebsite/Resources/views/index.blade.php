@@ -126,6 +126,34 @@
 </div>
 </div>
 
+<div id="magentoSettingUpdateHistoryModal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Magento Setting Update Rersponse History</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="table-responsive mt-3">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th>Created At</th>
+								<th>Response</th>
+							</tr>
+						</thead>
+						<tbody id="magentoSettingUpdateHistory">
+
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+
 <div class="modal fade" id="store-generate-pem-file" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -201,6 +229,18 @@
 				} else {
 					toastr["error"](data.message);
 				}
+			},
+		});
+	});
+
+	$(document).on("click", ".response_history", function(href) {
+		$.ajax({
+			url: 'store-website/'+ $(this).data('id') +'/magento-setting-update-history',
+			type: "POST",
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+			success: function(data) {
+				$('#magentoSettingUpdateHistory').html(data.data);
+				$('#magentoSettingUpdateHistoryModal').modal('show');
 			},
 		});
 	});
