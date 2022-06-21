@@ -195,6 +195,11 @@ var page = {
             
         });
 
+        $(document).on("click",".magento-setting-update",function(href) {
+            page.magentosettingUpdate();
+            
+        });
+        
         $(document).on("click",".open-store-user-histoty",function(href) {
             page.openUserStoreHistorListing($(this));
             
@@ -253,6 +258,22 @@ var page = {
             var common =  $(".common-modal");
                 common.find(".modal-dialog").html(tplHtml);
                 common.modal("show");
+        }        
+              
+    },
+    magentosettingUpdate: function() {
+        var _z = {
+            url: this.config.baseUrl + "/magento-setting-updates",
+            method: "post",
+        }
+        this.sendAjax(_z, 'showMagentoSetting');
+    },
+    showMagentoSetting : function(response) {
+        if(response.code == 200){
+            this.getResults();
+            toastr['success'](response.message, 'success');
+        }else{
+            toastr['error'](response.message, 'error');
         }        
               
     },

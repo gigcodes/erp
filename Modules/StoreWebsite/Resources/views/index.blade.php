@@ -26,6 +26,8 @@
 						User Listing
 					</button> &nbsp;
 					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-generate-pem-file"> Store Generate Reindex</button>
+					&nbsp;
+					<button class="btn btn-secondary magento-setting-update"> Magento Setting Update</button>
 
 				</div>
 			</div>

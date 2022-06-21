@@ -150,6 +150,7 @@ use App\Console\Commands\GetPytonLogs;
 use App\Console\Commands\HubstuffActivityCommand;
 use App\Console\Commands\GtMetrixReport;
 use App\Console\Commands\MagentoReportLog;
+use App\Console\Commands\MagentoSettingAddUpdate;
 
 class Kernel extends ConsoleKernel
 {
@@ -306,6 +307,7 @@ class Kernel extends ConsoleKernel
         WebsiteCreateLog::class,
         GtMetrixReport::class,
         MagentoReportLog::class,
+        MagentoSettingAddUpdate::class
     ];
 
     /**
@@ -666,7 +668,7 @@ class Kernel extends ConsoleKernel
 
         // get python site log
         $schedule->command('get:pythonLogs')->daily();
-
+        $schedule->command('command:MagentoSettingUpdates')->dailyAt('23:59')->timezone('Asia/Kolkata');
 
     }
 

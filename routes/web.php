@@ -65,6 +65,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/mageOrders', 'MagentoController@get_magento_orders');
 
+    Route::post('magento-setting-updates', 'MagentoController@magentoSettingUpdate');
+
     Route::get('/message', 'MessageController@index')->name('message');
     Route::post('/message', 'MessageController@store')->name('message.store');
     Route::post('/message/{message}', 'MessageController@update')->name('message.update');
@@ -3471,6 +3473,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/store-website-analytics/report/{id}', 'StoreWebsiteAnalyticsController@report');
     Route::get('/analytis/cron/showData', 'AnalyticsController@cronShowData');
 
+    
     Route::get('store-website-country-shipping', 'StoreWebsiteCountryShippingController@index')->name('store-website-country-shipping.index');
     Route::any('store-website-country-shipping/create', 'StoreWebsiteCountryShippingController@create')->name('store-website-country-shipping.create');
     Route::get('store-website-country-shipping/edit/{id}', 'StoreWebsiteCountryShippingController@edit')->name('store-website-country-shipping.edit');
