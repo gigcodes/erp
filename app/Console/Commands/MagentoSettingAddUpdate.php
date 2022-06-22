@@ -54,7 +54,7 @@ class MagentoSettingAddUpdate extends Command
                         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                         CURLOPT_CUSTOMREQUEST => "GET",
                             CURLOPT_HTTPHEADER => array(
-                                "authorization:Bearer ".$website->api_token
+                                "authorization:Bearer 7e9pvvgo4u5kel2xlchlj4hmgjb0lu6s" //.$website->api_token
                             ),
                         ));
 
@@ -70,31 +70,23 @@ class MagentoSettingAddUpdate extends Command
                         $resArr = json_decode($response);
                         //print_r($resArr); exit;
                         curl_close($curl);
-                        //echo var_dump($response);
-                        if(is_array($response) && isset($response[0]['path'])) {
-                            foreach($response as $res){
+                        echo '<pre>'; //echo gettype($resArr);
+                        print_r($resArr);
+                         exit;
+                        if(is_array($resArr) && isset($resArr[0][0]['config_id'])) {
+                            foreach($resArr[0] as $res){
                                 if(empty($findMegntoSetting[0])) {
                                     MagentoSetting::create(
                                         [
-                                            "config_id" => "1",
-                                            "scope" => "default",
+                                            "config_id" =>  $res['config_id'],
+                                            "scope" => $res["default"],
                                             "store_website_id" => $website->id,
                                             "website_store_id" => $website->id,
                                             "scope_id" => $website->id,
-                                            "path" => "yotpo/module_info/yotpo_installation_date",
-                                            "value" =>  date('Y-m-d'),
-                                            "updated_at" => date('Y-m-d H:i:s')
+                                            "path" => $res["path"],
+                                            "value" =>  $res["value"],
+                                            "updated_at" => $res["updated_at"]
                                         ],
-                                        [
-                                            "config_id" => "2",
-                                            "scope" => "default",
-                                            "store_website_id" => $website->id,
-                                            "website_store_id" => $website->id,
-                                            "scope_id" => $website->id,
-                                            "path" => "yotpo/sync_settings/orders_sync_start_date",
-                                            "value" =>  date('Y-m-d'),
-                                            "updated_at" => date('Y-m-d H:i:s')
-                                        ]
                                     );
                                 } else {
                                     MagentoSettingUpdateResponseLog::create(
