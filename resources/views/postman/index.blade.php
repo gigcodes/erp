@@ -777,7 +777,7 @@
             $('#loading-image').hide();
             $('#addPostman').modal('hide');
             toastr['success']('Postman added successfully!!!', 'success'); 
-            //location.reload();
+            location.reload();
           } else {
             toastr['error'](response.message, 'error'); 
           }
