@@ -10,6 +10,9 @@ use Carbon\Carbon;
 
 class WhatsappConfig extends Model
 {
+    const WASSENGER = 'wassenger';
+
+
     protected $fillable = ['number', 'provider', 'username', 'password', 'is_customer_support','frequency','send_start','send_end','device_name','simcard_number','simcard_owner','payment','recharge_date','status','sim_card_type','instance_id' , 'token', 'is_default','store_website_id','default_for','is_use_own'];
 
     public function customer()
