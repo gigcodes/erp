@@ -172,7 +172,7 @@ class WhatsAppController extends FindByNumberController
                 $message = ChatMessage::create($params);
 
                 if (isset($params['message']) && $params['message']) {
-                    (new \App\KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params['message'], $customer);
+                    (new KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params['message'], $customer);
                 }
 
                 $model_type = 'customers';
