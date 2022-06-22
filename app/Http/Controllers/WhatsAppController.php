@@ -359,6 +359,8 @@ class WhatsAppController extends FindByNumberController
                         }
                     }
                 }
+            }else{
+            	 $params['customer_id'] = null;
             }
 
             if (!isset($user) && !isset($purchase) && !isset($customer)) {
