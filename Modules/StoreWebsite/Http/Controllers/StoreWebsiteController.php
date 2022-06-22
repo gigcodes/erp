@@ -885,23 +885,29 @@ class StoreWebsiteController extends Controller
 
     public function getMagentoUpdateWebsiteSetting(Request $request,$store_website_id) 
     {
-        $responseLog = MagentoSettingUpdateResponseLog::where('website_id', '=', $store_website_id)->get();
-        //dd($responseLog);
-        if ($responseLog != null ) {
-            $html = '';
-            foreach($responseLog as $res){
-                //dd($res->created_at);
-                $html .= '<tr>';
-                $html .= '<td>'.$res->created_at.'</td>';
-                $html .= '<td>'.$res->response.'</td>';
-                $html .= '</tr>';
+        try{
+            $responseLog = MagentoSettingUpdateResponseLog::where('website_id', '=', $store_website_id)->get();
+            //dd($responseLog);
+            if ($responseLog != null ) {
+                $html = '';
+                foreach($responseLog as $res){
+                    //dd($res->created_at);
+                    $html .= '<tr>';
+                    $html .= '<td>'.$res->created_at.'</td>';
+                    $html .= '<td>'.$res->response.'</td>';
+                    $html .= '</tr>';
+                }
+                return response()->json([
+                    "code" => 200, 
+                    "data" => $html,  
+                    "message" => "Magento setting updated successfully!!!"              
+                ]);
             }
-		    return response()->json([
-                "code" => 200, 
-                "data" => $html,                
-            ]);
+            return response()->json(["code" => 500, "error" => "Wrong site id!"]);     
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, "data" => [], 'message' => $msg]);
         }
-        return response()->json(["code" => 500, "error" => "Wrong site id!"]);     
 	}
 	
 	

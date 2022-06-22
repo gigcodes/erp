@@ -127,9 +127,9 @@
 </div>
 
 <div id="magentoSettingUpdateHistoryModal" class="modal fade" role="dialog">
-	<div class="modal-dialog">
+	<div class="modal-dialog modal-lg">
 		<!-- Modal content-->
-		<div class="modal-content">
+		<div class="modal-content ">
 			<div class="modal-header">
 				<h4 class="modal-title">Magento Setting Update Rersponse History</h4>
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -234,14 +234,48 @@
 	});
 
 	$(document).on("click", ".response_history", function(href) {
-		$.ajax({
+		/*$.ajax({
 			url: 'store-website/'+ $(this).data('id') +'/magento-setting-update-history',
-			type: "POST",
-            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-			success: function(data) {
-				$('#magentoSettingUpdateHistory').html(data.data);
-				$('#magentoSettingUpdateHistoryModal').modal('show');
+			beforeSend: function () {
+				$("#loading-image").show();
 			},
+			type: "POST",
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}
+			// success: function(data) {
+			// 	$("#loading-image").hide();
+			// 	$('#magentoSettingUpdateHistory').html(data.data);
+			// 	$('#magentoSettingUpdateHistoryModal').modal('show');
+			// },
+		}).done(function (response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    $this.remove();
+                    toastr['success'](response.message, 'success');
+                }
+		}).fail(function (response) {
+                $("#loading-image").hide();
+                console.log("Sorry, something went wrong");
+		});*/
+		$.ajax({
+			type: 'POST',
+			url: 'store-website/'+ $(this).data('id') +'/magento-setting-update-history',
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
+			data: {
+				_token: "{{ csrf_token() }}",
+				id: $(this).data('id'),
+			},
+			dataType: "json"
+		}).done(function (response) {
+			$("#loading-image").hide();
+			if (response.code == 200) {
+				$this.remove();
+				toastr['success'](response.message, 'success');
+			}
+		}).fail(function (response) {
+			$("#loading-image").hide();
+			console.log("Sorry, something went wrong");
 		});
 	});
 

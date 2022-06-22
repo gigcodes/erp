@@ -196,6 +196,7 @@ var page = {
         });
 
         $(document).on("click",".magento-setting-update",function(href) {
+            $("#loading-image").show();
             page.magentosettingUpdate();
             
         });
@@ -270,9 +271,11 @@ var page = {
     },
     showMagentoSetting : function(response) {
         if(response.code == 200){
+            $("#loading-image").hide();
             this.getResults();
             toastr['success'](response.message, 'success');
         }else{
+            $("#loading-image").hide();
             toastr['error'](response.message, 'error');
         }        
               
