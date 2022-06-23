@@ -1001,6 +1001,9 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('vendor-category.permission') }}">Vendor Category Permission</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('vendor.cv.index') }}">Vendors CV</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">

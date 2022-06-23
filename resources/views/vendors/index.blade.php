@@ -303,6 +303,7 @@
     @include('vendors.partials.vendor-category-modals')
     @include('vendors.partials.modal-conference')
     @include('vendors.partials.change-hubstaff-role')
+    @include('vendors.partials.create-cv')
     @include('vendors.partials.add-status')
 
     <div id="reminderModal" class="modal fade" role="dialog">
@@ -679,7 +680,6 @@ $(document).on('click', '.expand-row-msg', function () {
             $("#userHubstaffRoleModal").modal('show');
         });
 
-
         $(document).on('submit', '#user-hubstaff-role-form', function (e) {
             e.preventDefault();
             $.ajax({
@@ -690,6 +690,35 @@ $(document).on('click', '.expand-row-msg', function () {
             .done(function(data){
                 toastr["success"](data.message);
                 $("#userHubstaffRoleModal").modal('hide');
+            })
+            .fail(function(error) {
+                toastr["error"](error.responseJSON.message);
+            })
+        });
+
+
+        $(document).on('click', '.create-cv', function () {
+            var id = $(this).data('id');
+            $(".hidden-vendor-id").val(id);
+            $("#createVendorCvModal").modal('show');
+        });
+
+        $(document).on('submit', 'form#vandor-cv-form', function (e) {
+            //e.preventDefault();
+            var file = $("#addProductForm").find("input[type=file]")[0].files[0];
+            var name = $("#addProductForm")
+            
+            var productForm = new FormData();
+                productForm.append("product_name", name);
+                productForm.append("product_image", file);
+            $.ajax({
+                type: "POST",
+                url: "/vendors/cv/store",
+                data: formData //$('#vandor-cv-form').serialize()
+            })
+            .done(function(data){
+                toastr["success"](data.message);
+                $("#createVendorCvModal").modal('hide');
             })
             .fail(function(error) {
                 toastr["error"](error.responseJSON.message);

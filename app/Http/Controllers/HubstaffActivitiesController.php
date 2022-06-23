@@ -1094,6 +1094,7 @@ class HubstaffActivitiesController extends Controller
         $task_id    = $request->task_id ? $request->task_id : null;
         $task_status    = $request->task_status ? $request->task_status : null;
         $developer_task_id    = $request->developer_task_id ? $request->developer_task_id : null;
+        $status = $request->task_status ? $request->task_status : null;
         
         $taskIds = [];
         if(!empty($developer_task_id)) {
@@ -1156,6 +1157,7 @@ class HubstaffActivitiesController extends Controller
             )->orderBy('date', 'desc')->get();
         
         $title = "User Track";
+        $userTrack = [];
        foreach($activities as $activity) {
             $hubActivitySummery = HubstaffActivitySummary::where('date', $activity->date)->where('user_id', $activity->system_user_id)->orderBy('created_at', 'desc')->first();
             //dd($hubActivitySummery);
@@ -1173,6 +1175,8 @@ class HubstaffActivitiesController extends Controller
                 'difference_hours' => isset($hubActivitySummery->accepted)? ($activity['tracked'] - $hubActivitySummery->accepted) : '0', 
                 'total_hours' => $activity['tracked'], 
                 'activity_levels' => $activity['overall'] / $activity['tracked'] * 100, 
+                'overall' => $activity['overall'],
+
                 
             ];
         }
@@ -1191,7 +1195,9 @@ class HubstaffActivitiesController extends Controller
             'status' => '', 
             ]);
         */
-        return view("hubstaff.activities.track-users", compact('userTrack','title'));
+        //dd($userTrack);
+        $users = User::get();
+        return view("hubstaff.activities.track-users", compact('userTrack','title', 'users', 'start_date','end_date', 'status', 'user_id'));
     }
 
     //Purpose : Add activityUsers parameter - DEVATSK-4300

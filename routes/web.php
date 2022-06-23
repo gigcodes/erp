@@ -902,6 +902,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/get-email-send-journey-logs', 'OrderController@getOrderEmailSendJourneyLog')->name('order.get.email.send.journey.logs');
     Route::get('order/charity-order', 'OrderController@charity_order');
     Route::post('order/cancel-transaction', 'OrderController@cancelTransaction')->name('order.canceltransaction');
+    Route::post('order/payload', 'OrderController@getOrderPayloadList')->name('order.payload');
 
     Route::resource('order', 'OrderController');
 
@@ -1777,6 +1778,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('negative/coupon/response', 'NegativeCouponResponseController@index')->name('negative.coupon.response');
     Route::get('negative/coupon/response/search', 'NegativeCouponResponseController@search')->name('negative.coupon.response.search');
     
+    Route::post('vendors/cv/store', 'VendorResumeController@store')->name('vendor.cv.store');
+    Route::get('vendors/cv/index', 'VendorResumeController@index')->name('vendor.cv.index');
+    Route::get('vendors/cv/search', 'VendorResumeController@search')->name('vendor.cv.search');
+    Route::post('vendors/cv/get-work-experience', 'VendorResumeController@getWorkExperience')->name('vendors.cv.get-work-experience');
+    Route::post('vendors/cv/get-education', 'VendorResumeController@getEducation')->name('vendors.cv.education');
+    Route::post('vendors/cv/get-address', 'VendorResumeController@getAddress')->name('vendors.cv.address');
+
     Route::get('vendor/status/history', 'VendorController@vendorStatusHistory')->name('vendor.status.history.get');
 
     Route::get('vendor-search', 'VendorController@vendorSearch')->name('vendor-search');
