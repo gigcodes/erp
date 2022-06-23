@@ -2,7 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
+use App\NegativeCouponResponse;
+
 use Illuminate\Console\Command;
 
 class NegativeCouponResponses extends Command
@@ -39,7 +40,53 @@ class NegativeCouponResponses extends Command
     public function handle()
     {
         try {
-            
+            $storeWebsites = \App\StoreWebsite::select('store_websites.id', 'store_websites.api_token', 'store_websites.website')->where("api_token","!=","")->where("website_source","magento")->get();
+            foreach($storeWebsites as $storeWebsite){
+                $authorization = "Authorization: Bearer " . $storeWebsite->api_token;
+                // Init cURL
+                $curl = curl_init();
+                // Set cURL options
+                curl_setopt_array($curl, array(
+                    CURLOPT_URL => "https://dev6.sololuxury.com/rest/V1/coupon/logs/",
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_ENCODING => "",
+                    CURLOPT_MAXREDIRS => 10,
+                    CURLOPT_TIMEOUT => 300,
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => "POST",
+                    CURLOPT_HTTPHEADER => array(
+                        "content-type: application/json",
+                        $authorization
+                    ),
+                ));
+
+                // Get response
+                $response = curl_exec($curl);
+
+                // Get possible error
+                $err = curl_error($curl);
+
+                // Close cURL
+                curl_close($curl);
+
+                // Check for errors
+                if ($err) {
+                    // Log error
+                    //\Log::error('Get Negative Coupon Response Error : =>'.$err);
+                }
+                $convertJson = is_array($response)? json_encode($response) : $response;
+                //\DB::enableQueryLog(); 
+                $user_id = \Auth::user()->id ?? '';
+                NegativeCouponResponse::create(
+                    [
+                        'store_website_id' => $storeWebsite->id,
+                        'user_id' => $user_id,
+                        'website' => $storeWebsite->website,
+                        'response' => $convertJson,
+                    ]
+                );
+                //dd(\DB::getQueryLog()); 
+            }
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
