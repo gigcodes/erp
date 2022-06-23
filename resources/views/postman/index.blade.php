@@ -518,6 +518,9 @@
                                   <select name="request_types" value="" class="form-control" id="request_types" >
                                     <option value="GET">GET</option>
                                     <option value="POST">POST</option>
+                                    <option value="PUT">PUT</option>
+                                    <option value="PATCH">PATCH</option>
+                                    <option value="DELETE">DELETE</option>
                                   </select>
                                 </div>
                                 <div class="form-group col-md-12">
