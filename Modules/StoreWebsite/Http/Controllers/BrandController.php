@@ -3,6 +3,8 @@
 namespace Modules\StoreWebsite\Http\Controllers;
 
 use App\StoreWebsite;
+use App\ReconsileBrandsLog;
+use App\PushBrandsLog;
 use App\Product;
 use App\StoreWebsiteBrand;
 use Illuminate\Http\Request;
@@ -90,6 +92,19 @@ class BrandController extends Controller
         return response()->json(["code" => 200, "data" => []]);
     }
 
+    public function createPushBrandsLog($request, $error_type, $error) {
+        try{
+            $recLog = new PushBrandsLog();
+            $recLog->store_webite_id = $request->store_website_id;
+            $recLog->user_id = (auth()->user()) ? auth()->user()->id : 6;
+            $recLog->error_type = $error_type;
+            $recLog->error = $error;
+            $recLog->save();
+        } catch(\Exception $e) {
+            return response()->json(["code" => 500 , "message" => $e->getMessage()]);
+        }    
+    }
+
     public function list(Request $request) {
         $title = "Store Brand";
 
@@ -105,6 +120,7 @@ class BrandController extends Controller
             if(!$brands->isEmpty()) {
                 foreach($brands as $brand) {
                     if(!$storeWebsites->isEmpty()) {
+                        $this->createPushBrandsLog($request, 'Website', "Website id is  found ID is : ".$request->get("store_website_id"));
                         foreach($storeWebsites as $storeWeb) {
                             $magentoBrandId = MagentoHelper::addBrand($brand,$storeWeb);
                             if(!empty($magentoBrandId)){
@@ -116,10 +132,16 @@ class BrandController extends Controller
                                 }
                                 $brandStore->magento_value = $magentoBrandId;
                                 $brandStore->save();
+                            } else {
+                                $this->createPushBrandsLog($request, 'magentoBrand adding Error', "magentoBrandId is not found fir brand : '.$brand.'  website : ".$storeWeb);        
                             }
                         }
+                    } else {
+                        $this->createPushBrandsLog($request, 'Website Error', "Website id is not found ID is : ".$request->get("store_website_id"));
                     }
                 }
+            } else {
+                $this->createPushBrandsLog($request, 'Brands Error', "Brands id i not found");
             }
 
             return redirect()->back()->with('success','Brand Request finished successfully');;
@@ -186,6 +208,16 @@ class BrandController extends Controller
        $categories = Category::join('products', 'products.category', '=', 'categories.id')->orderBy('categories.title','asc')->pluck('categories.title','categories.id');
 
         return view("storewebsite::brand.index", compact(['title', 'brands', 'storeWebsite','apppliedResult','categories','apppliedResultCount']));
+    }
+
+    public function pushBrandsLog(Request $request)
+    {
+        try{
+            $data = PushBrandsLog::select('push_brands_logs.*', 'sw.website AS websiteName')->leftJoin("store_websites as sw","sw.id","push_brands_logs.store_website_id")->get();
+            return response()->json(["code" => 200 , "data" => $data, "message" => "Push brand log listed successfully"]);
+        } catch(\Exception $e) {
+            return response()->json(["code" => 500 , "message" => $e->getMessage()]);
+        }
     }
 
     public function pushToStore(Request $request)
@@ -284,11 +316,11 @@ class BrandController extends Controller
                     'created_by' => $user->id,
                     'message' => $e->getMessage()
                 ]);
-                return response()->json(["code" => 200, "data" => []]);
+                return response()->json(["code" => 500, "message" => $e->getMessage()]);
             }
         }
 
-        return response()->json(["code" => 200, "data" => []]);
+        return response()->json(["code" => 500, "message" => "Store and brand not found" ]);
 
     }
 
@@ -393,113 +425,151 @@ class BrandController extends Controller
         }
     }
 
-    public function reconsileBrands(Request $request)
-    {
-        set_time_limit(0);
-        ini_set("memory_limit","-1");
-        $storeWebsite = \App\StoreWebsite::find($request->store_website_id);
-        if($storeWebsite) {
-            $client   = new Client();
-            $response = $client->request('GET', $storeWebsite->magento_url."/rest/V1/brands/list", [
-                'form_params' => [
-                ],
-            ]);
-            $brands = (string)$response->getBody()->getContents();
-            $brands = json_decode($brands,true);
-            $mangetoIds = [];
-            if(!empty($brands)) {
-                foreach($brands as $brand) {
-                    $mangetoIds[] = $brand['attribute_id'];
-                }
-            }
-
-            $rightBrand = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")
-            ->where("store_website_id",$storeWebsite->id)
-            ->where("magento_value",">",0)
-            ->groupBy("store_website_brands.magento_value")
-            ->select(["store_website_brands.*","b.deleted_at"])
-            ->get();
-
-            $assingedBrands = [];
-            $noneedTodelete = [];
-            if(!$rightBrand->isEmpty()) {
-                foreach($rightBrand as $rb) {
-                    //if(is_null($rb->deleted_at)) {
-                        $noneedTodelete[] = $rb->magento_value;
-                    //}
-                    if($rb->magento_value > 0) {
-                        $assingedBrands[$rb->magento_value] = $rb;
-                    }
-                }
-            }
-
-
-            $needDeleteRequest = [];
-            if(!empty($mangetoIds)) {
-                foreach($mangetoIds as $nrei) {
-                    if(!in_array($nrei,$noneedTodelete)) {
-                        $needDeleteRequest[] = $nrei;
-                    }
-                }
-            }
-            
-            \Log::info(print_r(["Delete request IDS",$needDeleteRequest],true));
-
-            // go for delete brands
-            $userId = (auth()->user()) ? auth()->user()->id : 6;
-            if(!empty($needDeleteRequest)) {
-                foreach($needDeleteRequest as $ndr) {
-                    \Log::info("Request started for ".$ndr);
-                    try{
-                        \Log::info("Brand started for delete ".$ndr);
-                        $status = MagentoHelper::deleteBrand($ndr,$storeWebsite);
-                    }catch(Exception $e) {
-                        \Log::info("Brand delete has error with id $ndr =>".$e->getMessage());
-                    }
-                    \Log::info("Brand check for delete ".$ndr);
-                    if(isset($assingedBrands[$ndr])) {
-                        \Log::info("Brand find for delete ".$ndr);
-                        $brandStore = $assingedBrands[$ndr];
-                        $brandStore->delete();
-                        StoreWebsiteBrandHistory::create([
-                            'brand_id' => $brandStore->brand_id,
-                            'store_website_id' => $brandStore->store_website_id,
-                            'type' => "remove",
-                            'created_by' => $userId,
-                            'message' => "{$brandStore->name} removed from {$storeWebsite->title} store."
-                        ]);
-                    }
-                }
-            }
-
-
-            // this we need to push
-            $availableBrands = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")
-            ->where("store_website_id",$storeWebsite->id)
-            ->whereNotIn("magento_value",$mangetoIds)
-            ->groupBy("store_website_brands.magento_value")
-            ->select(["b.*"])
-            ->get();
-
-            if(!$availableBrands->isEmpty()) {
-                foreach($availableBrands as $avb) {
-                    $magentoBrandId = MagentoHelper::addBrand($avb,$storeWebsite);
-                    if(!empty($magentoBrandId)){
-                        $brandStore = StoreWebsiteBrand::where("brand_id", $avb->id)->where("store_website_id", $storeWebsite->id)->first();
-                        if(!$brandStore) {
-                           $brandStore =  new \App\StoreWebsiteBrand;
-                           $brandStore->brand_id = $avb->id;
-                           $brandStore->store_website_id = $storeWebsite->id;
-                        }
-                        $brandStore->magento_value = $magentoBrandId;
-                        $brandStore->save();
-                    }
-                }
-            }
-
-        }
-
-        return response()->json(["code" => 200 , "message" => "Reconsile request has been finished successfully"]);
+    public function reconsileBrandsLog($request, $error_type, $error) {
+        try{
+            $recLog = new ReconsileBrandsLog();
+            $recLog->store_webite_id = $request->store_website_id;
+            $recLog->user_id = (auth()->user()) ? auth()->user()->id : 6;
+            $recLog->error_type = $error_type;
+            $recLog->error = $error;
+            $recLog->save();
+        } catch(\Exception $e) {
+            return response()->json(["code" => 500 , "message" => $e->getMessage()]);
+        }    
     }
 
+    public function reconsileBrands(Request $request)
+    {
+        try{
+            set_time_limit(0);
+            ini_set("memory_limit","-1");
+            $storeWebsite = \App\StoreWebsite::find($request->store_website_id);
+            if($storeWebsite) {
+                $client   = new Client();
+                $response = $client->request('GET', $storeWebsite->magento_url."/rest/V1/brands/list", [
+                    'form_params' => [
+                    ],
+                ]);
+                
+                $brands = (string)$response->getBody()->getContents();
+                $brands = json_decode($brands,true);
+                $mangetoIds = [];
+                if(!empty($brands)) {
+                    foreach($brands as $brand) {
+                        $mangetoIds[] = $brand['attribute_id'];
+                    }
+                } else {
+                    $this->reconsileBrandsLog($request, 'Brand error', 'brand id not found');
+                }
+
+                $rightBrand = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")
+                ->where("store_website_id",$storeWebsite->id)
+                ->where("magento_value",">",0)
+                ->groupBy("store_website_brands.magento_value")
+                ->select(["store_website_brands.*","b.deleted_at"])
+                ->get();
+                
+                $assingedBrands = [];
+                $noneedTodelete = [];
+                if(!$rightBrand->isEmpty()) {
+                    foreach($rightBrand as $rb) {
+                        //if(is_null($rb->deleted_at)) {
+                            $noneedTodelete[] = $rb->magento_value;
+                        //}
+                        if($rb->magento_value > 0) {
+                            $assingedBrands[$rb->magento_value] = $rb;
+                        }
+                    }
+                } else {
+                    $this->reconsileBrandsLog($request, 'magento_value error', 'magento_value id not found');
+                }
+
+
+                $needDeleteRequest = [];
+                if(!empty($mangetoIds)) {
+                    foreach($mangetoIds as $nrei) {
+                        if(!in_array($nrei,$noneedTodelete)) {
+                            $needDeleteRequest[] = $nrei;
+                        }
+                    }
+                }
+                
+                \Log::info(print_r(["Delete request IDS",$needDeleteRequest],true));
+
+
+                // go for delete brands
+                $userId = (auth()->user()) ? auth()->user()->id : 6;
+                if(!empty($needDeleteRequest)) {
+                    foreach($needDeleteRequest as $ndr) {
+                        \Log::info("Request started for ".$ndr);
+                        try{
+                            \Log::info("Brand started for delete ".$ndr);
+                            $status = MagentoHelper::deleteBrand($ndr,$storeWebsite);
+                        }catch(Exception $e) {
+                            $this->reconsileBrandsLog($request, 'Delete brand', $e->getMessage());
+                            \Log::info("Brand delete has error with id $ndr =>".$e->getMessage());
+                        }
+                        \Log::info("Brand check for delete ".$ndr);
+                        if(isset($assingedBrands[$ndr])) {
+                            \Log::info("Brand find for delete ".$ndr);
+                            $brandStore = $assingedBrands[$ndr];
+                            $brandStore->delete();
+                            StoreWebsiteBrandHistory::create([
+                                'brand_id' => $brandStore->brand_id,
+                                'store_website_id' => $brandStore->store_website_id,
+                                'type' => "remove",
+                                'created_by' => $userId,
+                                'message' => "{$brandStore->name} removed from {$storeWebsite->title} store."
+                            ]);
+                        } else {
+                            $this->reconsileBrandsLog($request, 'Delete brand', "Brand check for delete ".$ndr);
+                        }
+                    }
+                }  else {
+                    $this->reconsileBrandsLog($request, 'Delete brand', 'Delete Brand not found');
+                }
+
+
+                // this we need to push
+                $availableBrands = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")
+                ->where("store_website_id",$storeWebsite->id)
+                ->whereNotIn("magento_value",$mangetoIds)
+                ->groupBy("store_website_brands.magento_value")
+                ->select(["b.*"])
+                ->get();
+
+                if(!$availableBrands->isEmpty()) {
+                    foreach($availableBrands as $avb) {
+                        $magentoBrandId = MagentoHelper::addBrand($avb,$storeWebsite);
+                        if(!empty($magentoBrandId)){
+                            $brandStore = StoreWebsiteBrand::where("brand_id", $avb->id)->where("store_website_id", $storeWebsite->id)->first();
+                            if(!$brandStore) {
+                            $brandStore =  new \App\StoreWebsiteBrand;
+                            $brandStore->brand_id = $avb->id;
+                            $brandStore->store_website_id = $storeWebsite->id;
+                            }
+                            $brandStore->magento_value = $magentoBrandId;
+                            $brandStore->save();
+                        }
+                    }
+                }
+
+            }
+            $this->reconsileBrandsLog($request, 'Reconsile Successfully', "Reconsile request has been finished successfully");
+            return response()->json(["code" => 200 , "message" => "Reconsile request has been finished successfully"]);
+        } catch(\Exception $e) {
+            $this->reconsileBrandsLog($request, 'Catch Error', $e->getMessage());
+            return response()->json(["code" => 500 , "message" => $e->getMessage()]);
+        }
+    }
+
+    public function reconsileBrandsHistoryLog(Request $request)
+    {
+        try{
+            $data = ReconsileBrandsLog::select('reconsile_brands_log.*', 'sw.website AS websiteName')->leftJoin("store_websites as sw","sw.id","reconsile_brands_log.store_website_id")->get();
+            return response()->json(["code" => 200 , "data" => $data, "message" => "Reconsile log listed successfully"]);
+        } catch(\Exception $e) {
+            return response()->json(["code" => 500 , "message" => $e->getMessage()]);
+        }
+    }
 }
