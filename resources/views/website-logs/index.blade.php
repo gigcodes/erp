@@ -14,67 +14,23 @@
 		    <h2 class="page-heading">Website Logs</h2>
 		</div>
 	</div>
-	{{-- <div class="mt-3 col-md-12">
-		<div class="col-lg-1">
-			<select name="date" id="datepicker" class="form-control">
-				@for($i=0; $i<=31; $i++)
-					<option value="{{$i}}" @if((date("d") - 1) == $i) selected @endif>{{$i}}</option>
-				@endfor
-			</select>
-		</div>
-		<div class="col-lg-1">
-			<select name="month" id="monthpicker" class="form-control">
-				@foreach(["","Jan","Feb","Mar","Apr","May","Jun","July","Aug","Sep","Oct","Nov","Dec"] as $mon)
-					<option value="{{$mon}}" @if((request("month") - 1) == $mon) selected @endif>{{$mon}}</option>
-				@endforeach
-			</select>
-		</div>
-		<div class="col-lg-1">
-			<select name="year" id="yearpicker" class="form-control">
-				@foreach(["","19","20","21","22","23","24","25"] as $year)
-					<option value="{{$year}}" @if((request("year") - 1) == $year) selected @endif>{{$year}}</option>
-				@endforeach
-			</select>
-		</div>
-		<div class="col-lg-2">
-			<select name="date" id="datepicker" class="form-control server_id-value">
-				<option value="">Select Server</option>
-					@foreach($servers as $server)
-						<option value="{{ $server['server_id'] }}")>{{$server['server_id'] }}</option>
-					@endforeach
-			</select>
-		</div>					
-		<div class="col-lg-2">
-			<input class="form-control" type="text" id="search" placeholder="Search name" name="search" value="{{ $name }}">
-		</div>
-        <div class="col-lg-1">
-            <select class="form-control" name="download_option">
-                <option value="no">No</option>
-                <option value="yes">Yes</option>
-            </select>
-        </div>
-        <div class="col-lg-1">
-			<button type="button" id="tabledata" class="btn btn-image">
-			<img src="/images/filter.png"style="margin-left:17px;">
-			</button>
-		</div>
-		<div class="creat-stutush">
-		<div class="text-rights">
-			<button class ="btn-dark" type="button" onclick="window.location='{{url('development/issue/create')}}'">Create an Issue</button>
-		</div>
-		<div class="text-rights">
-			<button class ="btn-dark" type="button" data-toggle="modal" data-target="#status-create">Create Status</button>
-		</div>
-		<div class="text-rights">
-			<button class ="btn-dark" type="button" data-toggle="modal" id ="logdatahistory" data-target="#logdatacounter">Log History</button>
-		</div>
-
-		<div class="col-lg-2 text-rights">
-			<button class ="btn-dark" type="button" data-toggle="modal" data-target="#logdatastatus">Map Log Status</button>
-		</div> 
-        --}}
-
-
+	<div class="mt-3 col-md-12">
+		<form action="{{route('search.website.file.list.log')}}" method="get">
+			@csrf
+			<div class="col-1">
+				<b>Search</b> 
+			</div>
+			<div class="col-lg-2">
+				<input class="form-control" type="text" id="fieName" placeholder="Search file name" name="file_name" value="{{ old('file_name') }}">
+			</div>
+			<div class="col-lg-2">
+				<input class="form-control" type="text" id="website" placeholder="Search website" name="website" value="{{ old('website') }}">
+			</div>
+			<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+				<a href="{{route('website.file.list.log')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+				<button type="submit" style="" class="btn btn-image pl-0"><img src="http://erp.local:8080/images/filter.png"></button>
+				</div>
+		</form>
 	</div>
 	<div class="mt-3 col-md-12">
 		<table class="table table-bordered table-striped" id="log-table">
