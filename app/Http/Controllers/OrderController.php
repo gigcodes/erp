@@ -3122,6 +3122,33 @@ class OrderController extends Controller
         }
     }
     
+
+    /**
+     * This function user for get  order payuload list
+     * 
+     * @param $order (INT), 
+     * @param $logMsg (string)
+     * @return void 
+     */
+    public function getOrderPayloadList(Request $request) 
+    {
+        try {
+            $getOrderList = Order::where('id',$request->order_id)->get();
+            $html = '';
+            foreach($getOrderList AS $getOrder) {
+                $html .= '<tr>';
+                $html .= '<td>'.$getOrder->id.'</td>';
+                $html .= '<td>'.$getOrder->order_id .'</td>';
+                $html .= '<td>'.$getOrder->payload.'</td>';
+                $html .= '<td>'.$getOrder->created_at.'</td>';
+                $html .= '</tr>';
+            }
+            return response()->json(["code" => 200, "data" => $html, "message" => "Payload Listed successfully"]);
+        } catch(\Exception $e) {
+            return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
+        }
+    }
+
     /**
      * This function user for create magent to order error list
      * 

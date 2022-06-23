@@ -20,6 +20,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\PushToMagentoCondition;
 use App\ProductPushJourney;
+use App\LogRequest;
 
 /**
  * Get Magento service request
@@ -765,6 +766,7 @@ class MagentoService
 
     private static function setSimpleSingleProductToConfig($childSku, $sku, $token, $website, $storeView = null, $product = null)
     {
+        $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
 
         $data = ['childSku' => $childSku];
         $data = json_encode($data);
@@ -783,12 +785,16 @@ class MagentoService
         $err = curl_error($ch);
         \Log::channel('listMagento')->info(json_encode([$url, $token, $data, $result, "setSimpleProductToConfig"]));
         $response = json_decode($result);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime,$url,'POST',$data,json_decode($result),$httpcode,'setSimpleSingleProductToConfig','App\Library\Magento\MagentoService');
 
         \Log::info(print_r([$url, $token, $data, $result], true));
     }
 
     private function sendConfigurableOptions($product, $res, $website, $token, $store = null)
     {
+        $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
+
         $product = $this->product;
         $website = $this->storeWebsite;
 
@@ -825,6 +831,9 @@ class MagentoService
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'accept: application/json', 'Authorization: Bearer ' . $this->token));
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
             $result = curl_exec($ch);
+
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime,$url,'POST',$data,json_decode($result),$httpcode,'sendConfigurableOptions','App\Library\Magento\MagentoService');
             $err = curl_error($ch);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             \Log::info(print_r([$url, $token, $data, $result], true));
@@ -849,6 +858,7 @@ class MagentoService
 
     private function sendRequest($url, $token, $productData, $type = "POST")
     {
+        $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
 
         $ch = curl_init($url);
 
@@ -860,7 +870,7 @@ class MagentoService
         $res = curl_exec($ch);
 
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
+        LogRequest::log($startTime,$url,$type,json_encode($productData),json_decode($res),$httpcode,'sendRequest','App\Library\Magento\MagentoService');
         if ($httpcode != 200) {
             if ($this->log) {
                 $this->log->message = $res;

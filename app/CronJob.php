@@ -3,6 +3,7 @@
 namespace App;
 
 use App\DeveloperTask;
+use App\CronJobErroLog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 /**
@@ -55,6 +56,17 @@ class CronJob extends Model
                 'assigned_to' => \App\Setting::get("cron_issue_assinged_to",self::DEFAULT_ASSIGNED_TO),
             ]);
             app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+
+            $cronJobErroLog = new CronJobErroLog();
+            $cronJobErroLog->signature = $signature;
+            $cronJobErroLog->priority = self::CRON_ISSUE_PRIORITY;
+            $cronJobErroLog->error = $error;
+            $cronJobErroLog->error_count += 1;
+            $cronJobErroLog->status = self::CRON_ISSUE_STATUS;
+            $cronJobErroLog->module = self::CRON_ISSUE_MODULE_NAME;
+            $cronJobErroLog->subject = $issueName;
+            $cronJobErroLog->assigned_to = \App\Setting::get("cron_issue_assinged_to",self::DEFAULT_ASSIGNED_TO);
+            $cronJobErroLog->save();
         }
         /*else{
             $requestData = new Request();
