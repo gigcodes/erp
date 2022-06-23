@@ -257,9 +257,12 @@ class VendorResumeController extends Controller
         if (!file_exists($path)) {
             mkdir($path, 0777, true);
         }
-        $file = $request->file('soft_upload_document');
-        $vendorResumeName = uniqid() . '_' . trim($file->getClientOriginalName());
-        $file->move($path, $vendorResumeName);
+        $vendorResumeName = '';
+        if($request->file('soft_upload_document')) {
+            $file = $request->file('soft_upload_document');
+            $vendorResumeName = uniqid() . '_' . trim($file->getClientOriginalName());
+            $file->move($path, $vendorResumeName);
+        }
         try{
             
             $vendorResume = new VendorResume();
@@ -326,9 +329,7 @@ class VendorResumeController extends Controller
             //return response()->json(["code" => 200, "data" => $vendorResume, "message" => 'Data stored successfully!!!']);
         } catch (\Exception $e) {
             //return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
-            //dd('dgdsfg');
-            echo '<pre>';
-            dd( $e);
+            //dd($e->getMessage());
             return back()->with('message', $e->getMessage());
         }
     }
