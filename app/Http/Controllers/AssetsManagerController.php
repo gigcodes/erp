@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\AssetsManager;
 use App\CashFlow;
 use DB;
+use App\User;
+use App\AssetManamentUpdateLog;
 use Illuminate\Http\Request;
 
 class AssetsManagerController extends Controller
@@ -54,8 +56,8 @@ class AssetsManagerController extends Controller
 
         //Cash Flows
         $cashflows = \App\CashFlow::whereIn('cash_flow_able_id', $assetsIds)->where(['cash_flow_able_type' => 'App\AssetsManager'])->get();
-
-        return view('assets-manager.index', compact('assets', 'category', 'cashflows'))
+        $users = User::all();
+        return view('assets-manager.index', compact('assets', 'category', 'cashflows', 'users'))
             ->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
@@ -200,6 +202,15 @@ class AssetsManagerController extends Controller
         if ($catid != '') {
             $data['category_id'] = $catid;
         }
+        if($request->input('old_user_name') != $request->input('user_name') || $request->input('old_password') != $request->input('password')){
+            $assetLog = new AssetManamentUpdateLog();
+            $assetLog->assetmenament_id =  $id;
+            $assetLog->user_id =  \Auth::user()->id;
+            $assetLog->user_name =  $request->input('old_user_name');
+            $assetLog->password =  $request->input('old_password');
+            $assetLog->ip =  $request->input('old_ip');
+            $assetLog->save();
+        }
         AssetsManager::find($id)->update($data);
 
         return redirect()->route('assets-manager.index')
@@ -264,6 +275,41 @@ class AssetsManagerController extends Controller
             $html .= '<td></td>';
             $html .= '<td></td>';
             $html .= '<td></td>';
+            $html .= '</tr>';
+        }
+        return response()->json(['html' => $html, 'success' => true], 200);
+
+    }
+
+    public function assetManamentLog(request $request)
+    {
+        $asset_id = $request->input('asset_id');
+        //dd($asset_id);
+        $html = '';
+        //\DB::enableQueryLog(); 
+        $assetLogs = AssetManamentUpdateLog::select('asset_manamentupdate_logs.*', 'users.name AS userName')
+            ->leftJoin('users', 'users.id', '=', 'asset_manamentupdate_logs.user_id')
+            ->where('asset_manamentupdate_logs.assetmenament_id', $asset_id)
+            ->orderBy('asset_manamentupdate_logs.id', 'DESC')
+            ->get();
+        //dd(\DB::getQueryLog());
+        $i = 1;
+        //dd($assetLogs);
+        if (count($assetLogs) > 0) {
+            foreach ($assetLogs as $assetLog) {
+                $html .= '<tr>';
+                $html .= '<td>' . $assetLog->id . '</td>';
+                $html .= '<td>' . $assetLog->userName . '</td>';
+                $html .= '<td>' . $assetLog->user_name . '</td>';
+                $html .= '<td>' . $assetLog->password . '</td>';
+                $html .= '<td>' . $assetLog->created_at . '</td>';
+                $html .= '</tr>';
+                $i++;
+            }
+            return response()->json(['html' => $html, 'success' => true], 200);
+        } else {
+            $html .= '<tr>';
+            $html .= '<td colspan="4">Record not found</td>';
             $html .= '</tr>';
         }
         return response()->json(['html' => $html, 'success' => true], 200);

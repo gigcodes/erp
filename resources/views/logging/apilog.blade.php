@@ -41,6 +41,13 @@
                                 </select>
                             </div>
                             <div class="form-group ml-2">
+                                <label for="for_date">Api Type:</label>
+                                <select name="is_send" class="form-control">
+                                    <option value="0">Incoming Api</option>
+                                    <option value="1">Out going Api</option>
+                                </select>
+                            </div>
+                            <div class="form-group ml-2">
                                 <label for="button">&nbsp;</label>
                                 <button style="display: inline-block;"
                                     class="btn btn-sm btn-secondary btn-generate-report">Generate Report</button>
@@ -348,7 +355,8 @@
                     data: {
                         keyword: form.find("input[name='keyword']").val(),
                         for_date: form.find("input[name='for_date']").val(),
-                        report_type: form.find("select[name='report_type']").val()
+                        report_type: form.find("select[name='report_type']").val(),
+                        is_send: form.find("select[name='is_send']").val()
                     },
                     beforeSend: function() {
                         $("#loading-image").show();

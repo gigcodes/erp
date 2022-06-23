@@ -150,9 +150,31 @@ class StoreWebsiteController extends Controller
 
         if (!$records) {
             $records = new StoreWebsite;
+        }else{
+            if(!is_null($request->is_debug_true)){
+                if(!$request->server_ip){
+                    $outputString = 'Server IP is required to enable db logs';  
+                    return response()->json(["code" => 500, "error" => $outputString]);
+                }
+                if($records->is_debug_true !== $request->is_debug_true){
+                    $this->enableDBLog($request);
+                } 
+            }
         }
-       
+        
+        if($request->key_file_path1 != 'undefined' && $request->key_file_path1 != '') {
+            $keyPath = public_path('bigData');
+            if (!file_exists($keyPath)) {
+                mkdir($keyPath, 0777, true);
+            }
+            $file = $request->file('key_file_path1');
+            $keyPathName = uniqid() .strtotime(date('YmdHis')).'_' . trim($file->getClientOriginalName());
+            $file->move($keyPath, $keyPathName);
+            $post['key_file_path'] = $keyPathName;
+        }
+        
         $records->fill($post);
+
         $records->save();
 
 		if(isset($post['username'])) {
@@ -179,6 +201,8 @@ class StoreWebsiteController extends Controller
             $chat_message = ChatMessage::create($params);
         }
 
+        
+
 		if($id == 0) {
 			$siteDevelopmentCategories  =  SiteDevelopmentCategory::all();
 			foreach ($siteDevelopmentCategories as $develop) {
@@ -189,7 +213,7 @@ class StoreWebsiteController extends Controller
                 $site->save();
             }
 		}
-        return response()->json(["code" => 200, "data" => $records]);
+        return response()->json(["code" => 200, 'message' => "Data successfully saved", "data" => $records]);
     }
 
     public function saveUserInMagento(Request $request) {
@@ -913,6 +937,16 @@ class StoreWebsiteController extends Controller
 		}
 	}
 
+
+    public function enableDBLog($website){
+        $cmd = "bash " . getenv('DEPLOYMENT_SCRIPTS_PATH') . "magento-debug.sh --server ".$website->server_ip." --debug ".($website->is_debug_true ? 'true' : 'false')." 2>&1";
+        \Log::info('[SatyamTest] '.$cmd);
+        $allOutput   = array();
+        $allOutput[] = $cmd;
+        $result      = exec($cmd, $allOutput);
+        \Log::info(print_r($allOutput,true));
+        return $result;
+    }
     public function checkMagentoToken(Request $request){
         $token = $request->id;
         $magentoHelper = new MagentoHelperv2();
@@ -922,6 +956,7 @@ class StoreWebsiteController extends Controller
         }else{
             return response()->json(["code" => 500 , "message" => "Token is invalid"]);
         }
+
     }
 
 }
