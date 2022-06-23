@@ -3,7 +3,7 @@
 
     <!-- Modal content-->
     <div class="modal-content">
-      <form action="{{route('vendor.cv.store')}}" id="vandor-cv-form" method="POST" enctype="multipart/form-data">
+      <form action="/vendors/cv/store" id="vandor-cv-form" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="modal-header">
