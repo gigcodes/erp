@@ -31,4 +31,8 @@ class StoreViewsGTMetrixUrl extends Model
      protected $casts = [
         'resources' => 'array',
     ];
+
+    public function account(){
+        return $this->belongsTo(StoreGTMetrixAccount::class, 'account_id');
+    }
 }

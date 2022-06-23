@@ -1652,9 +1652,16 @@ class LiveChatController extends Controller
                                     'type' => $type,
                                 )
                             );
-
-                            $emailClass = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
-
+                            try{
+                                $emailClass = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
+                            } catch (\Exception $e) {
+                                $post = array(
+                                    'customer-id' => $customer->id,
+                                );
+                                CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => $e->getMessage(), 'status' => 'failure']);
+                                return response()->json(['msg' => 'issue with mailing template', 'code' => 400, 'status' => 'error']);
+                            }
+                            
                             if($emailClass){
                                 $email = Email::create([
                                     'model_id' => $customer->id,
