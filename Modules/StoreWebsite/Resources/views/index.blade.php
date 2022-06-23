@@ -234,28 +234,6 @@
 	});
 
 	$(document).on("click", ".response_history", function(href) {
-		/*$.ajax({
-			url: 'store-website/'+ $(this).data('id') +'/magento-setting-update-history',
-			beforeSend: function () {
-				$("#loading-image").show();
-			},
-			type: "POST",
-            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}
-			// success: function(data) {
-			// 	$("#loading-image").hide();
-			// 	$('#magentoSettingUpdateHistory').html(data.data);
-			// 	$('#magentoSettingUpdateHistoryModal').modal('show');
-			// },
-		}).done(function (response) {
-                $("#loading-image").hide();
-                if (response.code == 200) {
-                    $this.remove();
-                    toastr['success'](response.message, 'success');
-                }
-		}).fail(function (response) {
-                $("#loading-image").hide();
-                console.log("Sorry, something went wrong");
-		});*/
 		$.ajax({
 			type: 'POST',
 			url: 'store-website/'+ $(this).data('id') +'/magento-setting-update-history',
@@ -270,6 +248,9 @@
 		}).done(function (response) {
 			$("#loading-image").hide();
 			if (response.code == 200) {
+				debugger;
+				$('#magentoSettingUpdateHistory').html(response.data);
+			 	$('#magentoSettingUpdateHistoryModal').modal('show');
 				$this.remove();
 				toastr['success'](response.message, 'success');
 			}
