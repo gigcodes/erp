@@ -13,7 +13,7 @@ class AlterAddPayloadToOrderTable extends Migration
      */
     public function up()
     {
-        Schema::table('order', function (Blueprint $table) {
+        Schema::table('orders', function (Blueprint $table) {
             $table->longText('payload')->nullable();
         });
     }
@@ -25,7 +25,7 @@ class AlterAddPayloadToOrderTable extends Migration
      */
     public function down()
     {
-        Schema::table('order', function (Blueprint $table) {
+        Schema::table('orders', function (Blueprint $table) {
             $table->drop('payload');
         });
     }
