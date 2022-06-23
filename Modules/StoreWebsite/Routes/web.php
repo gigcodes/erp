@@ -119,10 +119,12 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('records', 'BrandController@records')->name("store-website.brand.records");
         Route::post('push-to-store', 'BrandController@pushToStore')->name("store-website.brand.push-to-store");
         Route::post('refresh-min-max-price', 'BrandController@refreshMinMaxPrice')->name("store-website.refresh-min-max-price");
-        Route::get('history', 'BrandController@history')->name("store-website.brand.history");
-        Route::get('live-brands', 'BrandController@liveBrands')->name("store-website.brand.live-brands");
-        Route::get('missing-brands', 'BrandController@missingBrands')->name("store-website.brand.missing-brands");
-        Route::post('reconsile-brand', 'BrandController@reconsileBrands')->name("store-website.brand.reconsile-brands");
+        Route::get('history','BrandController@history')->name("store-website.brand.history");
+        Route::get('live-brands','BrandController@liveBrands')->name("store-website.brand.live-brands");
+        Route::get('missing-brands','BrandController@missingBrands')->name("store-website.brand.missing-brands");
+        Route::post('reconsile-brand','BrandController@reconsileBrands')->name("store-website.brand.reconsile-brands");
+        Route::post('reconsile-brand-history-log','BrandController@reconsileBrandsHistoryLog')->name("reconsile-brands-history-log");
+        Route::post('push-brand-history-log','BrandController@pushBrandsLog')->name("push-brands-history-log");
     });
 
     Route::prefix('price-override')->group(function () {

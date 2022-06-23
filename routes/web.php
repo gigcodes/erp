@@ -904,6 +904,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/get-email-send-journey-logs', 'OrderController@getOrderEmailSendJourneyLog')->name('order.get.email.send.journey.logs');
     Route::get('order/charity-order', 'OrderController@charity_order');
     Route::post('order/cancel-transaction', 'OrderController@cancelTransaction')->name('order.canceltransaction');
+    Route::post('order/payload', 'OrderController@getOrderPayloadList')->name('order.payload');
 
     Route::resource('order', 'OrderController');
 
@@ -1775,6 +1776,16 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::delete('vendors/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@destroy')->name('vendors.payments.destroy');
     Route::resource('vendors', 'VendorController');
     Route::post('vendors/update-status', 'VendorController@updateStatus')->name('vendor.status.update');
+    
+    Route::get('negative/coupon/response', 'NegativeCouponResponseController@index')->name('negative.coupon.response');
+    Route::get('negative/coupon/response/search', 'NegativeCouponResponseController@search')->name('negative.coupon.response.search');
+    
+    Route::post('vendors/cv/store', 'VendorResumeController@store')->name('vendor.cv.store');
+    Route::get('vendors/cv/index', 'VendorResumeController@index')->name('vendor.cv.index');
+    Route::get('vendors/cv/search', 'VendorResumeController@search')->name('vendor.cv.search');
+    Route::post('vendors/cv/get-work-experience', 'VendorResumeController@getWorkExperience')->name('vendors.cv.get-work-experience');
+    Route::post('vendors/cv/get-education', 'VendorResumeController@getEducation')->name('vendors.cv.education');
+    Route::post('vendors/cv/get-address', 'VendorResumeController@getAddress')->name('vendors.cv.address');
 
     Route::get('vendor/status/history', 'VendorController@vendorStatusHistory')->name('vendor.status.history.get');
 
@@ -3075,7 +3086,9 @@ Route::middleware('auth')->group(function () {
     Route::get('website/website-store-log', 'WebsiteLogController@store')->name('website.store.log');
     Route::get('website/website-log-file-view/{path?}', 'WebsiteLogController@websiteLogFileView')->name('website.log.file.view');
     Route::get('website/log/file-list', 'WebsiteLogController@index')->name('website.file.list.log');
+    Route::get('website/search/log/file-list', 'WebsiteLogController@searchWebsiteLog')->name('search.website.file.list.log');
     Route::get('website/log/view', 'WebsiteLogController@websiteLogStoreView')->name('website.log.view');
+    Route::get('website/search/log/view', 'WebsiteLogController@searchWebsiteLogStoreView')->name('website.search.log.view');
     
     Route::get('website/command/log', 'WebsiteLogController@runWebsiteLogCommand')->name('website.command-log');
 });

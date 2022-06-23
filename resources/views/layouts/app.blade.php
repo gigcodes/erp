@@ -961,6 +961,9 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('coupons.index') }}">Coupons</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('negative.coupon.response') }}">Negative Coupons Response</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item">
@@ -997,6 +1000,9 @@ if (!empty($notifications)) {
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('vendor-category.permission') }}">Vendor Category Permission</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('vendor.cv.index') }}">Vendors CV</a>
                                 </li>
                             </ul>
                         </li>
