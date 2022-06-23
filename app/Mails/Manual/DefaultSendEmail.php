@@ -6,6 +6,7 @@ use App\EmailLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Arr;
 
 class DefaultSendEmail extends Mailable
 {
@@ -13,16 +14,22 @@ class DefaultSendEmail extends Mailable
 
     public $email;
     public $attchments;
-
+    public $template;
+    public $returnExchangeProducts;
+    public $fromMailer;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($email, $attchments = [])
+    public function __construct($email, $attchments = [], $template = "", $dataArr = '', $rxProducts = '', $fromMailer)
     {
         $this->email      = $email;
-        $this->attchments      = $attchments;
+        $this->attchments = $attchments;
+        $this->template   = $template;
+        $this->dataArr = $dataArr;
+        $this->returnExchangeProducts = $rxProducts;
+        $this->fromMailer = $fromMailer;
     }
 
     /**
@@ -42,11 +49,11 @@ class DefaultSendEmail extends Mailable
     //     ->view('emails.blank_content', compact('content'));
     // }
 
+    
     public function build()
     {
         $email   = $this->email;
         $content = $email->message;
-		
 		$headerData = [
             'unique_args' => [
                 'email_id' =>$email->id 

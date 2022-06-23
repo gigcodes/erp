@@ -10,6 +10,8 @@ use Studio\Totem\Contracts\TaskInterface;
 use Studio\Totem\Http\Requests\TaskRequest;
 use Studio\Totem\Http\Controllers\ExportTasksController;
 use File;
+use App\CronJob;
+use App\CronJobErroLog;
 use function storage_path;
 use Studio\Totem\Parameter;
 class TasksController extends Controller
@@ -60,7 +62,6 @@ class TasksController extends Controller
 
     public function view(Task $task)
     {
-        
         return response()->json([
             'task'  => $task,
             'results'  => $task->results->count() > 0 ? number_format(  $task->results->sum('duration') / (1000 * $task->results->count()) , 2) : '0', 
@@ -144,6 +145,18 @@ class TasksController extends Controller
 
         return view("totem.tasks.partials.development-task-list",compact('findTasks'));
     }
+
+    public function totemCommandError(Request $request, $task) 
+    {
+        $tortem = CronJob::where("id","=", $task->id)->first();
+        $cronError = CronJobErroLog::where('signature', '=', $tortem->signature)->get();
+        return response()->json([
+            'data'  => $cronError,
+            'message'  => "Listed successfully!!!" 
+        ]);
+        return $cronError;
+    }
+
 
 
 }

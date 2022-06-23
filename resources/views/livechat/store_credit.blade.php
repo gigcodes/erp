@@ -18,7 +18,7 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
        <div class="col-lg-12 margin-tb">
            <h2 class="page-heading">Store Credit</h2>
            <div class="pull-left">
-             <form class="form-inline" action="{{url('livechat/store-credit')}}" method="GET">
+             <form class="form-inline" action="{{url('customer/credit')}}" method="GET">
                <div class="col">
                  <div class="form-group">
                    <div class='input-group'>
@@ -82,7 +82,7 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
            <div class="pull-right">
           
            </div>
-           <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#create-customer-credit-modal">Add Credit</button>
+           <button type="button" class="btn custom-button float-right mr-3 open-customer-credit" data-toggle="modal" data-target="#create-customer-credit-modal">Add Credit</button>
        </div>
    </div>
  
@@ -209,13 +209,15 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
                   <input type="hidden" id="source_of_credit" name="source_of_credit" value="customer">
                   <div class="form-group">
                       <label for="credit" class="col-form-label">Customer:</label>
-                      <select class="form-control select2" name="credit_customer_id" id="credit_customer_id" >
+                      <select class="form-control select2" name="credit_customer_id" id="credit_customer_id" style="width: 100%;" >
                         <option></option>
                         @foreach ($customers as $customer)
-                            <option value="{{$customer->id}}">{{$customer->name}}</option>
+                            <optgroup label="{{$customer->title}}">
+                                <option value="{{$customer->id}}">{{$customer->name. ' Email -'.$customer->email}}</option>
+                            </optgroup>
                         @endforeach
                       </select>
-                      <span class="text-danger" id="credit_customer_id"></span>
+                      <span class="text-danger" id="credit_customer_id_error"></span>
                   </div>
                   {{-- <div class="form-group">
                     <label for="credit" class="col-form-label">Store Website:</label>
@@ -322,7 +324,9 @@ div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
                });
            }           
        });
- 
+       $('.open-customer-credit').click(function (e) { 
+            $('#credit_customer_id').select2();
+       });
     $('#submit_credit_form').click(function (e) {
         e.preventDefault();
         if ($('#credit').val() == '') {
