@@ -95,6 +95,7 @@ class EmailAddressesController extends Controller
             'password' => 'required|string|max:255',
             //'recovery_phone' => 'required|string|max:255',
             //'recovery_email' => 'required|string|max:255',
+            
         ]);
 
         $data = $request->except('_token', 'signature_logo', 'signature_image');
@@ -150,6 +151,7 @@ class EmailAddressesController extends Controller
             'password' => 'required|string|max:255',
             //'recovery_phone' => 'required|string|max:255',
             //'recovery_email' => 'required|string|max:255',
+            
         ]);
 
         $data = $request->except('_token', 'signature_logo', 'signature_image');

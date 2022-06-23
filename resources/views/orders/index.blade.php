@@ -430,6 +430,9 @@
                 <button type="button" title="Order email send model" class="btn  btn-xs btn-image pd-5 order-resend-popup" data-status_id="{{ $order->order_status_id }}" data-id="{{$order->id}}">
                   <i style="color:#6c757d;" class="fa fa-address-card" data-id="{{$order->id}}"  aria-hidden="true"></i>
                 </button>
+                <a title="Payload" data-id="{{$order->id}}" class="btn btn-image order_payload pd-5 btn-ht">
+                  <i class="fa fa-product-hunt" aria-hidden="true"></i>
+                </a>
                 </div>
               </td>
             </tr>
@@ -598,6 +601,36 @@
                     </tr>
                   </thead>
                   <tbody id="order_emailsendlogtd">
+                   
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div id="order_payload_model" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Order Logs</h4>
+            </div>
+            <div class="modal-body">
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Order ID</th>
+                      <th>Paylod</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="order_payloadtd">
                    
                   </tbody>
                 </table>
@@ -1802,6 +1835,24 @@
             }).fail(function (response) {});
         });
 
+        $(document).on('click', '.order_payload', function (e) {
+            $('#order_payload_model').modal('show');
+            $.ajax({
+              type: "POST",
+              url: "{{route('order.payload')}}",
+              data: {
+                order_id : $(this).data('id')
+              },
+              headers: {
+               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+            }).done(function (response) {
+              toastr[(response.code == 200) ?'success' : 'error'](response.message);
+              $("#order_payloadtd").html(response.data);
+            }).fail(function (response) {
+              toastr[(response.code == 200) ?'success' : 'error'](response.message);
+            });
+        });
         $(document).on("click","#return-exchange-form input[name='type']",function() {
             if($(this).val() == "refund") {
                 $("#return-exchange-form").find(".refund-section").show();
