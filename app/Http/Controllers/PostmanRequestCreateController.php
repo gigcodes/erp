@@ -158,7 +158,7 @@ class PostmanRequestCreateController extends Controller
             $postman->body_json = $request->body_json;
             $postman->pre_request_script = $request->pre_request_script;
             $postman->tests = $request->tests;
-            $postman->user_permission = implode(",",$request->user_permission).$created_user_permission;
+            $postman->user_permission = !empty($request->user_permission)?implode(",",$request->user_permission).$created_user_permission : $created_user_permission;
             $postman->controller_name = $request->controller_name;
             $postman->method_name = $request->method_name;
             $postman->remark = $request->remark;
@@ -819,8 +819,8 @@ class PostmanRequestCreateController extends Controller
                 CURLOPT_POSTFIELDS =>$postman->body_json,
                 CURLOPT_HTTPHEADER => array(
                     'Content-Type: application/json',
-                    'Authorization: '.$postman->authorization_type."'",
-                    'Cookie: PHPSESSID=l15g0ovuc3jpr98tol956voan6'
+                    $postman->request_headers,
+                    'Authorization:Bearer '.$postman->authorization_token,
                 ),
                 ));
                 
@@ -828,13 +828,13 @@ class PostmanRequestCreateController extends Controller
                 $http_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
                 //dd($http_code);
                 curl_close($curl);
-                
+                $response =  $response?json_encode($response) : 'Not found response';
                 //dd($response);
                 PostmanResponse::create(
                     [
                         'user_id' => \Auth::user()->id,
                         'request_id' => $postman->id,
-                        'response' => json_encode($response),
+                        'response' => $response,
                         'request_url' => $postman->request_url,
                         'request_data' => $postman->body_json,
                         'response_code' => $http_code
