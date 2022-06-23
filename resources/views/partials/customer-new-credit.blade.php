@@ -41,6 +41,9 @@ $statuses = \App\ticketStatuses::all();
                         <?php echo Form::select('currency',\App\Currency::pluck('name','code')->toArray(),request('currency','EUR'),['class' => 'form-control select2','style' => "width:250px;","tabindex" => 1]);  ?>
                         <span class="text-danger" id="currency_error"></span>
                     </div>
+                    <div class="form-group email_template">
+                    </div>
+                    
                 </form>
             </div>
             <div class="modal-footer">
@@ -88,6 +91,41 @@ $statuses = \App\ticketStatuses::all();
     $(document).ready(function () {
         $('body').on('click', '.create-customer-credit-modal', function () {
             $('#credit_customer_id').val($(this).attr('data-customer_id'));
+            $.ajax({
+                type: "POST",
+                url: window.location.origin + '/livechat/create-credit',
+                data: $('#credit_form').serialize(), // serializes the form's elements.
+                success: function (data)
+                {
+                    if (data.status == 'success') {
+                        alert('credit updated successfully.');
+                        $('#credit_form').trigger("reset");
+                        $('#create-customer-credit-modal').modal('toggle');
+                    }else{
+                        //console.log(data[0]);
+                        //var msg = JSON.parse(JSON.parse(data[0]));
+                        alert(data.msg);
+                    }
+                }, error: function (jqXHR, exception) {
+                    var msg = '';
+                    if (jqXHR.status === 0) {
+                        msg = 'Not connect.\n Verify Network.';
+                    } else if (jqXHR.status == 404) {
+                        msg = 'Requested page not found. [404]';
+                    } else if (jqXHR.status == 500) {
+                        msg = 'Internal Server Error [500].';
+                    } else if (exception === 'parsererror') {
+                        msg = 'Requested JSON parse failed.';
+                    } else if (exception === 'timeout') {
+                        msg = 'Time out error.';
+                    } else if (exception === 'abort') {
+                        msg = 'Ajax request aborted.';
+                    } else {
+                        msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                    }
+                    alert(msg);
+                }
+            });
         });
 
         var inputBox = document.getElementById("credit");

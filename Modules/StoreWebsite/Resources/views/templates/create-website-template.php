@@ -1,5 +1,5 @@
 <script type="text/x-jsrender" id="template-create-website">
-	<form name="form-create-website" method="post">
+	<form name="form-create-website" id="form-create-website" method="post" enctype="multipart/form-data">
    <?php echo csrf_field(); ?>
    <div class="modal-content">
       <div class="modal-header">
@@ -61,8 +61,17 @@
                <div class="form-group">
                   <label for="is_debug_true">Database Log</label>
                     <select name="is_debug_true" class="form-control">
-                  <option value="0" {{if data.is_debug_true==0}} SELECTED {{/if}} > No </option>
-                  <option value="1" {{if data.is_debug_true==1}} SELECTED {{/if}} > Yes </option>
+                  <option value="0" {{if data.is_debug_true=='0'}} SELECTED {{/if}} > No </option>
+                  <option value="1" {{if data.is_debug_true=='1'}} SELECTED {{/if}} > Yes </option>
+                    </select>
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="is_dev_website">Is Dev Website</label>
+                    <select name="is_dev_website" class="form-control">
+                  <option value="0" {{if data.is_dev_website=='0'}} SELECTED {{/if}} > No </option>
+                  <option value="1" {{if data.is_dev_website=='1'}} SELECTED {{/if}} > Yes </option>
                     </select>
                </div>
             </div>
@@ -281,6 +290,19 @@
                   </select>
                </div>
             </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="country_duty">Key File Path</label>
+                  <input type="file" name="key_file_path1" value="{{if data}}{{:data.key_file_path}}{{/if}}" class="form-control" id="key_file_path1" placeholder="Enter Key File Path">
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="country_duty">Project ID</label>
+                  <input type="text" name="project_id" value="{{if data}}{{:data.project_id}}{{/if}}" class="form-control" id="project_id" placeholder="Enter Project ID">
+               </div>
+            </div>
+            
          </div>
          <div class="MainMagentoUser">
             {{if totaluser != 0}}

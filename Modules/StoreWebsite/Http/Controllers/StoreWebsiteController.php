@@ -161,7 +161,18 @@ class StoreWebsiteController extends Controller
                 } 
             }
         }
-       
+        
+        if($request->key_file_path1 != 'undefined' && $request->key_file_path1 != '') {
+            $keyPath = public_path('bigData');
+            if (!file_exists($keyPath)) {
+                mkdir($keyPath, 0777, true);
+            }
+            $file = $request->file('key_file_path1');
+            $keyPathName = uniqid() .strtotime(date('YmdHis')).'_' . trim($file->getClientOriginalName());
+            $file->move($keyPath, $keyPathName);
+            $post['key_file_path'] = $keyPathName;
+        }
+        
         $records->fill($post);
 
         $records->save();
@@ -202,7 +213,7 @@ class StoreWebsiteController extends Controller
                 $site->save();
             }
 		}
-        return response()->json(["code" => 200, "data" => $records]);
+        return response()->json(["code" => 200, 'message' => "Data successfully saved", "data" => $records]);
     }
 
     public function saveUserInMagento(Request $request) {
