@@ -256,6 +256,6 @@ class PushToMagento implements ShouldQueue
 
     public function tags() 
     {
-        return [ 'magento', $this->email->id ];
+        return [ 'magento', $this->_product->id ];
     }
 }

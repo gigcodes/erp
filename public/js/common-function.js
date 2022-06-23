@@ -1,7 +1,7 @@
 var spinner_html = `<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...`;
 
 // String Limit set
-function setStringLength(string_value, length = 20) {
+function setStringLength(string_value, length = 15) {
     return string_value.length > length ? string_value.substring(0, length) + "..." : string_value;
 }
 
@@ -9,15 +9,16 @@ function setStringLength(string_value, length = 20) {
 function getDateByFormat(date) {
     const d = new Date(date);
     const ye = new Intl.DateTimeFormat('en', {
-        year: 'numeric'
+        year: '2-digit'
     }).format(d);
     const mo = new Intl.DateTimeFormat('en', {
-        month: 'short'
+        // month: 'short'
+        month: '2-digit'
     }).format(d);
     const da = new Intl.DateTimeFormat('en', {
         day: '2-digit'
     }).format(d);
-    return `${da} ${mo} ${ye}`;
+    return `${da}/${mo}/${ye}`;
 }
 
 // get DateTime in formatting 

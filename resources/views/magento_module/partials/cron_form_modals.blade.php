@@ -67,7 +67,6 @@
 
     $(document).on('submit', '#magento_module_cron_job_form', function(e){
         e.preventDefault();
-        alert("Sdfs");
         var self = $(this);
         let formData = new FormData(document.getElementById("magento_module_cron_job_form"));
         var button = $(this).find('[type="submit"]');
@@ -111,75 +110,6 @@
         });
     });
 
-    $(document).on('click', '.edit-magento-module', function() {
-        var magento_module = $(this).data('row');
-          console.log({magento_module})
-          console.log(magento_module.category_name);
-          $('#magento_module_edit_form #id').val(magento_module.id);
-          $('#magento_module_edit_form #module_category_id').val(magento_module.module_category_id);
-          $('#magento_module_edit_form #module').val(magento_module.module);
-          $('#magento_module_edit_form #current_version').val(magento_module.current_version);
-          $('#magento_module_edit_form #module_type').val(magento_module.module_type);
-          $('#magento_module_edit_form #payment_status').val(magento_module.payment_status);
-          $('#magento_module_edit_form #status').val(magento_module.status);
-          $('#magento_module_edit_form #task_status').val(magento_module.task_status);
-          $('#magento_module_edit_form #cron_time').val(magento_module.cron_time);
-          $('#magento_module_edit_form #is_js_css').val(magento_module.is_js_css);
-          $('#magento_module_edit_form #is_third_party_js').val(magento_module.is_third_party_js);
-          $('#magento_module_edit_form #is_sql').val(magento_module.is_sql);
-          $('#magento_module_edit_form #is_third_party_plugin').val(magento_module.is_third_party_plugin);
-          $('#magento_module_edit_form #developer_name').val(magento_module.developer_name);
-          $('#magento_module_edit_form #is_customized').val(magento_module.is_customized);
-          $('#magento_module_edit_form #module_description').val(magento_module.module_description);
-
-          $('#moduleEditModal').modal('show');
-    });
-
-    $(document).on('submit', '#magento_module_edit_form', function(e){
-        e.preventDefault();
-        var self = $(this);
-        let formData = new FormData(document.getElementById("magento_module_edit_form"));
-        var magento_module_id = $('#magento_module_edit_form #id').val();
-        console.log(formData, magento_module_id);
-        var button = $(this).find('[type="submit"]');
-        console.log(button);
-        $.ajax({
-            url: '{{ route("magento_modules.update", '') }}/' + magento_module_id,
-            type: "POST",
-            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-            dataType: 'json',
-            data: formData,
-            processData: false,
-            contentType: false,
-            cache: false,
-            beforeSend: function() {
-                button.html(spinner_html);
-                button.prop('disabled', true);
-                button.addClass('disabled');
-            },
-            complete: function() {
-                button.html('Update');
-                button.prop('disabled', false);
-                button.removeClass('disabled');
-            },
-            success: function(response) {
-                $('#moduleCreateModal #magento_module_edit_form').find('.error-help-block').remove();
-                $('#moduleCreateModal #magento_module_edit_form').find('.invalid-feedback').remove();
-                $('#moduleCreateModal #magento_module_edit_form').find('.alert').remove();
-                oTable.draw();
-                toastr["success"](response.message);
-            },
-            error: function(xhr, status, error) { // if error occured
-                if(xhr.status == 422){
-                    var errors = JSON.parse(xhr.responseText).errors;
-                    customFnErrors(self, errors);
-                }
-                else{
-                    Swal.fire('Oops...', 'Something went wrong with ajax !', 'error');
-                }
-            },
-        });
-    });
     </script>
 
 @endpush

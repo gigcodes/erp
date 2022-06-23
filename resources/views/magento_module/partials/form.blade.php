@@ -60,7 +60,7 @@
     </div>
 </div>
 <div class="row ml-2 mr-2">
-    <div class="col-xs-6 col-sm-6">
+    <div class="col-xs-4 col-sm-4">
         <div class="form-group">
             <strong>Status:</strong>
             {!! Form::select('status', ['Disabled', 'Enable'], null, ['id'=>'status', 'placeholder' => 'Select Status', 'class' => 'form-control', 'required' => 'required']) !!}
@@ -69,7 +69,7 @@
             @endif
         </div>
     </div>
-    <div class="col-xs-6 col-sm-6">
+    <div class="col-xs-4 col-sm-4">
         <div class="form-group">
             <strong>API:</strong>
             {!! Form::select('api', ['0' => 'No', '1' => 'Yes'], null, ['id'=>'api', 'placeholder' => 'Select API', 'class' => 'form-control', 'required' => 'required']) !!}
@@ -78,9 +78,7 @@
             @endif
         </div>
     </div>
-</div>
-<div class="row ml-2 mr-2">
-    <div class="col-xs-6 col-sm-6">
+    <div class="col-xs-4 col-sm-4">
         <div class="form-group">
             <strong>Cron :</strong>
             {!! Form::select('cron_job', ['0' => 'No', '1' => 'Yes'], null, ['id'=>'cron_job', 'placeholder' => 'Select Cron Job', 'class' => 'form-control', 'required' => 'required']) !!}
@@ -89,17 +87,8 @@
             @endif
         </div>
     </div>
-
-    <div class="col-xs-6 col-sm-6">
-        <div class="form-group">
-            <strong>Cron Time (Min) :</strong>
-            {!! Form::text('cron_time', null, ['id'=>'cron_time', 'placeholder' => 'Cron Time', 'class' => 'form-control', 'required' => 'required']) !!}
-            @if ($errors->has('cron_time'))
-                <span style="color:red">{{ $errors->first('cron_time') }}</span>
-            @endif
-        </div>
-    </div>
 </div>
+
 <div class="row ml-2 mr-2">
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
@@ -148,19 +137,28 @@
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
             <strong>Developer Name :</strong>
-            {!! Form::select('developer_name', $users, null, ['id'=>'developer_name', 'placeholder' => 'Select Sql Query Status', 'class' => 'form-control', 'required' => 'required']) !!}
+            {!! Form::select('developer_name', $users, null, ['id'=>'developer_name', 'placeholder' => 'Select developer name', 'class' => 'form-control']) !!}
             @if ($errors->has('developer_name'))
                 <span style="color:red">{{ $errors->first('developer_name') }}</span>
             @endif
         </div>
     </div>
 
-    <div class="col-xs-6 col-sm-6">
+    <div class="col-xs-3 col-sm-3">
         <div class="form-group">
             <strong>Customized:</strong>
             {!! Form::select('is_customized', ['No', 'Yes'], null, ['id'=>'is_customized', 'placeholder' => 'Customized', 'class' => 'form-control', 'required' => 'required']) !!}
             @if ($errors->has('is_customized'))
                 <span style="color:red">{{ $errors->first('is_customized') }}</span>
+            @endif
+        </div>
+    </div>
+    <div class="col-xs-3 col-sm-3">
+        <div class="form-group">
+            <strong>Site Impact:</strong>
+            {!! Form::select('site_impact', ['No', 'Yes'], null, ['id'=>'site_impact', 'placeholder' => 'Site Impact', 'class' => 'form-control', 'required' => 'required']) !!}
+            @if ($errors->has('site_impact'))
+                <span style="color:red">{{ $errors->first('site_impact') }}</span>
             @endif
         </div>
     </div>
