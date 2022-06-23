@@ -49,7 +49,7 @@ class EmailAddress extends Model
         'signature_logo',
         'signature_image',
         'signature_social',
-
+        'twilio_recovery_code'
     ];
 
     public function website()
