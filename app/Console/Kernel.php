@@ -148,6 +148,9 @@ use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
 use App\Console\Commands\GetPytonLogs;
 use App\Console\Commands\HubstuffActivityCommand;
+use App\Console\Commands\GtMetrixReport;
+use App\Console\Commands\MagentoReportLog;
+use App\Console\Commands\NegativeCouponResponses;
 
 class Kernel extends ConsoleKernel
 {
@@ -301,7 +304,10 @@ class Kernel extends ConsoleKernel
         BuildStatus::class,
         GetPytonLogs::class,
         HubstuffActivityCommand::class,
-        WebsiteCreateLog::class
+        WebsiteCreateLog::class,
+        GtMetrixReport::class,
+        MagentoReportLog::class,
+        NegativeCouponResponses::class,
     ];
 
     /**
@@ -663,6 +669,7 @@ class Kernel extends ConsoleKernel
         // get python site log
         $schedule->command('get:pythonLogs')->daily();
 
+        $schedule->command('command:NegativeCouponResponses')->hourly();
 
     }
 

@@ -178,6 +178,7 @@ table tr td {
                                     <a style="padding:1px;" class="btn d-inline btn-image execution-history" href="#" data-id="{{$task->id}}" title="task execution history" data-results="{{json_encode($task->results()->orderByDesc('created_at')->get())}}"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
 
                                     <a style="padding:1px;" class="btn d-inline btn-image task-history" href="#" data-id="{{$task->id}}" title="Task History">T</a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image command-execution-error" href="#" data-id="{{$task->id}}"  title="Cron Run error History"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
                                 </td>
                             </tr>
                             @endforeach
@@ -302,6 +303,41 @@ table tr td {
         </div>
         </div>
     </div>
+    </div>
+
+    <div class="modal fade" id="view_execution_error" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:auto;">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">EXECUTION ERROR</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive mt-2">
+                    <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;">
+                        <thead>
+                        <tr>
+                            <th width="5%">ID</th>
+                            <th width="5%">Signature</th>
+                            <th width="5%">Error</th>  
+                            <th width="5%">Error Count</th>
+                            <th width="5%">Status</th>
+                            <th width="5%">Date</th>
+                        </tr>
+                        </thead>
+    
+                        <tbody >
+                        </tbody>
+                    </table>
+                </div>  
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+            </div>
+        </div>
     </div>
 
     <div id="addEditTaskModal" class="modal fade" role="dialog" data-id = '' style="overflow-y:auto;">
@@ -576,6 +612,40 @@ table tr td {
         });
     }); 
 
+    $(document).off().on("click",".command-execution-error",function(e) {
+           
+        $.ajax({
+            type: "POST",
+            url: "/totem/tasks/"+$(this).data('id')+"/get-error", 
+            dataType : "json",
+            data:{ 
+                id:$(this).data('id'),
+                _token: "{{ csrf_token() }}", 
+             },
+            dataType : "json",
+            success: function (response) {
+                var t = ''
+                //$( response.data ).each(function(key, val ) {
+                var d = response.data;
+                for(let i=0; i< response.data.length; i++){ 
+                   // console.log( key + ": " + val);
+                    t += '<tr><td>'+d[i].id+'</td>';
+                    t += '<td>'+d[i].signature+'</td>'
+                    t += '<td>'+d[i].error+'</td>'
+                    t += '<td>'+d[i].error_count+'</td>'
+                    t += '<td>'+d[i].status+'</td>'
+                    t += '<td>'+d[i].module+'</td></tr>'
+                 };
+                $("#view_execution_error tbody").html(t);                   
+                $('#view_execution_error').modal('show'); 
+                toastr['success'](response.message);
+            },
+            error: function () {
+                toastr['error']('Something went wrong!');
+            }
+        });
+    });
+
     $(document).on("click",".execution-history",function(e) {
         let results = JSON.parse($(this).attr('data-results'));
         var html_content = '';
@@ -821,8 +891,14 @@ table tr td {
                 for (var key in task_fields) {
                     if($(`input[name="${key}"]`).length != 0){
                         $(`input[name="${key}"]`).val(task_fields[key]);
+                        if($(`input[type="checkbox"]`) && task_fields[key] == 1)
+                            $(`input[name="${key}"]`).prop( "checked", true );
+                        
+
                     }else if($(`select[name="${key}"]`).length != 0){
                         $(`select[name="${key}"]`).val(task_fields[key]);
+                        $(`select[name="${key}"]`).select2().trigger(task_fields[key]);
+
                     }
                     if(key == 'frequencies'){
                         if(task_fields[key].length){
