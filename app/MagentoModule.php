@@ -29,6 +29,7 @@ class MagentoModule extends Model
         'payment_status',
         'developer_name',
         'is_customized',
+        'site_impact'
     ];
 
     public function module_category()
@@ -54,5 +55,10 @@ class MagentoModule extends Model
     public function task_status_data()
     {
         return $this->belongsTo(TaskStatus::class, 'task_status', 'id');
+    }
+
+    public function module_type_data()
+    {
+        return $this->belongsTo(MagentoModuleType::class, 'module_type', 'id');
     }
 }

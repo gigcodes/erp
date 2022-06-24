@@ -14,7 +14,7 @@ interface SendgridEventRepositoryInterface
      * @param $sg_event_id
      * @return bool
      */
-    public function exists($sg_event_id): bool;
+    public function exists($sg_event_id,$email_id,$event);
 
     /**
      * Create new SendgridEvent using the given data.

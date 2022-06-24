@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\MagentoModuleCategory;
-use App\MagnetoModuleApiHistory;
-use App\Http\Requests\MagentoModule\MagnetoModuleApiHistoryRequest;
+use App\MagentoModuleApiHistory;
+use App\Http\Requests\MagentoModule\MagentoModuleApiHistoryRequest;
 use App\TaskStatus;
 
-class MagnetoModuleApiHistoryController extends Controller
+class MagentoModuleApiHistoryController extends Controller
 {
 
     public function __construct()
@@ -22,12 +22,12 @@ class MagnetoModuleApiHistoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(MagnetoModuleApiHistoryRequest $request)
+    public function store(MagentoModuleApiHistoryRequest $request)
     {
         $input = $request->except(['_token']);
         $input['user_id'] = auth()->user()->id;
 
-        $data = MagnetoModuleApiHistory::create($input);
+        $data = MagentoModuleApiHistory::create($input);
 
         if ($data) {
             return response()->json([
@@ -54,7 +54,7 @@ class MagnetoModuleApiHistoryController extends Controller
     public function show($magento_module)
     {
         $title = 'Magento Module Type Details';
-        $magento_module_api_histories = MagnetoModuleApiHistory::with(['user'])->where('magento_module_id', $magento_module)->get();
+        $magento_module_api_histories = MagentoModuleApiHistory::with(['user'])->where('magento_module_id', $magento_module)->get();
 
         if (request()->ajax() && $magento_module_api_histories) {
             return response()->json([

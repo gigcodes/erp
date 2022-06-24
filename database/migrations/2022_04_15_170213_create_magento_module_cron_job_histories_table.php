@@ -32,6 +32,6 @@ class CreateMagentoModuleCronJobHistoriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('magneto_module_cron_job_histories');
+        Schema::dropIfExists('magento_module_cron_job_histories');
     }
 }

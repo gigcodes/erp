@@ -30,6 +30,6 @@ class CreateMagentoModuleApiHistoriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('magneto_module_api_histories');
+        Schema::dropIfExists('magento_module_api_histories');
     }
 }

@@ -593,6 +593,12 @@ class LaravelLogController extends Controller
             $logs = $logs->whereDate('created_at', \Carbon\Carbon::createFromFormat('Y/m/d', $request->created_at)->format('Y-m-d'));
         }
 
+        if ($request->is_send) {
+            $logs = $logs->where('is_send', $request->is_send);
+        } else {
+            $logs = $logs->where('is_send', '0');
+        }
+
         $count = $logs->count();
 
         $logs = $logs->orderBy("id", "desc")->paginate(Setting::get('pagination'));
@@ -629,6 +635,10 @@ class LaravelLogController extends Controller
         if($request->for_date != "") {
             $forDate = $request->for_date;
             $logsGroupWise = $logsGroupWise->whereDate('created_at',">=",$forDate);
+        }
+
+        if($request->is_send != "") {
+            $logsGroupWise = $logsGroupWise->where('is_send',"=",$request->is_send);
         }
 
 

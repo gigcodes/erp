@@ -16,14 +16,14 @@
             <td><?php echo $documents->description; ?></td>
             <td><?php echo $documents->creator ? $documents->creator->name : 'N/A'; ?></td>
             <td>
-                {{-- @if ($documents->getMedia(config('constants.media_tags'))->first())
+                @if ($documents->getMedia(config('constants.media_tags'))->first())
                   @foreach ($documents->getMedia(config('constants.media_tags')) as $i => $file)
                       <a href="{{ $file->getUrl() }}" target="_blank" class="d-inline-block">
                           {{ "Document : ".($i+1) }}
                       </a>
                       <br/>
                   @endforeach
-              @endif --}}
+                @endif
             </td>
             <td>{{ $documents->created_at ? $documents->created_at->format('Y-m-d H:i:s') : '-' }}</td>
         </tr>

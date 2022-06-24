@@ -95,8 +95,8 @@ class CommonController extends Controller
             'sendto'  => 'required',
         ]);
 
-        $fromEmail = 'buying@amourint.com';
-        $fromName  = "buying";
+        // $fromEmail = 'buying@amourint.com';
+        // $fromName  = "buying";
 
         if ($request->from_mail) {
             $mail = \App\EmailAddress::where('from_address', $request->from_mail)->first();

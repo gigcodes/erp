@@ -4,11 +4,11 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class MagnetoModuleCronJobHistory extends Model
+class MagentoModuleApiHistory extends Model
 {
-    protected $table = "magento_module_cron_job_histories";
+    protected $table = "magento_module_api_histories";
 
-    protected $fillable = ['magento_module_id', 'cron_time', 'frequency', 'cpu_memory', 'comments', 'user_id'];
+    protected $fillable = ['magento_module_id', 'resources', 'frequency', 'user_id'];
 
     public function magento_module()
     {
