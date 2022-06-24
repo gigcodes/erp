@@ -41,9 +41,7 @@ class MagentoSettingAddUpdate extends Command
     public function handle()
     {
         try{
-            //$websites = StoreWebsite::whereNotNull("api_token")->whereNotNull("server_ip")->get();
             $websites = StoreWebsite::all();
-            //dd($websites);
             foreach($websites as $website){
                 if($website->api_token !='' &&  $website->server_ip !=''){
                     $curl = curl_init();
@@ -59,29 +57,19 @@ class MagentoSettingAddUpdate extends Command
                             "authorization:Bearer ".$website->api_token
                         ),
                     ));
-
                     $response = curl_exec($curl);
                     $err = curl_error($curl);
-
                     if (curl_errno($curl)) {
                         $error_msg = curl_error($curl);
                     }
 
                     $response = curl_exec($curl);
                     $http_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
-                    
                     $resArr = is_string($response)?json_decode($response, true) : $response;
-                    //print_r($resArr); exit;
                     curl_close($curl);
-                    //echo '<pre>'; //echo gettype($resArr);
-                    //print_r($resArr);
-                    // exit;
-                    //$resArr = json_decode($resArr, true);
                     //dd($resArr, 'sdfgsdf');
                     if(is_array($resArr) && isset($resArr[0][0]) && $resArr[0][0]['config_id']) {
-                        
                         foreach($resArr as $key1 => $res1){
-
                             foreach($res1 as $key => $res){
                                 if(isset($res['config_id'])){
                                     $findMegntoSetting = MagentoSetting::where('store_website_id', $website->id)->where('path', $res["path"])->get();
