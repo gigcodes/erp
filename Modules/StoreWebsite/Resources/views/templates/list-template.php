@@ -87,6 +87,9 @@
 										<button title="Sync Stage To Master" data-id="{{>prop.id}}" type="button"  class="btn sync_stage_to_master"style="padding:1px 0px;">
                                             <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-refresh"></i></a>
                                         </button> 				
+										<button title="Response History" data-id="{{>prop.id}}" type="button"  class="btn response_history"style="padding:1px 0px;">
+                                            <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-history"></i></a>
+                                        </button> 				
 			        </td>
 			      </tr>
 			    {{/props}}  

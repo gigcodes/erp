@@ -24,7 +24,8 @@ class MagentoSettingsController extends Controller
         $magentoSettings = MagentoSetting::with(
             'storeview.websiteStore.website.storeWebsite',
             'store.website.storeWebsite',
-            'website');
+            'website',
+            'fromStoreId', 'fromStoreIdwebsite');
 
         $magentoSettings->leftJoin('users', 'magento_settings.created_by', 'users.id');
         $magentoSettings->select('magento_settings.*', 'users.name as uname');
@@ -129,7 +130,7 @@ class MagentoSettingsController extends Controller
                 }
             }
         }
-
+        //dd($magentoSettings);
         if ($request->ajax()) {
             return view('magento.settings.index_ajax', [
                 'magentoSettings'   => $magentoSettings,

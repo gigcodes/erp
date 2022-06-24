@@ -26,6 +26,8 @@
 						User Listing
 					</button> &nbsp;
 					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-generate-pem-file"> Store Generate Reindex</button>
+					&nbsp;
+					<button class="btn btn-secondary magento-setting-update"> Magento Setting Update</button>
 
 				</div>
 			</div>
@@ -124,6 +126,34 @@
 </div>
 </div>
 
+<div id="magentoSettingUpdateHistoryModal" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<!-- Modal content-->
+		<div class="modal-content ">
+			<div class="modal-header">
+				<h4 class="modal-title">Magento Setting Update Rersponse History</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="table-responsive mt-3">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th>Created At</th>
+								<th>Response</th>
+							</tr>
+						</thead>
+						<tbody id="magentoSettingUpdateHistory">
+
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+
 <div class="modal fade" id="store-generate-pem-file" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -200,6 +230,33 @@
 					toastr["error"](data.message);
 				}
 			},
+		});
+	});
+
+	$(document).on("click", ".response_history", function(href) {
+		$.ajax({
+			type: 'POST',
+			url: 'store-website/'+ $(this).data('id') +'/magento-setting-update-history',
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
+			data: {
+				_token: "{{ csrf_token() }}",
+				id: $(this).data('id'),
+			},
+			dataType: "json"
+		}).done(function (response) {
+			$("#loading-image").hide();
+			if (response.code == 200) {
+				debugger;
+				$('#magentoSettingUpdateHistory').html(response.data);
+			 	$('#magentoSettingUpdateHistoryModal').modal('show');
+				$this.remove();
+				toastr['success'](response.message, 'success');
+			}
+		}).fail(function (response) {
+			$("#loading-image").hide();
+			console.log("Sorry, something went wrong");
 		});
 	});
 
