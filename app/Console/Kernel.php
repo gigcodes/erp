@@ -308,7 +308,7 @@ class Kernel extends ConsoleKernel
         WebsiteCreateLog::class,
         GtMetrixReport::class,
         MagentoReportLog::class,
-        MagentoSettingAddUpdate::class
+        MagentoSettingAddUpdate::class,
         NegativeCouponResponses::class,
     ];
 
