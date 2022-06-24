@@ -130,6 +130,8 @@ class MagentoSettingsController extends Controller
                 }
             }
         }
+        $countList = MagentoSetting::all();
+        $counter = $countList->count();
         //dd($magentoSettings);
         if ($request->ajax()) {
             return view('magento.settings.index_ajax', [
@@ -139,6 +141,7 @@ class MagentoSettingsController extends Controller
                 'websitesStores'    => $websitesStores,
                 'websiteStoreViews' => $websiteStoreViews,
                 'pushLogs'          => $pushLogs,
+                'counter'             => $counter
             ]);
         } else {
 
@@ -149,6 +152,7 @@ class MagentoSettingsController extends Controller
                 'websitesStores'    => $websitesStores,
                 'websiteStoreViews' => $websiteStoreViews,
                 'pushLogs'          => $pushLogs,
+                'counter'             => $counter
             ]);
         }
     }

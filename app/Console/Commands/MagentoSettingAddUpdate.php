@@ -41,84 +41,114 @@ class MagentoSettingAddUpdate extends Command
     public function handle()
     {
         try{
-            $websites = StoreWebsite::whereNull("api_token")->whereNull("server_ip")->get();
+            //$websites = StoreWebsite::whereNotNull("api_token")->whereNotNull("server_ip")->get();
+            $websites = StoreWebsite::all();
+            //dd($websites);
             foreach($websites as $website){
-                $curl = curl_init();
-                curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://dev6.sololuxury.com/rest/V1/core/config/",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "GET",
-                    CURLOPT_HTTPHEADER => array(
-                        "authorization:Bearer ".$website->api_token
-                    ),
-                ));
+                if($website->api_token !='' &&  $website->server_ip !=''){
+                    $curl = curl_init();
+                    curl_setopt_array($curl, array(
+                    CURLOPT_URL => "https://dev6.sololuxury.com/rest/V1/core/config/",
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_ENCODING => "",
+                    CURLOPT_MAXREDIRS => 10,
+                    CURLOPT_TIMEOUT => 30,
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => "GET",
+                        CURLOPT_HTTPHEADER => array(
+                            "authorization:Bearer ".$website->api_token
+                        ),
+                    ));
 
-                $response = curl_exec($curl);
-                $err = curl_error($curl);
+                    $response = curl_exec($curl);
+                    $err = curl_error($curl);
 
-                if (curl_errno($curl)) {
-                    $error_msg = curl_error($curl);
-                }
+                    if (curl_errno($curl)) {
+                        $error_msg = curl_error($curl);
+                    }
 
-                $response = curl_exec($curl);
-                $http_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
-                
-                $resArr = json_decode($response);
-                //print_r($resArr); exit;
-                curl_close($curl);
-                //echo '<pre>'; //echo gettype($resArr);
-                //print_r($resArr);
-                // exit;
-                if(is_array($resArr) && isset($resArr[0][0]['config_id'])) {
-                    foreach($resArr[0] as $key => $res){
-                        $findMegntoSetting = MagentoSetting::where('store_website_id', $website->id)->where('path', $res["path"])->get();
-                        if(!empty($findMegntoSetting->toArray())) {
-                            foreach($findMegntoSetting as $megntoSetting){
-                                MagentoSetting::where('id', $megntoSetting->id)->update(
-                                    [
-                                        "config_id" =>  $res['config_id'],
-                                        "scope" => $res["default"],
-                                        "store_website_id" => $website->id,
-                                        "website_store_id" => $website->id,
-                                        "scope_id" =>  $res["scope_id"],
-                                        "path" => $res["path"],
-                                        "value" =>  $res["value"],
-                                        "updated_at" => $res["updated_at"]
-                                    ]
-                                );
+                    $response = curl_exec($curl);
+                    $http_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
+                    
+                    $resArr = is_string($response)?json_decode($response, true) : $response;
+                    //print_r($resArr); exit;
+                    curl_close($curl);
+                    //echo '<pre>'; //echo gettype($resArr);
+                    //print_r($resArr);
+                    // exit;
+                    //$resArr = json_decode($resArr, true);
+                    //dd($resArr, 'sdfgsdf');
+                    if(is_array($resArr) && isset($resArr[0][0]) && $resArr[0][0]['config_id']) {
+                        
+                        foreach($resArr as $key1 => $res1){
+
+                            foreach($res1 as $key => $res){
+                                if(isset($res['config_id'])){
+                                    $findMegntoSetting = MagentoSetting::where('store_website_id', $website->id)->where('path', $res["path"])->get();
+                                    if(!empty($findMegntoSetting->toArray())) {
+                                        foreach($findMegntoSetting as $megntoSetting){
+                                            MagentoSetting::where('id', $megntoSetting->id)->update(
+                                                [
+                                                    "config_id" =>  $res['config_id'],
+                                                    "scope" => $res["scope"],
+                                                    "store_website_id" => $website->id,
+                                                    "website_store_id" => $website->id,
+                                                    "scope_id" =>  $res["scope_id"],
+                                                    "path" => $res["path"],
+                                                    "value" =>  $res["value"],
+                                                    "updated_at" => $res["updated_at"]
+                                                ]
+                                            );
+                                        }
+                                    } else {
+                                        //echo $key;
+                                        MagentoSetting::create(
+                                            [
+                                                "config_id" =>  $res['config_id'],
+                                                "scope" => $res["scope"],
+                                                "store_website_id" => $website->id,
+                                                "website_store_id" => $website->id,
+                                                "scope_id" => $res["scope_id"],
+                                                "path" => $res["path"],
+                                                "value" =>  $res["value"],
+                                                "updated_at" => $res["updated_at"]
+                                            ]
+                                        );
+                                    }
+                                }
                             }
-                        } else {
-                            //echo $key;
-                            MagentoSetting::create(
+                        }
+                            MagentoSettingUpdateResponseLog::create(
                                 [
-                                    "config_id" =>  $res['config_id'],
-                                    "scope" => $res["default"],
-                                    "store_website_id" => $website->id,
-                                    "website_store_id" => $website->id,
-                                    "scope_id" => $res["scope_id"],
-                                    "path" => $res["path"],
-                                    "value" =>  $res["value"],
-                                    "updated_at" => $res["updated_at"]
+                                    'website_id' => $website->id,
+                                    //'magento_setting_id' => $findMegntoSetting[0]->id ?? '',
+                                    'response' => is_array($response) ? json_encode($response) : $response,
                                 ]
                             );
-                        }
+                    } else {
+                        MagentoSettingUpdateResponseLog::create(
+                            [
+                                'website_id' => $website->id,
+                                //'magento_setting_id' => $findMegntoSetting[0]->id ?? '',
+                                'response' => is_array($response) ? json_encode($response) : $response,
+                            ]
+                        );
                     }
-                } else {
+                    
+                
+                // \Log::info('Magento log created : '.$website);
+                } else{
+                    $token = empty($website->api_token) ? 'Please Check API TOKEN' : '';
+                    $server_ip = empty($website->server_ip) ? ' Please Check Server Ip' : "";
                     MagentoSettingUpdateResponseLog::create(
                         [
                             'website_id' => $website->id,
-                            //'magento_setting_id' => $findMegntoSetting[0]->id ?? '',
-                            'response' => is_array($response) ? json_encode($response) : $response,
+                            'response' =>  $token.', ==  '.$server_ip,
                         ]
-                    );
-                }
-            
-            // \Log::info('Magento log created : '.$website);
-            }
+                    );        
+                }// end if condition if api_tocken not found
+
+            } //end website foreach
         } catch (\Exception $e) {
             MagentoSettingUpdateResponseLog::create(
                 [
