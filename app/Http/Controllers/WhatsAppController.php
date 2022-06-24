@@ -5434,13 +5434,13 @@ class WhatsAppController extends FindByNumberController
             'enqueue' => $enqueue,
             'customer_id' => $customer_id,
         ];
-
+        
         // Get configs
         $config = \Config::get("apiwha.instances");
-
+        
         // check if number is set or not then call from the table
         if (!isset($config[$whatsapp_number])) {
-            $whatsappRecord = \App\Marketing\WhatsappConfig::where('provider', 'Chat-API')
+            $whatsappRecord = \App\Marketing\WhatsappConfig::where('provider', 'wassenger')
                 ->where("instance_id", "!=", "")
                 ->where("token", "!=", "")
                 ->where("status", 1)
@@ -5455,12 +5455,11 @@ class WhatsAppController extends FindByNumberController
                 ];
             }
         }
-
+        
         $chatMessage = null;
         if ($chat_message_id > 0) {
             $chatMessage = \App\ChatMessage::find($chat_message_id);
         }
-
         // Set instanceId and token
         $isUseOwn = false;
         if (isset($config[$whatsapp_number])) {
@@ -5473,7 +5472,6 @@ class WhatsAppController extends FindByNumberController
             $token = $config[0]['token'];
             $isUseOwn = isset($config[0]['is_use_own']) ? $config[0]['is_use_own'] : 0;
         }
-
         if (isset($customer_id) && $message != null && $message != '') {
             $customer = Customer::findOrFail($customer_id);
 
@@ -5493,7 +5491,7 @@ class WhatsAppController extends FindByNumberController
         if ($isUseOwn == 1) {
             $encodedNumber = $number;
         }
-
+        
         $encodedText = $message;
 
         $array = [
@@ -5513,14 +5511,21 @@ class WhatsAppController extends FindByNumberController
         }
 
         $array['instanceId'] = $instanceId;
-
         // here is we call python
         if ($isUseOwn == 1) {
             $domain = "http://167.86.89.241:82/" . $link;
         } else {
-            $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
+            if(isset($config[$whatsapp_number]['provider']) && $config[$whatsapp_number]['provider'] == 'wassenger'){
+                $domain = 'https://api.wassenger.com/v1/messages?token='.$token;
+                $array['message'] = $array['body'];
+                $array['device'] = $array['instanceId'];
+                unset($array['body']);
+                unset($array['instanceId']);
+            }else{
+                $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
+            }
         }
-
+        
         // \Log::channel('chatapi')->debug('cUrl_url:' . $domain . "\nMessage: " . $message. "\nCUSTOMREQUEST: " . 'POST' ."\nPostFields: " . json_encode($array) . "\nFile:" . $file . "\n" . ' ['. json_encode($logDetail). '] ');
 
         $customerrequest_arr['CUSTOMREQUEST'] = 'POST';
@@ -5542,7 +5547,6 @@ class WhatsAppController extends FindByNumberController
         // \Log::channel('chatapi')->debug('cUrl_url:{"' . $domain . " } \nMessage: ".json_encode($log_data) );
 
         $curl = curl_init();
-
         curl_setopt_array($curl, array(
             CURLOPT_URL => $domain,
             CURLOPT_RETURNTRANSFER => true,
