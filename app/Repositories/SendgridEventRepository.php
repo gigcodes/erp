@@ -22,9 +22,14 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function exists($sg_event_id): bool
+    public function exists($sg_event_id,$email_id,$event)
     {
-        return $this->model->newQuery()->where('sg_event_id', $sg_event_id)->exists();
+        if($email_id){
+            return $this->model->newQuery()->where('sg_event_id', $sg_event_id)->where('email_id',$email_id)->where('event',$event)->exists();
+        }else{
+            return $this->model->newQuery()->where('sg_event_id', $sg_event_id)->where('event',$event)->exists();    
+        }
+        
     }
 
     /**
@@ -40,13 +45,22 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
         $newEvent->event         = $event['event'];
         $newEvent->sg_event_id   = $event['sg_event_id'];
         $newEvent->sg_message_id = $event['sg_message_id'];
+        if(isset($event['email_id'])){
+            $newEvent->email_id      = $event['email_id'];
+        }
         $newEvent->payload       = $event;
 
         if (isset($event['smtp-id'])) {
             $smptpID = str_replace(["<", ">"], "", $event['smtp-id']);
             \Log::info("SMTP matched with record => ".$smptpID);
             \Log::info('Send grid repo params defined');
-            $email = Email::where('origin_id', $smptpID)->first();
+            $email = null;
+            if (isset($event['email_id'])) {
+                $email = Email::find($event['email_id']);
+            }
+            if(!$email){
+                $email = Email::where('origin_id', $smptpID)->first();
+            }
             if ($email) {
                 \Log::info('Record found => '.json_encode($email));
                 $email->status = $event['event'];
@@ -55,7 +69,14 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
             }
         } else {
             \Log::info('message_id found => '.$event['sg_message_id']);
-            $email = Email::where('message_id', $event['sg_message_id'])->first();
+            $email = null;
+            if (isset($event['email_id'])) {
+                $email = Email::find($event['email_id']);
+            }
+            if (!$email) {
+                $email = Email::where('message_id', $event['sg_message_id'])->first();
+            }
+
             if ($email) {
                 \Log::info('Record found => '.json_encode($email));
                 $email->status = $event['event'];

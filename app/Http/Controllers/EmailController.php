@@ -1227,8 +1227,8 @@ class EmailController extends Controller
         $events = [];
         $eventData = '';
         if ($exist != null) {
-            $events = \App\SendgridEvent::where('payload', 'like', '%"email_id":'.$emailId.'%')->select('timestamp', 'event')->orderBy('id', 'desc')->get();
-       }
+            $events = \App\SendgridEvent::where('email_id',$emailId)->select('timestamp', 'event')->orderBy('id', 'desc')->get();
+        }
         foreach ($events as $event) {
             $eventData .= "<tr><td>" . $event['timestamp'] . "</td><td>" . $event['event'] . "</td></tr>";
         }
@@ -1239,9 +1239,23 @@ class EmailController extends Controller
     }
 	
 	public function getAllEmailEvents() {
-		$events = \App\SendgridEvent::select('*')->orderBy('id', 'desc')->get()->groupBy('sg_message_id');
-       return view('emails.events', compact('events'));
+	    $events = \App\SendgridEvent::select('*')->orderBy('id', 'desc')->get()->groupBy('sg_message_id');
+        return view('emails.events', compact('events'));
 	}
+
+    public function getAllEmailEventsJourney(Request $request) {
+	   $events = \App\SendgridEvent::select('*');
+
+        if (!empty($request->email)) {
+            $events = $events->where('email', 'like', '%' . $request->email . '%');
+        }
+        if (!empty($request->event)) {
+            $events = $events->where('event', 'like', '%' . $request->event . '%');
+        }
+        $events =  $events->orderBy('id', 'desc')->paginate(30)->appends(request()->except(['page']));
+    
+       return view('emails.event_journey', compact('events'));
+    }
 	
     /**
      * Get Email Logs
