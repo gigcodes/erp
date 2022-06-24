@@ -18,7 +18,7 @@ class CreateMagentoSettingUpdateResponseLogsTable extends Migration
             $table->integer('website_id')->nullable();
             $table->integer('magento_setting_id')->nullable();
             $table->longText('response')->nullable();
-            $table->timestamps();
+            $table->timestamps(); 
         });
     }
 
