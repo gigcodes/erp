@@ -131,7 +131,10 @@ class MagentoSettingsController extends Controller
             }
         }
         $countList = MagentoSetting::all();
-        $counter = $countList->count();
+        if(is_array($request->website) || $request->name || $request->path || $request->status || $request->scope)
+            $counter = $magentoSettings->count();
+        else
+            $counter = $countList->count();
         //dd($magentoSettings);
         if ($request->ajax()) {
             return view('magento.settings.index_ajax', [
