@@ -50,19 +50,21 @@
                             <th scope="col" class="text-center">Email ID</th>
                             <th scope="col" class="text-center">Account ID</th>
                             <th scope="col" class="text-center">Auth Token</th>
+                            <th scope="col" class="text-center">Recovery Code</th>
                             <th scope="col" class="text-center">Action</th>
                         </tr>
                         </thead>
                         <tbody class="text-center">
                         @if(isset($all_accounts))
-                            @foreach($all_accounts as $accounts)
+                            @foreach($all_accounts as $key=>$accounts)
                                 <tr>
-                                    <td>#</td>
+                                    <td>{{$key + 1 }}</td>
                                     <td>{{ $accounts->twilio_email }}</td>
                                     <td>{{ $accounts->account_id }}</td>
                                     <td>{{ $accounts->auth_token }}</td>
+                                    <td>{{ (isset($accounts->twilio_recovery_code) && $accounts->twilio_recovery_code != "" ? $accounts->twilio_recovery_code : "Not Available") }}</td>
                                     <td>
-                                        <a type="button" data-attr="{{ $accounts->id }}" data-email="{{ $accounts->twilio_email }}" data-account-id="{{ $accounts->account_id }}" data-auth-token="{{ $accounts->auth_token }}" class="btn btn-edit-template edit_account">
+                                        <a type="button" data-attr="{{ $accounts->id }}" data-email="{{ $accounts->twilio_email }}" data-account-id="{{ $accounts->account_id }}" data-auth-token="{{ $accounts->auth_token }}" data-recovery-code="{{ $accounts->twilio_recovery_code }}" class="btn btn-edit-template edit_account">
                                             <i class="fa fa-edit" aria-hidden="true"></i>
                                         </a>
                                         <a type="button" href="{{ route('twilio-delete-account', $accounts->id) }}" data-id="1" class="btn btn-delete-template" onclick="return confirm('Are you sure you want to delete this account ?');">
@@ -97,22 +99,28 @@
                     <form method="post" action="{{ route('twilio-add-account') }}">
                         @csrf
                         <div class="modal-body mb-2">
-                            <div class="col-md-12">
-                                <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-6">
                                     <label>Email</label>
                                     <input type="text" class="form-control" name="email" required/>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="form-group col-md-6">
                                     <label>Account ID</label>
                                     <input type="text" class="form-control" name="account_id" required/>
                                 </div>
-                                <div class="col-md-4">
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
                                     <label>Auth Token</label>
                                     <input type="text" class="form-control" name="auth_token" required/>
                                 </div>
+                                <div class="form-group col-md-6">
+                                    <label>Recovery Code</label>
+                                    <input type="text" class="form-control" name="recovery_code" required/>
+                                </div>
                             </div>
                         </div>
-                        <div class="modal-footer mt-5">
+                        <div class="modal-footer mt-3">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             <button type="submit" class="btn btn-primary">Save changes</button>
                         </div>
@@ -134,19 +142,25 @@
                     <form method="post" action="{{ route('twilio-add-account') }}">
                         @csrf
                         <div class="modal-body mb-2">
-                            <div class="col-md-12">
+                            <div class="row">
                                 <input type="hidden" name="id" id="id" />
-                                <div class="col-md-4">
+                                <div class="form-group col-md-6">
                                     <label>Email</label>
                                     <input type="text" class="form-control" name="email" id="email" required/>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="form-group col-md-6">
                                     <label>Account ID</label>
                                     <input type="text" class="form-control" name="account_id" id="account_id" required/>
                                 </div>
-                                <div class="col-md-4">
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
                                     <label>Auth Token</label>
                                     <input type="text" class="form-control" name="auth_token" id="auth_token" required/>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>Recovery Code</label>
+                                    <input type="text" class="form-control" name="recovery_code" id="recovery_code" required/>
                                 </div>
                             </div>
                         </div>
@@ -348,6 +362,7 @@
             $('#email').val($(this).data('email'));
             $('#account_id').val($(this).data('account-id'));
             $('#auth_token').val($(this).data('auth-token'));
+            $('#recovery_code').val($(this).data('recovery-code'));
             $('#updateAccount').modal('show');
        }) ;
     });

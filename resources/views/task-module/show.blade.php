@@ -1305,7 +1305,7 @@ input.cmn-toggle-round + label {
             <div class="modal-header">
                 <h4 class="modal-title">Task Remark</h4>
                 <input type="text" name="remark_pop" class="form-control remark_pop" placeholder="Please enter remark" style="width: 200px;">
-                <button type="button" class="btn btn-default sub_remark" data-task_id="{{$task->id}}">Save</button>
+                <button type="button" class="btn btn-default sub_remark" data-task_id="">Save</button>
             </div>
         	<div class="modal-body">
     			<div class="col-md-12">
@@ -2333,40 +2333,46 @@ input.cmn-toggle-round + label {
             var thiss = $(this);
             var task_id = $(this).data('task_id');
             var remark = $('.remark_pop').val();
-            $.ajax({
-                type: "POST",
-                url: "{{route('task.create.get.remark')}}",
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-                data: {
-                    task_id : task_id,
-                    remark : remark,
-                    type : "TASK",
-                },
-                beforeSend: function () {
-                    $("#loading-image").show();
-                }
-            }).done(function (response) {
-                if(response.code == 200) {
-                    $("#loading-image").hide();
-                    $("#preview-task-create-get-modal").modal("show");
-                    $(".task-create-get-list-view").html(response.data);
-                    $('.remark_pop').val("");
-                    toastr['success'](response.message);
-                }else{
+            if(task_id != ""){
+                
+                $.ajax({
+                    type: "POST",
+                    url: "{{route('task.create.get.remark')}}",
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        task_id : task_id,
+                        remark : remark,
+                        type : "TASK",
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    }
+                }).done(function (response) {
+                    if(response.code == 200) {
+                        $("#loading-image").hide();
+                        $("#preview-task-create-get-modal").modal("show");
+                        $(".task-create-get-list-view").html(response.data);
+                        $('.remark_pop').val("");
+                        toastr['success'](response.message);
+                    }else{
+                        $("#loading-image").hide();
+                        $("#preview-task-create-get-modal").modal("show");
+                        $(".task-create-get-list-view").html("");
+                        toastr['error'](response.message);
+                    }
+                    
+                }).fail(function (response) {
                     $("#loading-image").hide();
                     $("#preview-task-create-get-modal").modal("show");
                     $(".task-create-get-list-view").html("");
                     toastr['error'](response.message);
-                }
-                
-            }).fail(function (response) {
-                $("#loading-image").hide();
-                $("#preview-task-create-get-modal").modal("show");
-                $(".task-create-get-list-view").html("");
-                toastr['error'](response.message);
-            });
+                });
+            }else{
+                toastr['error']("Task not Found!");
+            }
+            
         });
 
         $(document).on("click",".copy_remark",function(e) {
