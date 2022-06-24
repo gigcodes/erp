@@ -248,10 +248,9 @@
 		}).done(function (response) {
 			$("#loading-image").hide();
 			if (response.code == 200) {
-				debugger;
+				
 				$('#magentoSettingUpdateHistory').html(response.data);
 			 	$('#magentoSettingUpdateHistoryModal').modal('show');
-				$this.remove();
 				toastr['success'](response.message, 'success');
 			}
 		}).fail(function (response) {
