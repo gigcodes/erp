@@ -619,15 +619,16 @@ var page = {
             contentType: false,
             processData: false,
             data: formData,
-            success: function(data) {
-                if (data.code == 200) {
+            success: function(response) {
+                if (response.code == 200) {
                     toastr["success"](response.message,"success"); 
                 } else {
-                    toastr["success"]('Please Somethink wrong',"success"); 
+                    toastr["error"](response.error,"error"); 
+                    //toastr["success"]('Please Somethink wrong',"success"); 
                 }
             },
             error: function(response) {
-                toastr["error"](response.message,"error"); 
+                toastr["error"](response.error,"error"); 
             }
         });
     },

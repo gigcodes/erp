@@ -33,32 +33,36 @@ class MagentoSettingsController extends Controller
         }
         $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
             ->select('store_websites.website', 'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at')->orderBy('magento_setting_push_logs.created_at', 'DESC')->get();
-        if ($request->website) {
-
-            if (empty($request->scope)) {
-                $magentoSettings->whereHas('storeview.websiteStore.website.storeWebsite', function ($q) use ($request) {
-                    $q->where('id', $request->website);
-                })->orWhereHas('store.website.storeWebsite', function ($q) use ($request) {
-                    $q->where('id', $request->website);
-                })->orWhereHas('website', function ($q) use ($request) {
-                    $q->where('id', $request->website);
-                });
-            } else {
-                if ($request->scope == 'default') {
-                    $website_ids = StoreWebsite::where('id', $request->website)->get()->pluck('id')->toArray();
-                    $magentoSettings->whereIn('scope_id', $website_ids ?? []);
-                } else if ($request->scope == 'websites') {
-                    $website_ids       = Website::where('store_website_id', $request->website)->get()->pluck('id')->toArray();
-                    $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids ?? [])->get()->pluck('id')->toArray();
-                    $magentoSettings->whereIn('scope_id', $website_store_ids ?? []);
-                } else if ($request->scope == 'stores') {
-                    $website_ids            = Website::where('store_website_id', $request->website)->get()->pluck('id')->toArray();
-                    $website_store_ids      = WebsiteStore::whereIn('website_id', $website_ids ?? [])->get()->pluck('id')->toArray();
-                    $website_store_view_ids = WebsiteStoreView::whereIn('website_store_id', $website_store_ids ?? [])->get()->pluck('id')->toArray();
-                    $magentoSettings->whereIn('scope_id', $website_store_view_ids ?? []);
+        
+        
+        if (is_array($request->website)) {
+            foreach($request->website AS $website) {
+            
+                if (empty($request->scope)) {
+                    $magentoSettings->whereHas('storeview.websiteStore.website.storeWebsite', function ($q) use ($request, $website) {
+                        $q->where('id', $website);
+                    })->orWhereHas('store.website.storeWebsite', function ($q) use ($request, $website) {
+                        $q->where('id', $website);
+                    })->orWhereHas('website', function ($q) use ($request, $website) {
+                        $q->where('id', $website);
+                    });
+                } else {
+                    if ($request->scope == 'default') {
+                        $website_ids = StoreWebsite::where('id', $website)->get()->pluck('id')->toArray();
+                        $magentoSettings->whereIn('scope_id', $website_ids ?? []);
+                    } else if ($request->scope == 'websites') {
+                        $website_ids       = Website::where('store_website_id', $website)->get()->pluck('id')->toArray();
+                        $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids ?? [])->get()->pluck('id')->toArray();
+                        $magentoSettings->whereIn('scope_id', $website_store_ids ?? []);
+                    } else if ($request->scope == 'stores') {
+                        $website_ids            = Website::where('store_website_id', $website)->get()->pluck('id')->toArray();
+                        $website_store_ids      = WebsiteStore::whereIn('website_id', $website_ids ?? [])->get()->pluck('id')->toArray();
+                        $website_store_view_ids = WebsiteStoreView::whereIn('website_store_id', $website_store_ids ?? [])->get()->pluck('id')->toArray();
+                        $magentoSettings->whereIn('scope_id', $website_store_view_ids ?? []);
+                    }
                 }
+                //$pushLogs->where('magento_setting_push_logs.store_website_id', $request->website);
             }
-            //$pushLogs->where('magento_setting_push_logs.store_website_id', $request->website);
         }
 
         if ($request->name != '') {
