@@ -221,7 +221,7 @@ class ProductController extends Controller
         } else { 
             $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
         }
-        $newProducts = Product::query();
+        
         if ($request->get('status_id') != null) {
             $statusList = is_array($request->get('status_id')) ? $request->get('status_id') : [$request->get('status_id')];
             $newProducts = $newProducts->whereIn('status_id', $statusList); //dd($newProducts->limit(10)->get());
