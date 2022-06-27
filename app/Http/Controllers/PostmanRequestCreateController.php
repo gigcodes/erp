@@ -81,8 +81,12 @@ class PostmanRequestCreateController extends Controller
         }
         $postmans = $postmans->select('postman_request_creates.*', 'pf.name', 'postman_responses.response','postman_responses.response_code', 'postman_responses.id AS resId')
         ->leftJoin('postman_folders AS pf', 'pf.id', 'postman_request_creates.folder_name')
-        ->paginate(Setting::get('pagination'));
+        ->leftJoin('postman_responses', function($query) {
+            $query->on('postman_responses.request_id','=','postman_request_creates.id')
+            ->whereRaw('postman_responses.id IN (select MAX(pr1.id) from postman_responses as pr1 WHERE pr1.request_id = postman_request_creates.id  ORDER BY id DESC )');
+        })->paginate(Setting::get('pagination'));
         $folders = PostmanFolder::all();
+        $users = User::all();
         $userID = \Auth::user()->id;
         $userAdmin = User::where('id', $userID)->first();
         $addAdimnAccessID = '';
