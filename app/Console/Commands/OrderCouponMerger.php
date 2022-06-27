@@ -72,7 +72,7 @@ class OrderCouponMerger extends Command
                                                 if(!empty($get_coupon_id)){
                                                     foreach($obj->items as $item){
                                                         //Check if order id exists in record
-                                                        $get_order_id = Order::where("id",$item->order_id)->first(); 
+                                                        $get_order_id = Order::where("order_id",$item->order_id)->first(); 
                                                         if(!empty($get_order_id)){
                                                             //Merge coupon with order is all goes well
                                                             $update_order_table_with_coupon = Order::where("id",$get_order_id->order_id)->update(["coupon_id"=>$get_coupon_id->id]);
