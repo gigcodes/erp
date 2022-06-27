@@ -34,7 +34,7 @@
             </div>
         </div>
     </div>
-    <div class="pull-left">
+    <div class=" row ">
       <form class="form-inline" action="/postman/search" method="GET">
         <div class="col">
           <div class="form-group">
@@ -98,31 +98,33 @@
           <a href="/postman" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
         </div>
       </form>
-    </div>
-    <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#addPostman">Add Postman request</button>
-    <a href="/postman/folder" class="btn custom-button float-right mr-3">Add Folder</a>
+      <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#addPostman">Add Postman request</button>
+      <a href="/postman/folder" class="btn custom-button float-right mr-3">Add Folder</a>
 
+    </div>
+    
 	</br> 
-    <div class="infinite-scroll">
-	<div class="table-responsive mt-2">
-      <table class="table table-bordered">
+  <div class="row m-0" >
+    <div class="col-12" style="border: 1px solid;border-color: #dddddd;">
+	<div class="table-responsive mt-2" style="overflow-x: auto !important;">
+      <table class="table table-bordered text-nowrap">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>User Permission</th>
-            <th>Folder Name</th>
-            <th>Controller Name</th>
-            <th>Method Name</th>
-            <th>Request Name</th>
-            <th>Type</th>
-            <th>URL</th>
-            <th>Request Parameter</th>
-            <th>Params</th>
-            <th>Headers</th>
-            <th>Request type</th>
-            <th>Request Response</th>
-            <th>Response Code</th>
-            <th>Action</th>
+            <th style="width: 3%;">ID</th>
+            <th style="width: 5%;overflow-wrap: anywhere;">User Permission</th>
+            <th style="width: 4%;overflow-wrap: anywhere;">Folder Name</th>
+            <th style="width: 5%;overflow-wrap: anywhere;">Controller Name</th>
+            <th style="width: 4%;overflow-wrap: anywhere;">Method Name</th>
+            <th style="width: 4%;overflow-wrap: anywhere;">Request Name</th>
+            <th style="width: 5%;overflow-wrap: anywhere;">Type</th>
+            <th style="width: 5%;overflow-wrap: anywhere;">URL</th>
+            <th style="width: 5%;overflow-wrap: anywhere;">Request Parameter</th>
+            <th style="width: 5%;overflow-wrap: anywhere;">Params</th>
+            <th style="width: 5%;overflow-wrap: anywhere;">Headers</th>
+            <th style="width: 5%;overflow-wrap: anywhere;">Request type</th>
+            <th style="width: 5%;overflow-wrap: anywhere;">Request Response</th>
+            <th style="width: 5%;overflow-wrap: anywhere;">Response Code</th>
+            <th style="width: 22%;overflow-wrap: anywhere;">Action</th>
           </tr>
         </thead>
 
@@ -149,31 +151,40 @@
                     
                     <a href="#" id="see_users" data-user_details="{{$useNames}}" data-toggle="modal" data-target="#postmanUserDetailsModel">See</a>
                   </td>
-                <td>{{$postman->name}}</td>
+                <td class="expand-row-msg" data-name="name" data-id="{{$postman->id}}">
+                  <span class="show-short-name-{{$postman->id}}">{{ str_limit($postman->name, 5, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-name-{{$postman->id}} hidden">{{$postman->name}}</span>
+                </td>
                 <td class="expand-row-msg" data-name="controller_name" data-id="{{$postman->id}}">
-                  <span class="show-short-controller_name-{{$postman->id}}">{{ str_limit($postman->controller_name, 12, '..')}}</span>
+                  <span class="show-short-controller_name-{{$postman->id}}">{{ str_limit($postman->controller_name, 5, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-controller_name-{{$postman->id}} hidden">{{$postman->controller_name}}</span>
                 </td>
                 <td class="expand-row-msg" data-name="method_name" data-id="{{$postman->id}}">
-                  <span class="show-short-method_name-{{$postman->id}}">{{ str_limit($postman->method_name, 12, '..')}}</span>
+                  <span class="show-short-method_name-{{$postman->id}}">{{ str_limit($postman->method_name, 5, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-method_name-{{$postman->id}} hidden">{{$postman->method_name}}</span>
                 </td>
-                <td>{{$postman->request_name}}</td>
-                <td>{{$postman->request_type}}</td>
+                <td class="expand-row-msg" data-name="request_name" data-id="{{$postman->id}}">
+                  <span class="show-short-request_name-{{$postman->id}}">{{ str_limit($postman->request_name, 5, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-request_name-{{$postman->id}} hidden">{{$postman->request_name}}</span>
+                </td>
+                <td class="expand-row-msg" data-name="request_type" data-id="{{$postman->id}}">
+                  <span class="show-short-request_type-{{$postman->id}}">{{ str_limit($postman->request_type, 5, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-request_type-{{$postman->id}} hidden">{{$postman->request_type}}</span>
+                </td>
                 <td class="expand-row-msg" data-name="url" data-id="{{$postman->id}}">
-                  <span class="show-short-url-{{$postman->id}}">{{ str_limit($postman->request_url, 12, '..')}}</span>
+                  <span class="show-short-url-{{$postman->id}}">{{ str_limit($postman->request_url, 5, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-url-{{$postman->id}} hidden">{{$postman->request_url}}</span>
                 </td>
                 <td class="expand-row-msg" data-name="paramiters" data-id="{{$postman->id}}">
-                  <span class="show-short-paramiters-{{$postman->id}}">{{ str_limit($postman->body_json, 12, '..')}}</span>
+                  <span class="show-short-paramiters-{{$postman->id}}">{{ str_limit($postman->body_json, 5, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-paramiters-{{$postman->id}} hidden">{{$postman->body_json}}</span>
                 </td>
                 <td class="expand-row-msg" data-name="params" data-id="{{$postman->id}}">
-                  <span class="show-short-params-{{$postman->id}}">{{ str_limit($postman->params, 12, '..')}}</span>
+                  <span class="show-short-params-{{$postman->id}}">{{ str_limit($postman->params, 5, '...')}}</span>
                   <span style="word-break:break-all;" class="show-full-params-{{$postman->id}} hidden">{{$postman->params}}</span>
                 </td>
                 <td class="expand-row-msg" data-name="headers" data-id="{{$postman->id}}">
-                  <span class="show-short-headers-{{$postman->id}}">{{ str_limit($postman->request_headers, 12, '..')}}</span>
+                  <span class="show-short-headers-{{$postman->id}}">{{ str_limit($postman->request_headers, 5, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-headers-{{$postman->id}} hidden">{{$postman->request_headers}}</span>
                 </td>
                 <td>{{$postman->request_type}}</td>
@@ -182,7 +193,7 @@
                   <span style="word-break:break-all;" class="show-full-response-{{$postman->id}} hidden">{{$postman->response}}</span>
                 </td>
                 <td class="expand-row-msg" data-name="response_code" data-id="{{$postman->id}}">
-                  <span class="show-short-response_code-{{$postman->id}}">{{ str_limit($postman->response_code  , 8, '..')}}</span>
+                  <span class="show-short-response_code-{{$postman->id}}">{{ str_limit($postman->response_code  , 5, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-response_code-{{$postman->id}} hidden">{{$postman->response_code}}</span>
                 </td>
                 <td>
@@ -209,6 +220,7 @@
     </div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
    </div>
+  </div>
 @endsection
 
 <div id="postmanHistory" class="modal fade" role="dialog">
