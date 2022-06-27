@@ -75,7 +75,7 @@ class OrderCouponMerger extends Command
                                                         $get_order_id = Order::where("order_id",$item->order_id)->first(); 
                                                         if(!empty($get_order_id)){
                                                             //Merge coupon with order is all goes well
-                                                            $update_order_table_with_coupon = Order::where("order_id",$get_order_id->order_id)->update(["coupon_id"=>$get_coupon_id->id]);
+                                                            $update_order_table_with_coupon = Order::where("id",$get_order_id->id)->update(["coupon_id"=>$get_coupon_id->id]);
                                                         }
                                                     }       
                                                 }
