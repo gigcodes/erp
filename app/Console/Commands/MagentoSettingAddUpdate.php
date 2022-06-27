@@ -41,12 +41,12 @@ class MagentoSettingAddUpdate extends Command
     public function handle()
     {
         try{
-            $websites = StoreWebsite::all();
+            $websites = StoreWebsite::whereNotNull('api_token')->whereNotNull('magento_url')->whereNotNull('server_ip')->get();
             foreach($websites as $website){
                 if($website->api_token !='' &&  $website->server_ip !=''){
                     $curl = curl_init();
                     curl_setopt_array($curl, array(
-                    CURLOPT_URL => "https://dev6.sololuxury.com/rest/V1/core/config/",
+                    CURLOPT_URL => $website->magento_url."/rest/V1/core/config/",
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => "",
                     CURLOPT_MAXREDIRS => 10,
