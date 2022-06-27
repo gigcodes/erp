@@ -894,7 +894,10 @@ class StoreWebsiteController extends Controller
                     //dd($res->created_at);
                     $html .= '<tr>';
                     $html .= '<td>'.$res->created_at.'</td>';
-                    $html .= '<td>'.$res->response.'</td>';
+                    $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
+                    <span class="show-short-response-'.$res->id.'">'.str_limit($res->response, 100, "...").'</span>
+                    <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
+                    </td>';
                     $html .= '</tr>';
                 }
                 return response()->json([
