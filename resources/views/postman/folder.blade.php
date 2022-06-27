@@ -22,27 +22,46 @@
             </div>
         </div>
     </div>
-    <div class="pull-left">
+    <div class="row m-0">
+      <div class="col-12">
       <form class="form-inline" action="/postman/folder/search" method="GET">
-        <div class="col">
           <div class="form-group">
             <div class="input-group">
-              <input type="text" placeholder="folder name" class="form-control" name="folder_name" value="">
+              <?php $folderNamrArr = []; ?>
+              @foreach ($folders as $key => $folder)
+                  <?php array_push($folderNamrArr,$folder->name);?>
+              @endforeach
+              <?php $folderNamrArr = array_unique($folderNamrArr); ?>
+              <select name="folder_name"  class="form-control" id="folder_name" >
+                <option value="">--Select Request Name--</option>
+                @foreach ($folderNamrArr as $key => $folderName)
+                <?php $selected  = '';
+                  if($folderName == request('folder_name')) {
+                    $selected  = 'selected = "selected"';
+                  }
+                  ?>
+                    <option {{$selected}} value="{{$folderName}}">{{$folderName}}</option>
+                @endforeach
+              </select>
+              {{-- <input type="text" placeholder="folder name" class="form-control" name="folder_name" value=""> --}}
             </div>
           </div>
-        </div>
         <div class="col">
           <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
           <a href="/postman/folder" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
         </div>
       </form>
+      <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostmanfolder" data-toggle="modal" data-target="#addPostmanFolder">Add Folder</button>
+    </div>
+     
     </div>
     
-    <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostmanfolder" data-toggle="modal" data-target="#addPostmanFolder">Add Folder</button>
+    
   </br> 
-    <div class="infinite-scroll">
-	<div class="table-responsive mt-2">
-      <table class="table table-bordered">
+  <div class="row m-0" >
+  <div class="col-12" style="border: 1px solid;border-color: #dddddd;">
+	<div class="table-responsive mt-2"  style="overflow-x: auto !important;">
+      <table class="table table-bordered text-nowrap">
         <thead>
           <tr>
             <th>ID</th>
@@ -73,6 +92,7 @@
     </div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
    </div>
+  </div>
 @endsection
 
 <div id="addPostmanFolder" class="modal fade" role="dialog">

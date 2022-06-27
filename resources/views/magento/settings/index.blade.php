@@ -13,7 +13,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
     height: unset;
 }
 </style>
-        <h2 class="page-heading">Magento Settings</h2>
+        <h2 class="page-heading">Magento Settings ({{$counter}})</h2>
     </div>
     @if($errors->any())
         <div class="row m-2">
