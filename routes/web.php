@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/products/change-category', 'ProductController@changeCategory');
     Route::post('/products/published', 'ProductController@published');
     Route::get('/products/pushproductlist', 'ProductController@pushproductlist');
+    Route::get('/products/delete-out-of-stock-products', 'ProductController@deleteOutOfStockProducts');
     Route::get('/customers/accounts', 'CustomerController@accounts');
     Route::post('/customer/update', 'CustomerController@customerUpdate');
     Route::get('/customer/update/history/{id}', 'CustomerController@customerUpdateHistory');
@@ -426,7 +427,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/{id}/quickDownload', 'ProductController@quickDownload')->name('products.quick.download');
     Route::post('products/{id}/quickUpload', 'ProductController@quickUpload')->name('products.quick.upload');
     Route::any('products/{id}/listMagento', 'ProductController@listMagento');
-    Route::post('products/multilistMagento', 'ProductController@multilistMagento');
+    Route::post('products/multilistMagento', 'ProductController@multilistMagento');    
+    
     Route::post('products/{id}/unlistMagento', 'ProductController@unlistMagento');
     Route::post('products/{id}/approveMagento', 'ProductController@approveMagento');
     Route::post('products/{id}/updateMagento', 'ProductController@updateMagento');

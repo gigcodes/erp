@@ -307,79 +307,90 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-1.5 ml-2 d-flex align-items-center">
-                        <div class="form-group">
-                            @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
-                                <?php echo Form::checkbox("submit_for_approval", "on", (bool)(request('submit_for_approval') == "on"), ["class" => ""]); ?>
-                                <lable for="submit_for_approval pr-3">Submit For approval ?</lable>
-                            @endif
-                        </div>
                     </div>
-                    <div class="col-sm-1.5 d-flex align-items-center">
-                        <div class="form-group">
-                            @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
-                                <?php echo Form::checkbox("submit_for_image_approval", "on", (bool)(request('submit_for_image_approval') == "on"), ["class" => ""]); ?>
-                                <lable for="submit_for_image_approval pr-3">Submit For Image approval ?</lable>
-                            @endif
+                    <div class="row">
+                        <div class="col-sm-1.5 ml-2 d-flex align-items-center">
+                            <div class="form-group">
+                                @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
+                                    <?php echo Form::checkbox("submit_for_approval", "on", (bool)(request('submit_for_approval') == "on"), ["class" => ""]); ?>
+                                    <lable for="submit_for_approval pr-3">Submit For approval ?</lable>
+                                @endif
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-1 d-flex align-items-center">
-                        <div class="form-group">
-                           <?php echo Form::checkbox("without_title", "on", (bool)(request('without_title') == "on"), ["class" => ""]); ?>
-                                <lable for="without_title pr-3">No title</lable>
+                        <div class="col-sm-1.5 d-flex align-items-center">
+                            <div class="form-group">
+                                @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
+                                    <?php echo Form::checkbox("submit_for_image_approval", "on", (bool)(request('submit_for_image_approval') == "on"), ["class" => ""]); ?>
+                                    <lable for="submit_for_image_approval pr-3">Submit For Image approval ?</lable>
+                                @endif
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-1 d-flex align-items-center">
-                        <div class="form-group">
-                           <?php echo Form::checkbox("without_size", "on", (bool)(request('without_size') == "on"), ["class" => ""]); ?>
-                                <lable for="without_size pr-3">No size</lable>
+                        <div class="col-sm-1 d-flex align-items-center">
+                            <div class="form-group">
+                            <?php echo Form::checkbox("without_title", "on", (bool)(request('without_title') == "on"), ["class" => ""]); ?>
+                                    <lable for="without_title pr-3">No title</lable>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-1.5 d-flex align-items-center">
-                        <div class="form-group">
-                           <?php echo Form::checkbox("without_composition", "on", (bool)(request('without_composition') == "on"), ["class" => ""]); ?>
-                                <lable for="without_composition pr-3">No Composition</lable>
+                        <div class="col-sm-1 d-flex align-items-center">
+                            <div class="form-group">
+                            <?php echo Form::checkbox("without_size", "on", (bool)(request('without_size') == "on"), ["class" => ""]); ?>
+                                    <lable for="without_size pr-3">No size</lable>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="hidden" class="range_start_filter" value="" name="crop_start_date" />
-                        <input type="hidden" class="range_end_filter" value="" name="crop_end_date" />
-                        <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
-                            <!-- <i class="fa fa-calendar"></i>&nbsp;
-                            <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
-                            <i class="fa fa-calendar"></i>&nbsp;
-                            <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{request()->get('crop_start_date') .' '.request()->get('crop_end_date')}}</p><i class="fa fa-caret-down"></i>
+                        <div class="col-sm-1.5 d-flex align-items-center">
+                            <div class="form-group">
+                            <?php echo Form::checkbox("without_composition", "on", (bool)(request('without_composition') == "on"), ["class" => ""]); ?>
+                                    <lable for="without_composition pr-3">No Composition</lable>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="col-sm-1">
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-secondary" title="Filter">
-                                <i type="submit" class="fa fa-filter" aria-hidden="true"></i>
-                            </button>
-                            <a href="{{url()->current()}}" class="btn  btn-secondary" title="Clear">
-                                <i type="submit" class="fa fa-times" aria-hidden="true"></i>
-                            </a>
+                        <div class="col-sm-1.5 d-flex align-items-center">
+                            <div class="form-group">
+                            <?php echo Form::checkbox("without_stock", "on", (bool)(request('without_stock') == "on"), ["class" => ""]); ?>
+                                    <lable for="without_stock pr-3">No Stock</lable>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-2"style="display: flex;">
-                        <div class="form-group">
-                            <input type="button" onclick="pushProduct()" class="btn btn-secondary" value="Push product"/>
+                        <div class="col-md-2">
+                            <input type="hidden" class="range_start_filter" value="" name="crop_start_date" />
+                            <input type="hidden" class="range_end_filter" value="" name="crop_end_date" />
+                            <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+                                <!-- <i class="fa fa-calendar"></i>&nbsp;
+                                <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
+                                <i class="fa fa-calendar"></i>&nbsp;
+                                <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{request()->get('crop_start_date') .' '.request()->get('crop_end_date')}}</p><i class="fa fa-caret-down"></i>
+                            </div>
                         </div>
 
-                        <div class="form-group"style="margin-left:15px;">
-                            <input type="button" onclick="maskpushProduct()" class="btn btn-secondary" value="Mask Push product"/>
+                        <div class="col-sm-1">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-secondary" title="Filter">
+                                    <i type="submit" class="fa fa-filter" aria-hidden="true"></i>
+                                </button>
+                                <a href="{{url()->current()}}" class="btn  btn-secondary" title="Clear">
+                                    <i type="submit" class="fa fa-times" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-sm-2" style="display: flex;">
+                            <div class="form-group">
+                                <input type="button" onclick="pushProduct()" class="btn btn-secondary" value="Push product"/>
+                            </div>
+
+                            <div class="form-group" style="margin-left:15px;">
+                                <input type="button" onclick="maskpushProduct()" class="btn btn-secondary" value="Mask Push product"/>
+                            </div>
+
+                            <div class="form-group" style="margin-left:15px;">
+                                <input type="button" class="btn btn-secondary delete-out-of_stock" value="Delete OutOfStock products"/>
+                            </div>  
                         </div>
                     </div>
-
+                    
+                <div class="row">                    
                     <div class="col-sm-2 ml-2">  
                         <div class="form-group">
                             <input type="text" class="form-control" id="scrolltime" placeholder="scroll interval in second"/>
                         </div>
                     </div>
-                
-                <div class="row">
-                    
                     <div class="col-sm-1">  
                         <div class="form-group">
                         <input type="button" onclick="callinterval()" class="btn btn-secondary" value="Start"/>
@@ -1839,7 +1850,30 @@
                 });
         });
 
-
+        $(document).on('click', '.delete-out-of_stock', function () {
+            if (confirm('Are you sure?')) {
+                var ajaxes = [];
+                var thiss = $(this);
+                url = "{{ url('products/delete-out-of-stock-products') }}";
+                ajaxes.push($.ajax({
+                    type: 'GET',
+                    url: url,
+                    beforeSend: function () {
+                        $(thiss).text('Loading...');
+                        $(thiss).html('<i class="fa fa-spinner" aria-hidden="true"></i>');
+                    }                    
+                }).done(function (response) {
+                    $(thiss).removeClass('fa-spinner');
+                    toastr['success']('Products Delete successfully', 'Success')                    
+                }).fail(function (response) {
+                    toastr['error']('Something went wrong', 'Failure')                    
+                }));
+                $.when.apply($, ajaxes)
+                .done(function () {
+                    location.reload();
+                });
+            }
+        });
         function maskpushProduct(){
             var chk = $('.affected_checkbox');
             var chked_id = [];
