@@ -961,6 +961,9 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('coupons.index') }}">Coupons</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('negative.coupon.response') }}">Negative Coupons Response</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item">
@@ -2041,6 +2044,11 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item" href="{{ route('gtm.cetegory.web') }}">GTMetrix Category Website</a>
                                             </li>
                                             <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ url('checklist') }}">Checklist</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ url('sop') }}">SOP</a>
+                                            </li>
                                                 <a class="dropdown-item" href="{{ route('gtmetrix.error.index.list') }}">GTMetrix Error log</a>
                                             </li>
                                             <li class="nav-item">

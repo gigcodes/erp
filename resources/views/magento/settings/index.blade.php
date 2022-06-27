@@ -164,23 +164,22 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                 <td>{{ $magentoSetting->id }}</td>
 
                                 @if($magentoSetting->scope === 'default')
-
-                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->website->website; ?>')" >{{  substr($magentoSetting->website->website, 0,10) }} @if(strlen($magentoSetting->website->website) > 10) ... @endif</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->website->website ?? $magentoSetting->fromStoreId->website; ?>')" >{{  substr($magentoSetting->website->website ?? $magentoSetting->fromStoreId->website, 0,10)  }} @if(strlen($magentoSetting->website->website ?? $magentoSetting->fromStoreId->website) > 10) ... @endif</td>
                                         <td data-toggle="modal" data-target="#viewMore" onclick="opnModal(' ')" >-</td>
                                         <td data-toggle="modal" data-target="#viewMore" onclick="opnModal(' ')" >-</td>
 
                                 @elseif($magentoSetting->scope === 'websites')
-                                
-                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : '-' ; ?>')" >
-                                            {{ $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : '-' }} ...
+                                        
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : $magentoSetting->fromStoreId->website ; ?>')" >
+                                            {{ $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : $magentoSetting->fromStoreId->website }} ...
                                         </td>
-                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->store->website->name; ?>')" >{{ substr($magentoSetting->store->website->name, 0,10) }} @if(strlen($magentoSetting->store->website->name) > 10) ... @endif</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->store->website->name ?? $magentoSetting->fromStoreId->title; ?>')" >{{ substr($magentoSetting->store->website->name ?? $magentoSetting->fromStoreId->title, 0,10) }} @if(strlen($magentoSetting->store->website->name ?? $magentoSetting->fromStoreId->website) > 10) ... @endif</td>
                                         <td>-</td>
                                         
                                 @else 
-                                        <td>{{ $magentoSetting->storeview && $magentoSetting->storeview->websiteStore && $magentoSetting->storeview->websiteStore->website && $magentoSetting->storeview->websiteStore->website->storeWebsite ? $magentoSetting->storeview->websiteStore->website->storeWebsite->website : '-' }}</td>
-                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('{{$magentoSetting->storeview && $magentoSetting->storeview->websiteStore ? $magentoSetting->storeview->websiteStore->name : '-'}}')" >  {{   substr($magentoSetting->storeview && $magentoSetting->storeview->websiteStore ? $magentoSetting->storeview->websiteStore->name : '-', 0,10) }}</td>
-                                        <td>{{ $magentoSetting->storeview->code }}</td>
+                                        <td>{{ $magentoSetting->storeview && $magentoSetting->storeview->websiteStore && $magentoSetting->storeview->websiteStore->website && $magentoSetting->storeview->websiteStore->website->storeWebsite ? $magentoSetting->storeview->websiteStore->website->storeWebsite->website : $magentoSetting->fromStoreId->website }}</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('{{$magentoSetting->storeview && $magentoSetting->storeview->websiteStore ? $magentoSetting->storeview->websiteStore->name : $magentoSetting->fromStoreId->title}}')" >  {{   substr($magentoSetting->storeview && $magentoSetting->storeview->websiteStore ? $magentoSetting->storeview->websiteStore->name : $magentoSetting->fromStoreId->title, 0,10) }}</td>
+                                        <td>{{ $magentoSetting->storeview->code ?? ''}}</td>
                                 @endif
 
                                 <td>{{ $magentoSetting->scope }}</td>
@@ -600,17 +599,28 @@ $(document).ready(function() {
         $('.edit-magento-setting-form input[name="value"]').val(data.value);
         var scope = $('.scope').val(data.scope);  
         if(data.scope == 'default'){
-            $('#edit-setting-popup .website').val(data.website.website);
+            if(jQuery.isEmptyObject(data.website) == false)
+                $('#edit-setting-popup .website').val(data.website.website);
+            else
+                $('#edit-setting-popup .website').val(data.from_store_id.website);
+            //$('#edit-setting-popup .website').val(data.website.website);
             $('#edit-setting-popup .website_form').removeClass('d-none');
             $('#edit-setting-popup .website_store_form').addClass('d-none');
             $('#edit-setting-popup .website_store_view_form').addClass('d-none');
         }else if(data.scope == 'websites'){
-            $('#edit-setting-popup .website').val(data.store.website.store_website.website);
-            $('#edit-setting-popup .website_store').val(data.store.website.name);
+            if(jQuery.isEmptyObject(data.store) == false)
+                $('#edit-setting-popup .website').val(data.store.website.store_website.website);
+            else
+                $('#edit-setting-popup .website').val(data.from_store_id.website);
+            if(jQuery.isEmptyObject(data.store) == false)
+                $('#edit-setting-popup .website_store').val(data.store.website.name);
+            else
+                $('#edit-setting-popup .website_store').val(data.from_store_id.title);
             $('#edit-setting-popup .website_form').removeClass('d-none');
             $('#edit-setting-popup .website_store_form').removeClass('d-none');
             $('#edit-setting-popup .website_store_view_form').addClass('d-none');
         }else {
+            
             $('#edit-setting-popup .website').val(data.storeview.website_store.website.store_website.website);
             $('#edit-setting-popup .website_store').val(data.storeview.website_store.website.name);
             $('#edit-setting-popup .website_store_view').val(data.storeview.code);

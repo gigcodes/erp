@@ -713,7 +713,7 @@ $(document).on('click', '.expand-row-msg', function () {
                 productForm.append("product_image", file);
             $.ajax({
                 type: "POST",
-                url: "{{route('vendor.cv.store')}}",
+                url: "/vendors/cv/store",
                 data: formData //$('#vandor-cv-form').serialize()
             })
             .done(function(data){

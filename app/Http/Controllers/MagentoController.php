@@ -92,6 +92,16 @@ class MagentoController extends Controller {
 		//
 	}
 
+	public function magentoSettingUpdate(){
+		try{
+			\Artisan::call("command:MagentoSettingUpdates");
+			return response()->json(['code' => 200, 'message' => 'Magento Setting Updated successfully']);
+		} catch (\Exception $e) {
+			$msg = $e->getMessage();
+			return response()->json(['code' => 500, 'message' => $msg]);
+		}
+	}
+
 	public static function get_magento_orders() {
 		$options   = array(
 			'trace'              => true,
