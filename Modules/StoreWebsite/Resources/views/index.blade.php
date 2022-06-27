@@ -266,6 +266,16 @@
 			return "Between 0 To 100 !";
 		else return value;
 	}
+
+	$(document).on('click', '.expand-row-msg', function () {
+      var name = $(this).data('name');
+      var id = $(this).data('id');
+      var full = '.expand-row-msg .show-short-'+name+'-'+id;
+      var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+      $(full).toggleClass('hidden');
+      $(mini).toggleClass('hidden');
+    });
+
 </script>
 
 @endsection
