@@ -45,7 +45,7 @@ class PostmanRequestCreateController extends Controller
         ->groupBy('postman_request_creates.id')
         ->orderBy('postman_request_creates.id', 'DESC')
         //->get();
-        ->paginate(Setting::get('pagination'));
+        ->paginate(15);
         //dd($postmans);
         //dd(\DB::getQueryLog());
 
@@ -63,7 +63,7 @@ class PostmanRequestCreateController extends Controller
 
     public function folderIndex()
     {
-        $folders = PostmanFolder::paginate(Setting::get('pagination'));
+        $folders = PostmanFolder::paginate(15);
         return view("postman.folder", compact('folders'));
     }
 
