@@ -105,7 +105,8 @@ class StoreWebsite extends Model
         'is_debug_true',
         'key_file_path',
         'project_id',
-        'is_dev_website'
+        'is_dev_website',
+        'site_folder'
     ];
 
     const DB_CONNECTION = [
