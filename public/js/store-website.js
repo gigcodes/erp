@@ -578,6 +578,7 @@ var page = {
         var icon = $('[name="icon"]').val();
         var is_price_override = $('[name="is_price_override"]').val(); // selected
         var files = $('#key_file_path1')[0].files[0];
+        var site_folder = $('[name="site_folder"]').val();
 
         var formData = new FormData();
         formData.append("id", id);
@@ -628,6 +629,7 @@ var page = {
         formData.append("push_web_id", push_web_id);
         formData.append("icon", icon);
         formData.append("key_file_path1", files);
+        formData.append("site_folder", site_folder);
 
         $.ajaxSetup({
             headers: {
