@@ -41,7 +41,7 @@ class MagentoDevServerScriptUpdate extends Command
     public function handle()
     {
         try{
-            $websites = StoreWebsite::where('id', $this->argument('id'))->get();
+            $websites = StoreWebsite::where('is_dev_website',1)->where('id', $this->argument('id'))->get();
             foreach($websites as $website){
                 //dd($website->site_folder);
                 if($website->site_folder !='' && $website->server_ip !=''){
