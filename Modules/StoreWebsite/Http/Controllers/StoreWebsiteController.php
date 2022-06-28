@@ -29,6 +29,7 @@ use App\LogStoreWebsiteUser;
 use Carbon\Carbon;
 use App\Github\GithubRepository;
 use App\MagentoSettingUpdateResponseLog;
+use App\AssetsManager;
 
 class StoreWebsiteController extends Controller
 {
@@ -41,8 +42,8 @@ class StoreWebsiteController extends Controller
     {
         $title = "List | Store Website";
         $services = Service::get();
-
-        return view('storewebsite::index', compact('title','services'));
+        $assetManager = AssetsManager::whereNotNull('ip');
+        return view('storewebsite::index', compact('title','services', 'assetManager'));
     }
     public function logWebsiteUsers($id)
     {
@@ -882,6 +883,17 @@ class StoreWebsiteController extends Controller
         }
         return response()->json(["code" => 500, "error" => "Wrong site id!"]);     
 	}
+
+    public function magentoDevScriptUpdate(Request $request){
+		try{
+           $run = \Artisan::call("command:MagentoDevUpdateScript", ['id' => $request->id]);
+			return response()->json(['code' => 200, 'message' => 'Magento Setting Updated successfully']);
+		} catch (\Exception $e) {
+			$msg = $e->getMessage();
+			return response()->json(['code' => 500, 'message' => $msg]);
+		}
+	}
+
 
     public function getMagentoUpdateWebsiteSetting(Request $request,$store_website_id) 
     {

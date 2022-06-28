@@ -32,6 +32,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
 
         Route::post('magento-setting-update-history', 'StoreWebsiteController@getMagentoUpdateWebsiteSetting');
         
+        Route::post('magento-dev-script-update', 'StoreWebsiteController@magentoDevScriptUpdate');
+        
         Route::get('/sync-stage-to-master', 'StoreWebsiteController@syncStageToMaster');
 
         Route::get('/token-check/', 'StoreWebsiteController@checkMagentoToken');

@@ -89,7 +89,10 @@
                                         </button> 				
 										<button title="Response History" data-id="{{>prop.id}}" type="button"  class="btn response_history"style="padding:1px 0px;">
                                             <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-history"></i></a>
-                                        </button> 				
+                                        </button> 	
+										<a style="padding:1px;" class="btn d-inline btn-image execute-bash-command" href="#" data-id="{{>prop.id}}" title="Execute Bash Command">
+											<img src="/images/send.png" style="color:gray; cursor: nwse-resize; width: 0px;">
+										</a>			
 			        </td>
 			      </tr>
 			    {{/props}}  

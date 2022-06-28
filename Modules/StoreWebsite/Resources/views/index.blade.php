@@ -259,6 +259,33 @@
 		});
 	});
 
+	$(document).on("click", ".execute-bash-command", function(href) {
+		$.ajax({
+			type: 'POST',
+			url: 'store-website/'+ $(this).data('id') +'/magento-dev-script-update',
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
+			data: {
+				_token: "{{ csrf_token() }}",
+				id: $(this).data('id'),
+			},
+			dataType: "json"
+		}).done(function (response) {
+			$("#loading-image").hide();
+			if (response.code == 200) {
+				
+				//$('#magentoSettingUpdateHistory').html(response.data);
+			 	//$('#magentoSettingUpdateHistoryModal').modal('show');
+				toastr['success'](response.message, 'success');
+			}
+		}).fail(function (response) {
+			$("#loading-image").hide();
+			toastr['error'](response.message, 'error');
+			console.log("Sorry, something went wrong");
+		});
+	});
+
 	function fnc(value, min, max) {
 		if (parseFloat(value) < (0).toFixed(2) || isNaN(value))
 			return null;
