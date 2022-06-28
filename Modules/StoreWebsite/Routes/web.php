@@ -29,8 +29,10 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::post('/delete-user-in-magento', 'StoreWebsiteController@deleteUserInMagento')->name("store-website.delete-user-in-magento");
     Route::post('/update-company-website-address', 'StoreWebsiteController@updateCompanyWebsiteAddress');
     Route::prefix('{id}')->group(function () {
-
+ 
         Route::post('magento-setting-update-history', 'StoreWebsiteController@getMagentoUpdateWebsiteSetting');
+ 
+        Route::post('magento-dev-update-script-history', 'StoreWebsiteController@getMagentoDevScriptUpdatesLogs');
         
         Route::post('magento-dev-script-update', 'StoreWebsiteController@magentoDevScriptUpdate');
         

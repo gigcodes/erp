@@ -30,6 +30,7 @@ use Carbon\Carbon;
 use App\Github\GithubRepository;
 use App\MagentoSettingUpdateResponseLog;
 use App\AssetsManager;
+use App\MagentoDevScripUpdateLog;
 
 class StoreWebsiteController extends Controller
 {
@@ -173,7 +174,9 @@ class StoreWebsiteController extends Controller
             $file->move($keyPath, $keyPathName);
             $post['key_file_path'] = $keyPathName;
         }
-        
+        if($post['site_folder'] !=''){
+            $post['site_folder'] = $post['site_folder'];
+        }
         $records->fill($post);
 
         $records->save();
@@ -925,7 +928,40 @@ class StoreWebsiteController extends Controller
         }
 	}
 	
-	
+	public function getMagentoDevScriptUpdatesLogs(Request $request,$store_website_id) 
+    {
+        try{
+            $responseLog = MagentoDevScripUpdateLog::where('store_website_id', '=', $store_website_id)->get();
+            //dd($responseLog);
+            if ($responseLog != null ) {
+                $html = '';
+                foreach($responseLog as $res){
+                    //dd($res->created_at);
+                    $html .= '<tr>';
+                    $html .= '<td>'.$res->created_at.'</td>';
+                    $html .= '<td class="expand-row-msg" data-name="website" data-id="'.$res->id.'" style="cursor: grabbing;">
+                    <span class="show-short-website-'.$res->id.'">'.str_limit($res->website, 15, "...").'</span>
+                    <span style="word-break:break-all;" class="show-full-website-'.$res->id.' hidden">'.$res->website.'</span>
+                    </td>';
+                    $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
+                    <span class="show-short-response-'.$res->id.'">'.str_limit($res->response, 50, "...").'</span>
+                    <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
+                    </td>';
+                    $html .= '</tr>';
+                }
+                return response()->json([
+                    "code" => 200, 
+                    "data" => $html,  
+                    "message" => "Magento setting updated successfully!!!"              
+                ]);
+            }
+            return response()->json(["code" => 500, "error" => "Wrong site id!"]);     
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, "data" => [], 'message' => $msg]);
+        }
+	}
+
     /**
      * This function is use to Update company's website address.
      *

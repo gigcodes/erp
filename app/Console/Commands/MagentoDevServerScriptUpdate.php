@@ -51,6 +51,8 @@ class MagentoDevServerScriptUpdate extends Command
                     $result = exec($cmd, $allOutput);
                     if($result == '')
                         $result = "Not any response";
+                    else
+                        $result = is_array($result)?json_encode($result, true):$result;
                     MagentoDevScripUpdateLog::create(
                         [
                             "store_website_id" =>  $website->id,
