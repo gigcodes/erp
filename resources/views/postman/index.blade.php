@@ -103,7 +103,7 @@
 
 
       <div class="col-12">
-        <h3>Assign Permissio to User</h3>
+        <h3>Assign Permission to User</h3>
         <form class="form-inline" id="update_user_permission" action="/postman/user/permission" method="POST">
           <div class="form-group">
             <div class="input-group">
@@ -1178,7 +1178,7 @@
           }).done(function(response) {
             if(response.code = '200') {
               toastr['success'](response.message, 'success'); 
-              //location.reload();
+              location.reload();
             } else {
               toastr['error'](response.message, 'error'); 
             }
@@ -1207,6 +1207,9 @@
       $(full).toggleClass('hidden');
       $(mini).toggleClass('hidden');
     });
-
+    $(document).ready(function(){
+		  $('#per_user_name').select2();
+    });
+	
   </script>
 @endsection
