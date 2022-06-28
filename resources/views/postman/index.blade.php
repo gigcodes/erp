@@ -101,6 +101,45 @@
       <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#addPostman">Add Postman request</button>
       <a href="/postman/folder" class="btn custom-button float-right mr-3">Add Folder</a>
 
+
+      <div class="col-12">
+        <h3>Assign Permissio to User</h3>
+        <form class="form-inline" id="update_user_permission" action="/postman/user/permission" method="POST">
+          <div class="form-group">
+            <div class="input-group">
+              <select name="per_folder_name" class="form-control" id="per_folder_name" required>
+                <option value="">--select folder for Permission--</option>
+                <?php 
+                  $ops = 'id';
+                  foreach($folders as $folder){
+                    $selected  = '';
+                    if($folder->id == request('per_folder_name'))
+                      $selected  = 'selected';
+                      echo '<option value="'.$folder->id.'" '.$selected.'>'.$folder->name.'</option>';
+                  }
+                ?>
+              </select>
+            </div>
+          </div> &nbsp;&nbsp;&nbsp;
+          <div class="form-group">
+            <div class="input-group">
+              <select name="per_user_name" class="form-control" id="per_user_name" required>
+                <option value="">--select user for Permission--</option>
+                <?php 
+                  foreach($users as $user){
+                    $selected  = '';
+                    if($user->id == request('per_user_name'))
+                      $selected  = 'selected';
+                      echo '<option value="'.$user->id.'" '.$selected.'>'.$user->name.'</option>';
+                  }
+                ?>
+              </select>
+            </div>
+          </div> &nbsp;&nbsp;
+          <button type="submit" class="btn custom-button update-userpermission">Update User Permission</button>
+        </form>
+      </div>
+    
     </div>
     
 	</br> 
@@ -1117,6 +1156,49 @@
            toastr['error'](errObj.message, 'error');
         });
     });
+
+    $(document).on("click",".update-userpermission",function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+        var per_folder_name = $('#per_folder_name').val();
+        var per_user_name = $('#per_user_name').val();
+        if(per_folder_name && per_user_name){
+          $.ajax({
+            url: "postman/user/permission",
+            type: "post",
+            headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+            data: {
+              per_folder_name : per_folder_name,
+              per_user_name : per_user_name
+            }
+            
+          }).done(function(response) {
+            if(response.code = '200') {
+              toastr['success'](response.message, 'success'); 
+              //location.reload();
+            } else {
+              toastr['error'](response.message, 'error'); 
+            }
+          }).fail(function(errObj) {
+            $('#loading-image').hide();
+            toastr['error'](errObj.message, 'error');
+          });
+        } else {
+          if(per_folder_name == '')
+            $('#per_folder_name').addClass("alert alert-danger");
+          if(per_user_name == '')
+            $('#select2-per_user_name-container').addClass("alert alert-danger");
+            setTimeout(function(){
+              $('#per_folder_name').removeClass("alert alert-danger");
+              $('#select2-per_user_name-container').removeClass("alert alert-danger");
+            }, 1000);
+            toastr['error']("Please Select Required fileds", 'error');
+        }
+    });
+
     $(document).on('click', '.expand-row-msg', function () {
       var name = $(this).data('name');
       var id = $(this).data('id');
