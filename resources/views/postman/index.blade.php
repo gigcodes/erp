@@ -1176,6 +1176,7 @@
             }
             
           }).done(function(response) {
+            $('#loading-image').hide();
             if(response.code = '200') {
               toastr['success'](response.message, 'success'); 
               location.reload();

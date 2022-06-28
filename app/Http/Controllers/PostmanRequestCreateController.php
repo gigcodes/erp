@@ -202,7 +202,7 @@ class PostmanRequestCreateController extends Controller
                     ]
                 );
             }
-            return response()->json(['code' => 500, 'message' => 'Permission Updated successfully!!!']);
+            return response()->json(['code' => 200, 'message' => 'Permission Updated successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
             return response()->json(['code' => 500, 'message' => $msg]);
