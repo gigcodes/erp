@@ -3881,6 +3881,8 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
 });
 Route::middleware('auth')->group(function () {
     Route::resource('checklist', 'CheckListController');
+    Route::get('checklist/view/{id}', 'CheckListController@view')->name("checklist.view");
+    Route::post('checklist/subjects', 'CheckListController@subjects')->name("checklist.subjects");
 });
 
 

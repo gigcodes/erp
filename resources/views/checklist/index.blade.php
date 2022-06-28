@@ -210,12 +210,14 @@
                 }],
                 columns: [{
                         data: null,
+                        width : "5%",
                         render: function (data, type, full, meta) {
                             return meta.row + 1;
                         }
                     },
                     {
                         data: 'category_name',
+                        width : "15%",
                         name: 'checklist.category_name',
                         render: function(data, type, row, meta) {
                             return data;
@@ -223,12 +225,14 @@
                     },
                     {
                         data: 'sub_category_name',
+                        width : "15%",
                         name: 'checklist.sub_category_name',
                         render: function(data, type, row, meta) {
                             return data;
                         }
                     },{
                         data: 'subjects',
+                        width : "50%",
                         name: 'checklist.subjects',
                         render: function(data, type, row, meta) {
                             if(data && data != ""){
@@ -244,13 +248,17 @@
                     },
                     {
                         data: 'id',
+                        width : "15%",
                         name: 'magento_modules.id',
                         // visible:false,
                         render: function(data, type, row, meta) {
                             // var show_data = actionShowButtonWithClass('show-details', row['id']);
                             var edit_data = actionEditButtonWithClass('edit-checklist', JSON.stringify(row));
                             var del_data = actionDeleteButton(row['id']);
-                            return `<div class="flex justify-left items-center">  ${edit_data} ${del_data} </div>`;
+                            var view_route = '{{ route('checklist.view',':id') }}'; 
+                            view_route = view_route.replace(':id', row['id']);
+                            var view_data = actionShowButton(view_route);
+                            return `<div class="flex justify-left items-center">  ${edit_data} ${del_data} ${view_data}</div>`;
                         }
                     },
                 ],

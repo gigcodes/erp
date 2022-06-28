@@ -47,6 +47,17 @@ class CheckListController extends Controller
         }
     }
 
+
+    public function view($id = null){
+        $title = 'View Check List';
+        return view('checklist.view', compact('title','id'));
+    }
+
+    public function subjects(Request $request){
+        $items = Checklist::select('id','category_name', 'sub_category_name','subjects','status')->where('id',$request->id);     
+        return datatables()->eloquent($items)->toJson();
+    }
+
     /**
      * Show the form for creating a new resource.
      *
