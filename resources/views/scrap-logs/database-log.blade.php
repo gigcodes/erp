@@ -181,7 +181,7 @@
 			success: function(data) {
 				$(".slow_loh_history_tbody").empty();
 				$.each(data.data, function(i,row){
-					$(".slow_loh_history_tbody").append("<tr><td>"+(i+1)+"</td><td>"+row['created_at']+"</td><td>"+row['userName']+"</td><td>"+row['type']+"</td></tr>");
+					$(".slow_loh_history_tbody").append("<tr><td>"+row['id']+"</td><td>"+row['created_at']+"</td><td>"+row['userName']+"</td><td>"+row['type']+"</td></tr>");
 				});
 				toastr['success'](data.message, 'success');
 			}

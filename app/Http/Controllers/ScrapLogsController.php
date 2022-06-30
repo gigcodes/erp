@@ -376,8 +376,10 @@ class ScrapLogsController extends Controller
 
 	public function disableEnableHistory(Request $request) {
 		try{
-			$data = SlowLogsEnableDisable::select('slow_logs_enable_disables.*', 'users.name AS userName')->
-			leftJoin('users', 'slow_logs_enable_disables.user_id', 'users.id')->get();
+			$data = SlowLogsEnableDisable::select('slow_logs_enable_disables.*', 'users.name AS userName')
+			->leftJoin('users', 'slow_logs_enable_disables.user_id', 'users.id')
+			->orderBy('slow_logs_enable_disables.id', 'DESC')
+			->get();
 		    return response()->json(['code' => 200, "data" => $data,  'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
