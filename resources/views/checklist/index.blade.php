@@ -235,11 +235,11 @@
                         width : "50%",
                         name: 'checklist.subjects',
                         render: function(data, type, row, meta) {
-                            if(data && data != ""){
-                                var subjects = data.split(",");
+                            if(data !== null && data !== '') {
+                                var subjects = data;
                                 var subject_html = "";
                                 for(var i=0; i<subjects.length; i++){
-                                    subject_html += "<span class='badge badge-primary mr-2'>"+subjects[i]+"</span>";
+                                    subject_html += "<span class='badge badge-primary mr-2'>"+subjects[i].title+"</span>";
                                 }
                                 return subject_html;
                             }
@@ -323,7 +323,11 @@
         $('#edit_checklist_form #category_name').val(checklistData.category_name);
         $('#edit_checklist_form #sub_category_name').val(checklistData.sub_category_name);
         $('#edit_checklist_form #subjects').tagsinput('removeAll');
-        $('#edit_checklist_form #subjects').tagsinput('add', checklistData.subjects);
+        var tags = "";
+        for(i=0; i<checklistData.subjects.length; i++){
+            tags += checklistData.subjects[i].title+", ";
+        }
+        $('#edit_checklist_form #subjects').tagsinput('add', tags);
         $('#EditCheckList').modal('show');
     });
     
