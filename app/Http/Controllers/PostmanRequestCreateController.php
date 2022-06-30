@@ -183,6 +183,32 @@ class PostmanRequestCreateController extends Controller
 
     }
 
+    /**
+     * This function use for add to user permission
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function userPermission(Request $request){
+        try{
+            $postmans = PostmanRequestCreate::where('folder_name', $request->per_folder_name)->get(); 
+            foreach($postmans as $postmanData){
+                $user_permission = $postmanData->user_permission.','.$request->per_user_name;
+                $user_permission =  array_unique(explode(',', $user_permission));
+                $user_permission =  implode(',',$user_permission);
+                $postman = PostmanRequestCreate::where('id', '=',  $postmanData->id)->update(
+                    [
+                        'user_permission' => $user_permission
+                    ]
+                );
+            }
+            return response()->json(['code' => 200, 'message' => 'Permission Updated successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
     public function jsonVersion(Request $request){
         try{
             $jsonVersion = PostmanRequestJsonHistory::create(
