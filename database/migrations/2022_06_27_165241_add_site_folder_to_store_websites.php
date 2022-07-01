@@ -14,7 +14,7 @@ class AddSiteFolderToStoreWebsites extends Migration
     public function up()
     {
         Schema::table('store_websites', function (Blueprint $table) {
-            $table->string('site_folder')->nullable()->after('request_data');
+            $table->string('site_folder')->nullable();
         });
     }
 
