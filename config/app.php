@@ -146,7 +146,7 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-
+        Anhskohbo\NoCaptcha\NoCaptchaServiceProvider::class,
         /*
          * Package Service Providers...
          */
@@ -172,7 +172,6 @@ return [
         Intervention\Image\ImageServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Thujohn\Twitter\TwitterServiceProvider::class,
-
         // BookStack replacement service providers (Extends Laravel)
         Modules\BookStack\Providers\PaginationServiceProvider::class,
         Modules\BookStack\Providers\TranslationServiceProvider::class,
@@ -255,14 +254,13 @@ return [
         'Input' => Illuminate\Support\Facades\Input::class,
         'Image' => Intervention\Image\Facades\Image::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
-        'Twitter' => Thujohn\Twitter\Facades\Twitter::class,
-
+        'Twitter' => Thujohn\Twitter\Facades\Twitter::class,        
         // Custom Modules\BookStack
         'Activity' => Modules\BookStack\Facades\Activity::class,
         'Setting'  => Modules\BookStack\Facades\Setting::class,
         'Views'    => Modules\BookStack\Facades\Views::class,
         'Images'   => Modules\BookStack\Facades\Images::class,
-
+        'NoCaptcha' => Anhskohbo\NoCaptcha\Facades\NoCaptcha::class,
         'PermissionCheck' => App\Facades\PermissionCheckClass::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
         'IImage' => Intervention\Image\Facades\Image::class,

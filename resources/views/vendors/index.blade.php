@@ -221,8 +221,9 @@
                 <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#vendorCreateModal"><i class="fa fa-plus"></i></button>
                 <a class="btn btn-secondary btn-xs create_broadcast" href="javascript:;">Create Broadcast</a>
                 @if (auth()->user()->isAdmin())
-                <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newStatusModal">Create Status</a>
+                    <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newStatusModal">Create Status</a>
                 @endif
+                <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newPositionModal">Create Positions</a>
         </div>   
     </div>
 
@@ -305,6 +306,7 @@
     @include('vendors.partials.change-hubstaff-role')
     @include('vendors.partials.create-cv')
     @include('vendors.partials.add-status')
+    @include('vendors.partials.add-position')
 
     <div id="reminderModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -470,6 +472,7 @@
     </div>
 @endsection
 @section('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="{{asset('js/zoom-meetings.js')}}"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>

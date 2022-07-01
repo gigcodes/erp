@@ -1758,6 +1758,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('complaint', 'ComplaintController');
     Route::post('complaint/{id}/status', 'ComplaintController@updateStatus')->name('complaint.updateStatus');
 
+
+    //Position
+    Route::post('positions/store', 'PositionController@store')->name('positions.store');
+    Route::get('criteria/get/{id}', 'PositionController@list')->name('get.criteria');
+
     // Vendor Module
     Route::get('vendors/product', 'VendorController@product')->name('vendors.product.index');
     Route::post('vendors/store', 'VendorController@store')->name('vendors.store');
@@ -1782,7 +1787,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('negative/coupon/response', 'NegativeCouponResponseController@index')->name('negative.coupon.response');
     Route::get('negative/coupon/response/search', 'NegativeCouponResponseController@search')->name('negative.coupon.response.search');
     
-    Route::post('vendors/cv/store', 'VendorResumeController@store')->name('vendor.cv.store');
+    
     Route::get('vendors/cv/index', 'VendorResumeController@index')->name('vendor.cv.index');
     Route::get('vendors/cv/search', 'VendorResumeController@search')->name('vendor.cv.search');
     Route::post('vendors/cv/get-work-experience', 'VendorResumeController@getWorkExperience')->name('vendors.cv.get-work-experience');
@@ -3067,6 +3072,9 @@ Route::group(['middleware' => 'auth'], function () {
 Route::prefix('chat-bot')->middleware('auth')->group(function () {
     Route::get('/connection', 'ChatBotController@connection');
 });
+
+Route::get('vendors/create-cv/{id}', 'VendorResumeController@create')->name('vendors.create.cv');
+Route::post('vendors/cv/store', 'VendorResumeController@store')->name('vendor.cv.store');
 
 Route::middleware('auth')->group(function () {
 
