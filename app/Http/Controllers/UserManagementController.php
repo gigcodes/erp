@@ -8,6 +8,7 @@ use App\UserFeedbackStatus;
 use App\User;
 use App\UserFeedbackCategorySopHistory;
 use App\UserFeedbackCategorySopHistoryComment;
+use App\Sop;
 
 
 class UserManagementController extends Controller
@@ -36,8 +37,10 @@ class UserManagementController extends Controller
             }
         }
         $users = User::all();
+        $sops = Sop::all();
+        //dd($sops);
         $category = $category->paginate(25);
-        return view('user-management.get-user-feedback-table',compact('category', 'status','user_id', 'users', 'request'));
+        return view('user-management.get-user-feedback-table',compact('category', 'status','user_id', 'users', 'request', 'sops'));
     }
 
     public function sopHistory(Request $request)
@@ -50,7 +53,7 @@ class UserManagementController extends Controller
             $sop->user_id = \Auth::user()->id;
             $sop->sop = $request->sop_text;
             $sop->save();
-            UserFeedbackCategory::where('id', $request->cat_id)->update(['sop_id' => $sop->id, 'sop' => $request->sop_text]);
+            UserFeedbackCategory::where('id', $request->cat_id)->update(['sop_id' => $sop->id, 'sop' => $request->sop_text, 'sops_id' => $request->sops_id]);
             return response()->json(['code'=>'200', 'data' => $sop, 'message' => 'Data saved successfully']);
         } catch(\Exception $e){
             return response()->json(['code'=>'500',  'message' => $e->getMessage()]);

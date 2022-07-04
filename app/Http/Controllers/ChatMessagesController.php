@@ -48,6 +48,9 @@ class ChatMessagesController extends Controller
             case 'user-feedback':
                 $object = User::find($request->object_id);
                 break;
+            case 'user-feedback-hrTicket':
+                $object = User::find($request->object_id);
+                break;
             case 'hubstuff':
                 $object = User::find($request->object_id);
                 break;
@@ -135,6 +138,9 @@ class ChatMessagesController extends Controller
         }
 
         if ($request->object == "user-feedback") {
+            $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id', $request->feedback_category_id);
+        }
+        if ($request->object == "user-feedback-hrTicket") {
             $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id', $request->feedback_category_id);
         }
         if ($request->object == "hubstuff") {

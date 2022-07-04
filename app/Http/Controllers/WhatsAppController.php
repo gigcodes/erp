@@ -2143,6 +2143,25 @@ class WhatsAppController extends FindByNumberController
             $data['send_by'] = Auth::user()->isAdmin() ? Auth::id() : null;
             $module_id = $u_id;
             $this->logchatmessage("#6",$request->task_id,$request->message,"if the user-feedback message is going to send");
+        } elseif ($context == 'user-feedback-hrTicket') {
+            $data['user_feedback_id'] = $request->user_id;
+            $data['user_feedback_category_id'] = $request->feedback_cat_id;
+            $data['user_feedback_status'] = $request->feedback_status_id;
+            $Admin_users = User::get();
+            foreach ($Admin_users as $u) {
+                if ($u->isAdmin()) {
+                    $u_id = $u->id;
+                    break;
+                }
+            }
+            if (Auth::user()->isAdmin()) {
+                $u_id = $request->user_id;
+            }
+            $data['user_id'] = $u_id;
+            $data['sent_to_user_id'] = $u_id;
+            $data['send_by'] = Auth::user()->isAdmin() ? Auth::id() : null;
+            $module_id = $u_id;
+            $this->logchatmessage("#20",$request->task_id,$request->message,"if the user-feedback HR Ticket message is going to send");
         } elseif ($context == 'hubstuff') {
             $data['hubstuff_activity_user_id'] = $request->hubstuff_id;
             $module_id = $request->hubstuff_id;
@@ -4351,7 +4370,7 @@ class WhatsAppController extends FindByNumberController
 
         if ($message->message != '') {
 
-            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'charity' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'SOP-Data') {
+            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'charity' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'user-feedback-hrTicket' || $context == 'SOP-Data') {
                 if ($context == 'supplier') {
                     $supplierDetails = Supplier::find($message->supplier_id);
                     $language = $supplierDetails->language;
@@ -4394,6 +4413,20 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 if ($context == 'user-feedback') {
+                    $userDetails = User::find($message->user_id);
+                    $model_id = $message->user_id;
+                    $model_class = \App\User::class;
+                    $toemail = $userDetails->email;
+                    $phone = $userDetails->phone;
+                    $user = \Auth::user();
+                    $whatsapp_number = $user->whatsapp_number;
+                    $language = $userDetails->language;
+                    if ($language != null) {
+                        $result = TranslationHelper::translate('en', $language, $message->message);
+                        $message->message = $result;
+                    }
+                }
+                if ($context == 'user-feedback-hrTicket') {
                     $userDetails = User::find($message->user_id);
                     $model_id = $message->user_id;
                     $model_class = \App\User::class;
