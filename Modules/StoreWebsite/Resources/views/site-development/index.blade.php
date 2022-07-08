@@ -2195,7 +2195,16 @@
             $(full).toggleClass('hidden');
             $(mini).toggleClass('hidden');
         });
-
+        $(document).on('click', '.assign', function() {
+            //debugger;
+            var id = $(this).data('id');
+            console.log(id);
+            var full = '.assign .comm-'+ id;
+            var mini = '.assign .comm-'+ id;
+            $(full).toggleClass('show');
+            $(mini).toggleClass('hidden');
+        });
+        
         $(document).on('click', '.send-message', function() {
             var thiss = $(this);
             var data = new FormData();

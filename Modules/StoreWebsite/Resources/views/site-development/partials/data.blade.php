@@ -22,7 +22,7 @@
             <td>
                 {{ $pagrank++ }}
             </td>
-            <td>
+            <td class="expand-row-msg" data-name="cat_title" data-id="{{$pagrank}}">
                 @include(
                     'storewebsite::site-development.partials.edit-modal'
                 )
@@ -32,7 +32,12 @@
                 @include(
                     'storewebsite::site-development.partials.site-check-modal'
                 )
-                {{ $category->title }}
+                
+                
+                
+                    <span class="show-short-cat_title-{{$pagrank}}">{{ str_limit($category->title, 5, '..')}}</span>
+                    <span style="word-break:break-all;" class="show-full-cat_title-{{$pagrank}} hidden">{{$category->title}}</span>
+                
 
                 <div style="display: flex; float: right"> <button
                         onclick="checkList({{ $category->id }}, {{ $category->site_development_id }})"
@@ -68,6 +73,7 @@
                         </button>
                     @endif
                 </div>
+            
                 <form style="float: left;">
                     <label class="radio-inline">
                         <input class="save-artwork-status" type="radio" name="artwork_status"
@@ -124,9 +130,16 @@
             </td>
 
             <td colspan=2>
-                <table class="assign">
+                <table class="assign" data-id="{{$pagrank}}">
+                    <?php $tableTrCounter = '0'; ?>
                     @foreach ($category->assignedTo as $assignedTo)
-                        <tr>
+                    <?php $tableTrCounter++;
+                        if($tableTrCounter != 1)
+                            $tTrClass = 'comm-'.$pagrank.' hidden';
+                        else
+                            $tTrClass = '';
+                    ?>
+                        <tr class="{{$tTrClass}}">
                             <td width="32%">
 
                                 @if (auth()->user()->isAdmin())
@@ -146,7 +159,7 @@
                                     {{ $assignedTo['assigned_to_name'] }}
                                 @endif
                             </td>
-                            <td class="pt-2">
+                            <td class="pt-2"  width="32%">
                                 <div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1 msg">
                                     <?php
                                     $MsgPreview = '# ';
