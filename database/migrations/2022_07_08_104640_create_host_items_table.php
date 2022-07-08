@@ -17,15 +17,17 @@ class CreateHostItemsTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('host_id');
             $table->foreign('host_id')->references('hostid')->on('hosts')->onDelete('cascade');
-            $table->float('free_inode_in', 6, 2);
-            $table->float('space_utilization', 6, 2);
-            $table->float('total_space', 6, 2);
-            $table->float('used_space ', 6, 2);
-            $table->float('available_memory', 3, 1);
-            $table->float('available_memory_in', 6, 2);
-            $table->float('cpu_idle_time', 6, 2);
-            $table->float('cpu_utilization', 6, 2);
-            $table->float('interrupts_per_second', 8, 4);
+            $table->integer('item_id','55');
+            $table->integer('hostid','55');
+            $table->double('free_inode_in', 6, 2);
+            $table->double('space_utilization', 6, 2);
+            $table->double('total_space', 6, 2);
+            $table->double('used_space ', 6, 2);
+            $table->double('available_memory', 3, 1);
+            $table->double('available_memory_in', 6, 2);
+            $table->double('cpu_idle_time', 6, 2);
+            $table->double('cpu_utilization', 6, 2);
+            $table->double('interrupts_per_second', 8, 4);
             $table->timestamps();
         });
     }
