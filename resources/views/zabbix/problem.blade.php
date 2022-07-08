@@ -65,26 +65,19 @@
     </div>
 <div class="row">
 	<div class="col-md-12 p-0">
-		<h2 class="page-heading">Host Item List</h2>
+		<h2 class="page-heading">Problem List</h2>
 	</div>
 </div>
 
 
 
 <div class="table-responsive mt-3" style="margin-top:20px;">
-      <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
+      <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="problem-table">
         <thead>       
             <tr>
-                <th>Host</th>
-                <th>Free inodes in %</th>
-                <th>Space utilization</th>
-                <th>Total space</th>
-                <th>Used space</th>
-                <th>Available memory</th>
-                <th>Available memory in</th>
-                <th>CPU idle time</th>
-                <th>CPU utilization</th> 
-                <th>Interrupts per second</th>                               
+                <th>Event Id</th>
+                <th>Object ID</th>
+                <th>Problem</th>                
             </tr>
         </thead>
         <tbody> 
@@ -107,7 +100,7 @@
     <script type="text/javascript">
    var oTable;
         $(document).ready(function() {
-            oTable = $('#email-table').DataTable({
+            oTable = $('#problem-table').DataTable({
                 lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
                 responsive: true,
                 searchDelay: 500,
@@ -119,7 +112,7 @@
                 targets: 'no-sort',
                 bSort: false,
                 ajax: {
-                    "url": "{{ route('zabbix.index') }}",
+                    "url": "{{ route('zabbix.problem') }}",
                     data: function(d) {
                        
                     },
@@ -131,68 +124,23 @@
                 }],
                 columns: [
                     {
+                      data: 'eventid',                                             
+                      render: function(data, type, row, meta) {
+                        return data;
+                      }
+                    },
+                    {
+                      data: 'objectid',                                             
+                      render: function(data, type, row, meta) {
+                        return data;
+                      }
+                    },
+                    {
                       data: 'name',                                             
                       render: function(data, type, row, meta) {
                         return data;
                       }
-                    },
-                    {
-                      data: 'items.free_inode_in',                                             
-                      render: function(data, type, row, meta) {
-                        return data+"%";
-                      }
-                    },
-                    {
-                      data: 'items.space_utilization',                                             
-                      render: function(data, type, row, meta) {
-                        return data+"%";
-                      }
-                    },
-                    {
-                      data: 'items.total_space',                                             
-                      render: function(data, type, row, meta) {
-                        var digit = data/1000000000;
-                        return digit.toFixed(2);
-                      }
-                    },
-                    {
-                      data: 'items.used_space',                                             
-                      render: function(data, type, row, meta) {
-                        var digit = data/1000000000;
-                        return digit.toFixed(2);
-                      }
-                    },
-                    {
-                      data: 'items.available_memory',                                             
-                      render: function(data, type, row, meta) {
-                        var digit = data/1000000000;
-                        return digit.toFixed(2);
-                      }
-                    },
-                    {
-                      data: 'items.available_memory_in',                                             
-                      render: function(data, type, row, meta) {
-                        return data+"%";
-                      }
-                    },
-                    {
-                      data: 'items.cpu_idle_time',                                             
-                      render: function(data, type, row, meta) {
-                        return data+"%";
-                      }
-                    },
-                    {
-                      data: 'items.cpu_utilization',                                             
-                      render: function(data, type, row, meta) {
-                        return data+"%";
-                      }
-                    },
-                    {
-                      data: 'items.interrupts_per_second',                                             
-                      render: function(data, type, row, meta) {
-                        return data;
-                      }
-                    },                     
+                    }
                 ],
             });
         });

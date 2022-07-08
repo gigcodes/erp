@@ -1015,7 +1015,7 @@ if (!empty($notifications)) {
                                     <a class="dropdown-item" href="{{ route('zabbix.index') }}">Items</a>
                                 </li>
                                 <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('zabbix.index') }}">Problems</a>
+                                    <a class="dropdown-item" href="{{ route('zabbix.problem') }}">Problems</a>
                                 </li>
                             </ul>
                         </li>

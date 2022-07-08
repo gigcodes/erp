@@ -7,6 +7,7 @@ use App\Console\Commands\AddGroupTheme;
 use App\Console\Commands\AddRoutesToGroups;
 use App\Console\Commands\ZabbixStore;
 use App\Console\Commands\ZabbixHostItems;
+use App\Console\Commands\ZabbixProblemImport;
 use App\Console\Commands\AssetsManagerPaymentCron;
 use App\Console\Commands\AuthenticateWhatsapp;
 use App\Console\Commands\AutoInterestMessage;
@@ -313,7 +314,8 @@ class Kernel extends ConsoleKernel
         MagentoSettingAddUpdate::class,
         NegativeCouponResponses::class,
         ZabbixStore::class,
-        ZabbixHostItems::class
+        ZabbixHostItems::class,
+        ZabbixProblemImport::class
     ];
 
     /**
@@ -325,6 +327,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('store:zabbix')->everyFiveMinutes();
+        $schedule->command('zabbix:problem')->everyFiveMinutes();
         $schedule->command('store:zabbixhostitems')->everyFiveMinutes();
         $schedule->command('HubstuffActivity:Command')->daily();
 
