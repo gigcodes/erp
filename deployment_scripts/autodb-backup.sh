@@ -10,7 +10,7 @@ find $bkproot -mtime +8 -exec rm -rf {} \;
 
 ############### Magento Servers Database Backup #############
 envfile='/var/www/erp.theluxuryunlimited.com/.env'
-magento_servers='BRANDS AVOIRCHIC OLABELS SOLOLUXURY SUVANDNAT THEFITEDIT THESHADESSHOP UPEAU VERALUSSO'
+magento_servers='BRANDS AVOIRCHIC SOLOLUXURY SUVANDNAT VERALUSSO'
 mageroot=/mnt/backup/magento_backup
 magebkp=$bkproot/$date
 
