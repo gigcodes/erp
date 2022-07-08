@@ -152,6 +152,7 @@ use App\Console\Commands\GtMetrixReport;
 use App\Console\Commands\MagentoReportLog;
 use App\Console\Commands\MagentoSettingAddUpdate;
 use App\Console\Commands\NegativeCouponResponses;
+use App\Console\Commands\StoreLiveProject;
 
 class Kernel extends ConsoleKernel
 {
@@ -161,6 +162,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
+        StoreLiveProject::class,
         FetchMagentoCronData::class,
         GoogleWebMasterFetchAllRecords::class,
         PostScheduledMedia::class,
@@ -320,6 +322,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->command('store:live-project')->everyFiveMinutes();
         $schedule->command('HubstuffActivity:Command')->daily();
 
         $schedule->command('project:filemanagementdate')->daily();
