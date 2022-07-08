@@ -3886,7 +3886,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('checklist', 'CheckListController');
 });
 
-
+Route::resource('zabbix', 'ZabbixController');
 Route::get('test', 'ScrapController@listCron');
 Route::get('command', function () {
     // \Artisan::call('migrate');

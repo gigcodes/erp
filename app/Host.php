@@ -10,4 +10,8 @@ class Host extends Model
     protected $fillable = [
         'hostid', 'host', 'name',
     ];
+
+    public function items(){
+        return $this->hasMany(HostItem::class);
+    }
 }
