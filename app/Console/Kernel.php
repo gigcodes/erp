@@ -5,6 +5,8 @@ namespace App\Console;
 use App\Console\Commands\AccountHubstaffActivities;
 use App\Console\Commands\AddGroupTheme;
 use App\Console\Commands\AddRoutesToGroups;
+use App\Console\Commands\ZabbixStore;
+use App\Console\Commands\ZabbixHostItems;
 use App\Console\Commands\AssetsManagerPaymentCron;
 use App\Console\Commands\AuthenticateWhatsapp;
 use App\Console\Commands\AutoInterestMessage;
@@ -152,7 +154,6 @@ use App\Console\Commands\GtMetrixReport;
 use App\Console\Commands\MagentoReportLog;
 use App\Console\Commands\MagentoSettingAddUpdate;
 use App\Console\Commands\NegativeCouponResponses;
-use App\Console\Commands\StoreLiveProject;
 
 class Kernel extends ConsoleKernel
 {
@@ -162,7 +163,6 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        StoreLiveProject::class,
         FetchMagentoCronData::class,
         GoogleWebMasterFetchAllRecords::class,
         PostScheduledMedia::class,
@@ -312,6 +312,8 @@ class Kernel extends ConsoleKernel
         MagentoReportLog::class,
         MagentoSettingAddUpdate::class,
         NegativeCouponResponses::class,
+        ZabbixStore::class,
+        ZabbixHostItems::class
     ];
 
     /**
@@ -322,7 +324,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('store:live-project')->everyFiveMinutes();
+        $schedule->command('store:zabbix')->everyFiveMinutes();
+        $schedule->command('store:zabbixhostitems')->everyFiveMinutes();
         $schedule->command('HubstuffActivity:Command')->daily();
 
         $schedule->command('project:filemanagementdate')->daily();

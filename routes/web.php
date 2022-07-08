@@ -25,6 +25,8 @@ Route::get('textcurl', 'Marketing\MailinglistController@textcurl');
 Route::get('/test/dummydata', 'TestingController@testingFunction');
 Route::get('/test/translation', 'GoogleTranslateController@testTranslation');
 
+Route::get('/zabbix', 'ZabbixController@index');
+
 Route::get('/test/testPrice', 'TmpTaskController@testEmail');
 Route::get('/memory', 'MemoryUsesController@index')->name('memory.index');
 Route::post('/memory/thresold-update', 'MemoryUsesController@updateThresoldLimit')->name('update.thresold-limit');
