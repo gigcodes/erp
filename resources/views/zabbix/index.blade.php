@@ -131,23 +131,65 @@
                 }],
                 columns: [
                     {
-                        data: 'name',                                             
-                        render: function(data, type, row, meta) {
-                            return data;
-                        }
+                      data: 'name',                                             
+                      render: function(data, type, row, meta) {
+                        return data;
+                      }
                     },
                     {
-                        data: 'items.free_inode_in',                                             
-                        render: function(data, type, row, meta) {
-                            return data;
-                        }
+                      data: 'items.free_inode_in',                                             
+                      render: function(data, type, row, meta) {
+                        return data;
+                      }
                     },
                     {
-                        data: 'name',                                             
-                        render: function(data, type, row, meta) {
-                            return data;
-                        }
-                    }                    
+                      data: 'items.space_utilization',                                             
+                      render: function(data, type, row, meta) {
+                        return data;
+                      }
+                    },
+                    {
+                      data: 'items.total_space',                                             
+                      render: function(data, type, row, meta) {
+                        return data;
+                      }
+                    },
+                    {
+                      data: 'items.used_space',                                             
+                      render: function(data, type, row, meta) {
+                        return data;
+                      }
+                    },
+                    {
+                      data: 'items.available_memory',                                             
+                      render: function(data, type, row, meta) {
+                        return data;
+                      }
+                    },
+                    {
+                      data: 'items.available_memory_in',                                             
+                      render: function(data, type, row, meta) {
+                        return data;
+                      }
+                    },
+                    {
+                      data: 'items.cpu_idle_time',                                             
+                      render: function(data, type, row, meta) {
+                        return data;
+                      }
+                    },
+                    {
+                      data: 'items.cpu_utilization',                                             
+                      render: function(data, type, row, meta) {
+                        return data;
+                      }
+                    },
+                    {
+                      data: 'items.interrupts_per_second',                                             
+                      render: function(data, type, row, meta) {
+                        return data;
+                      }
+                    },                     
                 ],
             });
         });
