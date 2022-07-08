@@ -12,6 +12,6 @@ class Host extends Model
     ];
 
     public function items(){
-        return $this->hasMany(HostItem::class);
+        return $this->hasOne(HostItem::class);
     }
 }

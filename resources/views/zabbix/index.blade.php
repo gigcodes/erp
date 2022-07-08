@@ -73,10 +73,22 @@
 
 <div class="table-responsive mt-3" style="margin-top:20px;">
       <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
-        <thead>          
+        <thead>       
+            <tr>
+                <th>Host</th>
+                <th>Free inodes in %</th>
+                <th>Space utilization</th>
+                <th>Total space</th>
+                <th>Used space</th>
+                <th>Available memory</th>
+                <th>Available memory in</th>
+                <th>CPU idle time</th>
+                <th>CPU utilization</th> 
+                <th>Interrupts per second</th>                               
+            </tr>
         </thead>
-        <tbody>        
-         
+        <tbody> 
+            
         </tbody>
       </table>
       <div class="pagination-custom">
@@ -117,42 +129,25 @@
                     orderable: false,
                     searchable: false
                 }],
-                columns: [{
-                        data: 'hostid',
-                        columnName : 'Host ID',
-                        render: function (data, type, full, meta) {
-                            return data;
-                        }
-                    },
+                columns: [
                     {
-                        data: 'name',   
-                        columnName : 'Host Name',                     
+                        data: 'name',                                             
                         render: function(data, type, row, meta) {
                             return data;
                         }
                     },
-                    // {
-                    //     data: 'sub_category_name',
-                    //     name: 'checklist.sub_category_name',
-                    //     render: function(data, type, row, meta) {
-                    //         return data;
-                    //     }
-                    // },{
-                    //     data: 'subjects',
-                    //     name: 'checklist.subjects',
-                    //     render: function(data, type, row, meta) {
-                    //         if(data && data != ""){
-                    //             var subjects = data.split(",");
-                    //             var subject_html = "";
-                    //             for(var i=0; i<subjects.length; i++){
-                    //                 subject_html += "<span class='badge badge-primary mr-2'>"+subjects[i]+"</span>";
-                    //             }
-                    //             return subject_html;
-                    //         }
-                    //         // return data;
-                    //     }
-                    // },
-                    
+                    {
+                        data: 'items.free_inode_in',                                             
+                        render: function(data, type, row, meta) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: 'name',                                             
+                        render: function(data, type, row, meta) {
+                            return data;
+                        }
+                    }                    
                 ],
             });
         });
