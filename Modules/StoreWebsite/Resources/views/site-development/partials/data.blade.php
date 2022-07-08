@@ -68,24 +68,24 @@
                         </button>
                     @endif
                 </div>
-                <form>
+                <form style="float: left;">
                     <label class="radio-inline">
                         <input class="save-artwork-status" type="radio" name="artwork_status"
                             data-category="{{ $category->id }}" value="Yes" data-type="artwork_status"
                             data-site="@if ($site) {{ $site->id }} @endif"
-                            @if ($site) {{ $site->artwork_status == 'Yes' ? 'checked' : '' }} @endif />Yes
+                            @if ($site) {{ $site->artwork_status == 'Yes' ? 'checked' : '' }} @endif  style="height: 13px;"/>Yes
                     </label>
                     <label class="radio-inline">
                         <input class="save-artwork-status" type="radio" name="artwork_status"
                             data-category="{{ $category->id }}" value="No" data-type="artwork_status"
                             data-site="@if ($site) {{ $site->id }} @endif"
-                            @if ($site) {{ $site->artwork_status == 'No' ? 'checked' : '' }} @endif />No
+                            @if ($site) {{ $site->artwork_status == 'No' ? 'checked' : '' }} @endif style="height: 13px;"/>No
                     </label>
                     <label class="radio-inline">
                         <input class="save-artwork-status" type="radio" name="artwork_status"
                             data-category="{{ $category->id }}" value="Done" data-type="artwork_status"
                             data-site="@if ($site) {{ $site->id }} @endif"
-                            @if ($site) {{ $site->artwork_status == 'Done' ? 'checked' : '' }} @endif />Done
+                            @if ($site) {{ $site->artwork_status == 'Done' ? 'checked' : '' }} @endif  style="height: 13px;" />Done
                     </label>
                 </form>
             </td>
