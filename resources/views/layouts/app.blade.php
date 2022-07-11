@@ -421,6 +421,7 @@ if (!empty($notifications)) {
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
 								
+                                
 								<li class="nav-item dropdown dropdown-submenu">
 									<a id="navbarDropdown" class="" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product Templates <span class="caret"></span></a>
 									<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -1003,6 +1004,18 @@ if (!empty($notifications)) {
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('vendor.cv.index') }}">Vendors CV</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Zabbix<span class="caret"></span></a>
+                            <ul class="dropdown-menu multi-level">
+                                {{-- Sub Menu Product --}}
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('zabbix.index') }}">Items</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('zabbix.problem') }}">Problems</a>
                                 </li>
                             </ul>
                         </li>

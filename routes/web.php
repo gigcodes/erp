@@ -25,6 +25,9 @@ Route::get('textcurl', 'Marketing\MailinglistController@textcurl');
 Route::get('/test/dummydata', 'TestingController@testingFunction');
 Route::get('/test/translation', 'GoogleTranslateController@testTranslation');
 
+Route::get('/zabbix', 'ZabbixController@index');
+Route::get('/zabbix/problems', 'ZabbixController@problems')->name("zabbix.problem");
+
 Route::get('/test/testPrice', 'TmpTaskController@testEmail');
 Route::get('/memory', 'MemoryUsesController@index')->name('memory.index');
 Route::post('/memory/thresold-update', 'MemoryUsesController@updateThresoldLimit')->name('update.thresold-limit');
@@ -3886,7 +3889,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('checklist', 'CheckListController');
 });
 
-
+Route::resource('zabbix', 'ZabbixController');
 Route::get('test', 'ScrapController@listCron');
 Route::get('command', function () {
     // \Artisan::call('migrate');
