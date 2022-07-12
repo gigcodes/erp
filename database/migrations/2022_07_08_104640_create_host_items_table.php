@@ -16,7 +16,7 @@ class CreateHostItemsTable extends Migration
         Schema::create('host_items', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('host_id');
-            $table->foreign('host_id')->references('hostid')->on('hosts')->onDelete('cascade');
+            $table->foreign('host_id')->references('id')->on('hosts')->onDelete('cascade');
             $table->integer('item_id','55');
             $table->integer('hostid','55');
             $table->double('free_inode_in', 6, 2);
