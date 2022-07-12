@@ -264,12 +264,12 @@
 
             <div class="col-md-12 margin-tb infinite-scroll">
                 <div class="row">
-                    <div class="table-responsive">
-                        <table class="table table-bordered" id="documents-table">
+                    <div class="table-responsive mt-2">
+                        <table class="table table-bordered text-nowrap" id="documents-table">
                             <thead>
                                 <tr>
                                     <th width="4%">S No</th>
-                                    <th width="15%"></th>
+                                    <th width="10%"></th>
                                     <th width="15%" style="word-break: break-all;">Website</th>
                                     <th width="12%">Master Category</th>
                                     <th width="12%">Remarks</th>
@@ -277,7 +277,8 @@
                                     <th style="display:none;">Title</th>
                                     <th style="display:none;">Message</th>
                                     <th width="25%">Communication</th>
-                                    <th width="20%">Action</th>
+                                    <th width="25%">status</th>
+                                    <th width="25%">Action</th>
                                 </tr>
                             </thead>
                             <tbody class="infinite-scroll-pending-inner">
@@ -2203,6 +2204,21 @@
             var mini = '.assign .comm-'+ id;
             $(full).toggleClass('show');
             $(mini).toggleClass('hidden');
+            $(this, "table tr:nth-child(1)").addClass('test')//css("background-color", "yellow");
+
+        });
+        $(document).on('click', '.show_moreCls', function(event) {
+           //debugger;
+            var id = $(this).data('id');
+            if($(this).text() == 'Show More'){
+                $(this).text('Show Less');
+                $('.comm-'+id).removeClass('hidden');
+            } else {
+                $('.comm-'+id).addClass('hidden');
+                $(this).text('Show More');
+            }
+            
+
         });
         
         $(document).on('click', '.send-message', function() {
