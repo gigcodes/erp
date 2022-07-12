@@ -210,12 +210,14 @@
                 }],
                 columns: [{
                         data: null,
+                        width : "5%",
                         render: function (data, type, full, meta) {
                             return meta.row + 1;
                         }
                     },
                     {
                         data: 'category_name',
+                        width : "15%",
                         name: 'checklist.category_name',
                         render: function(data, type, row, meta) {
                             return data;
@@ -223,19 +225,21 @@
                     },
                     {
                         data: 'sub_category_name',
+                        width : "15%",
                         name: 'checklist.sub_category_name',
                         render: function(data, type, row, meta) {
                             return data;
                         }
                     },{
                         data: 'subjects',
+                        width : "50%",
                         name: 'checklist.subjects',
                         render: function(data, type, row, meta) {
-                            if(data && data != ""){
-                                var subjects = data.split(",");
+                            if(data !== null && data !== '') {
+                                var subjects = data;
                                 var subject_html = "";
                                 for(var i=0; i<subjects.length; i++){
-                                    subject_html += "<span class='badge badge-primary mr-2'>"+subjects[i]+"</span>";
+                                    subject_html += "<span class='badge badge-primary mr-2'>"+subjects[i].title+"</span>";
                                 }
                                 return subject_html;
                             }
@@ -244,13 +248,17 @@
                     },
                     {
                         data: 'id',
+                        width : "15%",
                         name: 'magento_modules.id',
                         // visible:false,
                         render: function(data, type, row, meta) {
                             // var show_data = actionShowButtonWithClass('show-details', row['id']);
                             var edit_data = actionEditButtonWithClass('edit-checklist', JSON.stringify(row));
                             var del_data = actionDeleteButton(row['id']);
-                            return `<div class="flex justify-left items-center">  ${edit_data} ${del_data} </div>`;
+                            var view_route = '{{ route('checklist.view',':id') }}'; 
+                            view_route = view_route.replace(':id', row['id']);
+                            var view_data = actionShowButton(view_route);
+                            return `<div class="flex justify-left items-center">  ${edit_data} ${del_data} ${view_data}</div>`;
                         }
                     },
                 ],
@@ -315,7 +323,11 @@
         $('#edit_checklist_form #category_name').val(checklistData.category_name);
         $('#edit_checklist_form #sub_category_name').val(checklistData.sub_category_name);
         $('#edit_checklist_form #subjects').tagsinput('removeAll');
-        $('#edit_checklist_form #subjects').tagsinput('add', checklistData.subjects);
+        var tags = "";
+        for(i=0; i<checklistData.subjects.length; i++){
+            tags += checklistData.subjects[i].title+", ";
+        }
+        $('#edit_checklist_form #subjects').tagsinput('add', tags);
         $('#EditCheckList').modal('show');
     });
     
