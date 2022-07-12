@@ -171,8 +171,10 @@ table tr td {
                                 </td>
                                 <td class="uk-text-center@m">
                                     <a style="padding:1px;" class="btn d-inline btn-image view-task" href="#" data-id="{{$task->id}}" title="view task" data-expression="{{$task->getCronExpression()}}"><img src="/images/view.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn d-inline btn-image edit-task" href="#" data-id="{{$task->id}}" title="edit task"><img src="/images/edit.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn d-inline btn-image delete-tasks" href="#" data-id="{{$task->id}}" title="delete task"><img src="/images/delete.png" style="cursor: pointer; width: 0px;"></a>
+                                    @if (Auth::user()->isAdmin())
+                                        <a style="padding:1px;" class="btn d-inline btn-image edit-task" href="#" data-id="{{$task->id}}" title="edit task"><img src="/images/edit.png" style="cursor: pointer; width: 0px;"></a>
+                                        <a style="padding:1px;" class="btn d-inline btn-image delete-tasks" href="#" data-id="{{$task->id}}" title="delete task"><img src="/images/delete.png" style="cursor: pointer; width: 0px;"></a>
+                                    @endif
                                     <a style="padding:1px;" class="btn d-inline btn-image execute-task" href="#" data-id="{{$task->id}}" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a>
                                     <a style="padding:1px;" class="btn d-inline btn-image active-task" href="#" data-id="{{$task->id}}" title="task status" data-active="{{$task->is_active}}"><img src="/images/{{ $task->is_active ? 'flagged-green' : 'flagged'}}.png"  style="cursor: pointer; width: 0px;"></a>
                                     <a style="padding:1px;" class="btn d-inline btn-image execution-history" href="#" data-id="{{$task->id}}" title="task execution history" data-results="{{json_encode($task->results()->orderByDesc('created_at')->get())}}"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
