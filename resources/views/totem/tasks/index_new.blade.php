@@ -100,7 +100,7 @@ table tr td {
             <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">Cron Tasks {{'('.$total_tasks.')'}}</h2>
                 <div class="margin-tb" style="flex-grow: 1;">
                     <div class="pull-right ">
-                        <button type="button" class="btn btn-default btn-sm add-remark mr-1" data-toggle="modal" data-target="#addEditTaskModal">
+                        <button type="button" class="btn btn-default btn-sm add-remark add-torterm mr-1" data-toggle="modal" data-target="#addEditTaskModal">
                             <span class="glyphicon glyphicon-th-plus"></span> Add Task
                         </button>
                     </div>
@@ -404,7 +404,7 @@ table tr td {
                          </div> 
                         <div class="form-group frequencies">
                             <label>FREQUENCIES</label><i class="fa fa-info-circle" title="Add   to your task. These frequencies will be converted into a cron expression while scheduling the task"></i><br>
-                            <button type="button" class="btn btn-default btn-sm add-remark" data-toggle="modal" data-target="#addFrequencyModal">Add Frequency</button>
+                            <button type="button" class="btn btn-default btn-sm add-remark add-remark-s" data-toggle="modal" data-target="#addFrequencyModal">Add Frequency</button>
                             <div class="table-responsive mt-2" style="width: fit-content">
                             <table class="uk-table table-bordered uk-table-divider uk-margin-remove">
                                 <thead>
@@ -877,7 +877,12 @@ table tr td {
             }
         });
     });
-
+    $('.add-torterm').click(function(){
+        $('#addEditTaskModal').modal('show');  
+    });
+    $('.add-remark-s').click(function(){
+        $('#addFrequencyModal').modal('show');  
+    });
     $('.edit-task').click(function(){
         freq = 0;
         $('#addEditTaskModal').attr('data-id', $(this).data('id'));
