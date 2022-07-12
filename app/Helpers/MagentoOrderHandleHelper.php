@@ -123,6 +123,7 @@ class MagentoOrderHandleHelper extends Model
                             'store_name'          => $order->store_name,
                             'created_at'          => $order->created_at,
                             'updated_at'          => $order->created_at,
+                            'payload'             => json_encode($order),
                         )
                     );
 

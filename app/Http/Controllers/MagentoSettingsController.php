@@ -12,17 +12,20 @@ use App\WebsiteStore;
 use App\WebsiteStoreView;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\LogRequest;
 
 class MagentoSettingsController extends Controller
 {
 
     public function index(Request $request)
     {
+        $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
 
         $magentoSettings = MagentoSetting::with(
             'storeview.websiteStore.website.storeWebsite',
             'store.website.storeWebsite',
-            'website');
+            'website',
+            'fromStoreId', 'fromStoreIdwebsite');
 
         $magentoSettings->leftJoin('users', 'magento_settings.created_by', 'users.id');
         $magentoSettings->select('magento_settings.*', 'users.name as uname');
@@ -31,32 +34,36 @@ class MagentoSettingsController extends Controller
         }
         $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
             ->select('store_websites.website', 'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at')->orderBy('magento_setting_push_logs.created_at', 'DESC')->get();
-        if ($request->website) {
-
-            if (empty($request->scope)) {
-                $magentoSettings->whereHas('storeview.websiteStore.website.storeWebsite', function ($q) use ($request) {
-                    $q->where('id', $request->website);
-                })->orWhereHas('store.website.storeWebsite', function ($q) use ($request) {
-                    $q->where('id', $request->website);
-                })->orWhereHas('website', function ($q) use ($request) {
-                    $q->where('id', $request->website);
-                });
-            } else {
-                if ($request->scope == 'default') {
-                    $website_ids = StoreWebsite::where('id', $request->website)->get()->pluck('id')->toArray();
-                    $magentoSettings->whereIn('scope_id', $website_ids ?? []);
-                } else if ($request->scope == 'websites') {
-                    $website_ids       = Website::where('store_website_id', $request->website)->get()->pluck('id')->toArray();
-                    $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids ?? [])->get()->pluck('id')->toArray();
-                    $magentoSettings->whereIn('scope_id', $website_store_ids ?? []);
-                } else if ($request->scope == 'stores') {
-                    $website_ids            = Website::where('store_website_id', $request->website)->get()->pluck('id')->toArray();
-                    $website_store_ids      = WebsiteStore::whereIn('website_id', $website_ids ?? [])->get()->pluck('id')->toArray();
-                    $website_store_view_ids = WebsiteStoreView::whereIn('website_store_id', $website_store_ids ?? [])->get()->pluck('id')->toArray();
-                    $magentoSettings->whereIn('scope_id', $website_store_view_ids ?? []);
+        
+        
+        if (is_array($request->website)) {
+            foreach($request->website AS $website) {
+            
+                if (empty($request->scope)) {
+                    $magentoSettings->whereHas('storeview.websiteStore.website.storeWebsite', function ($q) use ($request, $website) {
+                        $q->where('id', $website);
+                    })->orWhereHas('store.website.storeWebsite', function ($q) use ($request, $website) {
+                        $q->where('id', $website);
+                    })->orWhereHas('website', function ($q) use ($request, $website) {
+                        $q->where('id', $website);
+                    });
+                } else {
+                    if ($request->scope == 'default') {
+                        $website_ids = StoreWebsite::where('id', $website)->get()->pluck('id')->toArray();
+                        $magentoSettings->whereIn('scope_id', $website_ids ?? []);
+                    } else if ($request->scope == 'websites') {
+                        $website_ids       = Website::where('store_website_id', $website)->get()->pluck('id')->toArray();
+                        $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids ?? [])->get()->pluck('id')->toArray();
+                        $magentoSettings->whereIn('scope_id', $website_store_ids ?? []);
+                    } else if ($request->scope == 'stores') {
+                        $website_ids            = Website::where('store_website_id', $website)->get()->pluck('id')->toArray();
+                        $website_store_ids      = WebsiteStore::whereIn('website_id', $website_ids ?? [])->get()->pluck('id')->toArray();
+                        $website_store_view_ids = WebsiteStoreView::whereIn('website_store_id', $website_store_ids ?? [])->get()->pluck('id')->toArray();
+                        $magentoSettings->whereIn('scope_id', $website_store_view_ids ?? []);
+                    }
                 }
+                //$pushLogs->where('magento_setting_push_logs.store_website_id', $request->website);
             }
-            //$pushLogs->where('magento_setting_push_logs.store_website_id', $request->website);
         }
 
         if ($request->name != '') {
@@ -65,6 +72,10 @@ class MagentoSettingsController extends Controller
         if ($request->path != '') {
             $magentoSettings->where('magento_settings.path', 'LIKE', '%' . $request->path . '%');
         }
+        if ($request->status != '') {
+            $magentoSettings->where('magento_settings.status', 'LIKE', '%' . $request->status . '%');
+        }
+        
         $magentoSettings   = $magentoSettings->orderBy('magento_settings.created_at', 'DESC')->paginate(25);
         $storeWebsites     = StoreWebsite::get();
         $websitesStores    = WebsiteStore::get()->pluck('name')->unique()->toArray();
@@ -105,7 +116,12 @@ class MagentoSettingsController extends Controller
                     // Get response
                     $response = curl_exec($curl);
 
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    LogRequest::log($startTime,$websiteUrl . "/rest/V1/configvalue/get",'POST',json_encode($conf),json_decode($response),$httpcode,'index','App\Http\Controllers\MagentoSettingsController');
+
+
                     $response = json_decode($response, true);
+
 
                     foreach ($settings as $key => $setting) {
                         $newValues[$setting['id']] = isset($response[$key]) ? $response[$key]['value'] : null;
@@ -114,7 +130,12 @@ class MagentoSettingsController extends Controller
                 }
             }
         }
-
+        $countList = MagentoSetting::all();
+        if(is_array($request->website) || $request->name || $request->path || $request->status || $request->scope)
+            $counter = $magentoSettings->count();
+        else
+            $counter = $countList->count();
+        //dd($magentoSettings);
         if ($request->ajax()) {
             return view('magento.settings.index_ajax', [
                 'magentoSettings'   => $magentoSettings,
@@ -123,6 +144,7 @@ class MagentoSettingsController extends Controller
                 'websitesStores'    => $websitesStores,
                 'websiteStoreViews' => $websiteStoreViews,
                 'pushLogs'          => $pushLogs,
+                'counter'             => $counter
             ]);
         } else {
 
@@ -133,6 +155,7 @@ class MagentoSettingsController extends Controller
                 'websitesStores'    => $websitesStores,
                 'websiteStoreViews' => $websiteStoreViews,
                 'pushLogs'          => $pushLogs,
+                'counter'             => $counter
             ]);
         }
     }
@@ -368,14 +391,14 @@ class MagentoSettingsController extends Controller
                         $result      = exec($cmd, $allOutput); //Execute command
                         $status      = 'Error';
                         for ($i = 0; $i < count($allOutput); $i++) {
-                            if ($allOutput[$i] == "Pull Request Successfully merged") {
+                            if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged") ) {
                                 $status = 'Success';
                                 break;
                             }
                         }
                         $m_setting->status = $status;
                         $m_setting->save();
-                        MagentoSettingPushLog::create(['store_website_id' => $storeWebsite['id'], 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
+                        MagentoSettingPushLog::create(['store_website_id' => $storeWebsite['id'], 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($result), 'status' => $status]);
                         \Log::info(print_r(["Command Output", $allOutput], true));
                     else:
                         return response()->json(["code" => 500, "message" => "Request has been failed on stage server please check laravel log"]);
@@ -430,7 +453,7 @@ class MagentoSettingsController extends Controller
                         $result      = exec($cmd, $allOutput); //Execute command
                         $status      = 'Error';
                         for ($i = 0; $i < count($allOutput); $i++) {
-                            if ($allOutput[$i] == "Pull Request Successfully merged") {
+                            if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged") ) {
                                 $status = 'Success';
                                 break;
                             }
@@ -582,7 +605,6 @@ class MagentoSettingsController extends Controller
 
     public function namehistrory($id)
     {
-
         $ms    = MagentoSettingNameLog::select('magento_setting_name_logs.*', 'users.name')->leftJoin('users', 'magento_setting_name_logs.updated_by', 'users.id')->where('magento_settings_id', $id)->get();
         $table = "<table class='table table-bordered text-nowrap' style='border: 1px solid #ddd;'><thead><tr><th>Date</th><th>Old Value</th><th>New Value</th><th>Created By</th></tr></thead><tbody>";
         foreach ($ms as $m) {
@@ -601,7 +623,7 @@ class MagentoSettingsController extends Controller
         $data = '';
         foreach ($logs as $log) {
             $cmdOutputs = json_decode($log['command_output']);
-            $data .= '<tr><td>' . $log['created_at'] . '</td><td>' . $log['command'] . '</td><td>' . $log['status'] . '</td><td>';
+            $data .= '<tr><td>' . $log['created_at'] . '</td><td style="overflow-wrap: anywhere;">' . $log['command'] . '</td><td style="overflow-wrap: anywhere;">' . $log['status'] . '</td><td>';
             if (!empty($cmdOutputs)) {
                 foreach ($cmdOutputs as $cmdOutput) {
                     $data .= $cmdOutput . '<br/>';
@@ -650,7 +672,7 @@ class MagentoSettingsController extends Controller
                                                 $result      = exec($cmd, $allOutput); //Execute command
                                                 $status      = 'Error';
                                                 for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if ($allOutput[$i] == "Pull Request Successfully merged") {
+                                                    if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged") ) {
                                                         $status = 'Success';
                                                         break;
                                                     }
@@ -687,7 +709,7 @@ class MagentoSettingsController extends Controller
                                                 $result      = exec($cmd, $allOutput); //Execute command
                                                 $status      = 'Error';
                                                 for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if ($allOutput[$i] == "Pull Request Successfully merged") {
+                                                    if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged") ) {
                                                         $status = 'Success';
                                                         break;
                                                     }
@@ -725,7 +747,7 @@ class MagentoSettingsController extends Controller
                                                 $result      = exec($cmd, $allOutput); //Execute command
                                                 $status      = 'Error';
                                                 for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged")) {
+                                                    if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged") ) {
                                                         $status = 'Success';
                                                         break;
                                                     }

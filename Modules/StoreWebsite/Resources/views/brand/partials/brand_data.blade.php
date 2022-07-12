@@ -22,7 +22,7 @@ foreach($brands as $brand) {
 		$checked = (isset($apppliedResult[$brand->id]) && in_array($swid, $apppliedResult[$brand->id])) ? "checked" : ""; 
 	?>
 		<td>
-			<input data-brand="<?php echo $brand->id; ?>" data-sw="<?php echo $swid; ?>" <?php echo $checked; ?> class="push-brand" type="checkbox" name="brand_website">
+			<input id="<?php echo $brand->id.$swid; ?>" data-brand="<?php echo $brand->id; ?>" data-sw="<?php echo $swid; ?>" <?php echo $checked; ?> class="push-brand" type="checkbox" name="brand_website">
 			<a href="javascript:;" data-href="{!! route('store-website.brand.history',['brand'=>$brand->id,'store'=>$swid]) !!}" class="log_history text-dark">
 				<i class="fa fa-info-circle" aria-hidden="true"></i>
 			</a>

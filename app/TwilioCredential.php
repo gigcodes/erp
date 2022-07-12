@@ -17,7 +17,7 @@ class TwilioCredential extends Model
           */
     protected $table = 'twilio_credentials';
 
-    protected $fillable = ['twilio_email', 'account_id', 'auth_token'];
+    protected $fillable = ['twilio_email', 'account_id', 'auth_token','twilio_recovery_code'];
 
     public function numbers()
     {

@@ -37,7 +37,7 @@ class ShowMagentoCronDataController extends Controller
         }
 
 
-        $data = $data->skip($skip * Setting::get('pagination'))->limit('25')->get();
+        $data = $data->orderBy('id','desc')->skip($skip * Setting::get('pagination'))->limit('25')->get();
 
         if ($request->ajax()) {
             $count = $request->count;

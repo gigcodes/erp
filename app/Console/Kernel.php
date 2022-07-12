@@ -5,6 +5,9 @@ namespace App\Console;
 use App\Console\Commands\AccountHubstaffActivities;
 use App\Console\Commands\AddGroupTheme;
 use App\Console\Commands\AddRoutesToGroups;
+use App\Console\Commands\ZabbixStore;
+use App\Console\Commands\ZabbixHostItems;
+use App\Console\Commands\ZabbixProblemImport;
 use App\Console\Commands\AssetsManagerPaymentCron;
 use App\Console\Commands\AuthenticateWhatsapp;
 use App\Console\Commands\AutoInterestMessage;
@@ -148,6 +151,10 @@ use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
 use App\Console\Commands\GetPytonLogs;
 use App\Console\Commands\HubstuffActivityCommand;
+use App\Console\Commands\GtMetrixReport;
+use App\Console\Commands\MagentoReportLog;
+use App\Console\Commands\MagentoSettingAddUpdate;
+use App\Console\Commands\NegativeCouponResponses;
 
 class Kernel extends ConsoleKernel
 {
@@ -301,7 +308,14 @@ class Kernel extends ConsoleKernel
         BuildStatus::class,
         GetPytonLogs::class,
         HubstuffActivityCommand::class,
-        WebsiteCreateLog::class
+        WebsiteCreateLog::class,
+        GtMetrixReport::class,
+        MagentoReportLog::class,
+        MagentoSettingAddUpdate::class,
+        NegativeCouponResponses::class,
+        ZabbixStore::class,
+        ZabbixHostItems::class,
+        ZabbixProblemImport::class
     ];
 
     /**
@@ -312,6 +326,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->command('store:zabbix')->everyFiveMinutes();
+        $schedule->command('zabbix:problem')->everyFiveMinutes();
+        $schedule->command('store:zabbixhostitems')->everyFiveMinutes();
         $schedule->command('HubstuffActivity:Command')->daily();
 
         $schedule->command('project:filemanagementdate')->daily();
@@ -662,7 +679,9 @@ class Kernel extends ConsoleKernel
 
         // get python site log
         $schedule->command('get:pythonLogs')->daily();
+        $schedule->command('command:MagentoSettingUpdates')->dailyAt('23:59')->timezone('Asia/Kolkata');
 
+        $schedule->command('command:NegativeCouponResponses')->hourly();
 
     }
 

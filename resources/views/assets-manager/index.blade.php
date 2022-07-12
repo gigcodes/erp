@@ -48,8 +48,9 @@
           <thead>
             <tr>
               <th width="4%">ID</th>
-              <th width="9%">Name</th>
-              <th width="8%">Capacity</th>
+              <th width="7%">Name</th>
+              <th width="6%">Capacity</th>
+              <th width="5%">User Name</th>
               <th width="6%">Pwd</th>
               <th width="7%">Ast Type</th>
               <th width="5%">Cat</th>
@@ -59,7 +60,7 @@
               <th width="7%">Due Date</th>
               <th width="5%">Amount</th>
               <th width="5%">Currency</th>
-              <th width="5%">Location</th>
+              <th width="3%">Location</th>
               <th width="7%">Usage</th>
               <th width="15%">Action</th>
             </tr>
@@ -77,6 +78,11 @@
                   <span class="show-short-capacity-{{$asset->id}}">{{ str_limit($asset->capacity, 10, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-capacity-{{$asset->id}} hidden">{{$asset->capacity}}</span>
                 </td>
+                <td class="expand-row-msg" data-name="user_name" data-id="{{$asset->id}}">
+                  <span class="show-short-user_name-{{$asset->id}}">{{ str_limit($asset->user_name, 10, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-user_name-{{$asset->id}} hidden">{{$asset->user_name}}</span>
+                </td>
+                
                 <td class="expand-row-msg" data-name="password" data-id="{{$asset->id}}">
                   <span class="show-short-password-{{$asset->id}}">{{ str_limit($asset->password, 3, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-password-{{$asset->id}} hidden">{{$asset->password}}</span>
@@ -105,7 +111,7 @@
                         <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" data-id="{{$asset->id}}">
                           <i class="fa fa-history"></i>
                         </button>
-                        
+                        <button type="button" class="btn btn-xs show-assets-history-log pull-left" data-toggle="modal" data-target="#showAssetsHistoryLogModel" data-assets_id="{{ $asset->id }}"><i class="fa fa-eye"></i></button>
                 </td>
               </tr>
             @endforeach
@@ -124,6 +130,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript">
+   $('.select-multiple').select2({width: '100%'});
     $('ul.pagination').hide();
     $(function() {
       $('.infinite-scroll').jscroll({
@@ -149,7 +156,13 @@
       var str = d.getFullYear() + '-' + (d.getMonth()+1) + '-' + day;
       $('#assetsEditModal form').attr('action', url);
       $('#asset_name').val(asset.name);
+      $('#user_name').val(asset.user_name);
+      $('#old_user_name').val(asset.user_name);
       $('#password').val(asset.password);
+      $('#old_password').val(asset.password);
+      $('#ip').val(asset.ip);
+      $('#old_ip').val(asset.ip);
+      $('#assigned_to').val(asset.assigned_to);
       $('#provider_name').val(asset.provider_name);
       $('#location').val(asset.location);
       $('#currency').val(asset.currency);
@@ -251,6 +264,7 @@
       });
 
     });
+    
     $(document).ready(function() {
           $('.payment-history-btn').click(function(){
             var asset_id = $(this).data('id');
@@ -273,6 +287,33 @@
           }).fail(function(response) {
 
             alert('Could not fetch payments');
+          });
+        });
+
+      });
+
+      $(document).ready(function() {
+          $('.show-assets-history-log').click(function(){
+            var asset_id = $(this).data('assets_id');
+            $.ajax({
+              type: 'POST',
+              headers: {
+                  'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+              },
+              url: "{{ route('assetsmanager.assetManamentLog') }}",
+              data: {
+                asset_id:asset_id,
+              },
+          }).done(response => {
+            $('#payment-history-modal').find('.payment-history-list-view').html('');
+              if(response.success==true){
+                $('#showAssetsHistoryLogModel').find('#showAssetsHistoryLogView').html(response.html);
+                $('#showAssetsHistoryLogModel').modal('show');
+              }
+
+          }).fail(function(response) {
+
+            alert('Could not fetch Log');
           });
         });
 

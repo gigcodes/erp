@@ -195,6 +195,12 @@ var page = {
             
         });
 
+        $(document).on("click",".magento-setting-update",function(href) {
+            $("#loading-image").show();
+            page.magentosettingUpdate();
+            
+        });
+        
         $(document).on("click",".open-store-user-histoty",function(href) {
             page.openUserStoreHistorListing($(this));
             
@@ -253,6 +259,24 @@ var page = {
             var common =  $(".common-modal");
                 common.find(".modal-dialog").html(tplHtml);
                 common.modal("show");
+        }        
+              
+    },
+    magentosettingUpdate: function() {
+        var _z = {
+            url: this.config.baseUrl + "/magento-setting-updates",
+            method: "post",
+        }
+        this.sendAjax(_z, 'showMagentoSetting');
+    },
+    showMagentoSetting : function(response) {
+        if(response.code == 200){
+            $("#loading-image").hide();
+            this.getResults();
+            toastr['success'](response.message, 'success');
+        }else{
+            $("#loading-image").hide();
+            toastr['error'](response.message, 'error');
         }        
               
     },
@@ -494,7 +518,7 @@ var page = {
             common.modal("show");
     },
     submitFormSite : function(ele) {
-        var _z = {
+        /*var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/save",
             method: "post",
             data : ele.closest("form").serialize(),
@@ -502,7 +526,137 @@ var page = {
                 $("#loading-image").show();
             }
         }
-        this.sendAjax(_z, "saveSite");
+        this.sendAjax(_z, "saveSite");*/
+
+        var id = $('#store_website_id').val();
+        var title = $('[name="title"]').val();
+        var website = $('[name="website"]').val();
+        var semrush_project_id = $('[name="semrush_project_id"]').val();
+        var mailing_service_id = $('[name="mailing_service_id"]').val();
+        var sale_old_products = $('[name="sale_old_products"]').val();
+        var is_debug_true = $('[name="is_debug_true"]').val();
+        var is_dev_website = $('[name="is_dev_website"]').val();
+        var description = $('[name="description"]').val();
+        var send_in_blue_account = $('[name="send_in_blue_account"]').val();
+        var send_in_blue_api = $('[name="send_in_blue_api"]').val();
+        var send_in_blue_smtp_email_api = $('[name="send_in_blue_smtp_email_api"]').val();
+        var remote_software = $('[name="remote_software"]').val();
+        var magento_url = $('[name="magento_url"]').val();
+        var dev_magento_url = $('[name="dev_magento_url"]').val();
+        var stage_magento_url = $('[name="stage_magento_url"]').val();
+        var magento_username = $('[name="magento_username"]').val();
+        var magento_password = $('[name="magento_password"]').val();
+        var api_token = $('[name="api_token"]').val();
+        var dev_api_token = $('[name="dev_api_token"]').val();
+        var stage_api_token = $('[name="stage_api_token"]').val();
+        var facebook = $('[name="facebook"]').val();
+        var facebook_remarks = $('[name="facebook_remarks"]').val();
+        var product_markup = $('[name="product_markup"]').val();
+        var instagram = $('[name="instagram"]').val();
+        var instagram_remarks = $('[name="instagram_remarks"]').val();
+        var cropper_color = $('[name="cropper_color"]').val();
+        var cropping_size = $('[name="cropping_size"]').val();
+        var logo_color = $('[name="logo_color"]').val();
+        var logo_border_color = $('[name="logo_border_color"]').val();
+        var text_color = $('[name="text_color"]').val();
+        var border_color = $('[name="border_color"]').val();
+        var border_thickness = $('[name="border_thickness"]').val();
+        var country_duty = $('[name="country_duty"]').val(); //selected
+        var is_published = $('[name="is_published"]').val(); // selected
+        var disable_push = $('[name="disable_push"]').val(); //selected
+        var website_source = $('[name="website_source"]').val(); //selected
+        var server_ip = $('[name="server_ip"]').val();
+        var repository_id = $('[name="repository_id"]').val(); //selected
+        var staging_username = $('[name="staging_username"]').val();
+        var staging_password = $('[name="staging_password"]').val();
+        var mysql_username = $('[name="mysql_username"]').val();
+        var mysql_password = $('[name="mysql_password"]').val();
+        var mysql_staging_username = $('[name="mysql_staging_username"]').val();
+        var mysql_staging_password = $('[name="mysql_staging_password"]').val();
+        var push_web_key = $('[name="push_web_key"]').val();
+        var push_web_id = $('[name="push_web_id"]').val();
+        var icon = $('[name="icon"]').val();
+        var is_price_override = $('[name="is_price_override"]').val(); // selected
+        var files = $('#key_file_path1')[0].files[0];
+        var site_folder = $('[name="site_folder"]').val();
+
+        var formData = new FormData();
+        formData.append("id", id);
+        formData.append("title", title);
+        formData.append("website", website);
+        formData.append("semrush_project_id", semrush_project_id);
+        formData.append("mailing_service_id", mailing_service_id);
+        formData.append("is_debug_true", is_debug_true);
+        formData.append("is_dev_website", is_dev_website);
+        formData.append("description", description);
+        formData.append("send_in_blue_account", send_in_blue_account);
+        formData.append("send_in_blue_api", send_in_blue_api);
+        formData.append("send_in_blue_smtp_email_api", send_in_blue_smtp_email_api);
+        formData.append("remote_software", remote_software);
+        formData.append("magento_url", magento_url);
+        formData.append("dev_magento_url", dev_magento_url);
+        formData.append("stage_magento_url", stage_magento_url);
+        formData.append("magento_username", magento_username);
+        formData.append("magento_password", magento_password);
+        formData.append("api_token", api_token);
+        formData.append("dev_api_token", dev_api_token);
+        formData.append("stage_api_token", stage_api_token);
+        formData.append("facebook", facebook);
+        formData.append("facebook_remarks", facebook_remarks);
+        formData.append("product_markup", product_markup);
+        formData.append("instagram", instagram);
+        formData.append("instagram_remarks", instagram_remarks);
+        formData.append("cropper_color", cropper_color);
+        formData.append("cropping_size", cropping_size);
+        formData.append("logo_color", logo_color);
+        formData.append("logo_border_color", logo_border_color);
+        formData.append("text_color", text_color);
+        formData.append("btitleorder_color", border_color);
+        formData.append("border_thickness", border_thickness);
+        formData.append("country_duty", country_duty);
+        formData.append("is_publititleshed", is_published);
+        formData.append("disable_push", disable_push);
+        formData.append("website_source", website_source);
+        formData.append("server_ip", server_ip);
+        formData.append("repository_id", repository_id);
+        formData.append("staging_username", staging_username);
+        formData.append("staging_password", staging_password);
+        formData.append("mysql_username", mysql_username);
+        formData.append("mysql_password", mysql_password);
+        formData.append("mysql_staging_username", mysql_staging_username);
+        formData.append("mysql_staging_password", mysql_staging_password);
+        formData.append("push_web_key", push_web_key);
+        formData.append("push_web_id", push_web_id);
+        formData.append("icon", icon);
+        formData.append("key_file_path1", files);
+        formData.append("site_folder", site_folder);
+
+        $.ajaxSetup({
+            headers: {
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+                    "content"
+                )
+            }
+        });
+
+        $.ajax({
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/save",
+            type: "POST",
+            contentType: false,
+            processData: false,
+            data: formData,
+            success: function(response) {
+                if (response.code == 200) {
+                    toastr["success"](response.message,"success"); 
+                } else {
+                    toastr["error"](response.error,"error"); 
+                    //toastr["success"]('Please Somethink wrong',"success"); 
+                }
+            },
+            error: function(response) {
+                toastr["error"](response.error,"error"); 
+            }
+        });
     },
     submitFormSiteCancellation : function(ele) {
         var _z = {

@@ -832,7 +832,7 @@ input.cmn-toggle-round + label {
                                           
                                             <label for="" style="font-size: 12px;margin-top:10px;">Due date :</label>
                                             <div class="d-flex">
-                                                <div class="form-group" style="padding-top:5px;">
+                                                <div class="form-group" style="padding-top:5px;width:70%;">
                                                     <div class='input-group date due-datetime'>
 
                                                         <input type="text" class="form-control input-sm due_date_cls" name="due_date" value="{{$taskDueDate}}"/>
@@ -843,8 +843,8 @@ input.cmn-toggle-round + label {
 
                                                     </div>
                                                 </div>
-                                                <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{ $task->id }}" data-old_due_date="{{$taskDueDate}}"><img style="padding: 0;margin-top: -14px;" src="{{asset('images/filled-sent.png')}}"/></button>
-                                                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs" title="Show History" data-task_type="TASK" data-taskid="{{ $task->id }}"><i class="fa fa-info-circle get_due_date_history_log" data-task_type="TASK" data-taskid="{{ $task->id }}"></i></button>
+                                                <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{ $task->id }}" data-old_due_date="{{$taskDueDate}}"><img style="padding: 0;margin-top: -14px;width:15%;" src="{{asset('images/filled-sent.png')}}"/></button>
+                                                <button style="float:right;padding-right:0px;width:15%;" type="button" class="btn btn-xs" title="Show History" data-task_type="TASK" data-taskid="{{ $task->id }}"><i class="fa fa-info-circle get_due_date_history_log" data-task_type="TASK" data-taskid="{{ $task->id }}"></i></button>
                                             </div>
 
                                             @if($task->is_milestone)
@@ -1305,7 +1305,7 @@ input.cmn-toggle-round + label {
             <div class="modal-header">
                 <h4 class="modal-title">Task Remark</h4>
                 <input type="text" name="remark_pop" class="form-control remark_pop" placeholder="Please enter remark" style="width: 200px;">
-                <button type="button" class="btn btn-default sub_remark" data-task_id="{{$task->id}}">Save</button>
+                <button type="button" class="btn btn-default sub_remark" data-task_id="">Save</button>
             </div>
         	<div class="modal-body">
     			<div class="col-md-12">
@@ -2333,40 +2333,46 @@ input.cmn-toggle-round + label {
             var thiss = $(this);
             var task_id = $(this).data('task_id');
             var remark = $('.remark_pop').val();
-            $.ajax({
-                type: "POST",
-                url: "{{route('task.create.get.remark')}}",
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-                data: {
-                    task_id : task_id,
-                    remark : remark,
-                    type : "TASK",
-                },
-                beforeSend: function () {
-                    $("#loading-image").show();
-                }
-            }).done(function (response) {
-                if(response.code == 200) {
-                    $("#loading-image").hide();
-                    $("#preview-task-create-get-modal").modal("show");
-                    $(".task-create-get-list-view").html(response.data);
-                    $('.remark_pop').val("");
-                    toastr['success'](response.message);
-                }else{
+            if(task_id != ""){
+                
+                $.ajax({
+                    type: "POST",
+                    url: "{{route('task.create.get.remark')}}",
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        task_id : task_id,
+                        remark : remark,
+                        type : "TASK",
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    }
+                }).done(function (response) {
+                    if(response.code == 200) {
+                        $("#loading-image").hide();
+                        $("#preview-task-create-get-modal").modal("show");
+                        $(".task-create-get-list-view").html(response.data);
+                        $('.remark_pop').val("");
+                        toastr['success'](response.message);
+                    }else{
+                        $("#loading-image").hide();
+                        $("#preview-task-create-get-modal").modal("show");
+                        $(".task-create-get-list-view").html("");
+                        toastr['error'](response.message);
+                    }
+                    
+                }).fail(function (response) {
                     $("#loading-image").hide();
                     $("#preview-task-create-get-modal").modal("show");
                     $(".task-create-get-list-view").html("");
                     toastr['error'](response.message);
-                }
-                
-            }).fail(function (response) {
-                $("#loading-image").hide();
-                $("#preview-task-create-get-modal").modal("show");
-                $(".task-create-get-list-view").html("");
-                toastr['error'](response.message);
-            });
+                });
+            }else{
+                toastr['error']("Task not Found!");
+            }
+            
         });
 
         $(document).on("click",".copy_remark",function(e) {
