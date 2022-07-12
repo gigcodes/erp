@@ -272,7 +272,7 @@ class User extends Authenticatable
                 return true;
             }
         }
-
+        
         $permission = null;
 
         if($this->permission__ !== null){
