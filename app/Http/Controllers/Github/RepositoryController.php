@@ -349,7 +349,9 @@ $devTask->update(['is_pr_merged'=>1]);
                 }
 
                 //Merged to master get migration error
-                $this->createGitMigrationErrorLog($id, $source, $allOutput);
+                $migrationError = implode(" ",$allOutput);
+                $this->createGitMigrationErrorLog($id, $source, $migrationError);
+
                  
                 return redirect(url('/github/pullRequests'))->with([
                     'message' => 'Branch merged successfully but migration failed',
