@@ -98,6 +98,7 @@ class RepositoryController extends Controller
 
     public function deployBranch($repoId)
     {
+        //dd($repoId);
         $source = 'master';
         $destination = Input::get('branch');
         $pullOnly = request('pull_only',0);
@@ -347,6 +348,9 @@ $devTask->update(['is_pr_merged'=>1]);
                     app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
                 }
 
+                //Merged to master get migration error
+                $this->createGitMigrationErrorLog($id, $source, $allOutput);
+                 
                 return redirect(url('/github/pullRequests'))->with([
                     'message' => 'Branch merged successfully but migration failed',
                     'alert-type' => 'error'
