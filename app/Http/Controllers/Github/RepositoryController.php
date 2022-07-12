@@ -141,6 +141,7 @@ class RepositoryController extends Controller
             $allOutput = array();
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput);
+            
             $migrationError = is_array($result)? json_encode($result) : $result;
             if (str_contains($migrationError, 'database/migrations') || str_contains($migrationError, 'migrations') ||  str_contains($migrationError, 'Database/Migrations') || str_contains($migrationError, 'Migrations')) { 
                 if($source == 'master') {
@@ -163,11 +164,12 @@ class RepositoryController extends Controller
                 $arrErr = $errorArr;
                 $errorArr = $errorArr;
             }
-            if (str_contains($errorArr, 'database/migrations') || str_contains($errorArr, 'migrations') ||  str_contains($errorArr, 'Database/Migrations') || str_contains($errorArr, 'Migrations')) { 
+            $migrationError = is_array($result)? json_encode($errorArr) : $errorArr;
+            if (str_contains($migrationError, 'database/migrations') || str_contains($migrationError, 'migrations') ||  str_contains($migrationError, 'Database/Migrations') || str_contains($migrationError, 'Migrations')) { 
                 if($source == 'master') {
-                    $this->createGitMigrationErrorLog($repoId, $destination, $errorArr);
+                    $this->createGitMigrationErrorLog($repoId, $destination, $migrationError);
                 } else if($destination == 'master') {
-                    $this->createGitMigrationErrorLog($repoId, $source, $errorArr);
+                    $this->createGitMigrationErrorLog($repoId, $source, $migrationError);
                 } else{
                     $this->createGitMigrationErrorLog($repoId, $source, $migrationError);
                 }
