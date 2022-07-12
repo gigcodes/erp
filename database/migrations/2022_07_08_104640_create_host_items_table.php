@@ -21,9 +21,9 @@ class CreateHostItemsTable extends Migration
             $table->integer('hostid','55');
             $table->double('free_inode_in', 6, 2);
             $table->double('space_utilization', 6, 2);
-            $table->double('total_space', 6, 2);
-            $table->double('used_space ', 6, 2);
-            $table->double('available_memory', 3, 1);
+            $table->bigIncrements('total_space', 55);
+            $table->bigIncrements('used_space', 55);
+            $table->bigIncrements('available_memory',55);
             $table->double('available_memory_in', 6, 2);
             $table->double('cpu_idle_time', 6, 2);
             $table->double('cpu_utilization', 6, 2);
