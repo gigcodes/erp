@@ -13,7 +13,7 @@ class RemoveSubjectsChecklistTable extends Migration
      */
     public function up()
     {
-        Schema::create('checklist', function (Blueprint $table) {
+        Schema::table('checklist', function (Blueprint $table) {
             $table->dropColumn('subjects');
         });
     }
