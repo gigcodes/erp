@@ -349,7 +349,7 @@ $devTask->update(['is_pr_merged'=>1]);
                 }
 
                 //Merged to master get migration error
-                $migrationError = implode(" ",$allOutput);
+                $migrationError = is_array($allOutput)? json_encode($allOutput) : $allOutput;
                 $this->createGitMigrationErrorLog($id, $source, $migrationError);
 
                  
