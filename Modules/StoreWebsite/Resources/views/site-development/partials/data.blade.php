@@ -222,10 +222,10 @@
                         
                 @endforeach    
                         
-                <table class="assign hide" data-id="{{$pagrank}}">
-                    <?php $tableTrCounter = '0'; ?>
+                {{-- <table class="assign hide" data-id="{{$pagrank}}">
+                    < ?php $tableTrCounter = '0'; ?>
                     @foreach ($category->assignedTo as $assignedTo)
-                    <?php $tableTrCounter++;
+                    < ?php $tableTrCounter++;
                         if($tableTrCounter != 1)
                             $tTrClass = 'comm-'.$pagrank.' hidden';
                         else
@@ -253,7 +253,7 @@
                             </td>
                             <td class="pt-2"  width="32%">
                                 <div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1 msg">
-                                    <?php
+                                    < ?php
                                     $MsgPreview = '# ';
                                     if ($website) {
                                         $MsgPreview = $website->website;
@@ -297,7 +297,7 @@
 
                         </tr>
                     @endforeach
-                </table>
+                </table> --}}
             </td>
 
             <td style="display:none;">
