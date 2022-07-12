@@ -1937,7 +1937,7 @@
 	$(document).on('click', '.remove-task-note', function() {
     var $this = $(this);
     var noteId = $(this).data('task-note-id');
-		swal({
+		new swal({
 			title: "Are you sure?",
 			text: "You will not be able to recover this!",
 			icon: "warning",
@@ -1968,7 +1968,7 @@
 	$(document).on('click', '.hide-task-note', function() {
     var noteId = $(this).data('task-note-id');
     var $this = $(this);
-		swal({
+		new swal({
 			title: "Are you sure?",
 			// text: "You will not be able to recover this imaginary file!",
 			icon: "warning",

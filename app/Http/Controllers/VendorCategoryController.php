@@ -212,7 +212,7 @@ class VendorCategoryController extends Controller
 
     public function usersPermission(Request $request)
     {
-        $users = User::where('is_active',1)->orderBy('name','asc')->with('vendorCategoryPermission')->get();
+        $users = User::where('is_active',1)->orderBy('name','asc')->with('vendorCategoryPermission')->paginate(25);
         $categories = VendorCategory::orderBy('title','asc')->get();
         return view('vendors.category-permission',compact('users','categories'))->with('i', ($request->input('page', 1) - 1) * 10);
     }

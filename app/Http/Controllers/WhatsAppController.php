@@ -97,7 +97,7 @@ class WhatsAppController extends FindByNumberController
     public function incomingMessage(Request $request, GuzzleClient $client)
     {
         $data = $request->json()->all();
-
+        $data = $this->mapForWassenger($data);
         if ($data['event'] == 'INBOX') {
             $to = $data['to'];
             $from = $data['from'];
@@ -171,8 +171,8 @@ class WhatsAppController extends FindByNumberController
                 $params = $this->modifyParamsWithMessage($params, $data);
                 $message = ChatMessage::create($params);
 
-                if ($params['message']) {
-                    (new \App\KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params['message'], $customer);
+                if (isset($params['message']) && $params['message']) {
+                    (new KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params['message'], $customer);
                 }
 
                 $model_type = 'customers';
@@ -359,6 +359,8 @@ class WhatsAppController extends FindByNumberController
                         }
                     }
                 }
+            }else{
+            	 $params['customer_id'] = null;
             }
 
             if (!isset($user) && !isset($purchase) && !isset($customer)) {
@@ -486,6 +488,57 @@ class WhatsAppController extends FindByNumberController
         }
 
         return response("");
+    }
+
+    public function mapForWassenger($data){
+        if(isset($data['event'])){
+            if ($data['event'] == 'message:in:new') {
+                $data['event'] = 'INBOX';
+            }
+        }
+        $data['messages'][] = $data['data'];    
+        unset($data['data']);
+
+        if(isset($data['messages'])){
+        	$data['messages'][0]['fromMe'] = false;
+        	$data['messages'][0]['author'] = $data['messages'][0]['from'];
+        	$data['instanceId'] = $data['messages'][0]['id'];
+        }
+        	
+        // 	$data['messages']['author'] = $data['messages']['from'];
+        // 	$data['instanceId'] = $data['messages']['id'];
+
+        //     $data['ack'] = $data['messages']['ack'];
+        // 	$data['messages']['fromMe'] = false;
+
+        	//$data['id'] = $data['messages'][0]['id'];
+        	//$data['time'] = $data['messages'][0]['date'];
+        	
+   //      	if(isset($data['data']['toNumber'])){
+   //              $data['to'] = str_replace('+', '', $data['data']['toNumber']);
+   //          }
+
+			// if(isset($data['data']['fromNumber'])){
+   //              $data['from'] = str_replace('+', '', $data['data']['fromNumber']);
+   //          }
+
+   //          if(isset($data['data']['body'])){
+   //              $data['messages'] = $data['data']['body'];
+   //          }
+
+   //          if(isset($data['data']['media'])){
+   //              //Getting token from wassenger
+   //              $whatsappConfig = WhatsappConfig::where('is_customer_support', 1)->whereNotNull('token')->where('number',$data['to'])->where('provider',WhatsappConfig::WASSENGER)->first();
+   //              if($whatsappConfig){
+   //                  $data['text'] = 'https://api.wassenger.com'.$data['data']['media']['links']['download'].'?token='.$whatsappConfig->token;
+   //              }
+   //              $data['extension'] = $data['data']['media']['extension'];
+   //          }
+
+            
+        //}
+            
+        return $data;
     }
 
     public function sendRealTime($message, $model_id, $client, $customFile = null)
@@ -1026,20 +1079,24 @@ class WhatsAppController extends FindByNumberController
         $data = $request->json()->all();
         $needToSendLeadPrice = false;
         $isReplied = false;
+
+        $data = $this->mapForWassenger($data);
+
         // Log incoming webhook
         \Log::channel('chatapi')->debug('Webhook: ' . json_encode($data));
         // Check for ack
         if (array_key_exists('ack', $data)) {
-            ChatMessage::handleChatApiAck($data);
+           //ChatMessage::handleChatApiAck($data);
         }
 
         // Check for messages
         if (!array_key_exists('messages', $data)) {
             return Response::json('ACK', 200);
         }
+
         // Loop over messages
         foreach ($data['messages'] as $chatapiMessage) {
-            $quoted_message_id = null;
+        	$quoted_message_id = null;
             // Convert false and true text to false and true
             if ($chatapiMessage['fromMe'] === "false") {
                 $chatapiMessage['fromMe'] = false;
@@ -5377,13 +5434,13 @@ class WhatsAppController extends FindByNumberController
             'enqueue' => $enqueue,
             'customer_id' => $customer_id,
         ];
-
+        
         // Get configs
         $config = \Config::get("apiwha.instances");
-
+        
         // check if number is set or not then call from the table
         if (!isset($config[$whatsapp_number])) {
-            $whatsappRecord = \App\Marketing\WhatsappConfig::where('provider', 'Chat-API')
+            $whatsappRecord = \App\Marketing\WhatsappConfig::where('provider', 'wassenger')
                 ->where("instance_id", "!=", "")
                 ->where("token", "!=", "")
                 ->where("status", 1)
@@ -5398,12 +5455,11 @@ class WhatsAppController extends FindByNumberController
                 ];
             }
         }
-
+        
         $chatMessage = null;
         if ($chat_message_id > 0) {
             $chatMessage = \App\ChatMessage::find($chat_message_id);
         }
-
         // Set instanceId and token
         $isUseOwn = false;
         if (isset($config[$whatsapp_number])) {
@@ -5416,7 +5472,6 @@ class WhatsAppController extends FindByNumberController
             $token = $config[0]['token'];
             $isUseOwn = isset($config[0]['is_use_own']) ? $config[0]['is_use_own'] : 0;
         }
-
         if (isset($customer_id) && $message != null && $message != '') {
             $customer = Customer::findOrFail($customer_id);
 
@@ -5436,7 +5491,7 @@ class WhatsAppController extends FindByNumberController
         if ($isUseOwn == 1) {
             $encodedNumber = $number;
         }
-
+        
         $encodedText = $message;
 
         $array = [
@@ -5456,14 +5511,21 @@ class WhatsAppController extends FindByNumberController
         }
 
         $array['instanceId'] = $instanceId;
-
         // here is we call python
         if ($isUseOwn == 1) {
             $domain = "http://167.86.89.241:82/" . $link;
         } else {
-            $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
+            if(isset($config[$whatsapp_number]['provider']) && $config[$whatsapp_number]['provider'] == 'wassenger'){
+                $domain = 'https://api.wassenger.com/v1/messages?token='.$token;
+                $array['message'] = $array['body'];
+                $array['device'] = $array['instanceId'];
+                unset($array['body']);
+                unset($array['instanceId']);
+            }else{
+                $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
+            }
         }
-
+        
         // \Log::channel('chatapi')->debug('cUrl_url:' . $domain . "\nMessage: " . $message. "\nCUSTOMREQUEST: " . 'POST' ."\nPostFields: " . json_encode($array) . "\nFile:" . $file . "\n" . ' ['. json_encode($logDetail). '] ');
 
         $customerrequest_arr['CUSTOMREQUEST'] = 'POST';
@@ -5485,7 +5547,6 @@ class WhatsAppController extends FindByNumberController
         // \Log::channel('chatapi')->debug('cUrl_url:{"' . $domain . " } \nMessage: ".json_encode($log_data) );
 
         $curl = curl_init();
-
         curl_setopt_array($curl, array(
             CURLOPT_URL => $domain,
             CURLOPT_RETURNTRANSFER => true,
@@ -5589,7 +5650,7 @@ class WhatsAppController extends FindByNumberController
             $path = $data['text'];
             $paths = explode("/", $path);
             $file = $paths[count($paths) - 1];
-            $extension = explode(".", $file)[1];
+            $extension = (isset($data['extension']) ? $data['extension'] : explode(".", $file)[1]);
             $fileName = uniqid(true) . "." . $extension;
             $contents = file_get_contents($path);
             if (file_put_contents(implode(DIRECTORY_SEPARATOR, array(\Config::get("apiwha.media_path"), $fileName)), $contents) == false) {
@@ -5597,7 +5658,7 @@ class WhatsAppController extends FindByNumberController
             }
             $url = implode("/", array(\Config::get("app.url"), "apiwha", "media", $fileName));
             $params['media_url'] = $url;
-
+            $params['message'] = '';
             return $params;
         }
         $params['message'] = $data['text'];

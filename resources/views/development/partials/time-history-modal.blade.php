@@ -42,7 +42,7 @@
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title">Estimated Date History</h5>
+            <h5 class="modal-title">Estimated Date History </h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <form action="" id="approve-date-btn" method="POST">
@@ -120,7 +120,7 @@
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title">Estimated Time History</h5>
+            <h5 class="modal-title">Estimated Time History - <span class="text-danger"> Add new value should be old value + additional time </span> </h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <form action="" id="approve-time-btn" method="POST">
@@ -137,6 +137,7 @@
                                     <th>Old Value</th>
                                     <th>New Value</th>
                                     <th>Updated by</th>
+                                    <th>Remark</th>
                                     <th></th>
                                 </tr>
                             </thead>

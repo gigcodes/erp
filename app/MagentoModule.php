@@ -21,12 +21,15 @@ class MagentoModule extends Model
         'module_type',
         'status',
         'is_sql',
+        'api',
+        'cron_job',
         'is_third_party_plugin',
         'is_third_party_js',
         'is_js_css',
         'payment_status',
         'developer_name',
         'is_customized',
+        'site_impact'
     ];
 
     public function module_category()
@@ -52,5 +55,10 @@ class MagentoModule extends Model
     public function task_status_data()
     {
         return $this->belongsTo(TaskStatus::class, 'task_status', 'id');
+    }
+
+    public function module_type_data()
+    {
+        return $this->belongsTo(MagentoModuleType::class, 'module_type', 'id');
     }
 }

@@ -832,7 +832,7 @@ input.cmn-toggle-round + label {
                                           
                                             <label for="" style="font-size: 12px;margin-top:10px;">Due date :</label>
                                             <div class="d-flex">
-                                                <div class="form-group" style="padding-top:5px;">
+                                                <div class="form-group" style="padding-top:5px;width:70%;">
                                                     <div class='input-group date due-datetime'>
 
                                                         <input type="text" class="form-control input-sm due_date_cls" name="due_date" value="{{$taskDueDate}}"/>
@@ -843,8 +843,8 @@ input.cmn-toggle-round + label {
 
                                                     </div>
                                                 </div>
-                                                <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{ $task->id }}" data-old_due_date="{{$taskDueDate}}"><img style="padding: 0;margin-top: -14px;" src="{{asset('images/filled-sent.png')}}"/></button>
-                                                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs" title="Show History" data-task_type="TASK" data-taskid="{{ $task->id }}"><i class="fa fa-info-circle get_due_date_history_log" data-task_type="TASK" data-taskid="{{ $task->id }}"></i></button>
+                                                <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{ $task->id }}" data-old_due_date="{{$taskDueDate}}"><img style="padding: 0;margin-top: -14px;width:15%;" src="{{asset('images/filled-sent.png')}}"/></button>
+                                                <button style="float:right;padding-right:0px;width:15%;" type="button" class="btn btn-xs" title="Show History" data-task_type="TASK" data-taskid="{{ $task->id }}"><i class="fa fa-info-circle get_due_date_history_log" data-task_type="TASK" data-taskid="{{ $task->id }}"></i></button>
                                             </div>
 
                                             @if($task->is_milestone)
@@ -887,9 +887,10 @@ input.cmn-toggle-round + label {
                                         @endif
                                         
                                         <div class="col-md-12 expand-col" style="padding:0px;">
+                                            <input style="min-width: 30px;" placeholder="Remark" value="" type="text" class="form-control mb-2 update_approximate" name="track_time_remark_{{$task->id}}" id="track_time_remark_{{$task->id}}" data-id="{{$task->id}}" >
                                             <div class="d-flex">
                                             <br>
-                                                <input  type="text" placeholder="ED" class="update_approximate form-control input-sm" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
+                                                <input  type="text" placeholder="ED" class="update_approximate form-control input-sm" name="approximate_{{$task->id}}" id="approximate_{{$task->id}}" data-id="{{$task->id}}" value="{{$task->approximate}}">
                                                 <button type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$task->id}}" data-user_id="{{$task->assign_to}}"><i class="fa fa-info-circle"></i></button>
                                                 <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
                                                 <input type="text" placeholder="Cost" class="update_cost form-control input-sm" name="cost" data-id="{{$task->id}}" value="{{$task->cost}}">
@@ -1038,6 +1039,7 @@ input.cmn-toggle-round + label {
                                                     <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/unflagged.png')}}"/></button>
                                                 @endif
                                                 <button class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
+                                                <button class="btn btn-image set-remark" data-task_id="{{ $task->id }}"  data-task_type="TASK" ><i class="fa fa-comment" aria-hidden="true"></i></button>
                                             </div>
                                         </div>
                                     </td>
@@ -1296,6 +1298,39 @@ input.cmn-toggle-round + label {
         </div>
     </div>
 </div>
+
+<div id="preview-task-create-get-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Task Remark</h4>
+                <input type="text" name="remark_pop" class="form-control remark_pop" placeholder="Please enter remark" style="width: 200px;">
+                <button type="button" class="btn btn-default sub_remark" data-task_id="">Save</button>
+            </div>
+        	<div class="modal-body">
+    			<div class="col-md-12">
+                    <table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th style="width:1%;">ID</th>
+					        <th style=" width: 12%">Update By</th>
+					        <th style="word-break: break-all; width:12%">Remark</th>
+                            <th style="width: 11%">Created at</th>
+                            <th style="width: 11%">Action</th>
+                          </tr>
+					    </thead>
+					    <tbody class="task-create-get-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="preview-task-due-date-history-log-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -2269,7 +2304,7 @@ input.cmn-toggle-round + label {
             if (date != '') {
                 $.ajax({
                         url: "{{route('task.update.due_date')}}",
-                        type: 'POST',
+                        type: 'post',
                         headers: {
                             'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                         },
@@ -2288,6 +2323,75 @@ input.cmn-toggle-round + label {
                 alert('Please enter a date first');
             }
         });
+
+        $(document).on("click",".set-remark",function(e) {
+            $('.remark_pop').val("");
+            var task_id = $(this).data('task_id');
+            $('.sub_remark').attr( "data-task_id", task_id );
+        });
+        $(document).on("click",".set-remark, .sub_remark",function(e) {
+            var thiss = $(this);
+            var task_id = $(this).data('task_id');
+            var remark = $('.remark_pop').val();
+            if(task_id != ""){
+                
+                $.ajax({
+                    type: "POST",
+                    url: "{{route('task.create.get.remark')}}",
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        task_id : task_id,
+                        remark : remark,
+                        type : "TASK",
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    }
+                }).done(function (response) {
+                    if(response.code == 200) {
+                        $("#loading-image").hide();
+                        $("#preview-task-create-get-modal").modal("show");
+                        $(".task-create-get-list-view").html(response.data);
+                        $('.remark_pop').val("");
+                        toastr['success'](response.message);
+                    }else{
+                        $("#loading-image").hide();
+                        $("#preview-task-create-get-modal").modal("show");
+                        $(".task-create-get-list-view").html("");
+                        toastr['error'](response.message);
+                    }
+                    
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    $("#preview-task-create-get-modal").modal("show");
+                    $(".task-create-get-list-view").html("");
+                    toastr['error'](response.message);
+                });
+            }else{
+                toastr['error']("Task not Found!");
+            }
+            
+        });
+
+        $(document).on("click",".copy_remark",function(e) {
+            var thiss = $(this);
+            var remark_text = thiss.data('remark_text');
+            copyToClipboard(remark_text);
+            /* Alert the copied text */
+            toastr['success']("Copied the text: " + remark_text);
+            //alert("Copied the text: " + remark_text);
+        });
+
+        function copyToClipboard(text) {
+            var sampleTextarea = document.createElement("textarea");
+            document.body.appendChild(sampleTextarea);
+            sampleTextarea.value = text; //save main text in it
+            sampleTextarea.select(); //select textarea contenrs
+            document.execCommand("copy");
+            document.body.removeChild(sampleTextarea);
+        }
 
 
         $(document).on("click",".get_due_date_history_log",function(e) {
@@ -3194,19 +3298,22 @@ input.cmn-toggle-round + label {
             var thiss = $(this);
             if (key == 13) {
                 e.preventDefault();
-                var approximate = $(thiss).val();
                 var task_id = $(thiss).data('id');
-
+                var approximate = $("#approximate_" + task_id).val();
+                var track_time_remark = $("#track_time_remark_" + task_id).val();
+            if((approximate !== '') && (track_time_remark !== '') ){
                 $.ajax({
                     type: 'POST',
                     url: "{{ route('task.update.approximate') }}",
                     data: {
                         _token: "{{ csrf_token() }}",
                         approximate: approximate,
+                        remark: track_time_remark,
                         task_id: task_id
                     }
                 }).done(function () {
                     $(thiss).closest("td").find(".apx-val").html(approximate);
+                    $("#track_time_remark_" + task_id).val('');
                     $(thiss).closest('td').find('.update_approximate_msg').fadeIn(400);
                     setTimeout(function () {
                         $(thiss).closest('td').find('.update_approximate_msg').fadeOut(400);
@@ -3215,6 +3322,10 @@ input.cmn-toggle-round + label {
                 }).fail(function (response) {
                     alert('Could not update!!');
                 });
+            } else {
+                toastr["warning"]("Tracked time and remark fields are required", "Message");
+            }
+
             }
         });
 
@@ -3317,11 +3428,14 @@ input.cmn-toggle-round + label {
                                 var checked = ''; 
                             }
                             $('#time_history_div table tbody').append(
-                                '<tr>\
-                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
-                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td><td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
-                                </tr>'
+                                `<tr>
+                                    <td>${ moment(item['created_at']).format('DD/MM/YYYY') }</td>
+                                    <td>${ ((item['old_value'] != null) ? item['old_value'] : '-') }</td>
+                                    <td>${item['new_value']}</td>
+                                    <td>${item['name']}</td>
+                                    <td align="center"><span title="${item['remark']}">${(item['remark'] !== null ) ? item['remark'] : '-'}</td>
+                                    <td><input type="radio" name="approve_time" value="${item['id']}" ${checked} class="approve_time"/></td>
+                                </tr>`
                             );
                         });
 

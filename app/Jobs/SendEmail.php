@@ -94,8 +94,8 @@ class SendEmail implements ShouldQueue
                 'email_log' => 'Sending On DefaultSendEmail from SendEmail',
                 'message'       => ''
                 ]);
-            $multimail->send(new DefaultSendEmail($email, $attchments));
-            
+            $multimail->from($email->from)->send(new DefaultSendEmail($email, $attchments));
+
             \App\EmailLog::create([
                 'email_id'   => $email->id,
                 'email_log' => 'Message Sent Successfully from SendEmail',

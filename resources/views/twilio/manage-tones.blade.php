@@ -9,47 +9,49 @@
         </div>
     </div>
     
-    <div class="row">
-        <div class="col-md-12" style="padding:12px">
-            <div class="col-md-1"><strong>#</strong></div>
-            <div class="col-md-1"><strong>Store Website</strong></div>
-            <div class="col-md-3"><strong>End work ring</strong></div>
-            <div class="col-md-3"><strong>Intro ring</strong></div>
-            <div class="col-md-3"><strong>Busy ring</strong></div>
-            <div class="col-md-1"><strong>Action</strong></div>
+    <div class="row pl-5 pr-5">
+        <div class="col-md-12">
+            <div class="col-md-1 p-2  border-top border-bottom border-right border-left"><strong>#</strong></div>
+            <div class="col-md-1 p-2 border-top border-bottom border-right border-left"><strong>Store Website</strong></div>
+            <div class="col-md-3 p-2 border-top border-bottom border-right border-left"><strong>End work ring</strong></div>
+            <div class="col-md-3 p-2 border-top border-bottom border-right border-left"><strong>Intro ring</strong></div>
+            <div class="col-md-3 p-2  border-top border-bottom border-right border-left"><strong>Busy ring</strong></div>
+            <div class="col-md-1 p-2 border-top border-bottom border-right border-left"><strong>Action</strong></div>
         </div> 
            
            
 			    @foreach($twilioMessageTones as $i=>$twilioMessageTone)
-                    <div class="col-md-12" style="padding:12px">
+                    <div class="col-md-12 ">
 						{{ Form::open(array('url'=>url('twilio/save-message-tone'), 'files'=>true, 'class'=>'ajax-submit'))}}
-							<div class="col-md-1">{{ $i+1 }} {{Form::hidden('store_website_id', $twilioMessageTone['websiteId']) }}</div>
-							<div class="col-md-1">{{ $twilioMessageTone->website }}</div>
-							<div class="col-md-3"><input type="file" name="end_work_ring"><br>
+							<div class="col-md-1 p-2  border-top border-bottom border-right border-left" style="height: 46px !important;">{{ $i+1 }} {{Form::hidden('store_website_id', $twilioMessageTone['websiteId']) }}</div>
+
+							<div class="col-md-1 Website-task p-2  border-top border-bottom border-right border-left" style="height: 46px !important;">{{ $twilioMessageTone->website }}</div>
+
+							<div class="col-md-3 p-2  border-top border-bottom border-right border-left"><input type="file" name="end_work_ring">
 								@if($twilioMessageTone->end_work_ring != null)
-									<div class="d-flex pb-2">
+									<div class="d-flex">
 										<audio src="{{url('twilio/'.$twilioMessageTone->end_work_ring)}}" controls="" preload="metadata">
 										</audio>
 									</div>
 								@endif
 							</div>
-							<div class="col-md-3"><input type="file" name="intro_ring"><br>
+							<div class="col-md-3 p-2  border-top border-bottom border-right border-left"><input type="file" name="intro_ring">
 								@if($twilioMessageTone->intro_ring != null)
-									<div class="d-flex pb-2">
+									<div class="d-flex">
 										<audio src="{{url('twilio/'.$twilioMessageTone->intro_ring)}}" controls="" preload="metadata">
 										</audio>
 									</div>
 								@endif
 							</div>
-							<div class="col-md-3"><input type="file" name="busy_ring"><br>
+							<div class="col-md-3 p-2  border-top border-bottom border-right border-left"><input type="file" name="busy_ring">
 								@if($twilioMessageTone->busy_ring != null)
-									<div class="d-flex pb-2">
+									<div class="d-flex ">
 										<audio src="{{url('twilio/'.$twilioMessageTone->busy_ring)}}" controls="" preload="metadata">
 										</audio>
 									</div>
 								@endif
 							</div>
-							<div class="col-md-1"><button class="btn btn-secondary" type="submit" >Save</button></div>
+							<div class="col-md-1 p-2  border-top border-bottom border-right border-left"><button class="btn btn-secondary" type="submit" >Save</button></div>
 						</form>
 					</div> 
                 @endforeach

@@ -145,12 +145,14 @@ class RepositoryController extends Controller
             print_r($e->getMessage());
             $errorArr = array();
             $errorArr = $e->getMessage();
-            if(!is_array($errorArr))
+            if(!is_array($errorArr)){
                 $arrErr[] = $errorArr;
-            else
+                $errorArr = implode(" ",$arrErr);
+            }else{
                 $arrErr = $errorArr;
-            $errorArr = implode(" ",$arrErr);
-            if (str_contains($errorArr, 'database/migrations') || str_contains($errorArr, 'Database/Migrations')) { 
+                $errorArr = $errorArr;
+            }
+            if (str_contains($errorArr, 'database/migrations') || str_contains($errorArr, 'migrations') ||  str_contains($errorArr, 'Database/Migrations') || str_contains($errorArr, 'Migrations')) { 
                 if($source == 'master') {
                     $this->createGitMigrationErrorLog($repoId, $destination, $errorArr);
                 } else if($destination == 'master') {

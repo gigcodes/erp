@@ -93,10 +93,9 @@
     </td>
     <td data-id="{{ $issue->id }}">
         <div class="form-group">
+            <input style="min-width: 30px;" placeholder="Remark" value="" type="text" class="form-control mb-2 estimate-time-change" name="est_time_remark_{{$issue->id}}" data-id="{{$issue->id}}" id="est_time_remark_{{$issue->id}}">
             <div class='input-group estimate_minutes'>
-                @if (auth()->user()->isAdmin() ||
-    auth()->user()->id == $issue->assigned_to ||
-    auth()->user()->id == $issue->master_user_id)
+                @if (auth()->user()->isAdmin() || auth()->user()->id == $issue->assigned_to || auth()->user()->id == $issue->master_user_id)
                     <input style="min-width: 30px;" placeholder="E.minutes" value="{{ $issue->estimate_minutes }}"
                         type="text" class="form-control estimate-time-change"
                         name="estimate_minutes_{{ $issue->id }}" data-id="{{ $issue->id }}"
@@ -158,18 +157,19 @@
     <td data-id="{{ $issue->id }}">
         <div class="form-group">
             <div class='input-group estimate_dates'>
-                @if (auth()->user()->isAdmin() ||
-    auth()->user()->id == $issue->assigned_to ||
-    auth()->user()->id == $issue->master_user_id)
+                @if (auth()->user()->isAdmin() || auth()->user()->id == $issue->assigned_to || auth()->user()->id == $issue->master_user_id)
                     <input style="min-width: 30px;" placeholder="E.Date" value="{{ $issue->estimate_date }}"
-                        type="text" class="form-control estimate-date estimate-date-update"
+                        type="text" class="form-control estimate-date"
                         name="estimate_date_{{ $issue->id }}" data-id="{{ $issue->id }}"
                         id="estimate_date_{{ $issue->id }}">
                 @endif
-                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-date-history"
-                    title="Show Date History" data-id="{{ $issue->id }}"><i class="fa fa-info-circle"></i></button>
-                <span>Approved :
-                    {{ $issue->developerTaskHistory ? $issue->developerTaskHistory->new_value : '--' }}</span>
+                
+                <button class="btn btn-sm btn-image save-est-date" type="button" id="add_est_date" data-id="{{$issue->id}}"><img src="/images/filled-sent.png"></button>
+
+                <button type="button" class="btn btn-xs show-date-history" title="Show Date History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+                  <br/>
+                <span>{{ $issue->developerTaskHistory ? $issue->developerTaskHistory->new_value : '--' }}</span>
+
             </div>
         </div>
         @if (auth()->user()->id == $issue->assigned_to)

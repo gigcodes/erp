@@ -87,6 +87,18 @@
 										<button title="Sync Stage To Master" data-id="{{>prop.id}}" type="button"  class="btn sync_stage_to_master"style="padding:1px 0px;">
                                             <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-refresh"></i></a>
                                         </button> 				
+										<button title="Response History" data-id="{{>prop.id}}" type="button"  class="btn response_history"style="padding:1px 0px;">
+                                            <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-history"></i></a>
+                                        </button>
+										{{if prop.is_dev_website == 1 }} 	
+											<a style="padding:1px;" class="btn d-inline btn-image execute-bash-command" href="#" data-id="{{>prop.id}}" title="Execute Bash Command">
+												<img src="/images/send.png" style="color:gray; cursor: nwse-resize; width: 0px;">
+											</a>
+											<button title="Response History" data-id="{{>prop.id}}" type="button"  class="btn execute_bash_command_response_history"style="padding:1px 0px;">
+												<a href="javascript:void(0);"style="color:gray;"><i class="fa fa-history"></i></a>
+											</button>
+												
+										{{/if}}
 			        </td>
 			      </tr>
 			    {{/props}}  

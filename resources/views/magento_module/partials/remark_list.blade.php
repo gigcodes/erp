@@ -9,9 +9,9 @@
                             <tr>
                                 <th width="10%">No</th>
                                 <th width="30%">Remark</th>
-                                <th width="20%">To</th>
-                                <th width="20%">BY</th>
-                                <th width="20%">Date</th>
+                                <th width="20%">Updated BY</th>
+                                <th width="20%">Created Date</th>
+                                <th width="20%">Action</th>
                             </tr>
                         </thead>
                         <tbody class="remark-action-list-view">

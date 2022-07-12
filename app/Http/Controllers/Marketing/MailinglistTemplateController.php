@@ -190,7 +190,7 @@ class MailinglistTemplateController extends Controller
         $mailing_item->introduction  = $request->introduction;
 
         $mailing_item->from_email  = $request->from_email;
-
+        $mailing_item->html_text  = $request->html_text;
 
         $mailing_item->save();
 

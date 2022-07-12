@@ -16,7 +16,7 @@ class WhatsappConfigProvider extends ServiceProvider
     {
         try {
             $q = \DB::table("whatsapp_configs")->select([
-                "number", "instance_id", "token", "is_customer_support", "status", "is_default","is_use_own"
+                "number", "instance_id", "provider","token", "is_customer_support", "status", "is_default","is_use_own"
             ])->where("instance_id", "!=", "")
                 ->where("token", "!=", "")
                 //->where("status", 1)
@@ -49,6 +49,7 @@ class WhatsappConfigProvider extends ServiceProvider
                         "token"           => $inst->token,
                         "customer_number" => ($inst->is_customer_support == 1) ? true : false,
                         "is_use_own"      => $inst->is_use_own,
+                        "provider"        => $inst->provider,  
                     ];
                     if ($inst->is_default == 1) {
                         $others[0] = $array;

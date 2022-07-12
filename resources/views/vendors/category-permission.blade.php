@@ -29,6 +29,9 @@
             border-radius: 29px;
             border: 0;
         }
+        #app{
+            overflow: scroll !important;
+        }
     </style>
 
 @endsection
@@ -36,9 +39,7 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <div class="pull-left">
-                <h2> Vendor Category Permission To Users</h2>
-            </div>
+                <h2 class="page-heading"> Vendor Category Permission To Users</h2>
         </div>
     </div>
 
@@ -51,18 +52,17 @@
     </div>
 
     <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="col-xs-12 col-sm-12 col-md-12 pl-5 pr-5">
             <div class="form-group">
                 <div class="table-wrapper-scroll-y my-custom-scrollbar">
 
-                    <table id="permission_table" class="table table-striped table-bordered table-sm" cellspacing="0"
-                           width="100%">
+                    <table id="permission_table" class=" dfdgfd table table-striped table-bordered table-sm" cellspacing="0" style="table-layout: fixed;" >
                         <thead>
                         <tr>
-                            <th>Sr</th>
-                            <th>Users </th>
+                            <th style="width:45px">Sr</th>
+                            <th style="width:80px" class="Website-task">Users </th>
                             @foreach($categories as $category)
-                                <th>{{ $category->title }}</th>
+                                <th style="width:70px" class="Website-task">{{ $category->title }}</th>
                             @endforeach
                         </tr>
                         </thead>
@@ -70,13 +70,13 @@
                         @foreach($users as $user)
                             <tr>
                                 <td>{{++$i }}</td>
-                                <td><a href="{{ url("/users/$user->id/edit") }}">{{ $user->name }} ({{ count($user->permissions) }})</a></td>
+                                <td class="Website-task"><a style="color:black;" href="{{ url("/users/$user->id/edit") }}">{{ $user->name }} ({{ count($user->permissions) }})</a></td>
                                 @foreach($categories as $category)
-                                    <td>
+                                    <td class="Website-task p-0 pl-3">
                                         @if(in_array($category->id, $user->vendorCategoryPermission->pluck('id')->toArray()))
-                                            <input type="checkbox" name="permission_check" checked class="permission-check" data-user-id="{{$user->id}}" data-category-id="{{$category->id}}">
+                                            <input type="checkbox" name="permission_check" checked class="permission-check" data-user-id="{{$user->id}}" data-category-id="{{$category->id}}" style="margin: 3px 0 0;">
                                         @else
-                                            <input type="checkbox" name="permission_check" class="permission-check" data-user-id="{{$user->id}}" data-category-id="{{$category->id}}">
+                                            <input type="checkbox" name="permission_check" class="permission-check" data-user-id="{{$user->id}}" data-category-id="{{$category->id}}"style="margin: 3px 0 0;">
                                         @endif
                                     </td>
                                 @endforeach
@@ -86,7 +86,7 @@
                     </table>
                    
                 </div>
-
+                {!! $users->render() !!}
             </div>
         </div>
 
@@ -97,12 +97,12 @@
 
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript">
-        $(document).ready(function () {
-            $('#permission_table').DataTable({
-                "scrollX": true
-            });
-            $('.dataTables_length').addClass('bs-select');
-        });
+        // $(document).ready(function () {
+        //     $('#permission_table').DataTable({
+        //         "scrollX": true
+        //     });
+        //     $('.dataTables_length').addClass('bs-select');
+        // });
 
         $(document).on('change', '.permission-check', function() {
             var catId = $(this).data('category-id');

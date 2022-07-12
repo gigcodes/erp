@@ -3194,7 +3194,8 @@ class TwilioController extends FindByNumberController
                 TwilioCredential::where('id','=',$request->id)->update([
                     'twilio_email' => $request->email,
                     'account_id' => $request->account_id,
-                    'auth_token' => $request->auth_token
+                    'auth_token' => $request->auth_token,
+                    'twilio_recovery_code' => $request->recovery_code
                 ]);
                 return redirect()->back()->with('success','Twilio details updated successfully');
 
@@ -3202,7 +3203,8 @@ class TwilioController extends FindByNumberController
                 $create_new = TwilioCredential::create([
                    'twilio_email' => $request->email,
                    'account_id' => $request->account_id,
-                   'auth_token' => $request->auth_token
+                   'auth_token' => $request->auth_token,
+                   'twilio_recovery_code' => $request->recovery_code
                 ]);
 
                 //Create TwiML Apps - START

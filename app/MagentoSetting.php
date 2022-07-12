@@ -24,4 +24,14 @@ class MagentoSetting extends Model
         return $this->hasOne(WebsiteStore::class, 'id', 'scope_id');
     }
 
+     /** Websites */
+     public function fromStoreId(){
+        return $this->hasOne(StoreWebsite::class, 'id', 'store_website_id');
+    }
+
+    public function fromStoreIdwebsite(){
+        return $this->hasOne(WebsiteStore::class, 'id', 'website_store_id');
+        //return $this->hasOne(StoreWebsname:class, 'id', 'website_store_id');
+    }
+
 } 

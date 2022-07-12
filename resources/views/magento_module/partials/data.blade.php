@@ -24,9 +24,10 @@
     </div>
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
-            <strong>Module Type : </strong> {{ $magento_module->module_type }}
+            <strong>Module Type : </strong> {{ $magento_module->module_type_data ?$magento_module->module_type_data->magento_module_type : '-' }}
         </div>
     </div>
+    
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
             <strong>Payment Status : </strong> {{ $magento_module->payment_status == 'Free' ? 'Free' : 'Paid' }}
@@ -37,16 +38,9 @@
             <strong>Status : </strong> {{ $magento_module->status == 1 ? 'Enable' : 'Disabled' }}
         </div>
     </div>
-
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
-            <strong>Task Status : </strong>
-            {{ !empty($magento_module->task_status_data) ? $magento_module->task_status_data->name : ' - ' }}
-        </div>
-    </div>
-    <div class="col-xs-6 col-sm-6">
-        <div class="form-group">
-            <strong>Cron Time (Min) : </strong> {{ $magento_module->cron_time }}
+            <strong>Cron : </strong> {{ $magento_module->cron_job == 1 ? 'Yes' : 'No' }}
         </div>
     </div>
     <div class="col-xs-6 col-sm-6">
@@ -69,11 +63,9 @@
             <strong>Third Party Plugin : </strong> {{ $magento_module->is_third_party_plugin == 1 ? 'Yes' : 'No' }}
         </div>
     </div>
-
-
     <div class="col-xs-6 col-sm-6">
         <div class="form-group">
-            <strong>Developer Name : </strong> {{ $magento_module->developer_name }}
+            <strong>Developer Name : </strong> {{ $magento_module->developer_name_data ? $magento_module->developer_name_data->name : '-' }}
         </div>
     </div>
     <div class="col-xs-6 col-sm-6">

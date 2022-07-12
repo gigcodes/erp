@@ -221,7 +221,7 @@ class ProductController extends Controller
         } else { 
             $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
         }
-
+        
         if ($request->get('status_id') != null) {
             $statusList = is_array($request->get('status_id')) ? $request->get('status_id') : [$request->get('status_id')];
             $newProducts = $newProducts->whereIn('status_id', $statusList); //dd($newProducts->limit(10)->get());
@@ -368,9 +368,6 @@ class ProductController extends Controller
                 $newProducts = $newProducts->where('approved_by', $request->get('user_id'));
         }
     
-
-      
-
         $selected_categories = $request->category ? $request->category : [1];
         $category_array = Category::renderAsArray();
         $users = User::all();
@@ -390,6 +387,10 @@ class ProductController extends Controller
 
         if ($request->without_composition != null) {
             $newProducts = $newProducts->where("products.composition", "");
+        }
+
+        if ($request->without_stock != null) {
+            $newProducts = $newProducts->where("products.stock", 0);
         }
 
         if (!auth()->user()->isAdmin()) {
@@ -489,7 +490,6 @@ class ProductController extends Controller
         }
 
         $viewpath = 'products.final_listing';
-
         return view($viewpath, [
             "users_list"=>$users->pluck('name','id'),
             'products' => $newProducts,
@@ -848,7 +848,7 @@ class ProductController extends Controller
         }
 
         // Prioritize suppliers
-        $newProducts = Product::where('status_id', StatusHelper::$cropApprovalConfirmation);
+        $newProducts = Product::where('status_id', StatusHelper::$cropApprovalConfirmation)->where('stock','!=',0);
 
         $newProducts = QueryHelper::approvedListingOrder($newProducts);
 
@@ -3803,6 +3803,11 @@ class ProductController extends Controller
         return response()->json([
             'status' => 'success',
         ]);
+    }
+
+    public function deleteOutOfStockProducts(){
+        $product = Product::where("stock",0)->delete();
+        return redirect()->back()->with('success', 'Productsssss deleted successfully');
     }
 
     public function deleteProduct(Request $request)

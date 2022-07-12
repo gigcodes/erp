@@ -2076,3 +2076,8 @@ table{
 	.col-md-12.p-0.pl-4.text {     width: 50%; }
 }
 /**End**/
+
+
+.padding-10-3{
+  padding: 10px 3px !important;
+}

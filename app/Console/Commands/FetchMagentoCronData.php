@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\StoreWebsite;
 use App\MagentoCronData;
 use Carbon\Carbon;
+use App\LogRequest;
 
 class FetchMagentoCronData extends Command
 {
@@ -40,7 +41,8 @@ class FetchMagentoCronData extends Command
      */
     public function handle()
     {
-        $website = StoreWebsite::all()->pluck('website','id')->toArray();
+        $website = StoreWebsite::whereNotNull('magento_url')->get()->pluck('magento_url','id')->toArray();
+
         //$date = '2021-7-14';
 		$date = Carbon::yesterday()->format('Y-n-j');
 		$cronstatus = $this->cronStatus();
@@ -69,7 +71,9 @@ class FetchMagentoCronData extends Command
                                 'cron_executed_at'=> $da['executed_at'],
                                 'cron_finished_at' => $da['finished_at']
                             ];
-                            MagentoCronData::create($insert);
+                            MagentoCronData::updateOrCreate($insert);
+                        }else{
+                            $this->info('Log Not available at ' . $api);
                         }
                     }
                 }
@@ -84,12 +88,18 @@ class FetchMagentoCronData extends Command
 
     public function getDataApi($url)
     {
+        $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
+          
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL,$url);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $server_output = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close ($ch);
+
+        LogRequest::log($startTime,$url,'POST',[],json_decode($server_output),$httpcode,'getDataApi','App\Console\Commands\FetchMagentoCronData');
+
         return  $server_output;
     }
 }

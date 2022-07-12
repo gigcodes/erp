@@ -44,15 +44,15 @@
                 <div class="table-responsive">
                     <table class="table table-bordered" style="table-layout: fixed;" id="quick-reply-list">
                         <tr>
-                            <th width="2%">ID</th>
-                            <th width="8%">Store website</th>
+                            <th width="3%">ID</th>
+                            <th width="10%">Store website</th>
                             <th width="10%">Category</th>
-                            <th width="15%">Reply</th>
+                            <th width="10%">Reply</th>
                             <th width="7%">Model</th>
-                            <th width="7%">Intent Id</th>
-                            <th width="7%">Updated On</th>
-                            <th width="10%">Is Pushed To Watson</th>
-                            <th width="4%">Action</th>
+                            <th width="5%">Intent Id</th>
+                            <th width="9%">Updated On</th>
+                            <th width="9%">Is Pushed To Watson</th>
+                            <th width="5%">Action</th>
                         </tr>
                         @foreach ($replies as $key => $reply)
                             <tr>

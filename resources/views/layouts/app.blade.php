@@ -421,6 +421,7 @@ if (!empty($notifications)) {
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
 								
+                                
 								<li class="nav-item dropdown dropdown-submenu">
 									<a id="navbarDropdown" class="" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product Templates <span class="caret"></span></a>
 									<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -690,6 +691,13 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('social-webhook-log.index') }}">Social Webhook Log</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('website.file.list.log') }}">Magento Logs</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('website.log.view') }}">Magento Logs View</a>
+                                        </li>
+                                        
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
@@ -954,6 +962,9 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('coupons.index') }}">Coupons</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('negative.coupon.response') }}">Negative Coupons Response</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item">
@@ -990,6 +1001,21 @@ if (!empty($notifications)) {
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('vendor-category.permission') }}">Vendor Category Permission</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('vendor.cv.index') }}">Vendors CV</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Zabbix<span class="caret"></span></a>
+                            <ul class="dropdown-menu multi-level">
+                                {{-- Sub Menu Product --}}
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('zabbix.index') }}">Items</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('zabbix.problem') }}">Problems</a>
                                 </li>
                             </ul>
                         </li>
@@ -1039,6 +1065,9 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('api/documentation') }}">API Documentation</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('user.get-feedback-table-data')}}">User Feedback</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1516,12 +1545,8 @@ if (!empty($notifications)) {
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast messages</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="dropdown-item" href="{{route('plan.index')}}">Plan</a>
-                        </li>
+                        
+                        
                     </ul>
                     <div>
                         <div id="nav-dotes"  class="nav-item dropdown dots mr-3 ml-3">
@@ -1557,6 +1582,9 @@ if (!empty($notifications)) {
 											
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('payment-responses.index') }}">Payment Responses</a>
                                             </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('site-development-status.stats') }}">Multi Site status</a>
@@ -1647,8 +1675,12 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('list.daily-push-log') }}">Magento Daily Product Push Log</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('google.bigdata') }}">Google Big Data</a>
+                                            </li>
                                         </ul>
                                     </li>
+                                    
                                 @endif
                                 @if(auth()->user()->isAdmin())
                                     <li class="nav-item dropdown dropdown-submenu">
@@ -1657,8 +1689,7 @@ if (!empty($notifications)) {
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Admin<span class="caret"></span></a>
 										
 										<ul class="dropdown-menu multi-level">
-										
-											<li class="nav-item dropdown dropdown-submenu">
+                                            <li class="nav-item dropdown dropdown-submenu">
 												<a id="twilioDropdown" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Twilio<span class="caret"></span></a>
 												<ul class="dropdown-menu dropdown-menu-right"aria-labelledby="twilioDropdown">
 													<li class="nav-item dropdown">
@@ -1708,7 +1739,15 @@ if (!empty($notifications)) {
 													</li>
 												</ul>
 											</li>
-
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast messages</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('get.model.name') }}">Model Name</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('plan.index')}}">Plan</a>
+                                            </li>
                                             <li class="nav-item dropdown">
                                                 <a href="{{ route('custom-chat-message.index') }}">Chat Messages</a>
                                             </li>
@@ -1947,6 +1986,9 @@ if (!empty($notifications)) {
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{ url('hubstaff-activities/activities') }}">Activities</a>
                                                     </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('hubstaff-acitivties.acitivties.userTreckTime') }}">User Track Time</a>
+                                                    </li>
                                                 </ul>
                                             </li>
                                             <li class="nav-item dropdown dropdown-submenu">
@@ -2011,6 +2053,24 @@ if (!empty($notifications)) {
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('GtMetrixAccount.index') }}">GTMetrix Account</a>
                                             </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('gtm.cetegory.web') }}">GTMetrix Category Website</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ url('checklist') }}">Checklist</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ url('sop') }}">SOP</a>
+                                            </li>
+                                                <a class="dropdown-item" href="{{ route('gtmetrix.error.index.list') }}">GTMetrix Error log</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ url('/postman') }}">Magento Request</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('email.event.journey') }}">Sendgrid Event Journey</a>
+                                            </li>
+                                            
                                         </ul>
                                     </li>
                                 @endif
@@ -2764,7 +2824,6 @@ if (!empty($notifications)) {
     <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
     <script type="text/javascript" src="{{ asset('js/common-function.js') }}"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 
     <script>
         // $('#chat-list-history').on('hidden.bs.modal', function (e) {

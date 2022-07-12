@@ -1,7 +1,7 @@
 var spinner_html = `<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...`;
 
 // String Limit set
-function setStringLength(string_value, length = 20) {
+function setStringLength(string_value, length = 15) {
     return string_value.length > length ? string_value.substring(0, length) + "..." : string_value;
 }
 
@@ -9,15 +9,16 @@ function setStringLength(string_value, length = 20) {
 function getDateByFormat(date) {
     const d = new Date(date);
     const ye = new Intl.DateTimeFormat('en', {
-        year: 'numeric'
+        year: '2-digit'
     }).format(d);
     const mo = new Intl.DateTimeFormat('en', {
-        month: 'short'
+        // month: 'short'
+        month: '2-digit'
     }).format(d);
     const da = new Intl.DateTimeFormat('en', {
         day: '2-digit'
     }).format(d);
-    return `${da} ${mo} ${ye}`;
+    return `${da}/${mo}/${ye}`;
 }
 
 // get DateTime in formatting 
@@ -49,12 +50,12 @@ function actionShowButton(url) {
 
 // Show details page button
 function actionShowButtonWithClass(cls, id) {
-    return `<button type="button" title="Details Page"  class="btn btn-image ${cls}" data-id="${id}"><img src="/images/view.png" /></button>`;
+    return `<button type="button" title="Details Page"  class="btn btn-image padding-10-3 ${cls}" data-id="${id}"><img src="/images/view.png" /></button>`;
 }
 
 // Edit Button
 function actionEditButtonWithClass(cls, data) {
-    return `<button type='button' title='Edit'  class='btn btn-image ${cls}' data-row='${data}'><img src='/images/edit.png' /></button>`;
+    return `<button type='button' title='Edit'  class='btn btn-image padding-10-3 ${cls}' data-row='${data}'><img src='/images/edit.png' /></button>`;
 }
 
 // Title or String persent to better way
@@ -64,7 +65,7 @@ function actionShowTitle(url, stringTitle) {
 
 // delete button
 function actionDeleteButton(id, deleteclass = "clsdelete") {
-	return `<a  class="btn btn-image ${deleteclass}" data-id="${id}"><img src="/images/delete.png" /></a>`;
+	return `<a  class="btn btn-image padding-10-3 ${deleteclass}" data-id="${id}"><img src="/images/delete.png" /></a>`;
 }
 
 // status Button 
