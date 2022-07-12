@@ -141,6 +141,13 @@ class RepositoryController extends Controller
             $allOutput = array();
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput);
+            if (str_contains($result, 'database/migrations') || str_contains($result, 'migrations') ||  str_contains($result, 'Database/Migrations') || str_contains($errorArr, 'Migrations')) { 
+                if($source == 'master') {
+                    $this->createGitMigrationErrorLog($repoId, $destination, $result);
+                } else if($destination == 'master') {
+                    $this->createGitMigrationErrorLog($repoId, $source, $result);
+                }
+            }
 
         } catch (Exception $e) {
             print_r($e->getMessage());
