@@ -17,12 +17,9 @@ class TaskCategoriesController extends Controller
     //
     public function index(Request $request){
         if ($request->ajax()) {
-            $items = TaskCategories::with(["subcategory.task_subject.history"])->get();
-            
-            echo "<pre>";
-            print_r($items->toArray());
-            exit;
-            //return datatables()->eloquent($items)->toJson();
+            $items = TaskSubCategory::with(["task_category","task_subject"]);
+           
+            return datatables()->eloquent($items)->toJson();
         }else{
             $title = 'Project Documentation Module';
             return view('Taskcategories.index', ['title' => $title]);

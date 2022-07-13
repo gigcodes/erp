@@ -215,31 +215,29 @@
                         }
                     },
                     {
-                        data: 'category_name',
-                        name: 'checklist.category_name',
+                        data: 'task_category.name',
+                       
                         render: function(data, type, row, meta) {
                             return data;
                         }
                     },
                     {
-                        data: 'sub_category_name',
-                        name: 'checklist.sub_category_name',
+                        data: 'name',
+                      
                         render: function(data, type, row, meta) {
                             return data;
                         }
                     },{
-                        data: 'subjects',
-                        name: 'checklist.subjects',
+                        data: 'task_subject',
+                       
                         render: function(data, type, row, meta) {
-                            if(data && data != ""){
-                                var subjects = data.split(",");
-                                var subject_html = "";
-                                for(var i=0; i<subjects.length; i++){
-                                    subject_html += "<span class='badge badge-primary mr-2'>"+subjects[i]+"</span>";
-                                }
-                                return subject_html;
+                           
+                            var subject = "";
+                            for(i=0; i<data.length; i++){
+                                subject += data[i].name+", ";
                             }
-                            // return data;
+                          
+                            return subject;
                         }
                     },
                     {
@@ -260,19 +258,21 @@
         
         });
         // END Print Table Using datatable
-        $(document).ready(function(){
+        $(document).ready(function(){ 
+            var global =0;
             var imagesPreview = function(input) {
              
-                var html = '<div class="row"><div class="col-xs-12 col-sm-12"><div class="form-group"><strong>Subject Name:</strong><input type="text" name="subjectname[]" id ="subjectname">&nbsp;<strong>Subject:</strong><textarea name="subject[]" id ="subjects"/></div></div>';
-                $('#task_form').append(html);   
-                           
-
+                var html = '<div class="row"><div class="col-xs-12 col-sm-12"><div class="form-group"><strong>Subject Name:</strong><input type="text" name="subjectname[]" id ="subjectname">&nbsp;<strong>Subject:</strong><textarea name="subject[]" id ="subjects"/><button type="button" class="btn btn-primary" id="deletesubject">delete</button></div></div>';
+                $('#task_form').append(html);
             };
 
             $('#showtask').on('click', function() {
                 imagesPreview(this);  
             });
         });
+
+        var global =0;
+        
         $(document).on('submit', '#task_form', function(e){
         e.preventDefault();
 
@@ -326,11 +326,26 @@
     // });
     $(document).on('click', '.edit-checklist', function() {
         var checklistData = $(this).data('row');
-        $('#edit_checklist_form #checklist_id').val(checklistData.id);
-        $('#edit_checklist_form #category_name').val(checklistData.category_name);
-        $('#edit_checklist_form #sub_category_name').val(checklistData.sub_category_name);
-        $('#edit_checklist_form #subjects').tagsinput('removeAll');
-        $('#edit_checklist_form #subjects').tagsinput('add', checklistData.subjects);
+        $('#edit_task_form #checklist_id').val(checklistData.task_category_id);
+        $('#edit_task_form #category_name').val(checklistData.task_category.name);
+        $('#edit_task_form #sub_category_name').val(checklistData.name);
+        var length = checklistData.task_subject.length;
+      
+        $('#edit_task_form #subjects').tagsinput('removeAll');
+        // $('#edit_task_form').html("");
+        for(i=0; i<length; i++){
+           
+           
+            var html = "<div class='row'><div class='col-xs-12 col-sm-12'><div class='form-group'><strong>Subject Name:</strong><input type='text' name='subject[]' id ='subject"+i+"'>&nbsp;<strong>Subject:</strong><textarea name='description[]' id ='description"+i+"'/><button type='button' class='btn btn-primary' id='deletesubject"+i+"'>delete</button></div></div>";
+            $('#edit_task_form').append(html);  
+           
+            $('#edit_task_form #subject'+i+'').val(checklistData.task_subject[i].name);
+            $('#edit_task_form #description'+i+'').val(checklistData.task_subject[i].description);
+            $('#edit_task_form #deletesubject'+i+'').val(checklistData.task_subject[i].id);
+            
+           
+        }
+     
         $('#EditCheckList').modal('show');
     });
     
