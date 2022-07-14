@@ -74,4 +74,35 @@ class TaskCategoriesController extends Controller
         }
        
     }
+    public function update(Request $request, $id){
+        if($request->ajax()){
+            $id = $request->id;
+            $categoryname = $request->category_name;
+            $sub_category = $request->sub_category_name;
+            $category = TaskCategories::find($id);
+            if(!empty($category)){
+                $category = $category->update(['name',$categoryname]);
+            }
+            $subcategory = TaskSubCategory::where('task_category_id',$id)->first();
+            if(!empty($subcategory)){
+                $subcategory = $subcategory->update(['name',$sub_category]);
+            }
+            $task_subject = TaskSubject::where('task_category_id', $id)->get();
+            
+            foreach($request->subject as $key=>$subject){
+               
+                $data[$key] = array(
+                   'name' =>$subject,
+                   'description' =>$request->description[$key],
+                );
+               
+                $tasksub = $task_subject[$key]->update($data[$key]);  
+            }
+           
+            //dd($tasksub);
+            $task_history = TaskHistories::where('task_category_id',$id)->get();
+            dd($task_history);
+        
+        }
+    }
 }

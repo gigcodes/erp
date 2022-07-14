@@ -19,10 +19,10 @@ class CreateTaskHistoryTable extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedInteger('task_subject_id');
             $table->foreign('task_subject_id')->references('id')->on('task_subjects')->onDelete('cascade');
-            $table->string('name_before',255);
-            $table->string('name_after',255);
-            $table->string('description_before',255);
-            $table->string('description_after',255);
+            $table->string('name_before');
+            $table->string('name_after');
+            $table->string('description_before');
+            $table->string('description_after');
             $table->timestamps();
         });
     }

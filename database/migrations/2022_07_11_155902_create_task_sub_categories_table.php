@@ -15,9 +15,9 @@ class CreateTaskSubCategoriesTable extends Migration
     {
         Schema::create('task_sub_categories', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedBigInteger('task_category_id');
+            $table->unsignedInteger('task_category_id');
             $table->foreign('task_category_id')->references('id')->on('task_category')->onDelete('cascade');
-            $table->string('name',255);
+            $table->string('name');
             $table->timestamps();
         });
     }

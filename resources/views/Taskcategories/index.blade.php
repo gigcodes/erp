@@ -326,6 +326,7 @@
     // });
     $(document).on('click', '.edit-checklist', function() {
         var checklistData = $(this).data('row');
+        
         $('#edit_task_form #checklist_id').val(checklistData.task_category_id);
         $('#edit_task_form #category_name').val(checklistData.task_category.name);
         $('#edit_task_form #sub_category_name').val(checklistData.name);
@@ -333,31 +334,32 @@
       
         $('#edit_task_form #subjects').tagsinput('removeAll');
         // $('#edit_task_form').html("");
+        
         for(i=0; i<length; i++){
            
-           
-            var html = "<div class='row'><div class='col-xs-12 col-sm-12'><div class='form-group'><strong>Subject Name:</strong><input type='text' name='subject[]' id ='subject"+i+"'>&nbsp;<strong>Subject:</strong><textarea name='description[]' id ='description"+i+"'/><button type='button' class='btn btn-primary' id='deletesubject"+i+"'>delete</button></div></div>";
-            $('#edit_task_form').append(html);  
-           
+          
+            var html = "<div class='row hello'><div class='col-xs-12 col-sm-12'><div class='form-group'><strong>Subject Name:</strong><input type='text' name='subject[]' id ='subject"+i+"'>&nbsp;<strong>Subject:</strong><textarea name='description[]' id ='description"+i+"'/><button type='button' class='btn btn-primary' id='deletesubject"+i+"'>delete</button></div></div>";
+            $('#edit_task_form').append(html);
+
             $('#edit_task_form #subject'+i+'').val(checklistData.task_subject[i].name);
             $('#edit_task_form #description'+i+'').val(checklistData.task_subject[i].description);
             $('#edit_task_form #deletesubject'+i+'').val(checklistData.task_subject[i].id);
             
-           
+            
         }
-     
+       
         $('#EditCheckList').modal('show');
     });
     
-    $(document).on('submit', '#edit_checklist_form', function(e){
+    $(document).on('submit', '#edit_task_form', function(e){
         e.preventDefault();
         var self = $(this);
-        let formData = new FormData(document.getElementById("edit_checklist_form"));
-        var checklist_id = $('#edit_checklist_form #checklist_id').val();
+        let formData = new FormData(document.getElementById("edit_task_form"));
+        var checklist_id = $('#edit_task_form #checklist_id').val();
         var button = $(this).find('[type="submit"]');
         
         $.ajax({
-            url: '{{ route("checklist.update", '') }}/' + checklist_id,
+            url: '{{ route("taskcategories.update", '') }}/' + checklist_id,
             type: "POST",
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             dataType: 'json',
@@ -377,9 +379,9 @@
             },
             success: function(response) {
                 
-                $('#EditCheckList #edit_checklist_form').find('.error-help-block').remove();
-                $('#EditCheckList #edit_checklist_form').find('.invalid-feedback').remove();
-                $('#EditCheckList #edit_checklist_form').find('.alert').remove();
+                $('#EditCheckList #edit_task_form').find('.error-help-block').remove();
+                $('#EditCheckList #edit_task_form').find('.invalid-feedback').remove();
+                $('#EditCheckList #edit_task_form').find('.alert').remove();
                 $('.close_modal').click();
                 oTable.draw();
                 toastr["success"](response.message);
@@ -395,6 +397,12 @@
             },
         });
     });
+        $('.close_modal').click(function(){
+            $(".hello").remove(); 
+        });
+        $('#close').click(function(){
+            $(".hello").remove(); 
+        });
 
     // Delete Checklist
     $(document).on('click', '.clsdelete', function() {
