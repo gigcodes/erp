@@ -330,6 +330,7 @@
     // });
     $(document).on('click', '.edit-checklist', function() {
         var checklistData = $(this).data('row');
+        
         $('#edit_task_form #checklist_id').val(checklistData.task_category_id);
         $('#edit_task_form #category_name').val(checklistData.task_category.name);
         $('#edit_task_form #sub_category_name').val(checklistData.name);
@@ -347,15 +348,15 @@
         $('#EditCheckList').modal('show');
     });
     
-    $(document).on('submit', '#edit_checklist_form', function(e){
+    $(document).on('submit', '#edit_task_form', function(e){
         e.preventDefault();
         var self = $(this);
-        let formData = new FormData(document.getElementById("edit_checklist_form"));
-        var checklist_id = $('#edit_checklist_form #checklist_id').val();
+        let formData = new FormData(document.getElementById("edit_task_form"));
+        var checklist_id = $('#edit_task_form #checklist_id').val();
         var button = $(this).find('[type="submit"]');
         
         $.ajax({
-            url: '{{ route("checklist.update", '') }}/' + checklist_id,
+            url: '{{ route("taskcategories.update", '') }}/' + checklist_id,
             type: "POST",
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             dataType: 'json',
@@ -375,9 +376,9 @@
             },
             success: function(response) {
                 
-                $('#EditCheckList #edit_checklist_form').find('.error-help-block').remove();
-                $('#EditCheckList #edit_checklist_form').find('.invalid-feedback').remove();
-                $('#EditCheckList #edit_checklist_form').find('.alert').remove();
+                $('#EditCheckList #edit_task_form').find('.error-help-block').remove();
+                $('#EditCheckList #edit_task_form').find('.invalid-feedback').remove();
+                $('#EditCheckList #edit_task_form').find('.alert').remove();
                 $('.close_modal').click();
                 oTable.draw();
                 toastr["success"](response.message);
@@ -393,6 +394,12 @@
             },
         });
     });
+        $('.close_modal').click(function(){
+            $(".hello").remove(); 
+        });
+        $('#close').click(function(){
+            $(".hello").remove(); 
+        });
 
     // Delete Checklist
     $(document).on('click', '.clsdelete', function() {

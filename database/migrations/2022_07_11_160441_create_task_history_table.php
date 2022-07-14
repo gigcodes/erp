@@ -18,11 +18,13 @@ class CreateTaskHistoryTable extends Migration
             $table->unsignedInteger('user_id');
             // $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedInteger('task_subject_id');
+
             // $table->foreign('task_subject_id')->references('id')->on('task_subjects')->onDelete('cascade');
             $table->string('name_before',255)->nullable();
             $table->string('name_after',255)->nullable();
             $table->string('description_before',255)->nullable();
             $table->string('description_after',255)->nullable();
+
             $table->timestamps();
         });
     }
