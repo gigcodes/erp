@@ -45,7 +45,7 @@ function getDateTimeByFormat(date) {
 
 // Show details page button
 function actionShowButton(url) {
-    return `<a href="${url}" title="Details Page" class="btn btn-image"><img src="/images/view.png" /></a>`;
+    return `<a href="${url}" title="Details Page" class="btn btn-image padding-10-3"><img src="/images/view.png" /></a>`;
 }
 
 // Show details page button
