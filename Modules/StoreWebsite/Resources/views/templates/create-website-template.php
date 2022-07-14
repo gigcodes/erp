@@ -302,6 +302,19 @@
                   <input type="text" name="project_id" value="{{if data}}{{:data.project_id}}{{/if}}" class="form-control" id="project_id" placeholder="Enter Project ID">
                </div>
             </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="site_folder">Site Folder</label>
+                  <select name="site_folder" id="site_folder" class="form-control siteFolder">
+                     <option>--Select Site Folder--</option>
+                  <?php
+                        foreach(\App\AssetsManager::whereNotNull('ip')->get() as $k => $l) {
+                            echo "<option {{if data.site_folder == '".$l->ip."'}} selected {{/if}} value='".$l->ip."'>".$l->ip."</option>";
+                        }
+                        ?>
+                  </select>
+               </div>
+            </div>
             
          </div>
          <div class="MainMagentoUser">

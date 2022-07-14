@@ -25,6 +25,9 @@ Route::get('textcurl', 'Marketing\MailinglistController@textcurl');
 Route::get('/test/dummydata', 'TestingController@testingFunction');
 Route::get('/test/translation', 'GoogleTranslateController@testTranslation');
 
+Route::get('/zabbix', 'ZabbixController@index');
+Route::get('/zabbix/problems', 'ZabbixController@problems')->name("zabbix.problem");
+
 Route::get('/test/testPrice', 'TmpTaskController@testEmail');
 Route::get('/memory', 'MemoryUsesController@index')->name('memory.index');
 Route::post('/memory/thresold-update', 'MemoryUsesController@updateThresoldLimit')->name('update.thresold-limit');
@@ -2265,6 +2268,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('postman/add/json/version', 'PostmanRequestCreateController@jsonVersion');
     Route::post('postman/removeuser/permission', 'PostmanRequestCreateController@removeUserPermission');
     Route::post('postman/remark/history', 'PostmanRequestCreateController@postmanRemarkHistoryLog');
+    Route::post('postman/user/permission', 'PostmanRequestCreateController@userPermission');
+    
+    Route::post('postman/get/mul/request', 'PostmanRequestCreateController@getMulRequest');
     
     
 });
@@ -3888,7 +3894,7 @@ Route::middleware('auth')->group(function () {
     Route::post('checklist/checklist_update', 'CheckListController@checklistUpdate')->name("checklist.update.c");
 });
 
-
+Route::resource('zabbix', 'ZabbixController');
 Route::get('test', 'ScrapController@listCron');
 Route::get('command', function () {
     // \Artisan::call('migrate');

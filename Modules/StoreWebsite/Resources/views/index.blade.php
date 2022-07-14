@@ -154,6 +154,34 @@
 </div>
 </div>
 
+<div id="magentoDevScriptUpdateHistoryModal" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<!-- Modal content-->
+		<div class="modal-content ">
+			<div class="modal-header">
+					<h4 class="modal-title">Magento Setting Update Rersponse History</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					<div class="table-responsive mt-3">
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th width="20%">Created At</th>
+									<th width="20%">Website</th>
+									<th width="60%">Response</th>
+								</tr>
+							</thead>
+							<tbody id="magentoDevScriptUpdateHistory">
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div class="modal fade" id="store-generate-pem-file" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -257,6 +285,62 @@
 			$("#loading-image").hide();
 			console.log("Sorry, something went wrong");
 		});
+	});
+
+	$(document).on("click", ".execute_bash_command_response_history", function(href) {
+		
+			$.ajax({
+				type: 'POST',
+				url: 'store-website/'+ $(this).data('id') +'/magento-dev-update-script-history',
+				beforeSend: function () {
+					$("#loading-image").show();
+				},
+				data: {
+					_token: "{{ csrf_token() }}",
+					id: $(this).data('id'),
+				},
+				dataType: "json"
+			}).done(function (response) {
+				$("#loading-image").hide();
+				if (response.code == 200) {
+					$('#magentoDevScriptUpdateHistory').html(response.data);
+					$('#magentoDevScriptUpdateHistoryModal').modal('show');
+					toastr['success'](response.message, 'success');
+				}
+			}).fail(function (response) {
+				$("#loading-image").hide();
+				console.log("Sorry, something went wrong");
+			});
+		
+	});
+
+	$(document).on("click", ".execute-bash-command", function(href) {
+		if(confirm ("Do you want to run this script???")){
+			$.ajax({
+				type: 'POST',
+				url: 'store-website/'+ $(this).data('id') +'/magento-dev-script-update',
+				beforeSend: function () {
+					$("#loading-image").show();
+				},
+				data: {
+					_token: "{{ csrf_token() }}",
+					id: $(this).data('id'),
+				},
+				dataType: "json"
+			}).done(function (response) {
+				$("#loading-image").hide();
+				if (response.code == 200) {
+					
+					//$('#magentoSettingUpdateHistory').html(response.data);
+					//$('#magentoSettingUpdateHistoryModal').modal('show');
+					toastr['success'](response.message, 'success');
+				}
+			}).fail(function (response) {
+				$("#loading-image").hide();
+				toastr['error'](response.message, 'error');
+				console.log("Sorry, something went wrong");
+			});
+		}
 	});
 
 	function fnc(value, min, max) {
