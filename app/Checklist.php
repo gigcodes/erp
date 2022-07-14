@@ -15,9 +15,11 @@ class Checklist extends Model
 
     protected $fillable = [
         'category_name', 
-        'sub_category_name',
-        'subjects'
+        'sub_category_name'
     ];
     protected $primaryKey = 'id';
 
+    public function subjects(){
+        return $this->hasMany(Subject::class);
+    }
 }
