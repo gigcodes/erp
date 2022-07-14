@@ -261,9 +261,8 @@
         $(document).ready(function(){ 
             var global =0;
             var imagesPreview = function(input) {
-             
-                var html = '<div class="row"><div class="col-xs-12 col-sm-12"><div class="form-group"><strong>Subject Name:</strong><input type="text" name="subjectname[]" id ="subjectname">&nbsp;<strong>Subject:</strong><textarea name="subject[]" id ="subjects"/><button type="button" class="btn btn-primary" id="deletesubject">delete</button></div></div>';
-                $('#task_form').append(html);
+                var html = '<div class="custom-element"><div class="form-group col-md-4"><label for="inputEmail4">Subject Name</label><input class="form-control" type="text" name="subjectname[]" id ="subjectname"></div><div class="form-group col-md-6"><label for="inputEmail4">Description</label><textarea class="form-control" name="subject[]" id ="subjects"/></div><div class="form-group col-md-2"><label for="inputEmail4">&nbsp;</label><button type="button" class="btn btn-primary form-control deletesubject" id="deletesubject0" value="1">Delete</button></div></div>';
+                $('.subjects').append(html);
             };
 
             $('#showtask').on('click', function() {
@@ -273,6 +272,11 @@
 
         var global =0;
         
+        
+        $(document).on('click', '.deletesubject', function(e){
+            $(this).parents('.custom-element').remove();
+        });
+
         $(document).on('submit', '#task_form', function(e){
         e.preventDefault();
 
@@ -332,20 +336,14 @@
         var length = checklistData.task_subject.length;
       
         $('#edit_task_form #subjects').tagsinput('removeAll');
-        // $('#edit_task_form').html("");
-        for(i=0; i<length; i++){
-           
-           
-            var html = "<div class='row'><div class='col-xs-12 col-sm-12'><div class='form-group'><strong>Subject Name:</strong><input type='text' name='subject[]' id ='subject"+i+"'>&nbsp;<strong>Subject:</strong><textarea name='description[]' id ='description"+i+"'/><button type='button' class='btn btn-primary' id='deletesubject"+i+"'>delete</button></div></div>";
-            $('#edit_task_form').append(html);  
-           
+        $('#EditCheckList .subjects').html("");
+        for(i=0; i<length; i++){          
+            var html = '<div class="custom-element"><div class="form-group col-md-4"><label for="inputEmail4">Subject Name</label><input class="form-control" type="text" name="subject[]" id ="subject'+i+'"></div><div class="form-group col-md-6"><label for="inputEmail4">Description</label><textarea class="form-control" name="description[]" id ="description'+i+'"/></div><div class="form-group col-md-2"><label for="inputEmail4">&nbsp;</label><button type="button" class="btn btn-primary form-control deletesubject-edit" id="deletesubject'+i+'" value="1">Delete</button></div></div>';
+            $('#EditCheckList .subjects').append(html);            
             $('#edit_task_form #subject'+i+'').val(checklistData.task_subject[i].name);
             $('#edit_task_form #description'+i+'').val(checklistData.task_subject[i].description);
             $('#edit_task_form #deletesubject'+i+'').val(checklistData.task_subject[i].id);
-            
-           
-        }
-     
+        }     
         $('#EditCheckList').modal('show');
     });
     

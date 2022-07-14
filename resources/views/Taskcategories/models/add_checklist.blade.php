@@ -12,7 +12,7 @@
                 <div class="row ml-2 mr-2">
                     <div class="col-xs-12 col-sm-12">
                         <div class="form-group">
-                            <strong >Category Name:</strong>
+                            <strong >Category :</strong>
                             {!! Form::text('category_name', null, ['id'=>'category_name', 'placeholder' => 'Enter Category', 'class' => 'form-control', 'required' => 'required','autocomplete'=>'off']) !!}
                             @if ($errors->has('category_name'))
                                 <span style="color:red">{{ $errors->first('category_name') }}</span>
@@ -22,7 +22,7 @@
                     
                     <div class="col-xs-12 col-sm-12">
                         <div class="form-group" id = "hidetask">
-                            <strong>Sub Category Name:</strong>
+                            <strong>Sub Category :</strong>
                             {!! Form::text('sub_category_name', null, ['id'=>'sub_category_name', 'placeholder' => 'Enter Sub Category', 'class' => 'form-control', 'required' => 'required','autocomplete'=>'off']) !!}
                             @if ($errors->has('sub_category_name'))
                                 <span style="color:red">{{ $errors->first('sub_category_name') }}</span>
@@ -31,19 +31,13 @@
                     </div>
                     <div class="col-xs-12 col-sm-12 task">
                         <div class="form-group">
-                           <button class="btn btn-primary" id="showtask" type = "button"> add sub category</button>
+                           <button class="btn btn-primary" id="showtask" type = "button"> Add Subject</button>
                         </div>
                     </div>
-                     <!--
-                    <div class="col-xs-12 col-sm-12">
-                        <div class="form-group" id = "hidetask1">
-                            <strong>Subject:</strong>
-                            {!! Form::text('subjects', null, ['id'=>'subjects', 'placeholder' => 'Enter subjects', 'class' => 'form-control', 'required' => 'required','data-role'=>"tagsinput"]) !!}
-                            @if ($errors->has('subject'))
-                                <span style="color:red">{{ $errors->first('subject') }}</span>
-                            @endif
-                        </div>
-                    </div> -->
+
+                    <div class="subjects col-xs-12 col-sm-12">
+                    </div>
+                    
                 </div>
                 
             </div>
@@ -88,8 +82,7 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="abc">
-
+                        <div class="subjects col-xs-12 col-sm-12">
                         </div>
                         <!-- <div class="col-xs-12 col-sm-12">
                             <div class="form-group">
