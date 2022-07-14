@@ -19,8 +19,8 @@ class CreateTaskSubjectsTable extends Migration
             // $table->foreign('task_category_id')->references('id')->on('task_categories')->onDelete('cascade');
             $table->unsignedInteger('task_subcategory_id');
             // $table->foreign('task_subcategory_id')->references('id')->on('task_sub_categories')->onDelete('cascade');
-            $table->string('name',255);
-            $table->string('description',255);
+            $table->string('name');
+            $table->string('description');
             $table->timestamps();
         });
     }
