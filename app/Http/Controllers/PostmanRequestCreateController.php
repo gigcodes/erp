@@ -189,7 +189,7 @@ class PostmanRequestCreateController extends Controller
                 $this->createPostmanRequestAPI($postman->folder_name,$request);
             }
 
-           // return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
+            return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
             return response()->json(['code' => 500, 'message' => $msg]);
@@ -227,10 +227,21 @@ class PostmanRequestCreateController extends Controller
     public function getMulRequest(Request $request){
         try{
             $multiReqs = PostmanMultipleUrl::where('postman_request_create_id', $request->id)->get();
+            if(empty($multiReqs->toArray())){
+                $postmans = PostmanRequestCreate::where('id', $request->id)->first(); 
+                $user_id = substr($postmans->user_permission, 0, strrpos($postmans->user_permission.",", ","));
+                PostmanMultipleUrl::create([
+                    'user_id' => $user_id,
+                    'postman_request_create_id' => $postmans->id,
+                    'request_url' => $postmans->request_url
+                ]);
+            }
+
+            $multiReqs = PostmanMultipleUrl::where('postman_request_create_id', $request->id)->get();
             $html = '';
-                foreach($multiReqs as $reqUrl){
-                    $html .= "<div ><input type='checkbox' name='urls[]' value='".$reqUrl->id."' style='height: 13px;'/> ".$reqUrl->request_url.'<br/></div>';
-                }
+            foreach($multiReqs as $reqUrl){
+                $html .= "<div ><input type='checkbox' name='urls[]' value='".$reqUrl->id."' style='height: 13px;'/> ".$reqUrl->request_url.'<br/></div>';
+            }
             return response()->json(['code' => 200, 'data' => $html, 'message' => 'Request listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
@@ -715,7 +726,7 @@ class PostmanRequestCreateController extends Controller
         )); 
         $response = curl_exec($curl);
         curl_close($curl); 
-        echo $response;
+        //echo $response;
        // dd($fID, $fName, $response);
     }
 
@@ -771,13 +782,13 @@ class PostmanRequestCreateController extends Controller
         $response = curl_exec($curl);
 
         curl_close($curl);
-        echo $response;
+        //echo $response;
 
 
 
         if($requestData['isjson']) {
            
-            echo '<pre>';print_r(($response)); exit;
+            //echo '<pre>';print_r(($response)); exit;
         }
 
 

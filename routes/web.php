@@ -3887,6 +3887,11 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
 });
 Route::middleware('auth')->group(function () {
     Route::resource('checklist', 'CheckListController');
+    Route::get('checklist/view/{id}', 'CheckListController@view')->name("checklist.view");
+    Route::post('checklist/subjects', 'CheckListController@subjects')->name("checklist.subjects");
+    Route::post('checklist/add_checklist', 'CheckListController@add')->name("checklist.add");
+    Route::post('checklist/get_checked_value', 'CheckListController@checked')->name("checklist.get.checked");
+    Route::post('checklist/checklist_update', 'CheckListController@checklistUpdate')->name("checklist.update.c");
 });
 
 Route::resource('taskcategories','TaskCategoriesController');
