@@ -4,14 +4,14 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateHostItems1Table extends Migration
+class CreateHostItemsTable extends Migration
 {
     public function up()
     {
         Schema::create('host_items', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('host_id');
-            $table->foreign('host_id')->references('id')->on('hosts')->onDelete('cascade');
+            // $table->foreign('host_id')->references('id')->on('hosts')->onDelete('cascade');
             $table->integer('item_id');
             $table->integer('hostid');
             $table->double('free_inode_in', 6, 2);
