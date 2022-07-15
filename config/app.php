@@ -146,7 +146,7 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-        Anhskohbo\NoCaptcha\NoCaptchaServiceProvider::class,
+
         /*
          * Package Service Providers...
          */
@@ -254,13 +254,14 @@ return [
         'Input' => Illuminate\Support\Facades\Input::class,
         'Image' => Intervention\Image\Facades\Image::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
-        'Twitter' => Thujohn\Twitter\Facades\Twitter::class,        
+        'Twitter' => Thujohn\Twitter\Facades\Twitter::class,
+
         // Custom Modules\BookStack
         'Activity' => Modules\BookStack\Facades\Activity::class,
         'Setting'  => Modules\BookStack\Facades\Setting::class,
         'Views'    => Modules\BookStack\Facades\Views::class,
         'Images'   => Modules\BookStack\Facades\Images::class,
-        'NoCaptcha' => Anhskohbo\NoCaptcha\Facades\NoCaptcha::class,
+
         'PermissionCheck' => App\Facades\PermissionCheckClass::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
         'IImage' => Intervention\Image\Facades\Image::class,

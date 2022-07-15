@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\VendorResume;
 use App\Setting;
-use App\Position;
 use Illuminate\Http\Request;
 use App\Models\File;
-use GuzzleHttp\Client;
 
 class VendorResumeController extends Controller
 {
@@ -231,12 +229,6 @@ class VendorResumeController extends Controller
             return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
         }
     }
-
-    public function create($vendor_id = null){
-        $positions = Position::get();
-        return view("vendor-resume.create",["vendor_id"=>$vendor_id,"positions"=>$positions]);
-    }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -245,11 +237,8 @@ class VendorResumeController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'g-recaptcha-response' => 'required|captcha'
-        ]);
-
-        $requestData = $request->all();        
+        $requestData = $request->all();
+        //dd($request->all());
         $project = [];
         $dev_role = [];
         $tools = [];
@@ -283,10 +272,6 @@ class VendorResumeController extends Controller
             $vendorResume->second_name = $request->second_name;
             $vendorResume->email = $request->email;
             $vendorResume->mobile = $request->mobile;
-            $vendorResume->position_id = $request->position_id;
-            if(!empty($request->criteria)){
-                $vendorResume->criteria = implode(",",$request->criteria);
-            }            
             $vendorResume->career_objective = $request->career_objective;
             $vendorResume->salary_in_usd = serialize($request->salary_in_usd);
             $vendorResume->expected_salary_in_usd = $request->expected_salary_in_usd;
@@ -339,10 +324,12 @@ class VendorResumeController extends Controller
             $vendorResume->pin_code = $request->pin_code;
             $vendorResume->address = serialize($request->address);
             $vendorResume->save();
-            return back()->with('success', 'Data stored successfully!!!');            
+            //dd(\DB::getQueryLog());
+           return back()->with('success', 'Data stored successfully!!!');
+            //return response()->json(["code" => 200, "data" => $vendorResume, "message" => 'Data stored successfully!!!']);
         } catch (\Exception $e) {
-            // echo "<pre>";
-            // print_r($e->getMessage());exit;
+            //return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
+            //dd($e->getMessage());
             return back()->with('message', $e->getMessage());
         }
     }
