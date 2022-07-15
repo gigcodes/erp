@@ -3099,6 +3099,9 @@ Route::middleware('auth')->group(function () {
     Route::get('website/search/log/view', 'WebsiteLogController@searchWebsiteLogStoreView')->name('website.search.log.view');
     
     Route::get('website/command/log', 'WebsiteLogController@runWebsiteLogCommand')->name('website.command-log');
+
+    Route::get('/uicheck', 'UicheckController@index')->name('uicheck');
+    Route::post('uicheck/store', 'UicheckController@store')->name('uicheck.store');
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
