@@ -22,7 +22,7 @@ class ZabbixStore extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Store Hosts from Zabbix';
 
     /**
      * Create a new command instance.
