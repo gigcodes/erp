@@ -17,7 +17,7 @@ class CreateSubjectsTable extends Migration
             $table->increments('id');
             $table->string('title')->nullable();
             $table->unsignedInteger('checklist_id');
-            $table->foreign('checklist_id')->references('id')->on('checklist')->onDelete('cascade');	
+            // $table->foreign('checklist_id')->references('id')->on('checklist')->onDelete('cascade');	
             $table->timestamps();
         });
     }
