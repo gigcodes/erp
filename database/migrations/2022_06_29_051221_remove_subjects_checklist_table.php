@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddSiteFolderToStoreWebsites extends Migration
+class RemoveSubjectsChecklistTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddSiteFolderToStoreWebsites extends Migration
      */
     public function up()
     {
-        Schema::table('store_websites', function (Blueprint $table) {
-            $table->string('site_folder')->nullable();
+        Schema::table('checklist', function (Blueprint $table) {
+            $table->dropColumn('subjects');
         });
     }
 
@@ -25,8 +25,6 @@ class AddSiteFolderToStoreWebsites extends Migration
      */
     public function down()
     {
-        Schema::table('postman_responses', function (Blueprint $table) {
-            $table->dropColumn('site_folder');
-        });
+        // Schema::dropIfExists('checklist_subjects');
     }
 }
