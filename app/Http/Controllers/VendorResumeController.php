@@ -279,6 +279,10 @@ class VendorResumeController extends Controller
             $vendorResume->second_name = $request->second_name;
             $vendorResume->email = $request->email;
             $vendorResume->mobile = $request->mobile;
+            $vendorResume->position_id = $request->position_id;
+            if(!empty($request->criteria)){
+                $vendorResume->criteria = implode(",",$request->criteria);
+            }  
             $vendorResume->career_objective = $request->career_objective;
             $vendorResume->salary_in_usd = serialize($request->salary_in_usd);
             $vendorResume->expected_salary_in_usd = $request->expected_salary_in_usd;
