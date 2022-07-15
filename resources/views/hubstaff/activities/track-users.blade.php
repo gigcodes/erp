@@ -18,6 +18,9 @@
             <div class="col-md-12 margin-tb">
                 <form class="form-check-inline" action="{{route('hubstaff-acitivties.acitivties.userTreckTime')}}" method="get">
                     <div class="row">
+                        <div class="form-group col-md-2">
+                            <?php echo Form::select("user_id",["" => "-- Select User --"]+$users,$user_id,["class" => "form-control select2"]); ?>
+                        </div>
                         <div class="form-group col-md-3">
                             <?php echo Form::text("developer_task_id",request('developer_task_id'),["class" => "form-control","placeholder" => "Developer Task ID"]); ?>
                         </div>
