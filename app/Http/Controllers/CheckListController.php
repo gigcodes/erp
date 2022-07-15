@@ -213,17 +213,17 @@ class CheckListController extends Controller
           $checklist = Checklist::find($id);
           if($checklist){
             $checklist->update($input);
-            // if(!empty($input['subjects'])){
-            //     $input['subjects'] = explode(",", $input['subjects']);
-            //     Subject::where('checklist_id',$id)->delete();
-            //     foreach($input['subjects'] as $subject){
-            //         $record = array(
-            //             "title" => $subject,
-            //             "checklist_id" => $id
-            //         );
-            //         Subject::create($record);
-            //     }
-            // }
+            if(!empty($input['subjects'])){
+                $input['subjects'] = explode(",", $input['subjects']);
+                Subject::where('checklist_id',$id)->delete();
+                foreach($input['subjects'] as $subject){
+                    $record = array(
+                        "title" => $subject,
+                        "checklist_id" => $id
+                    );
+                    Subject::create($record);
+                }
+            }
             if($checklist){
                 return response()->json([
                     'status' => true,
