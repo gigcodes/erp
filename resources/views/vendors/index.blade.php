@@ -223,6 +223,7 @@
                 @if (auth()->user()->isAdmin())
                 <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newStatusModal">Create Status</a>
                 @endif
+                <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newPositionModal">Create Positions</a>
         </div>   
     </div>
 
@@ -305,6 +306,7 @@
     @include('vendors.partials.change-hubstaff-role')
     @include('vendors.partials.create-cv')
     @include('vendors.partials.add-status')
+    @include('vendors.partials.add-position')
 
     <div id="reminderModal" class="modal fade" role="dialog">
         <div class="modal-dialog">

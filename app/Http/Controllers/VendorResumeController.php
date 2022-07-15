@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\VendorResume;
 use App\Setting;
+use App\Position;
 use Illuminate\Http\Request;
 use App\Models\File;
+use GuzzleHttp\Client;
 
 class VendorResumeController extends Controller
 {
@@ -197,6 +199,11 @@ class VendorResumeController extends Controller
         } catch (\Exception $e) {
             return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
         }
+    }
+
+    public function create($vendor_id = null){
+        $positions = Position::get();
+        return view("vendor-resume.create",["vendor_id"=>$vendor_id,"positions"=>$positions]);
     }
 
     public function getAddress(Request $request){
