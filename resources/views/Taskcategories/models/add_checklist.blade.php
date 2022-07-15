@@ -82,8 +82,16 @@
                                 @endif
                             </div>
                         </div>
+                        
+                        <div class="col-xs-12 col-sm-12 task">
+                            <div class="form-group">
+                                <button class="btn btn-primary" id="showsubject" type = "button"> Add Subject</button>
+                            </div>
+                        </div>
+
                         <div class="subjects col-xs-12 col-sm-12">
                         </div>
+                       
                         <!-- <div class="col-xs-12 col-sm-12">
                             <div class="form-group">
                                 <strong>Subject:</strong>

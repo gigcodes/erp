@@ -3887,6 +3887,8 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
 });
 Route::middleware('auth')->group(function () {
     Route::resource('taskcategories','TaskCategoriesController');
+    Route::delete('tasklist/{id}','TaskCategoriesController@delete');
+    Route::delete('tasksubject/{id}','TaskCategoriesController@destroy');
     Route::resource('zabbix', 'ZabbixController');
     Route::resource('checklist', 'CheckListController');
     Route::get('checklist/view/{id}', 'CheckListController@view')->name("checklist.view");

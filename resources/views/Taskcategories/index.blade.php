@@ -166,6 +166,43 @@
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
     <script>
+        function DeleteRow(url, oTable) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You want be able to delete this!",
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!',
+        showLoaderOnConfirm: true,
+        preConfirm: function() {
+            return new Promise(function(resolve) {
+                $.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: url,
+                        type: 'DELETE',
+                        dataType: 'json'
+                    })
+                    .done(function(response) {
+                       
+                        
+                        oTable.draw().ajax.reload();
+                       
+                        Swal.fire('Deleted!', response.message, 'success');
+                    })
+                    .fail(function(response) {
+                        console.log(response);
+                        console.log(url);
+                        Swal.fire('Oops...', 'Something went wrong with ajax !', 'error');
+                    });
+            });
+        },
+        allowOutsideClick: false
+    });
+}
         $(document).on('click', '#searchReset', function(e) {
             //alert('success');
             $('#dateform').trigger("reset");
@@ -247,7 +284,7 @@
                         render: function(data, type, row, meta) {
                             // var show_data = actionShowButtonWithClass('show-details', row['id']);
                             var edit_data = actionEditButtonWithClass('edit-checklist', JSON.stringify(row));
-                            var del_data = actionDeleteButton(row['id']);
+                            var del_data = actionDeleteButton(row['task_category_id']);
                             return `<div class="flex justify-left items-center">  ${edit_data} ${del_data} </div>`;
                         }
                     },
@@ -264,10 +301,16 @@
                 var html = '<div class="custom-element"><div class="form-group col-md-4"><label for="inputEmail4">Subject Name</label><input class="form-control" type="text" name="subjectname[]" id ="subjectname"></div><div class="form-group col-md-6"><label for="inputEmail4">Description</label><textarea class="form-control" name="subject[]" id ="subjects"/></div><div class="form-group col-md-2"><label for="inputEmail4">&nbsp;</label><button type="button" class="btn btn-primary form-control deletesubject" id="deletesubject0" value="1">Delete</button></div></div>';
                 $('.subjects').append(html);
             };
-
+            var Preview = function(input) {
+                var html = '<div class="custom-element"><div class="form-group col-md-4"><label for="inputEmail4">Subject Name</label><input class="form-control" type="text" name="subject1[]" id ="subject"></div><div class="form-group col-md-6"><label for="inputEmail4">Description</label><textarea class="form-control" name="description1[]" id ="description"/></div><div class="form-group col-md-2"><label for="inputEmail4">&nbsp;</label><button type="button" class="btn btn-primary form-control deletesubject" id="deletesubject0" value="1">Delete</button></div></div>';
+                $('.subjects').append(html);
+            };
             $('#showtask').on('click', function() {
                 imagesPreview(this);  
             });
+           $('#showsubject').on('click', function(){
+            Preview(this);
+           });
         });
 
         var global =0;
@@ -405,9 +448,22 @@
     $(document).on('click', '.clsdelete', function() {
             var id = $(this).attr('data-id');
             var e = $(this).parent().parent();
-            var url = `{{ url('/') }}/checklist/` + id;
+            var url = `{{ url('/') }}/tasklist/` + id;
+          
             tableDeleteRow(url, oTable);
         });
+        $(document).on('click', '.deletesubject-edit', function() {
+            var id = $(this).val();
+            
+            
+            var url = `{{ url('/') }}/tasksubject/` + id;
+          
+            DeleteRow(url, oTable);
+          
+           
+            
+        });
+        //deletesubject-edit
     </script>
 
 @endsection
