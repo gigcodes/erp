@@ -50,9 +50,9 @@ class AssetsManagerController extends Controller
         if (!empty($purchaseType)) {
             $assets = $assets->where("purchase_type", $purchaseType);
         }
-
+        // $assets = $assets->orderBy("due_date", "ASC");
         $assetsIds = $assets->select('id')->get()->toArray();
-        $assets = $assets->paginate(25);
+        $assets = $assets->orderBy('due_date', 'asc')->paginate(25);
 
         //Cash Flows
         $cashflows = \App\CashFlow::whereIn('cash_flow_able_id', $assetsIds)->where(['cash_flow_able_type' => 'App\AssetsManager'])->get();
