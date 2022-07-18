@@ -23,7 +23,8 @@ class UserManagementController extends Controller
             //    $category = $category->where('user_id', $request->user_id)->groupBy('category');
         } else {
             $category = UserFeedbackCategory::select('id', 'user_id', 'sop_id', 'category', 'sop')->where('user_id', \Auth::user()->id)->groupBy('category');
-            if(empty($category->get())) {
+            $category = $category->get();
+            if(empty($category[0]->id)) {
                 $category = UserFeedbackCategory::select('id', 'user_id', 'sop_id', 'category', 'sop')->groupBy('category');
             }
         }

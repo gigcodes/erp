@@ -140,11 +140,20 @@
                                     <?php echo '<option value="'.$sop->id.'">'.$sop->name.'</option>'; ?>
                                 @endforeach
                             </select>
-                            <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-save" data-sop="sop_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" ><img src="/images/filled-sent.png"/></button>
-                            <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal" title="Add Sop Name nad category" data-target="#exampleModal"><i class="fa fa-plus" aria-hidden="true"></i></button>
-
-                            <div class="sop-text-{{$cat->id}}">
-                                <div style='width:50%;'>{{$cat->sop}}...</div> <img class='sop-history' src='/images/chat.png' data-cat_id="{{$cat->id}}" data-sop_id="{{$cat->sop_id}}" alt='history' style='width:17px;cursor: nwse-resize;'>
+                            <div class="row">
+                                <div class="col-4">
+                                    <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-save" data-sop="sop_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" ><img src="/images/filled-sent.png"/></button>
+                                    <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal" title="Add Sop Name nad category" data-target="#exampleModal"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                </div>
+                                <div class="sop-text-{{$cat->id}}" style="float: left;">
+                                    <div class="expand-row-msg" data-name="name" data-id="{{$cat->id}}"  style="float: left;">
+                                        <span class="show-short-name-{{$cat->id}}">{{ str_limit($cat->sop, 5, '..')}}</span>
+                                        <span style="word-break:break-all;" class="show-full-name-{{$cat->id}} hidden">{{$cat->sop}}</span>
+                                    </div> 
+                                    <div  style="float: left;">&nbsp;
+                                        <img class='sop-history' src='/images/chat.png' data-cat_id="{{$cat->id}}" data-sop_id="{{$cat->sop_id}}" alt='history' style='width:17px;cursor: nwse-resize;'>
+                                    </div>
+                                </div>
                             </div>
                         @else
                             <div id="comment_div_{{$cat->id}}">
@@ -720,9 +729,10 @@ aria-hidden="true">
                     if (response.code == 200) {
                         $("#"+sop_id).val('');
                         var resSop = response.data.sop;
+                        var resSopshort = '<span style="float:left;width: 41px;overflow: hidden;height: 23px;">'+response.data.sop+'</span>';
                         var resSopId = response.data.id;
                         toastr["success"](response.message);
-                        $(".sop-text-"+id).html("<div style='width:50%;'>"+resSop+"...</div> <img class='sop-history' data-cat_id='"+id+"' data-sop_id='"+resSopId+"' src='/images/chat.png' alt='history' style='width:17px;cursor: nwse-resize;'>");
+                        $(".sop-text-"+id).html("<div class='expand-row-msg' data-name='name' data-id='"+id+"' style='float: left;'><span class='show-short-name-"+id+"'>"+resSopshort+"</span><span style='word-break:break-all;' class='show-full-name-"+id+" hidden'>"+resSop+"</span>...</div><div  style='float: left;'>&nbsp; <img class='sop-history' data-cat_id='"+id+"' data-sop_id='"+resSopId+"' src='/images/chat.png' alt='history' style='width:17px;cursor: nwse-resize;'></div>");
                     } else {
                         toastr["error"](response.message);
                     }
@@ -846,5 +856,14 @@ aria-hidden="true">
                 }
             });
         });
+
+    $(document).on('click', '.expand-row-msg', function () {
+        var name = $(this).data('name');
+        var id = $(this).data('id');
+        var full = '.expand-row-msg .show-short-'+name+'-'+id;
+        var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+        $(full).toggleClass('hidden');
+        $(mini).toggleClass('hidden');
+    });
 </script>
 @endsection
