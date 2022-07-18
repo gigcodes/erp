@@ -25,6 +25,9 @@ Route::get('textcurl', 'Marketing\MailinglistController@textcurl');
 Route::get('/test/dummydata', 'TestingController@testingFunction');
 Route::get('/test/translation', 'GoogleTranslateController@testTranslation');
 
+Route::get('/zabbix', 'ZabbixController@index');
+Route::get('/zabbix/problems', 'ZabbixController@problems')->name("zabbix.problem");
+
 Route::get('/test/testPrice', 'TmpTaskController@testEmail');
 Route::get('/memory', 'MemoryUsesController@index')->name('memory.index');
 Route::post('/memory/thresold-update', 'MemoryUsesController@updateThresoldLimit')->name('update.thresold-limit');
@@ -2267,6 +2270,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('postman/remark/history', 'PostmanRequestCreateController@postmanRemarkHistoryLog');
     Route::post('postman/user/permission', 'PostmanRequestCreateController@userPermission');
     
+    Route::post('postman/get/mul/request', 'PostmanRequestCreateController@getMulRequest');
+    
     
 });
 /*
@@ -3884,7 +3889,16 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::get('ads/getconfigPost', 'SocialAdsController@getpost')->name('social.ad.getpost');
 });
 Route::middleware('auth')->group(function () {
+    Route::resource('taskcategories','TaskCategoriesController');
+    Route::delete('tasklist/{id}','TaskCategoriesController@delete');
+    Route::delete('tasksubject/{id}','TaskCategoriesController@destroy');
+    Route::resource('zabbix', 'ZabbixController');
     Route::resource('checklist', 'CheckListController');
+    Route::get('checklist/view/{id}', 'CheckListController@view')->name("checklist.view");
+    Route::post('checklist/subjects', 'CheckListController@subjects')->name("checklist.subjects");
+    Route::post('checklist/add_checklist', 'CheckListController@add')->name("checklist.add");
+    Route::post('checklist/get_checked_value', 'CheckListController@checked')->name("checklist.get.checked");
+    Route::post('checklist/checklist_update', 'CheckListController@checklistUpdate')->name("checklist.update.c");
 });
 
 

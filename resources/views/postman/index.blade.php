@@ -236,7 +236,7 @@
                   <span style="word-break:break-all;" class="show-full-response_code-{{$postman->id}} hidden">{{$postman->response_code}}</span>
                 </td>
                 <td>
-                  <a title="Send Request" class="btn btn-image postman-send-request-btn pd-5 btn-ht" data-id="{{ $postman->id }}" href="javascript:;">
+                  <a title="Send Request" class="btn btn-image postman-list-url-btn postman-send-request-btn1 pd-5 btn-ht" data-id="{{ $postman->id }}" data-toggle="modal" data-target="#postmanmulUrlDetailsModel" href="javascript:;" >
                     <i class="fa fa-paper-plane" aria-hidden="true"></i>
                   </a>
                   <a class="btn btn-image edit-postman-btn" data-id="{{ $postman->id }}"><img data-id="{{ $postman->id }}" src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></a>
@@ -362,13 +362,40 @@
       <div id="add-mail-content">
           <div class="modal-content">
             <div class="modal-header">
-              <h3 class="modal-title">Users</h3>
+              <h3 class="modal-title">URLs</h3>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
             <div class="modal-body postmanUserDetailsModelBody">
               
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="postmanUrlDetailsModel" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div id="add-mail-content">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 class="modal-title">Users</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <form action="" id="multiUrls" >
+                    <div class="postmanUrlDetailsBody"></div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-secondary postman-send-request-btn">Send</button>
+                    </div>
+                </form>  
             </div>
           </div>
       </div>
@@ -474,7 +501,11 @@
                     </div>
                     <div class="form-group col-md-12">
                       <label for="request_url">Request Url</label>
-                      <input type="text" name="request_url" value="" class="form-control" id="request_url" placeholder="Enter request url">
+                      <div class="form-group add_more_urls_div">
+                        <input type="text" name="request_url[]" value="" class="form-control" id="request_url" placeholder="Enter request url">
+                      </div>
+                      <br>
+                      <a style="cursor: pointer;" class="add_more_urls" ><i class="fa fa-plus"> Add more</i></a>
                     </div>
                     <div class="form-group col-md-12">
                       <label for="controller_name">Controller Name</label>
@@ -605,9 +636,13 @@
                                     <option value="DELETE">DELETE</option>
                                   </select>
                                 </div>
-                                <div class="form-group col-md-12">
+                                <div class="form-group col-md-12 ">
                                   <label for="request_url">Request Url</label>
-                                  <input type="text" name="request_url" value="" class="form-control" id="request_url" placeholder="Enter request url">
+                                  <div class="form-group  add_more_urls_div">
+                                    <input type="text" name="request_url[]" value="" class="form-control request_url" id="request_url" placeholder="Enter request url">
+                                  </div>
+                                  <br>
+                                  <a style="cursor: pointer;" class="add_more_urls" ><i class="fa fa-plus">Add more</i></a>
                                 </div>
                                 <div class="form-group col-md-12">
                                   <label for="controller_name">Controller Name</label>
@@ -802,7 +837,12 @@
     });
     $(document).on("click",".openmodeladdpostman",function(e){
       $('#titleUpdate').html("Add");
+      $('.add_more_urls_div').html('');
+      $('.add_more_urls_div').append('<br/><input type="text" name="request_url[]" value="" class="form-control" id="request_url" placeholder="Enter request url">');
         $('#postmanform').find("input[type=text], textarea").val("");
+    });
+    $(document).on("click",".add_more_urls",function(e){
+        $('.add_more_urls_div').append('<br/><input type="text" name="request_url[]" value="" class="form-control" id="request_url" placeholder="Enter request url">');
     });
 
     $(document).on("click","#see_users",function(e){
@@ -895,6 +935,12 @@
                   form.find('[name="'+key+'"]').val(v);
               } else if(key == 'request_type'){
                     form.find('[name="'+key+'s"]').val(v);
+              } else if(key == 'request_url'){
+                    //form.find('[name="'+key+'[]"]').val(v);
+                    $('.add_more_urls_div').html('');
+                    $.each(response.postmanUrl, function(i,e){
+                      $('.add_more_urls_div').append('<br/><input type="text" name="request_url[]" value="'+e.request_url+'" class="form-control" id="request_url" placeholder="Enter request url">');
+                  });
               }else if(key == 'folder_name'){
                 $( "#folder_name" ).val(v);
               }else if(form.find('[name="'+key+'[]"]').length){
@@ -954,12 +1000,12 @@
         });
     });
 
-    $(document).on("click",".postman-send-request-btn",function(e){
+    $(document).on("click",".postman-list-url-btn",function(e){
         e.preventDefault();
         var $this = $(this);
         var id = $this.data('id');
         $.ajax({
-          url: "/postman/send/request",
+          url: "/postman/get/mul/request",
           type: "post",
           headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -967,6 +1013,33 @@
           data:{
             id:id
           }
+        }).done(function(response) {
+          if(response.code = '200') {
+            $(".postmanUrlDetailsBody").html('');
+            $(".postmanUrlDetailsBody").html(response.data);
+            $('#postmanUrlDetailsModel').modal('show');
+            toastr['success']('Postman Url listed successfully!!!', 'success'); 
+          } else {
+            toastr['error'](response.message, 'error'); 
+          }
+        }).fail(function(errObj) {
+          $('#loading-image').hide();
+           toastr['error'](errObj.message, 'error');
+        });
+    });
+
+    $(document).on("click",".postman-send-request-btn",function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+        
+        $.ajax({
+          url: "/postman/send/request",
+          type: "post",
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+          data : $('#multiUrls').serialize() 
         }).done(function(response) {
           if(response.code = '200') {
             toastr['success']('Postman requested successfully!!!', 'success'); 
