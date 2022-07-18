@@ -80,4 +80,8 @@ Route::prefix('user-management')->middleware('auth')->group(function () {
 
     Route::get('/user-generate-file-listing/{userid}', 'UserManagementController@userPemfileHistoryListing')->name("user-management-pem-history-list");
     Route::post('/delete-pem-file/{id}', 'UserManagementController@deletePemFile')->name("user-management-delete-pem-file");
+
+    Route::prefix('update')->middleware('auth')->group(function () {
+        Route::post('task-plan-flag', 'UserManagementController@updateTaskPlanFlag')->name("user-management.update.flag-for-task-plan");
+    });
 });

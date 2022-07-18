@@ -61,7 +61,8 @@ a {
                         <select class="form-control ui-autocomplete-input whatsapp_number" data-user-id="{{:prop.id}}">
                             <option>-- Select --</option>
 						
-						   <?php foreach ($whatsapp as $wp) {  $k=  $wp->number; ?>
+						   <?php foreach ($whatsapp as $wp) {
+									$k =  $wp->number; ?>
 					      	<option  {{if prop.whatsapp_number == "<?php echo $k; ?>" }} selected='selected' {{/if}}  value="<?php echo $wp->number; ?>"><?php echo $wp->number; ?></option>
 										  
 					      			<?php } ?>
@@ -188,7 +189,28 @@ a {
 
 						
 
-						  <!-- <i class="fa fa-comment" aria-hidden="true"></i> -->
+							<button type="button" title="Flagged for Plan Task" data-user_id="{{:prop.id}}" data-is_task_planned="{{:prop.is_task_planned}}" onclick="updateUserFlagForTaskPlan(this)" class="btn" style="padding: 0px 1px;">
+								{{if prop.is_task_planned}}
+									<i class="fa fas fa-toggle-on"></i>
+								{{/if}}
+								{{if !prop.is_task_planned}}
+								<i class="fa fas fa-toggle-off"></i>
+								{{/if}}
+							</button>
+
+
+							<!-- <div class="dropdown">
+								<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									Actions
+								</button>
+								<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+									<a class="dropdown-item" href="javascript:void(0);" onclick="updateUserFlagForTaskPlan(this)" data-user_id="{{:prop.id}}" data-is_task_planned="{{:prop.is_task_planned}}">Task Plan: Mark as Flagged</a>
+									<a class="dropdown-item" href="#">Action 1</a>
+									<a class="dropdown-item" href="#">Action 2</a>
+									<a class="dropdown-item" href="#">Action 3</a>
+									<a class="dropdown-item" href="#">Action 4</a>
+								</div>
+							</div> -->
           </div>
 					</td>
 			      </tr>
