@@ -13,10 +13,9 @@
     @endphp
     @foreach ($site_development_categories as $key => $category)
         <?php
-    //$site = $category->getDevelopment($category->id, isset($website) ? $website->id : $category->website_id, $category->site_development_id);//
+    $site = $category->getDevelopment($category->id, isset($website) ? $website->id : $category->website_id, $category->site_development_id);//
     $site = $category->getDevelopment($category->id,  $category->website_id, $category->site_development_id);
-    $uiCheck = App\Uicheck::where('site_development_id', $category->site_id)->first();
-    // dd($uiCheck);
+    $uiCheck = App\Uicheck::where('site_development_category_id', $category->id)->first();
     //if ($isAdmin || $hasSiteDevelopment || ($site && $site->developer_id == $userId)) {
     ?>
 
@@ -24,8 +23,10 @@
             <td>
                 {{ $pagrank++ }}
             </td>
-            <td>
-                {{ $category->title }}
+            <td class="expand-row-msg" data-name="title" data-id="{{$category->id}}">
+                
+                    <span class="show-short-title-{{$category->id}}">{{ str_limit($category->title, 15, '..')}}</span>
+                    <span style="word-break:break-all;" class="show-full-title-{{$category->id}} hidden">{{$category->title}}</span>
             </td>
             <td>
                 @if (Auth::user()->hasRole('Admin'))
@@ -79,23 +80,7 @@
                         data-category="{{$category->id ?? ''}}" data-site_development_id="{{$category->site_id }}"
                         data-dismiss="modal"><img src="/images/chat.png" alt=""></button>
                 </div>
-
-                <div class="col-md-12 p-0 pl-1 text">
-                    <!-- START - Purpose : Show / Hide Chat & Remarks , Add Last Remarks - #DEVTASK-19918 -->
-                    <div class="d-flex">
-                        <div class="justify-content-between expand-row-msg-chat"
-                            data-id="{{ $uiCheck->id  ?? ''  }}"
-                            data-category="{{$category->id ?? ''}}" data-site_development_id="{{$category->site_id }}">
-                            <span class="td-full-chat-container-{{ $assignedTo['id']  ?? 0}} pl-1">
-                                {{ str_limit($assignedTo['message'] ?? 0, 20, '...') }} </span>
-                        </div>
-                    </div>
-                    <div class="expand-row-msg-chat" data-id="{{ $uiCheck->id ?? ''   }}">
-                        <span class="td-full-chat-container-{{ $uiCheck->id  ?? ''  }} hidden">
-                            {{ $assignedTo['message'] ?? 0 }} </span>
-                    </div>
-                    <!-- END - #DEVTASK-19918 -->
-                </div>
+                
             </td>
 
             
@@ -107,7 +92,7 @@
                     "data-id" => $uiCheck->id ?? '', 
                     "data-site_development_id" => $category->site_id
                 ]); ?>
-
+                <button type="button" class="btn btn-xs show-dev-status-history" title="Show Developer Status History" data-id="{{$uiCheck->id ?? ''}}"><i data-id="{{$uiCheck->id ?? ''}}" class="fa fa-info-circle"></i></button>
             </td>
 
             <td class="pt-1">
@@ -120,6 +105,7 @@
                     "data-site_development_id" => $category->site_id
                 ]); ?>
                 @endif
+                <button type="button" class="btn btn-xs show-admin-status-history" title="Show Admin Status History" data-id="{{$uiCheck->id ?? ''}}"><i data-id="{{$uiCheck->id ?? ''}}" class="fa fa-info-circle"></i></button>
             </td>
         </tr>
   

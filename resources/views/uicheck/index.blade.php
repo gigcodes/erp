@@ -96,7 +96,7 @@
 					<div class="col-md-4">
 						<select name="categories" class="form-control select2">
 							<option value="">-- Select a categories --</option>
-							@forelse($categories as $ct)
+							@forelse($site_development_categories  as $ct)
 								<option value="{{ $ct->id }}" 
 								@if($search_category == $ct->id) 
 								selected	
@@ -107,6 +107,7 @@
 					</div>
 					<div class="col-md-4">
 						<button type="submit" class="btn btn-secondary">Search</button>
+						<a href="/uicheck" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
 					</div>
 				</form>
 			</div>
@@ -141,88 +142,26 @@
 		</div>
 	</div>
 </div>
-<div id="create-quick-task" class="modal fade" role="dialog">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<form action="{{ route('task.create.task.shortcut') }}" method="post">
-				<?php echo csrf_field(); ?>
-				<div class="modal-header">
-					<h4 class="modal-title">Create Task</h4>
-				</div>
-				<div class="modal-body">
-
-					<input class="form-control" type="hidden" name="category_id" id="category_id" />
-					<input class="form-control" type="hidden" name="site_id" id="site_id" />
-					<div class="form-group">
-						<label for="">Subject</label>
-						<input class="form-control" type="text" id="hidden-task-subject" name="task_subject" />
-					</div>
-					<div class="form-group">
-						<label for="">Task Type</label>
-						<br />
-						<select class="form-control" style="width:100%;" name="task_type" tabindex="-1" aria-hidden="true">
-							<option value="0">Other Task</option>
-							<option value="4">Developer Task</option>
-						</select>
-					</div>
-
-					<div class="form-group">
-                        <label for="repository_id">Repository:</label>
-                        <br>
-                        <select style="width:100%" class="form-control 	" id="repository_id" name="repository_id">
-                        	<option value="">-- select repository --</option>
-                            @foreach (\App\Github\GithubRepository::all() as $repository)
-                                <option value="{{ $repository->id }}">{{ $repository->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-					<div class="form-group">
-						<label for="">Details</label>
-						<input class="form-control" type="text" name="task_detail" />
-					</div>
-
-					<div class="form-group">
-						<label for="">Cost</label>
-						<input class="form-control" type="text" name="cost" />
-					</div>
-
-					<div class="form-group">
-						<label for="">Assign to</label>
-						<select name="task_asssigned_to" class="form-control select2">
-							@foreach($allUsers as $user)
-							<option value="{{$user->id}}">{{$user->name}}</option>
-							@endforeach
-						</select>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-					<button type="submit" class="btn btn-default create-task">Submit</button>
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
-<div id="dev_task_statistics" class="modal fade" role="dialog">
+<div id="dev_status_model" class="modal fade" role="dialog">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h2>Dev Task statistics</h2>
+				<h2>Developer Status History</h2>
 				<button type="button" class="close" data-dismiss="modal">×</button>
 			</div>
-			<div class="modal-body" id="dev_task_statistics_content">
+			<div class="modal-body" id="">
 				<div class="table-responsive">
 					<table class="table table-bordered table-striped">
-						<tbody>
+						<thead>
 							<tr>
-								<th>Task type</th>
-								<th>Task Id</th>
-								<th>Assigned to</th>
-								<th>Description</th>
+								<th>ID</th>
+								<th>User Name</th>
+								<th>Old Status</th>
 								<th>Status</th>
-								<th>Action</th>
+								
 							</tr>
+						</thead>
+						<tbody id="dev_status_tboday">
 						</tbody>
 					</table>
 				</div>
@@ -230,34 +169,34 @@
 		</div>
 	</div>
 </div>
-<div id="download_asset_data_modal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-		<form action='{{ route("site-asset.download") }}' method="POST">
-			<?php echo csrf_field(); ?>
-			<div class="modal-content">
-				<div class="modal-body">
-					<div class="col-md-6">
-						Select the content type for download
-					</div>
-					<div class="col-md-6">
-						<input type='hidden' id="download_website_id" name="download_website_id">
-						<select id='media_type' name='media_type' class="form-control" required>
-							<option value="">Select type</option>
-							<option value="PSDD">PSD - DESKTOP</option>
-							<option value="PSDM">PSD - MOBILE</option>
-							<option value="PSDA">PSD - APP</option>
-							<option value="FIGMA">FIGMA</option>
-						</select>
-					</div>
+<div id="admin_status_model" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2>Admin Status History</h2>
+				<button type="button" class="close" data-dismiss="modal">×</button>
+			</div>
+			<div class="modal-body" id="">
+				<div class="table-responsive">
+					<table class="table table-bordered table-striped">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>User Name</th>
+								<th>Old Status</th>
+								<th>Status</th>
+								
+							</tr>
+						</thead>
+						<tbody id="admin_status_tboday">
+						</tbody>
+					</table>
 				</div>
-			<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-					<button type="submit" class="btn btn-default download-document-site-asset-btn">Download</button>
-				</div>
-			</div>	
-		</form>
-    </div>
+			</div>
+		</div>
+	</div>
 </div>
+
 @endsection
 
 
@@ -456,6 +395,87 @@ $(".select2").select2();
 $("#checkAll").click(function(){
 	$('input:checkbox').not(this).prop('checked', this.checked);
 });
+
+$(document).on("click", ".show-dev-status-history", function(e) {
+	//debugger;
+	e.preventDefault();
+	var id = $(this).data("id");
+    var developer_status = $(this).val();
+    var site_development_id = $(this).data("site_development_id");
+    var category = $(this).data("category");
+
+	$.ajax({
+		url: "{{route('uicheck.dev.status.history')}}",
+		type: 'POST',
+		data: {
+            id:id,
+            developer_status: developer_status,
+            site_development_id: site_development_id,
+            category:category,
+            "_token": "{{ csrf_token() }}",
+        },
+		beforeSend: function() {
+			$(this).text('Loading...');
+		},
+		success: function(response) {
+			if (response.code == 200) {
+				toastr['success'](response.message);
+				$("#dev_status_tboday").html(response.html);
+				$("#dev_status_model").modal("show");
+                //location.reload();
+			} else {
+				toastr['error'](response.message);
+			}
+		}
+	}).fail(function(response) {
+		toastr['error'](response.responseJSON.message);
+	});
+});
+
+$(document).on("click", ".show-admin-status-history", function(e) {
+	e.preventDefault();
+	var id = $(this).data("id");
+    var developer_status = $(this).val();
+    var site_development_id = $(this).data("site_development_id");
+    var category = $(this).data("category");
+
+	$.ajax({
+		url: "{{route('uicheck.admin.status.history')}}",
+		type: 'POST',
+		data: {
+            id:id,
+            developer_status: developer_status,
+            site_development_id: site_development_id,
+            category:category,
+            "_token": "{{ csrf_token() }}",
+        },
+		beforeSend: function() {
+			$(this).text('Loading...');
+		},
+		success: function(response) {
+			if (response.code == 200) {
+				toastr['success'](response.message);
+				$("#admin_status_tboday").html(response.html);
+				$("#admin_status_model").modal("show");
+                //location.reload();
+			} else {
+				toastr['error'](response.message);
+			}
+		}
+	}).fail(function(response) {
+		toastr['error'](response.responseJSON.message);
+	});
+});
+
+$(document).on('click', '.expand-row-msg', function () {
+      var name = $(this).data('name');
+      var id = $(this).data('id');
+      var full = '.expand-row-msg .show-short-'+name+'-'+id;
+      var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+      $(full).toggleClass('hidden');
+      $(mini).toggleClass('hidden');
+    });
+
 </script>
 
 @endsection

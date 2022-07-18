@@ -8,7 +8,7 @@ class Uicheck extends Model
 {
     protected $table = 'uichecks';
 
-    protected $fillable = ['site_development_category_id', 'website_id', 'issue', 'communication_message','dev_status_id', 'admin_status_id'];
+    protected $fillable = ['id','site_development_category_id', 'website_id', 'issue', 'communication_message','dev_status_id', 'admin_status_id'];
 
     public function whatsappAll($needBroadCast = false)
     {
