@@ -3123,6 +3123,12 @@ Route::middleware('auth')->group(function () {
     Route::get('website/search/log/view', 'WebsiteLogController@searchWebsiteLogStoreView')->name('website.search.log.view');
 
     Route::get('website/command/log', 'WebsiteLogController@runWebsiteLogCommand')->name('website.command-log');
+
+    Route::get('/uicheck', 'UicheckController@index')->name('uicheck');
+    Route::post('uicheck/store', 'UicheckController@store')->name('uicheck.store');
+    Route::post('uicheck/dev/status/history', 'UicheckController@getUiDeveloperStatusHistoryLog')->name('uicheck.dev.status.history');
+    Route::post('uicheck/admin/status/history', 'UicheckController@getUiAdminStatusHistoryLog')->name('uicheck.admin.status.history');
+    Route::post('uicheck/issue/history', 'UicheckController@getUiIssueHistoryLog')->name('uicheck.get.issue.history');
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
