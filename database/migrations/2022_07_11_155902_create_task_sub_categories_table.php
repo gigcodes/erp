@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSubjectsTable extends Migration
+class CreateTaskSubCategoriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,12 @@ class CreateSubjectsTable extends Migration
      */
     public function up()
     {
-        Schema::create('subjects', function (Blueprint $table) {
+        Schema::create('task_sub_categories', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('title')->nullable();
-            $table->unsignedInteger('checklist_id');
-            // $table->foreign('checklist_id')->references('id')->on('checklist')->onDelete('cascade');	
+
+            $table->unsignedBigInteger('task_category_id');
+            // $table->foreign('task_category_id')->references('id')->on('task_category')->onDelete('cascade');
+            $table->string('name');
             $table->timestamps();
         });
     }
@@ -29,6 +30,6 @@ class CreateSubjectsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('subjects');
+        Schema::dropIfExists('task_sub_categories');
     }
 }

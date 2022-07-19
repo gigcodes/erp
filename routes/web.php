@@ -3886,6 +3886,10 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::get('ads/getconfigPost', 'SocialAdsController@getpost')->name('social.ad.getpost');
 });
 Route::middleware('auth')->group(function () {
+    Route::resource('taskcategories','TaskCategoriesController');
+    Route::delete('tasklist/{id}','TaskCategoriesController@delete');
+    Route::delete('tasksubject/{id}','TaskCategoriesController@destroy');
+    Route::resource('zabbix', 'ZabbixController');
     Route::resource('checklist', 'CheckListController');
     Route::get('checklist/view/{id}', 'CheckListController@view')->name("checklist.view");
     Route::post('checklist/subjects', 'CheckListController@subjects')->name("checklist.subjects");
@@ -3894,7 +3898,7 @@ Route::middleware('auth')->group(function () {
     Route::post('checklist/checklist_update', 'CheckListController@checklistUpdate')->name("checklist.update.c");
 });
 
-Route::resource('zabbix', 'ZabbixController');
+
 Route::get('test', 'ScrapController@listCron');
 Route::get('command', function () {
     // \Artisan::call('migrate');
