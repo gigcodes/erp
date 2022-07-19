@@ -60,15 +60,6 @@ a {
 					<td class="number">
                         <select class="form-control ui-autocomplete-input whatsapp_number" data-user-id="{{:prop.id}}">
                             <option>-- Select --</option>
-						
-						   <?php foreach ($whatsapp as $wp) {
-									$k =  $wp->number; ?>
-					      	<option  {{if prop.whatsapp_number == "<?php echo $k; ?>" }} selected='selected' {{/if}}  value="<?php echo $wp->number; ?>"><?php echo $wp->number; ?></option>
-										  
-					      			<?php } ?>
-
-						
-
                         </select>
                     </td>
 			        <td class="Website-task"title="{{:prop.pending_tasks}}/{{:prop.total_tasks}}">

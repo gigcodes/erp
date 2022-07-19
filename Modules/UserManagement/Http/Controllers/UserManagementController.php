@@ -1871,4 +1871,94 @@ class UserManagementController extends Controller {
             'flag' => request('is_task_planned') ? 0 : 1,
         ]);
     }
+
+
+    // User Schedules
+    public function userSchedulesIndex() {
+        $statusList = \DB::table("task_statuses")->select("name", "id")->get()->toArray();
+        return view('usermanagement::user-schedules.index', [
+            'title' => "User Schedules",
+            'urlLoadData' => route('user-management.user-schedules.load-data'),
+            'statusList' => $statusList,
+            'workSlots' => UserAvaibility::workSlots(),
+        ]);
+    }
+    public function userSchedulesLoadData() {
+
+        $stDate = '2022-07-18';
+        $enDate = '2022-07-25';
+        $dateArr = dateRangeArr($stDate, $enDate);
+
+        $count = 0;
+        $data = [];
+
+        $q = User::query();
+        $q = $q->leftJoin('user_avaibilities', 'user_avaibilities.user_id', '=', 'users.id');
+
+        $q = $q->where('users.is_task_planned', 1);
+        if (!Auth::user()->isAdmin()) {
+            $q = $q->where('users.id', Auth::user()->id);
+        }
+        if (request('is_active')) {
+            $q = $q->where('users.is_active', request('is_active') == 1 ? 1 : 0);
+        }
+        // if ($request->keyword != null) {
+        //     $user = $user->where(function ($q) use ($request) {
+        //         $q->where("users.email", "like", "%" . $request->keyword . "%")
+        //             ->orWhere("users.name", "like", "%" . $request->keyword . "%")
+        //             ->orWhere("users.phone", "like", "%" . $request->keyword . "%");
+        //     });
+        // }
+        $q = $q->select([
+            'users.*',
+            \DB::raw('user_avaibilities.date AS uaDates'),
+            \DB::raw('user_avaibilities.from AS uaFrom'),
+            \DB::raw('user_avaibilities.to AS uaTo'),
+        ]);
+
+        $workSlots = UserAvaibility::workSlots();
+
+        $data = [];
+        foreach ($q->get() as $single) {
+            $single->uaDates = explode(',', str_replace(' ', '', $single->uaDates));
+            $availableDates = dateRangeArr($single->uaFrom, $single->uaTo);
+            foreach ($availableDates as $key => $value) {
+                $availableDates[$key] = $value['date'];
+            }
+
+            foreach ($dateArr as $date) {
+                $arr = [
+                    'username' => $single->name,
+                    'date' => $date['date'],
+                    'day' => $date['day'],
+                ];
+                if (!in_array($date['day'], $single->uaDates)) {
+                    foreach ($workSlots as $key => $value) {
+                        $arr[$key] = 'NA';
+                    }
+                } else if (!in_array($date['date'], $availableDates)) {
+                    foreach ($workSlots as $key => $value) {
+                        $arr[$key] = 'NA';
+                    }
+                } else {
+                    foreach ($workSlots as $key => $value) {
+                        $arr[$key] = 'AVL';
+                    }
+                }
+
+                $arr['actions'] = NULL;
+                $arr['other'] = $single->toArray();
+                $data[] = $arr;
+            }
+        }
+        // _p($q->get()->toArray());
+        // _p($data, 1);
+
+        return response()->json([
+            'draw' => request('draw'),
+            'recordsTotal' => $count,
+            'recordsFiltered' => $count,
+            'data' => $data
+        ]);
+    }
 }
