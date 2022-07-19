@@ -196,6 +196,33 @@
 		</div>
 	</div>
 </div>
+<div id="issue_model" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2>U I Issue History</h2>
+				<button type="button" class="close" data-dismiss="modal">×</button>
+			</div>
+			<div class="modal-body" id="">
+				<div class="table-responsive">
+					<table class="table table-bordered table-striped">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>User Name</th>
+								<th>Old Issue</th>
+								<th>Issue</th>
+								
+							</tr>
+						</thead>
+						<tbody id="issue_tboday">
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 
 @endsection
 
@@ -263,7 +290,7 @@ $(document).on("click", ".issue", function(e) {
 			if (response.code == 200) {
 				toastr['success'](response.message);
 				//$("#create-quick-task").modal("hide");
-                location.reload();
+              //  location.reload();
 			} else {
 				toastr['error'](response.message);
 			}
@@ -466,6 +493,42 @@ $(document).on("click", ".show-admin-status-history", function(e) {
 		toastr['error'](response.responseJSON.message);
 	});
 });
+
+$(document).on("click", ".show-issue-history", function(e) {
+	e.preventDefault();
+	var id = $(this).data("id");
+    var developer_status = $(this).val();
+    var site_development_id = $(this).data("site_development_id");
+    var category = $(this).data("category");
+
+	$.ajax({
+		url: "{{route('uicheck.get.issue.history')}}",
+		type: 'POST',
+		data: {
+            id:id,
+            developer_status: developer_status,
+            site_development_id: site_development_id,
+            category:category,
+            "_token": "{{ csrf_token() }}",
+        },
+		beforeSend: function() {
+			$(this).text('Loading...');
+		},
+		success: function(response) {
+			if (response.code == 200) {
+				toastr['success'](response.message);
+				$("#issue_tboday").html(response.html);
+				$("#issue_model").modal("show");
+                //location.reload();
+			} else {
+				toastr['error'](response.message);
+			}
+		}
+	}).fail(function(response) {
+		toastr['error'](response.responseJSON.message);
+	});
+});
+
 
 $(document).on('click', '.expand-row-msg', function () {
       var name = $(this).data('name');

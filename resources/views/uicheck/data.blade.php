@@ -53,9 +53,10 @@
                     <div style="margin-top: 0px;" class="d-flex p-0">
                         <button class="btn pr-0 btn-xs btn-image issue" 
                         data-category="{{$category->id ?? ''}}" data-id="{{$uiCheck->id ?? '' }}" data-site_development_id="{{$category->site_id }}"
-                        ><img
-                                src="/images/filled-sent.png" /></button>
+                        ><img src="/images/filled-sent.png" /></button>
                     </div>
+                
+                    <button type="button" class="btn btn-xs show-issue-history" title="Show Issue History" data-id="{{$uiCheck->id ?? ''}}"><i data-id="{{$uiCheck->id ?? ''}}" class="fa fa-info-circle"></i></button>
                 </div>
             </td>
 

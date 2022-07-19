@@ -19,6 +19,7 @@ use App\UiAdminStatusHistoryLog;
 use App\UiDeveloperStatusHistoryLog;
 use App\SiteDevelopmentStatus;
 use App\SiteDevelopmentCategory;
+use App\UiCheckIssueHistoryLog;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -95,8 +96,12 @@ class UicheckController extends Controller
 
             if($request->website_id)
                 $uicheck->website_id = $request->website_id;
-            if($request->issue)
+            if($request->issue){
+                if($request->issue != $uicheck->issue){
+                    $this->CreateUiissueHistoryLog($request, $uicheck);
+                }
                 $uicheck->issue = $request->issue;
+            }
             if($request->developer_status){
                 if($request->developer_status != $uicheck->developer_status){
                     $this->CreateUiDeveloperStatusHistoryLog($request, $uicheck);
@@ -205,5 +210,39 @@ class UicheckController extends Controller
         }
     }
 
+    public function CreateUiissueHistoryLog(Request $request, $uicheck)
+    {
+        $devStatusLog = new UiCheckIssueHistoryLog();
+        $devStatusLog->user_id = \Auth::user()->id;
+        $devStatusLog->uichecks_id = $request->id;
+        $devStatusLog->old_issue = $uicheck->issue;
+        $devStatusLog->issue = $request->issue;
+        $devStatusLog->save();
+    }
+
+    public function getUiIssueHistoryLog(Request $request)
+    {
+        $getIssueLog = UiCheckIssueHistoryLog::select("ui_check_issue_history_logs.*", "users.name as userName")
+        ->leftJoin("users", "users.id", "ui_check_issue_history_logs.user_id")
+        ->where('ui_check_issue_history_logs.uichecks_id', $request->id)
+        ->orderBy('ui_check_issue_history_logs.id', "DESC")
+        ->get();
+
+        $html = "";
+        foreach($getIssueLog AS $issueLog) {
+            $html .=  '<tr>';
+            $html .=  '<td>'.$issueLog->id.'</td>';
+            $html .=  '<td>'.$issueLog->userName.'</td>';
+            $html .=  '<td>'.$issueLog->old_issue.'</td>';
+            $html .=  '<td>'.$issueLog->issue.'</td>';
+           
+            $html .=  '</tr>';
+        }
+        if($html != ""){
+            return response()->json(['code' => 200, 'html' => $html,'message' => 'Listed successfully!!!']);
+        } else{
+            return response()->json(['code' => 500, 'message' => "data not found"]);
+        }
+    }
 
 }

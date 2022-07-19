@@ -3104,6 +3104,7 @@ Route::middleware('auth')->group(function () {
     Route::post('uicheck/store', 'UicheckController@store')->name('uicheck.store');
     Route::post('uicheck/dev/status/history', 'UicheckController@getUiDeveloperStatusHistoryLog')->name('uicheck.dev.status.history');
     Route::post('uicheck/admin/status/history', 'UicheckController@getUiAdminStatusHistoryLog')->name('uicheck.admin.status.history');
+    Route::post('uicheck/issue/history', 'UicheckController@getUiIssueHistoryLog')->name('uicheck.get.issue.history');
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
