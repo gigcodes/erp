@@ -3434,7 +3434,7 @@ class TaskModuleController extends Controller {
             foreach ($list as $single) {
                 $html .= "<tr>";
                 $html .= "<td>" . $single->id . "</td>";
-                $html .= "<td>" . ($single->updatedBy ? $single->updatedBy->name : '-u') . "</td>";
+                $html .= "<td>" . ($single->updatedBy ? $single->updatedBy->name : '-') . "</td>";
                 $html .= "<td>" . $single->old_value . "</td>";
                 $html .= "<td>" . $single->new_value . "</td>";
                 $html .= "<td>" . $single->created_at . "</td>";

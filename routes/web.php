@@ -1638,6 +1638,20 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/create/hubstaff_task', 'DevelopmentController@createHubstaffManualTask')->name('development/create/hubstaff_task');
     Route::get('development/pull/history', 'DevelopmentController@getPullHistory')->name('development/pull/history');
 
+    Route::prefix('development')->group(function () {
+        // Route::get('development/pull/history', 'DevelopmentController@getPullHistory')->name('development/pull/history');
+
+        Route::prefix('update')->group(function () {
+            Route::post('start-date', 'DevelopmentController@actionStartDateUpdate')->name('development.update.start-date');
+        });
+
+        Route::prefix('history')->group(function () {
+            Route::prefix('start-date')->group(function () {
+                Route::get('index', 'DevelopmentController@actionStartDateHistory')->name('development.history.start-date.index');
+            });
+        });
+    });
+
     /*Routes For Social */
     Route::any('social/get-post/page', 'SocialController@pagePost')->name('social.get-post.page');
 
