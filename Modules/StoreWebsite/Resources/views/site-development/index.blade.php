@@ -2208,14 +2208,14 @@
 
         });
         $(document).on('click', '.show_moreCls', function(event) {
-           //debugger;
+           
             var id = $(this).data('id');
-            if($(this).text() == 'Show More'){
-                $(this).text('Show Less');
+            if($('.comm-'+id).hasClass("hidden")){
+                //$(this).text('Show Less');
                 $('.comm-'+id).removeClass('hidden');
             } else {
                 $('.comm-'+id).addClass('hidden');
-                $(this).text('Show More');
+                //$(this).text('Show More');
             }
             
 

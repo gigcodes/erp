@@ -168,14 +168,14 @@ class SiteDevelopmentController extends Controller
 
             $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
             $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
-            $taskStatistics = $query->get();
+            $taskStatistics = $query->orderBy("developer_tasks.id", "DESC")->get();
             //print_r($taskStatistics);
             $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
             $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
             $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
-            $othertaskStatistics = $query1->get();
+            $othertaskStatistics = $query1->orderBy("tasks.id", "DESC")->get();
             $merged = $othertaskStatistics->merge($taskStatistics);
-
+            
             foreach ($merged as $m) {
                 /*if($m['task_type'] == 'task' ) {
                 $object = Task::find($m['id']);
@@ -187,7 +187,7 @@ class SiteDevelopmentController extends Controller
             }
             $category->assignedTo = $merged;
         }
-
+        
         //Getting   Roles Developer
         $role = Role::where('name', 'LIKE', '%Developer%')->first();
 
