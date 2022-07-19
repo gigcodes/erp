@@ -47,7 +47,7 @@
             </td>
             <td class="pt-0 pr-2">
                 <div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1">
-                    <input style="margin-top: 0px;width:auto !important;" type="text"
+                    <input style="margin-top: 0px;width:87% !important;" type="text"
                         class="form-control " id="issue-{{$uiCheck->id ?? ''}}" name="issue-{{$uiCheck->id ?? ''}}" placeholder="Issues" value="{{$uiCheck->issue ?? ''}}"
                         >
                     <div style="margin-top: 0px;" class="d-flex p-0">
@@ -61,7 +61,7 @@
             </td>
 
             <td>
-                <div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1 msg">
+                <div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1 msg" style="width: 100%;">
                     @if (Auth::user()->hasRole('Admin'))
                     <input type="text" style="width: 100%; float: left;"
                         class="form-control quick-message-field input-sm" name="message"
@@ -106,7 +106,7 @@
                     "data-site_development_id" => $category->site_id
                 ]); ?>
                 @endif
-                <button type="button" class="btn btn-xs show-admin-status-history" title="Show Admin Status History" data-id="{{$uiCheck->id ?? ''}}"><i data-id="{{$uiCheck->id ?? ''}}" class="fa fa-info-circle"></i></button>
+                <button type="button" class="btn btn-xs show-admin-status-history" title="Show                                                             " data-id="{{$uiCheck->id ?? ''}}"><i data-id="{{$uiCheck->id ?? ''}}" class="fa fa-info-circle"></i></button>
             </td>
         </tr>
   
