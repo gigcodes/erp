@@ -45,11 +45,13 @@
             <table id="listUserSchedule" class="table table-bordered" style="width:100%">
                 <thead>
                     <tr>
-                        <th data-data="username" data-name="username" width="15%" data-sortable="false" >Username</th>
-                        <th data-data="date" data-name="date" width="10%" data-sortable="false" >Date</th>
-                        <?php foreach ($workSlots as $workSlotK => $workSlotV) { ?>
+                        <th data-data="name" data-name="name" width="14%" data-sortable="false" >User Name</th>
+                        <th data-data="date" data-name="date" width="8%" data-sortable="false" >Date</th>
+                        <th data-data="day" data-name="day" width="8%" data-sortable="false" >Day</th>
+                        <th data-data="slots" data-name="slots" width="70%" data-sortable="false" >Hourly Slots [T-? = Task] [DT-? = Dev Task]</th>
+                        <?php /*foreach ($workSlots as $workSlotK => $workSlotV) { ?>
                             <th data-data="{{$workSlotK}}" data-name="{{$workSlotK}}" width="5%" data-sortable="false" >{!! $workSlotV !!}</th>
-                        <?php } ?>
+                        <?php } */ ?>
                     </tr>
                 </thead>
                 <tbody></tbody>

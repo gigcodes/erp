@@ -393,3 +393,8 @@ function dateRangeArr($stDate, $enDate) {
     }
     return $data;
 }
+function nextHour($curr) {
+    $curr++;
+    if($curr == 24) $curr = '0';
+    return $curr < 10 ? '0' . $curr : $curr;
+}

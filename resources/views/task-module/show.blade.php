@@ -4180,6 +4180,7 @@ $(document).on("click",".btn-save-documents",function(e){
                 }
             }).done(function (response) {
                 toastr['success']('Successfully updated');
+                jQuery('#modalTaskStartTimeUpdate').modal('hide');
             }).fail(function (errObj) {
                 if(errObj.responseJSON != undefined){
                     toastr['error'](errObj.responseJSON.message);

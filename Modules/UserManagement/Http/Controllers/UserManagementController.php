@@ -1886,11 +1886,16 @@ class UserManagementController extends Controller {
     public function userSchedulesLoadData() {
 
         $stDate = '2022-07-18';
-        $enDate = '2022-07-25';
-        $dateArr = dateRangeArr($stDate, $enDate);
+        $enDate = '2022-07-21';
+        $filterDates = dateRangeArr($stDate, $enDate);
+        $filterDatesNew = [];
+        foreach ($filterDates as $row) {
+            $filterDatesNew[$row['date']] = $row;
+        }
 
         $count = 0;
         $data = [];
+        $userArr = [];
 
         $q = User::query();
         $q = $q->leftJoin('user_avaibilities', 'user_avaibilities.user_id', '=', 'users.id');
@@ -1911,48 +1916,114 @@ class UserManagementController extends Controller {
         // }
         $q = $q->select([
             'users.*',
-            \DB::raw('user_avaibilities.date AS uaDates'),
+            \DB::raw('user_avaibilities.date AS uaDays'),
             \DB::raw('user_avaibilities.from AS uaFrom'),
             \DB::raw('user_avaibilities.to AS uaTo'),
+            \DB::raw('user_avaibilities.start_time AS uaStTime'),
+            \DB::raw('user_avaibilities.end_time AS uaEnTime'),
+            \DB::raw('user_avaibilities.launch_time AS uaLunchTime'),
+
         ]);
+        $users = $q->get();
+        $count = $users->count();
 
-        $workSlots = UserAvaibility::workSlots();
+        $tasks = $devTasks = [];
+        if ($count) {
+            $tasks = Task::whereNotNull('start_date')->whereBetween('start_date', [$stDate . ' 00:00:00', $enDate . ' 23:59:59'])->get(['id', 'start_date', 'assign_to']);
+            $devTasks = DeveloperTask::whereNotNull('start_date')->whereBetween('start_date', [$stDate . ' 00:00:00', $enDate . ' 23:59:59'])->get(['id', 'start_date', 'assigned_to']);
 
-        $data = [];
-        foreach ($q->get() as $single) {
-            $single->uaDates = explode(',', str_replace(' ', '', $single->uaDates));
-            $availableDates = dateRangeArr($single->uaFrom, $single->uaTo);
-            foreach ($availableDates as $key => $value) {
-                $availableDates[$key] = $value['date'];
+            $userWiseTasks = [];
+            foreach ($tasks as $task) {
+                $h = date('H', strtotime($task->start_date));
+                $userWiseTasks[$task->assign_to][date('Y-m-d', strtotime($task->start_date))][$h . '-' . nextHour($h)][] = $task->toArray();
+            }
+            $userWiseDevTasks = [];
+            foreach ($devTasks as $task) {
+                $h = date('H', strtotime($task->start_date));
+                $userWiseDevTasks[$task->assigned_to][date('Y-m-d', strtotime($task->start_date))][$h . '-' . nextHour($h)][] = $task->toArray();
             }
 
-            foreach ($dateArr as $date) {
-                $arr = [
-                    'username' => $single->name,
-                    'date' => $date['date'],
-                    'day' => $date['day'],
+            // Prepare User's Data
+            foreach ($users as $single) {
+                $single->uaDays = explode(',', str_replace(' ', '', $single->uaDays));
+                $availableDates = UserAvaibility::getAvailableDates($single->uaDays, $single->uaFrom, $single->uaTo);
+                $availableSlots = UserAvaibility::availableSlots($single->uaStTime, $single->uaEnTime);
+                $userArr[] = [
+                    'id' => $single->id,
+                    'name' => $single->name,
+                    'availableDays' => $single->uaDays,
+                    'availableDates' => $availableDates,
+                    'availableSlots' => $availableSlots,
                 ];
-                if (!in_array($date['day'], $single->uaDates)) {
-                    foreach ($workSlots as $key => $value) {
-                        $arr[$key] = 'NA';
-                    }
-                } else if (!in_array($date['date'], $availableDates)) {
-                    foreach ($workSlots as $key => $value) {
-                        $arr[$key] = 'NA';
-                    }
-                } else {
-                    foreach ($workSlots as $key => $value) {
-                        $arr[$key] = 'AVL';
-                    }
-                }
+            }
 
-                $arr['actions'] = NULL;
-                $arr['other'] = $single->toArray();
-                $data[] = $arr;
+            // Prepare Slot Wise User's Data
+            $finalArr = [];
+            foreach ($userArr as $user) {
+                foreach ($filterDates as $date) {
+                    $slots = [];
+                    if (!in_array($date['date'], $user['availableDates'])) {
+                        foreach ($user['availableSlots'] as $slot) {
+                            $slots[$slot['display']] = 'NA';
+                        }
+                    } else if (!in_array($date['day'], $single->uaDays)) {
+                        foreach ($user['availableSlots'] as $slot) {
+                            $slots[$slot['display']] = 'NA';
+                        }
+                    } else {
+                        foreach ($user['availableSlots'] as $slot) {
+                            $isTasks = [];
+                            if (isset($userWiseTasks[$user['id']][$date['date']][$slot['display']])) {
+                                foreach ($userWiseTasks[$user['id']][$date['date']][$slot['display']] as $taskRow) {
+                                    $isTasks[] = 'T-' . $taskRow['id'];
+                                }
+                            }
+                            if (isset($userWiseDevTasks[$user['id']][$date['date']][$slot['display']])) {
+                                foreach ($userWiseDevTasks[$user['id']][$date['date']][$slot['display']] as $taskRow) {
+                                    $isTasks[] = 'DT-' . $taskRow['id'];
+                                }
+                            }
+                            $slots[$slot['display']] = $isTasks ? implode(',', $isTasks) : 'AVL';
+                        }
+                    }
+                    $finalArr[] = [
+                        'name' => $user['name'],
+                        'date' => $date['date'],
+                        'day' => $date['day'],
+                        'slots' => $slots,
+                    ];
+                }
+            }
+
+            $chunkSize = 7;
+            foreach ($finalArr as $finalRow) {
+                $slotChunks = array_chunk($finalRow['slots'], $chunkSize, true);
+                $table = '<table class="table table-bordered" style="width:100%">';
+                foreach ($slotChunks as $slotChunk) {
+                    $table .= '<tr>';
+                    $colSpan = $chunkSize;
+                    foreach ($slotChunk as $slotKey => $slotStatus) {
+                        $class = '';
+                        if ($slotStatus == 'NA') {
+                            $class = 'text-danger';
+                        } else if ($slotStatus == 'AVL') {
+                            $class = 'text-success';
+                            $slotStatus = '<a href="#" onclick="alert(\'Action Pending\');" >AVL</a>';
+                        } else {
+                        }
+                        $table .= ('<td width="'.round(100/$chunkSize, 2).'%" class="' . $class . '">' . $slotKey . ' (' . $slotStatus . ')' . '</td>');
+                        $colSpan--;
+                    }
+                    if ($colSpan) {
+                        $table .= ('<td colspan="' . $colSpan . '"></td>');
+                    }
+                    $table .= '</tr>';
+                }
+                $table .= '</table>';
+                $finalRow['slots'] = $table;
+                $data[] = $finalRow;
             }
         }
-        // _p($q->get()->toArray());
-        // _p($data, 1);
 
         return response()->json([
             'draw' => request('draw'),
