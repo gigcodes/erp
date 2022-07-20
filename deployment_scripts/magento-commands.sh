@@ -5,6 +5,7 @@ function HELP {
 	echo "--type: which function to call"
 	echo "--debug: true/false"
 	echo "--test: test case"
+	echo "--command: custom commands"
 }
 
 args=("$@")
@@ -28,6 +29,10 @@ do
 		test="${args[$((idx+1))]}"
                 idx=$((idx+2))
                 ;;
+                --command)
+		command="${args[$((idx+1))]}"
+                idx=$((idx+2))
+                ;;
                 *)
                 idx=$((idx+1))
                 ;;
@@ -49,6 +54,13 @@ fi
 if [ $type = "tests" ]
 then
 	ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; bin/magento dev:tests:run $test"
+fi
+
+if [ $type = "custom" ]
+then
+	echo $server
+	echo $command
+	ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; $command"
 fi
 
 if [ $? -ne 0 ]
