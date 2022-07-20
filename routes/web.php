@@ -25,6 +25,9 @@ Route::get('textcurl', 'Marketing\MailinglistController@textcurl');
 Route::get('/test/dummydata', 'TestingController@testingFunction');
 Route::get('/test/translation', 'GoogleTranslateController@testTranslation');
 
+Route::get('/zabbix', 'ZabbixController@index');
+Route::get('/zabbix/problems', 'ZabbixController@problems')->name("zabbix.problem");
+
 Route::get('/test/testPrice', 'TmpTaskController@testEmail');
 Route::get('/memory', 'MemoryUsesController@index')->name('memory.index');
 Route::post('/memory/thresold-update', 'MemoryUsesController@updateThresoldLimit')->name('update.thresold-limit');
@@ -2267,6 +2270,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('postman/remark/history', 'PostmanRequestCreateController@postmanRemarkHistoryLog');
     Route::post('postman/user/permission', 'PostmanRequestCreateController@userPermission');
     
+    Route::post('postman/get/mul/request', 'PostmanRequestCreateController@getMulRequest');
+    
     
 });
 /*
@@ -3094,6 +3099,12 @@ Route::middleware('auth')->group(function () {
     Route::get('website/search/log/view', 'WebsiteLogController@searchWebsiteLogStoreView')->name('website.search.log.view');
     
     Route::get('website/command/log', 'WebsiteLogController@runWebsiteLogCommand')->name('website.command-log');
+
+    Route::get('/uicheck', 'UicheckController@index')->name('uicheck');
+    Route::post('uicheck/store', 'UicheckController@store')->name('uicheck.store');
+    Route::post('uicheck/dev/status/history', 'UicheckController@getUiDeveloperStatusHistoryLog')->name('uicheck.dev.status.history');
+    Route::post('uicheck/admin/status/history', 'UicheckController@getUiAdminStatusHistoryLog')->name('uicheck.admin.status.history');
+    Route::post('uicheck/issue/history', 'UicheckController@getUiIssueHistoryLog')->name('uicheck.get.issue.history');
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
@@ -3185,6 +3196,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/calendar/events/stop', 'UserEventController@stopEvent')->name("calendar.event.stop");
     Route::put('/calendar/events/{id}', 'UserEventController@editEvent');
     Route::delete('/calendar/events/{id}', 'UserEventController@removeEvent');
+    Route::get('updateLog', 'UpdateLogController@index')->name('updateLog.get');
+    Route::get('updateLog/search', 'UpdateLogController@search')->name('updateLog.get.search');
+    Route::delete('updateLog/delete', 'UpdateLogController@destroy')->name('updateLog.delete');
 });
 
 Route::prefix('calendar/public')->middleware('auth')->group(function () {
@@ -3890,7 +3904,16 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::get('ads/getconfigPost', 'SocialAdsController@getpost')->name('social.ad.getpost');
 });
 Route::middleware('auth')->group(function () {
+    Route::resource('taskcategories','TaskCategoriesController');
+    Route::delete('tasklist/{id}','TaskCategoriesController@delete');
+    Route::delete('tasksubject/{id}','TaskCategoriesController@destroy');
+    Route::resource('zabbix', 'ZabbixController');
     Route::resource('checklist', 'CheckListController');
+    Route::get('checklist/view/{id}', 'CheckListController@view')->name("checklist.view");
+    Route::post('checklist/subjects', 'CheckListController@subjects')->name("checklist.subjects");
+    Route::post('checklist/add_checklist', 'CheckListController@add')->name("checklist.add");
+    Route::post('checklist/get_checked_value', 'CheckListController@checked')->name("checklist.get.checked");
+    Route::post('checklist/checklist_update', 'CheckListController@checklistUpdate')->name("checklist.update.c");
 });
 
 

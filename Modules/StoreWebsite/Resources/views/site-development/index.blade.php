@@ -2465,7 +2465,7 @@
             }).done(function(data) {
                 $("#loading-image").hide();
                 if (data.code == 200) {
-                    body_data = '';
+                    body_data  = '';
                     if (data.status == 0) {
                         body_data +=
                             "<div class='alert alert-danger' role='alert'>Site check list is not set.</div>";
@@ -2494,7 +2494,84 @@
             });
         }
 
+        function checkUi(category_id, site_development_id) {
+            //debugger;
+            category_modal = 'ui-check-modal-' + category_id;
+            category_modal_body = 'ui-check-body-' + category_id;
+            $.ajax({
+                url: '{{ route('site-development.check-ui') }}',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    siteDevelopmentId: site_development_id,
+                    "_token": "{{ csrf_token() }}",
+                    categoryId: category_id
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+            }).done(function(data) {
+                $("#loading-image").hide();
+                if (data.code == 200) {
+                    body_data = '';
+                    if (data.status == 0) {
+                        body_data += "<div class='alert alert-danger' role='alert'>Site  Check Ui is not set.</div>";
+                    } else {
+                        body_data += "<div class='alert alert-success' role='alert'>Site Check Ui is set.</div>";
+                    }
+                    body_data +=
+                        "<div class='row'><div class='col-md-4'> Create Site Ui Check </div><div class='col-md-8'><select class='form-control' id='is_ui_" +
+                        category_id + "'><option value='0' ";
+                    if (data.status == 0) {
+                        body_data += " selected ";
+                    }
+                    body_data += "> No </option><option value='1'  ";
+                    if (data.status == 1) {
+                        body_data += " selected ";
+                    }
+                    body_data += "> Yes </option></select></div></div>";
+                    $("#" + category_modal_body).html(body_data);
+                    $("#" + category_modal).modal('show');
+                } else {
+                    alert(data.status);
+                }
 
+            }).fail(function(data) {
+                $("#loading-image").hide();
+            });
+        }
+        function setCheckUi(category_id, site_development_id) {
+            //debugger;
+            category_modal = 'ui-check-modal-' + category_id;
+            is_ui = $('#is_ui_' + category_id).val();
+            if (is_ui == '') {
+                alert("Select Yes or No");
+                return;
+            }
+            $.ajax({
+                url: '{{ route('site-development.set-check-ui') }}',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    siteDevelopmentId: site_development_id,
+                    "_token": "{{ csrf_token() }}",
+                    categoryId: category_id,
+                    status: is_ui
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+            }).done(function(data) {
+                $("#loading-image").hide();
+                if (data.code == 200) {
+                    $("#" + category_modal).modal('hide');
+                    alert(data.status);
+                }
+
+            }).fail(function(data) {
+                $("#loading-image").hide();
+            });
+        }
         function setSiteAsset(category_id, site_development_id) {
             category_modal = 'site-asset-modal-' + category_id;
             site_asset = $('#is_site_asset_' + category_id).val();

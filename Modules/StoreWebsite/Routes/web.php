@@ -289,6 +289,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/send', 'SiteDevelopmentController@SendTask')->name('site-development.senduser');
         Route::post('/check-site-asset', 'SiteDevelopmentController@checkSiteAsset')->name('site-development.check-site-asset');
         Route::post('/check-site-list', 'SiteDevelopmentController@checkSiteList')->name('site-development.check-site-list');
+        Route::post('/check-site-ui-list', 'SiteDevelopmentController@checkUi')->name('site-development.check-ui');
+        Route::post('/set-site-ui-list', 'SiteDevelopmentController@setcheckUi')->name('site-development.set-check-ui');
         Route::post('/set-site-asset', 'SiteDevelopmentController@setSiteAsset')->name('site-development.set-site-asset');
         Route::post('/set-site-list', 'SiteDevelopmentController@setSiteList')->name('site-development.set-site-list');
         Route::get('/latest-reamrks/{website_id}', 'SiteDevelopmentController@latestRemarks')->name("site-development.latest-reamrks");
@@ -339,4 +341,5 @@ Route::middleware('auth')->group(function () {
         Route::get('/', 'PaymentResponseController@index')->name("payment-responses.index");
         Route::get('/records', 'PaymentResponseController@records')->name("payment-responses.records");
     });
+    
 });
