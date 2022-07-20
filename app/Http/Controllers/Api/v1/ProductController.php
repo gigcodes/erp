@@ -159,7 +159,7 @@ class ProductController extends Controller
                     //dd($sku[0]);
                 $productCanDays = ProductCancellationPolicie::select('days_refund')->where('store_website_id', $storeWebsite->id)->first();
                 $category = Product::select('id', 'category')->withTrashed()->where('sku', $sku[0])->first();
-                $order = Order::select('created_at')->withTrashed()->where('order_id', $request->order_id)->first();
+                $order = Order::select('created_at')->withTrashed()->where('id', $request->order_id)->first();
                 $orderDays = strtotime($order->created_at);
                 $ordercurrent = strtotime(date('Y-m-d H:i:s'));
                 $timeleft = $ordercurrent - $orderDays;
