@@ -3102,6 +3102,12 @@ Route::middleware('auth')->group(function () {
     Route::get('website/search/log/view', 'WebsiteLogController@searchWebsiteLogStoreView')->name('website.search.log.view');
     
     Route::get('website/command/log', 'WebsiteLogController@runWebsiteLogCommand')->name('website.command-log');
+
+    Route::get('/uicheck', 'UicheckController@index')->name('uicheck');
+    Route::post('uicheck/store', 'UicheckController@store')->name('uicheck.store');
+    Route::post('uicheck/dev/status/history', 'UicheckController@getUiDeveloperStatusHistoryLog')->name('uicheck.dev.status.history');
+    Route::post('uicheck/admin/status/history', 'UicheckController@getUiAdminStatusHistoryLog')->name('uicheck.admin.status.history');
+    Route::post('uicheck/issue/history', 'UicheckController@getUiIssueHistoryLog')->name('uicheck.get.issue.history');
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
@@ -3193,6 +3199,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/calendar/events/stop', 'UserEventController@stopEvent')->name("calendar.event.stop");
     Route::put('/calendar/events/{id}', 'UserEventController@editEvent');
     Route::delete('/calendar/events/{id}', 'UserEventController@removeEvent');
+    Route::get('updateLog', 'UpdateLogController@index')->name('updateLog.get');
+    Route::get('updateLog/search', 'UpdateLogController@search')->name('updateLog.get.search');
+    Route::delete('updateLog/delete', 'UpdateLogController@destroy')->name('updateLog.delete');
 });
 
 Route::prefix('calendar/public')->middleware('auth')->group(function () {

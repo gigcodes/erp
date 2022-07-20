@@ -2201,6 +2201,19 @@ class WhatsAppController extends FindByNumberController
                 }
                 $this->logchatmessage("#9",$request->task_id,$request->message,"update message for charity request");
                 unset($data['vendor_id']);
+            } elseif ($context == 'uicheckMessage') {
+                $this->logchatmessage("#21",$request->task_id,$request->message,"If context UI check");
+                $message = $request->get('message');
+                $params['message'] = $message;
+                $params['message_en'] = $request->get('message');
+                $params['ticket_id'] = $request->ticket_id;
+                $params['user_id'] = $request->object_id;
+                $params['ui_check_id'] = $request->task_id;;
+                $params['approved'] = 1;
+                $params['status'] = 2;
+                $chat_message = ChatMessage::create($params);
+
+                return response()->json(['message' => $chat_message]);
             } elseif ($context == 'task') {
                 $this->logchatmessage("#10",$request->task_id,$request->message,"If context conndition task is exit");
                 $data['task_id'] = $request->task_id;
@@ -2440,7 +2453,7 @@ class WhatsAppController extends FindByNumberController
                
                 return response()->json(['message' => $chat_message]);
 
-            } else {
+            }else {
 
                 if ($context == 'priority') {
                     $this->logchatmessage("#14",$request->task_id,$request->message,"If context priority is exit");
