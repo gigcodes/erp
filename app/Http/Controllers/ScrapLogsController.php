@@ -316,7 +316,7 @@ class ScrapLogsController extends Controller
 		//dd($namefile);
     	if(!empty($namefile)){
 	    	$lines = @file($namefile);
-			print('Line out');
+			print($lines);
 			if($lines){
 				print('Line in');
 	    		$output = array();
