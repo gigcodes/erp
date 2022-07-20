@@ -58,8 +58,6 @@ fi
 
 if [ $type = "custom" ]
 then
-	echo $server
-	echo $command
 	ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; $command"
 fi
 
