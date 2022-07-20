@@ -1684,6 +1684,10 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('zabbix.problem') }}">Zabbix Problems</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('uicheck') }}">U I Check</a>
+                                            </li>
+                                            
                                         </ul>
                                     </li>
                                     
