@@ -149,27 +149,29 @@ class ProductController extends Controller
             $sku          = explode("-", $request->product_sku);
             // $get
             if ($storeWebsite) {
-
                 $returnExchange = StoreWebsiteOrder::where('website_id', $storeWebsite->id)->where('platform_order_id', $request->order_id)
-                    ->join("orders as o", "o.id", "store_website_orders.order_id")
-                    ->join("order_products as op", "op.order_id", "o.id")
-                    ->join("return_exchange_products as rep", "rep.order_product_id", "op.id")
+                    ->leftJoin("orders as o", "o.id","=","store_website_orders.order_id")
+                    ->leftJoin("order_products as op", "op.order_id","=","o.id")
+                    ->leftJoin("return_exchange_products as rep", "rep.order_product_id","=","op.id")
                     ->where("op.sku", $sku[0])
                     ->first();
-                    //dd($sku[0]);
                 $productCanDays = ProductCancellationPolicie::select('days_refund')->where('store_website_id', $storeWebsite->id)->first();
-                $category = Product::select('id', 'category')->where('sku', $sku[0])->first();
-                $order = Order::select('created_at')->where('id', $request->order_id)->first();
-                $orderDays = strtotime($order->created_at);
-                $ordercurrent = strtotime(date('Y-m-d H:i:s'));
-                $timeleft = $ordercurrent - $orderDays;
-                $daysPanding = round((($timeleft/24)/60)/60); 
+                $category = Product::select('id', 'category')->withTrashed()->where('sku', $sku[0])->first();
+                if($category){
+                    $categories = Category::select('days_refund')->where('id', '=',$category->category)->first();
+                    $categoriesRef = $categories->days_refund;
+                    $productRef = $productCanDays->days_refund;
+                }
+
+                $order = Order::select('created_at')->withTrashed()->where('id', $request->order_id)->first();
+                if($order){
+                    $orderDays = strtotime($order->created_at);
+                    $ordercurrent = strtotime(date('Y-m-d H:i:s'));
+                    $timeleft = $ordercurrent - $orderDays;
+                    $daysPanding = round((($timeleft/24)/60)/60); 
+                }              
                 
-                $categories = Category::select('days_refund')->where('id', '=',$category->category)->first();
-                $categoriesRef = $categories->days_refund;
-                $productRef = $productCanDays->days_refund;
-                
-                if ($returnExchange || ($productRef >= $daysPanding && $categoriesRef >= $daysPanding)) {
+                if ($returnExchange || (isset($daysPanding) && isset($productRef) && isset($categoriesRef) && $productRef >= $daysPanding && $categoriesRef >= $daysPanding)) {
                     $result_input = ["has_return_request" => true];
                 }
                 $message = $this->generate_erp_response("order.return-check.success", 0, $default = "Success", request('lang_code'));
