@@ -160,16 +160,20 @@ class ProductController extends Controller
                 $productCanDays = ProductCancellationPolicie::select('days_refund')->where('store_website_id', $storeWebsite->id)->first();
                 $category = Product::select('id', 'category')->withTrashed()->where('sku', $sku[0])->first();
                 $order = Order::select('created_at')->withTrashed()->where('id', $request->order_id)->first();
-                $orderDays = strtotime($order->created_at);
-                $ordercurrent = strtotime(date('Y-m-d H:i:s'));
-                $timeleft = $ordercurrent - $orderDays;
-                $daysPanding = round((($timeleft/24)/60)/60); 
+                if($order){
+                    $orderDays = strtotime($order->created_at);
+                    $ordercurrent = strtotime(date('Y-m-d H:i:s'));
+                    $timeleft = $ordercurrent - $orderDays;
+                    $daysPanding = round((($timeleft/24)/60)/60); 
+                }
+                
+                
                 
                 $categories = Category::select('days_refund')->where('id', '=',$category->category)->first();
                 $categoriesRef = $categories->days_refund;
                 $productRef = $productCanDays->days_refund;
                 
-                if ($returnExchange || ($productRef >= $daysPanding && $categoriesRef >= $daysPanding)) {
+                if ($returnExchange || (isset($daysPanding) && isset($productRef) && isset($categoriesRef) && $productRef >= $daysPanding && $categoriesRef >= $daysPanding)) {
                     $result_input = ["has_return_request" => true];
                 }
                 $message = $this->generate_erp_response("order.return-check.success", 0, $default = "Success", request('lang_code'));
