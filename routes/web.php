@@ -3185,6 +3185,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/calendar/events/stop', 'UserEventController@stopEvent')->name("calendar.event.stop");
     Route::put('/calendar/events/{id}', 'UserEventController@editEvent');
     Route::delete('/calendar/events/{id}', 'UserEventController@removeEvent');
+    Route::get('updateLog', 'UpdateLogController@index')->name('updateLog.get');
+    Route::get('updateLog/search', 'UpdateLogController@search')->name('updateLog.get.search');
+    Route::delete('updateLog/delete', 'UpdateLogController@destroy')->name('updateLog.delete');
 });
 
 Route::prefix('calendar/public')->middleware('auth')->group(function () {

@@ -1665,6 +1665,10 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('google.bigdata') }}">Google Big Data</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('updateLog.get') }}">Update Log</a>
+                                            </li>
+                                            
                                         </ul>
                                     </li>
                                     
