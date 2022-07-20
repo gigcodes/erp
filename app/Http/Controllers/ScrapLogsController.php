@@ -316,9 +316,9 @@ class ScrapLogsController extends Controller
 		//dd($namefile);
     	if(!empty($namefile)){
 	    	$lines = @file($namefile);
-			print_r($lines);
+			//print_r($lines);
 			if($lines){
-				print('Line in');
+				//print('Line in');
 	    		$output = array();
 				for($i = count($lines) -1; $i >= 0; $i--){
 					$output[] = $lines[$i];
@@ -335,7 +335,7 @@ class ScrapLogsController extends Controller
 		    	}
 		    	return view('scrap-logs.database-log', compact('output','search'));
 	    	}
-	    	return 'File not found! Line';
+	    	return 'File not found!';
 		}
     	return 'File not found!';
     }
