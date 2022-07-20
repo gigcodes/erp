@@ -32,13 +32,18 @@
                 @include(
                     'storewebsite::site-development.partials.site-check-modal'
                 )
+                @include(
+                    'storewebsite::site-development.partials.ui-check-modal'
+                )
                 
-                
-                
-                    <span class="show-short-cat_title-{{$pagrank}}">{{ str_limit($category->title, 5, '..')}}</span>
-                    <span style="word-break:break-all;" class="show-full-cat_title-{{$pagrank}} hidden">{{$category->title}}</span>
-                
-
+                <span class="show-short-cat_title-{{$pagrank}}">{{ str_limit($category->title, 5, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-cat_title-{{$pagrank}} hidden">{{$category->title}}</span>
+                <div style="display: flex; float: right"> <button
+                    onclick="checkUi({{ $category->id }}, {{ $category->site_development_id }})"
+                    style="background-color: transparent;border: 0; margin-top:0px;" class="p-2"
+                    title="Set this category in Ui for this website"><i
+                        class="fa fa-info-circle"></i></button></div>
+                        
                 <div style="display: flex; float: right"> <button
                         onclick="checkList({{ $category->id }}, {{ $category->site_development_id }})"
                         style="background-color: transparent;border: 0; margin-top:0px;" class=""
@@ -50,10 +55,8 @@
                         title="Set this category in site assets for this website"><i
                             class="fa fa-info-circle"></i></button></div>
                 <div style="display: flex;float: right"> <button onclick="editCategory({{ $category->id }})"
-                        style="background-color: transparent;border: 0;margin-top:0px;" class=""><i
-                            class="fa fa-edit"></i></button>
-
-
+                        style="background-color: transparent;border: 0;margin-top:0px;" class="pl-0"><i
+                        class="fa fa-edit"></i></button>
                     <!-- <input class="fa-ignore-category" type="checkbox" data-onstyle="secondary" data-category-id="{{ $category->id }}" data-site-id="{{ isset($website) ? $website->id : $category->website_id }}" <?php echo request('status') == 'ignored' ? 'checked' : ''; ?>
                 data-on="Allow" data-off="Disallow"
                 data-toggle="toggle" data-width="90"> -->

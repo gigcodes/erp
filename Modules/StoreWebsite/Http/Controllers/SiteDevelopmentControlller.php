@@ -1131,6 +1131,29 @@ class SiteDevelopmentController extends Controller
         
     }
 
+    public function checkUi(Request $request)
+    {
+        $checkSite = SiteDevelopment::find($request->siteDevelopmentId);
+        if(!empty($checkSite)){
+            return response()->json(["code" => 200, "status" => $checkSite->is_ui]);
+        }else{
+            return response()->json(["code" => 404, "status" => 'Data Not Found']);
+        }
+        
+    }
+
+    public function setcheckUi(Request $request)
+    {
+        $siteDevelopments = SiteDevelopment::where('site_development_category_id', $request->categoryId)->get();
+        //dd($siteDevelopments);
+		foreach($siteDevelopments as $siteDevelopment){
+			$siteDevelopment->is_ui = $request->status;
+            $siteDevelopment->save();
+		}
+		return response()->json(["code" => 200, "status" => "Data Updated Successully"]);
+        
+    }
+
     public function checkSiteList(Request $request)
     {
         $checkSite = SiteDevelopment::find($request->siteDevelopmentId);

@@ -84,115 +84,17 @@
 
 @section('large_content')
 
-    <div id="myDiv">
-        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
-    </div>
-
-    <input type='hidden' id='site-development-category-id' />
-
     <div class="row" id="common-page-layout">
-        <div class="col-lg-12 margin-tb p-0">
-            <input type="hidden" name="website_id_data" id="website_id_data"
-                value="{{ isset($website) ? $website->id : 0 }}" />
-            <h2 class="page-heading">Site Development {{ isset($website) ? '- ( ' . $website->website . ' )' : ' ' }} <span
-                    class="count-text"></span>
-                <div class="pull-right pr-2 d-flex">
-                    <?php echo Form::select('select_website', ['' => 'All Website'] + $store_websites, null, ['class' => 'form-control globalSelect2', 'id' => 'copy_from_website']); ?>
-                    <button type="button" class="btn btn-secondary" onClick="copyTasksFromWebsite()">Copy Tasks from
-                        website</button>
-
-
-                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createTasksModal"
-                        id="">Create Tasks</button>
-                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#masterCategoryModal"
-                        id="">Add Category</button>
-                    <a style="color: #757575" href="{{ route('site-development-status.index') }}" target="__blank">
-                        <button style=" color: #757575" class="btn btn-secondary btn-image ml-2">
-                            + Add Status
-                        </button>
-                    </a>
-                    <button style="margin-right:5px;" class="btn btn-secondary latest-remarks-btn ml-2">
-                        Remarks
-                    </button>
-                    <a class="btn btn-secondary" data-toggle="collapse" href="#statusFilterCount" role="button"
-                        aria-expanded="false" aria-controls="statusFilterCount">
-                        Status Count
-                    </a>
-                    <select name="order" id="order_query" class="form-control ml-2">
-                        <option value="title" @if (isset($input['order']) and $input['order'] == 'title') selected @endif>Title</option>
-                        <option value="communication" @if (isset($input['order']) and $input['order'] == 'communication') selected @endif>Communication
-                        </option>
-                    </select>
-                </div>
-            </h2>
-        </div>
-        <br>
         <div class="col-lg-12 margin-tb pl-3 pr-3">
             <div class="row">
                 <div class="col col-md-12">
                     <div class="row mb-3">
                         <div class="col-md-12 d-flex">
-                            <form class="form-inline message-search-handler"
-                                onsubmit="event.preventDefault(); saveCategory();">
-                                <div class="row">
-                                    <div class="col">
-                                        <div class="form-group">
-                                            <?php /* <label for="keyword">Add Category:</label> */?>
-                                            <?php echo Form::text('keyword', request('keyword'), ['class' => 'form-control', 'placeholder' => 'Add Category', 'id' => 'add-category']); ?>
-                                        </div>
-                                        <div class="form-group">
-                                            <?php /* <label for="button">&nbsp;</label> */?>
-                                            <button style="display: inline-block;width: 10%"
-                                                class="btn btn-sm btn-image btn-search-action">
-                                                <img src="/images/send.png" style="cursor: default;">
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div id="masterCategory" class="modal fade" role="dialog">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h4 class="modal-title">Attach Master Category</h4>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="form-group col-md-12" style="margin-bottom: 15px;">
-
-                                                    <label class="justify-content-start" for="select_website_id_data">Select
-                                                        Website</label>
-                                                    <?php echo Form::select('select_website_id_data', $store_websites, isset($website) ? $website->id : null, ['class' => 'form-control globalSelect2', 'id' => 'select_website_id_data']); ?>
-
-                                                </div>
-                                                <div class="form-group col-md-12" style="margin-bottom: 15px;">
-
-                                                    <label class="justify-content-start"
-                                                        for="site_development_master_category_id">Select Master
-                                                        Category</label>
-                                                    {{ Form::select('site_development_master_category_id', ['' => '- Select-'] + $masterCategories, null, ['class' => 'globalSelect2','id' => 'master_category_id']) }}
-
-                                                </div>
-
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-default"
-                                                    data-dismiss="modal">Close</button>
-                                                <button style="display: inline-block;width: 10%"
-                                                    class="btn btn-default btn-image btn-search-action">
-                                                    Save
-                                                </button>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-
                             <form class="form-inline handle-search" style="display:inline-block;">
-                                <div class="form-group " style="margin-right:10px;">
-                                    <?php /* <label for="keyword">Search keyword:</label> */?>
-                                    <?php //echo Form::text("k", request("k"), ["class" => "form-control", "placeholder" => "Search keyword", "id" => "enter-keyword"])
-                                    ?>
-
+                                <div class="form-group" style="display:inline-block;width:300px">
+                                    <?php //echo Form::select('websites[]', ['all' => 'All Website'] + $website, isset(request()->websites) ? request()->websites : $website->id, ['class' => 'form-control globalSelect2', 'multiple', 'id' => 'change_website1']); ?>
+                                </div>
+                                <div class="form-group ">
                                     <select class="form-control globalSelect2" name="k[]" id="k" multiple>
                                         <!-- <option @if (request()->k == null) selected @endif value=''>Please Select</option>-->
                                         @foreach ($filter_category as $key => $all_cat)
@@ -204,14 +106,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="form-group ">
-                                    <?php /* <label for="status">Status:</label> */?>
-                                    <?php echo Form::select('status', ['' => 'All Status'] + $allStatus, request('status'), ['class' => 'form-control globalSelect2', 'id' => 'enter-status', 'style' => 'width:150px !important;']); ?>
-                                </div>
-                                <div class="form-group" style="display:inline-block;width:300px">
-                                    <?php /* <label for="status">Status:</label> */?>
-                                    <?php echo Form::select('websites[]', ['all' => 'All Website'] + $store_websites, isset(request()->websites) ? request()->websites : $website->id, ['class' => 'form-control globalSelect2', 'multiple', 'id' => 'change_website1']); ?>
-                                </div>
+                                
 
                                 <div class="form-group">
                                     <?php /* <label for="button">&nbsp;</label> */?>
@@ -234,42 +129,17 @@
                 </div>
             </div>
 
-            <div class="row m-0">
-                <div class="col-md-12">
-                    <div class="collapse" id="statusFilterCount">
-                        <div class="card card-body">
-                            <?php if (!empty($statusCount)) {?>
-                            <div class="row col-md-12">
-                                <?php foreach ($statusCount as $sC) {?>
-                                <div class="col-md-2">
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <?php echo $sC->name; ?>
-                                        </div>
-                                        <div class="card-body">
-                                            <?php echo $sC->total; ?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <?php }?>
-                            </div>
-                            <?php } else {
-    echo "Sorry , No data available";
-}?>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
 
 
             <div class="col-md-12 margin-tb infinite-scroll">
                 <div class="row">
-                    <div class="table-responsive mt-2">
-                        <table class="table table-bordered text-nowrap" id="documents-table">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="documents-table">
                             <thead>
                                 <tr>
                                     <th width="4%">S No</th>
-                                    <th width="10%"></th>
+                                    <th width="15%"></th>
                                     <th width="15%" style="word-break: break-all;">Website</th>
                                     <th width="12%">Master Category</th>
                                     <th width="12%">Remarks</th>
@@ -277,14 +147,11 @@
                                     <th style="display:none;">Title</th>
                                     <th style="display:none;">Message</th>
                                     <th width="25%">Communication</th>
-                                    <th width="25%">status</th>
-                                    <th width="25%">Action</th>
+                                    <th width="20%">Action</th>
                                 </tr>
                             </thead>
                             <tbody class="infinite-scroll-pending-inner">
-                                @include(
-                                    'storewebsite::site-development.partials.data'
-                                )
+                                @include('uicheck.data')
                             </tbody>
                         </table>
                     </div>
@@ -2196,31 +2063,7 @@
             $(full).toggleClass('hidden');
             $(mini).toggleClass('hidden');
         });
-        $(document).on('click', '.assign', function() {
-            //debugger;
-            var id = $(this).data('id');
-            console.log(id);
-            var full = '.assign .comm-'+ id;
-            var mini = '.assign .comm-'+ id;
-            $(full).toggleClass('show');
-            $(mini).toggleClass('hidden');
-            $(this, "table tr:nth-child(1)").addClass('test')//css("background-color", "yellow");
 
-        });
-        $(document).on('click', '.show_moreCls', function(event) {
-           
-            var id = $(this).data('id');
-            if($('.comm-'+id).hasClass("hidden")){
-                //$(this).text('Show Less');
-                $('.comm-'+id).removeClass('hidden');
-            } else {
-                $('.comm-'+id).addClass('hidden');
-                //$(this).text('Show More');
-            }
-            
-
-        });
-        
         $(document).on('click', '.send-message', function() {
             var thiss = $(this);
             var data = new FormData();
@@ -2490,7 +2333,7 @@
             }).done(function(data) {
                 $("#loading-image").hide();
                 if (data.code == 200) {
-                    body_data  = '';
+                    body_data = '';
                     if (data.status == 0) {
                         body_data +=
                             "<div class='alert alert-danger' role='alert'>Site check list is not set.</div>";
@@ -2518,13 +2361,11 @@
                 $("#loading-image").hide();
             });
         }
-
         function checkUi(category_id, site_development_id) {
-            //debugger;
-            category_modal = 'ui-check-modal-' + category_id;
-            category_modal_body = 'ui-check-body-' + category_id;
+            category_modal = 'site-asset-modal-' + category_id;
+            category_modal_body = 'site-asset-body-' + category_id;
             $.ajax({
-                url: '{{ route('site-development.check-ui') }}',
+                url: '{{ route('site-development.check-site-asset') }}',
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -2540,12 +2381,12 @@
                 if (data.code == 200) {
                     body_data = '';
                     if (data.status == 0) {
-                        body_data += "<div class='alert alert-danger' role='alert'>Site  Check Ui is not set.</div>";
+                        body_data += "<div class='alert alert-danger' role='alert'>Site Asset is not set.</div>";
                     } else {
-                        body_data += "<div class='alert alert-success' role='alert'>Site Check Ui is set.</div>";
+                        body_data += "<div class='alert alert-success' role='alert'>Site Asset is set.</div>";
                     }
                     body_data +=
-                        "<div class='row'><div class='col-md-4'> Create Site Ui Check </div><div class='col-md-8'><select class='form-control' id='is_ui_" +
+                        "<div class='row'><div class='col-md-4'> Create Site Asset </div><div class='col-md-8'><select class='form-control' id='is_site_asset_" +
                         category_id + "'><option value='0' ";
                     if (data.status == 0) {
                         body_data += " selected ";
@@ -2565,38 +2406,7 @@
                 $("#loading-image").hide();
             });
         }
-        function setCheckUi(category_id, site_development_id) {
-            //debugger;
-            category_modal = 'ui-check-modal-' + category_id;
-            is_ui = $('#is_ui_' + category_id).val();
-            if (is_ui == '') {
-                alert("Select Yes or No");
-                return;
-            }
-            $.ajax({
-                url: '{{ route('site-development.set-check-ui') }}',
-                type: 'POST',
-                dataType: 'json',
-                data: {
-                    siteDevelopmentId: site_development_id,
-                    "_token": "{{ csrf_token() }}",
-                    categoryId: category_id,
-                    status: is_ui
-                },
-                beforeSend: function() {
-                    $("#loading-image").show();
-                },
-            }).done(function(data) {
-                $("#loading-image").hide();
-                if (data.code == 200) {
-                    $("#" + category_modal).modal('hide');
-                    alert(data.status);
-                }
 
-            }).fail(function(data) {
-                $("#loading-image").hide();
-            });
-        }
         function setSiteAsset(category_id, site_development_id) {
             category_modal = 'site-asset-modal-' + category_id;
             site_asset = $('#is_site_asset_' + category_id).val();
