@@ -211,7 +211,7 @@
       <div id="add-mail-content">
           <div class="modal-content">
             <div class="modal-header">
-              <h3 class="modal-title">Postman Response History</h3>
+              <h3 class="modal-title">Command Response History</h3>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
