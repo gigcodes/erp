@@ -3689,6 +3689,9 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
 
 Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::any('/database-log', 'ScrapLogsController@databaseLog');
+    Route::get('/database-log/enable', 'ScrapLogsController@enableMysqlAccess');
+    Route::get('/database-log/disable', 'ScrapLogsController@disableMysqlAccess');
+    Route::get('/database-log/history', 'ScrapLogsController@disableEnableHistory');
 });
 
 Route::get('gtmetrix', 'gtmetrix\WebsiteStoreViewGTMetrixController@index')->name('gt-metrix');
@@ -3822,6 +3825,15 @@ Route::prefix('magento-product-error')->middleware('auth')->group(function () {
     Route::get('/download', 'MagentoProductPushErrors@groupErrorMessage')->name('magento_product_today_common_err');
     Route::get('/magento_product_today_common_err_report', 'MagentoProductPushErrors@groupErrorMessageReport')->name('magento_product_today_common_err_report'); //Purpose : Add Route for get Data - DEVTASK-20123
 });
+//Magento Command
+Route::get('magento/command', 'MagentoCommandController@index')->name("magento.command");
+Route::get('magento/command/search', 'MagentoCommandController@search')->name("magento.command.search");
+Route::post('magento/command/add', 'MagentoCommandController@store')->name("magento.command.add");
+Route::post('magento/command/run', 'MagentoCommandController@runCommand')->name("magento.command.run");
+Route::post('magento/command/edit', 'MagentoCommandController@edit')->name("magento.command.edit");
+Route::post('magento/command/history', 'MagentoCommandController@commandHistoryLog')->name("magento.command.edit");
+Route::delete('magento/command/delete', 'MagentoCommandController@destroy')->name("magento.command.delete");
+
 
 Route::prefix('message-queue-history')->middleware('auth')->group(function () {
     Route::get('/', 'MessageQueueHistoryController@index')->name('message-queue-history.index');
