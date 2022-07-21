@@ -113,6 +113,7 @@ function tableDeleteRow(url, oTable) {
         allowOutsideClick: false
     });
 }
+    
 
 // Ajax update status 
 function tableChnageStatus(url, oTable, message = 'You will be able to revert this') {

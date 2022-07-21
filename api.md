@@ -1759,3 +1759,46 @@ post https://erp.theluxuryunlimited.com/api/order/sync-transaction
     "success": false
 }
 ```
+
+
+## Add Update Log API
+**Request**
+```json
+post https://erp.theluxuryunlimited.com/api/updateLog
+{
+    "api_url":"www.google.com",
+    "device":"iPhone11",
+    "api_type":"POST",
+    "user_id":"nksndadna",
+    "header":{
+        "Content-Type":"application/json"
+    },
+    "app_version" : "1.0,1",
+    "other":" Any data add"
+}
+```
+**Success Response:**
+```Json
+{
+    "status": true,
+    "data": {
+        "api_url": "www.google.com",
+        "device": "iPhone11",
+        "api_type": "POST",
+        "user_id": "nksndadna",
+        "request_header": "{\"Content-Type\":\"application\\/json\"}",
+        "app_version": "1.0,1",
+        "other": "Any data add",
+        "updated_at": "2022-07-07 11:08:08",
+        "created_at": "2022-07-07 11:08:08",
+        "id": 3
+    }
+}
+```
+**Error Response:**
+```json
+{
+    "success": false,
+    "message": "Data not found"
+}
+```
