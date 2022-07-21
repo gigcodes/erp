@@ -2864,11 +2864,13 @@ class TaskModuleController extends Controller {
         if (count($taskHistory) > 0) {
             $html = "";
             foreach ($taskHistory as $taskHistoryData) {
+                $html .= "<tr>";
                 $html .= "<td>" . $taskHistoryData->id . "</td>";
                 $html .= "<td>" . $taskHistoryData->users->name . "</td>";
                 $html .= "<td>" . $taskHistoryData->old_due_date . "</td>";
                 $html .= "<td>" . $taskHistoryData->new_due_date . "</td>";
                 $html .= "<td>" . $taskHistoryData->created_at . "</td>";
+                $html .= "</tr>";
             }
             return response()->json(['code' => 200, 'data' => $html, 'msg' => 'Task Due Date History successfully loaded']);
         } else {
