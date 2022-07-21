@@ -8,11 +8,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
     <style type="text/css">
         .select2-search__field {
-            width: 200px !important;
+            width: 80% !important;
         }
 
         .select2-selection__rendered {
-            width: 200px !important;
+            width: 80% !important;
         }
 
         .preview-category input.form-control {
@@ -269,16 +269,16 @@
                             <thead>
                                 <tr>
                                     <th width="4%">S No</th>
-                                    <th width="10%"></th>
-                                    <th width="15%" style="word-break: break-all;">Website</th>
-                                    <th width="12%">Master Category</th>
-                                    <th width="12%">Remarks</th>
-                                    <th width="12%">Assign To</th>
+                                    <th width="15%"></th>
+                                    <th width="7%" style="word-break: break-all;">Website</th>
+                                    <th width="7%">Master Category</th>
+                                    <th width="7%">Remarks</th>
+                                    <th width="7%">Assign To</th>
                                     <th style="display:none;">Title</th>
                                     <th style="display:none;">Message</th>
                                     <th width="25%">Communication</th>
-                                    <th width="25%">status</th>
-                                    <th width="25%">Action</th>
+                                    <th width="15%">status</th>
+                                    <th width="15%">Action</th>
                                 </tr>
                             </thead>
                             <tbody class="infinite-scroll-pending-inner">

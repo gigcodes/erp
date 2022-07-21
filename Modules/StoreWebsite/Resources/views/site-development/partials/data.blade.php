@@ -36,11 +36,12 @@
                     'storewebsite::site-development.partials.ui-check-modal'
                 )
                 
-                <span class="show-short-cat_title-{{$pagrank}}">{{ str_limit($category->title, 5, '..')}}</span>
+                <span class="show-short-cat_title-{{$pagrank}}">{{ str_limit($category->title, 25, '..')}}</span>
                 <span style="word-break:break-all;" class="show-full-cat_title-{{$pagrank}} hidden">{{$category->title}}</span>
+                <br>
                 <div style="display: flex; float: right"> <button
                     onclick="checkUi({{ $category->id }}, {{ $category->site_development_id }})"
-                    style="background-color: transparent;border: 0; margin-top:0px;" class="p-2"
+                    style="background-color: transparent;border: 0; margin-top:0px;" class=""
                     title="Set this category in Ui for this website"><i
                         class="fa fa-info-circle"></i></button></div>
                         
@@ -53,7 +54,7 @@
                         onclick="checkAsset({{ $category->id }}, {{ $category->site_development_id }})"
                         style="background-color: transparent;border: 0; margin-top:0px;" class=""
                         title="Set this category in site assets for this website"><i
-                            class="fa fa-info-circle"></i></button></div>
+                            class="fa fa-info-podcast"></i></button></div>
                 <div style="display: flex;float: right"> <button onclick="editCategory({{ $category->id }})"
                         style="background-color: transparent;border: 0;margin-top:0px;" class="pl-0"><i
                         class="fa fa-edit"></i></button>
@@ -98,7 +99,7 @@
                     </label>
                 </form>
             </td>
-            <td width="15%" style="word-break: break-all;">
+            <td style="word-break: break-all;">
                 <div class="d-flex">
                     <div class="justify-content-between expand-row-msg"
                         data-id="{{ $pagrank }}" data-name="website">
@@ -116,7 +117,7 @@
             </td>
             <td class="pt-0 pr-2">
                 <div class=" mb-1 p-0 d-flex pt-2 mt-1">
-                    <input style="margin-top: 0px;width:auto !important;" type="text"
+                    <input style="margin-top: 0px;width:80% !important;" type="text"
                         class="form-control quick-message-field" name="message" placeholder="Message" value=""
                         id="remark_{{ $key }}" data-catId="{{ $category->id }}"
                         data-siteId="@if ($site) {{ $site->id }} @endif"
@@ -159,8 +160,8 @@
                             $tTrClass = '';
                     ?>
                     
-                        <div class="row {{$tTrClass}}" style="overflow: hidden;width: 100%;float: left;margin-left: 0px;border: 1px solid;padding-top: 4px;margin-top: 2px;margin-bottom: 7px;">
-                        <div class="col-6" style="margin: 0;padding: 5px;">
+                        <div class="row {{$tTrClass}}" style="overflow: hidden;width: 100%;float: left;margin-left: 0px;border: 1px solid #bfbfbf;padding-top: 4px;margin-top: 2px;margin-bottom: 7px;">
+                        <div class="col-4" style="margin: 0;padding: 5px;">
                             @if (auth()->user()->isAdmin())
                                 <select class="form-control assign-user" data-id="{{ $assignedTo['id'] }}"
                                     name="master_user_id" style="width: 100% !important;">
@@ -178,7 +179,7 @@
                                 {{ $assignedTo['assigned_to_name'] }}
                             @endif
                         </div>
-                        <div class="col-6"  style="margin: 0;padding: 5px;">
+                        <div class="col-8"  style="margin: 0;padding: 5px;">
                             <div class="mb-1 p-0 d-flex pl-0 pt-0 mt-1 msg">
                                 <?php
                                 $MsgPreview = '# ';
@@ -211,10 +212,10 @@
                                     <div class="justify-content-between expand-row-msg-chat"
                                         data-id="{{ $assignedTo['id'] }}">
                                         <span class="td-full-chat-container-{{ $assignedTo['id'] }} pl-1">
-                                            {{ str_limit($assignedTo['message'], 8, '...') }} </span>
+                                            {{ str_limit($assignedTo['message'], 30, '...') }} </span>
                                     </div>
                                 </div>
-                                <div class="expand-row-msg-chat" data-id="{{ $assignedTo['id'] }}">
+                                <div class="expand-row-msg-chat" data-id="{{ $assignedTo['id'] }}" style="white-space: normal;">
                                     <span class="td-full-chat-container-{{ $assignedTo['id'] }} hidden">
                                         {{ $assignedTo['message'] }} </span>
                                 </div>
@@ -393,7 +394,7 @@
             </td>
             <td>
                 <?php echo Form::select('status', ['' => '-- Select --'] + $allStatus, $site->status, [
-                    'class' => 'form-control save-item-select width-auto globalSelect2',
+                    'class' => 'form-control save-item-select globalSelect2',
                     'data-category' => $category->id,
                     'data-type' => 'status',
                     'data-site' => $site ? $site->id : '',
@@ -424,11 +425,12 @@
                         <i class="fa fa-history" aria-hidden="true"></i>
                     </button>
                 @endif
+                <br/>
                 <button type="button" class="btn preview-img-btn pd-5"
                     data-id="@if ($site) {{ $site->id }} @endif">
                     <i class="fa fa-eye" aria-hidden="true"></i>
                 </button>
-                <br/>
+                
                 @if (Auth::user()->isAdmin() || $hasSiteDevelopment)
                     @php
                         $websitenamestr = $website ? $website->title : '';
@@ -447,7 +449,7 @@
                         data-id="@if ($site) {{ $site->id }} @endif"><i
                             class="fa fa-dashboard"></i></button>
                 @endif
-                
+                <br/>
                         <?php $status = $site ? $site->status : 0; ?>
                         @if ($status == 3)
                             <button class="btn btn-image d-inline create-quick-task ">
