@@ -1,7 +1,9 @@
-function funDevelopmentTaskStartDateModal(taskId, startDate) {
+var currStartDateUpdateEle = null;
+function funDevelopmentTaskStartDateModal(ele) {
+  currStartDateUpdateEle = ele;
   jQuery('#modalDevelopmentTaskStartTimeUpdate').modal('show');
-  jQuery('#modalDevelopmentTaskStartTimeUpdate').attr('data-row_id', taskId);
-  jQuery('#start_date').val(startDate);
+  jQuery('#modalDevelopmentTaskStartTimeUpdate').attr('data-row_id', jQuery(ele).attr('data-task_id'));
+  jQuery('#start_date').val(jQuery(ele).attr('data-start_date'));
 }
 function funDevelopmentTaskStartDateUpdate(url) {
   jQuery.ajax({
@@ -17,6 +19,7 @@ function funDevelopmentTaskStartDateUpdate(url) {
   }).done(function (response) {
     toastr['success']('Successfully updated');
     jQuery('#modalDevelopmentTaskStartTimeUpdate').modal('hide');
+    jQuery(currStartDateUpdateEle).attr('data-start_date', jQuery('#start_date').val());
   }).fail(function (errObj) {
     if (errObj.responseJSON != undefined) {
       toastr['error'](errObj.responseJSON.message);

@@ -3734,7 +3734,7 @@ class DevelopmentController extends Controller {
         return response()->json(['message' => 'Successfully updated'], 200);
     }
     public function actionStartDateHistory() {
-        $list = DeveloperTaskHistory::with('user')->where([['developer_task_id', '=', request('id')]])->orderBy('id')->get();
+        $list = DeveloperTaskHistory::with('user')->where('attribute', 'start_date')->where([['developer_task_id', '=', request('id')]])->orderBy('id')->get();
         if ($list->count()) {
             $html = "";
             foreach ($list as $single) {

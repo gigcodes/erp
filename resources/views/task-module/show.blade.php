@@ -1036,7 +1036,7 @@ input.cmn-toggle-round + label {
                                                 Actions
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$task->id}}">
-                                                <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskStartDateModal('{{$task->id}}', '{{$task->start_date}}')" >Start Time: Update</a>
+                                                <a class="dropdown-item" href="javascript:void(0);" data-task_id="{{$task->id}}" data-start_date="{{$task->start_date}}" onclick="funTaskStartDateModal(this)" >Start Time: Update</a>
                                                 <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskStartDateHistory('{{$task->id}}')" >Start Time: View History</a>
                                             </div>
                                         </div>
@@ -4159,10 +4159,12 @@ $(document).on("click",".btn-save-documents",function(e){
     </script>
 
     <script>
-        function funTaskStartDateModal(taskId, startDate){
-           jQuery('#modalTaskStartTimeUpdate').modal('show');
-           jQuery('#modalTaskStartTimeUpdate').attr('data-task_id', taskId);
-           jQuery('#start_date').val(startDate);
+        var currStartDateUpdateEle = null;
+        function funTaskStartDateModal(ele){
+            currStartDateUpdateEle = ele;
+            jQuery('#modalTaskStartTimeUpdate').modal('show');
+            jQuery('#modalTaskStartTimeUpdate').attr('data-task_id', jQuery(ele).attr('data-task_id'));
+            jQuery('#start_date').val(jQuery(ele).attr('data-start_date'));
         }
         function funTaskStartDateUpdate(){
             let task_id = jQuery('#modalTaskStartTimeUpdate').attr('data-task_id');
@@ -4181,6 +4183,7 @@ $(document).on("click",".btn-save-documents",function(e){
             }).done(function (response) {
                 toastr['success']('Successfully updated');
                 jQuery('#modalTaskStartTimeUpdate').modal('hide');
+                jQuery(currStartDateUpdateEle).attr('data-start_date', jQuery('#start_date').val());
             }).fail(function (errObj) {
                 if(errObj.responseJSON != undefined){
                     toastr['error'](errObj.responseJSON.message);

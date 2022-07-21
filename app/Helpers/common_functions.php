@@ -378,9 +378,8 @@ function resizeCropImage($max_width = 150, $max_height = 150, $source_file, $dst
 
 
 function _p($data, $exit = 0) {
-    echo '<pre>';
-    print_r($data);
-    echo '</pre>';
+    echo '<pre>'; print_r($data); echo '</pre>';
+    echo '<pre>______________________________________________________________________________________________________________</pre>';
     if ($exit) die('');
 }
 function dateRangeArr($stDate, $enDate) {
@@ -399,6 +398,21 @@ function nextHour($curr) {
     if ($curr == 24) $curr = '0';
     return $curr < 10 ? '0' . $curr : $curr;
 }
+function hourlySlots($stTime, $enTime) {
+    $slots = [];
+    $intrvl =  strtotime("1970-01-01 01:00:00 UTC");
+
+    $dateTimes = new \DatePeriod(
+        new \DateTime($stTime),
+        new \DateInterval('PT' . $intrvl . 'S'),
+        new \DateTime($enTime)
+    );
+    foreach ($dateTimes as $dt) {
+        $slots[] = $dt->format('Y-m-d H:i');
+    }
+    return $slots;
+}
+
 function siteJs($path) {
     return env('APP_URL') . '/js/pages/' . $path . '?v=' . date('YmdH');
 }

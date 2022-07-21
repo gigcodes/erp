@@ -224,7 +224,7 @@
                 Actions
             </a>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$issue->id}}">
-                <a class="dropdown-item" href="javascript:void(0);" onclick="funDevelopmentTaskStartDateModal('{{$issue->id}}', '{{$issue->start_date}}')">Start Date: Update</a>
+            <a class="dropdown-item" href="javascript:void(0);" data-task_id="{{$issue->id}}" data-start_date="{{$issue->start_date}}" onclick="funDevelopmentTaskStartDateModal(this)">Start Date: Update</a>
                 <a class="dropdown-item" href="javascript:void(0);" onclick="funDevelopmentTaskStartDateHistory('{{$issue->id}}')">Start Date: View History</a>
             </div>
         </div>

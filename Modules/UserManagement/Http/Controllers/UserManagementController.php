@@ -1891,7 +1891,6 @@ class UserManagementController extends Controller {
         try {
             $count = 0;
             $data = [];
-            $userArr = [];
 
             $stDate = request('srchDateFrom');
             $enDate = request('srchDateTo');
@@ -1915,13 +1914,7 @@ class UserManagementController extends Controller {
                 if (request('is_active')) {
                     $q = $q->where('users.is_active', request('is_active') == 1 ? 1 : 0);
                 }
-                // if ($request->keyword != null) {
-                //     $user = $user->where(function ($q) use ($request) {
-                //         $q->where("users.email", "like", "%" . $request->keyword . "%")
-                //             ->orWhere("users.name", "like", "%" . $request->keyword . "%")
-                //             ->orWhere("users.phone", "like", "%" . $request->keyword . "%");
-                //     });
-                // }
+
                 $q = $q->select([
                     'users.*',
                     \DB::raw('user_avaibilities.date AS uaDays'),
@@ -1930,35 +1923,67 @@ class UserManagementController extends Controller {
                     \DB::raw('user_avaibilities.start_time AS uaStTime'),
                     \DB::raw('user_avaibilities.end_time AS uaEnTime'),
                     \DB::raw('user_avaibilities.launch_time AS uaLunchTime'),
-
                 ]);
                 $users = $q->get();
                 $count = $users->count();
 
                 $tasks = $devTasks = [];
                 if ($count) {
-                    $tasks = Task::whereNotNull('start_date')->whereBetween('start_date', [$stDate . ' 00:00:00', $enDate . ' 23:59:59'])->get(['id', 'start_date', 'assign_to']);
-                    $devTasks = DeveloperTask::whereNotNull('start_date')->whereBetween('start_date', [$stDate . ' 00:00:00', $enDate . ' 23:59:59'])->get(['id', 'start_date', 'assigned_to']);
 
-                    $userWiseTasks = [];
+                    // Get Tasks [In Progress & Planned]
+                    $tasks = Task::whereIn('status', [1, 5])
+                        ->whereNotNull('start_date')
+                        ->whereNotNull('due_date')
+                        ->whereBetween('start_date', [$stDate . ' 00:00:00', $enDate . ' 23:59:59'])
+                        ->orderBy('start_date')
+                        ->get(['id', \DB::raw("'T' AS type"), 'assign_to AS assigned_to', 'start_date', 'due_date AS end_date']);
+                    $devTasks = DeveloperTask::whereIn('status', ['In Progress', 'Planned'])
+                        ->whereNotNull('start_date')
+                        ->whereNotNull('estimate_date')
+                        ->whereBetween('start_date', [$stDate . ' 00:00:00', $enDate . ' 23:59:59'])
+                        ->orderBy('start_date')
+                        ->get(['id', \DB::raw("'DT' AS type"), 'assigned_to', 'start_date', 'estimate_date AS end_date']);
+                    $tasks = collect($tasks)->merge(collect($devTasks))->sortBy('start_date');
+
+                    // Arrange tasks / User wise task start point
+                    $totalTasks = [];
                     foreach ($tasks as $task) {
-                        $h = date('H', strtotime($task->start_date));
-                        $userWiseTasks[$task->assign_to][date('Y-m-d', strtotime($task->start_date))][$h . '-' . nextHour($h)][] = $task->toArray();
+                        $totalTasks[$task->assigned_to][] = [
+                            'id' => $task->id,
+                            'typeId' => $task->type . '-' . $task->id,
+                            'stDate' => $task->start_date,
+                            'enDate' => $task->end_date,
+                            'slots' => hourlySlots($task->start_date, $task->end_date),
+                        ];
                     }
-                    $userWiseDevTasks = [];
-                    foreach ($devTasks as $task) {
-                        $h = date('H', strtotime($task->start_date));
-                        $userWiseDevTasks[$task->assigned_to][date('Y-m-d', strtotime($task->start_date))][$h . '-' . nextHour($h)][] = $task->toArray();
+
+                    // Sort by date time and make their slots
+                    $finalTasksArr = [];
+                    foreach ($totalTasks as $userId => $taskArr) {
+                        foreach ($taskArr as $taskRow) {
+                            if (isset($taskRow['slots']) && count($taskRow['slots'])) {
+                                foreach ($taskRow['slots'] as $slot) {
+                                    $finalTasksArr[$userId][] = [
+                                        'typeId' => $taskRow['typeId'],
+                                        'slot' => $taskRow['slots'][0],
+                                    ];
+                                }
+                            }
+                        }
                     }
 
                     // Prepare User's Data
+                    $userArr = [];
                     foreach ($users as $single) {
                         $single->uaDays = explode(',', str_replace(' ', '', $single->uaDays));
                         $availableDates = UserAvaibility::getAvailableDates($single->uaDays, $single->uaFrom, $single->uaTo);
-                        $availableSlots = UserAvaibility::availableSlots($single->uaStTime, $single->uaEnTime);
+                        $availableSlots = hourlySlots($single->uaStTime, $single->uaEnTime);
+
                         $userArr[] = [
                             'id' => $single->id,
                             'name' => $single->name,
+                            'uaLunchTime' => substr($single->uaLunchTime, 0, 5),
+                            'uaDays' => $single->uaDays,
                             'availableDays' => $single->uaDays,
                             'availableDates' => $availableDates,
                             'availableSlots' => $availableSlots,
@@ -1968,41 +1993,54 @@ class UserManagementController extends Controller {
                     // Prepare Slot Wise User's Data
                     $finalArr = [];
                     foreach ($userArr as $user) {
-                        foreach ($filterDates as $date) {
+                        foreach ($filterDates as $fDate) {
                             $slots = [];
-                            if (!in_array($date['date'], $user['availableDates'])) {
+                            if (!in_array($fDate['date'], $user['availableDates']) || !in_array($fDate['day'], $user['uaDays'])) {
                                 foreach ($user['availableSlots'] as $slot) {
-                                    $slots[$slot['display']] = 'NA';
-                                }
-                            } else if (!in_array($date['day'], $single->uaDays)) {
-                                foreach ($user['availableSlots'] as $slot) {
-                                    $slots[$slot['display']] = 'NA';
+                                    $slots[$fDate['date'] . substr($slot, 10, 6)] = 'NA';
                                 }
                             } else {
                                 foreach ($user['availableSlots'] as $slot) {
-                                    $isTasks = [];
-                                    if (isset($userWiseTasks[$user['id']][$date['date']][$slot['display']])) {
-                                        foreach ($userWiseTasks[$user['id']][$date['date']][$slot['display']] as $taskRow) {
-                                            $isTasks[] = 'T-' . $taskRow['id'];
-                                        }
+                                    if ($fDate['date'] < date('Y-m-d')) {
+                                        $slots[$fDate['date'] . substr($slot, 10, 6)] = 'PAST';
+                                    } else if ($user['uaLunchTime'] == date('H:i', strtotime($slot))) {
+                                        $slots[$fDate['date'] . substr($slot, 10, 6)] = 'LUNCH';
+                                    } else {
+                                        $slots[$fDate['date'] . substr($slot, 10, 6)] = 'AVL';
                                     }
-                                    if (isset($userWiseDevTasks[$user['id']][$date['date']][$slot['display']])) {
-                                        foreach ($userWiseDevTasks[$user['id']][$date['date']][$slot['display']] as $taskRow) {
-                                            $isTasks[] = 'DT-' . $taskRow['id'];
-                                        }
-                                    }
-                                    $slots[$slot['display']] = $isTasks ? implode(',', $isTasks) : 'AVL';
                                 }
                             }
                             $finalArr[] = [
                                 'id' => $user['id'],
                                 'name' => $user['name'],
-                                'date' => $date['date'],
-                                'day' => $date['day'],
+                                'date' => $fDate['date'],
+                                'day' => $fDate['day'],
                                 'slots' => $slots,
                             ];
                         }
                     }
+
+                    // Update final array with Tasks in slots
+                    foreach ($finalArr as $key => $user) {
+                        foreach ($user['slots'] as $slotKey => $slotStatus) {
+                            $userTasks = isset($finalTasksArr[$user['id']]) && count($finalTasksArr[$user['id']]) ? $finalTasksArr[$user['id']] : [];
+                            if ($userTasks) {
+                                if ($slotStatus == 'AVL') {
+                                    if ($userTasks[0]['slot'] <= $slotKey) {
+                                        $slotStatus = $userTasks[0]['typeId'];
+                                        $userTasks = $this->slotIncreaseAndShift($userTasks, $slotKey, 1);
+                                    }
+                                } else if ($slotStatus == 'LUNCH') {
+                                    $userTasks = $this->slotIncreaseAndShift($userTasks, $slotKey);
+                                }
+                                $finalTasksArr[$user['id']] = $userTasks;
+                            }
+
+                            $user['slots'][$slotKey] = $slotStatus;
+                        }
+                        $finalArr[$key] = $user;
+                    }
+
 
                     $chunkSize = 8;
                     foreach ($finalArr as $finalRow) {
@@ -2013,14 +2051,25 @@ class UserManagementController extends Controller {
                             $colSpan = $chunkSize;
                             foreach ($slotChunk as $slotKey => $slotStatus) {
                                 $class = '';
-                                if ($slotStatus == 'NA') {
+                                $slot = date('H:i', strtotime($slotKey));
+                                $display = '';
+
+                                if ($slotStatus == 'PAST') {
+                                    $class = 'text-secondary';
+                                    $display = '<s>' . $slot . ' (' . $slotStatus . ')</s>';
+                                } else if ($slotStatus == 'NA') {
                                     $class = 'text-danger';
+                                    $display = '<s>' . $slot . ' (' . $slotStatus . ')</s>';
+                                } else if ($slotStatus == 'LUNCH') {
+                                    $class = 'text-warning';
+                                    $display = '<s>' . $slot . ' (' . $slotStatus . ')</s>';
                                 } else if ($slotStatus == 'AVL') {
                                     $class = 'text-success';
-                                    $slotStatus = '<a href="javascript:void(0);" data-user_id="' . $finalRow['id'] . '" data-date="' . $finalRow['date'] . '" data-slot="' . $slotKey . '" onclick="funSlotAssignModal(this);" >AVL</a>';
+                                    $display = $slot . ' <a href="javascript:void(0);" data-user_id="' . $finalRow['id'] . '" data-date="' . $finalRow['date'] . '" data-slot="' . $slotKey . '" onclick="funSlotAssignModal(this);" >(AVL)</a>';
                                 } else {
+                                    $display = $slot . ' (' . $slotStatus . ')';
                                 }
-                                $table .= ('<td width="' . round(100 / $chunkSize, 2) . '%" class="' . $class . '">' . $slotKey . ' (' . $slotStatus . ')' . '</td>');
+                                $table .= ('<td width="' . round(100 / $chunkSize, 2) . '%" class="' . $class . '">' . $display . '</td>');
                                 $colSpan--;
                             }
                             if ($colSpan) {
@@ -2048,5 +2097,18 @@ class UserManagementController extends Controller {
         } catch (\Throwable $th) {
             return respException($th);
         }
+    }
+
+    function slotIncreaseAndShift($data, $current, $shift = 0) {
+        foreach ($data as $k => $v) {
+            if ($current >= $v['slot']) {
+                $data[$k]['slot'] = date('Y-m-d H:i', strtotime($v['slot'] . ' +1 hour'));
+            }
+        }
+        if ($shift) {
+            unset($data[0]);
+            $data = array_values($data);
+        }
+        return $data;
     }
 }
