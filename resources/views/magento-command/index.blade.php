@@ -476,7 +476,7 @@
               }      
             });
             $('#addPostman').modal('show');
-            toastr['success']('Postman added successfully!!!', 'success'); 
+            toastr['success']('Command Listed successfully!!!', 'success'); 
             
           } else {
             toastr['error'](response.message, 'error'); 
@@ -511,7 +511,7 @@
             });
             $(".tbodayPostmanHistory").html(t);
             $('#postmanHistory').modal('show');
-            toastr['success']('Postman added successfully!!!', 'success'); 
+            toastr['success']('Command added successfully!!!', 'success'); 
             
           } else {
             toastr['error'](response.message, 'error'); 
