@@ -964,6 +964,21 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('meetings/show', 'Meeting\ZoomMeetingController@allMeetings')->name('meetings.show');
     Route::get('meetings/all', 'Meeting\ZoomMeetingController@allMeetings')->name('meetings.all.data');
 
+    Route::prefix('task')->group(function () {
+        Route::prefix('update')->group(function () {
+            Route::post('start-date', 'TaskModuleController@taskStartDateUpdate')->name('task.update.start-date');
+        });
+        Route::prefix('history')->group(function () {
+            Route::prefix('start-date')->group(function () {
+                Route::get('index', 'TaskModuleController@taskStartDateHistory')->name('task.history.start-date.index');
+            });
+        });
+        Route::get('dropdown-user-wise', 'TaskModuleController@dropdownUserWise')->name('task.dropdown-user-wise');
+        Route::prefix('slot')->group(function () {
+            Route::post('assign', 'TaskModuleController@slotAssign')->name('task.slot.assign');
+        });
+    });
+
     Route::post('task/reminder', 'TaskModuleController@updateTaskReminder');
 
     Route::get('task/time/history', 'TaskModuleController@getTimeHistory')->name('task.time.history');
@@ -1047,17 +1062,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('task/user/history', 'TaskModuleController@getUserHistory')->name('task/user/history');
     Route::post('task/recurring-history', 'TaskModuleController@recurringHistory')->name('task.recurringHistory');
 
-    Route::prefix('task')->group(function () {
-        Route::prefix('update')->group(function () {
-            Route::post('start-date', 'TaskModuleController@taskStartDateUpdate')->name('task.update.start-date');
-        });
 
-        Route::prefix('history')->group(function () {
-            Route::prefix('start-date')->group(function () {
-                Route::get('index', 'TaskModuleController@taskStartDateHistory')->name('task.history.start-date.index');
-            });
-        });
-    });
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
 

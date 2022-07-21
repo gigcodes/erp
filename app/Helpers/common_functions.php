@@ -376,6 +376,7 @@ function resizeCropImage($max_width = 150, $max_height = 150, $source_file, $dst
     return @file_get_contents($dst_dir);
 }
 
+
 function _p($data, $exit = 0) {
     echo '<pre>';
     print_r($data);
@@ -395,6 +396,49 @@ function dateRangeArr($stDate, $enDate) {
 }
 function nextHour($curr) {
     $curr++;
-    if($curr == 24) $curr = '0';
+    if ($curr == 24) $curr = '0';
     return $curr < 10 ? '0' . $curr : $curr;
+}
+function siteJs($path) {
+    return env('APP_URL') . '/js/pages/' . $path . '?v=' . date('YmdH');
+}
+function makeDropdown($options = [], $selected = []) {
+    if (!is_array($selected)) {
+        $selected = is_numeric($selected) ? (int) $selected : $selected;
+    }
+    $return = [];
+    if (count($options)) {
+        foreach ($options as $k => $v) {
+            if (is_array($v)) {
+                $return[] = '<optgroup label="' . $k . '">';
+                $return[] = makeDropdown($v, $selected);
+                $return[] = '</optgroup>';
+            } else {
+                $sel = '';
+                if (is_array($selected)) {
+                    if (in_array($k, $selected))
+                        $sel = 'selected';
+                } else if ($selected === $k) {
+                    $sel = 'selected';
+                }
+                $return[] = '<option value="' . $k . '" ' . $sel . '>' . ucfirst(trim(strip_tags($v))) . '</option>';
+            }
+        }
+    }
+    return implode('', $return);
+}
+function exMessage($e) {
+    return 'Error on line ' . $e->getLine() . ' in ' . $e->getFile() . ': ' . $e->getMessage();
+}
+function respException($e, $data = []) {
+    return response()->json(array_merge_recursive(['message' => exMessage($e)], $data), 500);
+}
+function isDeveloperTaskId($id) {
+    return substr($id, 0, 3) == 'DT-' ? str_replace('DT-', '', $id) : 0;
+}
+function isRegularTaskId($id) {
+    return substr($id, 0, 2) == 'T-' ? str_replace('T-', '', $id) : 0;
+}
+function respJson($code, $message = '', $data = []) {
+    return response()->json(array_merge_recursive(['message' => $message], $data), $code);
 }

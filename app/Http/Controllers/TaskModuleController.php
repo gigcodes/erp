@@ -3445,4 +3445,51 @@ class TaskModuleController extends Controller {
             return response()->json(['message' => 'No records found.'], 404);
         }
     }
+
+    public function dropdownUserWise() {
+        try {
+            $dataArr = [];
+            if ($userId = request('userId')) {
+                $dTasks = DeveloperTask::where('assigned_to', $userId)->whereNotIn('status', ['Done', 'User Complete'])->orderBy('id', 'DESC')->limit(10)->get();
+                foreach ($dTasks as $key => $dTask) {
+                    $dataArr['Developer Tasks']['DT-' . $dTask->id] = $dTask->subject;
+                }
+
+                $tasks = Task::where('assign_to', $userId)->whereNotIn('status', [1, 15])->orderBy('id', 'DESC')->limit(10)->get();
+                foreach ($tasks as $key => $task) {
+                    $dataArr['Tasks']['T-' . $task->id] = $task->task_subject;
+                }
+            }
+            return response()->json([
+                'list' => $dataArr ? makeDropdown($dataArr) : NULL
+            ]);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
+    public function slotAssign() {
+        try {
+            $newValue = request('date') . ' ' . substr(request('slot'), 0, 2) . ':00:00';
+            if ($id = isDeveloperTaskId(request('taskId'))) {
+                if ($single = DeveloperTask::find($id)) {
+                    $oldValue = $single->start_date;
+                    if ($oldValue == $newValue) {
+                        return respJson(400, 'No change in time slot.');
+                    }
+                    $single->start_date = $newValue;
+                    $single->save();
+                    $single->updateHistory('start_date', $oldValue, $newValue);
+                    return respJson(200, 'Time slot updated successfully.');
+                }
+            } else if ($id = isRegularTaskId(request('taskId'))) {
+                if ($single = Task::find($id)) {
+                    $single->updateStartDate($newValue);
+                    return respJson(200, 'Time slot updated successfully.');
+                }
+            }
+            return respJson(404, 'No task found.');
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
 }

@@ -1,10 +1,6 @@
 @extends('layouts.app')
 @section('favicon', 'user-management.png')
-
-
-
 @section('large_content')
-
 @include('partials.flash_messages')
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;background-color:rgba(255,255,255,0.6);"></div>
 <div class="row">
@@ -15,43 +11,72 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-12">
-            <!-- <form class="form-inline message-search-handler" method="post">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <?php echo Form::text('keyword', request('keyword'), ['class' =>
-                            'form-control data-keyword', 'placeholder' => 'Enter keyword']); ?>
-                        </div>
-                        <div class="form-group">
-                            <select name="is_active" class="form-control" placholder="Active:">
-                                <option value="0" {{ request('is_active') == 0 ? 'selected' : '' }}>All</option>
-                                <option value="1" {{ request('is_active') == 1 ? 'selected' : '' }}>Active
-                                </option>
-                                <option value="2" {{ request('is_active') == 2 ? 'selected' : '' }}>In active
-                                </option>
-                            </select>
-                        </div>
-                        <div class="form-group pl-3">
-                            <label for="button">&nbsp;</label>
-                            <button style="display: inline-block;width: 10%;margin-top: -16px;" class="btn btn-sm btn-image btn-search-action">
-                                <img src="/images/search.png" style="cursor: default;">
-                            </button>
-                        </div>
+            <div class="card d-normal">
+                <div class="card-header">
+                    <h4>
+                        <a class="collapsed card-link" data-toggle="collapse" href="#collapseSearch" aria-expanded="false">
+                            <i class="fa fa-arrow-up"></i>
+                            <i class="fa fa-arrow-down"></i>
+                            Filter Records
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseSearch" class="collapse">
+                    <div class="card-body">
+                        <form id="frm-search-crud" class="" method="post">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="form-label">Users List</label>
+                                                <select class="form-control select2" name="srchUser">
+                                                    <option value=""></option>
+                                                    {!! makeDropdown($listUsers) !!}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="form-label">From Date</label>
+                                                <div class="input-group date d-datetime">
+                                                    <input type="text" class="form-control input-sm" name="srchDateFrom" value="{{date('Y-m-d')}}" />
+                                                    <span class="input-group-addon">
+                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="form-label">To Date</label>
+                                                <div class="input-group date d-datetime">
+                                                    <input type="text" class="form-control input-sm" name="srchDateTo" value="{{date('Y-m-d', strtotime('+3 days'))}}" />
+                                                    <span class="input-group-addon">
+                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <button type="button" class="btn btn-primary" onclick="siteDatatableSearch('#listUserSchedule')">Search</button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="siteDatatableClearSearch('#listUserSchedule', '#frm-search-crud')">Clear</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
-            </form> -->
+            </div>
         </div>
         <div class="col-lg-12">
             <table id="listUserSchedule" class="table table-bordered" style="width:100%">
                 <thead>
                     <tr>
-                        <th data-data="name" data-name="name" width="14%" data-sortable="false" >User Name</th>
-                        <th data-data="date" data-name="date" width="8%" data-sortable="false" >Date</th>
-                        <th data-data="day" data-name="day" width="8%" data-sortable="false" >Day</th>
-                        <th data-data="slots" data-name="slots" width="70%" data-sortable="false" >Hourly Slots [T-? = Task] [DT-? = Dev Task]</th>
-                        <?php /*foreach ($workSlots as $workSlotK => $workSlotV) { ?>
-                            <th data-data="{{$workSlotK}}" data-name="{{$workSlotK}}" width="5%" data-sortable="false" >{!! $workSlotV !!}</th>
-                        <?php } */ ?>
+                        <th data-data="name" data-name="name" width="14%" data-sortable="false">User Name</th>
+                        <th data-data="date" data-name="date" width="8%" data-sortable="false">Date</th>
+                        <th data-data="slots" data-name="slots" width="78%" data-sortable="false">Hourly Slots [T-? = Task] [DT-? = Dev Task]</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -59,16 +84,6 @@
         </div>
     </div>
 </div>
-@include("usermanagement::templates.list-template")
-@push("link-css")
-<link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
-@endpush
-@push("jquery")
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-@endpush
-<script>
-
-</script>
 <script type="text/javascript" src="{{env('APP_URL')}}/js/jsrender.min.js"></script>
 <script type="text/javascript" src="{{env('APP_URL')}}/js/jquery.validate.min.js"></script>
 <script type="text/javascript" src="{{env('APP_URL')}}/js/jquery-ui.js"></script>
@@ -81,71 +96,115 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pnp-sp-taxonomy/1.3.11/sp-taxonomy.es5.umd.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-tagsinput/1.3.6/jquery.tagsinput.min.js" integrity="sha512-wTIaZJCW/mkalkyQnuSiBodnM5SRT8tXJ3LkIUA/3vBJ01vWe5Ene7Fynicupjt4xqxZKXA97VgNBHvIf5WTvg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+@endsection
 
+@push('modals')
+<div id="modalSlotAssign" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Task: Add To Slots</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Tasks & Developer Tasks:</label>
+                        <div class="form-group">
+                            <select id="slotTaskId" name="slotTaskId" class="form-control select2">
+                                <option value="">- Select -</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="funSlotAssignSubmit('{!! route('task.slot.assign') !!}')">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endpush
+
+@push("link-css")
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+@endpush
+
+@push("jquery")
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+@endpush
+
+@push("scripts")
 <script>
-    $('.select-multiple').select2({
-        width: '100%'
-    });
-    $('#due-datetime').datetimepicker({
-        format: 'YYYY-MM-DD HH:mm'
-    });
+    var currSlotAssignee = null;
+    var dtblListUserSchedule = null;
+    var urlTaskDropdown = "{!! route('task.dropdown-user-wise') !!}";
 
-    function loadUsersList() {
+    function funSlotAssignModal(ele) {
+        currSlotAssignee = ele;
 
-        var t = "";
-        var ip = "";
-        $.ajax({
-            url: '{{ route("get-user-list") }}',
+        siteLoader(1);
+        jQuery.ajax({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: urlTaskDropdown,
             type: 'GET',
             data: {
-                _token: "{{ csrf_token() }}",
-            },
-            dataType: 'json',
-
-            success: function(result) {
-                // console.log(result.data);
-                t += '<option>Select user</option>';
-
-                $.each(result.data, function(i, j) {
-                    t += '<option value="' + i + '">' + j + '</option>'
-                });
-                t += '<option value="other">Other</option>';
-
-                // console.log(t);
-                $("#ipusers").html(t);
-
-                console.log(result.usersystemips);
-
-                $.each(result.usersystemips, function(k, v) {
-                    ip += '<tr>';
-                    ip += '<td> ' + v.index_txt + ' </td>';
-                    ip += '<td> ' + v.ip + '</td>';
-                    ip += '<td>' + v.user_id ? v.user.name : v.other_user_name + '</td>';
-                    ip += '<td>' + v.notes + '</td>';
-                    ip += '<td><button class="btn-warning btn deleteIp" data-usersystemid="' + v.id + '">Delete</button></td>';
-                    ip += '</tr>';
-                });
-
-                $("#userAllIps").html(ip);
-
-            },
-            error: function() {
-                // alert('fail');
+                userId: jQuery(currSlotAssignee).attr('data-user_id'),
             }
+        }).done(function(res) {
+            jQuery('#slotTaskId').html(res.list ? '<option value="">- Select -</option>' + res.list : '<option value="">No records found.</option>')
+            jQuery('#modalSlotAssign').modal('show');
+            applySelect2(jQuery('#slotTaskId'));
+            siteLoader(0);
+        }).fail(function(err) {
+            siteErrorAlert(err);
+            siteLoader(0);
         });
-
     }
 
+    function funSlotAssignSubmit(url) {
+        if (jQuery('#slotTaskId').val()) {
+            siteLoader(1);
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: url,
+                type: 'POST',
+                data: {
+                    taskId: jQuery('#slotTaskId').val(),
+                    userId: jQuery(currSlotAssignee).attr('data-user_id'),
+                    date: jQuery(currSlotAssignee).attr('data-date'),
+                    slot: jQuery(currSlotAssignee).attr('data-slot'),
+                }
+            }).done(function(response) {
+                jQuery('#modalSlotAssign').modal('hide');
+                siteLoader(0);
+                jQuery(crudTableId).DataTable().draw(false);
+            }).fail(function(err) {
+                siteErrorAlert(err);
+                siteLoader(0);
+            });
+        } else {
+            siteErrorAlert("Please select task.");
+        }
+    }
 
-    var dtblListUserSchedule
     jQuery(document).ready(function() {
+
+        applySelect2(jQuery('.select2'));
+        applyDatePicker(jQuery('.d-datetime'));
+
+        // Render datatable
         dtblListUserSchedule = jQuery('#listUserSchedule').DataTable({
             lengthChange: false,
             searching: false,
             autoWidth: false,
             processing: true,
             serverSide: true,
-            paging: true,
+            paging: false,
             ajax: {
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
@@ -153,12 +212,14 @@
                 type: 'POST',
                 url: "{{ $urlLoadData }}",
                 data: function(d) {
-                    var extra = {};
-                    if (jQuery('#frm-search-crud').length) {
-                        var temp = jQuery('#frm-search-crud').serializeArray();
-                        for (var i in temp) extra[temp[i].name] = temp[i].value;
-                    }
-                    return Object.assign(d, extra);
+                    return siteDatatableMergeSearch(d, '#frm-search-crud');
+                },
+                dataSrc: function(json) {
+                    return json.data;
+                },
+                error: function(xhr, error, code) {
+                    siteErrorAlert(xhr);
+                    jQuery('#listUserSchedule_processing').hide();
                 }
             },
             initComplete: function(settings, json) {
@@ -171,4 +232,4 @@
         });
     });
 </script>
-@endsection
+@endpush

@@ -525,4 +525,17 @@ class User extends Authenticatable {
     public function getUserAvaibility() {
         return $this->hasUserAvaibility;
     }
+
+    public static function dropdown($args = []) {
+
+        $q = User::query();
+        if (isset($args['is_active'])) {
+            $q->where('is_active', $args['is_active']);
+        }
+        $data = [];
+        foreach ($q->get(['name', 'id']) as $single) {
+            $data[$single->id] = $single->name;
+        }
+        return $data;
+    }
 }

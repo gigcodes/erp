@@ -42,6 +42,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/richtext.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+
+    <script src="{{siteJs('site.js')}}" defer></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
     <script src="{{asset('/js/generic.js')}}" defer></script>
@@ -280,6 +284,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 </head>
 
 <body>
+    @stack('modals')
 
     <div class="modal fade" id="instructionAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm" role="document">

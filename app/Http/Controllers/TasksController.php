@@ -14,22 +14,20 @@ use App\CronJob;
 use App\CronJobErroLog;
 use function storage_path;
 use Studio\Totem\Parameter;
-class TasksController extends Controller
-{
-    
-    public function dashboard()
-    {
+
+class TasksController extends Controller {
+
+    public function dashboard() {
         return redirect()->route('totem.tasks.all');
-    }  
- 
-    public function index()
-    {
+    }
+
+    public function index() {
 
         return view('totem.tasks.index_new', [
             'tasks' => Task::with('frequencies')
                 ->orderBy('description')
                 ->when(request('q'), function ($query) {
-                    $query->where('description', 'LIKE', '%'.request('q').'%');
+                    $query->where('description', 'LIKE', '%' . request('q') . '%');
                 })
                 ->paginate(50),
             'task'          => null,
@@ -38,38 +36,34 @@ class TasksController extends Controller
             'frequencies'   => Totem::frequencies(),
             'total_tasks'   => Task::count(),
         ])->with('i', (request()->input('page', 1) - 1) * 50);
-    } 
+    }
 
-    public function create()
-    {
+    public function create() {
         return view('totem::tasks.form', [
             'task'          => new Task,
             'commands'      => Totem::getCommands(),
             'timezones'     => timezone_identifiers_list(),
             'frequencies'   => Totem::frequencies(),
         ]);
-    } 
+    }
 
-    public function store(TaskRequest $request)
-    {
+    public function store(TaskRequest $request) {
         Task::store($request->all());
 
         return response()->json([
             'status' => true,
             'message' => 'Task Created Successfully.'
         ]);
-    } 
+    }
 
-    public function view(Task $task)
-    {
+    public function view(Task $task) {
         return response()->json([
             'task'  => $task,
-            'results'  => $task->results->count() > 0 ? number_format(  $task->results->sum('duration') / (1000 * $task->results->count()) , 2) : '0', 
+            'results'  => $task->results->count() > 0 ? number_format($task->results->sum('duration') / (1000 * $task->results->count()), 2) : '0',
         ]);
     }
 
-    public function edit(Task $task)
-    {
+    public function edit(Task $task) {
         return response()->json([
             'task'          => $task,
             'commands'      => Totem::getCommands(),
@@ -77,42 +71,39 @@ class TasksController extends Controller
             'frequencies'   => Totem::frequencies(),
         ]);
     }
- 
-    public function update(TaskRequest $request, Task $task)
-    {
+
+    public function update(TaskRequest $request, Task $task) {
         $task = Task::update($request->all(), $task);
 
         return response()->json([
             'status' => true,
             'message' => 'Task Updated Successfully.'
-        ]); 
+        ]);
     }
- 
-    public function destroy($task, Request $request)
-    {
-        if($task){
+
+    public function destroy($task, Request $request) {
+        if ($task) {
             $task->delete();
             return response()->json([
                 'status' => true,
                 'message' => 'Task Deleted Successfully.'
-            ]);    
-        }else{
+            ]);
+        } else {
             return response()->json([
                 'status' => false,
                 'message' => 'Task Not Founf.'
             ]);
         }
-    } 
- 
-    public function status($task, Request $request)
-    {
-        if($task){
-            if($request->active == 1){
+    }
+
+    public function status($task, Request $request) {
+        if ($task) {
+            if ($request->active == 1) {
                 DB::table('crontasks')->where('id', $task->id)->update([
                     'is_active' => 0
                 ]);
                 $msg = 'Task Deactivated Successfully.';
-            }else{
+            } else {
                 $x = DB::table('crontasks')->where('id', $task->id)->update([
                     'is_active' => 1
                 ]);
@@ -121,17 +112,16 @@ class TasksController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => $msg
-            ]);    
-        }else{
+            ]);
+        } else {
             return response()->json([
                 'status' => false,
                 'message' => 'Task Not Found.'
             ]);
         }
-    } 
- 
-    public function execute(Task $task)
-    {
+    }
+
+    public function execute(Task $task) {
         File::put(storage_path('tasks.json'), Task::all()->toJson());
 
         return response()
@@ -139,24 +129,19 @@ class TasksController extends Controller
             ->deleteFileAfterSend(true);
     }
 
-    public function developmentTask(Request $request, $task) 
-    {
-        $findTasks = \App\DeveloperTask::where("subject","like","%".strtoupper($task->command)."%")->latest()->get();
+    public function developmentTask(Request $request, $task) {
+        $findTasks = \App\DeveloperTask::where("subject", "like", "%" . strtoupper($task->command) . "%")->latest()->get();
 
-        return view("totem.tasks.partials.development-task-list",compact('findTasks'));
+        return view("totem.tasks.partials.development-task-list", compact('findTasks'));
     }
 
-    public function totemCommandError(Request $request, $task) 
-    {
-        $tortem = CronJob::where("id","=", $task->id)->first();
+    public function totemCommandError(Request $request, $task) {
+        $tortem = CronJob::where("id", "=", $task->id)->first();
         $cronError = CronJobErroLog::where('signature', '=', $tortem->signature)->get();
         return response()->json([
             'data'  => $cronError,
-            'message'  => "Listed successfully!!!" 
+            'message'  => "Listed successfully!!!"
         ]);
         return $cronError;
     }
-
-
-
 }
