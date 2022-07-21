@@ -54,7 +54,7 @@
                         onclick="checkAsset({{ $category->id }}, {{ $category->site_development_id }})"
                         style="background-color: transparent;border: 0; margin-top:0px;" class=""
                         title="Set this category in site assets for this website"><i
-                            class="fa fa-info-podcast"></i></button></div>
+                            class="fa fa-user-circle-o"></i></button></div>
                 <div style="display: flex;float: right"> <button onclick="editCategory({{ $category->id }})"
                         style="background-color: transparent;border: 0;margin-top:0px;" class="pl-0"><i
                         class="fa fa-edit"></i></button>
