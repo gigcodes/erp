@@ -118,7 +118,7 @@
             <td class="pt-0 pr-2">
                 <div class=" mb-1 p-0 d-flex pt-2 mt-1">
                     <input style="margin-top: 0px;width:80% !important;" type="text"
-                        class="form-control quick-message-field" name="message" placeholder="Message" value=""
+                        class="form-control " name="message" placeholder="Message" value=""
                         id="remark_{{ $key }}" data-catId="{{ $category->id }}"
                         data-siteId="@if ($site) {{ $site->id }} @endif"
                         data-websiteId="{{ isset($website) ? $website->id : $category->website_id }}">

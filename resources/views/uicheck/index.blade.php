@@ -394,7 +394,7 @@ $(document).on('click', '.send-message', function() {
                 }
             }).done(function(response) {
                 thiss.closest('tr').find('.quick-message-field').val('');
-
+				toastr["success"]("Message successfully send!", "Message")
 
                 // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
                 //   .done(function( data ) {

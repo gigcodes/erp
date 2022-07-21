@@ -1161,6 +1161,7 @@
 
 
             $(document).on("click", ".btn-remark-field", function() {
+                
                 var id = $("#remark-field").data("id");
                 var cat_id = $("#remark_cat_id").val();
                 var website_id = $("#remark_website_id").val();
@@ -1204,6 +1205,7 @@
         });
 
         function saveRemarks(rowId) {
+            debugger;
             var siteId = $("#remark_" + rowId).data("siteid");
             var cat_id = $("#remark_" + rowId).data("catid");
             var website_id = $("#remark_" + rowId).data("websiteid");
@@ -1226,7 +1228,7 @@
                 }
             }).done(function(response) {
                 $("#loading-image").hide();
-                $("#remark-field").val("");
+                $("#remark_" + rowId).val("");
                 toastr["success"]("Remarks fetched successfully");
                 var html = "";
                 $.each(response.data, function(k, v) {
@@ -2247,7 +2249,7 @@
                     }).done(function(response) {
                         thiss.closest('tr').find('.quick-message-field').val('');
 
-
+                        toastr["success"]("Message successfully send!", "Message")
                         // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
                         //   .done(function( data ) {
                         //
