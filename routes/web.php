@@ -3828,7 +3828,7 @@ Route::get('magento/command/search', 'MagentoCommandController@search')->name("m
 Route::post('magento/command/add', 'MagentoCommandController@store')->name("magento.command.add");
 Route::post('magento/command/run', 'MagentoCommandController@runCommand')->name("magento.command.run");
 Route::post('magento/command/edit', 'MagentoCommandController@edit')->name("magento.command.edit");
-Route::post('magento/command/history', 'MagentoCommandController@commandHistoryLog')->name("magento.command.edit");
+Route::post('magento/command/history', 'MagentoCommandController@commandHistoryLog')->name("magento.command.history");
 Route::delete('magento/command/delete', 'MagentoCommandController@destroy')->name("magento.command.delete");
 
 
