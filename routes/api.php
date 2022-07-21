@@ -255,3 +255,5 @@ Route::post('social/webhook', 'SocialWebhookController@webhook');
 
 //Sync Transaction with order
 Route::post('order/sync-transaction', 'OrderController@syncTransaction');
+
+Route::post('updateLog', 'UpdateLogController@store');
