@@ -211,7 +211,7 @@
       <div id="add-mail-content">
           <div class="modal-content">
             <div class="modal-header">
-              <h3 class="modal-title">Postman Response History</h3>
+              <h3 class="modal-title">Command Response History</h3>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -476,7 +476,7 @@
               }      
             });
             $('#addPostman').modal('show');
-            toastr['success']('Postman added successfully!!!', 'success'); 
+            toastr['success']('Command Listed successfully!!!', 'success'); 
             
           } else {
             toastr['error'](response.message, 'error'); 
@@ -511,7 +511,7 @@
             });
             $(".tbodayPostmanHistory").html(t);
             $('#postmanHistory').modal('show');
-            toastr['success']('Postman added successfully!!!', 'success'); 
+            toastr['success']('Command added successfully!!!', 'success'); 
             
           } else {
             toastr['error'](response.message, 'error'); 
