@@ -36,36 +36,55 @@ class UicheckController extends Controller
      */
     public function index($id = null, Request $request)
     {
-        $data = array();
-        $data['all_store_websites'] = StoreWebsite::all();
-        $data['categories'] = SiteDevelopmentCategory::paginate(20);//all();
-        $data['search_website'] = isset($request->store_webs)? $request->store_webs : '';
-        $data['search_category'] = isset($request->categories)? $request->categories : '';
-        $data['site_development_status_id'] = isset($request->site_development_status_id)? $request->site_development_status_id : [];
-        $data['allStatus'] = SiteDevelopmentStatus::pluck("name", "id")->toArray();
-        $store_websites = StoreWebsite::select('store_websites.*')->join('site_developments','store_websites.id','=','site_developments.website_id');
-        if($data['search_website'] != ''){
-            $store_websites =  $store_websites->where('store_websites.id', $data['search_website']);
-        }
-        $data['store_websites'] =  $store_websites->where('is_ui', 1)->groupBy('store_websites.id')->get();
-        //dd($data['store_websites']);
-        $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.id AS site_id','site_developments.website_id', "uichecks.id AS uicheck_id")
-            ->join('site_developments','site_development_categories.id','=','site_developments.site_development_category_id')
-            ->leftjoin('uichecks','uichecks.site_development_category_id','=','site_development_categories.id')
-            ->where('site_developments.is_ui', 1);
-            //->where('site_development_categories.id','site_developments.site_development_category_id');
-
-        if($data['search_website'] != ''){
-            $site_development_categories = $site_development_categories->where('uichecks.website_id', $data['store_websites'][0]->id);
-        }
-        if($data['search_category'] != ''){
-            $site_development_categories = $site_development_categories->where('site_development_categories.id',  $data['search_category']);
-        }
         
-        $data['site_development_categories'] = $site_development_categories->groupBy('site_development_categories.id')->get();
-        $data['allUsers'] = User::select('id', 'name')->get();
-        $data['log_user_id'] = \Auth::user()->id ?? '';
-        return view('uicheck.index', $data );
+        //dd($data['store_websites']);
+        if ($request->ajax()) {
+            $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.id AS site_id','site_developments.website_id', "uichecks.id AS uicheck_id","uichecks.issue","uichecks.website_id AS websiteid")
+            ->join('site_developments','site_development_categories.id','=','site_developments.site_development_category_id')
+            ->leftjoin('uichecks','uichecks.site_development_category_id','=','site_development_categories.id');
+            // ->where('site_developments.is_ui', 1);
+       
+            //->where('site_development_categories.id','site_developments.site_development_category_id');
+            // if($data['search_website'] != ''){
+            //     $site_development_categories = $site_development_categories->where('uichecks.website_id', $data['store_websites'][0]->id);
+            // }
+            // if($data['search_category'] != ''){
+            //     $site_development_categories = $site_development_categories->where('site_development_categories.id',  $data['search_category']);
+            // }
+            $site_development_categories->groupBy('site_development_categories.id');
+            return datatables()->eloquent($site_development_categories)->toJson();
+        }else{
+            $data = array();
+            $data['all_store_websites'] = StoreWebsite::all();
+            $data['categories'] = SiteDevelopmentCategory::paginate(20);//all();
+            $data['search_website'] = isset($request->store_webs)? $request->store_webs : '';
+            $data['search_category'] = isset($request->categories)? $request->categories : '';
+            $data['site_development_status_id'] = isset($request->site_development_status_id)? $request->site_development_status_id : [];
+            $data['allStatus'] = SiteDevelopmentStatus::pluck("name", "id")->toArray();
+            $store_websites = StoreWebsite::select('store_websites.*')->join('site_developments','store_websites.id','=','site_developments.website_id');
+            if($data['search_website'] != ''){
+                $store_websites =  $store_websites->where('store_websites.id', $data['search_website']);
+            }
+            $data['store_websites'] =  $store_websites->where('is_ui', 1)->groupBy('store_websites.id')->get();
+            // $data['allUsers'] = User::select('id', 'name')->get();
+            $data['allUsers'] = User::join('role_user', 'role_user.user_id', 'users.id')->join('roles', 'roles.id', 'role_user.role_id')
+                ->where('roles.name', 'Developer')->select('users.name', 'users.id')->get();
+            $data['log_user_id'] = \Auth::user()->id ?? '';
+            $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.id AS site_id','site_developments.website_id', "uichecks.id AS uicheck_id")
+            ->join('site_developments','site_development_categories.id','=','site_developments.site_development_category_id')
+            ->leftjoin('uichecks','uichecks.site_development_category_id','=','site_development_categories.id');
+            // ->where('site_developments.is_ui', 1);
+       
+            //->where('site_development_categories.id','site_developments.site_development_category_id');
+            if($data['search_website'] != ''){
+                $site_development_categories = $site_development_categories->where('uichecks.website_id', $data['store_websites'][0]->id);
+            }
+            if($data['search_category'] != ''){
+                $site_development_categories = $site_development_categories->where('site_development_categories.id',  $data['search_category']);
+            }
+            $data['site_development_categories'] = $site_development_categories->groupBy('site_development_categories.id');
+            return view('uicheck.index', $data );
+        }            
     }
 
     /**

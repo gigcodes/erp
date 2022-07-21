@@ -6,6 +6,7 @@
 @section('styles')
 <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 <style type="text/css">
 	.preview-category input.form-control {
 		width: auto;
@@ -120,27 +121,28 @@
 <br />
 <div class="row mt-2">
 	<div class="col-md-12 margin-tb infinite-scroll">
-		<div class="row">
-			<div class="table-responsive">
-			<table class="table table-bordered" id="documents-table">
-				<thead>
-					<tr>
-						<th><input type="checkbox" id="checkAll" title="click here to select all" /></th>
-						<th width="10%">Categories</th>
-                        <th>Website</th>
-                        <th>Issue</th>
-                        <th>Communication</th>
-                        <th>Developer Status</th>
-                        <th>Admin Status</th>
-					</tr>
-				</thead>
-				<tbody class="infinite-scroll-pending-inner">
-					@include("uicheck.data")
-				</tbody>
-			</table>
-			</div>
-		</div>
+		<table class="table table-bordered " id="uicheck_table">
+			<thead>
+				<tr>
+					<th><input type="checkbox" id="checkAll" title="click here to select all" /></th>
+					<th width="10%">Categories</th>
+					<th>Website</th>
+					{{-- @if (Auth::user()->hasRole('Admin')) --}}
+						<th>Assign To</th>
+					{{-- @endif --}}
+					<th>Issue</th>
+					<th>Communication</th>
+					<th>Developer Status</th>
+					<th>Admin Status</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
 	</div>
+</div>
+<div class="custom-website-dropdown" style="display:none;">
+	{{ json_encode($all_store_websites) }}
 </div>
 <div id="dev_status_model" class="modal fade" role="dialog">
 	<div class="modal-dialog modal-lg">
@@ -223,7 +225,11 @@
 		</div>
 	</div>
 </div>
-
+@if (Auth::user()->hasRole('Admin'))
+<input type="hidden" id="user-type" value="Admin">
+@else
+<input type="hidden" id="user-type" value="Not Admin">
+@endif
 @endsection
 
 
@@ -231,8 +237,166 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
-
+// START Print Table Using datatable
+	var oTable;
+	
+	$(document).ready(function() {
+		if($("user-type").val()=="Admin"){
+		var columns = [{
+					data: null,
+					width : "5%",
+					render: function (data, type, full, meta) {
+						return '<input type="checkbox" id="checkAll" title="click here to select all" />';
+					}
+				},
+				{
+					data: 'title',
+					render: function (data, type, full, meta) {
+						return data;
+					}
+				},
+				{
+					data: null,
+					render: function (data, type, full, meta) {
+						return data;
+					}
+				},
+				{
+					data: null,
+					render: function (data, type, full, meta) {
+						return data;
+					}
+				},
+				{
+					data: 'issue',
+					render: function (data, type, row, meta) {
+						var html = '<div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1"><input style="margin-top: 0px;width:87% !important;" type="text" class="form-control " id="issue-'+row.uicheck_id+'" name="issue-'+row.uicheck_id+'" placeholder="Issues" value="'+row.issue+'"><div style="margin-top: 0px;" class="d-flex p-0"><button class="btn pr-0 btn-xs btn-image issue" data-category="'+row.id+'" data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'"><img src="/images/filled-sent.png" /></button></div><button type="button" class="btn btn-xs show-issue-history" title="Show Issue History" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button></div>';
+						return html;
+					}
+				},
+				{
+					data: null,
+					render: function (data, type, row, meta) {
+						var html = '<button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="uicheck" data-id="'+row.uicheck_id+'" title="Load messages" data-category="'+row.id+'" data-site_development_id="'+row.site_id+'" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>';						
+						return html;						
+					}
+				},
+				{
+					data: null,
+					render: function (data, type, row, meta) {
+						var html = '<button type="button" class="btn btn-xs show-dev-status-history" title="Show Developer Status History" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button>';						
+						return html;						
+					}
+				},
+				{
+					data: null,
+					render: function (data, type, row, meta) {
+						var html = '<button type="button" class="btn btn-xs show-admin-status-history" title="Show" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button>';						
+						return html;						
+					}
+				}
+			];
+	}else{
+		var columns= [{
+					data: null,
+					width : "5%",
+					render: function (data, type, full, meta) {
+						return '<input type="checkbox" id="checkAll" title="click here to select all" />';
+					}
+				},
+				{
+					data: 'title',
+					render: function (data, type, full, meta) {
+						return data;
+					}
+				},
+				{
+					data: null,
+					render: function (data, type, row, meta) {
+						var text = $(".custom-website-dropdown").text();
+						var html = '<select name="website_id"  class="save-item-select globalSelect2 website_id" data-category="'+row.id+'" data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'">';
+							html += '<option value="">--Select--</option>';
+							console.log(text);
+							$(text).each(function (index, item) {
+								var selected = "";
+								if(row.websiteid == item.id){
+									selected = "selected='selected'";
+								}
+								html += '<option value="'+item.id+'" '+selected+' >'+item.website+'</option>';
+							});
+							
+						html += '</selected>';
+                		return html;
+					}
+				},
+				{
+					data: null,
+					render: function (data, type, full, meta) {
+						return data;
+					}
+				},
+				{
+					data: 'issue',
+					render: function (data, type, row, meta) {
+						var html = '<div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1"><input style="margin-top: 0px;width:87% !important;" type="text" class="form-control " id="issue-'+row.uicheck_id+'" name="issue-'+row.uicheck_id+'" placeholder="Issues" value="'+row.issue+'"><div style="margin-top: 0px;" class="d-flex p-0"><button class="btn pr-0 btn-xs btn-image issue" data-category="'+row.id+'" data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'"><img src="/images/filled-sent.png" /></button></div><button type="button" class="btn btn-xs show-issue-history" title="Show Issue History" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button></div>';
+						return html;
+					}
+				},
+				{
+					data: null,
+					render: function (data, type, row, meta) {
+						var html = '<button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="uicheck" data-id="'+row.uicheck_id+'" title="Load messages" data-category="'+row.id+'" data-site_development_id="'+row.site_id+'" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>';						
+						return html;						
+					}
+				},
+				{
+					data: null,
+					render: function (data, type, row, meta) {
+						var html = '<button type="button" class="btn btn-xs show-dev-status-history" title="Show Developer Status History" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button>';						
+						return html;						
+					}
+				},
+				{
+					data: null,
+					render: function (data, type, row, meta) {
+						var html = '<button type="button" class="btn btn-xs show-admin-status-history" title="Show" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button>';						
+						return html;						
+					}
+				}
+			];
+	}
+		oTable = $('#uicheck_table').DataTable({
+			lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+			responsive: true,
+			searchDelay: 500,
+			processing: true,
+			serverSide: true,
+			sScrollX:true,
+			searching: false,
+			order: [
+				[0, 'desc']
+			],
+			targets: 'no-sort',
+			bSort: false,
+			ajax: {
+				"url": "{{ route('uicheck') }}",
+				data: function(d) {
+					// d.category_name = $('input[name=category_name]').val();
+					// d.sub_category_name = $('input[name=sub_category_name]').val();
+					// d.subjects = $('input[name=subjects]').val();
+				},
+			},
+			columnDefs: [{
+				targets: [],
+				orderable: false,
+				searchable: false
+			}],
+			columns: columns
+		});
+	});
+	// END Print Table Using datatable
 $(document).on("change", ".website_id", function(e) {
 	e.preventDefault();
 	var id = $(this).data("id");
