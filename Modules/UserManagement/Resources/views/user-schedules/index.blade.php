@@ -5,7 +5,7 @@
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;background-color:rgba(255,255,255,0.6);"></div>
 <div class="row">
     <div class="col-md-12 p-0">
-        <h2 class="page-heading">{{ $title }} <span class="count-text"></span></h2>
+        <h2 class="page-heading">{{ $title }} <span id="listUserScheduleCount" class="count-text"></span></h2>
     </div>
 </div>
 <div class="container-fluid">
@@ -223,10 +223,10 @@
                 }
             },
             initComplete: function(settings, json) {
-                // applyFeather();
+                jQuery('#listUserScheduleCount').html('(' + dtblListUserSchedule.data().count() + ')');
             },
             drawCallback: function(settings) {
-                // applyFeather();
+                jQuery('#listUserScheduleCount').html('(' + dtblListUserSchedule.data().count() + ')');
             },
             order: [],
         });
