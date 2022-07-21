@@ -49,11 +49,18 @@ class MagentoRunCommand extends Command
             foreach($websites as $website){
                 if($magCom->command_name !='' && $website->server_ip !=''){
                     $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $magCom->command_name.' ' . $website->server_ip . ' ' . $magCom->type; 
+                    if($magCom->command_name == 'bin/magento cache:f' || $magCom->command_name == "'bin/magento cache:f'") {
+                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') .' --server '. $website->server_ip ." --type custom --command 'bin/magento cache:f'";
+                    }
                     $allOutput = array();
                     $allOutput[] = $cmd;
                     $result = exec($cmd, $allOutput);
                     if($result == '')
                         $result = "Not any response";
+                    elseif($result == 0)
+                        $result = "Command run success Response ".$result;
+                    elseif($result == 1)
+                        $result = "Command run Fail Response ".$result;
                     else
                         $result = is_array($result)?json_encode($result, true):$result;
                     MagentoCommandRunLog::create(
