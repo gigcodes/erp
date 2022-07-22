@@ -2272,8 +2272,6 @@ Route::group(['middleware' => ['auth']], function () {
     
     Route::post('postman/get/mul/request', 'PostmanRequestCreateController@getMulRequest');
     
-    Route::get("postman/update/query", "PostmanRequestCreateController@createLinkDataUpdate")->name("postman.update.query");
-    
 });
 /*
  * @date 1/13/2019

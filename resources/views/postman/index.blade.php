@@ -1201,7 +1201,7 @@
           }
         }).done(function(response) {
           if(response.code = '200') {
-            $('#body_json').append(`<option value='${response.data.id}'>
+            $('#body_json').append(`<option value='${response.data.request_data}'>
                                        ${response.data.version_json+' '+response.data.json_Name}
                                   </option>`);
             toastr['success']('Json Added successfully!!!', 'success'); 
