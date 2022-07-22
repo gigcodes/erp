@@ -143,7 +143,7 @@
                             <div class="row">
                                 <div class="col-4">
                                     <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-save" data-sop="sop_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" ><img src="/images/filled-sent.png"/></button>
-                                    <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal" title="Add Sop Name nad category" data-target="#exampleModal"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                    <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal" title="Add Sop Name and category" data-target="#exampleModal"><i class="fa fa-plus" aria-hidden="true"></i></button>
                                 </div>
                                 <div class="sop-text-{{$cat->id}}" style="float: left;">
                                     <div class="expand-row-msg" data-name="name" data-id="{{$cat->id}}"  style="float: left;">
@@ -197,7 +197,7 @@
                     <td>
                         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-feedback_cat_id="{{$cat->id}}" data-object='user-feedback' data-id="{{$cat->user_id}}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
                         <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal"  data-feedback_cat_id="{{$cat->id}}" data-id="{{$cat->user_id}}" title="Add Ticket" data-target="#hrTicketModal" id="hrTicket"><i class="fa fa-plus" aria-hidden="true"></i></button>
-                        <button style="padding-left: 0;padding-right:0px;" type="button" class="btn pt-1 btn-image d-inline tasks-list"  title="Show task history" data-id="{{$cat->id}}" data-user_id="{{$cat->user_id}}"><i class="fa fa-info-circle"></i></button>
+                        <button style="padding-left: 0;padding-right:0px;" type="button" class="btn pt-1 btn-image d-inline count-dev-customer-tasks"  title="Show task history" data-id="{{$cat->id}}" data-user_id="{{$cat->user_id}}"><i class="fa fa-info-circle"></i></button>
                     </td>
                 </tr>
             @endforeach
@@ -250,14 +250,16 @@ aria-hidden="true">
 <div class="modal fade" id="hrTicketModal" tabindex="-1" role="dialog" aria-labelledby="hrTicketModalLabel">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form action="<?php echo route('users.feedback.task.create'); ?>" method="post">
+            {{-- users.feedback.task.create --}}
+            <form action="<?php echo route('task.create.task.shortcut'); ?>" method="post">
                 <?php echo csrf_field(); ?>
                 <div class="modal-header">
                     <h4 class="modal-title">Create Task</h4>
                 </div>
                 <div class="modal-body">
-
-                    <input class="form-control" type="hidden" name="feedback_cat_id" id="users_feedback_cat_id" />
+                    <input class="form-control" value="{{\Auth::user()->id}}" type="hidden" name="user_id">
+                    <input class="form-control" value="4" type="hidden" name="category_id">
+                    <input class="form-control" type="hidden" name="user_feedback_cat_id" id="user_feedback_cat_id" value="">
                     <div class="form-group">
                         <label for="">Subject</label>
                         <input class="form-control" type="text" id="hidden-task-subject" name="task_subject" />
@@ -336,6 +338,32 @@ aria-hidden="true">
     </div>
 </div>
 
+<div id="dev_task_statistics" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Dev Task statistics</h2>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body" id="dev_task_statistics_content">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <th>Task type</th>
+                                <th>Task Id</th>
+                                <th>Assigned to</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="chat-list-history" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -511,7 +539,7 @@ aria-hidden="true">
 
     $(document).on("click", "#hrTicket", function() {
         var feedback_cat_id = $(this).data("feedback_cat_id");
-        $("#users_feedback_cat_id").val(feedback_cat_id);
+        $("#user_feedback_cat_id").val(feedback_cat_id);
     });
 
     $(document).on("click", ".tasks-list", function() {
@@ -589,6 +617,52 @@ aria-hidden="true">
         });
 
 
+    });
+
+    $(document).on("click", ".count-dev-customer-tasks", function() {
+	var $this = $(this);
+	var user_feedback = $(this).data("id");
+	$.ajax({
+		type: 'get',
+		url: '/hr-ticket/countdevtask/' + user_feedback,
+		dataType: "json",
+		beforeSend: function() {
+			$("#loading-image").show();
+		},
+		success: function(data) {
+			$("#dev_task_statistics").modal("show");
+			var table = `<div class="table-responsive">
+				<table class="table table-bordered table-striped">
+					<tr>
+						<th width="4%">Tsk Typ</th>
+						<th width="4%">Tsk Id</th>
+						<th width="7%">Asg to</th>
+						<th width="12%">Desc</th>
+						<th width="12%">Sts</th>
+						<th width="33%">Communicate</th>
+						<th width="10%">Action</th>
+					</tr>`;
+                for (var i = 0; i < data.taskStatistics.length; i++) {
+                    var str = data.taskStatistics[i].subject;
+                    var res = str.substr(0, 100);
+                    var status = data.taskStatistics[i].status;
+                    if(typeof status=='undefined' || typeof status=='' || typeof status=='0' ){ status = 'In progress'};
+                    table = table + '<tr><td>' + data.taskStatistics[i].task_type + '</td><td>#' + data.taskStatistics[i].id + '</td><td class="expand-row-msg" data-name="asgTo" data-id="'+data.taskStatistics[i].id+'"><span class="show-short-asgTo-'+data.taskStatistics[i].id+'">'+data.taskStatistics[i].assigned_to_name.replace(/(.{6})..+/, "$1..")+'</span><span style="word-break:break-all;" class="show-full-asgTo-'+data.taskStatistics[i].id+' hidden">'+data.taskStatistics[i].assigned_to_name+'</span></td><td class="expand-row-msg" data-name="res" data-id="'+data.taskStatistics[i].id+'"><span class="show-short-res-'+data.taskStatistics[i].id+'">'+res.replace(/(.{7})..+/, "$1..")+'</span><span style="word-break:break-all;" class="show-full-res-'+data.taskStatistics[i].id+' hidden">'+res+'</span></td><td>' + status + '</td><td><div class="col-md-10 pl-0 pr-1"><textarea rows="1" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message"></textarea></div><div class="p-0"><button class="btn btn-sm btn-xs send-message" title="Send message" data-taskid="'+ data.taskStatistics[i].id +'"><i class="fa fa-paper-plane"></i></button></div></td><td><button type="button" class="btn btn-xs load-communication-modal load-body-class" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" title="Load messages" data-dismiss="modal"><i class="fa fa-comments"></i></button>';
+                    table = table + '<a href="javascript:void(0);" data-task-type="'+data.taskStatistics[i].task_type +'" data-id="' + data.taskStatistics[i].id + '" class="delete-dev-task-btn btn btn-xs"><i class="fa fa-trash"></i></a>';
+                    table = table + '<button type="button" class="btn btn-xs  preview-img pd-5" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" data-dismiss="modal"><i class="fa fa-list"></i></button></td>';
+                    table = table + '</tr>';
+                }
+                table = table + '</table></div>';
+                $("#loading-image").hide();
+                $(".modal").css("overflow-x", "hidden");
+                $(".modal").css("overflow-y", "auto");
+                $("#dev_task_statistics_content").html(table);
+            },
+            error: function(error) {
+                console.log(error);
+                $("#loading-image").hide();
+            }
+        });
     });
 
     $(document).on("click", "#btn-save",function(e){

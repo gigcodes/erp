@@ -9,6 +9,8 @@ use App\User;
 use App\UserFeedbackCategorySopHistory;
 use App\UserFeedbackCategorySopHistoryComment;
 use App\Sop;
+use App\DeveloperTask;
+use App\Task;
 
 
 class UserManagementController extends Controller
@@ -42,6 +44,24 @@ class UserManagementController extends Controller
         //dd($sops);
         $category = $category->paginate(25);
         return view('user-management.get-user-feedback-table',compact('category', 'status','user_id', 'users', 'request', 'sops'));
+    }
+
+    public function taskCount($user_feedback_cat_id)
+    {
+        $taskStatistics['Devtask'] = DeveloperTask::where('user_feedback_cat_id', $user_feedback_cat_id)->where('status', '!=', 'Done')->select();
+
+        $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('user_feedback_cat_id', $user_feedback_cat_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+        $query = $query->addSelect(\DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+        $taskStatistics = $query->get();
+        //print_r($taskStatistics);
+        $othertask = Task::where('user_feedback_cat_id', $user_feedback_cat_id)->whereNull('is_completed')->select();
+        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('user_feedback_cat_id', $user_feedback_cat_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+        $query1 = $query1->addSelect(\DB::raw("'Othertask' as task_type,'task' as message_type"));
+        $othertaskStatistics = $query1->get();
+        $merged = $othertaskStatistics->merge($taskStatistics);
+
+        return response()->json(["code" => 200, "taskStatistics" => $merged]);
+
     }
 
     public function sopHistory(Request $request)

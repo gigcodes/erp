@@ -2092,10 +2092,12 @@ class TaskModuleController extends Controller
             $data["subject"]         = $request->get("task_subject");
             $data["task"]             = $request->get("task_detail");
             $data["task_type_id"]    = 1;
+            $data["user_feedback_cat_id"]    = $request->get("user_feedback_cat_id");
             $data["site_developement_id"]    = $request->get("site_id");
             $data["cost"]    = $request->get("cost", 0);
             $data["status"]    = 'In Progress';
             $data["created_by"]    = Auth::id();
+            
             //echo $data["site_developement_id"]; die;
 
             if ($taskType == 5 || $taskType == 6) {
@@ -2129,6 +2131,7 @@ class TaskModuleController extends Controller
             $requestData->setMethod('POST');
             $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+            
         } else {
             if ($request->task_type == 'quick_task') {
                 $data['is_statutory'] = 0;
@@ -2198,12 +2201,14 @@ class TaskModuleController extends Controller
                 $data['task_details'] = $request->get("task_detail");
                 $data['task_subject'] = $request->get("task_subject");
                 $data["customer_id"]    = $request->get("customer_id");
+                $data["user_feedback_cat_id"] = $request->get('user_feedback_cat_id');
                 $data["site_developement_id"]    = $request->site_id;
                 $data["cost"]    = $request->get("cost");
                 if ($request->category_id != null) {
                     $data['category']       = $request->category_id;
                 }
                 $task = Task::create($data);
+               
                 $created = 1;
                 $assignedUserId = $task->assign_to;
                 if ($task->is_statutory != 1) {
