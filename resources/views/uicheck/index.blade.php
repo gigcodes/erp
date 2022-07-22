@@ -315,7 +315,7 @@
 								}
 								html += '<option value="'+obj.id+'" '+selected+' >'+obj.website+'</option>';
 							});
-						html += '</selected>';
+						html += '</select>';
                 		return html;
 					}
 				},
@@ -330,7 +330,7 @@
 							$.each(text, function (i, obj) {
 								html += '<option value="'+obj.id+'">'+obj.name+'</option>';
 							});						
-						html += '</selected>';
+						html += '</select>';
                 		return html;						
 					}
 				},
@@ -371,7 +371,7 @@
 								}
 								html += '<option value="'+obj.id+'" '+selected+' >'+obj.name+'</option>';
 							});
-						html += '</selected>';
+						html += '</select>';
                 		return html;					
 					}
 				},
@@ -434,7 +434,7 @@
 								}
 								html += '<option value="'+obj.id+'" '+selected+' >'+obj.name+'</option>';
 							});
-						html += '</selected>';
+						html += '</select>';
                 		return html;					
 					}
 				},
@@ -453,7 +453,7 @@
 			searchDelay: 500,
 			processing: true,
 			serverSide: true,
-			sScrollX:true,
+			// sScrollX:true,
 			searching: false,
 			order: [
 				[0, 'desc']
