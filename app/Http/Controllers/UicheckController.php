@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Uicheck;
+use App\UicheckType;
 /*use Illuminate\Http\Request;
 use App\SiteDevelopment;
 use App\SiteDevelopmentArtowrkHistory;
@@ -14,6 +15,8 @@ use DB;
 use Auth;
 use DB;
 use App\User;
+use App\UicheckUserAccess;
+use App\UicheckAttachement;
 use App\StoreWebsite;
 use App\UiAdminStatusHistoryLog;
 use App\UiDeveloperStatusHistoryLog;
@@ -34,15 +37,17 @@ class UicheckController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($id = null, Request $request)
+    public function index(Request $request)
     {
         
         //dd($data['store_websites']);
         if ($request->ajax()) {
-            $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.id AS site_id','site_developments.website_id', "uichecks.id AS uicheck_id","uichecks.issue","uichecks.website_id AS websiteid")
+            $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.id AS site_id','site_developments.website_id', "uichecks.id AS uicheck_id","uichecks.issue","uichecks.website_id AS websiteid","uichecks.uicheck_type_id")
             ->join('site_developments','site_development_categories.id','=','site_developments.site_development_category_id')
-            ->leftjoin('uichecks','uichecks.site_development_category_id','=','site_development_categories.id');
-            // ->where('site_developments.is_ui', 1);
+            ->leftjoin('uichecks','uichecks.site_development_category_id','=','site_development_categories.id')
+            ->leftjoin('uicheck_user_accesses','uicheck_user_accesses.uicheck_id','=','uichecks.id')
+            ->where('uicheck_user_accesses.user_id',\Auth::user()->id)
+            ->where('site_developments.is_ui', 1);
        
             //->where('site_development_categories.id','site_developments.site_development_category_id');
             // if($data['search_website'] != ''){
@@ -56,6 +61,7 @@ class UicheckController extends Controller
         }else{
             $data = array();
             $data['all_store_websites'] = StoreWebsite::all();
+            $data['allTypes'] = UicheckType::all();
             $data['categories'] = SiteDevelopmentCategory::paginate(20);//all();
             $data['search_website'] = isset($request->store_webs)? $request->store_webs : '';
             $data['search_category'] = isset($request->categories)? $request->categories : '';
@@ -85,6 +91,80 @@ class UicheckController extends Controller
             $data['site_development_categories'] = $site_development_categories->groupBy('site_development_categories.id');
             return view('uicheck.index', $data );
         }            
+    }
+
+    public function access(Request $request){
+        $array = array(
+            "user_id" => $request->id,
+            "uicheck_id" => $request->uicheck_id
+        );
+        UicheckUserAccess::create($array);
+        return response()->json(['code' => 200,'message' => 'Permission Given!!!']);
+    }
+
+    public function typeSave(Request $request){
+        $array = array(
+            "uicheck_type_id" => $request->type
+        );
+        Uicheck::where("id",$request->uicheck_id)->update($array);
+        return response()->json(['code' => 200,'message' => 'Type Updated!!!']);
+    }
+
+    public function upload_document(Request $request){
+        $uicheck_id = $request->uicheck_id;
+        $subject = $request->subject;
+        $description = $request->description;
+        
+        if ($uicheck_id > 0 && !empty($subject)) {    
+            if ($request->hasfile('files')) {
+                $path = public_path('uicheckdocs');
+                if (!file_exists($path)) {
+                    mkdir($path, 0777, true);
+                }
+                $uicheckDocName = '';
+                if($request->file('files')) {
+                    $file = $request->file('files')[0];
+                    $uicheckDocName = uniqid() . '_' . trim($file->getClientOriginalName());
+                    $file->move($path, $uicheckDocName);
+                }
+                $docArray = array(
+                    "user_id" => \Auth::id(),
+                    "filename" => $uicheckDocName,
+                    "uicheck_id" => $uicheck_id,
+                    "subject" => $subject,
+                    "description" => $description
+                );        
+                UicheckAttachement::create($docArray);   
+                return response()->json(["code" => 200, "success" => "Done!"]);                
+            }else{
+                return response()->json(["code" => 500, "error" => "Oops, Please fillup required fields"]);
+            }
+        } else {
+            return response()->json(["code" => 500, "error" => "Oops, Please fillup required fields"]);
+        }
+    }
+
+    public function getDocument(Request $request)
+    {
+        $id = $request->get("id", 0);
+
+        if ($id > 0) {
+            $devDocuments = UicheckAttachement::with("user","uicheck")->where("uicheck_id", $id)->latest()->get();
+            $html = view('uicheck.ajax.document-list', compact("devDocuments"))->render();
+            return response()->json(["code" => 200, "data" => $html]);
+        } else {
+            return response()->json(["code" => 500, "error" => "Oops, id is required field"]);
+        }
+    }
+
+    public function typeStore(Request $request)
+    {
+        // $request->validate($request, [
+        //     'name' => 'required|string'
+        // ]);
+        $data = $request->except('_token');
+        UicheckType::create($data);
+        return redirect()->back()->with('success', 'You have successfully created a status!');
     }
 
     /**

@@ -110,10 +110,42 @@
 						<button type="submit" class="btn btn-secondary">Search</button>
 						<a href="/uicheck" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
 					</div>
-				</form>
+				</form>				
+			</div>
+		</div>
+		<div class="row mb-4">
+			<div class="col-md-12">
+				<div class="pull-right mt-4">
+					@if (auth()->user()->isAdmin())
+						<a class="btn btn-secondary" data-toggle="modal" data-target="#newTypeModal">Create Type</a>
+					@endif
+				</div>
 			</div>
 		</div>
 	</div>
+</div>
+<div id="newTypeModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add new status</h3>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form style="padding:10px;" action="{{ route('uicheck.type.store') }}" method="POST">
+                @csrf
+                <div class="form-group">
+                    <input type="text" class="form-control" name="name" placeholder="Name" value="{{ old('name') }}" required>
+
+                    @if ($errors->has('name'))
+                        <div class="alert alert-danger">{{$errors->first('name')}}</div>
+                    @endif
+                </div>
+
+                <button type="submit" class="btn btn-secondary ml-3">Add Type</button>
+            </form>
+        </div>
+    </div>
 </div>
 @if (Session::has('message'))
 	{{ Session::get('message') }}
@@ -126,13 +158,14 @@
 				<tr>
 					<th><input type="checkbox" id="checkAll" title="click here to select all" /></th>
 					<th width="10%">Categories</th>
-					<th>Website</th>
-					{{-- @if (Auth::user()->hasRole('Admin')) --}}
+					@if (Auth::user()->hasRole('Admin'))
+						<th>Website</th>
 						<th>Assign To</th>
-					{{-- @endif --}}
+					@endif
 					<th>Issue</th>
 					<th>Communication</th>
 					<th>Developer Status</th>
+					<th>Type</th>
 					<th>Admin Status</th>
 				</tr>
 			</thead>
@@ -144,6 +177,13 @@
 <div class="custom-website-dropdown" style="display:none;">
 	{{ json_encode($all_store_websites) }}
 </div>
+<div class="custom-user-dropdown" style="display:none;">
+	{{ json_encode($allUsers) }}
+</div>
+<div class="custom-type-dropdown" style="display:none;">
+	{{ json_encode($allTypes) }}
+</div>
+
 <div id="dev_status_model" class="modal fade" role="dialog">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -198,6 +238,8 @@
 		</div>
 	</div>
 </div>
+@include('uicheck.upload-document-modal')
+@include("partials.plain-modal")
 <div id="issue_model" class="modal fade" role="dialog">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -244,66 +286,11 @@
 	
 	$(document).ready(function() {
 		if($("user-type").val()=="Admin"){
-		var columns = [{
+			var columns= [{
 					data: null,
 					width : "5%",
 					render: function (data, type, full, meta) {
-						return '<input type="checkbox" id="checkAll" title="click here to select all" />';
-					}
-				},
-				{
-					data: 'title',
-					render: function (data, type, full, meta) {
-						return data;
-					}
-				},
-				{
-					data: null,
-					render: function (data, type, full, meta) {
-						return data;
-					}
-				},
-				{
-					data: null,
-					render: function (data, type, full, meta) {
-						return data;
-					}
-				},
-				{
-					data: 'issue',
-					render: function (data, type, row, meta) {
-						var html = '<div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1"><input style="margin-top: 0px;width:87% !important;" type="text" class="form-control " id="issue-'+row.uicheck_id+'" name="issue-'+row.uicheck_id+'" placeholder="Issues" value="'+row.issue+'"><div style="margin-top: 0px;" class="d-flex p-0"><button class="btn pr-0 btn-xs btn-image issue" data-category="'+row.id+'" data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'"><img src="/images/filled-sent.png" /></button></div><button type="button" class="btn btn-xs show-issue-history" title="Show Issue History" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button></div>';
-						return html;
-					}
-				},
-				{
-					data: null,
-					render: function (data, type, row, meta) {
-						var html = '<button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="uicheck" data-id="'+row.uicheck_id+'" title="Load messages" data-category="'+row.id+'" data-site_development_id="'+row.site_id+'" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>';						
-						return html;						
-					}
-				},
-				{
-					data: null,
-					render: function (data, type, row, meta) {
-						var html = '<button type="button" class="btn btn-xs show-dev-status-history" title="Show Developer Status History" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button>';						
-						return html;						
-					}
-				},
-				{
-					data: null,
-					render: function (data, type, row, meta) {
-						var html = '<button type="button" class="btn btn-xs show-admin-status-history" title="Show" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button>';						
-						return html;						
-					}
-				}
-			];
-	}else{
-		var columns= [{
-					data: null,
-					width : "5%",
-					render: function (data, type, full, meta) {
-						return '<input type="checkbox" id="checkAll" title="click here to select all" />';
+						return '<input type="checkbox" id="checkAll" title="click here to select all" /><a href="javascript:;" data-id="'+full.uicheck_id+'" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a><a href="javascript:;" data-id="'+full.uicheck_id+'" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>';
 					}
 				},
 				{
@@ -315,18 +302,19 @@
 				{
 					data: null,
 					render: function (data, type, row, meta) {
+						$('.globalSelect2').select2();
 						var text = $(".custom-website-dropdown").text();
 						var html = '<select name="website_id"  class="save-item-select globalSelect2 website_id" data-category="'+row.id+'" data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'">';
 							html += '<option value="">--Select--</option>';
-							console.log(text);
-							$(text).each(function (index, item) {
+							
+							text = $.parseJSON(text);
+							$.each(text, function (i, obj) {
 								var selected = "";
-								if(row.websiteid == item.id){
+								if(row.websiteid == obj.id){
 									selected = "selected='selected'";
 								}
-								html += '<option value="'+item.id+'" '+selected+' >'+item.website+'</option>';
+								html += '<option value="'+obj.id+'" '+selected+' >'+obj.website+'</option>';
 							});
-							
 						html += '</selected>';
                 		return html;
 					}
@@ -334,6 +322,78 @@
 				{
 					data: null,
 					render: function (data, type, full, meta) {
+						$('.globalSelect2').select2();
+						var text = $(".custom-user-dropdown").text();
+						var html = '<select name="user_id" data-id="'+full.uicheck_id+'" class="save-item-select globalSelect2 user_id">';
+							html += '<option value="">--Select--</option>';
+							text = $.parseJSON(text);
+							$.each(text, function (i, obj) {
+								html += '<option value="'+obj.id+'">'+obj.name+'</option>';
+							});						
+						html += '</selected>';
+                		return html;						
+					}
+				},
+				{
+					data: 'issue',
+					render: function (data, type, row, meta) {
+						var html = '<div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1"><input style="margin-top: 0px;width:87% !important;" type="text" class="form-control " id="issue-'+row.uicheck_id+'" name="issue-'+row.uicheck_id+'" placeholder="Issues" value="'+row.issue+'"><div style="margin-top: 0px;" class="d-flex p-0"><button class="btn pr-0 btn-xs btn-image issue" data-category="'+row.id+'" data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'"><img src="/images/filled-sent.png" /></button></div><button type="button" class="btn btn-xs show-issue-history" title="Show Issue History" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button></div>';
+						return html;
+					}
+				},
+				{
+					data: null,
+					render: function (data, type, row, meta) {
+						var html = '<button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="uicheck" data-id="'+row.uicheck_id+'" title="Load messages" data-category="'+row.id+'" data-site_development_id="'+row.site_id+'" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>';						
+						return html;						
+					}
+				},
+				{
+					data: null,
+					render: function (data, type, row, meta) {
+						var html = '<button type="button" class="btn btn-xs show-dev-status-history" title="Show Developer Status History" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button>';						
+						return html;						
+					}
+				},
+				{
+					data: null,
+					render: function (data, type, row, meta) {
+						$('.globalSelect2').select2();
+						var text = $(".custom-type-dropdown").text();
+						var html = '<select name="type_id"  class="save-item-select globalSelect2 type_id" data-category="'+row.id+'" data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'">';
+							html += '<option value="">--Select--</option>';
+							
+							text = $.parseJSON(text);
+							$.each(text, function (i, obj) {
+								var selected = "";
+								if(row.uicheck_type_id == obj.id){
+									selected = "selected='selected'";
+								}
+								html += '<option value="'+obj.id+'" '+selected+' >'+obj.name+'</option>';
+							});
+						html += '</selected>';
+                		return html;					
+					}
+				},
+				{
+					data: null,
+					render: function (data, type, row, meta) {
+						var html = '<button type="button" class="btn btn-xs show-admin-status-history" title="Show" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button>';						
+						return html;						
+					}
+				}
+			];		
+		}else{
+			var columns= [{
+					data: null,
+					width : "5%",
+					render: function (data, type, full, meta) {
+						return '<input type="checkbox" id="checkAll" title="click here to select all" /><a href="javascript:;" data-id="'+full.uicheck_id+'" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a><a href="javascript:;" data-id="'+full.uicheck_id+'" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>';
+					}
+				},
+				{
+					data: 'title',
+					render: function (data, type, full, meta) {
 						return data;
 					}
 				},
@@ -361,12 +421,32 @@
 				{
 					data: null,
 					render: function (data, type, row, meta) {
+						$('.globalSelect2').select2();
+						var text = $(".custom-type-dropdown").text();
+						var html = '<select name="type_id"  class="save-item-select globalSelect2 type_id" data-category="'+row.id+'" data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'">';
+							html += '<option value="">--Select--</option>';
+							
+							text = $.parseJSON(text);
+							$.each(text, function (i, obj) {
+								var selected = "";
+								if(row.uicheck_type_id == obj.id){
+									selected = "selected='selected'";
+								}
+								html += '<option value="'+obj.id+'" '+selected+' >'+obj.name+'</option>';
+							});
+						html += '</selected>';
+                		return html;					
+					}
+				},
+				{
+					data: null,
+					render: function (data, type, row, meta) {
 						var html = '<button type="button" class="btn btn-xs show-admin-status-history" title="Show" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button>';						
 						return html;						
 					}
 				}
 			];
-	}
+		}
 		oTable = $('#uicheck_table').DataTable({
 			lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
 			responsive: true,
@@ -395,39 +475,154 @@
 			}],
 			columns: columns
 		});
+
+		$(document).on("change", ".user_id", function(e) {
+			e.preventDefault();
+			var uicheck_id = $(this).data("id");
+			var id = $(this).val();
+			
+			$.ajax({
+				url: "{{route('uicheck.user.access')}}",
+				type: 'POST',
+				data: {
+					id:id,
+					uicheck_id: uicheck_id,
+					"_token": "{{ csrf_token() }}",
+				},
+				beforeSend: function() {
+					$(this).text('Loading...');
+				},
+				success: function(response) {
+					if (response.code == 200) {
+						toastr['success'](response.message);
+						oTable.draw();
+						$('.globalSelect2').select2();
+					} else {
+						toastr['error'](response.message);
+					}
+				}
+			}).fail(function(response) {
+				toastr['error'](response.responseJSON.message);
+			});
+		});
+		
+		$(document).on("change", ".website_id", function(e) {
+			e.preventDefault();
+			var id = $(this).data("id");
+			var website_id = $(this).val();
+			var site_development_id = $(this).data("site_development_id");
+			var category = $(this).data('category');
+			$.ajax({
+				url: "{{route('uicheck.store')}}",
+				type: 'POST',
+				data: {
+					id:id,
+					website_id: website_id,
+					site_development_id: site_development_id,
+					category:category,
+					"_token": "{{ csrf_token() }}",
+				},
+				beforeSend: function() {
+					$(this).text('Loading...');
+				},
+				success: function(response) {
+					if (response.code == 200) {
+						toastr['success'](response.message);
+						oTable.draw();
+						$('.globalSelect2').select2();
+					} else {
+						toastr['error'](response.message);
+					}
+				}
+			}).fail(function(response) {
+				toastr['error'](response.responseJSON.message);
+			});
+		});
+
+		$(document).on("change", ".type_id", function(e) {
+			e.preventDefault();
+			var uicheck_id = $(this).data("id");
+			var type_id = $(this).val();
+			$.ajax({
+				url: "{{route('uicheck.type.save')}}",
+				type: 'POST',
+				data: {
+					uicheck_id:uicheck_id,
+					type : type_id,
+					"_token": "{{ csrf_token() }}",
+				},
+				beforeSend: function() {
+					$(this).text('Loading...');
+				},
+				success: function(response) {
+					if (response.code == 200) {
+						toastr['success'](response.message);
+						oTable.draw();
+						$('.globalSelect2').select2();
+					} else {
+						toastr['error'](response.message);
+					}
+				}
+			}).fail(function(response) {
+				toastr['error'](response.responseJSON.message);
+			});
+		});
 	});
 	// END Print Table Using datatable
-$(document).on("change", ".website_id", function(e) {
+
+
+// For Document Upload ajax
+$(document).on("submit", "#upload-uicheck-documents", function(e) {
 	e.preventDefault();
-	var id = $(this).data("id");
-    var website_id = $(this).val();
-    var site_development_id = $(this).data("site_development_id");
-    var category = $(this).data('category');
+	var form = $(this);
+	var postData = new FormData(form[0]);
 	$.ajax({
-		url: "{{route('uicheck.store')}}",
-		type: 'POST',
-		data: {
-            id:id,
-            website_id: website_id,
-            site_development_id: site_development_id,
-            category:category,
-            "_token": "{{ csrf_token() }}",
-        },
+		method: "post",
+		url: `{{ route('uicheck.upload-document') }}`,
+		data: postData,
+		processData: false,
+		contentType: false,
+		dataType: "json",
 		beforeSend: function() {
-			$(this).text('Loading...');
+			$("#loading-image").show();
 		},
 		success: function(response) {
 			if (response.code == 200) {
-				toastr['success'](response.message);
-				//$("#create-quick-task").modal("hide");
-                location.reload();
+				toastr["success"]("Document Uploaded!", "Message")
+				$("#upload-document-modal").modal("hide");
 			} else {
-				toastr['error'](response.message);
+				toastr["error"](response.error, "Message");
+			}
+			$("#loading-image").hide();
+		}
+	});
+});
+
+$(document).on("click", ".list-document-btn", function() {
+	var id = $(this).data("id");
+	$.ajax({
+		method: "GET",
+		url: "{{ action('UicheckController@getDocument') }}",
+		data: {
+			id: id
+		},
+		dataType: "json",
+		success: function(response) {
+			if (response.code == 200) {
+				$("#blank-modal").find(".modal-title").html("Document List");
+				$("#blank-modal").find(".modal-body").html(response.data);
+				$("#blank-modal").modal("show");
+			} else {
+				toastr["error"](response.error, "Message");
 			}
 		}
-	}).fail(function(response) {
-		toastr['error'](response.responseJSON.message);
 	});
+});
+
+$(document).on("click",".upload-document-btn",function() {
+	var id = $(this).data("id");
+	$("#upload-document-modal").find("#hidden-identifier").val(id);    
+	$("#upload-document-modal").modal("show");
 });
 
 $(document).on("click", ".issue", function(e) {
