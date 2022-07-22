@@ -2223,12 +2223,22 @@
 
         });
         
+        function getmessageData(item, index) {
+            text += index + ": " + item + "<br>"; 
+        }
+
         $(document).on('click', '.send-message', function() {
             var thiss = $(this);
             var data = new FormData();
             var task_id = $(this).data('taskid');
             var message = $(this).closest('tr').find('.quick-message-field').val();
-
+            var mesArr = $(this).closest('tr').find('.quick-message-field');
+            $.each(mesArr, function( index, value ) {
+                if($(value).val()){
+                    message = $(value).val();
+                }
+            });
+ 
             data.append("task_id", task_id);
             data.append("message", message);
             data.append("status", 1);
