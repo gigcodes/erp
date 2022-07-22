@@ -557,7 +557,8 @@
                       <select name="body_json" value="" class="form-control" id="body_json" >
                         <option value="">select Json</option>
                         @foreach ($postJsonVer as $jsonVer)
-                            <option value="{{$jsonVer->request_data}}">{{$jsonVer->version_json.'  '.$jsonVer->request_data}}</option>
+                            <?php  $name = $jsonVer->json_Name ?? substr($jsonVer->request_data,0,60); ?>
+                            <option value="{{$jsonVer->request_data}}">{{$jsonVer->version_json.'  '.$name}}</option>
                         @endforeach
                       </select>
                       {{-- <input type="text" name="body_json" value="" class="form-control" id="body_json" placeholder="Enter body json Ex.  {'name': 'hello', 'type':'not'}"> --}}
@@ -748,6 +749,13 @@
                   <div class="form-group col-md-12">
                     <label for="jsonVersion">Tests</label>
                     <input type="text" name="jsonVersion" required value="" class="form-control" id="jsonVersion" placeholder="Enter Json Here">
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-12">
+                    <label for="jsonName">Name</label>
+                    <input type="text" name="jsonName" required value="" class="form-control" id="jsonName" placeholder="Enter Json Name">
                   </div>
                 </div>
               </form> 
@@ -1179,7 +1187,8 @@
     });
     $(document).on("click",".postman-addJson",function(e){
         e.preventDefault();
-        var jsonData = $('#jsonVersion').val();;
+        var jsonData = $('#jsonVersion').val();
+        var jsonName = $('#jsonName').val();
         $.ajax({
           url: "postman/add/json/version",
           type: "post",
@@ -1187,12 +1196,13 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
           data:{
-            json_data:jsonData
+            json_data:jsonData,
+            json_name : jsonName
           }
         }).done(function(response) {
           if(response.code = '200') {
-            $('#body_json').append(`<option value='${response.data.request_data}'>
-                                       ${response.data.version_json+' '+response.data.request_data}
+            $('#body_json').append(`<option value='${response.data.id}'>
+                                       ${response.data.version_json+' '+response.data.json_Name}
                                   </option>`);
             toastr['success']('Json Added successfully!!!', 'success'); 
           } else {

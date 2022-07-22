@@ -255,6 +255,7 @@ class PostmanRequestCreateController extends Controller
                     'user_id' => \Auth::user()->id,
                     'request_id' => $request->id,
                     'request_data' => $request->json_data,
+                    'json_Name' => $request->json_name
                 ]
             );
             PostmanRequestJsonHistory::where('id', $jsonVersion->id)->update(['version_json' => 'v'.$jsonVersion->id]);
@@ -292,6 +293,15 @@ class PostmanRequestCreateController extends Controller
         try{
             $postman = PostmanRequestCreate::find($request->id);
             $postmanUrl = PostmanMultipleUrl::where('postman_request_create_id', $request->id)->get();
+            
+            $postmanJson = PostmanRequestJsonHistory::where("request_data", $postman->body_json)->first();
+            $postmanJson->json_Name = $postman->request_name ?? '';
+            $postmanJson->save();
+            $postman->json_body_id = $postmanJson->id ?? '';
+            $postman->save();
+            
+            $postman = PostmanRequestCreate::find($request->id);
+            
             $ops = '';
             $folders = PostmanFolder::all();
             foreach($folders as $folder){
@@ -318,6 +328,7 @@ class PostmanRequestCreateController extends Controller
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
+
     
     /**
      * Remove the specified resource from storage.
