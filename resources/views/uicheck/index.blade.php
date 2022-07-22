@@ -285,7 +285,7 @@
 	var oTable;
 	
 	$(document).ready(function() {
-		if($("user-type").val()=="Admin"){
+		if($("#user-type").val()=="Admin"){
 			var columns= [{
 					data: null,
 					width : "5%",
