@@ -42,13 +42,15 @@ class UicheckController extends Controller
         
         //dd($data['store_websites']);
         if ($request->ajax()) {
+            
             if (Auth::user()->hasRole('Admin')){
-                $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.id AS site_id','site_developments.website_id', "uichecks.id AS uicheck_id","uichecks.issue","uichecks.website_id AS websiteid","uichecks.uicheck_type_id")
+                $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.id AS site_id','site_developments.website_id', "uichecks.id AS uicheck_id","uichecks.issue","uichecks.website_id AS websiteid","uichecks.uicheck_type_id","uua.user_id as accessuser")
                 ->join('site_developments','site_development_categories.id','=','site_developments.site_development_category_id')
                 ->leftjoin('uichecks','uichecks.site_development_category_id','=','site_development_categories.id')
+                ->leftjoin('uicheck_user_accesses as uua','uua.uicheck_id','=','uichecks.id')
                 ->where('site_developments.is_ui', 1);
             }else{
-                $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.id AS site_id','site_developments.website_id', "uichecks.id AS uicheck_id","uichecks.issue","uichecks.website_id AS websiteid","uichecks.uicheck_type_id")
+                $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.id AS site_id','site_developments.website_id', "uichecks.id AS uicheck_id","uichecks.issue","uichecks.website_id AS websiteid","uichecks.uicheck_type_id","uua.user_id as accessuser")
                 ->join('site_developments','site_development_categories.id','=','site_developments.site_development_category_id')
                 ->join('uichecks','uichecks.site_development_category_id','=','site_development_categories.id')
                 ->leftjoin('uicheck_user_accesses as uua','uua.uicheck_id','=','uichecks.id')
@@ -57,12 +59,12 @@ class UicheckController extends Controller
             }
             
             //->where('site_development_categories.id','site_developments.site_development_category_id');
-            // if($data['search_website'] != ''){
-            //     $site_development_categories = $site_development_categories->where('uichecks.website_id', $data['store_websites'][0]->id);
-            // }
-            // if($data['search_category'] != ''){
-            //     $site_development_categories = $site_development_categories->where('site_development_categories.id',  $data['search_category']);
-            // }
+            if(isset($request->category_name) &&  $request->category_name != ''){
+                $site_development_categories = $site_development_categories->where('uichecks.website_id', $request->category_name);
+            }
+            if(isset($request->sub_category_name) && $request->sub_category_name != ''){
+                $site_development_categories = $site_development_categories->where('site_development_categories.id',  $request->sub_category_name);
+            }
             $site_development_categories->groupBy('site_development_categories.id');
             return datatables()->eloquent($site_development_categories)->toJson();
         }else{
@@ -101,6 +103,11 @@ class UicheckController extends Controller
     }
 
     public function access(Request $request){
+        $check = UicheckUserAccess::where("uicheck_id",$request->uicheck_id)->first();
+        if(!is_null($check)){
+            $access = UicheckUserAccess::find($check->id);
+            $access->delete();
+        }
         $array = array(
             "user_id" => $request->id,
             "uicheck_id" => $request->uicheck_id

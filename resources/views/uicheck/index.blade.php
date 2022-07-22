@@ -83,7 +83,7 @@
 			<div class="col-md-6 pull-right">
 				<form>
 					<div class="col-md-4">
-						<select name="store_webs" class="form-control select2">
+						<select name="store_webs" id="store_webiste" class="form-control select2">
 							<option value="">-- Select a website --</option>
 							@forelse($all_store_websites as $asw)
 								<option value="{{ $asw->id }}" 
@@ -95,7 +95,7 @@
 						</select>
 					</div>
 					<div class="col-md-4">
-						<select name="categories" class="form-control select2">
+						<select name="categories" id="store-categories" class="form-control select2">
 							<option value="">-- Select a categories --</option>
 							@forelse($site_development_categories  as $ct)
 								<option value="{{ $ct->id }}" 
@@ -107,7 +107,7 @@
 						</select>
 					</div>
 					<div class="col-md-4">
-						<button type="submit" class="btn btn-secondary">Search</button>
+						<button type="button" class="btn btn-secondary custom-filter">Search</button>
 						<a href="/uicheck" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
 					</div>
 				</form>				
@@ -328,7 +328,11 @@
 							html += '<option value="">--Select--</option>';
 							text = $.parseJSON(text);
 							$.each(text, function (i, obj) {
-								html += '<option value="'+obj.id+'">'+obj.name+'</option>';
+								var selected = "";
+								if(full.accessuser == obj.id){
+									selected = "selected='selected'";
+								}
+								html += '<option '+selected+' value="'+obj.id+'">'+obj.name+'</option>';
 							});						
 						html += '</select>';
                 		return html;						
@@ -344,7 +348,7 @@
 				{
 					data: null,
 					render: function (data, type, row, meta) {
-						var html = '<button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="uicheck" data-id="'+row.uicheck_id+'" title="Load messages" data-category="'+row.id+'" data-site_development_id="'+row.site_id+'" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>';						
+						var html = '<div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1 msg" style="width: 100%;"><input type="text" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value=""><div class="d-flex p-0"><button style="float: left;padding: 0 0 0 5px" class="btn btn-sm btn-image send-message" title="Send message" data-category="'+row.id+'" data-taskid="'+row.uicheck_id+'"  data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'"><img src="/images/filled-sent.png" style="cursor: default;"></button></div><button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="uicheck" data-id="'+row.uicheck_id+'" title="Load messages" data-category="'+row.id+'" data-site_development_id="'+row.site_id+'" data-dismiss="modal"><img src="/images/chat.png" alt=""></button></div>';						
 						return html;						
 					}
 				},
@@ -407,7 +411,7 @@
 				{
 					data: null,
 					render: function (data, type, row, meta) {
-						var html = '<button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="uicheck" data-id="'+row.uicheck_id+'" title="Load messages" data-category="'+row.id+'" data-site_development_id="'+row.site_id+'" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>';						
+						var html = '<div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1 msg" style="width: 100%;"><input type="text" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value=""><div class="d-flex p-0"><button style="float: left;padding: 0 0 0 5px" class="btn btn-sm btn-image send-message" title="Send message" data-category="'+row.id+'" data-taskid="'+row.uicheck_id+'"  data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'"><img src="/images/filled-sent.png" style="cursor: default;"></button></div><button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="uicheck" data-id="'+row.uicheck_id+'" title="Load messages" data-category="'+row.id+'" data-site_development_id="'+row.site_id+'" data-dismiss="modal"><img src="/images/chat.png" alt=""></button></div>';						
 						return html;						
 					}
 				},
@@ -460,12 +464,15 @@
 			],
 			targets: 'no-sort',
 			bSort: false,
+			drawCallback: function() {
+				$('.globalSelect2').select2();
+			},
 			ajax: {
 				"url": "{{ route('uicheck') }}",
 				data: function(d) {
-					// d.category_name = $('input[name=category_name]').val();
-					// d.sub_category_name = $('input[name=sub_category_name]').val();
-					// d.subjects = $('input[name=subjects]').val();
+					d.category_name = $('#store_webiste').val();
+					d.sub_category_name = $('#store-categories').val();
+					// d.subjects = $('input[name=subjects]').val();					
 				},
 			},
 			columnDefs: [{
@@ -474,6 +481,10 @@
 				searchable: false
 			}],
 			columns: columns
+		});
+
+		$(document).on("click", ".custom-filter", function(e) {
+			oTable.draw();
 		});
 
 		$(document).on("change", ".user_id", function(e) {
@@ -491,12 +502,12 @@
 				},
 				beforeSend: function() {
 					$(this).text('Loading...');
+					
 				},
 				success: function(response) {
 					if (response.code == 200) {
 						toastr['success'](response.message);
-						oTable.draw();
-						$('.globalSelect2').select2();
+						oTable.draw();						
 					} else {
 						toastr['error'](response.message);
 					}
