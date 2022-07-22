@@ -158,8 +158,8 @@
 				<tr>
 					<th><input type="checkbox" id="checkAll" title="click here to select all" /></th>
 					<th width="10%">Categories</th>
-					@if (Auth::user()->hasRole('Admin'))
-						<th>Website</th>
+					<th>Website</th>
+					@if (Auth::user()->hasRole('Admin'))						
 						<th>Assign To</th>
 					@endif
 					<th>Issue</th>
@@ -399,6 +399,26 @@
 					data: 'title',
 					render: function (data, type, full, meta) {
 						return data;
+					}
+				},
+				{
+					data: null,
+					render: function (data, type, row, meta) {
+						$('.globalSelect2').select2();
+						var text = $(".custom-website-dropdown").text();
+						var html = '<select name="website_id"  class="save-item-select globalSelect2 website_id" data-category="'+row.id+'" data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'">';
+							html += '<option value="">--Select--</option>';
+							
+							text = $.parseJSON(text);
+							$.each(text, function (i, obj) {
+								var selected = "";
+								if(row.websiteid == obj.id){
+									selected = "selected='selected'";
+								}
+								html += '<option value="'+obj.id+'" '+selected+' >'+obj.website+'</option>';
+							});
+						html += '</select>';
+                		return html;
 					}
 				},
 				{
