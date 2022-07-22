@@ -3098,6 +3098,12 @@ Route::middleware('auth')->group(function () {
     Route::get('website/search/log/view', 'WebsiteLogController@searchWebsiteLogStoreView')->name('website.search.log.view');
     
     Route::get('website/command/log', 'WebsiteLogController@runWebsiteLogCommand')->name('website.command-log');
+
+    Route::get('/uicheck', 'UicheckController@index')->name('uicheck');
+    Route::post('uicheck/store', 'UicheckController@store')->name('uicheck.store');
+    Route::post('uicheck/dev/status/history', 'UicheckController@getUiDeveloperStatusHistoryLog')->name('uicheck.dev.status.history');
+    Route::post('uicheck/admin/status/history', 'UicheckController@getUiAdminStatusHistoryLog')->name('uicheck.admin.status.history');
+    Route::post('uicheck/issue/history', 'UicheckController@getUiIssueHistoryLog')->name('uicheck.get.issue.history');
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
@@ -3189,6 +3195,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/calendar/events/stop', 'UserEventController@stopEvent')->name("calendar.event.stop");
     Route::put('/calendar/events/{id}', 'UserEventController@editEvent');
     Route::delete('/calendar/events/{id}', 'UserEventController@removeEvent');
+    Route::get('updateLog', 'UpdateLogController@index')->name('updateLog.get');
+    Route::get('updateLog/search', 'UpdateLogController@search')->name('updateLog.get.search');
+    Route::delete('updateLog/delete', 'UpdateLogController@destroy')->name('updateLog.delete');
 });
 
 Route::prefix('calendar/public')->middleware('auth')->group(function () {
@@ -3676,6 +3685,9 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
 
 Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::any('/database-log', 'ScrapLogsController@databaseLog');
+    Route::get('/database-log/enable', 'ScrapLogsController@enableMysqlAccess');
+    Route::get('/database-log/disable', 'ScrapLogsController@disableMysqlAccess');
+    Route::get('/database-log/history', 'ScrapLogsController@disableEnableHistory');
 });
 
 Route::get('gtmetrix', 'gtmetrix\WebsiteStoreViewGTMetrixController@index')->name('gt-metrix');
@@ -3809,6 +3821,15 @@ Route::prefix('magento-product-error')->middleware('auth')->group(function () {
     Route::get('/download', 'MagentoProductPushErrors@groupErrorMessage')->name('magento_product_today_common_err');
     Route::get('/magento_product_today_common_err_report', 'MagentoProductPushErrors@groupErrorMessageReport')->name('magento_product_today_common_err_report'); //Purpose : Add Route for get Data - DEVTASK-20123
 });
+//Magento Command
+Route::get('magento/command', 'MagentoCommandController@index')->name("magento.command");
+Route::get('magento/command/search', 'MagentoCommandController@search')->name("magento.command.search");
+Route::post('magento/command/add', 'MagentoCommandController@store')->name("magento.command.add");
+Route::post('magento/command/run', 'MagentoCommandController@runCommand')->name("magento.command.run");
+Route::post('magento/command/edit', 'MagentoCommandController@edit')->name("magento.command.edit");
+Route::post('magento/command/history', 'MagentoCommandController@commandHistoryLog')->name("magento.command.edit");
+Route::delete('magento/command/delete', 'MagentoCommandController@destroy')->name("magento.command.delete");
+
 
 Route::prefix('message-queue-history')->middleware('auth')->group(function () {
     Route::get('/', 'MessageQueueHistoryController@index')->name('message-queue-history.index');
@@ -3885,6 +3906,10 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::get('ads/getconfigPost', 'SocialAdsController@getpost')->name('social.ad.getpost');
 });
 Route::middleware('auth')->group(function () {
+    Route::resource('taskcategories','TaskCategoriesController');
+    Route::delete('tasklist/{id}','TaskCategoriesController@delete');
+    Route::delete('tasksubject/{id}','TaskCategoriesController@destroy');
+    Route::resource('zabbix', 'ZabbixController');
     Route::resource('checklist', 'CheckListController');
     Route::get('checklist/view/{id}', 'CheckListController@view')->name("checklist.view");
     Route::post('checklist/subjects', 'CheckListController@subjects')->name("checklist.subjects");
@@ -3893,7 +3918,7 @@ Route::middleware('auth')->group(function () {
     Route::post('checklist/checklist_update', 'CheckListController@checklistUpdate')->name("checklist.update.c");
 });
 
-Route::resource('zabbix', 'ZabbixController');
+
 Route::get('test', 'ScrapController@listCron');
 Route::get('command', function () {
     // \Artisan::call('migrate');
