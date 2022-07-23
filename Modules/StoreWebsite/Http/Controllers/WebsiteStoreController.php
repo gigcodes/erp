@@ -10,27 +10,24 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 
-class WebsiteStoreController extends Controller
-{
+class WebsiteStoreController extends Controller {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
-    {
+    public function index(Request $request) {
         $title = "Website Store | Store Website";
 
         $websites = Website::all()->pluck("name", "id")->toArray();
-        
+
         return view('storewebsite::website-store.index', [
             'title'    => $title,
             'websites' => $websites
         ]);
     }
 
-    public function records(Request $request)
-    {
+    public function records(Request $request) {
         $websiteStores = WebsiteStore::leftJoin('websites as w', 'w.id', 'website_stores.website_id');
 
         // Check for keyword search
@@ -43,16 +40,15 @@ class WebsiteStoreController extends Controller
         }
 
         if ($request->website_id != null) {
-            $websiteStores = $websiteStores->where('website_stores.website_id',$request->website_id);
+            $websiteStores = $websiteStores->where('website_stores.website_id', $request->website_id);
         }
 
-        $websiteStores = $websiteStores->select(["website_stores.*", "w.name as website_name"])->orderBy('website_stores.id',"desc")->paginate();
+        $websiteStores = $websiteStores->select(["website_stores.*", "w.name as website_name"])->orderBy('website_stores.id', "desc")->paginate();
 
-        return response()->json(["code" => 200, "data" => $websiteStores->items(), "total" => $websiteStores->total(),"pagination" => (string)$websiteStores->render()]);
+        return response()->json(["code" => 200, "data" => $websiteStores->items(), "total" => $websiteStores->total(), "pagination" => (string)$websiteStores->render()]);
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $post      = $request->all();
         $validator = Validator::make($post, [
             'name'       => 'required',
@@ -84,7 +80,6 @@ class WebsiteStoreController extends Controller
         $records->fill($post);
         // if records has been save then call a request to push
         if ($records->save()) {
-
         }
 
         return response()->json(["code" => 200, "data" => $records]);
@@ -96,8 +91,7 @@ class WebsiteStoreController extends Controller
      * @return
      */
 
-    public function edit(Request $request, $id)
-    {
+    public function edit(Request $request, $id) {
         $websiteStore = WebsiteStore::where("id", $id)->first();
 
         if ($websiteStore) {
@@ -113,8 +107,7 @@ class WebsiteStoreController extends Controller
      * @return
      */
 
-    public function delete(Request $request, $id)
-    {
+    public function delete(Request $request, $id) {
         $websiteStore = WebsiteStore::where("id", $id)->first();
 
         if ($websiteStore) {
@@ -125,12 +118,11 @@ class WebsiteStoreController extends Controller
         return response()->json(["code" => 500, "error" => "Wrong site id!"]);
     }
 
-    public function push(Request $request, $id)
-    {
+    public function push(Request $request, $id) {
         $website = WebsiteStore::where("id", $id)->first();
 
         if ($website) {
-            
+
             // check that store store has the platform id exist
             if ($website->website && $website->website->platform_id > 0) {
 
@@ -144,18 +136,36 @@ class WebsiteStoreController extends Controller
                 if (!empty($id) && is_numeric($id)) {
                     $website->platform_id = $id;
                     $website->save();
-                }else{
-                   return response()->json(["code" => 200, "data" => $website , "error" => "Website-Store push failed"]);
+                } else {
+                    return response()->json(["code" => 200, "data" => $website, "error" => "Website-Store push failed"]);
                 }
 
                 return response()->json(["code" => 200, 'message' => "Website-Store pushed successfully"]);
-
-            }else{
+            } else {
                 return response()->json(["code" => 500, "error" => "Website platform id is not available!"]);
             }
-
         }
 
         return response()->json(["code" => 500, "error" => "Wrong site id!"]);
+    }
+
+    public function dropdown() {
+        if ($s = request('srch_website_store')) {
+            $websiteStores = WebsiteStore::whereRaw("website_id IN (SELECT id FROM websites WHERE store_website_id = ? )", [$s])
+                ->orderBy('name', 'ASC')
+                ->pluck('name', 'id')
+                ->toArray();
+            if ($websiteStores) {
+                $options = ['<option value="" >-- Select Website --</option>'];
+                foreach ($websiteStores as $key => $value) {
+                    $options[] = '<option value="' . $key . '" ' . ($key == request('selected') ? 'selected' : '') . ' >' . $value . '</option>';
+                }
+            } else {
+                $options = ['<option value="" >No records found.</option>'];
+            }
+        } else {
+            $options = ['<option value="" >Please select website first</option>'];
+        }
+        return response()->json(["data" => implode('', $options)]);
     }
 }
