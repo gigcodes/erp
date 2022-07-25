@@ -3105,6 +3105,11 @@ Route::middleware('auth')->group(function () {
     Route::post('uicheck/dev/status/history', 'UicheckController@getUiDeveloperStatusHistoryLog')->name('uicheck.dev.status.history');
     Route::post('uicheck/admin/status/history', 'UicheckController@getUiAdminStatusHistoryLog')->name('uicheck.admin.status.history');
     Route::post('uicheck/issue/history', 'UicheckController@getUiIssueHistoryLog')->name('uicheck.get.issue.history');
+    Route::post('uicheck/user/access', 'UicheckController@access')->name('uicheck.user.access');
+    Route::post('uicheck/document/upload', 'UicheckController@upload_document')->name('uicheck.upload-document');
+    Route::get('uicheck/get-document', 'UicheckController@getDocument');
+    Route::post('uicheck/type/create', 'UicheckController@typeStore')->name('uicheck.type.store');
+    Route::post('uicheck/type/save', 'UicheckController@typeSave')->name('uicheck.type.save');
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
