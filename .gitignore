@@ -64,6 +64,8 @@ composer.lock
 /public/.htaccess
 public/uploads
 public/zoom/*
+public/vendorResume/*
+public/uicheckdocs/*
 !public/zoom/.gitkeep
 public/tmp_images/*
 public/purchase_product_orders/*
