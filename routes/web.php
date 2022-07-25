@@ -2271,6 +2271,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('postman/user/permission', 'PostmanRequestCreateController@userPermission');
     
     Route::post('postman/get/mul/request', 'PostmanRequestCreateController@getMulRequest');
+
+    Route::post('postman/edit/history/', 'PostmanRequestCreateController@postmanEditHistoryLog');
     
 });
 /*
