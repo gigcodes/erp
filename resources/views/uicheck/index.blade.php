@@ -183,6 +183,10 @@
 <div class="custom-type-dropdown" style="display:none;">
 	{{ json_encode($allTypes) }}
 </div>
+<div class="custom-status-dropdown" style="display:none;">
+	{{ json_encode($allStatus) }}
+</div>
+
 
 <div id="dev_status_model" class="modal fade" role="dialog">
 	<div class="modal-dialog modal-lg">
@@ -355,7 +359,19 @@
 				{
 					data: null,
 					render: function (data, type, row, meta) {
-						var html = '<button type="button" class="btn btn-xs show-dev-status-history" title="Show Developer Status History" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button>';						
+						var text = $(".custom-status-dropdown").text();
+						var html = '<select name="developer_status"  class="form-control save-item-select width-auto globalSelect2 developer_status" data-type="developer_status" data-category="'+row.id+'" data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'">';
+							html += '<option value="">--Select--</option>';
+							text = $.parseJSON(text);
+							$.each(text, function (i, obj) {
+								var selected = "";
+								if(row.dev_status_id == i){
+									selected = "selected='selected'";
+								}
+								html += '<option value="'+i+'" '+selected+'>'+obj+'</option>';
+							});
+							html += '</select>';
+							html += '<button type="button" class="btn btn-xs show-dev-status-history" title="Show Developer Status History" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button>';						
 						return html;						
 					}
 				},
@@ -382,7 +398,19 @@
 				{
 					data: null,
 					render: function (data, type, row, meta) {
-						var html = '<button type="button" class="btn btn-xs show-admin-status-history" title="Show" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button>';						
+						var text = $(".custom-status-dropdown").text();
+						var html = '<select name="admin_status"  class="form-control save-item-select width-auto globalSelect2 admin_status" data-type="admin_status" data-category="'+row.id+'" data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'">';
+							html += '<option value="">--Select--</option>';
+							text = $.parseJSON(text);
+							$.each(text, function (i, obj) {
+								var selected = "";
+								if(row.admin_status_id == i){
+									selected = "selected='selected'";
+								}
+								html += '<option value="'+i+'" '+selected+'>'+obj+'</option>';
+							});
+						html += '</select>';
+						html += '<button type="button" class="btn btn-xs show-admin-status-history" title="Show" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button>';						
 						return html;						
 					}
 				}
@@ -438,7 +466,19 @@
 				{
 					data: null,
 					render: function (data, type, row, meta) {
-						var html = '<button type="button" class="btn btn-xs show-dev-status-history" title="Show Developer Status History" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button>';						
+						var text = $(".custom-status-dropdown").text();
+						var html = '<select name="developer_status"  class="form-control save-item-select width-auto globalSelect2 developer_status" data-type="developer_status" data-category="'+row.id+'" data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'">';
+							html += '<option value="">--Select--</option>';
+							text = $.parseJSON(text);
+							$.each(text, function (i, obj) {
+								var selected = "";
+								if(row.dev_status_id == i){
+									selected = "selected='selected'";
+								}
+								html += '<option value="'+i+'" '+selected+'>'+obj+'</option>';
+							});
+							html += '</select>';
+							html += '<button type="button" class="btn btn-xs show-dev-status-history" title="Show Developer Status History" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button>';						
 						return html;						
 					}
 				},
@@ -465,7 +505,7 @@
 				{
 					data: null,
 					render: function (data, type, row, meta) {
-						var html = '<button type="button" class="btn btn-xs show-admin-status-history" title="Show" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button>';						
+						var	html = '<button type="button" class="btn btn-xs show-admin-status-history" title="Show" data-id="'+row.uicheck_id+'"><i data-id="'+row.uicheck_id+'" class="fa fa-info-circle"></i></button>';						
 						return html;						
 					}
 				}
@@ -598,6 +638,75 @@
 				toastr['error'](response.responseJSON.message);
 			});
 		});
+
+		$(document).on("change", ".developer_status", function(e) {
+			e.preventDefault();
+			var id = $(this).data("id");
+			var developer_status = $(this).val();
+			var site_development_id = $(this).data("site_development_id");
+			var category = $(this).data("category");
+
+			$.ajax({
+				url: "{{route('uicheck.store')}}",
+				type: 'POST',
+				data: {
+					id:id,
+					developer_status: developer_status,
+					site_development_id: site_development_id,
+					category:category,
+					"_token": "{{ csrf_token() }}",
+				},
+				beforeSend: function() {
+					$(this).text('Loading...');
+				},
+				success: function(response) {
+					if (response.code == 200) {
+						toastr['success'](response.message);
+						//$("#create-quick-task").modal("hide");
+						oTable.draw();
+					} else {
+						toastr['error'](response.message);
+					}
+				}
+			}).fail(function(response) {
+				toastr['error'](response.responseJSON.message);
+			});
+		});
+
+		$(document).on("change", ".admin_status", function(e) {
+			e.preventDefault();
+			var id = $(this).data("id");
+			var admin_status = $(this).val();
+			var site_development_id = $(this).data("site_development_id");
+			var category = $(this).data("category");
+
+			$.ajax({
+				url: "{{route('uicheck.store')}}",
+				type: 'POST',
+				data: {
+					id:id,
+					admin_status: admin_status,
+					site_development_id: site_development_id,
+					category:category,
+					"_token": "{{ csrf_token() }}",
+				},
+				beforeSend: function() {
+					$(this).text('Loading...');
+				},
+				success: function(response) {
+					if (response.code == 200) {
+						toastr['success'](response.message);
+						//$("#create-quick-task").modal("hide");
+						oTable.draw();
+						
+					} else {
+						toastr['error'](response.message);
+					}
+				}
+			}).fail(function(response) {
+				toastr['error'](response.responseJSON.message);
+			});
+		});
 	});
 	// END Print Table Using datatable
 
@@ -690,73 +799,7 @@ $(document).on("click", ".issue", function(e) {
 	});
 });
 
-$(document).on("change", ".developer_status", function(e) {
-	e.preventDefault();
-	var id = $(this).data("id");
-    var developer_status = $(this).val();
-    var site_development_id = $(this).data("site_development_id");
-    var category = $(this).data("category");
 
-	$.ajax({
-		url: "{{route('uicheck.store')}}",
-		type: 'POST',
-		data: {
-            id:id,
-            developer_status: developer_status,
-            site_development_id: site_development_id,
-            category:category,
-            "_token": "{{ csrf_token() }}",
-        },
-		beforeSend: function() {
-			$(this).text('Loading...');
-		},
-		success: function(response) {
-			if (response.code == 200) {
-				toastr['success'](response.message);
-				//$("#create-quick-task").modal("hide");
-                location.reload();
-			} else {
-				toastr['error'](response.message);
-			}
-		}
-	}).fail(function(response) {
-		toastr['error'](response.responseJSON.message);
-	});
-});
-
-$(document).on("change", ".admin_status", function(e) {
-	e.preventDefault();
-	var id = $(this).data("id");
-    var admin_status = $(this).val();
-    var site_development_id = $(this).data("site_development_id");
-    var category = $(this).data("category");
-
-	$.ajax({
-		url: "{{route('uicheck.store')}}",
-		type: 'POST',
-		data: {
-            id:id,
-            admin_status: admin_status,
-            site_development_id: site_development_id,
-            category:category,
-            "_token": "{{ csrf_token() }}",
-        },
-		beforeSend: function() {
-			$(this).text('Loading...');
-		},
-		success: function(response) {
-			if (response.code == 200) {
-				toastr['success'](response.message);
-				//$("#create-quick-task").modal("hide");
-                location.reload();
-			} else {
-				toastr['error'](response.message);
-			}
-		}
-	}).fail(function(response) {
-		toastr['error'](response.responseJSON.message);
-	});
-});
 
 $(document).on('click', '.send-message', function() {
     var thiss = $(this);

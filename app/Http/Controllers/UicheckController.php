@@ -44,13 +44,13 @@ class UicheckController extends Controller
         if ($request->ajax()) {
             
             if (Auth::user()->hasRole('Admin')){
-                $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.id AS site_id','site_developments.website_id', "uichecks.id AS uicheck_id","uichecks.issue","uichecks.website_id AS websiteid","uichecks.uicheck_type_id","uua.user_id as accessuser")
+                $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.id AS site_id','site_developments.website_id', "uichecks.id AS uicheck_id","uichecks.issue","uichecks.website_id AS websiteid","uichecks.uicheck_type_id","uua.user_id as accessuser","uichecks.dev_status_id","uichecks.admin_status_id")
                 ->join('site_developments','site_development_categories.id','=','site_developments.site_development_category_id')
                 ->leftjoin('uichecks','uichecks.site_development_category_id','=','site_development_categories.id')
                 ->leftjoin('uicheck_user_accesses as uua','uua.uicheck_id','=','uichecks.id')
                 ->where('site_developments.is_ui', 1);
             }else{
-                $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.id AS site_id','site_developments.website_id', "uichecks.id AS uicheck_id","uichecks.issue","uichecks.website_id AS websiteid","uichecks.uicheck_type_id","uua.user_id as accessuser")
+                $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.id AS site_id','site_developments.website_id', "uichecks.id AS uicheck_id","uichecks.issue","uichecks.website_id AS websiteid","uichecks.uicheck_type_id","uua.user_id as accessuser","uichecks.dev_status_id","uichecks.admin_status_id")
                 ->join('site_developments','site_development_categories.id','=','site_developments.site_development_category_id')
                 ->join('uichecks','uichecks.site_development_category_id','=','site_development_categories.id')
                 ->leftjoin('uicheck_user_accesses as uua','uua.uicheck_id','=','uichecks.id')
