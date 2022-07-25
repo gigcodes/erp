@@ -22,7 +22,7 @@
             <td>
                 {{ $pagrank++ }}
             </td>
-            <td>
+            <td class="expand-row-msg" data-name="cat_title" data-id="{{$pagrank}}">
                 @include(
                     'storewebsite::site-development.partials.edit-modal'
                 )
@@ -35,23 +35,26 @@
                 @include(
                     'storewebsite::site-development.partials.ui-check-modal'
                 )
-                {{ $category->title }}
+                
+                <span class="show-short-cat_title-{{$pagrank}}">{{ str_limit($category->title, 25, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-cat_title-{{$pagrank}} hidden">{{$category->title}}</span>
+                <br>
                 <div style="display: flex; float: right"> <button
                     onclick="checkUi({{ $category->id }}, {{ $category->site_development_id }})"
-                    style="background-color: transparent;border: 0; margin-top:0px;" class="p-2"
+                    style="background-color: transparent;border: 0; margin-top:0px;" class=""
                     title="Set this category in Ui for this website"><i
                         class="fa fa-info-circle"></i></button></div>
                         
                 <div style="display: flex; float: right"> <button
                         onclick="checkList({{ $category->id }}, {{ $category->site_development_id }})"
-                        style="background-color: transparent;border: 0; margin-top:0px;" class="p-2"
+                        style="background-color: transparent;border: 0; margin-top:0px;" class=""
                         title="Set this category in site assets for this website"><i class="fa fa-plus"></i></button>
                 </div>
                 <div style="display: flex; float: right"> <button
                         onclick="checkAsset({{ $category->id }}, {{ $category->site_development_id }})"
-                        style="background-color: transparent;border: 0; margin-top:0px;" class="p-2"
+                        style="background-color: transparent;border: 0; margin-top:0px;" class=""
                         title="Set this category in site assets for this website"><i
-                            class="fa fa-info-circle"></i></button></div>
+                            class="fa fa-podcast"></i></button></div>
                 <div style="display: flex;float: right"> <button onclick="editCategory({{ $category->id }})"
                         style="background-color: transparent;border: 0;margin-top:0px;" class="pl-0"><i
                         class="fa fa-edit"></i></button>
@@ -59,14 +62,14 @@
                 data-on="Allow" data-off="Disallow"
                 data-toggle="toggle" data-width="90"> -->
                     @if (request('status') == 'ignored')
-                        <button style="padding:0px;" type="button" class="btn btn-image fa-ignore-category pl-0 mt-0"
+                        <button style="padding:0px;margin-top: 0px;" type="button" class="btn btn-image fa-ignore-category pl-0 mt-0"
                             data-category-id="{{ $category->id }}"
                             data-site-id="{{ isset($website) ? $website->id : $category->website_id }}"
                             data-status="1">
                             <i class="fa fa-ban" aria-hidden="true" style="color:red;"></i>
                         </button>
                     @else
-                        <button style="padding:0px;" type="button" class="btn btn-image fa-ignore-category pl-0"
+                        <button style="padding:0px;margin-top: 0px;" type="button" class="btn btn-image fa-ignore-category pl-0"
                             data-category-id="{{ $category->id }}"
                             data-site-id="{{ isset($website) ? $website->id : $category->website_id }}"
                             data-status="0">
@@ -74,36 +77,48 @@
                         </button>
                     @endif
                 </div>
-                
-                <form>
+            
+                <form style="float: left;">
                     <label class="radio-inline">
                         <input class="save-artwork-status" type="radio" name="artwork_status"
                             data-category="{{ $category->id }}" value="Yes" data-type="artwork_status"
                             data-site="@if ($site) {{ $site->id }} @endif"
-                            @if ($site) {{ $site->artwork_status == 'Yes' ? 'checked' : '' }} @endif />Yes
+                            @if ($site) {{ $site->artwork_status == 'Yes' ? 'checked' : '' }} @endif  style="height: 13px;"/>Yes
                     </label>
                     <label class="radio-inline">
                         <input class="save-artwork-status" type="radio" name="artwork_status"
                             data-category="{{ $category->id }}" value="No" data-type="artwork_status"
                             data-site="@if ($site) {{ $site->id }} @endif"
-                            @if ($site) {{ $site->artwork_status == 'No' ? 'checked' : '' }} @endif />No
+                            @if ($site) {{ $site->artwork_status == 'No' ? 'checked' : '' }} @endif style="height: 13px;"/>No
                     </label>
                     <label class="radio-inline">
                         <input class="save-artwork-status" type="radio" name="artwork_status"
                             data-category="{{ $category->id }}" value="Done" data-type="artwork_status"
                             data-site="@if ($site) {{ $site->id }} @endif"
-                            @if ($site) {{ $site->artwork_status == 'Done' ? 'checked' : '' }} @endif />Done
+                            @if ($site) {{ $site->artwork_status == 'Done' ? 'checked' : '' }} @endif  style="height: 13px;" />Done
                     </label>
                 </form>
             </td>
-            <td width="15%" style="word-break: break-all;">{{ $category->website }}</td>
+            <td style="word-break: break-all;">
+                <div class="d-flex">
+                    <div class="justify-content-between expand-row-msg"
+                        data-id="{{ $pagrank }}" data-name="website">
+                        <span class="show-short-website-{{ $pagrank }} pl-1">
+                            {{ str_limit($category->website, 15, '...') }} </span>
+                    </div>
+                </div>
+                <div class="expand-row-msg" data-id="{{ $pagrank }}" data-name="website">
+                    <span class="show-full-website-{{ $pagrank }} hidden">
+                        {{ $category->website }} </span>
+                </div>
+            </td>
             <td>
                 {{ Form::select('site_development_master_category_id',['' => '- Select-'] + $masterCategories,$category->site_development_master_category_id,['class' => 'save-item-select globalSelect2','data-category' => $category->id,'data-type' => 'site_development_master_category_id','data-site' => $site ? $site->id : '0']) }}
             </td>
             <td class="pt-0 pr-2">
-                <div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1">
-                    <input style="margin-top: 0px;width:auto !important;" type="text"
-                        class="form-control quick-message-field" name="message" placeholder="Message" value=""
+                <div class=" mb-1 p-0 d-flex pt-2 mt-1">
+                    <input style="margin-top: 0px;width:80% !important;" type="text"
+                        class="form-control " name="message" placeholder="Message" value=""
                         id="remark_{{ $key }}" data-catId="{{ $category->id }}"
                         data-siteId="@if ($site) {{ $site->id }} @endif"
                         data-websiteId="{{ isset($website) ? $website->id : $category->website_id }}">
@@ -131,9 +146,96 @@
             </td>
 
             <td colspan=2>
-                <table class="assign">
+
+                
+                <?php
+                if(count($category->assignedTo)>0)
+                    echo '<a href="javascript::void();" data-id="'.$pagrank.'" class="show_moreCls" style="float: left;height: 16px;width: 100%;"><i class="fa fa-info-circle"></i></a>';
+                $tableTrCounter = 0; ?>
+                @foreach ($category->assignedTo as $assignedTo)
+                <?php $tableTrCounter++;
+                        if($tableTrCounter != 1)
+                            $tTrClass = 'comm-'.$pagrank.' hidden';
+                        else
+                            $tTrClass = '';
+                    ?>
+                    
+                        <div class="row {{$tTrClass}}" style="overflow: hidden;width: 100%;float: left;margin-left: 0px;border: 1px solid #bfbfbf;padding-top: 4px;margin-top: 2px;margin-bottom: 7px;">
+                        <div class="col-4" style="margin: 0;padding: 5px;">
+                            @if (auth()->user()->isAdmin())
+                                <select class="form-control assign-user" data-id="{{ $assignedTo['id'] }}"
+                                    name="master_user_id" style="width: 100% !important;">
+                                    <option value="">Select...</option>
+                                    @foreach ($users_all as $value)
+                                        @if ($assignedTo['assigned_to_name'] == $value->name)
+                                            <option value="{{ $value->id }}" selected>{{ $value->name }}
+                                            </option>
+                                        @else
+                                            <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            @else
+                                {{ $assignedTo['assigned_to_name'] }}
+                            @endif
+                        </div>
+                        <div class="col-8"  style="margin: 0;padding: 5px;">
+                            <div class="mb-1 p-0 d-flex pl-0 pt-0 mt-1 msg">
+                                <?php
+                                $MsgPreview = '# ';
+                                if ($website) {
+                                    $MsgPreview = $website->website;
+                                }
+                                if ($site) {
+                                    $MsgPreview = $MsgPreview . ' ' . $site->title;
+                                }
+                                ?>
+                                <input type="text" style="width: 100%; float: left;"
+                                    class="form-control quick-message-field input-sm" name="message"
+                                    placeholder="Message" value="">
+                                <div class="d-flex p-0">
+                                    <button style="float: left;padding: 0 0 0 5px"
+                                        class="btn btn-sm btn-image send-message" title="Send message"
+                                        data-taskid="{{ $assignedTo['id'] }}"><img src="/images/filled-sent.png"
+                                            style="cursor: default;"></button>
+                                </div>
+                                <button type="button"
+                                    class="btn btn-xs btn-image load-communication-modal load-body-class"
+                                    data-object="{{ $assignedTo['message_type'] }}"
+                                    data-id="{{ $assignedTo['id'] }}" title="Load messages"
+                                    data-dismiss="modal"><img src="/images/chat.png" alt=""></button>
+                            </div>
+
+                            <div class="col-md-12 p-0 pl-1 text">
+                                <!-- START - Purpose : Show / Hide Chat & Remarks , Add Last Remarks - #DEVTASK-19918 -->
+                                <div class="d-flex">
+                                    <div class="justify-content-between expand-row-msg-chat"
+                                        data-id="{{ $assignedTo['id'] }}">
+                                        <span class="td-full-chat-container-{{ $assignedTo['id'] }} pl-1">
+                                            {{ str_limit($assignedTo['message'], 30, '...') }} </span>
+                                    </div>
+                                </div>
+                                <div class="expand-row-msg-chat" data-id="{{ $assignedTo['id'] }}" style="white-space: normal;">
+                                    <span class="td-full-chat-container-{{ $assignedTo['id'] }} hidden">
+                                        {{ $assignedTo['message'] }} </span>
+                                </div>
+                                <!-- END - #DEVTASK-19918 -->
+                            </div>
+                        </div>
+                        </div>
+                        
+                @endforeach    
+                        
+                {{-- <table class="assign hide" data-id="{{$pagrank}}">
+                    < ?php $tableTrCounter = '0'; ?>
                     @foreach ($category->assignedTo as $assignedTo)
-                        <tr>
+                    < ?php $tableTrCounter++;
+                        if($tableTrCounter != 1)
+                            $tTrClass = 'comm-'.$pagrank.' hidden';
+                        else
+                            $tTrClass = '';
+                    ?>
+                        <tr class="{{$tTrClass}}">
                             <td width="32%">
 
                                 @if (auth()->user()->isAdmin())
@@ -153,9 +255,9 @@
                                     {{ $assignedTo['assigned_to_name'] }}
                                 @endif
                             </td>
-                            <td class="pt-2">
+                            <td class="pt-2"  width="32%">
                                 <div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1 msg">
-                                    <?php
+                                    < ?php
                                     $MsgPreview = '# ';
                                     if ($website) {
                                         $MsgPreview = $website->website;
@@ -199,7 +301,7 @@
 
                         </tr>
                     @endforeach
-                </table>
+                </table> --}}
             </td>
 
             <td style="display:none;">
@@ -290,7 +392,14 @@
                     </div>
                 </div>
             </td>
-
+            <td>
+                <?php echo Form::select('status', ['' => '-- Select --'] + $allStatus, $site->status, [
+                    'class' => 'form-control save-item-select globalSelect2',
+                    'data-category' => $category->id,
+                    'data-type' => 'status',
+                    'data-site' => $site ? $site->id : '',
+                ]); ?>
+            </td>
             <td class="pt-1">
                 <button type="button" data-site-id="@if ($site) {{ $site->id }} @endif"
                     data-site-category-id="{{ $category->id }}"
@@ -316,56 +425,60 @@
                         <i class="fa fa-history" aria-hidden="true"></i>
                     </button>
                 @endif
+                <br/>
                 <button type="button" class="btn preview-img-btn pd-5"
                     data-id="@if ($site) {{ $site->id }} @endif">
                     <i class="fa fa-eye" aria-hidden="true"></i>
                 </button>
+                
                 @if (Auth::user()->isAdmin() || $hasSiteDevelopment)
                     @php
                         $websitenamestr = $website ? $website->title : '';
                     @endphp
                     <button style="padding:3px;" title="create quick task" type="button"
-                        class="btn btn-image d-inline create-quick-task pd-5"
+                        class="btn btn-image d-inline create-quick-task "
                         data-id="@if ($site) {{ $site->id }} @endif"
                         data-title="@if ($site) {{ $websitenamestr . ' ' . $site->title }} @endif"><img
                             style="width:12px !important;" src="/images/add.png" /></button>
-                    <button style="padding-left: 0;float: right;padding-right:0px;" type="button"
-                        class="btn pt-1 btn-image d-inline count-dev-customer-tasks" title="Show task history"
+                    <button style="padding-left: 0;padding-right:0px;" type="button"
+                        class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history"
                         data-id="@if ($site) {{ $site->id }} @endif"
                         data-category="{{ $category->id }}"><i class="fa fa-info-circle"></i></button>
-                    <button style="padding-left: 0;float: right;padding-right:0px;" type="button"
-                        class="btn pt-1 btn-image d-inline tasks-relation" title="Show task relation"
+                    <button style="padding-left: 0;padding-right:0px;" type="button"
+                        class="btn  btn-image d-inline tasks-relation" title="Show task relation"
                         data-id="@if ($site) {{ $site->id }} @endif"><i
                             class="fa fa-dashboard"></i></button>
                 @endif
-                <button class="btn btn-image d-inline create-quick-task pd-5">
-                    <span>
+                <br/>
                         <?php $status = $site ? $site->status : 0; ?>
                         @if ($status == 3)
-                            <i class="fa fa-ban save-status" data-text="4" data-site="{{ $site ? $site->id : '' }}"
-                                data-category="{{ $category->id }}" data-type="status" aria-hidden="true"
-                                style="color:red;" title="Deactivate"></i>
+                            <button class="btn btn-image d-inline create-quick-task ">
+                                <span>
+                                <i class="fa fa-ban save-status" data-text="4" data-site="{{ $site ? $site->id : '' }}"
+                                    data-category="{{ $category->id }}" data-type="status" aria-hidden="true"
+                                    style="color:red;" title="Deactivate"></i>
+                                </span>
+                            </button>
                         @elseif($status == 4 || $status == 0)
-                            <i class="fa fa-ban save-status" data-text="3" data-site="{{ $site ? $site->id : '' }}"
+                            <button class="btn btn-image d-inline create-quick-task ">
+                                <span>
+                                <i class="fa fa-ban save-status" data-text="3" data-site="{{ $site ? $site->id : '' }}"
                                 data-category="{{ $category->id }}" data-type="status" aria-hidden="true"
                                 style="color:black;" title="Activate"></i>
+                                </span>
+                            </button>
                         @endif
-                    </span>
-                </button>
+                    
                 <?php /* <button style="padding:3px;" type="button" class="btn btn-image d-inline toggle-class pd-5" data-id="{{ $category->id }}"><img width="2px;" src="/images/forward.png" /></button> */ ?>
                 <button type="button" data-site-id="@if ($site) {{ $site->id }} @endif"
-                    class="btn btn-status-histories-get pd-5" title="Status History">
+                    class="btn btn-status-histories-get " title="Status History" style="padding: 0px;">
                     <i class="fa fa-empire" aria-hidden="true"></i>
                 </button>
 
-                <?php echo Form::select('status', ['' => '-- Select --'] + $allStatus, $site->status, [
-                    'class' => 'form-control save-item-select width-auto globalSelect2',
-                    'data-category' => $category->id,
-                    'data-type' => 'status',
-                    'data-site' => $site ? $site->id : '',
-                ]); ?>
+                
 
             </td>
+            
         </tr>
 
         <?php /* <tr class="hidden_row_{{ $category->id  }} dis-none" data-eleid="{{ $category->id }}">
