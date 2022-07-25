@@ -415,8 +415,11 @@ $(document).on('click', '.load-communication-modal', function () {
         },
         beforeSend: function () {
             //$(thiss).text('Loading...');
+            $(thiss).html("");
+            $(thiss).html('<img src="/images/chat.png" alt="" style="cursor: nwse-resize;"><div class="spinner-border" role="status"><span class="">Loading...</span></div>');
         }
     }).done(function (response) {
+        $(".spinner-border").css("display", "none");
         var li = getHtml(response);
         if ($('#chat-list-history').length > 0) {
             $("#chat-list-history").find(".modal-dialog").css({"width":"1000px","max-width":"1000px"});
@@ -447,7 +450,7 @@ $(document).on('click', '.load-communication-modal', function () {
 
     }).fail(function (response) {
         //$(thiss).text('Load More');
-
+        $(".spinner-border").css("display", "none");
         alert('Could not load messages');
 
     });
