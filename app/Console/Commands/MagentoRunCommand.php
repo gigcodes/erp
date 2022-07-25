@@ -49,7 +49,7 @@ class MagentoRunCommand extends Command
             foreach($websites as $website){
                 if($magCom->command_name !='' && $website->server_ip !=''){
                     //$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH').$magCom->command_name.' --server ' . $magCom->server_ip.' --type custom --command ' . $website->command_type; 
-                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') .'magento-commands.sh  --server '. $website->server_ip ." --type custom --command ".$magCom->command_type;
+                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') .'magento-commands.sh  --server '. $website->server_ip ." --type custom --command '".$magCom->command_type."'";
                     if($magCom->command_name == 'bin/magento cache:f' || $magCom->command_name == "'bin/magento cache:f'") {
                         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') .'magento-commands.sh  --server '. $website->server_ip ." --type custom --command 'bin/magento cache:f'";
                     }
