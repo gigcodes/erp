@@ -271,6 +271,34 @@
 		</div>
 	</div>
 </div>
+
+<div id="message_model" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2>U I Message History</h2>
+				<button type="button" class="close" data-dismiss="modal">×</button>
+			</div>
+			<div class="modal-body" id="">
+				<div class="table-responsive">
+					<table class="table table-bordered table-striped">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>User Name</th>
+								<th>Message</th>
+								<th>Date</th>
+								
+							</tr>
+						</thead>
+						<tbody id="message_tboday">
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 @if (Auth::user()->hasRole('Admin'))
 <input type="hidden" id="user-type" value="Admin">
 @else
@@ -352,7 +380,7 @@
 				{
 					data: null,
 					render: function (data, type, row, meta) {
-						var html = '<div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1 msg" style="width: 100%;"><input type="text" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value=""><div class="d-flex p-0"><button style="float: left;padding: 0 0 0 5px" class="btn btn-sm btn-image send-message" title="Send message" data-category="'+row.id+'" data-taskid="'+row.uicheck_id+'"  data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'"><img src="/images/filled-sent.png" style="cursor: default;"></button></div><button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="uicheck" data-id="'+row.uicheck_id+'" title="Load messages" data-category="'+row.id+'" data-site_development_id="'+row.site_id+'" data-dismiss="modal"><img src="/images/chat.png" alt=""></button></div>';						
+						var html = '<div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1 msg" style="width: 100%;"><input type="text" style="width: 100%; float: left;" class="form-control quick-message-'+row.uicheck_id+' input-sm" name="message" placeholder="Message" value=""><div class="d-flex p-0"><button style="float: left;padding: 0 0 0 5px" class="btn btn-sm btn-image uicheck-message" title="Send message" data-category="'+row.id+'" data-taskid="'+row.uicheck_id+'"  data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'"><img src="/images/filled-sent.png" style="cursor: default;"></button></div><button type="button" class="btn btn-xs btn-image show-message-history load-body-class" data-object="uicheck" data-id="'+row.uicheck_id+'" title="Load messages" data-category="'+row.id+'" data-site_development_id="'+row.site_id+'" data-dismiss="modal"><img src="/images/chat.png" alt=""></button></div>';						
 						return html;						
 					}
 				},
@@ -459,7 +487,7 @@
 				{
 					data: null,
 					render: function (data, type, row, meta) {
-						var html = '<div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1 msg" style="width: 100%;"><input type="text" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value=""><div class="d-flex p-0"><button style="float: left;padding: 0 0 0 5px" class="btn btn-sm btn-image send-message" title="Send message" data-category="'+row.id+'" data-taskid="'+row.uicheck_id+'"  data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'"><img src="/images/filled-sent.png" style="cursor: default;"></button></div><button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="uicheck" data-id="'+row.uicheck_id+'" title="Load messages" data-category="'+row.id+'" data-site_development_id="'+row.site_id+'" data-dismiss="modal"><img src="/images/chat.png" alt=""></button></div>';						
+						var html = '<div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1 msg" style="width: 100%;"><input type="text" style="width: 100%; float: left;" class="form-control quick-message-'+row.uicheck_id+' input-sm" name="message" placeholder="Message" value=""><div class="d-flex p-0"><button style="float: left;padding: 0 0 0 5px" class="btn btn-sm btn-image uicheck-message" title="Send message" data-category="'+row.id+'" data-taskid="'+row.uicheck_id+'"  data-id="'+row.uicheck_id+'" data-site_development_id="'+row.site_id+'"><img src="/images/filled-sent.png" style="cursor: default;"></button></div><button type="button" class="btn btn-xs btn-image show-message-history load-body-class" data-object="uicheck" data-id="'+row.uicheck_id+'" title="Load messages" data-category="'+row.id+'" data-site_development_id="'+row.site_id+'" data-dismiss="modal"><img src="/images/chat.png" alt=""></button></div>';						
 						return html;						
 					}
 				},
@@ -850,6 +878,41 @@ $(document).on('click', '.send-message', function() {
     }
 });
 
+$(document).on("click", ".uicheck-message", function(e) {
+	e.preventDefault();
+	var id = $(this).data("id");
+    var message = $(".quick-message-"+id).val();
+    var site_development_id = $(this).data("site_development_id");
+    var category = $(this).data("category");
+
+	$.ajax({
+		url: "{{route('uicheck.set.message.history')}}",
+		type: 'POST',
+		data: {
+            id:id,
+            message: message,
+            site_development_id: site_development_id,
+            category:category,
+            "_token": "{{ csrf_token() }}",
+        },
+		beforeSend: function() {
+			$(this).text('Loading...');
+		},
+		success: function(response) {
+			if (response.code == 200) {
+				$(".quick-message-"+id).val("");
+				toastr['success'](response.message);
+				//$("#create-quick-task").modal("hide");
+              //  location.reload();
+			} else {
+				toastr['error'](response.message);
+			}
+		}
+	}).fail(function(response) {
+		toastr['error'](response.responseJSON.message);
+	});
+});
+
 $(".select2").select2();
 
 $("#checkAll").click(function(){
@@ -962,6 +1025,42 @@ $(document).on("click", ".show-issue-history", function(e) {
 	});
 });
 
+
+$(document).on("click", ".show-message-history", function(e) {
+	e.preventDefault();
+	var id = $(this).data("id");
+    var developer_status = $(this).val();
+    var site_development_id = $(this).data("site_development_id");
+    var category = $(this).data("category");
+
+	$.ajax({
+		url: "{{route('uicheck.get.message.history')}}",
+		type: 'POST',
+		data: {
+            id:id,
+            developer_status: developer_status,
+            site_development_id: site_development_id,
+            category:category,
+            "_token": "{{ csrf_token() }}",
+        },
+		beforeSend: function() {
+			$(this).text('Loading...');
+		},
+		success: function(response) {
+			if (response.code == 200) {
+				toastr['success'](response.message);
+				$("#message_tboday").html(response.html);
+				$("#message_model").modal("show");
+				
+                //location.reload();
+			} else {
+				toastr['error'](response.message);
+			}
+		}
+	}).fail(function(response) {
+		toastr['error'](response.responseJSON.message);
+	});
+});
 
 $(document).on('click', '.expand-row-msg', function () {
       var name = $(this).data('name');

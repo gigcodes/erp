@@ -23,6 +23,7 @@ use App\UiDeveloperStatusHistoryLog;
 use App\SiteDevelopmentStatus;
 use App\SiteDevelopmentCategory;
 use App\UiCheckIssueHistoryLog;
+use App\UiCheckCommunication;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -335,27 +336,61 @@ class UicheckController extends Controller
 
     public function getUiIssueHistoryLog(Request $request)
     {
-        $getIssueLog = UiCheckIssueHistoryLog::select("ui_check_issue_history_logs.*", "users.name as userName")
-        ->leftJoin("users", "users.id", "ui_check_issue_history_logs.user_id")
-        ->where('ui_check_issue_history_logs.uichecks_id', $request->id)
-        ->orderBy('ui_check_issue_history_logs.id', "DESC")
-        ->get();
+        try{
+            $getIssueLog = UiCheckIssueHistoryLog::select("ui_check_issue_history_logs.*", "users.name as userName")
+            ->leftJoin("users", "users.id", "ui_check_issue_history_logs.user_id")
+            ->where('ui_check_issue_history_logs.uichecks_id', $request->id)
+            ->orderBy('ui_check_issue_history_logs.id', "DESC")
+            ->get();
 
-        $html = "";
-        foreach($getIssueLog AS $issueLog) {
-            $html .=  '<tr>';
-            $html .=  '<td>'.$issueLog->id.'</td>';
-            $html .=  '<td>'.$issueLog->userName.'</td>';
-            $html .=  '<td>'.$issueLog->old_issue.'</td>';
-            $html .=  '<td>'.$issueLog->issue.'</td>';
-           
-            $html .=  '</tr>';
-        }
-        if($html != ""){
+            $html = "";
+            foreach($getIssueLog AS $issueLog) {
+                $html .=  '<tr>';
+                $html .=  '<td>'.$issueLog->id.'</td>';
+                $html .=  '<td>'.$issueLog->userName.'</td>';
+                $html .=  '<td>'.$issueLog->old_issue.'</td>';
+                $html .=  '<td>'.$issueLog->issue.'</td>';
+            
+                $html .=  '</tr>';
+            }
             return response()->json(['code' => 200, 'html' => $html,'message' => 'Listed successfully!!!']);
-        } else{
-            return response()->json(['code' => 500, 'message' => "data not found"]);
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
+    }
+
+    public function getUiCheckMessageHistoryLog(Request $request)
+    {
+        try{
+            $getMessageLog = UiCheckCommunication::select("ui_check_communications.*", "users.name as userName")
+            ->leftJoin("users", "users.id", "ui_check_communications.user_id")
+            ->where('ui_check_communications.uichecks_id', $request->id)
+            ->orderBy('ui_check_communications.id', "DESC")
+            ->get();
+
+            $html = "";
+            foreach($getMessageLog AS $messageLog) {
+                $html .=  '<tr>';
+                $html .=  '<td>'.$messageLog->id.'</td>';
+                $html .=  '<td>'.$messageLog->userName.'</td>';
+                $html .=  '<td>'.$messageLog->message.'</td>';
+                $html .=  '<td>'.$messageLog->created_at.'</td>';
+                $html .=  '</tr>';
+            }
+            return response()->json(['code' => 200, 'html' => $html,'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function CreateUiMessageHistoryLog(Request $request)
+    {
+        $messageLog = new UiCheckCommunication();
+        $messageLog->user_id = \Auth::user()->id;
+        $messageLog->uichecks_id = $request->id;
+        $messageLog->message = $request->message;
+        $messageLog->save();
+        return response()->json(['code' => 200, 'message' => 'Message saved successfully!!!']);
     }
 
 }
