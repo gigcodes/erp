@@ -13,6 +13,7 @@ use App\PostmanRequestHistory;
 use App\PostmanResponse;
 use App\PostmanRequestJsonHistory;
 use App\PostmanMultipleUrl;
+use App\PostmanEditHistory;
 
 class PostmanRequestCreateController extends Controller
 {
@@ -169,6 +170,29 @@ class PostmanRequestCreateController extends Controller
             $postman->method_name = $request->method_name;
             $postman->remark = $request->remark;
             $postman->save();
+
+            //History store
+            $postmanH = new PostmanEditHistory();
+            $postmanH->user_id = \Auth::user()->id;
+            $postmanH->postman_request_id = $postman->id;
+            $postmanH->folder_name = $request->folder_name;
+            $postmanH->request_name = $request->request_name;
+            $postmanH->request_type = $request->request_types;
+            $postmanH->request_url = !empty($request->request_url)?implode(",",$request->request_url) : "";
+            $postmanH->controller_name = $request->controller_name;
+            $postmanH->method_name = $request->method_name;
+            $postmanH->params = $request->params;
+            $postmanH->authorization_type = $request->authorization_type;
+            $postmanH->authorization_token = $request->authorization_token;
+            $postmanH->request_headers = $request->request_headers;
+            $postmanH->body_type = $request->body_type;
+            $postmanH->body_json = $request->body_json;
+            $postmanH->pre_request_script = $request->pre_request_script;
+            $postmanH->tests = $request->tests;
+            $postmanH->user_permission = !empty($request->user_permission)?implode(",",$request->user_permission).$created_user_permission : $created_user_permission;
+            $postmanH->remark = $request->remark;
+            $postmanH->save();
+           
             
             if(is_array($request->request_url)){ 
                 PostmanMultipleUrl::where('postman_request_create_id', $request->id ?? $postman->id)->delete();
@@ -196,6 +220,7 @@ class PostmanRequestCreateController extends Controller
         }
 
     }
+
 
     /**
      * This function use for add to user permission
@@ -255,6 +280,7 @@ class PostmanRequestCreateController extends Controller
                     'user_id' => \Auth::user()->id,
                     'request_id' => $request->id,
                     'request_data' => $request->json_data,
+                    'json_Name' => $request->json_name
                 ]
             );
             PostmanRequestJsonHistory::where('id', $jsonVersion->id)->update(['version_json' => 'v'.$jsonVersion->id]);
@@ -292,6 +318,15 @@ class PostmanRequestCreateController extends Controller
         try{
             $postman = PostmanRequestCreate::find($request->id);
             $postmanUrl = PostmanMultipleUrl::where('postman_request_create_id', $request->id)->get();
+            
+            $postmanJson = PostmanRequestJsonHistory::where("request_data", $postman->body_json)->first();
+            $postmanJson->json_Name = $postman->request_name ?? '';
+            $postmanJson->save();
+            $postman->json_body_id = $postmanJson->id ?? '';
+            $postman->save();
+            
+            $postman = PostmanRequestCreate::find($request->id);
+            
             $ops = '';
             $folders = PostmanFolder::all();
             foreach($folders as $folder){
@@ -318,6 +353,7 @@ class PostmanRequestCreateController extends Controller
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
+
     
     /**
      * Remove the specified resource from storage.
@@ -397,6 +433,27 @@ class PostmanRequestCreateController extends Controller
             //     $html += '<td>'.$postManH->userName.'</td>';
             //     $html += '<td>'.json_encode($postManH->response).'</td>';
             //     $html += '<td>'.$postManH->created_at.'</td>';
+            // }
+            return response()->json(['code' => 200, 'data' => $postHis,'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function postmanEditHistoryLog(Request $request)
+    {
+        try{
+            $postHis = PostmanEditHistory::select('postman_edit_histories.id','postman_edit_histories.body_json', 'postman_edit_histories.request_url', 'postman_edit_histories.created_at',  'u.name AS userName')
+            ->leftJoin('users AS u', 'u.id', 'postman_edit_histories.user_id')
+            ->where('postman_edit_histories.postman_request_id', '=', $request->id)->orderby('id', 'DESC')->get();
+            // $html = '';
+            // foreach($postHis AS $postManH) {
+            //      $html += '<td>'.$postManH->id.'</td>';
+            //      $html += '<td>'.$postManH->userName.'</td>';
+            //      $html += '<td>'.$postManH->userName.'</td>';
+            //      $html += '<td>'.json_encode($postManH->response).'</td>';
+            //      $html += '<td>'.$postManH->created_at.'</td>';
             // }
             return response()->json(['code' => 200, 'data' => $postHis,'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
