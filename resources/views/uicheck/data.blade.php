@@ -45,6 +45,16 @@
                 </select>
                 @endif
             </td>
+            {{-- @if (Auth::user()->hasRole('Admin')) --}}
+                <td>
+                    <select name="user_id"  class="save-item-select globalSelect2 website_id">
+                        <option value="">--Select--</option>
+                        @foreach ($allUsers as $user)
+                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                        @endforeach
+                    </select>
+                </td>
+            {{-- @endif --}}
             <td class="pt-0 pr-2">
                 <div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1">
                     <input style="margin-top: 0px;width:87% !important;" type="text"
@@ -106,7 +116,7 @@
                     "data-site_development_id" => $category->site_id
                 ]); ?>
                 @endif
-                <button type="button" class="btn btn-xs show-admin-status-history" title="Show                                                             " data-id="{{$uiCheck->id ?? ''}}"><i data-id="{{$uiCheck->id ?? ''}}" class="fa fa-info-circle"></i></button>
+                <button type="button" class="btn btn-xs show-admin-status-history" title="Show" data-id="{{$uiCheck->id ?? ''}}"><i data-id="{{$uiCheck->id ?? ''}}" class="fa fa-info-circle"></i></button>
             </td>
         </tr>
   
