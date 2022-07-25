@@ -292,7 +292,7 @@
                         </select>
                     </div>
                     <div class="form-group col-md-12">
-                      <label for="command_type">Command Type</label>
+                      <label for="command_type">Command</label>
                       <input type="text" name="command_type" value="" class="form-control" id="command_type" placeholder="Enter request type">
                     </div>
                   </div>
