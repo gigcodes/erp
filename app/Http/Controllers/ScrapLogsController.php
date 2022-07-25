@@ -307,6 +307,7 @@ class ScrapLogsController extends Controller
     }
 
     public function databaseLog(Request $request){
+		
     	$search = '';
 		if($_SERVER['HTTP_HOST'] == 'erp.local:8080') {
 			$namefile = storage_path('logs/mysql/server_audit.log');
@@ -318,6 +319,7 @@ class ScrapLogsController extends Controller
 	    	$lines = @file($namefile);
 			//print_r($lines);
 			if($lines){
+				$logBtn = SlowLogsEnableDisable::orderBy('id', "desc")->first();
 				//print('Line in');
 	    		$output = array();
 				for($i = count($lines) -1; $i >= 0; $i--){
@@ -333,7 +335,7 @@ class ScrapLogsController extends Controller
 					});
 		    		$output = $result;
 		    	}
-		    	return view('scrap-logs.database-log', compact('output','search'));
+		    	return view('scrap-logs.database-log', compact('output','search', 'logBtn'));
 	    	}
 	    	return 'File not found!';
 		}
