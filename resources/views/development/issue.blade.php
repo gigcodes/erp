@@ -104,12 +104,12 @@
             @if(auth()->user()->isReviwerLikeAdmin())
                 <a href="javascript:" class="btn btn-secondary" id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal">Add New Dev Task </a>
              @endif
-             @if (auth()->user()->isAdmin())
+             {{-- @if (auth()->user()->isAdmin()) --}}
              <a class="btn btn-secondary" style="color:white;" data-toggle="modal" data-target="#newStatusModal">Create Status</a>
-            @endif
-            @if (auth()->user()->isAdmin())
+            {{-- @endif --}}
+            {{-- @if (auth()->user()->isAdmin()) --}}
              <a class="btn btn-secondary" style="color:white;" id="make_delete_button">Delete Tasks</a>
-            @endif
+            {{-- @endif --}}
 
         </div>
 
