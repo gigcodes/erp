@@ -2271,7 +2271,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('postman/user/permission', 'PostmanRequestCreateController@userPermission');
     
     Route::post('postman/get/mul/request', 'PostmanRequestCreateController@getMulRequest');
-    
+
+    Route::post('postman/edit/history/', 'PostmanRequestCreateController@postmanEditHistoryLog');
     
 });
 /*
@@ -3105,6 +3106,11 @@ Route::middleware('auth')->group(function () {
     Route::post('uicheck/dev/status/history', 'UicheckController@getUiDeveloperStatusHistoryLog')->name('uicheck.dev.status.history');
     Route::post('uicheck/admin/status/history', 'UicheckController@getUiAdminStatusHistoryLog')->name('uicheck.admin.status.history');
     Route::post('uicheck/issue/history', 'UicheckController@getUiIssueHistoryLog')->name('uicheck.get.issue.history');
+    Route::post('uicheck/user/access', 'UicheckController@access')->name('uicheck.user.access');
+    Route::post('uicheck/document/upload', 'UicheckController@upload_document')->name('uicheck.upload-document');
+    Route::get('uicheck/get-document', 'UicheckController@getDocument');
+    Route::post('uicheck/type/create', 'UicheckController@typeStore')->name('uicheck.type.store');
+    Route::post('uicheck/type/save', 'UicheckController@typeSave')->name('uicheck.type.save');
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
@@ -3828,7 +3834,7 @@ Route::get('magento/command/search', 'MagentoCommandController@search')->name("m
 Route::post('magento/command/add', 'MagentoCommandController@store')->name("magento.command.add");
 Route::post('magento/command/run', 'MagentoCommandController@runCommand')->name("magento.command.run");
 Route::post('magento/command/edit', 'MagentoCommandController@edit')->name("magento.command.edit");
-Route::post('magento/command/history', 'MagentoCommandController@commandHistoryLog')->name("magento.command.edit");
+Route::post('magento/command/history', 'MagentoCommandController@commandHistoryLog')->name("magento.command.history");
 Route::delete('magento/command/delete', 'MagentoCommandController@destroy')->name("magento.command.delete");
 
 

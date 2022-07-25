@@ -240,7 +240,10 @@
                     <i class="fa fa-paper-plane" aria-hidden="true"></i>
                   </a>
                   <a class="btn btn-image edit-postman-btn" data-id="{{ $postman->id }}"><img data-id="{{ $postman->id }}" src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></a>
-                  <a class="btn delete-postman-btn"  data-id="{{ $postman->id }}" href="#"><img  data-id="{{ $postman->id }}" src="/images/delete.png" style="cursor: nwse-resize; width: 16px;"></a>
+                  @if (Auth::user()->isAdmin())
+                    <a class="btn delete-postman-btn"  data-id="{{ $postman->id }}" href="#"><img  data-id="{{ $postman->id }}" src="/images/delete.png" style="cursor: nwse-resize; width: 16px;"></a>
+                    <a title="Edit History" class="btn preview_edit_history"  data-id="{{ $postman->id }}" href="javascript:;"><i class="fa fa-tachometer" aria-hidden="true"></i></a>
+                  @endif
                   <a class="btn postman-history-btn"  data-id="{{ $postman->id }}" href="#"><i class="fa fa-history" aria-hidden="true"></i></a>
                   <a title="Preview Response" data-id="{{ $postman->id }}" class="btn btn-image preview_response pd-5 btn-ht" href="javascript:;"><i class="fa fa-product-hunt" aria-hidden="true"></i></a>
                   <a title="Preview Requested" data-id="{{ $postman->id }}" class="btn btn-image preview_requested pd-5 btn-ht" href="javascript:;"><i class="fa fa-eye" aria-hidden="true"></i></a>
@@ -438,6 +441,39 @@
   </div>
 </div>
 
+<div id="postmanEditHistoryModel" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div id="add-mail-content">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 class="modal-title">Postman Edit History</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>User Name</th>
+                    <th>Parmiters</th>
+                    <th>Urls</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody class="tbodayPostmanEditHistory">
+                </tbody>
+              </table>  
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="addPostman" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
       <!-- Modal content-->
@@ -555,7 +591,8 @@
                       <select name="body_json" value="" class="form-control" id="body_json" >
                         <option value="">select Json</option>
                         @foreach ($postJsonVer as $jsonVer)
-                            <option value="{{$jsonVer->request_data}}">{{$jsonVer->version_json.'  '.$jsonVer->request_data}}</option>
+                            <?php  $name = $jsonVer->json_Name ?? substr($jsonVer->request_data,0,60); ?>
+                            <option value="{{$jsonVer->request_data}}">{{$jsonVer->version_json.'  '.$name}}</option>
                         @endforeach
                       </select>
                       {{-- <input type="text" name="body_json" value="" class="form-control" id="body_json" placeholder="Enter body json Ex.  {'name': 'hello', 'type':'not'}"> --}}
@@ -748,15 +785,20 @@
                     <input type="text" name="jsonVersion" required value="" class="form-control" id="jsonVersion" placeholder="Enter Json Here">
                   </div>
                 </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-12">
+                    <label for="jsonName">Name</label>
+                    <input type="text" name="jsonName" required value="" class="form-control" id="jsonName" placeholder="Enter Json Name">
+                  </div>
+                </div>
               </form> 
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
               <button type="button" class="btn btn-secondary postman-addJson">Save</button>
             </div>
-            
           </div>
-         
       </div>
     </div>
   </div>
@@ -1102,6 +1144,57 @@
         });
     });
 
+    $(document).on("click",".preview_edit_history",function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+        $.ajax({
+          url: "/postman/edit/history/",
+          type: "post",
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+          data:{
+            id:id
+          }
+        }).done(function(response) {
+          if(response.code = '200') {
+            var t = '';
+            $.each(response.data, function(key, v) {
+              var body_json_data  = '';
+              if(v.body_json)
+                body_json_data = v.body_json.substring(0,10);
+              var request_data_val  = '';
+              if(v.request_data)
+                request_data_val = v.request_data.substring(0,10);
+              var request_url_val  = '';
+              if(v.request_url)
+              request_url_val = v.request_url.substring(0,10)
+
+
+              t += '<tr><td>'+v.id+'</td>';
+              t += '<td>'+v.userName+'</td>';
+              t += '<td  class="expand-row-msg" data-name="body_json" data-id="'+v.id+'" ><span class="show-short-body_json-'+v.id+'">'+body_json_data+'...</span>    <span style="word-break:break-all;" class="show-full-body_json-'+v.id+' hidden">'+v.body_json+'</span></td>';
+              //t += '<td>'+v.response_code+'</td>';
+              t += '<td  class="expand-row-msg" data-name="request_url" data-id="'+v.id+'" ><span class="show-short-request_url-'+v.id+'">'+request_url_val+'...</span>    <span style="word-break:break-all;" class="show-full-request_url-'+v.id+' hidden">'+v.request_url+'</span></td>';
+              //t += '<td  class="expand-row-msg" data-name="request_data" data-id="'+v.id+'" ><span class="show-short-request_data-'+v.id+'">'+request_data_val+'...</span>    <span style="word-break:break-all;" class="show-full-request_data-'+v.id+' hidden">'+v.request_data+'</span></td>';
+              t += '<td>'+v.created_at+'</td></tr>';
+            });
+            $(".tbodayPostmanEditHistory").html(t);
+            $('#postmanEditHistoryModel').modal('show');
+            toastr['success']('Postman Edit History listed successfully!!!', 'success'); 
+            
+          } else {
+            toastr['error'](response.message, 'error'); 
+          }
+        }).fail(function(errObj) {
+          $('#loading-image').hide();
+           $("#postmanResponseHistory").hide();
+           toastr['error'](errObj.message, 'error');
+        });
+    });
+
+
     $(document).on("click",".preview_requested",function(e){
         e.preventDefault();
         var $this = $(this);
@@ -1177,7 +1270,8 @@
     });
     $(document).on("click",".postman-addJson",function(e){
         e.preventDefault();
-        var jsonData = $('#jsonVersion').val();;
+        var jsonData = $('#jsonVersion').val();
+        var jsonName = $('#jsonName').val();
         $.ajax({
           url: "postman/add/json/version",
           type: "post",
@@ -1185,12 +1279,13 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
           data:{
-            json_data:jsonData
+            json_data:jsonData,
+            json_name : jsonName
           }
         }).done(function(response) {
           if(response.code = '200') {
             $('#body_json').append(`<option value='${response.data.request_data}'>
-                                       ${response.data.version_json+' '+response.data.request_data}
+                                       ${response.data.version_json+' '+response.data.json_Name}
                                   </option>`);
             toastr['success']('Json Added successfully!!!', 'success'); 
           } else {

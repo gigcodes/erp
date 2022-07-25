@@ -48,9 +48,10 @@ class MagentoRunCommand extends Command
             
             foreach($websites as $website){
                 if($magCom->command_name !='' && $website->server_ip !=''){
-                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $magCom->command_name.' ' . $website->server_ip . ' ' . $magCom->type; 
+                    //$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH').$magCom->command_name.' --server ' . $magCom->server_ip.' --type custom --command ' . $website->command_type; 
+                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') .'magento-commands.sh  --server '. $website->server_ip ." --type custom --command '".$magCom->command_type."'";
                     if($magCom->command_name == 'bin/magento cache:f' || $magCom->command_name == "'bin/magento cache:f'") {
-                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') .' --server '. $website->server_ip ." --type custom --command 'bin/magento cache:f'";
+                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') .'magento-commands.sh  --server '. $website->server_ip ." --type custom --command 'bin/magento cache:f'";
                     }
                     $allOutput = array();
                     $allOutput[] = $cmd;
@@ -68,7 +69,7 @@ class MagentoRunCommand extends Command
                             "command_id" =>  $magCom->id,
                             "user_id" =>  \Auth::user()->id ?? '',
                             "website_ids" => $website->id,
-                            "command_name" => $magCom->command_name,
+                            "command_name" => $cmd,
                             "server_ip" => $website->server_ip,
                             "command_type" => $magCom->command_type,
                             "response" => $result,
@@ -82,7 +83,7 @@ class MagentoRunCommand extends Command
                             "command_id" =>  $magCom->id ?? '',
                             "user_id" =>  \Auth::user()->id ?? '',
                             "website_ids" => $website->id,
-                            "command_name" => $magCom->command_name ?? '',
+                            "command_name" => $cmd ?? '',
                             "server_ip" => $website->server_ip ?? '',
                             "command_type" => $magCom->command_type ?? '',
                             "response" => "Server IP and Command not found",
@@ -97,7 +98,7 @@ class MagentoRunCommand extends Command
                     "command_id" =>  $magCom->id,
                     "user_id" =>  \Auth::user()->id ?? '',
                     "website_ids" => $magCom->website_ids,
-                    "command_name" => $magCom->command_name,
+                    "command_name" => $cmd,
                     "server_ip" => "",
                     "command_type" => $magCom->command_type,
                     "response" => " Error ".$e->getMessage(),
