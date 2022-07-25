@@ -3110,6 +3110,8 @@ Route::middleware('auth')->group(function () {
     Route::get('uicheck/get-document', 'UicheckController@getDocument');
     Route::post('uicheck/type/create', 'UicheckController@typeStore')->name('uicheck.type.store');
     Route::post('uicheck/type/save', 'UicheckController@typeSave')->name('uicheck.type.save');
+    Route::post('uicheck/message/history', 'UicheckController@getUiCheckMessageHistoryLog')->name('uicheck.get.message.history');
+    Route::post('uicheck/set/message/history', 'UicheckController@CreateUiMessageHistoryLog')->name('uicheck.set.message.history');
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
