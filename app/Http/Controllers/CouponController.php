@@ -23,21 +23,17 @@ use App\Mails\AddCoupon;
 use App\CouponCodeRuleLog;
 use App\LogRequest;
 
-class CouponController extends Controller
-{
+class CouponController extends Controller {
     private $DATA_COLUMN_KEY = -99;
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
-    {
-        $coupons        = Coupon::orderBy('id', 'DESC')->get();
-        $websites       = Website::all();
+    public function index(Request $request) {
         $website_stores = WebsiteStore::with('storeView')->get();
-
         $store_websites = StoreWebsite::all();
+        $customers = [];
 
         // $url = "https://sololuxury.com/rest/V1/salesRulesList/";
         // $ch = curl_init();
@@ -47,23 +43,56 @@ class CouponController extends Controller
         // $rule_lists = json_decode($response);
         // curl_close($ch); // Close the connection
 
-        
-        if($request->flt_coupon && $request->flt_coupon != null){
-            $rule_lists = CouponCodeRules::where('coupon_code',$request->flt_coupon)->orderBy('id', 'desc')->get();
-        }else{
-            $rule_lists = CouponCodeRules::orderBy('id', 'desc')->get();    
+        $q = CouponCodeRules::query();
+        $q->with('users');
+        if ($srch = request('flt_coupon')) {
+            $q->where('coupon_code', $srch);
         }
-        foreach ($rule_lists as $rules) {
-            $websites           = Website::whereIn('platform_id', explode(',', $rules->website_ids))->where('store_website_id', $rules->store_website_id)->pluck('name')->toArray();
-            $rules->website_ids = implode(',', $websites);
-        }
-        $customers = Customer::where('email','!=','')->get();
+        $rule_lists = $q->orderBy('id', 'desc')->get();
+        if ($rule_lists->count()) {
 
-        return view('coupon.index', compact('coupons', 'websites', 'website_stores', 'rule_lists', 'store_websites', 'customers'));
+            $customers = Customer::where('email', '!=', '')->get();
+
+            // Make Website Related Data
+            $websites = [];
+            $temp = Website::orderBy('name')->select(['id', 'name', 'platform_id', 'store_website_id'])->get();
+            if ($temp->count()) {
+                foreach ($temp as $t) {
+                    $websites[$t->store_website_id][$t->platform_id][$t->id] = $t->name;
+                }
+            }
+
+            foreach ($rule_lists as $rules) {
+
+                // New Code to get Website Names
+                $websiteNames = [];
+                if ($websiteIds = $rules->website_ids ? explode(',', $rules->website_ids) : []) {
+                    foreach ($websiteIds as $websiteId) {
+                        if (isset($websites[$rules->store_website_id][$websiteId])) {
+                            $websiteNames = array_merge_recursive($websiteNames, $websites[$rules->store_website_id][$websiteId]);
+                        }
+                    }
+                }
+                $rules->website_ids = $websiteNames ? implode(', ', $websiteNames) : "--";
+
+                // OLD CODE - PREVENT QUERIES IN LOOP
+                // $websites = Website::whereIn('platform_id', explode(',', $rules->website_ids))
+                //     ->where('store_website_id', $rules->store_website_id)
+                //     ->pluck('name', 'id')
+                //     ->toArray();
+                // $rules->website_ids = implode(', ', $websites);
+            }
+        }
+
+        return view('coupon.index', compact(
+            'website_stores',
+            'rule_lists',
+            'store_websites',
+            'customers'
+        ));
     }
 
-    public function loadData()
-    {
+    public function loadData() {
         $tableName  = with(new Coupon)->getTable();
         $primaryKey = 'id';
         $columns    = array(
@@ -188,8 +217,7 @@ class CouponController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
+    public function create() {
         //
     }
 
@@ -199,8 +227,7 @@ class CouponController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreateCouponRequest $request)
-    {
+    public function store(CreateCouponRequest $request) {
 
         $httpClient = new Client;
 
@@ -250,8 +277,7 @@ class CouponController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
+    public function show($id) {
         //
     }
 
@@ -261,8 +287,7 @@ class CouponController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
+    public function edit($id) {
         //
     }
 
@@ -273,8 +298,7 @@ class CouponController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
+    public function update(Request $request, $id) {
 
         $request->validate([
             'code'                 => 'required',
@@ -326,8 +350,7 @@ class CouponController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
-    {
+    public function destroy($id) {
         //
         $count = Coupon::destroy($id);
         if ($count == 1) {
@@ -346,8 +369,7 @@ class CouponController extends Controller
         }
     }
 
-    public function showReport($couponId = null)
-    {
+    public function showReport($couponId = null) {
 
         $start = Input::get('start');
         $end   = Input::get('end');
@@ -388,13 +410,12 @@ class CouponController extends Controller
         );
     }
 
-    public function addRules(Request $request)
-    {   
+    public function addRules(Request $request) {
 
         $store_website = StoreWebsite::where('id', $request->store_website_id)->first();
-        
+
         $store_lables  = [];
-        if(!empty($request->store_labels)) {
+        if (!empty($request->store_labels)) {
             foreach ($request->store_labels as $key => $lables) {
                 array_push($store_lables, ['store_id' => $key, 'store_label' => $lables, 'extension_attributes' => '{}']);
             }
@@ -403,7 +424,7 @@ class CouponController extends Controller
         $startDate = !empty($request->start) ? $request->start : date("Y-m-d");
         $endDate   = $request->expiration;
         $timeUsed  = 6;
-        
+
         $authorization      = "Authorization: Bearer " . $store_website->api_token;
         $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
 
@@ -437,9 +458,7 @@ class CouponController extends Controller
                 "conditions"      => [
                     [
                         "condition_type"  => "",
-                        "conditions"      => [
-
-                        ],
+                        "conditions"      => [],
                         "aggregator_type" => "",
                         "operator"        => null,
                         "value"           => "",
@@ -465,7 +484,7 @@ class CouponController extends Controller
             "simple_free_shipping"  => "0",
             //"store_website_id" => $request->store_website_id
         ];
-        
+
         $url = $store_website->magento_url . "/rest/V1/salesRules/";
         $ch  = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', $authorization));
@@ -476,22 +495,23 @@ class CouponController extends Controller
         $response = curl_exec($ch);
         $result   = json_decode($response);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close ($ch);
-        LogRequest::log($startTime,$url,'POST',json_encode($parameters),json_decode($response),$httpcode,'addRules','App\Http\Controllers\CouponController');
+        curl_close($ch);
+        // ($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'addRules', 'App\Http\Controllers\CouponController');
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'App\Http\Controllers\CouponController', 'CouponRulesAdd');
 
-        \Log::channel('listMagento')->info(print_r([$url,$store_website->api_token,json_encode($parameters),$response],true));
-        if($result != false){
+        \Log::channel('listMagento')->info(print_r([$url, $store_website->api_token, json_encode($parameters), $response], true));
+        if ($result != false) {
             if (isset($result->code)) {
                 return response()->json(['type' => 'error', 'message' => $result->message, 'data' => $result], 200);
             }
 
             if ($request->coupon_type == "SPECIFIC_COUPON" && !isset($request->auto_generate)) {
                 $response = $this->geteratePrimaryCouponCode($request->code, $result->rule_id, $request->uses_per_coustomer, $request->expiration, '', $store_website);
-                if(!isset($response->coupon_id)) {
-                    $this->deleteCouponCodeRuleByWebsiteId($result->rule_id,$request->store_website_id);
-                    if(isset($response->message) && isset($response->parameters)) {
+                if (!isset($response->coupon_id)) {
+                    $this->deleteCouponCodeRuleByWebsiteId($result->rule_id, $request->store_website_id);
+                    if (isset($response->message) && isset($response->parameters)) {
                         return response()->json(['type' => 'error', 'message' => str_replace("%1", $response->parameters[0], $response->message), 'data' => $result], 200);
-                    }else{
+                    } else {
                         return response()->json(['type' => 'error', 'message' => "Coupon code cannot be create please check request with magento log", 'data' => $response], 200);
                     }
                 }
@@ -532,7 +552,7 @@ class CouponController extends Controller
                     'log_type' => 'store_success',
                     'message' => 'Rule id is created',
                 ]);
-                if(!empty($request->store_labels)) {
+                if (!empty($request->store_labels)) {
                     foreach ($request->store_labels as $key => $label) {
                         $store_view_value                = new WebsiteStoreViewValue();
                         $store_view_value->rule_id       = $local_rules->id;
@@ -546,8 +566,7 @@ class CouponController extends Controller
         return response()->json(['type' => "success", 'data' => $result, 'message' => "Added successfully"], 200);
     }
 
-    public function geteratePrimaryCouponCode($code, $magento_rule_id, $uses_per_customer, $end_date, $laravel_rule_id = "", $store_website_id)
-    {
+    public function geteratePrimaryCouponCode($code, $magento_rule_id, $uses_per_customer, $end_date, $laravel_rule_id = "", $store_website_id) {
         $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
 
         $authorization        = "Authorization: Bearer " . $store_website_id->api_token;
@@ -574,18 +593,18 @@ class CouponController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
         $response = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            
+
         $result   = json_decode($response);
         curl_close($ch); // Close the connection
-        LogRequest::log($startTime,$url,'POST',json_encode($parameters),json_decode($response),$httpcode,'geteratePrimaryCouponCode','App\Http\Controllers\CouponController');
+        // ($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'geteratePrimaryCouponCode', 'App\Http\Controllers\CouponController');
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'App\Http\Controllers\CouponController', 'CouponRulesGeteratePrimaryCouponCode');
 
-        \Log::channel('listMagento')->info(print_r([$url,$store_website_id->api_token,json_encode($parameters)],true));
+        \Log::channel('listMagento')->info(print_r([$url, $store_website_id->api_token, json_encode($parameters)], true));
 
         return $result;
     }
 
-    public function getCouponCodeRuleById(Request $request)
-    {
+    public function getCouponCodeRuleById(Request $request) {
         // $authorization = "Authorization: Bearer u75tnrg0z2ls8c4yubonwquupncvhqie";
         // $url = "https://sololuxury.com/rest/V1/salesRules/".$request->rule_id;
         // $ch = curl_init();
@@ -610,8 +629,7 @@ class CouponController extends Controller
         }
     }
 
-    public function deleteCouponCodeRuleByWebsiteId($id,$storeWebsiteID)
-    {
+    public function deleteCouponCodeRuleByWebsiteId($id, $storeWebsiteID) {
         $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
 
         $store_website = StoreWebsite::where('id', $storeWebsiteID)->first();
@@ -625,14 +643,14 @@ class CouponController extends Controller
         $response   = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $result     = json_decode($response);
-        LogRequest::log($startTime,$url,'DELETE',[],json_decode($response),$httpcode,'deleteCouponCodeRuleByWebsiteId','App\Http\Controllers\CouponController');
+        // ($startTime, $url, 'DELETE', [], json_decode($response), $httpcode, 'deleteCouponCodeRuleByWebsiteId', 'App\Http\Controllers\CouponController');
+        LogRequest::log($startTime, $url, 'DELETE', [], json_decode($response), $httpcode, 'App\Http\Controllers\CouponController', 'CouponRulesDeleteCouponCodeRuleByWebsiteId');
 
-        
+
         return true;
     }
 
-    public function deleteCouponCodeRuleById($id)
-    {
+    public function deleteCouponCodeRuleById($id) {
         $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
 
         $rule_lists    = CouponCodeRules::where('id', $id)->first();
@@ -647,15 +665,15 @@ class CouponController extends Controller
         $response   = curl_exec($ch);
         $result     = json_decode($response);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime,$url,'DELETE',[],json_decode($response),$httpcode,'deleteCouponCodeRuleById','App\Http\Controllers\CouponController');
+        // ($startTime, $url, 'DELETE', [], json_decode($response), $httpcode, 'deleteCouponCodeRuleById', 'App\Http\Controllers\CouponController');
+        LogRequest::log($startTime, $url, 'DELETE', [], json_decode($response), $httpcode, 'App\Http\Controllers\CouponController', 'CouponRulesDeleteCouponCodeRuleById');
 
         $coupon     = Coupon::where('rule_id', $rule_lists->magento_rule_id)->delete();
         $rule_lists = CouponCodeRules::where('id', $id)->delete();
         return redirect()->route('coupons.index');
     }
 
-    public function generateCouponCode(Request $request)
-    {
+    public function generateCouponCode(Request $request) {
         $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
 
 
@@ -700,7 +718,8 @@ class CouponController extends Controller
         $response = curl_exec($ch);
         $result   = json_decode($response);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime,$url,'POST',json_encode($parameters),json_decode($response),$httpcode,'generateCouponCode','App\Http\Controllers\CouponController');
+        // ($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'generateCouponCode', 'App\Http\Controllers\CouponController');
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'App\Http\Controllers\CouponController', 'CouponRulesGenerateCouponCode');
 
         curl_close($ch); // Close the connection
         if (isset($result->message)) {
@@ -724,12 +743,13 @@ class CouponController extends Controller
         return response()->json(['type' => "success", 'data' => $result, 'message' => "Added successfully"], 200);
     }
 
-    public function updateRules(Request $request)
-    {
+    public function updateRules(Request $request) {
+        // echo '<pre>'; print_r(request()->all()); exit;
+
         $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
 
         $store_lables = [];
-        if(!empty($request->store_labels)) {
+        if (!empty($request->store_labels)) {
             foreach ($request->store_labels as $key => $lables) {
                 array_push($store_lables, ['store_id' => $key, 'store_label' => $lables, 'extension_attributes' => '{}']);
             }
@@ -768,9 +788,7 @@ class CouponController extends Controller
                 "conditions"      => [
                     [
                         "condition_type"  => "",
-                        "conditions"      => [
-
-                        ],
+                        "conditions"      => [],
                         "aggregator_type" => "",
                         "operator"        => null,
                         "value"           => "",
@@ -809,10 +827,9 @@ class CouponController extends Controller
         $result   = json_decode($response);
 
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime,$url,'POST',json_encode($parameters),json_decode($response),$httpcode,'updateRules','App\Http\Controllers\CouponController');
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'App\Http\Controllers\CouponController', 'CouponRulesUpdate');
 
-
-        \Log::channel('listMagento')->info(print_r([$url,$store_website->api_token,json_decode($response)],true));
+        \Log::channel('listMagento')->info(print_r([$url, $store_website->api_token, json_decode($response)], true));
 
         curl_close($ch); // Close the connection
         if (isset($result->code) || isset($result->message)) {
@@ -824,8 +841,8 @@ class CouponController extends Controller
         }
 
         $local_rules->name                = $request->name_edit;
-        $local_rules->description         = $request->description;
-        $local_rules->is_active           = $request->active == "1" ? true : false;
+        $local_rules->description         = $request->description_edit;
+        $local_rules->is_active           = $request->active_edit == 1 ? true : false;
         $local_rules->times_used          = 6;
         $local_rules->website_ids         = implode(',', array_unique($request->website_ids_edit));
         $local_rules->customer_group_ids  = implode(',', array_unique($request->customer_groups_edit));
@@ -856,7 +873,7 @@ class CouponController extends Controller
                 'message' => 'Rule id is updated',
             ]);
             WebsiteStoreViewValue::where('rule_id', $request->rule_id)->delete();
-            if(!empty($request->store_labels)) {
+            if (!empty($request->store_labels)) {
                 foreach ($request->store_labels as $key => $label) {
                     $store_view_value                = new WebsiteStoreViewValue();
                     $store_view_value->rule_id       = $local_rules->id;
@@ -870,16 +887,14 @@ class CouponController extends Controller
         return response()->json(['type' => "success", 'data' => $result, 'message' => "Data updated successfully"], 200);
     }
 
-    public function getWebsiteByStore(Request $request)
-    {
+    public function getWebsiteByStore(Request $request) {
         $store_id   = $request->store_id;
         $websites   = Website::where('store_website_id', $store_id)->get();
         $returnHTML = view('coupon.wepsiteDrpDwn')->with('websites', $websites)->render();
         return response()->json(['type' => "success", 'data' => $returnHTML, 'message' => ""], 200);
     }
 
-    public function deleteCouponByCode(Request $request)
-    {
+    public function deleteCouponByCode(Request $request) {
         $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
 
         $coupon        = Coupon::where('id', $request->id)->first();
@@ -891,7 +906,7 @@ class CouponController extends Controller
         $url           = $store_website->magento_url . "/rest/V1/coupons/deleteByCodes";
 
         $ch = curl_init();
-        
+
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', $authorization));
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -902,7 +917,8 @@ class CouponController extends Controller
         $response = curl_exec($ch);
         $result   = json_decode($response);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime,$url,'POST',json_encode($parameters),json_decode($response),$httpcode,'deleteCouponByCode','App\Http\Controllers\CouponController');
+        // ($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'deleteCouponByCode', 'App\Http\Controllers\CouponController');
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'App\Http\Controllers\CouponController', 'CouponRulesDeleteCouponByCode');
 
         $coupon   = Coupon::where('id', $request->id)->delete();
         curl_close($ch); // Close the connection
@@ -920,20 +936,20 @@ class CouponController extends Controller
 
         return response()->json(['type' => "success", 'data' => [], 'message' => "Coupon deleted successfully"], 200);
     }
-    
-    
+
+
     public function shortCutFroCreateCoupn(Request $request) {
-        
+
         $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
 
         $store_website_id = !empty($request->store_website_id) ? $request->store_website_id : 1;
-        $website_ids = !empty($request->website_ids) ? $request->website_ids : array("1","2");        
+        $website_ids = !empty($request->website_ids) ? $request->website_ids : array("1", "2");
         $store_labels = !empty($request->store_labels) ? $request->store_labels : array("Quck Created Coupon");
         $startDate = date('Y-m-d h:i');
         $endDate   =  date('Y-m-d h:i', strtotime("+1 months", strtotime($startDate)));
         $name = !empty($request->name) ? $request->name : "Quick created coupon";
         $description = !empty($request->description) ? $request->description : "Quick created coupon";
-        
+
         $customer_groups = !empty($request->customer_groups) ? $request->customer_groups : array(1);
         $uses_per_coustomer = !empty($request->uses_per_coustomer) ? $request->uses_per_coustomer : 1;
         $is_active = true;
@@ -951,10 +967,10 @@ class CouponController extends Controller
         $code = !empty($request->code) ? $request->code : "36PxZ";
         $rule_id = !empty($request->rule_id) ? $request->rule_id : "";
         $priority = isset($request->priority) ? $request->priority : 0;
-        
+
         $store_website = StoreWebsite::where('id', $request->store_website_id)->first();
         $store_lables  = [];
-        if(!empty($request->store_labels)) {
+        if (!empty($request->store_labels)) {
             foreach ($request->store_labels as $key => $lables) {
                 array_push($store_lables, ['store_id' => $key, 'store_label' => $lables, 'extension_attributes' => '{}']);
             }
@@ -963,9 +979,9 @@ class CouponController extends Controller
         $startDate = !empty($request->start) ? $request->start : date("Y-m-d");
         $endDate   = $request->expiration;
         $timeUsed  = 6;
-        
+
         $authorization      = "Authorization: Bearer " . $store_website->api_token;
-        
+
         $parameters         = [];
         $parameters['rule'] = [
             "name"                  => $request->name,
@@ -996,9 +1012,7 @@ class CouponController extends Controller
                 "conditions"      => [
                     [
                         "condition_type"  => "",
-                        "conditions"      => [
-
-                        ],
+                        "conditions"      => [],
                         "aggregator_type" => "",
                         "operator"        => null,
                         "value"           => "",
@@ -1024,7 +1038,7 @@ class CouponController extends Controller
             "simple_free_shipping"  => "0",
             //"store_website_id" => $request->store_website_id
         ];
-        
+
         $url = $store_website->magento_url . "/rest/V1/salesRules/";
         $ch  = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', $authorization));
@@ -1032,24 +1046,25 @@ class CouponController extends Controller
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
-        \Log::channel('listMagento')->info(print_r([$url,$store_website->api_token,json_encode($parameters)],true));
+        \Log::channel('listMagento')->info(print_r([$url, $store_website->api_token, json_encode($parameters)], true));
         $response = curl_exec($ch);
         $result   = json_decode($response);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime,$url,'POST',json_encode($parameters),json_decode($response),$httpcode,'shortCutFroCreateCoupn','App\Http\Controllers\CouponController');
+        // ($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'shortCutFroCreateCoupn', 'App\Http\Controllers\CouponController');
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'App\Http\Controllers\CouponController', 'CouponRulesShortCutFroCreateCoupn');
 
         curl_close($ch); // Close the connection
         if (isset($result->code)) {
             return response()->json(['type' => 'error', 'message' => $result->message, 'data' => $result], 200);
         }
-        
+
         if ($request->coupon_type == "SPECIFIC_COUPON" && !isset($request->auto_generate)) {
             $response = $this->geteratePrimaryCouponCode($request->code, $result->rule_id, $request->uses_per_coustomer, $request->expiration, '', $store_website);
-            if(!isset($response->coupon_id)) {
-                $this->deleteCouponCodeRuleByWebsiteId($result->rule_id,$request->store_website_id);
-                if(isset($response->message) && isset($response->parameters)) {
+            if (!isset($response->coupon_id)) {
+                $this->deleteCouponCodeRuleByWebsiteId($result->rule_id, $request->store_website_id);
+                if (isset($response->message) && isset($response->parameters)) {
                     return response()->json(['type' => 'error', 'message' => str_replace("%1", $response->parameters[0], $response->message), 'data' => $result], 200);
-                }else{
+                } else {
                     return response()->json(['type' => 'error', 'message' => "Coupon code cannot be create please check request with magento log", 'data' => $response], 200);
                 }
             }
@@ -1083,7 +1098,7 @@ class CouponController extends Controller
         $local_rules->apply_to_shipping     = $request->apply_to_shipping;
         $local_rules->simple_free_shipping  = 0;
         if ($local_rules->save()) {
-            if(!empty($request->store_labels)) {
+            if (!empty($request->store_labels)) {
                 foreach ($request->store_labels as $key => $label) {
                     $store_view_value                = new WebsiteStoreViewValue();
                     $store_view_value->rule_id       = $local_rules->id;
@@ -1094,15 +1109,12 @@ class CouponController extends Controller
             }
         }
         return response()->json(['type' => "success", 'data' => $result, 'message' => "Added successfully"], 200);
-        
-        
     }
 
     /*
     * Send mail method
     */
-    public function sendCoupons(Request $request)
-    {
+    public function sendCoupons(Request $request) {
         $ruleId = $request->send_rule_id;
         $couponCodeRule = CouponCodeRules::find($ruleId);
         $customerId = $request->customer;
@@ -1111,7 +1123,7 @@ class CouponController extends Controller
             'rule_id' => $ruleId,
             'coupon_code' => $couponCodeRule->coupon_code,
             'log_type' => 'send_to_user_intiate',
-            'message' => 'Sending coupon mail to '.$customerData->email,
+            'message' => 'Sending coupon mail to ' . $customerData->email,
         ]);
         $emailAddress = \App\EmailAddress::where('store_website_id', $couponCodeRule->store_website_id)->first();
         $mailData['receiver_email']   = $customerData->email;
@@ -1144,28 +1156,17 @@ class CouponController extends Controller
             'rule_id' => $ruleId,
             'coupon_code' => $couponCodeRule->coupon_code,
             'log_type' => 'send_mail',
-            'message' => 'Mail was sent to '.$customerData->email,
+            'message' => 'Mail was sent to ' . $customerData->email,
         ]);
 
-        return redirect()->route('coupons.index')->with('success','Email is send to the user');
+        return redirect()->route('coupons.index')->with('success', 'Email is send to the user');
     }
 
-    /*
-    * logCouponCodeRuleAjax : Return log of rule logs
-    */
-    public function logCouponCodeRuleAjax(Request $request){
-        if($request->ajax()){
-            $log = CouponCodeRuleLog::where("rule_id",$request->get("id"))->get()->toArray();
-            if($log){
-                return response()->json([
-                    'data' => $log
-                ], 200);
-            }
-            return response()->json([
-                'data' => []
-            ], 200);
+    public function logCouponCodeRuleAjax(Request $request) {
+        if ($request->ajax()) {
+            $log = CouponCodeRuleLog::where("rule_id", $request->get("id"))->orderBy('id', 'DESC')->get();
+            return response()->json(['data' => $log], 200);
         }
-
+        return response()->json(['data' => []], 200);
     }
-    
 }
