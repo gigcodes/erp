@@ -198,6 +198,7 @@
 			<thead>
 				<tr>
 					<th><input type="checkbox" id="checkAll" title="click here to select all" /></th>
+					<th>Uicheck Id</th>
 					<th width="10%">Categories</th>
 					<th>Website</th>
 					@if (Auth::user()->hasRole('Admin'))
@@ -544,6 +545,12 @@
 					}
 				},
 				{
+					data: 'uicheck_id',
+					render: function(data, type, full, meta) {
+						return data;
+					}
+				},
+				{
 					data: 'title',
 					render: function(data, type, full, meta) {
 						return data;
@@ -632,6 +639,12 @@
 					width: "5%",
 					render: function(data, type, full, meta) {
 						return '<input type="checkbox" id="checkAll" title="click here to select all" /><a href="javascript:;" data-id="' + full.uicheck_id + '" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a><a href="javascript:;" data-id="' + full.uicheck_id + '" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>';
+					}
+				},
+				{
+					data: 'uicheck_id',
+					render: function(data, type, full, meta) {
+						return data;
 					}
 				},
 				{

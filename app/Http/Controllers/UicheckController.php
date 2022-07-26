@@ -126,7 +126,8 @@ class UicheckController extends Controller {
             $data = array();
             $data['all_store_websites'] = StoreWebsite::all();
             $data['users'] = User::select('id', 'name')->get();
-            $data['allTypes'] = UicheckType::all();
+            // $data['allTypes'] = UicheckType::all();
+            $data['allTypes'] = UicheckType::orderBy('name')->pluck("name", "id")->toArray();
             $data['categories'] = SiteDevelopmentCategory::paginate(20);//all();
             $data['search_website'] = isset($request->store_webs)? $request->store_webs : '';
             $data['search_category'] = isset($request->categories)? $request->categories : '';
