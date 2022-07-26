@@ -158,9 +158,9 @@ class UicheckController extends Controller {
                     'site_developments.website_id',
                     "uichecks.id AS uicheck_id"
                 )
+                //->where('site_developments.is_ui', 1);
                 ->where('uichecks.id', '>', 0);
 
-            // ->where('site_developments.is_ui', 1);
 
             //->where('site_development_categories.id','site_developments.site_development_category_id');
             if ($data['search_website'] != '') {
@@ -173,8 +173,8 @@ class UicheckController extends Controller {
             $q->orderBy('site_development_categories.title');
             $data['site_development_categories'] = $q->pluck('site_development_categories.title', 'site_development_categories.id')->toArray();
 
-            // echo '<pre>';
-            // print_r($data);
+             //echo '<pre>';
+             //print_r($data['site_development_categories']);
             // exit;
             return view('uicheck.index', $data);
 

@@ -13,6 +13,7 @@ use App\StoreWebsite;
 use App\Task;
 use App\User;
 use App\ChatMessage;
+use App\Uicheck;
 use App\ChatMessagesQuickData;
 use App\Hubstaff\HubstaffMember;
 use Auth;
@@ -1144,7 +1145,15 @@ class SiteDevelopmentController extends Controller
 
     public function setcheckUi(Request $request)
     {
+        //dd($request->categoryId);
         $siteDevelopments = SiteDevelopment::where('site_development_category_id', $request->categoryId)->get();
+        $uidata = Uicheck::where("site_development_category_id", $request->categoryId)->delete();
+        if($request->status == '1') {
+            Uicheck::create([
+                'site_development_id' => $request->siteDevelopmentId,
+                'site_development_category_id' => $request->categoryId
+            ]);
+        }
         //dd($siteDevelopments);
 		foreach($siteDevelopments as $siteDevelopment){
 			$siteDevelopment->is_ui = $request->status;
