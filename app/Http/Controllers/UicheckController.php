@@ -99,8 +99,15 @@ class UicheckController extends Controller {
             if ($s = request('assign_to')) {
                 $q = $q->where('uua.user_id', $s);
             }
-            
             $q->groupBy('site_development_categories.id');
+            
+            if ($s = request('order_by')) {
+                $q->orderBy('uichecks.'.request('order_by'), "desc");
+            }else{
+                $q->orderBy('uichecks.updated_at', "desc");
+            }
+            
+           
             // dd($q->toSql());
 
             // select 
@@ -120,7 +127,7 @@ class UicheckController extends Controller {
             // left join `uicheck_user_accesses` as `uua` on `uua`.`uicheck_id` = `uichecks`.`id` 
             // where 
             //     `site_developments`.`is_ui` = ? group by `site_development_categories`.`id`
-
+            
             return datatables()->eloquent($q)->toJson();
         } else {
             $data = array();
@@ -159,7 +166,7 @@ class UicheckController extends Controller {
                     "uichecks.id AS uicheck_id"
                 )
                 //->where('site_developments.is_ui', 1);
-                ->where('uichecks.id', '>', 0);
+               ->where('uichecks.id', '>', 0);
 
 
             //->where('site_development_categories.id','site_developments.site_development_category_id');
@@ -170,7 +177,8 @@ class UicheckController extends Controller {
                 $q = $q->where('site_development_categories.id',  $data['search_category']);
             }
             $q->groupBy('site_development_categories.id');
-            $q->orderBy('site_development_categories.title');
+            //$q->orderBy('site_development_categories.title');
+            $q->orderBy('uichecks.updated_at', "desc");
             $data['site_development_categories'] = $q->pluck('site_development_categories.title', 'site_development_categories.id')->toArray();
 
              //echo '<pre>';

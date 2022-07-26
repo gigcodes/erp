@@ -84,7 +84,7 @@
 	<div class="col-lg-12 margin-tb">
 		<h2 class="page-heading">Ui Check</h2>
 	</div>
-	<br>
+	
 	<div class="col-lg-12 margin-tb">
 		<div class="row">
 			<div class="col-md-12 pull-right">
@@ -135,6 +135,7 @@
 							@endforelse
 						</select>
 					</div>
+					<br><br>
 					<div class="col-md-2">
 						<select name="admin_status" id="admin_status" class="form-control select2">
 							<option value="">-- Admin Status --</option>
@@ -148,21 +149,33 @@
 						</select>
 					</div>
 					<div class="col-md-2">
+						<select name="order_by" id="order_by" class="form-control select2">
+							@foreach ($allUsers as $user)
+								<option value="">--Order By--</option>
+								<option value="website_id">Website</option>
+								<option value="issue">Issue</option>
+								<option value="communication_message">Communication</option>
+								<option value="dev_status_id">Developer Status</option>
+								<option value="admin_status_id">Admin Status</option>
+								
+							@endforeach
+						</select>
+					</div>
+					
+					<div class="col-md-2">
+						
 						<button type="button" class="btn btn-secondary custom-filter">Search</button>
 						<a href="/uicheck" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+					</div>
+					<div class="pull-right mt-4">
+						@if (auth()->user()->isAdmin())
+						<a class="btn btn-secondary" data-toggle="modal" data-target="#newTypeModal">Create Type</a>
+						@endif
 					</div>
 				</form>
 			</div>
 		</div>
-		<div class="row mb-4">
-			<div class="col-md-12">
-				<div class="pull-right mt-4">
-					@if (auth()->user()->isAdmin())
-					<a class="btn btn-secondary" data-toggle="modal" data-target="#newTypeModal">Create Type</a>
-					@endif
-				</div>
-			</div>
-		</div>
+		
 	</div>
 </div>
 <div id="newTypeModal" class="modal fade" role="dialog">
@@ -727,6 +740,7 @@
 					d.dev_status = $('#dev_status').val();
 					d.admin_status = $('#admin_status').val();
 					d.assign_to = $('#assign_to').val();
+					d.order_by = $("#order_by").val();
 					// d.subjects = $('input[name=subjects]').val();					
 				},
 			},
