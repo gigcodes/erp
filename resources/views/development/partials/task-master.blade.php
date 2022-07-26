@@ -1,10 +1,11 @@
 <style type="text/css">
-    .green-notification { 
-        color:green;
-     }
-    .red-notification { 
-        color:grey;
-     }   
+    .green-notification {
+        color: green;
+    }
+
+    .red-notification {
+        color: grey;
+    }
 </style>
 <table class="table table-bordered table-striped" style="table-layout:fixed;">
     <tr>
@@ -22,8 +23,8 @@
         <th style="width:8%;">Actions</th>
     </tr>
     <?php
-        $isReviwerLikeAdmin =  auth()->user()->isReviwerLikeAdmin();
-        $userID =  Auth::user()->id;
+    $isReviwerLikeAdmin =  auth()->user()->isReviwerLikeAdmin();
+    $userID = Auth::user()->id;
     ?>
     @foreach ($issues as $key => $issue)
         @if($isReviwerLikeAdmin)

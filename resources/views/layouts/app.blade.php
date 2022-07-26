@@ -42,6 +42,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/richtext.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+
+    <script src="{{siteJs('site.js')}}" defer></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
     <script src="{{asset('/js/generic.js')}}" defer></script>
@@ -89,7 +93,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
-
+    @stack('link-css')
     @yield('link-css')
     <script>
         let Laravel = {};
@@ -105,6 +109,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     {{-- lessLink: '<a href="#">Read less</a>'--}}
     {{-- });--}}
     {{-- </script>--}}
+    @stack("jquery")
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script> --}}
@@ -183,6 +188,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link href="https://unpkg.com/tabulator-tables@4.0.5/dist/css/tabulator.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.css">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ url('css/global_custom.css') }}">
     @yield("styles")
 
@@ -277,6 +284,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 </head>
 
 <body>
+    @stack('modals')
 
     <div class="modal fade" id="instructionAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
@@ -1068,6 +1076,9 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('user.get-feedback-table-data')}}">User Feedback</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('user-management.user-schedules.index')}}">User Schedules</a>
                                         </li>
                                     </ul>
                                 </li>
