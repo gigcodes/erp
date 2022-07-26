@@ -93,9 +93,8 @@
 						<select name="assign_to" id="assign_to" class="form-control select2">
 							<option value="">-- Select Assign to --</option>
 							@forelse($users as $user)
-								<option value="{{ $user->id }}" 
-								@if($assign_to == $user->id) 
-									selected	
+							<option value="{{ $user->id }}" @if($assign_to==$user->id)
+								selected
 								@endif>{{ $user->name }}</option>
 							@empty
 							@endforelse
@@ -113,7 +112,7 @@
 						</select>
 					</div>
 					<div class="col-md-2">
-						
+
 						<select name="categories" id="store-categories" class="form-control select2">
 							<option value="">-- Select a categories --</option>
 							@forelse($site_development_categories as $ctId => $ctName)
@@ -126,11 +125,8 @@
 						<select name="dev_status" id="dev_status" class="form-control select2">
 							<option value="">-- Developer Status --</option>
 							@forelse($allStatus as $key => $ds)
-							
-								<option value="{{ $key }}" 
-								@if($dev_status == $key) 
-								selected	
-								@endif>{{ $ds }}</option>
+
+							<option value="{{ $key }}" @if($dev_status==$key) selected @endif>{{ $ds }}</option>
 							@empty
 							@endforelse
 						</select>
@@ -139,10 +135,7 @@
 						<select name="admin_status" id="admin_status" class="form-control select2">
 							<option value="">-- Admin Status --</option>
 							@forelse($allStatus as $key => $as)
-								<option value="{{ $key }}" 
-								@if($dev_status == $key) 
-								selected	
-								@endif>{{ $as }}</option>
+							<option value="{{ $key }}" @if($dev_status==$key) selected @endif>{{ $as }}</option>
 							@empty
 							@endforelse
 						</select>
@@ -150,6 +143,8 @@
 					<div class="col-md-2">
 						<button type="button" class="btn btn-secondary custom-filter">Search</button>
 						<a href="/uicheck" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+
+						<button type="button" class="btn btn-primary" onclick="loadAllHistory(1)">All History</button>
 					</div>
 				</form>
 			</div>
@@ -233,7 +228,7 @@
 								<th>Old Status</th>
 								<th>Status</th>
 								<th>Date</th>
-						
+
 							</tr>
 						</thead>
 						<tbody id="dev_status_tboday">
@@ -261,7 +256,7 @@
 								<th>Old Status</th>
 								<th>Status</th>
 								<th>Date</th>
-								
+
 							</tr>
 						</thead>
 						<tbody id="admin_status_tboday">
@@ -356,6 +351,41 @@
 		</div>
 	</div>
 </div>
+
+<div id="modalAllHistory" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg" style="max-width: none !important;width: 85% !important;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2>All History</h2>
+				<button type="button" class="close" data-dismiss="modal">×</button>
+			</div>
+			<div class="modal-body">
+				<table class="table table-bordered table-striped">
+					<thead>
+						<tr>
+							<th width="6%">Uicheck Id</th>
+							<th width="14%">Category</th>
+							<th width="15%">Website</th>
+							<th width="8%">Type</th>
+							<th width="15%">Old Value</th>
+							<th width="15%">New Value</th>
+							<th width="14%">Added By</th>
+							<th width="13%">Date</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+				<div class="row mt-3 text-center cls-load-more">
+					<div class="col-md-12">
+						<a class="btn btn-primary" href="javascript:void(0);" onclick="loadAllHistory(0)">Load More</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 @if (Auth::user()->hasRole('Admin'))
 <input type="hidden" id="user-type" value="Admin">
 @else
@@ -532,9 +562,40 @@
 		});
 	}
 
+	function loadAllHistory(firstTime) {
+		let mdl = jQuery('#modalAllHistory');
+		let tbl = mdl.find('table');
+		mdl.find('.cls-load-more').removeClass('d-none');
+		if (firstTime == 1) {
+			tbl.find('tbody').html('');
+		}
+		siteLoader(1);
+		jQuery.ajax({
+			url: "{{ route('uicheck.history.all') }}",
+			type: 'GET',
+			data: {
+				lastDate: tbl.find('tbody tr:last').find('.cls-created-date').html()
+			},
+			beforeSend: function() {},
+			success: function(response) {
+				siteLoader(0);
+				if (response.html) {
+					tbl.find('tbody').append(response.html);
+				} else {
+					mdl.find('.cls-load-more').addClass('d-none');
+				}
+				if (firstTime == 1) {
+					mdl.modal('show');
+				}
+			}
+		}).fail(function(response) {
+			toastr['error'](response.responseJSON.message);
+			siteLoader(0);
+		});
+	}
+
 	// START Print Table Using datatable
 	var oTable;
-
 	$(document).ready(function() {
 		if ($("#user-type").val() == "Admin") {
 			var columns = [{
@@ -576,7 +637,7 @@
 						sel.addClass('globalSelect2');
 						sel.find('option[value=' + row.accessuser + ']').attr('selected', 'selected');
 						sel.attr('onchange', 'updateAssignTo(this, "' + row.uicheck_id + '")');
-						let html = jQuery("<div />").append(sel).append("<button type='button' class='btn btn-xs show-assign-history' title='Show Issue History' data-id='"+row.uicheck_id+"'><i data-id='"+row.uicheck_id+"' class='fa fa-info-circle'></i></button>").html();
+						let html = jQuery("<div />").append(sel).append("<button type='button' class='btn btn-xs show-assign-history' title='Show Issue History' data-id='" + row.uicheck_id + "'><i data-id='" + row.uicheck_id + "' class='fa fa-info-circle'></i></button>").html();
 						return html;
 					}
 				},
@@ -714,9 +775,10 @@
 			];
 		}
 		oTable = $('#uicheck_table').DataTable({
+			pageLength: 100,
 			lengthMenu: [
-				[10, 25, 50, -1],
-				[10, 25, 50, "All"]
+				[-1, 10, 25, 50, 100],
+				['All', 10, 25, 50, 100]
 			],
 			responsive: true,
 			searchDelay: 500,
@@ -758,7 +820,6 @@
 
 	});
 	// END Print Table Using datatable
-
 
 	// For Document Upload ajax
 	$(document).on("submit", "#upload-uicheck-documents", function(e) {
@@ -1084,41 +1145,41 @@
 	});
 
 
-$(document).on("click", ".show-assign-history", function(e) {
-	e.preventDefault();
-	var id = $(this).data("id");
-    var developer_status = $(this).val();
-    var site_development_id = $(this).data("site_development_id");
-    var category = $(this).data("category");
+	$(document).on("click", ".show-assign-history", function(e) {
+		e.preventDefault();
+		var id = $(this).data("id");
+		var developer_status = $(this).val();
+		var site_development_id = $(this).data("site_development_id");
+		var category = $(this).data("category");
 
-	$.ajax({
-		url: "{{route('uicheck.get.assign.history')}}",
-		type: 'POST',
-		data: {
-            id:id,
-            developer_status: developer_status,
-            site_development_id: site_development_id,
-            category:category,
-            "_token": "{{ csrf_token() }}",
-        },
-		beforeSend: function() {
-			$(this).text('Loading...');
-		},
-		success: function(response) {
-			if (response.code == 200) {
-				toastr['success'](response.message);
-				$("#assignTo_tboday").html(response.html);
-				$("#assignTo_model").modal("show");
-				
-                //location.reload();
-			} else {
-				toastr['error'](response.message);
+		$.ajax({
+			url: "{{route('uicheck.get.assign.history')}}",
+			type: 'POST',
+			data: {
+				id: id,
+				developer_status: developer_status,
+				site_development_id: site_development_id,
+				category: category,
+				"_token": "{{ csrf_token() }}",
+			},
+			beforeSend: function() {
+				$(this).text('Loading...');
+			},
+			success: function(response) {
+				if (response.code == 200) {
+					toastr['success'](response.message);
+					$("#assignTo_tboday").html(response.html);
+					$("#assignTo_model").modal("show");
+
+					//location.reload();
+				} else {
+					toastr['error'](response.message);
+				}
 			}
-		}
-	}).fail(function(response) {
-		toastr['error'](response.responseJSON.message);
+		}).fail(function(response) {
+			toastr['error'](response.responseJSON.message);
+		});
 	});
-});
 
 
 	$(document).on('click', '.expand-row-msg', function() {

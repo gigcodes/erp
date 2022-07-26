@@ -2304,7 +2304,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('postman/get/mul/request', 'PostmanRequestCreateController@getMulRequest');
 
     Route::post('postman/edit/history/', 'PostmanRequestCreateController@postmanEditHistoryLog');
-    
 });
 /*
  * @date 1/13/2019
@@ -3145,6 +3144,10 @@ Route::middleware('auth')->group(function () {
     Route::post('uicheck/message/history', 'UicheckController@getUiCheckMessageHistoryLog')->name('uicheck.get.message.history');
     Route::post('uicheck/set/message/history', 'UicheckController@CreateUiMessageHistoryLog')->name('uicheck.set.message.history');
     Route::post('uicheck/get/assign/history', 'UicheckController@getUiCheckAssignToHistoryLog')->name('uicheck.get.assign.history');
+
+    Route::prefix('uicheck')->group(function () {
+        Route::get('history/all', 'UicheckController@historyAll')->name('uicheck.history.all');
+    });
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {

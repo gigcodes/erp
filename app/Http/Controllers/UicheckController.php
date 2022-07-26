@@ -99,7 +99,7 @@ class UicheckController extends Controller {
             if ($s = request('assign_to')) {
                 $q = $q->where('uua.user_id', $s);
             }
-            
+
             $q->groupBy('site_development_categories.id');
             // dd($q->toSql());
 
@@ -128,16 +128,16 @@ class UicheckController extends Controller {
             $data['users'] = User::select('id', 'name')->get();
             // $data['allTypes'] = UicheckType::all();
             $data['allTypes'] = UicheckType::orderBy('name')->pluck("name", "id")->toArray();
-            $data['categories'] = SiteDevelopmentCategory::paginate(20);//all();
-            $data['search_website'] = isset($request->store_webs)? $request->store_webs : '';
-            $data['search_category'] = isset($request->categories)? $request->categories : '';
-            $data['user_id'] = isset($request->user_id)? $request->user_id : '';
-            $data['assign_to'] = isset($request->assign_to)? $request->assign_to : '';
-            $data['dev_status'] = isset($request->dev_status)? $request->dev_status : '';
-            $data['admin_status'] = isset($request->admin_status)? $request->admin_status : '';
-            $data['site_development_status_id'] = isset($request->site_development_status_id)? $request->site_development_status_id : [];
+            $data['categories'] = SiteDevelopmentCategory::paginate(20); //all();
+            $data['search_website'] = isset($request->store_webs) ? $request->store_webs : '';
+            $data['search_category'] = isset($request->categories) ? $request->categories : '';
+            $data['user_id'] = isset($request->user_id) ? $request->user_id : '';
+            $data['assign_to'] = isset($request->assign_to) ? $request->assign_to : '';
+            $data['dev_status'] = isset($request->dev_status) ? $request->dev_status : '';
+            $data['admin_status'] = isset($request->admin_status) ? $request->admin_status : '';
+            $data['site_development_status_id'] = isset($request->site_development_status_id) ? $request->site_development_status_id : [];
             $data['allStatus'] = SiteDevelopmentStatus::pluck("name", "id")->toArray();
-            $store_websites = StoreWebsite::select('store_websites.*')->join('site_developments','store_websites.id','=','site_developments.website_id');
+            $store_websites = StoreWebsite::select('store_websites.*')->join('site_developments', 'store_websites.id', '=', 'site_developments.website_id');
             if ($data['search_website'] != '') {
                 $store_websites =  $store_websites->where('store_websites.id', $data['search_website']);
             }
@@ -174,13 +174,10 @@ class UicheckController extends Controller {
             $q->orderBy('site_development_categories.title');
             $data['site_development_categories'] = $q->pluck('site_development_categories.title', 'site_development_categories.id')->toArray();
 
-             //echo '<pre>';
-             //print_r($data['site_development_categories']);
+            //echo '<pre>';
+            //print_r($data['site_development_categories']);
             // exit;
             return view('uicheck.index', $data);
-
-
-            
         }
     }
 
@@ -342,15 +339,15 @@ class UicheckController extends Controller {
         $html = "";
         foreach ($adminStatusLog as $adminStatus) {
             $html .=  '<tr>';
-            $html .=  '<td>'.$adminStatus->id.'</td>';
-            $html .=  '<td>'.$adminStatus->userName.'</td>';
-            $html .=  '<td>'.$adminStatus->old_name.'</td>';
-            $html .=  '<td>'.$adminStatus->dev_status.'</td>';
-            $html .=  '<td>'.$adminStatus->created_at.'</td>';
-            
+            $html .=  '<td>' . $adminStatus->id . '</td>';
+            $html .=  '<td>' . $adminStatus->userName . '</td>';
+            $html .=  '<td>' . $adminStatus->old_name . '</td>';
+            $html .=  '<td>' . $adminStatus->dev_status . '</td>';
+            $html .=  '<td>' . $adminStatus->created_at . '</td>';
+
             $html .=  '</tr>';
         }
-        return response()->json(['code' => 200, 'html' => $html,'message' => 'Listed successfully!!!']);
+        return response()->json(['code' => 200, 'html' => $html, 'message' => 'Listed successfully!!!']);
     }
 
 
@@ -381,15 +378,14 @@ class UicheckController extends Controller {
         $html = "";
         foreach ($adminStatusLog as $adminStatus) {
             $html .=  '<tr>';
-            $html .=  '<td>'.$adminStatus->id.'</td>';
-            $html .=  '<td>'.$adminStatus->userName.'</td>';
-            $html .=  '<td>'.$adminStatus->old_name.'</td>';
-            $html .=  '<td>'.$adminStatus->dev_status.'</td>';
-            $html .=  '<td>'.$adminStatus->created_at.'</td>';
+            $html .=  '<td>' . $adminStatus->id . '</td>';
+            $html .=  '<td>' . $adminStatus->userName . '</td>';
+            $html .=  '<td>' . $adminStatus->old_name . '</td>';
+            $html .=  '<td>' . $adminStatus->dev_status . '</td>';
+            $html .=  '<td>' . $adminStatus->created_at . '</td>';
             $html .=  '</tr>';
         }
-        return response()->json(['code' => 200, 'html' => $html,'message' => 'Listed successfully!!!']);
-        
+        return response()->json(['code' => 200, 'html' => $html, 'message' => 'Listed successfully!!!']);
     }
 
     public function CreateUiissueHistoryLog(Request $request, $uicheck) {
@@ -412,12 +408,12 @@ class UicheckController extends Controller {
             $html = "";
             foreach ($getIssueLog as $issueLog) {
                 $html .=  '<tr>';
-                $html .=  '<td>'.$issueLog->id.'</td>';
-                $html .=  '<td>'.$issueLog->userName.'</td>';
-                $html .=  '<td>'.$issueLog->old_issue.'</td>';
-                $html .=  '<td>'.$issueLog->issue.'</td>';
-                $html .=  '<td>'.$issueLog->created_at.'</td>';
-            
+                $html .=  '<td>' . $issueLog->id . '</td>';
+                $html .=  '<td>' . $issueLog->userName . '</td>';
+                $html .=  '<td>' . $issueLog->old_issue . '</td>';
+                $html .=  '<td>' . $issueLog->issue . '</td>';
+                $html .=  '<td>' . $issueLog->created_at . '</td>';
+
                 $html .=  '</tr>';
             }
             return response()->json(['code' => 200, 'html' => $html, 'message' => 'Listed successfully!!!']);
@@ -458,8 +454,7 @@ class UicheckController extends Controller {
         return response()->json(['code' => 200, 'message' => 'Message saved successfully!!!']);
     }
 
-    public function CreateUiAssignToHistoryLog(Request $request, $uicheck)
-    {
+    public function CreateUiAssignToHistoryLog(Request $request, $uicheck) {
         $messageLog = new UiCheckAssignToHistory();
         $messageLog->user_id = \Auth::user()->id;
         $messageLog->uichecks_id = $request->uicheck_id;
@@ -469,30 +464,151 @@ class UicheckController extends Controller {
         return response()->json(['code' => 200, 'message' => 'Message saved successfully!!!']);
     }
 
-    public function getUiCheckAssignToHistoryLog(Request $request)
-    {
-        try{
+    public function getUiCheckAssignToHistoryLog(Request $request) {
+        try {
             $getMessageLog = UiCheckAssignToHistory::select("ui_check_assign_to_histories.*", "users.name as userName", "assignTo.name AS assignToName")
-            ->leftJoin("users", "users.id", "ui_check_assign_to_histories.user_id")
-            ->leftJoin("users AS assignTo", "assignTo.id", "ui_check_assign_to_histories.assign_to")
-            ->where('ui_check_assign_to_histories.uichecks_id', $request->id)
-            ->orderBy('ui_check_assign_to_histories.id', "DESC")
-            ->get();
+                ->leftJoin("users", "users.id", "ui_check_assign_to_histories.user_id")
+                ->leftJoin("users AS assignTo", "assignTo.id", "ui_check_assign_to_histories.assign_to")
+                ->where('ui_check_assign_to_histories.uichecks_id', $request->id)
+                ->orderBy('ui_check_assign_to_histories.id', "DESC")
+                ->get();
 
             $html = "";
-            foreach($getMessageLog AS $messageLog) {
+            foreach ($getMessageLog as $messageLog) {
                 $html .=  '<tr>';
-                $html .=  '<td>'.$messageLog->id.'</td>';
-                $html .=  '<td>'.$messageLog->userName.'</td>';
-                $html .=  '<td>'.$messageLog->assignToName.'</td>';
-                $html .=  '<td>'.$messageLog->created_at.'</td>';
+                $html .=  '<td>' . $messageLog->id . '</td>';
+                $html .=  '<td>' . $messageLog->userName . '</td>';
+                $html .=  '<td>' . $messageLog->assignToName . '</td>';
+                $html .=  '<td>' . $messageLog->created_at . '</td>';
                 $html .=  '</tr>';
             }
-            return response()->json(['code' => 200, 'html' => $html,'message' => 'Listed successfully!!!']);
+            return response()->json(['code' => 200, 'html' => $html, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
 
+    public function historyAll() {
+        try {
+            $lastDate = request('lastDate') ?: date('Y-m-d H:i:s');
 
+            $whQ = "";
+            $whArr = [$lastDate];
+            if (!Auth::user()->hasRole('Admin')) {
+                $whQ = " AND listdata.uichecks_id IN ( SELECT uicheck_id FROM uicheck_user_accesses WHERE user_id = ? ) ";
+                $whArr[] = \Auth::user()->id;
+            }
+
+            $sql = "SELECT
+                    listdata.*,
+                    sdc.title AS site_development_category_name,
+                    sw.title AS store_website_name,
+                    u.name AS addedBy
+                FROM (
+                    (
+                        SELECT
+                        curr.uichecks_id,
+                        'assign' AS type,
+                        curr.old_assign_to AS old_val,
+                        curr.assign_to AS new_val,
+                        ov.name AS old_disp_val,
+                        nv.name AS new_disp_val,
+                        curr.user_id,
+                        curr.created_at
+                        FROM ui_check_assign_to_histories AS curr
+                        LEFT JOIN users AS ov ON ov.id = curr.old_assign_to
+                        LEFT JOIN users AS nv ON nv.id = curr.assign_to
+                    )
+                    UNION
+                    (
+                        SELECT
+                        uichecks_id,
+                        'issue' AS type,
+                        old_issue AS old_val,
+                        issue AS new_val,
+                        old_issue AS old_disp_val,
+                        issue AS new_disp_val,
+                        user_id,
+                        created_at
+                        FROM ui_check_issue_history_logs
+                    )
+                    UNION
+                    (
+                        SELECT
+                        uichecks_id,
+                        'communication' AS type,
+                        NULL AS old_val,
+                        message AS new_val,
+                        NULL AS old_disp_val,
+                        message AS new_disp_val,
+                        user_id,
+                        created_at
+                        FROM ui_check_communications
+                    )
+                    UNION
+                    (
+                        SELECT
+                        curr.uichecks_id,
+                        'developer_status' AS type,
+                        curr.old_status_id AS old_val,
+                        curr.status_id AS new_val,
+                        ov.name AS old_disp_val,
+                        nv.name AS new_disp_val,
+                        curr.user_id,
+                        curr.created_at
+                        FROM ui_developer_status_history_logs AS curr
+                        LEFT JOIN site_development_statuses AS ov ON ov.id = curr.old_status_id
+                        LEFT JOIN site_development_statuses AS nv ON nv.id = curr.status_id
+                    )
+                    UNION
+                    (
+                        SELECT
+                        curr.uichecks_id,
+                        'admin_status' AS type,
+                        curr.old_status_id AS old_val,
+                        curr.status_id AS new_val,
+                        ov.name AS old_disp_val,
+                        nv.name AS new_disp_val,
+                        curr.user_id,
+                        curr.created_at
+                        FROM ui_admin_status_history_logs AS curr
+                        LEFT JOIN site_development_statuses AS ov ON ov.id = curr.old_status_id
+                        LEFT JOIN site_development_statuses AS nv ON nv.id = curr.status_id
+                    )
+                ) AS listdata
+                LEFT JOIN users AS u ON u.id = listdata.user_id
+                LEFT JOIN uichecks AS uic ON uic.id = listdata.uichecks_id
+                LEFT JOIN site_development_categories AS sdc ON sdc.id = uic.site_development_category_id
+                LEFT JOIN store_websites AS sw ON sw.id = uic.website_id
+                WHERE listdata.created_at < ? 
+                " . $whQ . " 
+                ORDER BY listdata.created_at DESC
+                LIMIT 10";
+            $data = \DB::select($sql, $whArr);
+
+            $html = [];
+            if ($data) {
+                foreach ($data as $value) {
+                    $html[] = implode('', [
+                        '<tr>',
+                        '<td>' . ($value->uichecks_id ?: '-') . '</td>',
+                        '<td>' . ($value->site_development_category_name ?: '-') . '</td>',
+                        '<td>' . ($value->store_website_name ?: '-') . '</td>',
+                        '<td>' . ($value->type ?: '-') . '</td>',
+                        '<td>' . ($value->old_disp_val ?: '-') . '</td>',
+                        '<td>' . ($value->new_disp_val ?: '-') . '</td>',
+                        '<td>' . ($value->addedBy ?: '-') . '</td>',
+                        '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
+                        '</tr>',
+                    ]);
+                }
+            }
+            return respJson(200, '', [
+                'html' => implode('', $html)
+            ]);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
+    // 
 }
