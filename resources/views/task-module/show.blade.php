@@ -135,7 +135,7 @@
         color: black !important;
     }
     .no-due-date .btn {
-        background-color: #f1f1f1 !important;
+        /* background-color: #f1f1f1 !important; */
     }
     .pd-2 {
         padding:2px;
@@ -829,7 +829,7 @@ input.cmn-toggle-round + label {
                                                     @endif
                                                 @endif
                                             @endif
-                                          
+
                                             <label for="" style="font-size: 12px;margin-top:10px;">Due date :</label>
                                             <div class="d-flex">
                                                 <div class="form-group" style="padding-top:5px;width:70%;">
@@ -978,18 +978,10 @@ input.cmn-toggle-round + label {
                                     <td class="p-2">
                                         <div>
                                             <div class="row cls_action_box" style="margin:0px;">
-
-                                                
-
-
                                                 @if(auth()->user()->isAdmin())
                                                     <button type="button" class='btn btn-image whatsapp-group pd-5' data-id="{{ $task->id }}" data-toggle='modal' data-target='#whatsAppMessageModal'><img src="{{asset('images/whatsapp.png')}}" /></button>
-
                                                     <button type="button" class='btn delete-single-task pd-5' data-id="{{ $task->id }}"><i class="fa fa-trash" aria-hidden="true"></i></button>
-
-                                                    
                                                 @endif
-
                                                 <button data-toggle="modal" data-target="#taskReminderModal"  
                                                     class='btn pd-5 task-set-reminder' 
                                                     data-id="{{ $task->id }}"
@@ -1000,9 +992,6 @@ input.cmn-toggle-round + label {
                                                 >
                                                     <i class="fa fa-bell @if(!empty($task->reminder_message) && $task->frequency > 0) {{ 'green-notification'  }} @else {{ 'red-notification' }} @endif" aria-hidden="true"></i>
                                                 </button>                                                
-
-                                    
-                                                
                                                 @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id()  || $task->master_user_id == Auth::id() || $task->second_master_user_id == Auth::id())
                                                     <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>
                                                     @if ($task->assign_from == Auth::id())
@@ -1010,13 +999,10 @@ input.cmn-toggle-round + label {
                                                     @else
                                                         <button type="button" class="btn btn-image pd-5"><img src="/images/completed-green.png"/></button>
                                                     @endif
-
                                                     <button type="button" class='btn btn-image ml-1 reminder-message pd-5' data-id="{{ $task->message_id }}" data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png'/></button>
-
                                                     <button type="button"  data-id="{{ $task->id }}" class="btn btn-file-upload pd-5">
                                                         <i class="fa fa-upload" aria-hidden="true"></i>
                                                     </button>
-
                                                 @endif
                                                     <button type="button" class="btn preview-img-btn pd-5" data-id="{{ $task->id }}">
                                                         <i class="fa fa-list" aria-hidden="true"></i>
@@ -1040,6 +1026,18 @@ input.cmn-toggle-round + label {
                                                 @endif
                                                 <button class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
                                                 <button class="btn btn-image set-remark" data-task_id="{{ $task->id }}"  data-task_type="TASK" ><i class="fa fa-comment" aria-hidden="true"></i></button>
+                                                
+                                                
+                                            </div>
+                                        </div>
+
+                                        <div class="dropdown">
+                                            <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$task->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Actions
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$task->id}}">
+                                                <a class="dropdown-item" href="javascript:void(0);" data-task_id="{{$task->id}}" data-start_date="{{$task->start_date}}" onclick="funTaskStartDateModal(this)" >Start Time: Update</a>
+                                                <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskStartDateHistory('{{$task->id}}')" >Start Time: View History</a>
                                             </div>
                                         </div>
                                     </td>
@@ -1489,6 +1487,66 @@ input.cmn-toggle-round + label {
         </div>
     </div>
 
+
+    <div id="modalTaskStartTimeUpdate" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Update Task's Start Date</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Start Date:</label>
+                            <div class="form-group" >
+                                <div class='input-group date cls-start-due-date'>
+                                    <input type="text" class="form-control input-sm" id="start_date" name="start_date" value="" />
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="funTaskStartDateUpdate()" >Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modalTaskStartTimeHistory" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">History for Task Start Date</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th width="10%" >ID</th>
+                                <th width="30%" >Update By</th>
+                                <th width="20%" style="word-break: break-all;">Old Value</th>
+                                <th width="20%" style="word-break: break-all;">New Value</th>
+                                <th width="20%" >Created at</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @section('scripts')
@@ -1501,6 +1559,10 @@ input.cmn-toggle-round + label {
 
     <script src=" {{env('APP_URL')}}/js/bootstrap-multiselect.min.js"></script>
     <script>
+        var urlTaskStartDateUpdate = "{!! route('task.update.start-date') !!}";
+        var urlTaskStartDateHistory = "{!! route('task.history.start-date.index') !!}";
+        
+
         $(document).ready(function () {
 
             $(".multiselect").multiselect({
@@ -4091,5 +4153,85 @@ $(document).on("click",".btn-save-documents",function(e){
             });
         });
 
+
+        
+
+    </script>
+
+    <script>
+        var currStartDateUpdateEle = null;
+        function funTaskStartDateModal(ele){
+            currStartDateUpdateEle = ele;
+            jQuery('#modalTaskStartTimeUpdate').modal('show');
+            jQuery('#modalTaskStartTimeUpdate').attr('data-task_id', jQuery(ele).attr('data-task_id'));
+            jQuery('#start_date').val(jQuery(ele).attr('data-start_date'));
+        }
+        function funTaskStartDateUpdate(){
+            let task_id = jQuery('#modalTaskStartTimeUpdate').attr('data-task_id');
+            let start_date = jQuery('#start_date').val();
+            
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: urlTaskStartDateUpdate,
+                type: 'post',
+                data: {
+                    task_id: task_id,
+                    start_date: jQuery('#start_date').val(),
+                }
+            }).done(function (response) {
+                toastr['success']('Successfully updated');
+                jQuery('#modalTaskStartTimeUpdate').modal('hide');
+                jQuery(currStartDateUpdateEle).attr('data-start_date', jQuery('#start_date').val());
+            }).fail(function (errObj) {
+                if(errObj.responseJSON != undefined){
+                    toastr['error'](errObj.responseJSON.message);
+                }
+                else if(errObj.message != undefined){
+                    toastr['error'](errObj.message);
+                }
+                else if(errObj.message != undefined){
+                    toastr['error']('Unknown error occured.');
+                }
+            });
+        }
+        function funTaskStartDateHistory(task_id){
+            let mdl = jQuery('#modalTaskStartTimeHistory');
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: urlTaskStartDateHistory,
+                type: 'GET',
+                data: {
+                    task_id: task_id
+                },
+                beforeSend: function () {
+                    jQuery("#loading-image").show();
+                }
+            }).done(function (response) {
+                jQuery("#loading-image").hide();
+                mdl.find('tbody').html(response.data);
+                mdl.modal("show");
+                // toastr['success'](response.msg);
+            }).fail(function (errObj) {
+                if(errObj.responseJSON != undefined){
+                    toastr['error'](errObj.responseJSON.message);
+                }
+                else if(errObj.message != undefined){
+                    toastr['error'](errObj.message);
+                }
+                else if(errObj.message != undefined){
+                    toastr['error']('Unknown error occured.');
+                }
+            });
+        }
+
+        jQuery(document).ready(function () {
+            jQuery('.cls-start-due-date').datetimepicker({
+                format: 'YYYY-MM-DD HH:mm:ss'
+            });
+        });
     </script>
 @endsection

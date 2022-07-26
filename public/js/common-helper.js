@@ -73,5 +73,5 @@ var common = {
     },
     checkTypeOf: function(params, key, defaultVal) {
 	     return (params && typeof params[key] != "undefined") ? params[key] : defaultVal;
-	}
+	},
 };
