@@ -2,12 +2,10 @@
 
 use App\ErpLog;
 
-function printStatusView()
-{
+function printStatusView() {
 }
 
-function changeTimeZone($dateString, $timeZoneSource = null, $timeZoneTarget = null)
-{
+function changeTimeZone($dateString, $timeZoneSource = null, $timeZoneTarget = null) {
     if (empty($timeZoneSource)) {
         $timeZoneSource = date_default_timezone_get();
     }
@@ -27,8 +25,7 @@ function changeTimeZone($dateString, $timeZoneSource = null, $timeZoneTarget = n
  *
  */
 
-function createProductTextImage($path, $uploadPath = "", $text = "", $color = "545b62", $fontSize = "40", $needAbs = true)
-{
+function createProductTextImage($path, $uploadPath = "", $text = "", $color = "545b62", $fontSize = "40", $needAbs = true) {
     $text = wordwrap(strtoupper($text), 24, "\n");
 
     $img = \IImage::make($path);
@@ -56,13 +53,11 @@ function createProductTextImage($path, $uploadPath = "", $text = "", $color = "5
     return ($needAbs) ? public_path($path) : url('/') . "/" . $path;
 }
 
-function get_folder_number($id)
-{
+function get_folder_number($id) {
     return floor($id / config('constants.image_per_folder'));
 }
 
-function previous_sibling(array $elements, $previous_sibling = 0, &$branch = [])
-{
+function previous_sibling(array $elements, $previous_sibling = 0, &$branch = []) {
     foreach ($elements as $k => $element) {
         if ($element['previous_sibling'] == $previous_sibling && $previous_sibling != 0) {
             $branch[] = $element;
@@ -78,8 +73,7 @@ function previous_sibling(array $elements, $previous_sibling = 0, &$branch = [])
  *
  */
 
-function show_short_message($message, $size = 50, $postfix = "...")
-{
+function show_short_message($message, $size = 50, $postfix = "...") {
     $message = trim($message);
 
     $dot = "";
@@ -96,8 +90,7 @@ function show_short_message($message, $size = 50, $postfix = "...")
  *
  */
 
-function attach_customer_key()
-{
+function attach_customer_key() {
     return "customer_list_" . time() . "_" . auth()->user()->id;
 }
 
@@ -105,14 +98,12 @@ function attach_customer_key()
  *  get scraper last log file name
  */
 
-function get_server_last_log_file($screaperName = "", $serverId = "")
-{
+function get_server_last_log_file($screaperName = "", $serverId = "") {
     $d = date('j', strtotime("-1 days"));
     return "/scrap-logs/file-view/" . $screaperName . "-" . $d . ".log/" . $serverId;
 }
 
-function getStartAndEndDate($week, $year)
-{
+function getStartAndEndDate($week, $year) {
     $dto = new DateTime();
     $dto->setISODate($year, $week);
     $ret['week_start'] = $dto->format('Y-m-d');
@@ -126,17 +117,15 @@ function getStartAndEndDate($week, $year)
  *
  */
 if (!function_exists('getInstance')) {
-    function getInstance($number)
-    {
+    function getInstance($number) {
         $number = !empty($number) ? $number : 0;
         return isset(config("apiwha.instances")[$number])
-        ? config("apiwha.instances")[$number]
-        : config("apiwha.instances")[0];
+            ? config("apiwha.instances")[$number]
+            : config("apiwha.instances")[0];
     }
 }
 
-function human_error_array($errors)
-{
+function human_error_array($errors) {
     $list = [];
     if (!empty($errors)) {
         foreach ($errors as $key => $berror) {
@@ -154,8 +143,7 @@ function human_error_array($errors)
  *
  */
 if (!function_exists('getInstanceNo')) {
-    function getInstanceNo()
-    {
+    function getInstanceNo() {
         $nos = config("apiwha.instances");
 
         $list = [];
@@ -174,8 +162,7 @@ if (!function_exists('getInstanceNo')) {
 /**
  * Check if the date is valid
  */
-function validateDate($date, $format = 'Y-m-d')
-{
+function validateDate($date, $format = 'Y-m-d') {
     $d = DateTime::createFromFormat($format, $date);
     return $d && $d->format($format) === $date;
 }
@@ -185,8 +172,7 @@ function validateDate($date, $format = 'Y-m-d')
  *
  */
 
-function drop_down_frequency()
-{
+function drop_down_frequency() {
     return [
         "0"    => "Disabled",
         "1"    => "Just Once",
@@ -210,8 +196,7 @@ function drop_down_frequency()
 /**
  * format the duration in Hour:minute:seconds format
  */
-function formatDuration($seconds_time)
-{
+function formatDuration($seconds_time) {
     if ($seconds_time < 24 * 60 * 60) {
         return gmdate('H:i:s', $seconds_time);
     } else {
@@ -222,8 +207,7 @@ function formatDuration($seconds_time)
     }
 }
 
-function get_field_by_number($no, $field = "name")
-{
+function get_field_by_number($no, $field = "name") {
     $no = explode("@", $no);
 
     if (!empty($no[0])) {
@@ -247,19 +231,16 @@ function get_field_by_number($no, $field = "name")
     return "";
 }
 
-function splitTextIntoSentences($text)
-{
+function splitTextIntoSentences($text) {
     return preg_split('/(?<=[.?!])\s+(?=[a-z])/i', $text);
 }
 
-function isJson($string)
-{
+function isJson($string) {
     json_decode($string);
     return (json_last_error() == JSON_ERROR_NONE);
 }
 
-function array_find($needle, array $haystack)
-{
+function array_find($needle, array $haystack) {
     foreach ($haystack as $key => $value) {
         if (false !== stripos($value, $needle)) {
             return true;
@@ -268,8 +249,7 @@ function array_find($needle, array $haystack)
     return false;
 }
 
-function GUID()
-{
+function GUID() {
     if (function_exists('com_create_guid') === true) {
         return trim(com_create_guid(), '{}');
     }
@@ -277,8 +257,7 @@ function GUID()
     return sprintf('%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535));
 }
 
-function replace_dash($string)
-{
+function replace_dash($string) {
 
     $string = str_replace(' ', '_', strtolower($string)); // Replaces all spaces with hyphens.
     $string = str_replace('-', '_', strtolower($string)); // Replaces all spaces with hyphens.
@@ -288,8 +267,7 @@ function replace_dash($string)
     return preg_replace('/\s+/', '_', strtolower($string));
 }
 
-function storeERPLog($erpData)
-{
+function storeERPLog($erpData) {
 
     if (!empty($erpData)) {
 
@@ -297,22 +275,17 @@ function storeERPLog($erpData)
         $erpData['response'] = json_encode($erpData['response']);
         ErpLog::create($erpData);
     }
-
 }
-function getStr($srt)
-{
+function getStr($srt) {
 
     preg_match("/\[(.*)\]/", $srt, $matches);
     if ($matches && $matches[0] !== '') {
         return true;
-    }
-    ;
+    };
     return false;
-
 }
 
-function string_convert($msg2)
-{
+function string_convert($msg2) {
 
     // $message = str_replace('||',"\n",$msg2);
     // $message = json_encode($msg2);
@@ -321,8 +294,7 @@ function string_convert($msg2)
     return $message;
 }
 
-function convertToThumbUrl($url, $extension)
-{
+function convertToThumbUrl($url, $extension) {
     $arr                  = explode("/", $url);
     $arr[count($arr) - 1] = 'thumbnail/' . $arr[count($arr) - 1];
 
@@ -331,8 +303,7 @@ function convertToThumbUrl($url, $extension)
     return str_replace('.' . $extension, '_thumb.' . $extension, $converted_str); // if product name is abc.jpg than thumb url name is abc_thumb.jpg name with in /thumbnaiil folder of relateable folder path.
 }
 
-function resizeCropImage($max_width = 150, $max_height = 150, $source_file, $dst_dir = null, $quality = 80)
-{
+function resizeCropImage($max_width = 150, $max_height = 150, $source_file, $dst_dir = null, $quality = 80) {
 
     if ($dst_dir === null) {
         $dst_dir = $source_file;
@@ -403,4 +374,85 @@ function resizeCropImage($max_width = 150, $max_height = 150, $source_file, $dst
     }
 
     return @file_get_contents($dst_dir);
+}
+
+
+function _p($data, $exit = 0) {
+    echo '<pre>'; print_r($data); echo '</pre>';
+    echo '<pre>______________________________________________________________________________________________________________</pre>';
+    if ($exit) die('');
+}
+function dateRangeArr($stDate, $enDate) {
+    $data = [];
+    while ($stDate <= $enDate) {
+        $data[] = [
+            'date' => $stDate,
+            'day' => strtolower(date('l', strtotime($stDate))),
+        ];
+        $stDate = date('Y-m-d', strtotime($stDate . '+1 day'));
+    }
+    return $data;
+}
+function nextHour($curr) {
+    $curr++;
+    if ($curr == 24) $curr = '0';
+    return $curr < 10 ? '0' . $curr : $curr;
+}
+function hourlySlots($stTime, $enTime) {
+    $slots = [];
+    $intrvl =  strtotime("1970-01-01 01:00:00 UTC");
+
+    $dateTimes = new \DatePeriod(
+        new \DateTime($stTime),
+        new \DateInterval('PT' . $intrvl . 'S'),
+        new \DateTime($enTime)
+    );
+    foreach ($dateTimes as $dt) {
+        $slots[] = $dt->format('Y-m-d H:i');
+    }
+    return $slots;
+}
+
+function siteJs($path) {
+    return env('APP_URL') . '/js/pages/' . $path . '?v=' . date('YmdH');
+}
+function makeDropdown($options = [], $selected = []) {
+    if (!is_array($selected)) {
+        $selected = is_numeric($selected) ? (int) $selected : $selected;
+    }
+    $return = [];
+    if (count($options)) {
+        foreach ($options as $k => $v) {
+            if (is_array($v)) {
+                $return[] = '<optgroup label="' . $k . '">';
+                $return[] = makeDropdown($v, $selected);
+                $return[] = '</optgroup>';
+            } else {
+                $sel = '';
+                if (is_array($selected)) {
+                    if (in_array($k, $selected))
+                        $sel = 'selected';
+                } else if ($selected === $k) {
+                    $sel = 'selected';
+                }
+                $return[] = '<option value="' . $k . '" ' . $sel . '>' . ucfirst(trim(strip_tags($v))) . '</option>';
+            }
+        }
+    }
+    return implode('', $return);
+}
+function exMessage($e) {
+    return 'Error on line ' . $e->getLine() . ' in ' . $e->getFile() . ': ' . $e->getMessage();
+}
+function respException($e, $data = []) {
+    return response()->json(array_merge_recursive(['message' => exMessage($e)], $data), 500);
+}
+function isDeveloperTaskId($id) {
+    return substr($id, 0, 3) == 'DT-' ? str_replace('DT-', '', $id) : 0;
+}
+function isRegularTaskId($id) {
+    return substr($id, 0, 2) == 'T-' ? str_replace('T-', '', $id) : 0;
+}
+function respJson($code, $message = '', $data = []) {
+    return response()->json(array_merge_recursive(['message' => $message], $data), $code);
 }
