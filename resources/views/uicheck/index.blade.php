@@ -80,9 +80,21 @@
     <br>
 	<div class="col-lg-12 margin-tb">
 		<div class="row">
-			<div class="col-md-6 pull-right">
+			<div class="col-md-12 pull-right">
 				<form>
-					<div class="col-md-4">
+					<div class="col-md-2">
+						<select name="assign_to" id="assign_to" class="form-control select2">
+							<option value="">-- Select Assign to --</option>
+							@forelse($users as $user)
+								<option value="{{ $user->id }}" 
+								@if($assign_to == $user->id) 
+									selected	
+								@endif>{{ $user->name }}</option>
+							@empty
+							@endforelse
+						</select>
+					</div>
+					<div class="col-md-2">
 						<select name="store_webs" id="store_webiste" class="form-control select2">
 							<option value="">-- Select a website --</option>
 							@forelse($all_store_websites as $asw)
@@ -94,10 +106,11 @@
 							@endforelse
 						</select>
 					</div>
-					<div class="col-md-4">
+					<div class="col-md-2">
+						
 						<select name="categories" id="store-categories" class="form-control select2">
 							<option value="">-- Select a categories --</option>
-							@forelse($site_development_categories  as $ct)
+							@forelse($site_development_categories->get()  as $ct)
 								<option value="{{ $ct->id }}" 
 								@if($search_category == $ct->id) 
 								selected	
@@ -106,7 +119,32 @@
 							@endforelse
 						</select>
 					</div>
-					<div class="col-md-4">
+					<div class="col-md-2">
+						<select name="dev_status" id="dev_status" class="form-control select2">
+							<option value="">-- Developer Status --</option>
+							@forelse($allStatus as $key => $ds)
+							
+								<option value="{{ $key }}" 
+								@if($dev_status == $key) 
+								selected	
+								@endif>{{ $ds }}</option>
+							@empty
+							@endforelse
+						</select>
+					</div>
+					<div class="col-md-2">
+						<select name="admin_status" id="admin_status" class="form-control select2">
+							<option value="">-- Admin Status --</option>
+							@forelse($allStatus as $key => $as)
+								<option value="{{ $key }}" 
+								@if($dev_status == $key) 
+								selected	
+								@endif>{{ $as }}</option>
+							@empty
+							@endforelse
+						</select>
+					</div>
+					<div class="col-md-2">
 						<button type="button" class="btn btn-secondary custom-filter">Search</button>
 						<a href="/uicheck" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
 					</div>
@@ -204,6 +242,7 @@
 								<th>User Name</th>
 								<th>Old Status</th>
 								<th>Status</th>
+								<th>Date</th>
 								
 							</tr>
 						</thead>
@@ -231,6 +270,7 @@
 								<th>User Name</th>
 								<th>Old Status</th>
 								<th>Status</th>
+								<th>Date</th>
 								
 							</tr>
 						</thead>
@@ -260,7 +300,7 @@
 								<th>User Name</th>
 								<th>Old Issue</th>
 								<th>Issue</th>
-								
+								<th>Date</th>
 							</tr>
 						</thead>
 						<tbody id="issue_tboday">
@@ -292,6 +332,33 @@
 							</tr>
 						</thead>
 						<tbody id="message_tboday">
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="assignTo_model" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2>U I Assign to History</h2>
+				<button type="button" class="close" data-dismiss="modal">×</button>
+			</div>
+			<div class="modal-body" id="">
+				<div class="table-responsive">
+					<table class="table table-bordered table-striped">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Change by</th>
+								<th>Assign to</th>
+								<th>Date</th>
+							</tr>
+						</thead>
+						<tbody id="assignTo_tboday">
 						</tbody>
 					</table>
 				</div>
@@ -366,7 +433,7 @@
 								}
 								html += '<option '+selected+' value="'+obj.id+'">'+obj.name+'</option>';
 							});						
-						html += '</select>';
+						html += '</select><button type="button" class="btn btn-xs show-assign-history" title="Show Issue History" data-id="'+full.uicheck_id+'"><i data-id="3" class="fa fa-info-circle"></i></button>';
                 		return html;						
 					}
 				},
@@ -560,6 +627,9 @@
 				data: function(d) {
 					d.category_name = $('#store_webiste').val();
 					d.sub_category_name = $('#store-categories').val();
+					d.dev_status = $('#dev_status').val();
+					d.admin_status = $('#admin_status').val();
+					d.assign_to = $('#assign_to').val();
 					// d.subjects = $('input[name=subjects]').val();					
 				},
 			},
@@ -1051,6 +1121,42 @@ $(document).on("click", ".show-message-history", function(e) {
 				toastr['success'](response.message);
 				$("#message_tboday").html(response.html);
 				$("#message_model").modal("show");
+				
+                //location.reload();
+			} else {
+				toastr['error'](response.message);
+			}
+		}
+	}).fail(function(response) {
+		toastr['error'](response.responseJSON.message);
+	});
+});
+
+$(document).on("click", ".show-assign-history", function(e) {
+	e.preventDefault();
+	var id = $(this).data("id");
+    var developer_status = $(this).val();
+    var site_development_id = $(this).data("site_development_id");
+    var category = $(this).data("category");
+
+	$.ajax({
+		url: "{{route('uicheck.get.assign.history')}}",
+		type: 'POST',
+		data: {
+            id:id,
+            developer_status: developer_status,
+            site_development_id: site_development_id,
+            category:category,
+            "_token": "{{ csrf_token() }}",
+        },
+		beforeSend: function() {
+			$(this).text('Loading...');
+		},
+		success: function(response) {
+			if (response.code == 200) {
+				toastr['success'](response.message);
+				$("#assignTo_tboday").html(response.html);
+				$("#assignTo_model").modal("show");
 				
                 //location.reload();
 			} else {
