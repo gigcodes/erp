@@ -82,7 +82,7 @@
 
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
-		<h2 class="page-heading">Ui Check</h2>
+		<h2 class="page-heading">Ui Check (0)</h2>
 	</div>
 	
 	<div class="col-lg-12 margin-tb">
@@ -371,7 +371,14 @@
 				<h2>All History</h2>
 				<button type="button" class="close" data-dismiss="modal">×</button>
 			</div>
-			<div class="modal-body">
+			<div class="modal-body" style="overflow-y: scroll;height: 650px;">
+				<select id="dropdownAllUsers" class="searAllhistory select2"  onchange="filterAllHistory(this.value)" style="width: 150px;">
+					<option value="">- Select -</option>
+					<?php foreach ($users as $user) {
+						echo '<option value="' . $user['id'] . '">' . $user['name'] . '</option>';
+					} ?>
+				</select>
+				<br/><br/>
 				<table class="table table-bordered table-striped">
 					<thead>
 						<tr>
@@ -669,12 +676,19 @@
 		if (firstTime == 1) {
 			tbl.find('tbody').html('');
 		}
+		
+		var user_id =  "";
+		if(mdl.hasClass('in') == true){
+			user_id = $(".searAllhistory").select2("val");
+		}
+		
 		siteLoader(1);
 		jQuery.ajax({
 			url: "{{ route('uicheck.history.all') }}",
 			type: 'GET',
 			data: {
-				lastDate: tbl.find('tbody tr:last').find('.cls-created-date').html()
+				lastDate: tbl.find('tbody tr:last').find('.cls-created-date').html(),
+				user_id : user_id
 			},
 			beforeSend: function() {},
 			success: function(response) {
@@ -694,6 +708,38 @@
 		});
 	}
 
+	function filterAllHistory(x) {
+		//debugger;
+		
+		let mdl = jQuery('#modalAllHistory');
+		let tbl = mdl.find('table');
+		var user_id = x;
+		mdl.find('.cls-load-more').removeClass('d-none');
+		tbl.find('tbody').html('');
+		mdl.modal('show');
+		siteLoader(1);
+		jQuery.ajax({
+			url: "{{ route('uicheck.history.all') }}",
+			type: 'GET',
+			data: {
+				lastDate: tbl.find('tbody tr:last').find('.cls-created-date').html(),
+				user_id : user_id
+			},
+			beforeSend: function() {},
+			success: function(response) {
+				siteLoader(0);
+				if (response.html) {
+					tbl.find('tbody').append(response.html);
+				} else {
+					mdl.find('.cls-load-more').addClass('d-none');
+				}
+				
+			}
+		}).fail(function(response) {
+			toastr['error'](response.responseJSON.message);
+			//siteLoader(0);
+		});
+	}
 	// START Print Table Using datatable
 	var oTable;
 	$(document).ready(function() {
@@ -916,8 +962,10 @@
 			],
 			targets: 'no-sort',
 			bSort: false,
-			drawCallback: function() {
+			drawCallback: function(settings) {
 				jQuery('.globalSelect2').select2();
+				var responseToJson = settings.json;
+				$(".page-heading").text("Ui Check ("+responseToJson.recordsTotal+")");
 			},
 			ajax: {
 				"url": "{{ route('uicheck') }}",
@@ -929,16 +977,20 @@
 					d.assign_to = $('#assign_to').val();
 					d.order_by = $("#order_by").val();
 					// d.subjects = $('input[name=subjects]').val();					
+					
 				},
+			
 			},
 			columnDefs: [{
 				targets: [],
 				orderable: false,
 				searchable: false
 			}],
-			columns: columns
-		});
+			columns: columns,
+		
 
+		});
+		
 		$(document).on("click", ".custom-filter", function(e) {
 			oTable.draw(false);
 		});
