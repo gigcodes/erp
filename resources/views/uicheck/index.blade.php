@@ -551,6 +551,7 @@
 <script type="text/javascript">
 	var urlUicheckGet = "{{ route('uicheck.get') }}";
 	var urlUicheckHistoryDates = "{{ route('uicheck.history.dates') }}";
+	var isAdmin = "{{ Auth::user()->hasRole('Admin') ? 1 : 0 }}";
 
 
 	function updateTypeId(ele, uicheck_id) {
@@ -991,7 +992,11 @@
 			}],
 			columns: columns,
 			createdRow: function(row, data, dataIndex) {
-				if (data.lock_developer == 1 || data.lock_admin == 1) {
+				if (data.lock_developer == 1 && data.lock_admin == 1) {
+					jQuery(row).addClass('bg-warning');
+				} else if (isAdmin == 1 && data.lock_admin == 1) {
+					jQuery(row).addClass('bg-warning');
+				} else if (isAdmin == 0 && data.lock_developer == 1) {
 					jQuery(row).addClass('bg-warning');
 				}
 			}
