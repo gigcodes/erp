@@ -82,7 +82,7 @@
 
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
-		<h2 class="page-heading">Ui Check ({{$record_count}})</h2>
+		<h2 class="page-heading">Ui Check (0)</h2>
 	</div>
 	
 	<div class="col-lg-12 margin-tb">
