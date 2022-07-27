@@ -102,7 +102,7 @@ class UicheckController extends Controller {
             if ($s = request('assign_to')) {
                 $q = $q->where('uua.user_id', $s);
             }
-            $q->groupBy('site_development_categories.id');
+            $q->groupBy('uichecks.id');
             
             if ($s = request('order_by')) {
                 $q->orderBy('uichecks.'.request('order_by'), "desc");
@@ -214,7 +214,20 @@ class UicheckController extends Controller {
         Uicheck::where("id", $request->uicheck_id)->update($array);
         return response()->json(['code' => 200, 'message' => 'Type Updated!!!']);
     }
-
+    
+    public function createDuplicateCategory(Request $request) {
+        $uiCheck = Uicheck::where("id", $request->id)->first();
+        Uicheck::create([
+            "site_development_id" => $uiCheck->site_development_id ?? '',
+            "site_development_category_id" => $uiCheck->site_development_category_id ?? '',
+            "website_id" => $uiCheck->website_id ?? '',
+            "issue" => $uiCheck->issue ?? '',
+            "created_at" => \Carbon\Carbon::now(),
+        ]);
+        return response()->json(['code' => 200, 'message' => 'Category Duplicate Created successfully!!!']);
+    }
+    
+    
     public function upload_document(Request $request) {
         $uicheck_id = $request->uicheck_id;
         $subject = $request->subject;

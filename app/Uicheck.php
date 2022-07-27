@@ -12,6 +12,7 @@ class Uicheck extends Model {
     protected $fillable = [
         'id',
         'site_development_category_id',
+        'site_development_id',
         'website_id',
         'issue',
         'communication_message',

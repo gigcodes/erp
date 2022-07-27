@@ -205,19 +205,19 @@
 		<table class="table table-bordered " id="uicheck_table">
 			<thead>
 				<tr>
-					<th><input type="checkbox" id="checkAll" title="click here to select all" /></th>
-					<th>Uicheck Id</th>
+					<th width="5%"><input type="checkbox" id="checkAll" title="click here to select all" /></th>
+					<th width="5%">Uicheck Id</th>
 					<th width="10%">Categories</th>
-					<th>Website</th>
+					<th width="5%">Website</th>
 					@if (Auth::user()->hasRole('Admin'))
-					<th>Assign To</th>
+					<th width="6%">Assign To</th>
 					@endif
-					<th>Issue</th>
-					<th>Communication</th>
-					<th>Developer Status</th>
-					<th>Type</th>
-					<th>Admin Status</th>
-					<th>Actions</th>
+					<th width="10%">Issue</th>
+					<th width="10%">Communication</th>
+					<th width="10%">Developer Status</th>
+					<th width="10%">Type</th>
+					<th width="10%">Admin Status</th>
+					<th width="10%">Actions</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -715,8 +715,9 @@
 				},
 				{
 					data: 'title',
-					render: function(data, type, full, meta) {
-						return data;
+					render: function(data, type, row, meta) {
+						var html = '<div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1">'+data+'<button type="button" class="btn btn-xs duplicate-category" title="Duplicate Category" data-id="' + row.uicheck_id + '"><i data-id="' + row.uicheck_id + '" class="fa fa-plus"></i></button></div>';
+						return html;
 					}
 				},
 				{
@@ -746,7 +747,7 @@
 				{
 					data: 'issue',
 					render: function(data, type, row, meta) {
-						var html = '<div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1"><input style="margin-top: 0px;width:87% !important;" type="text" class="form-control " id="issue-' + row.uicheck_id + '" name="issue-' + row.uicheck_id + '" placeholder="Issues" value="' + row.issue + '"><div style="margin-top: 0px;" class="d-flex p-0"><button class="btn pr-0 btn-xs btn-image issue" data-category="' + row.id + '" data-id="' + row.uicheck_id + '" data-site_development_id="' + row.site_id + '"><img src="/images/filled-sent.png" /></button></div><button type="button" class="btn btn-xs show-issue-history" title="Show Issue History" data-id="' + row.uicheck_id + '"><i data-id="' + row.uicheck_id + '" class="fa fa-info-circle"></i></button></div>';
+						var html = '<div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1"><input style="margin-top: 0px;min-width:76px !important;" type="text" class="form-control " id="issue-' + row.uicheck_id + '" name="issue-' + row.uicheck_id + '" placeholder="Issues" value="' + row.issue + '"><div style="margin-top: 0px;" class="d-flex p-0"><button class="btn pr-0 btn-xs btn-image issue" data-category="' + row.id + '" data-id="' + row.uicheck_id + '" data-site_development_id="' + row.site_id + '"><img src="/images/filled-sent.png" /></button></div><button type="button" class="btn btn-xs show-issue-history" title="Show Issue History" data-id="' + row.uicheck_id + '"><i data-id="' + row.uicheck_id + '" class="fa fa-info-circle"></i></button></div>';
 						return html;
 					}
 				},
@@ -843,7 +844,7 @@
 				{
 					data: 'issue',
 					render: function(data, type, row, meta) {
-						var html = '<div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1"><input style="margin-top: 0px;width:87% !important;" type="text" class="form-control " id="issue-' + row.uicheck_id + '" name="issue-' + row.uicheck_id + '" placeholder="Issues" value="' + row.issue + '"><div style="margin-top: 0px;" class="d-flex p-0"><button class="btn pr-0 btn-xs btn-image issue" data-category="' + row.id + '" data-id="' + row.uicheck_id + '" data-site_development_id="' + row.site_id + '"><img src="/images/filled-sent.png" /></button></div><button type="button" class="btn btn-xs show-issue-history" title="Show Issue History" data-id="' + row.uicheck_id + '"><i data-id="' + row.uicheck_id + '" class="fa fa-info-circle"></i></button></div>';
+						var html = '<div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1"><input style="margin-top: 0px;min-width:76px !important;" type="text" class="form-control " id="issue-' + row.uicheck_id + '" name="issue-' + row.uicheck_id + '" placeholder="Issues" value="' + row.issue + '"><div style="margin-top: 0px;" class="d-flex p-0"><button class="btn pr-0 btn-xs btn-image issue" data-category="' + row.id + '" data-id="' + row.uicheck_id + '" data-site_development_id="' + row.site_id + '"><img src="/images/filled-sent.png" /></button></div><button type="button" class="btn btn-xs show-issue-history" title="Show Issue History" data-id="' + row.uicheck_id + '"><i data-id="' + row.uicheck_id + '" class="fa fa-info-circle"></i></button></div>';
 						return html;
 					}
 				},
@@ -1225,6 +1226,41 @@
 					$("#issue_tboday").html(response.html);
 					$("#issue_model").modal("show");
 					//location.reload();
+				} else {
+					toastr['error'](response.message);
+				}
+			}
+		}).fail(function(response) {
+			toastr['error'](response.responseJSON.message);
+		});
+	});
+
+	$(document).on("click", ".duplicate-category", function(e) {
+		e.preventDefault();
+		var id = $(this).data("id");
+		var developer_status = $(this).val();
+		var site_development_id = $(this).data("site_development_id");
+		var category = $(this).data("category");
+
+		$.ajax({
+			url: "{{route('uicheck.set.duplicate.category')}}",
+			type: 'POST',
+			data: {
+				id: id,
+				developer_status: developer_status,
+				site_development_id: site_development_id,
+				category: category,
+				"_token": "{{ csrf_token() }}",
+			},
+			beforeSend: function() {
+				$(this).text('Loading...');
+			},
+			success: function(response) {
+				oTable.draw(false);
+				console.log(oTable);
+				if (response.code == 200) {
+					toastr['success'](response.message);
+					
 				} else {
 					toastr['error'](response.message);
 				}
