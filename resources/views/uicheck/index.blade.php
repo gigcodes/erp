@@ -676,7 +676,12 @@
 		if (firstTime == 1) {
 			tbl.find('tbody').html('');
 		}
-		var user_id = $(".searAllhistory").select2("val");;
+		
+		var user_id =  "";
+		if(mdl.hasClass('in') == true){
+			user_id = $(".searAllhistory").select2("val");
+		}
+		
 		siteLoader(1);
 		jQuery.ajax({
 			url: "{{ route('uicheck.history.all') }}",
@@ -957,8 +962,10 @@
 			],
 			targets: 'no-sort',
 			bSort: false,
-			drawCallback: function() {
+			drawCallback: function(settings) {
 				jQuery('.globalSelect2').select2();
+				var responseToJson = settings.json;
+				$(".page-heading").text("Ui Check ("+responseToJson.recordsTotal+")");
 			},
 			ajax: {
 				"url": "{{ route('uicheck') }}",
@@ -970,16 +977,20 @@
 					d.assign_to = $('#assign_to').val();
 					d.order_by = $("#order_by").val();
 					// d.subjects = $('input[name=subjects]').val();					
+					
 				},
+			
 			},
 			columnDefs: [{
 				targets: [],
 				orderable: false,
 				searchable: false
 			}],
-			columns: columns
-		});
+			columns: columns,
+		
 
+		});
+		
 		$(document).on("click", ".custom-filter", function(e) {
 			oTable.draw(false);
 		});
