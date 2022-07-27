@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UicheckHistory;
 use App\Uicheck;
 use App\UicheckType;
+
 /*use Illuminate\Http\Request;
 use App\SiteDevelopment;
 use App\SiteDevelopmentArtowrkHistory;
@@ -25,6 +27,7 @@ use App\SiteDevelopmentCategory;
 use App\UiCheckIssueHistoryLog;
 use App\UiCheckCommunication;
 use App\UiCheckAssignToHistory;
+
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -575,6 +578,19 @@ class UicheckController extends Controller {
                         LEFT JOIN site_development_statuses AS ov ON ov.id = curr.old_status_id
                         LEFT JOIN site_development_statuses AS nv ON nv.id = curr.status_id
                     )
+                    UNION
+                    (
+                        SELECT
+                        uichecks_id,
+                        type,
+                        old_val,
+                        new_val,
+                        old_val AS old_disp_val,
+                        new_val AS new_disp_val,
+                        user_id,
+                        created_at
+                        FROM  uichecks_hisotry
+                    )
                 ) AS listdata
                 LEFT JOIN users AS u ON u.id = listdata.user_id
                 LEFT JOIN uichecks AS uic ON uic.id = listdata.uichecks_id
@@ -610,5 +626,64 @@ class UicheckController extends Controller {
             return respException($th);
         }
     }
-    // 
+    public function get() {
+        try {
+            if ($single = Uicheck::find(request('id'))) {
+                return respJson(200, '', [
+                    'data' => $single
+                ]);
+            }
+            return respJson(404, 'Invalid record.', []);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
+
+    public function updateDates() {
+        try {
+            if ($single = Uicheck::find(request('id'))) {
+                $single->updateElement('start_time', request('start_time'));
+                $single->updateElement('expected_completion_time', request('expected_completion_time'));
+                if (\Auth::user()->hasRole('Admin')) {
+                    $single->updateElement('actual_completion_time', request('actual_completion_time'));
+                }
+                return respJson(200, 'Dates updated successfully.', []);
+            }
+            return respJson(404, 'Invalid record.', []);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
+    public function historyDates() {
+        try {
+            $data = UicheckHistory::with('updatedBy')->orderBy('id', 'DESC')->get();
+
+            $html = [];
+            if ($data->count()) {
+                foreach ($data as $value) {
+                    $html[] = implode('', [
+                        '<tr>',
+                        '<td>' . ($value->id ?: '-') . '</td>',
+                        '<td>' . ($value->type ?: '-') . '</td>',
+                        '<td>' . ($value->old_val ?: '-') . '</td>',
+                        '<td>' . ($value->new_val ?: '-') . '</td>',
+                        '<td>' . ($value->updatedByName() ?: '-') . '</td>',
+                        '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
+                        '</tr>',
+                    ]);
+                }
+            } else {
+                $html[] = implode('', [
+                    '<tr>',
+                    '<td colspan="6">No records found.</td>',
+                    '</tr>',
+                ]);
+            }
+            return respJson(200, '', [
+                'html' => implode('', $html)
+            ]);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
 }

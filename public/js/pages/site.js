@@ -16,8 +16,13 @@ function siteAlert(status, message) {
     toastr['error'](message);
   }
 }
-function siteSuccessAlert(message) {
-  siteAlert(1, message);
+function siteSuccessAlert(res) {
+  if (res.message != undefined) {
+    siteAlert(1, res.message);
+  }
+  else if (message) {
+    siteAlert(1, message);
+  }
 }
 function siteErrorAlert(err) {
   if (err.responseJSON != undefined) {

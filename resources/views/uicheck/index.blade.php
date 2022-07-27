@@ -204,6 +204,7 @@
 					<th>Developer Status</th>
 					<th>Type</th>
 					<th>Admin Status</th>
+					<th>Actions</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -386,6 +387,90 @@
 	</div>
 </div>
 
+<div id="modalDateUpdates" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Update Dates</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<label>Start Date:</label>
+						<div class="form-group">
+							<div class='input-group date cls-start-due-date'>
+								<input type="text" class="form-control input-sm" id="modal_start_time" name="modal_start_time" value="" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-calendar"></span>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-12">
+						<label>Expected Completion Time:</label>
+						<div class="form-group">
+							<div class='input-group date cls-start-due-date'>
+								<input type="text" class="form-control input-sm" id="modal_expected_completion_time" name="modal_expected_completion_time" value="" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-calendar"></span>
+								</span>
+							</div>
+						</div>
+					</div>
+					<?php if (\Auth::user()->hasRole('Admin')) { ?>
+						<div class="col-md-12">
+							<label>Actual Completion Time:</label>
+							<div class="form-group">
+								<div class='input-group date cls-start-due-date'>
+									<input type="text" class="form-control input-sm" id="modal_actual_completion_time" name="modal_actual_completion_time" value="" />
+									<span class="input-group-addon">
+										<span class="glyphicon glyphicon-calendar"></span>
+									</span>
+								</div>
+							</div>
+						</div>
+					<?php } ?>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" onclick="funDateUpdatesSubmit('{!! route('uicheck.update.dates') !!}')">Save</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="modalHistoryDateUpdates" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Date History</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="col-md-12">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th width="5%">ID</th>
+								<th width="15%">Type</th>
+								<th width="22%" style="word-break: break-all;">Old Value</th>
+								<th width="22%" style="word-break: break-all;">New Value</th>
+								<th width="21%">Update By</th>
+								<th width="15%">Created at</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 @if (Auth::user()->hasRole('Admin'))
 <input type="hidden" id="user-type" value="Admin">
 @else
@@ -431,6 +516,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
+	var urlUicheckGet = "{{ route('uicheck.get') }}";
+	var urlUicheckHistoryDates = "{{ route('uicheck.history.dates') }}";
+
+
 	function updateTypeId(ele, uicheck_id) {
 		jQuery.ajax({
 			url: "{{route('uicheck.type.save')}}",
@@ -692,7 +781,19 @@
 						html += '<button type="button" class="btn btn-xs show-admin-status-history" title="Show" data-id="' + row.uicheck_id + '"><i data-id="' + row.uicheck_id + '" class="fa fa-info-circle"></i></button>';
 						return html;
 					}
-				}
+				},
+				{
+					data: null,
+					render: function(data, type, row, meta) {
+						return '<div class="dropdown dropleft">' +
+							'<a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</a>' +
+							'<div class="dropdown-menu" >' +
+							'<a class="dropdown-item" href="javascript:void(0);" onclick="funDateModalOpen(\'' + row.uicheck_id + '\')">Dates: Update</a>' +
+							'<a class="dropdown-item" href="javascript:void(0);" onclick="funDateUpdatesHistory(\'' + row.uicheck_id + '\')">Dates: View History</a>' +
+							'</div>' +
+							'</div>';
+					}
+				},
 			];
 		} else {
 			var columns = [{
@@ -771,7 +872,19 @@
 						var html = '<button type="button" class="btn btn-xs show-admin-status-history" title="Show" data-id="' + row.uicheck_id + '"><i data-id="' + row.uicheck_id + '" class="fa fa-info-circle"></i></button>';
 						return html;
 					}
-				}
+				},
+				{
+					data: null,
+					render: function(data, type, row, meta) {
+						return '<div class="dropdown dropleft">' +
+							'<a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</a>' +
+							'<div class="dropdown-menu" >' +
+							'<a class="dropdown-item" href="javascript:void(0);" onclick="funDateModalOpen(\'' + row.uicheck_id + '\')">Dates: Update</a>' +
+							'<a class="dropdown-item" href="javascript:void(0);" onclick="funDateUpdatesHistory(\'' + row.uicheck_id + '\')">Dates: View History</a>' +
+							'</div>' +
+							'</div>';
+					}
+				},
 			];
 		}
 		oTable = $('#uicheck_table').DataTable({
@@ -1189,6 +1302,102 @@
 		var mini = '.expand-row-msg .show-full-' + name + '-' + id;
 		$(full).toggleClass('hidden');
 		$(mini).toggleClass('hidden');
+	});
+
+
+
+	var currUiCheckId = null;
+
+	function funDateModalOpen(id) {
+		currUiCheckId = id;
+		siteLoader(true);
+		jQuery.ajax({
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			url: urlUicheckGet,
+			type: 'GET',
+			data: {
+				id: id
+			}
+		}).done(function(response) {
+			jQuery('#modalDateUpdates').modal('show');
+			if (jQuery('#modal_start_time').length && response.data.start_time) {
+				jQuery('#modal_start_time').val(response.data.start_time);
+			}
+			if (jQuery('#modal_expected_completion_time').length && response.data.expected_completion_time) {
+				jQuery('#modal_expected_completion_time').val(response.data.expected_completion_time);
+			}
+			if (jQuery('#modal_actual_completion_time').length && response.data.actual_completion_time) {
+				jQuery('#modal_actual_completion_time').val(response.data.actual_completion_time);
+			}
+			siteLoader(false);
+		}).fail(function(errObj) {
+			if (errObj.responseJSON != undefined) {
+				toastr['error'](errObj.responseJSON.message);
+			} else if (errObj.message != undefined) {
+				toastr['error'](errObj.message);
+			} else if (errObj.message != undefined) {
+				toastr['error']('Unknown error occured.');
+			}
+			siteLoader(false);
+		});
+		jQuery('#modalDateUpdates').modal('show');
+		jQuery('#modalDateUpdates').attr('data-row_id', jQuery(ele).attr('data-task_id'));
+	}
+
+	function funDateUpdatesSubmit(url) {
+		siteLoader(true);
+		jQuery.ajax({
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			url: url,
+			type: 'POST',
+			data: {
+				id: currUiCheckId,
+				start_time: jQuery('#modal_start_time').length ? jQuery('#modal_start_time').val() : '',
+				expected_completion_time: jQuery('#modal_expected_completion_time').length ? jQuery('#modal_expected_completion_time').val() : '',
+				actual_completion_time: jQuery('#modal_actual_completion_time').length ? jQuery('#modal_actual_completion_time').val() : '',
+			}
+		}).done(function(response) {
+			jQuery('#modalDateUpdates').modal('hide');
+			currUiCheckId = null;
+			siteLoader(false);
+			siteSuccessAlert(response);
+		}).fail(function(errObj) {
+			siteErrorAlert(errObj);
+			siteLoader(false);
+		});
+	}
+
+	function funDateUpdatesHistory(id) {
+		siteLoader(true);
+		let mdl = jQuery('#modalHistoryDateUpdates');
+		jQuery.ajax({
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			url: urlUicheckHistoryDates,
+			type: 'GET',
+			data: {
+				id: id
+			},
+			beforeSend: function() {
+				jQuery("#loading-image").show();
+			}
+		}).done(function(response) {
+			siteLoader(false);
+			mdl.find('tbody').html(response.html);
+			mdl.modal("show");
+		}).fail(function(errObj) {
+			siteErrorAlert(errObj);
+			siteLoader(false);
+		});
+	}
+
+	jQuery(document).ready(function() {
+		applyDateTimePicker(jQuery('.cls-start-due-date'));
 	});
 </script>
 
