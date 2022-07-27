@@ -143,15 +143,13 @@
 					</div>
 					<div class="col-md-2">
 						<select name="order_by" id="order_by" class="form-control select2">
-							@foreach ($allUsers as $user)
+							
 								<option value="">--Order By--</option>
 								<option value="website_id">Website</option>
 								<option value="issue">Issue</option>
 								<option value="communication_message">Communication</option>
 								<option value="dev_status_id">Developer Status</option>
 								<option value="admin_status_id">Admin Status</option>
-								
-							@endforeach
 						</select>
 					</div>
 					
