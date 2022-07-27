@@ -105,7 +105,10 @@ class UicheckController extends Controller {
             $q->groupBy('uichecks.id');
             
             if ($s = request('order_by')) {
-                $q->orderBy('uichecks.'.request('order_by'), "desc");
+                //$q->orderBy('uichecks.'.request('order_by'), "desc");
+                //$q->orderBy('uichecks.updated_at', "desc");
+                $q->orderByRaw("uichecks.".request('order_by')." DESC, uichecks.updated_at DESC");
+                
             }else{
                 $q->orderBy('uichecks.updated_at', "desc");
             }
@@ -475,6 +478,9 @@ class UicheckController extends Controller {
         $messageLog->uichecks_id = $request->id;
         $messageLog->message = $request->message;
         $messageLog->save();
+        $uicheck = Uicheck::find($request->id);
+        $uicheck->updated_at = \Carbon\Carbon::now();
+        $uicheck->save();
         return response()->json(['code' => 200, 'message' => 'Message saved successfully!!!']);
     }
 
