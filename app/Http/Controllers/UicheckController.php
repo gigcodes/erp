@@ -62,8 +62,25 @@ class UicheckController extends Controller {
                         "uichecks.uicheck_type_id",
                         "uichecks.dev_status_id",
                         "uichecks.admin_status_id",
+                        "uichecks.lock_developer",
+                        "uichecks.lock_admin",
                         "uua.user_id as accessuser"
                     );
+                if ($s = request('srch_lock_type')) {
+                    if ($s == 1) {
+                        $q->where('uichecks.lock_developer', 0);
+                        $q->where('uichecks.lock_admin', 0);
+                    } else if ($s == 2) {
+                        $q->where('uichecks.lock_developer', 1);
+                        $q->where('uichecks.lock_admin', 1);
+                    } else if ($s == 3) {
+                        $q->where('uichecks.lock_developer', 0);
+                        $q->where('uichecks.lock_admin', 1);
+                    } else if ($s == 4) {
+                        $q->where('uichecks.lock_developer', 1);
+                        $q->where('uichecks.lock_admin', 0);
+                    }
+                }
             } else {
                 $q = SiteDevelopmentCategory::query()
                     ->join('site_developments', 'site_development_categories.id', '=', 'site_developments.site_development_category_id')
@@ -72,6 +89,7 @@ class UicheckController extends Controller {
                     ->where('uua.user_id', "=", \Auth::user()->id)
                     ->where('site_developments.is_ui', 1)
                     ->where('uichecks.id', '>', 0)
+                    ->where('uichecks.lock_developer', '=', 0)
                     ->select(
                         'site_development_categories.*',
                         'site_developments.id AS site_id',
@@ -80,11 +98,14 @@ class UicheckController extends Controller {
                         "uichecks.issue",
                         "uichecks.website_id AS websiteid",
                         "uichecks.uicheck_type_id",
-                        "uua.user_id as accessuser",
                         "uichecks.dev_status_id",
-                        "uichecks.admin_status_id"
+                        "uichecks.admin_status_id",
+                        "uichecks.lock_developer",
+                        "uichecks.lock_admin",
+                        "uua.user_id as accessuser"
                     );
             }
+
 
             //->where('site_development_categories.id','site_developments.site_development_category_id');
             if ($s = request('category_name')) {
@@ -716,4 +737,18 @@ class UicheckController extends Controller {
             return respException($th);
         }
     }
+
+    public function updateLock() {
+        try {
+            if ($single = Uicheck::find(request('id'))) {
+                $key = request('type') == 'developer' ? 'lock_developer' : 'lock_admin';
+                $single->updateElement($key, $single->$key ? 0 : 1);
+                return respJson(200, 'Record updated successfully.', []);
+            }
+            return respJson(404, 'Invalid record.', []);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
+    // 
 }

@@ -3157,6 +3157,7 @@ Route::middleware('auth')->group(function () {
 
         Route::prefix('update')->group(function () {
             Route::post('dates', 'UicheckController@updateDates')->name('uicheck.update.dates');
+            Route::post('lock', 'UicheckController@updateLock')->name('uicheck.update.lock');
         });
     });
 });

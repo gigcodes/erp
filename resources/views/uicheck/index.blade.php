@@ -87,88 +87,103 @@
 
 	<div class="col-lg-12 margin-tb">
 		<div class="row">
-			<div class="col-md-12 pull-right">
+			<div class="col-md-12">
 				<form>
-					<div class="col-md-2">
-						<select name="assign_to" id="assign_to" class="form-control select2">
-							<option value="">-- Select Assign to --</option>
-							@forelse($users as $user)
-							<option value="{{ $user->id }}" @if($assign_to==$user->id)
-								selected
-								@endif>{{ $user->name }}</option>
-							@empty
-							@endforelse
-						</select>
-					</div>
-					<div class="col-md-2">
-						<select name="store_webs" id="store_webiste" class="form-control select2">
-							<option value="">-- Select a website --</option>
-							@forelse($all_store_websites as $asw)
-							<option value="{{ $asw->id }}" @if($search_website==$asw->id)
-								selected
-								@endif>{{ $asw->title }}</option>
-							@empty
-							@endforelse
-						</select>
-					</div>
-					<div class="col-md-2">
-
-						<select name="categories" id="store-categories" class="form-control select2">
-							<option value="">-- Select a categories --</option>
-							@forelse($site_development_categories as $ctId => $ctName)
-							<option value="{{ $ctId }}" @if($search_category==$ctId) selected @endif>{!! $ctName !!}</option>
-							@empty
-							@endforelse
-						</select>
-					</div>
-					<div class="col-md-2">
-						<select name="dev_status" id="dev_status" class="form-control select2">
-							<option value="">-- Developer Status --</option>
-							@forelse($allStatus as $key => $ds)
-
-							<option value="{{ $key }}" @if($dev_status==$key) selected @endif>{{ $ds }}</option>
-							@empty
-							@endforelse
-						</select>
-					</div>
-					<br><br>
-					<div class="col-md-2">
-						<select name="admin_status" id="admin_status" class="form-control select2">
-							<option value="">-- Admin Status --</option>
-							@forelse($allStatus as $key => $as)
-							<option value="{{ $key }}" @if($dev_status==$key) selected @endif>{{ $as }}</option>
-							@empty
-							@endforelse
-						</select>
-					</div>
-					<div class="col-md-2">
-						<select name="order_by" id="order_by" class="form-control select2">
-
-							<option value="">--Order By--</option>
-							<option value="website_id">Website</option>
-							<option value="issue">Issue</option>
-							<option value="communication_message">Communication</option>
-							<option value="dev_status_id">Developer Status</option>
-							<option value="admin_status_id">Admin Status</option>
-						</select>
-					</div>
-
-					<div class="col-md-2">
-
-						<button type="button" class="btn btn-secondary custom-filter">Search</button>
-						<a href="/uicheck" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
-
-						<button type="button" class="btn btn-primary" onclick="loadAllHistory(1)">All History</button>
-					</div>
-					<div class="pull-right mt-4">
-						@if (auth()->user()->isAdmin())
-						<a class="btn btn-secondary" data-toggle="modal" data-target="#newTypeModal">Create Type</a>
-						@endif
+					<div class="row">
+						<div class="col-md-2">
+							<div class="form-group">
+								<select name="assign_to" id="assign_to" class="form-control select2">
+									<option value="">-- Select Assign to --</option>
+									@forelse($users as $user)
+									<option value="{{ $user->id }}" @if($assign_to==$user->id)
+										selected
+										@endif>{{ $user->name }}</option>
+									@empty
+									@endforelse
+								</select>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="form-group">
+								<select name="store_webs" id="store_webiste" class="form-control select2">
+									<option value="">-- Select a website --</option>
+									@forelse($all_store_websites as $asw)
+									<option value="{{ $asw->id }}" @if($search_website==$asw->id)
+										selected
+										@endif>{{ $asw->title }}</option>
+									@empty
+									@endforelse
+								</select>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="form-group">
+								<select name="categories" id="store-categories" class="form-control select2">
+									<option value="">-- Select a categories --</option>
+									@forelse($site_development_categories as $ctId => $ctName)
+									<option value="{{ $ctId }}" @if($search_category==$ctId) selected @endif>{!! $ctName !!}</option>
+									@empty
+									@endforelse
+								</select>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="form-group">
+								<select name="dev_status" id="dev_status" class="form-control select2">
+									<option value="">-- Developer Status --</option>
+									@forelse($allStatus as $key => $ds)
+									<option value="{{ $key }}" @if($dev_status==$key) selected @endif>{{ $ds }}</option>
+									@empty
+									@endforelse
+								</select>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="form-group">
+								<select name="admin_status" id="admin_status" class="form-control select2">
+									<option value="">-- Admin Status --</option>
+									@forelse($allStatus as $key => $as)
+									<option value="{{ $key }}" @if($dev_status==$key) selected @endif>{{ $as }}</option>
+									@empty
+									@endforelse
+								</select>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="form-group">
+								<select name="order_by" id="order_by" class="form-control select2">
+									<option value="">--Order By--</option>
+									<option value="website_id">Website</option>
+									<option value="issue">Issue</option>
+									<option value="communication_message">Communication</option>
+									<option value="dev_status_id">Developer Status</option>
+									<option value="admin_status_id">Admin Status</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="form-group">
+								<select name="srch_lock_type" id="srch_lock_type" class="form-control select2">
+									<option value="">-- Select (Hide/Show) --</option>
+									<option value="0">All</option>
+									<option value="1" selected>All Unhide</option>
+									<option value="2">Admin & Developer both hidden</option>
+									<option value="3">Admin hidden only</option>
+									<option value="4">Developer hidden only</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<button type="button" class="btn btn-primary custom-filter">Search</button>
+							<button type="button" class="btn btn-secondary" onclick="loadAllHistory(1)">All History</button>
+							@if (auth()->user()->isAdmin())
+							<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#newTypeModal">Create Type</button>
+							@endif
+						</div>
 					</div>
 				</form>
 			</div>
 		</div>
-
 	</div>
 </div>
 <div id="newTypeModal" class="modal fade" role="dialog">
@@ -703,6 +718,30 @@
 		});
 	}
 
+	function funLockApply(type, id) {
+		if (confirm('Are you sure, do you want to perform this action?')) {
+			siteLoader(1);
+			jQuery.ajax({
+				url: "{{ route('uicheck.update.lock') }}",
+				type: 'POST',
+				data: {
+					_token: "{{ csrf_token() }}",
+					id: id,
+					type: type
+				},
+				beforeSend: function() {},
+				success: function(response) {
+					siteLoader(0);
+					siteSuccessAlert(response);
+					oTable.draw(false);
+				}
+			}).fail(function(response) {
+				siteErrorAlert(response);
+				siteLoader(0);
+			});
+		}
+	}
+
 	// START Print Table Using datatable
 	var oTable;
 	$(document).ready(function() {
@@ -811,6 +850,8 @@
 							'<div class="dropdown-menu" >' +
 							'<a class="dropdown-item" href="javascript:void(0);" onclick="funDateModalOpen(\'' + row.uicheck_id + '\')">Dates: Update</a>' +
 							'<a class="dropdown-item" href="javascript:void(0);" onclick="funDateUpdatesHistory(\'' + row.uicheck_id + '\')">Dates: View History</a>' +
+							'<a class="dropdown-item" href="javascript:void(0);" onclick="funLockApply(\'developer\', \'' + row.uicheck_id + '\')">' + (row.lock_developer ? 'Show for Developer' : 'Hide for Developer') + '</a>' +
+							'<a class="dropdown-item" href="javascript:void(0);" onclick="funLockApply(\'admin\', \'' + row.uicheck_id + '\')">' + (row.lock_admin ? 'Show for Admin' : 'Hide for Admin') + '</a>' +
 							'</div>' +
 							'</div>';
 					}
@@ -939,10 +980,9 @@
 					d.admin_status = $('#admin_status').val();
 					d.assign_to = $('#assign_to').val();
 					d.order_by = $("#order_by").val();
+					d.srch_lock_type = $("#srch_lock_type").val();
 					// d.subjects = $('input[name=subjects]').val();					
-
 				},
-
 			},
 			columnDefs: [{
 				targets: [],
@@ -950,6 +990,11 @@
 				searchable: false
 			}],
 			columns: columns,
+			createdRow: function(row, data, dataIndex) {
+				if (data.lock_developer == 1 || data.lock_admin == 1) {
+					jQuery(row).addClass('bg-warning');
+				}
+			}
 
 
 		});
