@@ -3144,6 +3144,7 @@ Route::middleware('auth')->group(function () {
     Route::post('uicheck/message/history', 'UicheckController@getUiCheckMessageHistoryLog')->name('uicheck.get.message.history');
     Route::post('uicheck/set/message/history', 'UicheckController@CreateUiMessageHistoryLog')->name('uicheck.set.message.history');
     Route::post('uicheck/get/assign/history', 'UicheckController@getUiCheckAssignToHistoryLog')->name('uicheck.get.assign.history');
+    Route::post('uicheck/set/duplicate/category', 'UicheckController@createDuplicateCategory')->name('uicheck.set.duplicate.category');
 
     Route::prefix('uicheck')->group(function () {
         Route::get('get', 'UicheckController@get')->name('uicheck.get');
