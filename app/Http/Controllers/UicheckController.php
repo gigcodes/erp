@@ -112,9 +112,9 @@ class UicheckController extends Controller {
             }else{
                 $q->orderBy('uichecks.updated_at', "desc");
             }
-            
-           
-            // dd($q->toSql());
+            $counter = $q->get();
+                //dd(count($q->get()));
+             //dd($q->count());
 
             // select 
             //     `site_development_categories`.*, 
@@ -183,11 +183,11 @@ class UicheckController extends Controller {
             if ($data['search_category'] != '') {
                 $q = $q->where('site_development_categories.id',  $data['search_category']);
             }
-            $q->groupBy('site_development_categories.id');
+            $q->groupBy('uichecks.id');
             //$q->orderBy('site_development_categories.title');
             $q->orderBy('uichecks.updated_at', "desc");
             $data['site_development_categories'] = $q->pluck('site_development_categories.title', 'site_development_categories.id')->toArray();
-
+            $data['record_count'] = count($q->get());
             //echo '<pre>';
             //print_r($data['site_development_categories']);
             // exit;
@@ -518,7 +518,7 @@ class UicheckController extends Controller {
         }
     }
 
-    public function historyAll() {
+    public function historyAll(Request $request) {
         try {
             $lastDate = request('lastDate') ?: date('Y-m-d H:i:s');
 
@@ -527,8 +527,13 @@ class UicheckController extends Controller {
             if (!Auth::user()->hasRole('Admin')) {
                 $whQ = " AND listdata.uichecks_id IN ( SELECT uicheck_id FROM uicheck_user_accesses WHERE user_id = ? ) ";
                 $whArr[] = \Auth::user()->id;
+                
             }
-
+            if($request->user_id){
+               
+                $whQ = " AND (listdata.user_id  = $request->user_id )";
+            }
+            
             $sql = "SELECT
                     listdata.*,
                     sdc.title AS site_development_category_name,
