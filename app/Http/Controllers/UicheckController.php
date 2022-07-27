@@ -103,18 +103,17 @@ class UicheckController extends Controller {
                 $q = $q->where('uua.user_id', $s);
             }
             $q->groupBy('uichecks.id');
-            
+
             if ($s = request('order_by')) {
                 //$q->orderBy('uichecks.'.request('order_by'), "desc");
                 //$q->orderBy('uichecks.updated_at', "desc");
-                $q->orderByRaw("uichecks.".request('order_by')." DESC, uichecks.updated_at DESC");
-                
-            }else{
+                $q->orderByRaw("uichecks." . request('order_by') . " DESC, uichecks.updated_at DESC");
+            } else {
                 $q->orderBy('uichecks.updated_at', "desc");
             }
             $counter = $q->get();
-                //dd(count($q->get()));
-             //dd($q->count());
+            //dd(count($q->get()));
+            //dd($q->count());
 
             // select 
             //     `site_development_categories`.*, 
@@ -133,7 +132,7 @@ class UicheckController extends Controller {
             // left join `uicheck_user_accesses` as `uua` on `uua`.`uicheck_id` = `uichecks`.`id` 
             // where 
             //     `site_developments`.`is_ui` = ? group by `site_development_categories`.`id`
-            
+
             return datatables()->eloquent($q)->toJson();
         } else {
             $data = array();
@@ -173,7 +172,7 @@ class UicheckController extends Controller {
                     "uichecks.id AS uicheck_id"
                 )
                 //->where('site_developments.is_ui', 1);
-               ->where('uichecks.id', '>', 0);
+                ->where('uichecks.id', '>', 0);
 
 
             //->where('site_development_categories.id','site_developments.site_development_category_id');
@@ -217,7 +216,7 @@ class UicheckController extends Controller {
         Uicheck::where("id", $request->uicheck_id)->update($array);
         return response()->json(['code' => 200, 'message' => 'Type Updated!!!']);
     }
-    
+
     public function createDuplicateCategory(Request $request) {
         $uiCheck = Uicheck::where("id", $request->id)->first();
         Uicheck::create([
@@ -229,8 +228,8 @@ class UicheckController extends Controller {
         ]);
         return response()->json(['code' => 200, 'message' => 'Category Duplicate Created successfully!!!']);
     }
-    
-    
+
+
     public function upload_document(Request $request) {
         $uicheck_id = $request->uicheck_id;
         $subject = $request->subject;
@@ -525,15 +524,14 @@ class UicheckController extends Controller {
             $whQ = "";
             $whArr = [$lastDate];
             if (!Auth::user()->hasRole('Admin')) {
-                $whQ = " AND listdata.uichecks_id IN ( SELECT uicheck_id FROM uicheck_user_accesses WHERE user_id = ? ) ";
+                $whQ .= " AND listdata.uichecks_id IN ( SELECT uicheck_id FROM uicheck_user_accesses WHERE user_id = ? ) ";
                 $whArr[] = \Auth::user()->id;
-                
             }
-            if($request->user_id){
-               
-                $whQ = " AND (listdata.user_id  = $request->user_id )";
+            if (request('user_id')) {
+                $whQ .= " AND listdata.user_id = ?";
+                $whArr[] = request('user_id');
             }
-            
+
             $sql = "SELECT
                     listdata.*,
                     sdc.title AS site_development_category_name,

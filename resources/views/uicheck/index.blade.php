@@ -84,7 +84,7 @@
 	<div class="col-lg-12 margin-tb">
 		<h2 class="page-heading">Ui Check (0)</h2>
 	</div>
-	
+
 	<div class="col-lg-12 margin-tb">
 		<div class="row">
 			<div class="col-md-12 pull-right">
@@ -143,18 +143,18 @@
 					</div>
 					<div class="col-md-2">
 						<select name="order_by" id="order_by" class="form-control select2">
-							
-								<option value="">--Order By--</option>
-								<option value="website_id">Website</option>
-								<option value="issue">Issue</option>
-								<option value="communication_message">Communication</option>
-								<option value="dev_status_id">Developer Status</option>
-								<option value="admin_status_id">Admin Status</option>
+
+							<option value="">--Order By--</option>
+							<option value="website_id">Website</option>
+							<option value="issue">Issue</option>
+							<option value="communication_message">Communication</option>
+							<option value="dev_status_id">Developer Status</option>
+							<option value="admin_status_id">Admin Status</option>
 						</select>
 					</div>
-					
+
 					<div class="col-md-2">
-						
+
 						<button type="button" class="btn btn-secondary custom-filter">Search</button>
 						<a href="/uicheck" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
 
@@ -168,7 +168,7 @@
 				</form>
 			</div>
 		</div>
-		
+
 	</div>
 </div>
 <div id="newTypeModal" class="modal fade" role="dialog">
@@ -372,13 +372,13 @@
 				<button type="button" class="close" data-dismiss="modal">×</button>
 			</div>
 			<div class="modal-body" style="overflow-y: scroll;height: 650px;">
-				<select id="dropdownAllUsers" class="searAllhistory select2"  onchange="filterAllHistory(this.value)" style="width: 150px;">
+				<select class="searAllhistory select2" onchange="loadAllHistory(1)" style="width: 150px;">
 					<option value="">- Select -</option>
 					<?php foreach ($users as $user) {
 						echo '<option value="' . $user['id'] . '">' . $user['name'] . '</option>';
 					} ?>
 				</select>
-				<br/><br/>
+				<br /><br />
 				<table class="table table-bordered table-striped">
 					<thead>
 						<tr>
@@ -676,19 +676,14 @@
 		if (firstTime == 1) {
 			tbl.find('tbody').html('');
 		}
-		
-		var user_id =  "";
-		if(mdl.hasClass('in') == true){
-			user_id = $(".searAllhistory").select2("val");
-		}
-		
+
 		siteLoader(1);
 		jQuery.ajax({
 			url: "{{ route('uicheck.history.all') }}",
 			type: 'GET',
 			data: {
 				lastDate: tbl.find('tbody tr:last').find('.cls-created-date').html(),
-				user_id : user_id
+				user_id: jQuery(".searAllhistory").val()
 			},
 			beforeSend: function() {},
 			success: function(response) {
@@ -708,38 +703,6 @@
 		});
 	}
 
-	function filterAllHistory(x) {
-		//debugger;
-		
-		let mdl = jQuery('#modalAllHistory');
-		let tbl = mdl.find('table');
-		var user_id = x;
-		mdl.find('.cls-load-more').removeClass('d-none');
-		tbl.find('tbody').html('');
-		mdl.modal('show');
-		siteLoader(1);
-		jQuery.ajax({
-			url: "{{ route('uicheck.history.all') }}",
-			type: 'GET',
-			data: {
-				lastDate: tbl.find('tbody tr:last').find('.cls-created-date').html(),
-				user_id : user_id
-			},
-			beforeSend: function() {},
-			success: function(response) {
-				siteLoader(0);
-				if (response.html) {
-					tbl.find('tbody').append(response.html);
-				} else {
-					mdl.find('.cls-load-more').addClass('d-none');
-				}
-				
-			}
-		}).fail(function(response) {
-			toastr['error'](response.responseJSON.message);
-			//siteLoader(0);
-		});
-	}
 	// START Print Table Using datatable
 	var oTable;
 	$(document).ready(function() {
@@ -760,7 +723,7 @@
 				{
 					data: 'title',
 					render: function(data, type, row, meta) {
-						var html = '<div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1">'+data+'<button type="button" class="btn btn-xs duplicate-category" title="Duplicate Category" data-id="' + row.uicheck_id + '"><i data-id="' + row.uicheck_id + '" class="fa fa-plus"></i></button></div>';
+						var html = '<div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1">' + data + '<button type="button" class="btn btn-xs duplicate-category" title="Duplicate Category" data-id="' + row.uicheck_id + '"><i data-id="' + row.uicheck_id + '" class="fa fa-plus"></i></button></div>';
 						return html;
 					}
 				},
@@ -965,7 +928,7 @@
 			drawCallback: function(settings) {
 				jQuery('.globalSelect2').select2();
 				var responseToJson = settings.json;
-				$(".page-heading").text("Ui Check ("+responseToJson.recordsTotal+")");
+				$(".page-heading").text("Ui Check (" + responseToJson.recordsTotal + ")");
 			},
 			ajax: {
 				"url": "{{ route('uicheck') }}",
@@ -977,9 +940,9 @@
 					d.assign_to = $('#assign_to').val();
 					d.order_by = $("#order_by").val();
 					// d.subjects = $('input[name=subjects]').val();					
-					
+
 				},
-			
+
 			},
 			columnDefs: [{
 				targets: [],
@@ -987,10 +950,10 @@
 				searchable: false
 			}],
 			columns: columns,
-		
+
 
 		});
-		
+
 		$(document).on("click", ".custom-filter", function(e) {
 			oTable.draw(false);
 		});
@@ -1310,7 +1273,7 @@
 				console.log(oTable);
 				if (response.code == 200) {
 					toastr['success'](response.message);
-					
+
 				} else {
 					toastr['error'](response.message);
 				}
