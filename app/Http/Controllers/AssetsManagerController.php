@@ -110,7 +110,7 @@ class AssetsManagerController extends Controller
         if ($catid != '') {
             $data['category_id'] = $catid;
         }
-
+        $data['ip_name'] = $request->ip_name;
         $insertData = AssetsManager::create($data);
         if ($request->input('payment_cycle') == 'One time') {
             //create entry in table cash_flows
@@ -199,6 +199,7 @@ class AssetsManagerController extends Controller
         }
 
         $data = $request->except('_token');
+        
         if ($catid != '') {
             $data['category_id'] = $catid;
         }
@@ -211,6 +212,8 @@ class AssetsManagerController extends Controller
             $assetLog->ip =  $request->input('old_ip');
             $assetLog->save();
         }
+        $data['ip_name'] = $request->ip_name;
+        //dd($data);
         AssetsManager::find($id)->update($data);
 
         return redirect()->route('assets-manager.index')

@@ -309,7 +309,7 @@
                      <option>--Select Site Folder--</option>
                   <?php
                         foreach(\App\AssetsManager::whereNotNull('ip')->get() as $k => $l) {
-                            echo "<option {{if data.site_folder == '".$l->ip."'}} selected {{/if}} value='".$l->ip."'>".$l->ip."</option>";
+                            echo "<option {{if data.site_folder == '".$l->ip."'}} selected {{/if}} value='".$l->ip."'>".$l->ip_name."</option>";
                         }
                         ?>
                   </select>
