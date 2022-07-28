@@ -2688,7 +2688,7 @@ class WhatsAppController extends FindByNumberController
                     ], [
                         'last_communicated_message' => @$params['message'],
                         'last_communicated_message_at' => Carbon::now(),
-                        'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+                        'last_communicated_message_id' => isset($chat_message) ? $chat_message->id : null,
                     ]);
 
                     // update message for chatbot request->vendor_id

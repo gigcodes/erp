@@ -8,11 +8,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
     <style type="text/css">
         .select2-search__field {
-            width: 200px !important;
+            width: 80% !important;
         }
 
         .select2-selection__rendered {
-            width: 200px !important;
+            width: 80% !important;
         }
 
         .preview-category input.form-control {
@@ -264,20 +264,21 @@
 
             <div class="col-md-12 margin-tb infinite-scroll">
                 <div class="row">
-                    <div class="table-responsive">
-                        <table class="table table-bordered" id="documents-table">
+                    <div class="table-responsive mt-2">
+                        <table class="table table-bordered text-nowrap" id="documents-table">
                             <thead>
                                 <tr>
                                     <th width="4%">S No</th>
                                     <th width="15%"></th>
-                                    <th width="15%" style="word-break: break-all;">Website</th>
-                                    <th width="12%">Master Category</th>
-                                    <th width="12%">Remarks</th>
-                                    <th width="12%">Assign To</th>
+                                    <th width="7%" style="word-break: break-all;">Website</th>
+                                    <th width="7%">Master Category</th>
+                                    <th width="7%">Remarks</th>
+                                    <th width="7%">Assign To</th>
                                     <th style="display:none;">Title</th>
                                     <th style="display:none;">Message</th>
                                     <th width="25%">Communication</th>
-                                    <th width="20%">Action</th>
+                                    <th width="15%">status</th>
+                                    <th width="15%">Action</th>
                                 </tr>
                             </thead>
                             <tbody class="infinite-scroll-pending-inner">
@@ -1160,6 +1161,7 @@
 
 
             $(document).on("click", ".btn-remark-field", function() {
+                
                 var id = $("#remark-field").data("id");
                 var cat_id = $("#remark_cat_id").val();
                 var website_id = $("#remark_website_id").val();
@@ -1203,6 +1205,7 @@
         });
 
         function saveRemarks(rowId) {
+            debugger;
             var siteId = $("#remark_" + rowId).data("siteid");
             var cat_id = $("#remark_" + rowId).data("catid");
             var website_id = $("#remark_" + rowId).data("websiteid");
@@ -1225,7 +1228,7 @@
                 }
             }).done(function(response) {
                 $("#loading-image").hide();
-                $("#remark-field").val("");
+                $("#remark_" + rowId).val("");
                 toastr["success"]("Remarks fetched successfully");
                 var html = "";
                 $.each(response.data, function(k, v) {
@@ -2195,13 +2198,47 @@
             $(full).toggleClass('hidden');
             $(mini).toggleClass('hidden');
         });
+        $(document).on('click', '.assign', function() {
+            //debugger;
+            var id = $(this).data('id');
+            console.log(id);
+            var full = '.assign .comm-'+ id;
+            var mini = '.assign .comm-'+ id;
+            $(full).toggleClass('show');
+            $(mini).toggleClass('hidden');
+            $(this, "table tr:nth-child(1)").addClass('test')//css("background-color", "yellow");
+
+        });
+        $(document).on('click', '.show_moreCls', function(event) {
+           
+            var id = $(this).data('id');
+            if($('.comm-'+id).hasClass("hidden")){
+                //$(this).text('Show Less');
+                $('.comm-'+id).removeClass('hidden');
+            } else {
+                $('.comm-'+id).addClass('hidden');
+                //$(this).text('Show More');
+            }
+            
+
+        });
+        
+        function getmessageData(item, index) {
+            text += index + ": " + item + "<br>"; 
+        }
 
         $(document).on('click', '.send-message', function() {
             var thiss = $(this);
             var data = new FormData();
             var task_id = $(this).data('taskid');
             var message = $(this).closest('tr').find('.quick-message-field').val();
-
+            var mesArr = $(this).closest('tr').find('.quick-message-field');
+            $.each(mesArr, function( index, value ) {
+                if($(value).val()){
+                    message = $(value).val();
+                }
+            });
+ 
             data.append("task_id", task_id);
             data.append("message", message);
             data.append("status", 1);
@@ -2222,7 +2259,7 @@
                     }).done(function(response) {
                         thiss.closest('tr').find('.quick-message-field').val('');
 
-
+                        toastr["success"]("Message successfully send!", "Message")
                         // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
                         //   .done(function( data ) {
                         //

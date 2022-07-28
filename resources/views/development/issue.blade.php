@@ -104,12 +104,12 @@
             @if(auth()->user()->isReviwerLikeAdmin())
                 <a href="javascript:" class="btn btn-secondary" id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal">Add New Dev Task </a>
              @endif
-             @if (auth()->user()->isAdmin())
+             {{-- @if (auth()->user()->isAdmin()) --}}
              <a class="btn btn-secondary" style="color:white;" data-toggle="modal" data-target="#newStatusModal">Create Status</a>
-            @endif
-            @if (auth()->user()->isAdmin())
+            {{-- @endif --}}
+            {{-- @if (auth()->user()->isAdmin()) --}}
              <a class="btn btn-secondary" style="color:white;" id="make_delete_button">Delete Tasks</a>
-            @endif
+            {{-- @endif --}}
 
         </div>
 
@@ -190,6 +190,66 @@
                     </div>
                 </div>
                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="modalDevelopmentTaskStartTimeUpdate" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Start Date Update</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Start Date:</label>
+                            <div class="form-group" >
+                                <div class='input-group date cls-start-due-date'>
+                                    <input type="text" class="form-control input-sm" id="start_date" name="start_date" value="" />
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="funDevelopmentTaskStartDateUpdate('{!! route('development.update.start-date') !!}')" >Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modalDevelopmentTaskStartTimeHistory" class="modal fade" role="dialog" data-url="{!! route('development.history.start-date.index') !!}" >
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Start Date History</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th width="10%" >ID</th>
+                                <th width="30%" >Update By</th>
+                                <th width="20%" style="word-break: break-all;">Old Value</th>
+                                <th width="20%" style="word-break: break-all;">New Value</th>
+                                <th width="20%" >Created at</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -1664,3 +1724,6 @@
         });
     </script>
 @endsection
+@push('scripts')
+<script src="{{env('APP_URL')}}/js/pages/development/development-list.js"></script>
+@endpush

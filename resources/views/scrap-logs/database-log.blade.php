@@ -59,23 +59,48 @@
 			</div>
 		</div>
 	</form>
-	<a href="/database-log/enable" class="btn custom-button float-right mr-3">Enabled</a>
-	<a href="/database-log/disable" class="btn custom-button float-right mr-3">Disable</a>
+	<?php $typeBtn = $logBtn->type ?? '';?>
+	<a href="/database-log/enable" class="btn custom-button float-right mr-3 " style="@if ($typeBtn == 'Enable')  background-color: #28a745 !important; @endif">Enabled</a>
+	<a href="/database-log/disable" class="btn custom-button float-right mr-3 "  style="@if ($typeBtn == 'Disable') background-color: #ffc107 !important; @endif">Disable</a>
 	<button style='padding:3px;' type='button' class='btn custom-button float-right mr-3 history' data-toggle='modal' data-target='#slow_loh_history_model'>Log History</button>
 	<div class="mt-3 col-md-12">
 		<table class="table table-bordered table-striped" id="log-table">
 		    <thead>
-				<td>Index</td>
-				<!-- <td>File Name</td> -->
-				<td>Log Messages</td>
+				<td width="5%">Index</td>
+				<td width="10%">Date Time</td>
+				<td width="85%">Log Messages</td>
 			</thead>
 			<tbody id="log_popup_body">
 				@php $count = 1;  @endphp
 				@foreach($output as $key => $line)
 					<tr>
-	    				<td>{{$key+1}}</td>
-	    				<!-- <td></td> -->
-	    				<td>{{$line}}</td>
+						<td>{{$key+1}}</td>
+						<?php $timeCol = false;
+							$dateResult = '';
+							$dateTime = '';
+							if(str_contains($line, '# Time: ') OR str_contains($line, 'Time: ')){
+								$timeCol = true;
+								$dateString = $line;
+								$prefix = "# Time:";
+								$index = explode(" ",$dateString);
+								//$dateResult = date('d M Y H:s:i', "1652880141");
+								$dateTime = $index[3];
+							}	
+							if(str_contains($line, "SET timestamp=")){
+								$dateString = $line;
+								$prefix = "SET timestamp=";
+								$index = explode("=",$dateString);//strpos($dateString, $prefix) + strlen($prefix);
+								$dateStr = str_replace(';', '', $index[1]);
+								$dateResult = date('d M Y', (int)$dateStr);
+							}
+						?>
+						@if($dateResult || $dateTime) 
+							<td>{{$dateResult.' '.$dateTime}}</td>
+						@else
+							<td></td>
+						@endif
+	    					<!-- <td></td> -->
+	    					<td>{{$line}}</td>
 	    			</tr>
 				@endforeach
 			</tbody>

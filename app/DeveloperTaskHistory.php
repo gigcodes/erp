@@ -8,8 +8,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class DeveloperTaskHistory extends Model
-{
+class DeveloperTaskHistory extends Model {
     /**
  
      * @SWG\Property(property="user_id",type="integer")
@@ -25,8 +24,7 @@ class DeveloperTaskHistory extends Model
         'user_id', 'developer_task_id', 'attribute', 'old_value', 'new_value', 'model', 'is_approved', 'remark'
     ];
 
-    public function user()
-    {
+    public function user() {
         return $this->belongsTo('App\User');
     }
 }

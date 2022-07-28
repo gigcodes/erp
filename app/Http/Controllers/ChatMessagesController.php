@@ -24,6 +24,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Document;
+use App\Uicheck;
 
 class ChatMessagesController extends Controller
 {
@@ -102,7 +103,7 @@ class ChatMessagesController extends Controller
                 $object = Document::find($request->object_id);
                 break;
             case 'uicheck' :
-                $object = \App\Uicheck::find($request->object_id);
+                $object = Uicheck::find($request->object_id);
                 //dd($object);
                 break;
                     
