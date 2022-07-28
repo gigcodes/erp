@@ -14,7 +14,7 @@
 Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::get('/', 'StoreWebsiteController@index')->name("store-website.index");
     Route::post('generate-reindex', 'StoreWebsiteController@generateReIndexfile');
-    
+
 
     Route::get('/magento-user-lising', 'StoreWebsiteController@magentoUserList')->name("store-website.user-list");
 
@@ -29,13 +29,13 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::post('/delete-user-in-magento', 'StoreWebsiteController@deleteUserInMagento')->name("store-website.delete-user-in-magento");
     Route::post('/update-company-website-address', 'StoreWebsiteController@updateCompanyWebsiteAddress');
     Route::prefix('{id}')->group(function () {
- 
+
         Route::post('magento-setting-update-history', 'StoreWebsiteController@getMagentoUpdateWebsiteSetting');
- 
+
         Route::post('magento-dev-update-script-history', 'StoreWebsiteController@getMagentoDevScriptUpdatesLogs');
-        
+
         Route::post('magento-dev-script-update', 'StoreWebsiteController@magentoDevScriptUpdate');
-        
+
         Route::get('/sync-stage-to-master', 'StoreWebsiteController@syncStageToMaster');
 
         Route::get('/token-check/', 'StoreWebsiteController@checkMagentoToken');
@@ -123,12 +123,12 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('records', 'BrandController@records')->name("store-website.brand.records");
         Route::post('push-to-store', 'BrandController@pushToStore')->name("store-website.brand.push-to-store");
         Route::post('refresh-min-max-price', 'BrandController@refreshMinMaxPrice')->name("store-website.refresh-min-max-price");
-        Route::get('history','BrandController@history')->name("store-website.brand.history");
-        Route::get('live-brands','BrandController@liveBrands')->name("store-website.brand.live-brands");
-        Route::get('missing-brands','BrandController@missingBrands')->name("store-website.brand.missing-brands");
-        Route::post('reconsile-brand','BrandController@reconsileBrands')->name("store-website.brand.reconsile-brands");
-        Route::post('reconsile-brand-history-log','BrandController@reconsileBrandsHistoryLog')->name("reconsile-brands-history-log");
-        Route::post('push-brand-history-log','BrandController@pushBrandsLog')->name("push-brands-history-log");
+        Route::get('history', 'BrandController@history')->name("store-website.brand.history");
+        Route::get('live-brands', 'BrandController@liveBrands')->name("store-website.brand.live-brands");
+        Route::get('missing-brands', 'BrandController@missingBrands')->name("store-website.brand.missing-brands");
+        Route::post('reconsile-brand', 'BrandController@reconsileBrands')->name("store-website.brand.reconsile-brands");
+        Route::post('reconsile-brand-history-log', 'BrandController@reconsileBrandsHistoryLog')->name("reconsile-brands-history-log");
+        Route::post('push-brand-history-log', 'BrandController@pushBrandsLog')->name("push-brands-history-log");
     });
 
     Route::prefix('price-override')->group(function () {
@@ -182,6 +182,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/edit', 'WebsiteStoreController@edit')->name("store-website.website-stores.edit");
         Route::get('/{id}/delete', 'WebsiteStoreController@delete')->name("store-website.website-stores.delete");
         Route::get('/{id}/push', 'WebsiteStoreController@push')->name("store-website.website-stores.push");
+        Route::get('dropdown', 'WebsiteStoreController@dropdown')->name("store-website.website-stores.dropdown");
     });
 
     //Site Attributes
@@ -289,6 +290,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/send', 'SiteDevelopmentController@SendTask')->name('site-development.senduser');
         Route::post('/check-site-asset', 'SiteDevelopmentController@checkSiteAsset')->name('site-development.check-site-asset');
         Route::post('/check-site-list', 'SiteDevelopmentController@checkSiteList')->name('site-development.check-site-list');
+        Route::post('/check-site-ui-list', 'SiteDevelopmentController@checkUi')->name('site-development.check-ui');
+        Route::post('/set-site-ui-list', 'SiteDevelopmentController@setcheckUi')->name('site-development.set-check-ui');
         Route::post('/set-site-asset', 'SiteDevelopmentController@setSiteAsset')->name('site-development.set-site-asset');
         Route::post('/set-site-list', 'SiteDevelopmentController@setSiteList')->name('site-development.set-site-list');
         Route::get('/latest-reamrks/{website_id}', 'SiteDevelopmentController@latestRemarks')->name("site-development.latest-reamrks");

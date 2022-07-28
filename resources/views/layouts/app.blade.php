@@ -42,6 +42,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/richtext.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+
+    <script src="{{siteJs('site.js')}}" defer></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
     <script src="{{asset('/js/generic.js')}}" defer></script>
@@ -89,7 +93,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
-
+    @stack('link-css')
     @yield('link-css')
     <script>
         let Laravel = {};
@@ -105,6 +109,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     {{-- lessLink: '<a href="#">Read less</a>'--}}
     {{-- });--}}
     {{-- </script>--}}
+    @stack("jquery")
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script> --}}
@@ -183,6 +188,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link href="https://unpkg.com/tabulator-tables@4.0.5/dist/css/tabulator.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.css">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ url('css/global_custom.css') }}">
     @yield("styles")
 
@@ -277,6 +284,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 </head>
 
 <body>
+    @stack('modals')
 
     <div class="modal fade" id="instructionAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
@@ -421,6 +429,7 @@ if (!empty($notifications)) {
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
 								
+                                
 								<li class="nav-item dropdown dropdown-submenu">
 									<a id="navbarDropdown" class="" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product Templates <span class="caret"></span></a>
 									<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -1007,6 +1016,18 @@ if (!empty($notifications)) {
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Zabbix<span class="caret"></span></a>
+                            <ul class="dropdown-menu multi-level">
+                                {{-- Sub Menu Product --}}
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('zabbix.index') }}">Items</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('zabbix.problem') }}">Problems</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Users <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
@@ -1055,6 +1076,9 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('user.get-feedback-table-data')}}">User Feedback</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('user-management.user-schedules.index')}}">User Schedules</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1665,6 +1689,18 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('google.bigdata') }}">Google Big Data</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('zabbix.index') }}">Zabbix Items</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('zabbix.problem') }}">Zabbix Problems</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('uicheck') }}">U I Check</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('updateLog.get') }}">Update Log</a>
+                                            </li>
                                         </ul>
                                     </li>
                                     
@@ -2056,6 +2092,9 @@ if (!empty($notifications)) {
                                             </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('email.event.journey') }}">Sendgrid Event Journey</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('magento.command') }}">Magento Command</a>
                                             </li>
                                             
                                         </ul>

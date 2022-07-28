@@ -6,12 +6,47 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 @endsection
+
 @section('content')
 	<div class="row">
 		<div class="col-lg-12 margin-tb">
 		    <h2 class="page-heading">Databse Logs</h2>
 		</div>
 	</div>
+	@if ($errors->any())
+		<div class="col-sm-12">
+			<div class="alert alert-warning" role="alert">
+				@foreach ($errors->all() as $error)
+					<span><p>{{ $error }}</p></span>
+				@endforeach
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+			</div>
+		</div>
+	@endif
+
+	@if (session('success'))
+		<div class="col-sm-12">
+			<div class="alert alert-success" role="alert">
+				{{ session('success') }}
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+			</div>
+		</div>
+	@endif
+
+	@if (session('error'))
+		<div class="col-sm-12">
+			<div class="alert  alert-danger" role="alert">
+				{{ session('error') }}
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+			</div>
+		</div>
+	@endif
 	<form action="{{ action('ScrapLogsController@databaseLog') }}" method="get">
 		<div class="mt-3 col-md-12">
 			<div class="col-lg-2">
@@ -24,20 +59,48 @@
 			</div>
 		</div>
 	</form>
+	<?php $typeBtn = $logBtn->type ?? '';?>
+	<a href="/database-log/enable" class="btn custom-button float-right mr-3 " style="@if ($typeBtn == 'Enable')  background-color: #28a745 !important; @endif">Enabled</a>
+	<a href="/database-log/disable" class="btn custom-button float-right mr-3 "  style="@if ($typeBtn == 'Disable') background-color: #ffc107 !important; @endif">Disable</a>
+	<button style='padding:3px;' type='button' class='btn custom-button float-right mr-3 history' data-toggle='modal' data-target='#slow_loh_history_model'>Log History</button>
 	<div class="mt-3 col-md-12">
 		<table class="table table-bordered table-striped" id="log-table">
 		    <thead>
-				<td>Index</td>
-				<!-- <td>File Name</td> -->
-				<td>Log Messages</td>
+				<td width="5%">Index</td>
+				<td width="10%">Date Time</td>
+				<td width="85%">Log Messages</td>
 			</thead>
 			<tbody id="log_popup_body">
 				@php $count = 1;  @endphp
 				@foreach($output as $key => $line)
 					<tr>
-	    				<td>{{$key+1}}</td>
-	    				<!-- <td></td> -->
-	    				<td>{{$line}}</td>
+						<td>{{$key+1}}</td>
+						<?php $timeCol = false;
+							$dateResult = '';
+							$dateTime = '';
+							if(str_contains($line, '# Time: ') OR str_contains($line, 'Time: ')){
+								$timeCol = true;
+								$dateString = $line;
+								$prefix = "# Time:";
+								$index = explode(" ",$dateString);
+								//$dateResult = date('d M Y H:s:i', "1652880141");
+								$dateTime = $index[3];
+							}	
+							if(str_contains($line, "SET timestamp=")){
+								$dateString = $line;
+								$prefix = "SET timestamp=";
+								$index = explode("=",$dateString);//strpos($dateString, $prefix) + strlen($prefix);
+								$dateStr = str_replace(';', '', $index[1]);
+								$dateResult = date('d M Y', (int)$dateStr);
+							}
+						?>
+						@if($dateResult || $dateTime) 
+							<td>{{$dateResult.' '.$dateTime}}</td>
+						@else
+							<td></td>
+						@endif
+	    					<!-- <td></td> -->
+	    					<td>{{$line}}</td>
 	    			</tr>
 				@endforeach
 			</tbody>
@@ -53,6 +116,36 @@
                 <div class="modal-body">
                 	<div class="cls_log_popup">
                 		<table class="table">
+                		</table>
+                	</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<div id="slow_loh_history_model" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Slow Log History</h4>
+                </div>
+                <div class="modal-body">
+                	<div class="cls_log_popup">
+                		<table class="table">
+							<thead>
+								<tr>
+									<th>ID</th>
+									<th>Date</th>
+									<th>User Name</th>
+									<th>Type</th>
+								</tr>
+							</thead>
+							<tbody class="slow_loh_history_tbody">
+								
+							</tbody>
                 		</table>
                 	</div>
                 </div>
@@ -100,5 +193,24 @@
 	// 		});
 	// 	}
 	// });
+	$(document).on('click', '.history', function (e) {
+		
+		$.ajax({
+			url: BASE_URL+"/database-log/history",
+			method:"get",
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+			data:{},
+			cache: false,
+			success: function(data) {
+				$(".slow_loh_history_tbody").empty();
+				$.each(data.data, function(i,row){
+					$(".slow_loh_history_tbody").append("<tr><td>"+row['id']+"</td><td>"+row['created_at']+"</td><td>"+row['userName']+"</td><td>"+row['type']+"</td></tr>");
+				});
+				toastr['success'](data.message, 'success');
+			}
+		});
+	});
 </script> 
 @endsection

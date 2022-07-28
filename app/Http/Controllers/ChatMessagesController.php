@@ -24,6 +24,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Document;
+use App\Uicheck;
 
 class ChatMessagesController extends Controller
 {
@@ -101,7 +102,11 @@ class ChatMessagesController extends Controller
             case 'document' :
                 $object = Document::find($request->object_id);
                 break;
-               
+            case 'uicheck' :
+                $object = Uicheck::find($request->object_id);
+                //dd($object);
+                break;
+                    
             default:
                 $object = Customer::find($request->object);
         }
@@ -129,13 +134,17 @@ class ChatMessagesController extends Controller
         }
 
         $chatMessages = $object->whatsappAll($onlyBroadcast)->whereRaw($rawWhere);
-
+        
         if ($request->object == "SOP") {
             $chatMessages = ChatMessage::where('sop_user_id', $object->id);
         }
 
         if ($request->object == "user-feedback") {
             $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id', $request->feedback_category_id);
+        }
+        if ($request->object == "uicheck") {
+           $chatMessages = ChatMessage::where('ui_check_id', $request->object_id);
+           
         }
         if ($request->object == "hubstuff") {
             $chatMessages = ChatMessage::where('hubstuff_activity_user_id', $object->id);
@@ -238,7 +247,7 @@ class ChatMessagesController extends Controller
         // Loop over ChatMessages
         foreach ($chatMessages as $chatMessage) {
             $objectname = null;
-            if ($request->object == 'customer' || $request->object == 'charity' || $request->object == 'user' || $request->object == 'vendor' || $request->object == 'supplier' || $request->object == 'site_development' || $request->object == 'social_strategy' || $request->object == 'content_management') {
+            if ($request->object == 'customer' || $request->object == 'charity' || $request->object == 'user' || $request->object == 'vendor' || $request->object == 'supplier' || $request->object == 'site_development' || $request->object == 'social_strategy' || $request->object == 'content_management' || $request->object == 'uicheck') {
                 $objectname = $object->name;
             }
             if ($request->object == 'task' || $request->object == 'developer_task') {

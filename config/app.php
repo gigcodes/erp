@@ -172,7 +172,6 @@ return [
         Intervention\Image\ImageServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Thujohn\Twitter\TwitterServiceProvider::class,
-
         // BookStack replacement service providers (Extends Laravel)
         Modules\BookStack\Providers\PaginationServiceProvider::class,
         Modules\BookStack\Providers\TranslationServiceProvider::class,

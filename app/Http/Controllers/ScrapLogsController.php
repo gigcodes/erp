@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use File;
 use \Carbon\Carbon;
+use App\SlowLogsEnableDisable;
 use Response;
 use Illuminate\Support\Facades\DB;
 
@@ -306,13 +307,20 @@ class ScrapLogsController extends Controller
     }
 
     public function databaseLog(Request $request){
+		
     	$search = '';
-
-    	$namefile = env('DATABASE_LOGS_FILE');
-
+		if($_SERVER['HTTP_HOST'] == 'erp.local:8080') {
+			$namefile = storage_path('logs/mysql/server_audit.log');
+		} else {
+    		$namefile = env('DATABASE_LOGS_FILE');
+		}
+		//dd($namefile);
     	if(!empty($namefile)){
 	    	$lines = @file($namefile);
-	    	if($lines){
+			//print_r($lines);
+			if($lines){
+				$logBtn = SlowLogsEnableDisable::orderBy('id', "desc")->first();
+				//print('Line in');
 	    		$output = array();
 				for($i = count($lines) -1; $i >= 0; $i--){
 					$output[] = $lines[$i];
@@ -327,12 +335,62 @@ class ScrapLogsController extends Controller
 					});
 		    		$output = $result;
 		    	}
-		    	return view('scrap-logs.database-log', compact('output','search'));
+		    	return view('scrap-logs.database-log', compact('output','search', 'logBtn'));
 	    	}
 	    	return 'File not found!';
 		}
     	return 'File not found!';
     }
+
+	public function enableMysqlAccess(Request $request) {
+		$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql-slowlogs.sh -f enable'; 
+		$allOutput = array();
+		$allOutput[] = $cmd;
+		$result = exec($cmd, $allOutput);
+		
+		if($result == '')
+			$result = "Not any response";
+		else
+			$result = is_array($result)?json_encode($result, true):$result;
+			SlowLogsEnableDisable::create([
+				"user_id" => \Auth::user()->id ?? '',
+				"response" => $result,
+				"type" => 'Enable'
+			]);
+		return redirect()->back()->with('success','Slow Logs enable successfully.');
+	}
+	
+	public function disableMysqlAccess(Request $request) {
+		$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql-slowlogs.sh -f disable'; 
+		$allOutput = array();
+		$allOutput[] = $cmd;
+		$result = exec($cmd, $allOutput);
+		
+		if($result == '')
+			$result = "Not any response";
+		else
+			$result = is_array($result)?json_encode($result, true):$result;
+			SlowLogsEnableDisable::create([
+				"user_id" => \Auth::user()->id ?? '',
+				"response" => $result,
+				"type" => 'Disable'
+			]);
+		return redirect()->back()->with('success','Slow Logs disable successfully.');
+	}
+
+	public function disableEnableHistory(Request $request) {
+		try{
+			$data = SlowLogsEnableDisable::select('slow_logs_enable_disables.*', 'users.name AS userName')
+			->leftJoin('users', 'slow_logs_enable_disables.user_id', 'users.id')
+			->orderBy('slow_logs_enable_disables.id', 'DESC')
+			->get();
+		    return response()->json(['code' => 200, "data" => $data,  'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, "data" => [], 'message' => $msg]);
+        }
+	}
+	
     public function store(Request $request){
     	
     	$data = array(

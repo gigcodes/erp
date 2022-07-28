@@ -22,14 +22,14 @@ class TaskController extends Controller {
 	 */
 	public function index() {
 		//
-	
-		if ( ( \Auth::user()->hasRole( [ 'Admin', 'Supervisors' ] ) ) ) {
-			$task = Task::oldest()->whereNull( 'deleted_at' )->paginate( Setting::get( 'pagination' ) );
+
+		if ((\Auth::user()->hasRole(['Admin', 'Supervisors']))) {
+			$task = Task::oldest()->whereNull('deleted_at')->paginate(Setting::get('pagination'));
 		} else {
-			$task = Task::oldest()->whereNull( 'deleted_at' )->where( 'userid', '=', Auth::id() )->orWhere( 'assigned_user', '=', Auth::id() )->paginate( Setting::get( 'pagination' ) );
+			$task = Task::oldest()->whereNull('deleted_at')->where('userid', '=', Auth::id())->orWhere('assigned_user', '=', Auth::id())->paginate(Setting::get('pagination'));
 		}
-		return view( 'task.index', compact( 'task' ) )
-			->with( 'i', ( request()->input( 'page', 1 ) - 1 ) * 10 );
+		return view('task.index', compact('task'))
+			->with('i', (request()->input('page', 1) - 1) * 10);
 	}
 
 	/**
@@ -39,14 +39,14 @@ class TaskController extends Controller {
 	 */
 	public function create() {
 		//
-		$type           = New tasktypes;
+		$type           = new tasktypes;
 		$data['task']   = $type->all();
 		$users          = User::oldest()->get()->toArray();
 		$data['users']  = $users;
-		$status         = New status;
+		$status         = new status;
 		$data['status'] = $status->all();
 
-		return view( 'task.create', compact( 'data' ) );
+		return view('task.create', compact('data'));
 	}
 
 	/**
@@ -56,10 +56,10 @@ class TaskController extends Controller {
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function store( Request $request ) {
+	public function store(Request $request) {
 		//
-		$request->merge( array( 'userid' => Auth::id() ) );
-		$task = $this->validate( request(), [
+		$request->merge(array('userid' => Auth::id()));
+		$task = $this->validate(request(), [
 			'name'          => 'required',
 			'details'       => 'required',
 			'type'          => 'required',
@@ -71,9 +71,9 @@ class TaskController extends Controller {
 			'status'        => '',
 			'userid'        => '',
 
-		] );
+		]);
 
-		$task = Task::create( $task );
+		$task = Task::create($task);
 
 		//Send to the assigned user
 		// NotificationQueueController::createNewNotification([
@@ -97,8 +97,8 @@ class TaskController extends Controller {
 		// 	'role' => '',
 		// ]);
 
-		return redirect()->route( 'task.create' )
-		                 ->with( 'success', 'Task created successfully.' );
+		return redirect()->route('task.create')
+			->with('success', 'Task created successfully.');
 	}
 
 	/**
@@ -108,7 +108,7 @@ class TaskController extends Controller {
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function show( $id ) {
+	public function show($id) {
 		//
 	}
 
@@ -119,20 +119,20 @@ class TaskController extends Controller {
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function edit( $id ) {
+	public function edit($id) {
 		//
-		$task           = Task::find( $id );
-		$type           = New tasktypes;
+		$task           = Task::find($id);
+		$type           = new tasktypes;
 		$data['task']   = $type->all();
 		$users          = User::oldest()->get()->toArray();
 		$data['users']  = $users;
-		$status         = New status;
+		$status         = new status;
 		$data['status'] = $status->all();
 		$task['task']   = $data['task'];
 		$task['status'] = $data['status'];
 		$task['user']   = $data['users'];
 
-		return view( 'task.edit', compact( 'task', 'id' ) );
+		return view('task.edit', compact('task', 'id'));
 	}
 
 	/**
@@ -143,10 +143,10 @@ class TaskController extends Controller {
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function update( Request $request, $id ) {
+	public function update(Request $request, $id) {
 		//
-		$task = Task::find( $id );
-		$this->validate( request(), [
+		$task = Task::find($id);
+		$this->validate(request(), [
 			'name'          => 'required',
 			'details'       => 'required',
 			'type'          => 'required',
@@ -159,7 +159,7 @@ class TaskController extends Controller {
 			'userid'        => '',
 
 
-		] );
+		]);
 
 		// if ( $request->input( 'assigned_user' ) != $task->assigned_user ) {
 		//
@@ -187,21 +187,21 @@ class TaskController extends Controller {
 		// 	// ]);
 		// }
 
-		$task->name          = $request->get( 'name' );
-		$task->details       = $request->get( 'details' );
-		$task->type          = $request->get( 'type' );
-		$task->related       = $request->get( 'related' );
-		$task->assigned_user = $request->get( 'assigned_user' );
-		$task->remark        = $request->get( 'remark' );
-		$task->minutes       = $request->get( 'minutes' );
-		$task->status        = $request->get( 'status' );
-		$task->userid        = $request->get( 'userid' );
+		$task->name          = $request->get('name');
+		$task->details       = $request->get('details');
+		$task->type          = $request->get('type');
+		$task->related       = $request->get('related');
+		$task->assigned_user = $request->get('assigned_user');
+		$task->remark        = $request->get('remark');
+		$task->minutes       = $request->get('minutes');
+		$task->status        = $request->get('status');
+		$task->userid        = $request->get('userid');
 
 
 		$task->save();
 
-		return redirect()->route( 'task.index' )
-		                 ->with( 'success', 'Task Updated successfully.' );
+		return redirect()->route('task.index')
+			->with('success', 'Task Updated successfully.');
 	}
 
 	/**
@@ -211,14 +211,13 @@ class TaskController extends Controller {
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function destroy( $id ) {
+	public function destroy($id) {
 		//
 	}
 
 	// getting remarks
-	public function getremarks($taskid)
-	{
-			$results = DB::select('select * from reamrks where taskid = :taskid', ['taskid' => $taskid]);
-			return $results;
+	public function getremarks($taskid) {
+		$results = DB::select('select * from reamrks where taskid = :taskid', ['taskid' => $taskid]);
+		return $results;
 	}
 }
