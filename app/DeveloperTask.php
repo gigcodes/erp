@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -10,9 +11,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Plank\Mediable\Mediable;
 use Illuminate\Support\Facades\DB;
 
-class DeveloperTask extends Model
-{
-      /**
+use App\DeveloperTaskHistory;
+
+class DeveloperTask extends Model {
+    /**
      * @var string
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="module_id",type="integer")
@@ -52,149 +54,146 @@ class DeveloperTask extends Model
     use Mediable;
     use SoftDeletes;
 
-    
+
     protected $fillable = [
-        'user_id', 'module_id', 'log_keyword_id', 'priority', 'subject', 'task', 'cost', 'status', 'module', 'completed', 'estimate_time', 'start_time', 'end_time', 'task_type_id', 'parent_id', 'created_by', 'submitted_by', 'responsible_user_id','assigned_to','assigned_by','language','master_user_id', 'hubstaff_task_id','is_milestone','no_of_milestone','milestone_completed','customer_id','lead_hubstaff_task_id','team_lead_id','tester_id','team_lead_hubstaff_task_id','tester_hubstaff_task_id','site_developement_id','priority_no','scraper_id','frequency',
-        'message', 'reminder_from','reminder_last_reply','last_send_reminder', 'repository_id', 'last_date_time_reminder', 'user_feedback_cat_id'
+        'user_id', 'module_id', 'log_keyword_id', 'priority', 'subject', 'task', 'cost', 'status', 'module', 'completed', 'estimate_time', 'start_date', 'start_time', 'end_time', 'task_type_id', 'parent_id', 'created_by', 'submitted_by', 'responsible_user_id', 'assigned_to', 'assigned_by', 'language', 'master_user_id', 'hubstaff_task_id', 'is_milestone', 'no_of_milestone', 'milestone_completed', 'customer_id', 'lead_hubstaff_task_id', 'team_lead_id', 'tester_id', 'team_lead_hubstaff_task_id', 'tester_hubstaff_task_id', 'site_developement_id', 'priority_no', 'scraper_id', 'frequency',
+        'message', 'reminder_from', 'reminder_last_reply', 'last_send_reminder', 'repository_id', 'last_date_time_reminder'
     ];
 
-    public function user()
-    {
+    public function user() {
         return $this->belongsTo('App\User');
     }
 
-    public function development_details()
-    {
+    public function development_details() {
         return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-detail')->latest();
     }
 
-    public function development_discussion()
-    {
+    public function development_discussion() {
         return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-discussion')->latest();
     }
 
-    public function messages()
-    {
+    public function messages() {
         return $this->hasMany(ChatMessage::class, 'developer_task_id', 'id');
     }
 
-    public function developerModule()
-    {
+    public function developerModule() {
         return $this->belongsTo(DeveloperModule::class, 'module_id', 'id');
     }
 
-    public function communications()
-    {
+    public function communications() {
         return $this->hasMany(ChatMessage::class, 'issue_id', 'id');
     }
-    public function responsibleUser()
-    {
+    public function responsibleUser() {
         return $this->belongsTo(User::class, 'responsible_user_id', 'id');
     }
 
-    public function assignedUser()
-    {
+    public function assignedUser() {
         return $this->belongsTo(User::class, 'assigned_to', 'id');
     }
 
-    public function submitter()
-    {
+    public function submitter() {
         return $this->belongsTo(User::class, 'created_by', 'id');
     }
 
-    public function whatsappAll($needBroadCast = false)
-    {
-        if($needBroadCast) {
-            return $this->hasMany('App\ChatMessage', 'developer_task_id')->whereIn('status', ['7', '8', '9', '10'])->latest();    
+    public function whatsappAll($needBroadCast = false) {
+        if ($needBroadCast) {
+            return $this->hasMany('App\ChatMessage', 'developer_task_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
         }
-        
+
         return $this->hasMany('App\ChatMessage', 'developer_task_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
-    public function countUserTaskFromReference($id){
-        return $this->whereNotNull('reference')->where('responsible_user_id',$id)->count();
+    public function countUserTaskFromReference($id) {
+        return $this->whereNotNull('reference')->where('responsible_user_id', $id)->count();
     }
 
-    public function masterUser()
-    {
+    public function masterUser() {
         return $this->belongsTo(User::class, 'master_user_id', 'id');
     }
 
-    public function teamLead()
-    {
+    public function teamLead() {
         return $this->belongsTo(User::class, 'team_lead_id', 'id');
     }
 
-    public function tester()
-    {
+    public function tester() {
         return $this->belongsTo(User::class, 'tester_id', 'id');
     }
 
-    public function timeSpent(){
+    public function timeSpent() {
         return $this->hasOne(
             'App\Hubstaff\HubstaffActivity',
             'task_id',
             'hubstaff_task_id'
         )
-        ->selectRaw('task_id, SUM(tracked) as tracked')
-        ->groupBy('task_id');
+            ->selectRaw('task_id, SUM(tracked) as tracked')
+            ->groupBy('task_id');
     }
 
-    public function leadtimeSpent(){
+    public function leadtimeSpent() {
         return $this->hasOne(
             'App\Hubstaff\HubstaffActivity',
             'task_id',
             'lead_hubstaff_task_id'
         )
-        ->selectRaw('task_id, SUM(tracked) as tracked')
-        ->groupBy('task_id');
+            ->selectRaw('task_id, SUM(tracked) as tracked')
+            ->groupBy('task_id');
     }
 
-    public function testertimeSpent(){
+    public function testertimeSpent() {
         return $this->hasOne(
             'App\Hubstaff\HubstaffActivity',
             'task_id',
             'tester_hubstaff_task_id'
         )
-        ->selectRaw('task_id, SUM(tracked) as tracked')
-        ->groupBy('task_id');
+            ->selectRaw('task_id, SUM(tracked) as tracked')
+            ->groupBy('task_id');
     }
 
-    public function taskType()
-    {
+    public function taskType() {
         return $this->belongsTo(TaskTypes::class, 'task_type_id', 'id');
     }
 
-    public function allMessages()
-    {
-        return $this->hasMany(ChatMessage::class, 'developer_task_id', 'id')->orderBy('id','desc');
+    public function allMessages() {
+        return $this->hasMany(ChatMessage::class, 'developer_task_id', 'id')->orderBy('id', 'desc');
     }
 
-    public function scopeNotEstimated($query){
+    public function scopeNotEstimated($query) {
         return $query->whereNull('estimate_minutes')
-                      ->where('estimate_date','0000-00-00');
+            ->where('estimate_date', '0000-00-00');
     }
 
-    public function scopeEstimated($query){
+    public function scopeEstimated($query) {
         return $query->whereNotNull('estimate_minutes');
     }
 
-    public function scopeAdminNotApproved( $query ){
-        return $query->join('developer_tasks_history' , 'developer_tasks_history.developer_task_id' , 'developer_tasks.id' )
-                      ->estimated()
-                      ->where('attribute','estimation_minute')
-                      ->where('model',\App\DeveloperTask::class)
-                      ->where('is_approved','0');
+    public function scopeAdminNotApproved($query) {
+        return $query->join('developer_tasks_history', 'developer_tasks_history.developer_task_id', 'developer_tasks.id')
+            ->estimated()
+            ->where('attribute', 'estimation_minute')
+            ->where('model', \App\DeveloperTask::class)
+            ->where('is_approved', '0');
     }
 
-    public function developerTaskHistory()
-    {
-       return  $this->hasOne(DeveloperTaskHistory::class,'developer_task_id','id');
+    public function developerTaskHistory() {
+        return  $this->hasOne(DeveloperTaskHistory::class, 'developer_task_id', 'id');
     }
 
-    public function ApprovedDeveloperTaskHistory()
-    {
-       return  $this->hasOne(DeveloperTaskHistory::class,'developer_task_id','id')->where('is_approved', 1);
+    public function ApprovedDeveloperTaskHistory() {
+        return  $this->hasOne(DeveloperTaskHistory::class, 'developer_task_id', 'id')->where('is_approved', 1);
     }
 
+
+
+    public function updateHistory($type, $oldValue, $newValue) {
+        if ($oldValue != $newValue) {
+            DeveloperTaskHistory::create([
+                'developer_task_id' => $this->id,
+                'model' => 'App\DeveloperTask',
+                'attribute' => $type,
+                'old_value' => $oldValue,
+                'new_value' => $newValue,
+                'user_id' => \Auth::id(),
+            ]);
+        }
+    }
 }
