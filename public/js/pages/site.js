@@ -65,7 +65,8 @@ function applyDatePicker(eles) {
 function applyDateTimePicker(eles) {
   if (eles.length) {
     eles.datetimepicker({
-      format: 'YYYY-MM-DD HH:mm:ss'
+      format: 'YYYY-MM-DD HH:mm:ss',
+      sideBySide: true,
     });
   }
 }
