@@ -21,6 +21,8 @@ class Uicheck extends Model {
         'start_time',
         'expected_completion_time',
         'actual_completion_time',
+        'lock_developer',
+        'lock_admin',
     ];
 
     public function whatsappAll($needBroadCast = false) {
