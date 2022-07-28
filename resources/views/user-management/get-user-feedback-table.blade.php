@@ -196,7 +196,7 @@
                     </td>
                     <td>
                         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-feedback_cat_id="{{$cat->id}}" data-object='user-feedback' data-id="{{$cat->user_id}}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
-                        <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal"  data-feedback_cat_id="{{$cat->id}}" data-id="{{$cat->user_id}}" title="Add Ticket" data-target="#hrTicketModal" id="hrTicket"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                        <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal"  data-feedback_cat_id="{{$cat->id}}" data-id="{{$cat->user_id}}" data-cat_name="{{$cat->category}}" title="Add Ticket" data-target="#hrTicketModal" id="hrTicket"><i class="fa fa-plus" aria-hidden="true"></i></button>
                         <button style="padding-left: 0;padding-right:0px;" type="button" class="btn pt-1 btn-image d-inline count-dev-customer-tasks"  title="Show task history" data-id="{{$cat->id}}" data-user_id="{{$cat->user_id}}"><i class="fa fa-info-circle"></i></button>
                     </td>
                 </tr>
@@ -262,7 +262,7 @@ aria-hidden="true">
                     <input class="form-control" type="hidden" name="user_feedback_cat_id" id="user_feedback_cat_id" value="">
                     <div class="form-group">
                         <label for="">Subject</label>
-                        <input class="form-control" type="text" id="hidden-task-subject" name="task_subject" />
+                        <input class="form-control" type="text" id="hidden-task-subject" name="task_subject"  />
                     </div>
                     <div class="form-group">
                         <select class="form-control" style="width:100%;" name="task_type" tabindex="-1"
@@ -295,7 +295,7 @@ aria-hidden="true">
 
                     <div class="form-group">
                         <label for="">Assign to</label>
-                        <select name="task_asssigned_to" class="form-control assign-to select2">
+                        <select name="task_asssigned_to" id="task_asssigned_to" class="form-control assign-to select2">
                             @foreach ($users as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
                             @endforeach
@@ -537,9 +537,14 @@ aria-hidden="true">
         });
     });
 
-    $(document).on("click", "#hrTicket", function() {
+    $("#hrTicket").bind("click", function() { 
         var feedback_cat_id = $(this).data("feedback_cat_id");
+        var cat_name = $(this).data("cat_name");
         $("#user_feedback_cat_id").val(feedback_cat_id);
+        let selecUserVal = $('.select-multiple').val();
+        $("#task_asssigned_to").val(selecUserVal);
+        $("#hidden-task-subject").val(cat_name);
+        
     });
 
     $(document).on("click", ".tasks-list", function() {
@@ -618,13 +623,36 @@ aria-hidden="true">
 
 
     });
+    var getUrlParameter = function getUrlParameter(sParam) {
+        var sPageURL = window.location.search.substring(1),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+        return false;
+    };
 
     $(document).on("click", ".count-dev-customer-tasks", function() {
-	var $this = $(this);
+    
+    var $this = $(this);
 	var user_feedback = $(this).data("id");
+    var isAvaible = getUrlParameter('user_id');
+    var is_set = "";
+    if(isAvaible)
+        is_set = $(this).data("user_id");
+    else
+        is_set = "";
+    var user_id = $(this).data("user_id");
 	$.ajax({
 		type: 'get',
-		url: '/hr-ticket/countdevtask/' + user_feedback,
+		url: '/hr-ticket/countdevtask/' + user_feedback+ "/"+user_id,
 		dataType: "json",
 		beforeSend: function() {
 			$("#loading-image").show();

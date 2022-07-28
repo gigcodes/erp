@@ -46,16 +46,28 @@ class UserManagementController extends Controller
         return view('user-management.get-user-feedback-table',compact('category', 'status','user_id', 'users', 'request', 'sops'));
     }
 
-    public function taskCount($user_feedback_cat_id)
+    public function taskCount(Request $request,$user_feedback_cat_id)
     {
+        
         $taskStatistics['Devtask'] = DeveloperTask::where('user_feedback_cat_id', $user_feedback_cat_id)->where('status', '!=', 'Done')->select();
 
-        $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('user_feedback_cat_id', $user_feedback_cat_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+        $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('user_feedback_cat_id', $user_feedback_cat_id)->where('status', '!=', 'Done');
+        if($request->user_id !='' && (\Auth::user()->isAdmin))
+            $query->where("users.id", $request->user_id);
+        else if((\Auth::user()->isAdmin) == false)
+            $query->where("users.id", $request->user_id);
+
+        $query->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
         $query = $query->addSelect(\DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
         $taskStatistics = $query->get();
         //print_r($taskStatistics);
         $othertask = Task::where('user_feedback_cat_id', $user_feedback_cat_id)->whereNull('is_completed')->select();
-        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('user_feedback_cat_id', $user_feedback_cat_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('user_feedback_cat_id', $user_feedback_cat_id)->whereNull('is_completed');
+        if($request->user_id !='' && (\Auth::user()->isAdmin))
+            $query1->where("users.id", $request->user_id);
+        else if((\Auth::user()->isAdmin) == false)
+            $query1->where("users.id", $request->user_id);
+        $query1->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
         $query1 = $query1->addSelect(\DB::raw("'Othertask' as task_type,'task' as message_type"));
         $othertaskStatistics = $query1->get();
         $merged = $othertaskStatistics->merge($taskStatistics);

@@ -799,7 +799,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         });
     });
 
-    Route::get('/hr-ticket/countdevtask/{id}', 'UserManagementController@taskCount');
+    Route::get('/hr-ticket/countdevtask/{id}/{user_id?}', 'UserManagementController@taskCount');
 
     //
     // Route::post('/delete-document', 'SiteDevelopmentController@deleteDocument')->name("site-development.delete-documents");
