@@ -944,9 +944,14 @@ class StoreWebsiteController extends Controller
                     <span style="word-break:break-all;" class="show-full-website-'.$res->id.' hidden">'.$res->website.'</span>
                     </td>';
                     $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-response-'.$res->id.'">'.str_limit($res->response, 50, "...").'</span>
+                    <span class="show-short-response-'.$res->id.'">'.str_limit($res->response, 25, "...").'</span>
                     <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
                     </td>';
+                    $html .= '<td class="expand-row-msg" data-name="command" data-id="'.$res->id.'" style="cursor: grabbing;">
+                    <span class="show-short-command-'.$res->id.'">'.str_limit($res->command_name, 25, "...").'</span>
+                    <span style="word-break:break-all;" class="show-full-command-'.$res->id.' hidden">'.$res->command_name.'</span>
+                    </td>';
+                    
                     $html .= '</tr>';
                 }
                 return response()->json([
