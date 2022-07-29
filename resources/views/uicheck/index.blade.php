@@ -215,27 +215,29 @@
 <br />
 <div class="row mt-2">
 	<div class="col-md-12 margin-tb infinite-scroll">
-		<table class="table table-bordered " id="uicheck_table">
-			<thead>
-				<tr>
-					<th width="5%"><input type="checkbox" id="checkAll" title="click here to select all" /></th>
-					<th width="5%">Uicheck Id</th>
-					<th width="10%">Categories</th>
-					<th width="5%">Website</th>
-					@if (Auth::user()->hasRole('Admin'))
-					<th width="6%">Assign To</th>
-					@endif
-					<th width="10%">Issue</th>
-					<th width="10%">Communication</th>
-					<th width="10%">Developer Status</th>
-					<th width="10%">Type</th>
-					<th width="10%">Admin Status</th>
-					<th width="10%">Actions</th>
-				</tr>
-			</thead>
-			<tbody>
-			</tbody>
-		</table>
+		<div class="table-responsive">
+			<table class="table table-bordered" id="uicheck_table">
+				<thead>
+					<tr>
+						<th width="5%"><input type="checkbox" id="checkAll" title="click here to select all" /></th>
+						<th width="5%">Uicheck Id</th>
+						<th width="10%">Categories</th>
+						<th width="5%">Website</th>
+						@if (Auth::user()->hasRole('Admin'))
+						<th width="6%">Assign To</th>
+						@endif
+						<th width="10%">Issue</th>
+						<th width="10%">Communication</th>
+						<th width="10%">Developer Status</th>
+						<th width="10%">Type</th>
+						<th width="10%">Admin Status</th>
+						<th width="10%">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
 	</div>
 </div>
 <div id="dev_status_model" class="modal fade" role="dialog">
@@ -960,7 +962,7 @@
 			searchDelay: 500,
 			processing: true,
 			serverSide: true,
-			// sScrollX:true,
+			sScrollX:true,
 			searching: false,
 			order: [
 				[0, 'desc']
@@ -993,11 +995,11 @@
 			columns: columns,
 			createdRow: function(row, data, dataIndex) {
 				if (data.lock_developer == 1 && data.lock_admin == 1) {
-					jQuery(row).addClass('bg-warning');
+					jQuery(row).addClass('bg-custom-gray');
 				} else if (isAdmin == 1 && data.lock_admin == 1) {
-					jQuery(row).addClass('bg-warning');
+					jQuery(row).addClass('bg-custom-gray');
 				} else if (isAdmin == 0 && data.lock_developer == 1) {
-					jQuery(row).addClass('bg-warning');
+					jQuery(row).addClass('bg-custom-gray');
 				}
 			}
 
