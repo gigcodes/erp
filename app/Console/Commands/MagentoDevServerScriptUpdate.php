@@ -45,7 +45,7 @@ class MagentoDevServerScriptUpdate extends Command
             foreach($websites as $website){
                 //dd($website->site_folder);
                 if($website->site_folder !='' && $website->server_ip !=''){
-                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-dev.sh --server ' . $website->server_ip . ' -site ' . $website->site_folder; 
+                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-dev.sh --server ' . $website->server_ip . ' --site ' . $website->site_folder; 
 
                     $allOutput = array();
                     $allOutput[] = $cmd;
