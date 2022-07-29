@@ -57,6 +57,14 @@
           </div>
 
           <div class="form-group">
+            <strong>IP Name:</strong>
+            <input type="text" name="ip_name" id="ip_name" class="form-control" value="{{ old('ip_name') }}">
+            @if ($errors->has('ip'))
+              <div class="alert alert-danger">{{$errors->first('ip_name')}}</div>
+            @endif
+          </div>
+          
+          <div class="form-group">
             <strong>Assigen to</strong>
             <select class="form-control select-multiple" name="assigned_to" >
               <option value="">Select</option>
@@ -343,6 +351,14 @@
             <input type="hidden" name="old_ip" class="form-control" value="{{ old('old_ip') }}" id="old_ip">
             @if ($errors->has('ip'))
               <div class="alert alert-danger">{{$errors->first('ip')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>IP Name:</strong>
+            <input type="text" name="ip_name" id="ip_name" class="form-control" value="{{ old('ip_name') }}">
+            @if ($errors->has('ip'))
+              <div class="alert alert-danger">{{$errors->first('ip_name')}}</div>
             @endif
           </div>
 
