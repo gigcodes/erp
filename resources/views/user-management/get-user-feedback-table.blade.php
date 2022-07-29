@@ -103,7 +103,10 @@
                 <td></td>
             </tr>
             @endif
-            
+            <?php $sopOps = ''; ?>
+            @foreach ($sops as $sop)
+                <?php $sopOps .= '<option value="'.$sop->id.'">'.$sop->name.'</option>' ?>
+            @endforeach
             @foreach ($category as $cat)
                 @php
                     if($user_id !=''){
@@ -152,7 +155,10 @@
                         
                     </td>
                     <td class="communication-td">
-                        <input type="text" class="form-control send-message-textbox" data-id="{{$cat->user_id}}" id="send_message_{{$cat->user_id}}" name="send_message_{{$cat->user_id}}" placeholder="Enter Message...." style="margin-bottom:5px;width:77%;display:inline;" @if (!Auth::user()->isAdmin()) {{ "readonly" }} @endif/>
+                        {{-- <input type="text" class="form-control send-message-textbox" data-id="{{$cat->user_id}}" id="send_message_{{$cat->user_id}}" name="send_message_{{$cat->user_id}}" placeholder="Enter Message...." style="margin-bottom:5px;width:77%;display:inline;" @if (!Auth::user()->isAdmin()) {{ "readonly" }} @endif/> --}}
+                        <select class="form-control send-message-textbox" data-id="{{$cat->user_id}}" id="send_message_{{$cat->user_id}}" name="send_message_{{$cat->user_id}}" style="margin-bottom:5px;width:77%;display:inline;" @if (!Auth::user()->isAdmin()) {{ "readonly" }} @endif>
+                            <?php echo $sopOps; ?></?php>
+                        </select>
                         <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->user_id}}" ><img src="/images/filled-sent.png"/></button>
                         @if ($latest_messages && $latest_messages->user_feedback_category_id == $cat->id)
                             <span class="latest_message">@if ($latest_messages->send_by) {{ $latest_msg }} @endif</span>

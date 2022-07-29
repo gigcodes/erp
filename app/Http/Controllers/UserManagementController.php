@@ -8,7 +8,7 @@ use App\UserFeedbackStatus;
 use App\User;
 use App\UserFeedbackCategorySopHistory;
 use App\UserFeedbackCategorySopHistoryComment;
-
+use App\Sop;
 
 class UserManagementController extends Controller
 {
@@ -23,21 +23,16 @@ class UserManagementController extends Controller
         } else {
             $category = UserFeedbackCategory::select('id', 'user_id', 'sop_id', 'category', 'sop')->where('user_id', \Auth::user()->id)->groupBy('category');
             if(empty($category->get())) {
-                $category = UserFeedbackCategory::select('id', 'user_id', 'sop_id', 'category', 'sop')->groupBy('category');
-            }
-        }
-            
-        //\Auth::user()->isAdmin()
-        if($request->user_id){
-            if(\Auth::user()->isAdmin() == true) {
+                $category = UserFeedbackCatSoptrue) {
                 $user_id = $request->user_id;
             } else {
                 $user_id = \Auth::user()->id;
             }
         }
+        $sops = Sop::all();
         $users = User::all();
         $category = $category->paginate(25);
-        return view('user-management.get-user-feedback-table',compact('category', 'status','user_id', 'users', 'request'));
+        return view('user-management.get-user-feedback-table',compact('category', 'status','user_id', 'users', 'request', 'sops'));
     }
 
     public function sopHistory(Request $request)
