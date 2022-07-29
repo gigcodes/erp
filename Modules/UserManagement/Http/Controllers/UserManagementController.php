@@ -1949,7 +1949,7 @@ class UserManagementController extends Controller {
                         FROM tasks 
                         WHERE start_date IS NOT NULL 
                         AND due_date IS NOT NULL " .
-                        " AND status IN (1, 5) " .
+                        " AND status IN (3, 5) " .
                         // " AND (start_date BETWEEN :stDate AND :enDate) " .
                         " )
                         UNION
