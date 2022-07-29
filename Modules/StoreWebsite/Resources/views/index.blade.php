@@ -169,7 +169,8 @@
 								<tr>
 									<th width="20%">Created At</th>
 									<th width="20%">Website</th>
-									<th width="60%">Response</th>
+									<th width="30%">Response</th>
+									<th width="30%">Command Name</th>
 								</tr>
 							</thead>
 							<tbody id="magentoDevScriptUpdateHistory">
