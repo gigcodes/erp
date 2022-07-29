@@ -399,8 +399,10 @@
         </div>
         <div class="row mt-5">
             <div class="form-group col">
+                <?php /*
                 {!! NoCaptcha::renderJs() !!}
                 {!! NoCaptcha::display() !!}
+                */ ?>
                 {{-- <div class="g-recaptcha{{ $errors->has('g-recaptcha-response') ? ' has-error' : '' }}" data-sitekey="6LddObUgAAAAAH1B6B208pzT8dzvLew6pqG8yRIw"> --}}
             </div>
         </div>
