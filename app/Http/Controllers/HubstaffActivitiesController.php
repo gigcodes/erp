@@ -1147,23 +1147,25 @@ class HubstaffActivitiesController extends Controller {
             $query = $query->where('hubstaff_members.user_id', $request->user_id);
         }
 
-        // select 
-        // `hubstaff_activities`.`user_id`, 
-        // `hubstaff_activities`.`tracked`, 
-        // `hubstaff_activities`.`task_id`, 
-        // `hubstaff_activities`.`overall`, 
-        // `DATE(hubstaff_activities`.`starts_at)` as `date`, 
-        // `hubstaff_members`.`user_id` as `system_user_id`, 
-        // `users`.`name` as `userName` 
-        // from `hubstaff_activities` 
-        // left join `hubstaff_members` on `hubstaff_members`.`hubstaff_user_id` = `hubstaff_activities`.`user_id` 
-        // left join `users` on `users`.`id` = `hubstaff_members`.`user_id` 
-        // where 1
-
         $query->leftJoin('users', 'users.id', '=', 'hubstaff_members.user_id');
         $query->leftJoin('tasks', 'tasks.hubstaff_task_id', '=', 'hubstaff_activities.task_id');
         $query->leftJoin('developer_tasks', 'developer_tasks.hubstaff_task_id', '=', 'hubstaff_activities.task_id');
-        
+
+        $query->leftJoin(
+            \DB::raw("(SELECT date, user_id, MAX(created_at) AS created_at FROM hubstaff_activity_summaries GROUP BY date, user_id) hub_summary"),
+            function ($join) {
+                $join->on('hub_summary.date', '=', \DB::raw("DATE(hubstaff_activities.starts_at)"));
+                $join->on('hub_summary.user_id', '=', 'hubstaff_members.user_id');
+            }
+        );
+        $query->leftJoin('hubstaff_activity_summaries', function ($join) {
+            $join->on('hubstaff_activity_summaries.date', '=', 'hub_summary.date');
+            $join->on('hubstaff_activity_summaries.user_id', '=', 'hub_summary.user_id');
+            $join->on('hubstaff_activity_summaries.created_at', '=', 'hub_summary.created_at');
+        });
+        $query->groupBy("hubstaff_activity_summaries.date", "hubstaff_activity_summaries.user_id");
+
+
         $query->select(
             "hubstaff_activities.user_id",
             "hubstaff_activities.tracked",
@@ -1173,37 +1175,26 @@ class HubstaffActivitiesController extends Controller {
             "hubstaff_members.user_id as system_user_id",
             "users.name as userName",
             "tasks.id as task_table_id",
-            "developer_tasks.id as developer_task_table_id"
+            "developer_tasks.id as developer_task_table_id",
+            "hubstaff_activity_summaries.created_at AS ha_summ_created_at",
+            "hubstaff_activity_summaries.date AS ha_summ_date",
+            "hubstaff_activity_summaries.user_id AS ha_summ_user_id",
+            "hubstaff_activity_summaries.accepted AS ha_summ_accepted",
+            "hubstaff_activity_summaries.id AS ha_summ_id"
         );
+
         // _p($query->toSql());
 
-
-        // select 
-        //     `hubstaff_activities`.`user_id`, 
-        //     `hubstaff_activities`.`tracked`, 
-        //     `hubstaff_activities`.`task_id`, 
-        //     `hubstaff_activities`.`overall`, 
-        //     DATE(hubstaff_activities.starts_at) as date, 
-        //     `hubstaff_members`.`user_id` as `system_user_id`, 
-        //     `users`.`name` as `userName`, 
-        //     `tasks`.`id` as `task_table_id`, 
-        //     `developer_tasks`.`id` as `developer_task_table_id` 
-        // from `hubstaff_activities` 
-        // left join `hubstaff_members` on `hubstaff_members`.`hubstaff_user_id` = `hubstaff_activities`.`user_id` 
-        // left join `users` on `users`.`id` = `hubstaff_members`.`user_id` 
-        // left join `tasks` on `tasks`.`hubstaff_task_id` = `hubstaff_activities`.`task_id` 
-        // left join `developer_tasks` on `developer_tasks`.`hubstaff_task_id` = `hubstaff_activities`.`task_id` 
-        // where 1
-
         $activities = $query->orderBy('date', 'desc')->get();
-        // _p($activities->toArray()); exit;
+        // _p($activities->toArray());
+        // exit;
 
         $title = "User Track";
         $userTrack = [];
         foreach ($activities as $activity) {
-            $hubActivitySummery = HubstaffActivitySummary::where('date', $activity->date)
-                ->where('user_id', $activity->system_user_id)
-                ->orderBy('created_at', 'desc')->first();
+            // $hubActivitySummery = HubstaffActivitySummary::where('date', $activity->date)
+            //     ->where('user_id', $activity->system_user_id)
+            //     ->orderBy('created_at', 'desc')->first();
 
             // $developer_tasks = \App\DeveloperTask::where('hubstaff_task_id', '=', $activity['task_id'])->first();
             // // if (!empty($developer_tasks)) $userData = User::where('id', $developer_tasks->user_id)->first();
@@ -1225,17 +1216,17 @@ class HubstaffActivitiesController extends Controller {
 
             $userTrack[] = [
                 'date' => $activity->date,
-                'user_id' => $activity['user_id'],
+                'user_id' => $activity->user_id,
                 'userName' => $activity->userName ?? '',
-                'hubstaff_tracked_hours' => $activity['tracked'],
-                'hours_tracked_with' => $activity['tracked'] != 0 ? $activity['tracked'] : '0',
-                'hours_tracked_without' => $activity['task_id'] == 0 ? $activity['tracked'] : '0',
+                'hubstaff_tracked_hours' => $activity->tracked,
+                'hours_tracked_with' => $activity->tracked != 0 ? $activity->tracked : '0',
+                'hours_tracked_without' => $activity->task_id == 0 ? $activity->tracked : '0',
                 'task_id' => ($activity->developer_task_table_id ?: $activity->task_table_id) ?: '0',
-                'approved_hours' => $hubActivitySummery->accepted ?? '0',
-                'difference_hours' => isset($hubActivitySummery->accepted) ? ($activity['tracked'] - $hubActivitySummery->accepted) : '0',
-                'total_hours' => $activity['tracked'],
-                'activity_levels' => $activity['overall'] / $activity['tracked'] * 100,
-                'overall' => $activity['overall'],
+                'approved_hours' => $activity->ha_summ_accepted ?? '0',
+                'difference_hours' => isset($activity->ha_summ_accepted) ? ($activity->tracked - $activity->ha_summ_accepted) : '0',
+                'total_hours' => $activity->tracked,
+                'activity_levels' => $activity->overall / $activity->tracked * 100,
+                'overall' => $activity->overall,
 
 
             ];
