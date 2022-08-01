@@ -28,11 +28,13 @@ class UpdateLogController extends Controller {
             $updateLog = $q->orderBy('id', 'DESC')->paginate(Setting::get('pagination'));
 
             $listApiUrls = UpdateLog::orderBy('api_url')->select('api_url')->distinct()->pluck('api_url', 'api_url');
+            $listDevices = UpdateLog::orderBy('device')->select('device')->distinct()->pluck('device', 'device');
             $listApiMethods = UpdateLog::orderBy('api_type')->select('api_type')->distinct()->pluck('api_type', 'api_type');
             return view("update-log.index", compact(
                 'updateLog',
                 'listApiUrls',
-                'listApiMethods'
+                'listApiMethods',
+                'listDevices'
             ));
         } catch (\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());

@@ -64,6 +64,15 @@
                     </div>
                     <div class="col-md-2">
                       <div class="form-group">
+                        <label for="form-label">Devices</label>
+                        <select class="form-control select2" name="device">
+                          <option value=""></option>
+                          {!! makeDropdown($listDevices ?? [], request('device')) !!}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-2">
+                      <div class="form-group">
                         <label for="form-label">API Methods</label>
                         <select class="form-control select2" name="api_type">
                           <option value=""></option>
