@@ -440,7 +440,7 @@ function makeDropdown($options = [], $selected = []) {
                 } else if ($selected === $k) {
                     $sel = 'selected';
                 }
-                $return[] = '<option value="' . $k . '" ' . $sel . '>' . ucfirst(trim(strip_tags($v))) . '</option>';
+                $return[] = '<option value="' . $k . '" ' . $sel . '>' . trim(strip_tags($v)) . '</option>';
             }
         }
     }

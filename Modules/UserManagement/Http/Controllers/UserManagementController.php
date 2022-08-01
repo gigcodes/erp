@@ -95,6 +95,7 @@ class UserManagementController extends Controller {
         // //     // $user->histry=$req->input('histry');
         // $user->save();
         $whatsapp = DB::select('SELECT number FROM whatsapp_configs WHERE status = 1');
+        // _p($whatsapp); exit;
 
         return view('usermanagement::index', compact('title', 'permissionRequest', 'statusList', 'usersystemips', 'userlist', 'whatsapp'));
     }
