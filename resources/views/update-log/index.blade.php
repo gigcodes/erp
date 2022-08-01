@@ -108,17 +108,15 @@
         <table class="table table-bordered" style="border: 1px solid #ddd !important;">
           <thead>
             <tr>
-              <th style="width: 4%;">ID</th>
-              <th style="width: 10%;">API Url</th>
+              <th style="width: 6%;">ID</th>
+              <th style="width: 15%;">API Url</th>
               <th style="width: 8%;">Device</th>
-              <th style="width: 6%;">Api Type</th>
-              <th style="width: 10%;">Email</th>
+              <th style="width: 8%;">Api Type</th>
+              <th style="width: 13%;">Email</th>
               <th style="width: 8%;">Response Code</th>
-              <th style="width: 15%;">Request Headers</th>
-              <th style="width: 15%;">User Id</th>
-              <!-- <th style="width: 20%;">Request Body</th>
-              <th style="width: 20%;">Response Body</th> -->
-              <th style="width: 6%;">App Version</th>
+              <th style="width: 16%;">Request Headers</th>
+              <th style="width: 10%;">User Id</th>
+              <th style="width: 8%;">App Version</th>
               <th style="width: 8%;">Action</th>
             </tr>
           </thead>
@@ -134,8 +132,6 @@
                   <td>{!! $logData->response_code !!}</td>
                   <td>{!! $logData->request_header !!}</td>
                   <td>{!! $logData->user_id !!}</td>
-                  <?php /*<td style="word-break: break-word;" >{!! $logData->request_body ?: '-' !!}</td>
-                  <td style="word-break: break-word;" >{!! $logData->response_body ?: '-' !!}</td> */ ?>
                   <td>{!! $logData->app_version !!}</td>
                   <td>
                     <a class="btn btn-xs" href="javascript:void(0);" onclick="funViewLog(this)" title="View Record"><i class="fa fa-eye"></i></a>
