@@ -40,7 +40,7 @@
                                             <div class="form-group">
                                                 <label for="form-label">From Date</label>
                                                 <div class="input-group date d-datetime">
-                                                    <input type="text" class="form-control input-sm" name="srchDateFrom" value="{{date('Y-m-d')}}" />
+                                                    <input type="text" class="form-control input-sm" name="srchDateFrom" value="{{ request('srchDateFrom', date('Y-m-d')) }}" />
                                                     <span class="input-group-addon">
                                                         <span class="glyphicon glyphicon-calendar"></span>
                                                     </span>
@@ -51,7 +51,7 @@
                                             <div class="form-group">
                                                 <label for="form-label">To Date</label>
                                                 <div class="input-group date d-datetime">
-                                                    <input type="text" class="form-control input-sm" name="srchDateTo" value="{{date('Y-m-d', strtotime('+3 days'))}}" />
+                                                    <input type="text" class="form-control input-sm" name="srchDateTo" value="{{ request('srchDateTo', date('Y-m-d', strtotime('+3 days'))) }}" />
                                                     <span class="input-group-addon">
                                                         <span class="glyphicon glyphicon-calendar"></span>
                                                     </span>
