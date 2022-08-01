@@ -80,6 +80,16 @@
                         </select>
                       </div>
                     </div>
+                    <div class="col-md-2">
+                      <div class="form-group">
+                        <label for="form-label">Response Codes</label>
+                        <select class="form-control select2" name="response_code">
+                          <option value=""></option>
+                          {!! makeDropdown($listResponseCodes ?? [], request('response_code')) !!}
+                        </select>
+                      </div>
+                    </div>
+                    
                   </div>
                 </div>
                 <div class="col-md-12">

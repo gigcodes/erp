@@ -20,21 +20,29 @@ class UpdateLogController extends Controller {
                 $q->where("api_url", "like", "%" . $s . "%");
             }
             if ($s = request('device')) {
-                $q->where("device", "like", "%" . $s . "%");
+                $q->where("device", $s);
             }
             if ($s = request('api_type')) {
-                $q->where("api_type", "like", "%" . $s . "%");
+                $q->where("api_type", $s);
             }
+            if ($s = request('response_code')) {
+                $q->where("response_code", $s);
+            }
+
             $updateLog = $q->orderBy('id', 'DESC')->paginate(Setting::get('pagination'));
 
             $listApiUrls = UpdateLog::orderBy('api_url')->select('api_url')->distinct()->pluck('api_url', 'api_url');
             $listDevices = UpdateLog::orderBy('device')->select('device')->distinct()->pluck('device', 'device');
             $listApiMethods = UpdateLog::orderBy('api_type')->select('api_type')->distinct()->pluck('api_type', 'api_type');
+            $listResponseCodes = UpdateLog::orderBy('response_code')->select('response_code')->distinct()->pluck('response_code', 'response_code');
+
+
             return view("update-log.index", compact(
                 'updateLog',
                 'listApiUrls',
                 'listApiMethods',
-                'listDevices'
+                'listDevices',
+                'listResponseCodes'
             ));
         } catch (\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
