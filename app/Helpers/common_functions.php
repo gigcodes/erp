@@ -378,7 +378,9 @@ function resizeCropImage($max_width = 150, $max_height = 150, $source_file, $dst
 
 
 function _p($data, $exit = 0) {
-    echo '<pre>'; print_r($data); echo '</pre>';
+    echo '<pre>';
+    print_r($data);
+    echo '</pre>';
     echo '<pre>______________________________________________________________________________________________________________</pre>';
     if ($exit) die('');
 }
@@ -392,6 +394,9 @@ function dateRangeArr($stDate, $enDate) {
         $stDate = date('Y-m-d', strtotime($stDate . '+1 day'));
     }
     return $data;
+}
+function pad0($curr) {
+    return $curr < 10 ? '0' . $curr : $curr;
 }
 function nextHour($curr) {
     $curr++;
@@ -435,7 +440,7 @@ function makeDropdown($options = [], $selected = []) {
                 } else if ($selected === $k) {
                     $sel = 'selected';
                 }
-                $return[] = '<option value="' . $k . '" ' . $sel . '>' . ucfirst(trim(strip_tags($v))) . '</option>';
+                $return[] = '<option value="' . $k . '" ' . $sel . '>' . trim(strip_tags($v)) . '</option>';
             }
         }
     }
@@ -455,4 +460,13 @@ function isRegularTaskId($id) {
 }
 function respJson($code, $message = '', $data = []) {
     return response()->json(array_merge_recursive(['message' => $message], $data), $code);
+}
+
+function dailyHours($type = null) {
+    $data = [];
+    for ($i = 0; $i < 24; $i++) {
+        $temp = pad0($i) . ':00:00';
+        $data[$temp] = $temp;
+    }
+    return $data;
 }
