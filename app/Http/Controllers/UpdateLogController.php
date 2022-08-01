@@ -7,61 +7,64 @@ use Illuminate\Http\JsonResponse;
 use App\UpdateLog;
 use App\Setting;
 
-class UpdateLogController extends Controller
-{
+class UpdateLogController extends Controller {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        try{
-            $updateLog = UpdateLog::paginate(15);
-            return view("update-log.index", compact('updateLog'));
-        } catch(\Exception $e) {
+    public function index() {
+        try {
+            $q = UpdateLog::query();
+            if ($s = request('api_url')) {
+                $q->where("api_url", "like", "%" . $s . "%");
+            }
+            if ($s = request('device')) {
+                $q->where("device", "like", "%" . $s . "%");
+            }
+            if ($s = request('api_type')) {
+                $q->where("api_type", "like", "%" . $s . "%");
+            }
+            $updateLog = $q->orderBy('id', 'DESC')->paginate(Setting::get('pagination'));
+
+            $listApiUrls = UpdateLog::orderBy('api_url')->select('api_url')->distinct()->pluck('api_url', 'api_url');
+            $listApiMethods = UpdateLog::orderBy('api_type')->select('api_type')->distinct()->pluck('api_type', 'api_type');
+            return view("update-log.index", compact(
+                'updateLog',
+                'listApiUrls',
+                'listApiMethods'
+            ));
+        } catch (\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
         }
-        
     }
 
-    public function search(Request $request)
-    {
-        $updateLog = new UpdateLog();
-        
-        if (!empty($request->api_url)) {
-            $updateLog = $updateLog->where("api_url", "like", "%".$request->api_url."%");
-        }
-        if (!empty($request->device)) {
-            $updateLog = $updateLog->where("device", "like", "%".$request->device."%");
-        }
-        if (!empty($request->api_type)) {
-            $updateLog = $updateLog->where("api_type", "like", "%".$request->api_type."%");
-        }
-        $updateLog = $updateLog->paginate(Setting::get('pagination'));
-        return view("update-log.index", compact('updateLog'));
+    public function search(Request $request) {
+        return $this->index();
     }
 
-    
+
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         try {
             $updateLog = new UpdateLog();
             $updateLog->api_url = $request->api_url;
             $updateLog->device = $request->device;
             $updateLog->api_type = $request->api_type;
             $updateLog->user_id = $request->user_id;
-            $updateLog->request_header = is_array($request->header)? json_encode($request->header) : $request->header;
+            $updateLog->request_header = is_array($request->header) ? json_encode($request->header) : $request->header;
+            $updateLog->email = $request->email ?: NULL;
+            $updateLog->request_body = is_array($request->request_body) ? json_encode($request->request_body) : $request->request_body;
+            $updateLog->response_code = $request->response_code ?: NULL;
+            $updateLog->response_body = is_array($request->response_body) ? json_encode($request->response_body) : $request->response_body;
             $updateLog->app_version = $request->app_version;
             $updateLog->other = $request->other;
-            $updateLog->save();
-            if (!empty($updateLog)) {
+            if ($updateLog->save()) {
                 return response()->json(['status' => true, 'response_code' => 200, 'data' => $updateLog], JsonResponse::HTTP_OK);
             }
             return response()->json(['status' => false, 'response_code' => 404, 'message' => "Data not found"], JsonResponse::HTTP_NOT_FOUND);
@@ -70,15 +73,14 @@ class UpdateLogController extends Controller
         }
     }
 
-    
+
     /**
      * Display the specified resource.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
+    public function show($id) {
         try {
             $updateLog = UpdateLog::all();
 
@@ -97,8 +99,7 @@ class UpdateLogController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
+    public function edit($id) {
         //
     }
 
@@ -109,8 +110,7 @@ class UpdateLogController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
+    public function update(Request $request, $id) {
         //
     }
 
@@ -120,11 +120,10 @@ class UpdateLogController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
-    {
-        try{
+    public function destroy(Request $request) {
+        try {
             $updateLog = UpdateLog::where('id', '=', $request->id)->delete();
-            return response()->json(['code' => 200, 'data' => $updateLog,'message' => 'Deleted successfully!!!']);
+            return response()->json(['code' => 200, 'data' => $updateLog, 'message' => 'Deleted successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
             return response()->json(['code' => 500, 'message' => $msg]);
