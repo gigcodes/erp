@@ -171,8 +171,8 @@
 
             <button type="button" style="cursor:pointer" class="btn btn-image change-hubstaff-role" title="Change Hubstaff user role" data-id="{{$vendor->id}}"><img src="/images/role.png" alt="" style="cursor: nwse-resize;"></button>
 
-            <button type="button" style="cursor:pointer" class="btn btn-image create-cv" title="Create CV" data-id="{{$vendor->id}}"><i class="fa fa-file" aria-hidden="true"></i></button>
-            
+            {{-- <button type="button" style="cursor:pointer" class="btn btn-image create-cv" title="Create CV" data-id="{{$vendor->id}}"><i class="fa fa-file" aria-hidden="true"></i></button> --}}
+            <a href="{{route('vendors.create.cv', $vendor->id)}}" class="btn btn-sm" title="Vendor Create" target="_blank"><i class="fa fa-file"></i> </a>
         </div>
     </td>
 </tr>
