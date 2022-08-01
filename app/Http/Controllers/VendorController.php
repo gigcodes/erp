@@ -292,7 +292,7 @@ class VendorController extends Controller
             ->select([\DB::raw("count(u.id) as total_records"), "u.name"])
             ->get();
 
-        $whatsapp = DB::select('SELECT number FROM whatsapp_configs WHERE status = 1 and provider="Chat-API"');
+        $whatsapp = DB::select('SELECT number FROM whatsapp_configs WHERE status = 1 '); // and provider="Chat-API"
         return view('vendors.index', [
             'vendors'           => $vendors,
             'vendor_categories' => $vendor_categories,
