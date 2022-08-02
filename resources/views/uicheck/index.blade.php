@@ -509,7 +509,16 @@
 											<i class="fa fa-list" aria-hidden="true"></i>
 										</button>	
 									</td>
-									<td><input type="text" name="uilanstatus" id="uilanstatus{{$language->id}}" class="uilanstatus{{$language->id}}" style="margin-top: 0px;width:80% !important;"/><button class="btn pr-0 btn-xs btn-image uicheck-status" onclick="funLanUpdate('{{$language->id}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button></td>
+									<td>
+										{{-- <input type="text" name="uilanstatus" id="uilanstatus{{$language->id}}" class="uilanstatus{{$language->id}}" style="margin-top: 0px;width:80% !important;"/><button class="btn pr-0 btn-xs btn-image uicheck-status" onclick="funLanUpdate('{{$language->id}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button> --}}
+										<select name="uilanstatus" id="uilanstatus{{$language->id}}" class="uilanstatus{{$language->id}} pd-5" style="margin-top: 0px;width:80% !important;">
+											<option value="">-- Status --</option>
+											@forelse($allStatus as $key => $as)
+											<option value="{{ $key }}" @if($dev_status==$key) selected @endif>{{ $as }}</option>
+											@empty
+											@endforelse
+										</select>
+									</td>
 								</tr>
 							@endforeach
 						</tbody>
@@ -564,9 +573,9 @@
 						<thead>
 							<tr>
 								<th width="5%">ID</th>
-								<th width="21%">Update By</th>
-								<th width="22%" style="word-break: break-all;">Message</th>
-								<th width="22%" style="word-break: break-all;">Status</th>
+								<th width="8%">Update By</th>
+								<th width="25%" style="word-break: break-all;">Message</th>
+								<th width="15%" style="word-break: break-all;">Status</th>
 								<th width="15%">Created at</th>
 							</tr>
 						</thead>
@@ -677,7 +686,16 @@
 											<i class="fa fa-list" aria-hidden="true"></i>
 										</button>	
 									</td>
-									<td><input type="text" name="uidevstatus" id="uidevstatus{{$i}}" class="uidevstatus{{$i}}" style="margin-top: 0px;width:80% !important;"/><button class="btn pr-0 btn-xs btn-image dev-uicheck-status" onclick="funDevUpdate('{{$i}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button></td>
+									<td>
+										{{-- <input type="text" name="uidevstatus" id="uidevstatus{{$i}}" class="uidevstatus{{$i}}" style="margin-top: 0px;width:80% !important;"/> --}}
+										<select name="uidevstatus" id="uidevstatus{{$i}}" class="uidevstatus{{$i}} pd-5" style="margin-top: 0px;width:80% !important;">
+											<option value="">-- Status --</option>
+											@forelse($allStatus as $key => $as)
+											<option value="{{ $key }}" @if($dev_status==$key) selected @endif>{{ $as }}</option>
+											@empty
+											@endforelse
+										</select>
+										<button class="btn pr-0 btn-xs btn-image dev-uicheck-status" onclick="funDevUpdate('{{$i}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button></td>
 								</tr>
 							@endfor
 						</tbody>
@@ -704,9 +722,9 @@
 						<thead>
 							<tr>
 								<th width="5%">ID</th>
-								<th width="21%">Update By</th>
-								<th width="22%" style="word-break: break-all;">Message</th>
-								<th width="22%" style="word-break: break-all;">Status</th>
+								<th width="8%">Update By</th>
+								<th width="25%" style="word-break: break-all;">Message</th>
+								<th width="15%" style="word-break: break-all;">Status</th>
 								<th width="15%">Created at</th>
 							</tr>
 						</thead>
@@ -2172,6 +2190,8 @@
 	jQuery(document).ready(function() {
 		applyDateTimePicker(jQuery('.cls-start-due-date'));
 	});
+
+	
 </script>
 
 @endsection

@@ -22,7 +22,6 @@ class CreateUicheckLanguageMessageHistoriesTable extends Migration
             $table->string('message')->nullable();
             $table->string('status')->nullable();
             $table->timestamps();
-            $table->timestamps();
         });
     }
 

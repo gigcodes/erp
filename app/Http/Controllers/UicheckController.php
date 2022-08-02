@@ -812,7 +812,8 @@ class UicheckController extends Controller {
     public function getuicheckLanUpdateHistory(Request $request) {
         try{
             $getHistory = UicheckLanguageMessageHistory::leftJoin("users", "users.id", "uicheck_language_message_histories.user_id")
-            ->select("uicheck_language_message_histories.*", "users.name As userName")
+            ->leftJoin("site_development_statuses AS sds", "sds.id", "uicheck_language_message_histories.status")
+            ->select("uicheck_language_message_histories.*", "users.name As userName", "sds.name as status_name")
             ->where("languages_id", $request->id)
             ->where("uicheck_id", $request->uicheck_id)
             ->orderBy("id", "desc")->get();         
@@ -824,8 +825,11 @@ class UicheckController extends Controller {
                         '<tr>',
                         '<td>' . ($value->id ?: '-') . '</td>',
                         '<td>' . ($value->userName ?: '-') . '</td>',
-                        '<td>' . ($value->message ?: '-') . '</td>',
-                        '<td>' . ($value->status ?: '-') . '</td>',
+                        '<td class="expand-row-msg" data-name="lan_message" data-id="'.$value->id.'" >
+                            <span class="show-short-lan_message-'.$value->id.'">'.str_limit($value->message, 5, "...").'</span>
+                            <span style="word-break:break-all;" class="show-full-lan_message-'.$value->id.' hidden">'.$value->message.'</span>
+                        </td>',
+                        '<td>' . ($value->status_name ?: '-') . '</td>',
                         '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
                         '</tr>',
                     ]);
@@ -1048,7 +1052,8 @@ class UicheckController extends Controller {
 
     public function getuicheckDevUpdateHistory(Request $request) {
         try{
-            $getHistory = UiDeviceHistory::leftJoin("users", "users.id", "ui_device_histories.user_id")
+            $getHistory = UiDeviceHistory::leftJoin("users", "users.id", "ui_device_histories.user_id", "sds.name AS status_name")
+            ->leftJoin("site_development_statuses AS sds", "sds.id", "ui_device_histories.status")
             ->select("ui_device_histories.*", "users.name As userName")
             ->where("device_no", $request->device_no)
             ->where("uicheck_id", $request->uicheck_id)
@@ -1061,8 +1066,11 @@ class UicheckController extends Controller {
                         '<tr>',
                         '<td>' . ($value->id ?: '-') . '</td>',
                         '<td>' . ($value->userName ?: '-') . '</td>',
-                        '<td>' . ($value->message ?: '-') . '</td>',
-                        '<td>' . ($value->status ?: '-') . '</td>',
+                        '<td class="expand-row-msg" data-name="dev_message" data-id="'.$value->id.'" >
+                            <span class="show-short-dev_message-'.$value->id.'">'.str_limit($value->message, 5, "...").'</span>
+                            <span style="word-break:break-all;" class="show-full-dev_message-'.$value->id.' hidden">'.$value->message.'</span>
+                        </td>',
+                        '<td>' . ($value->status_name ?: '-') . '</td>',
                         '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
                         '</tr>',
                     ]);
