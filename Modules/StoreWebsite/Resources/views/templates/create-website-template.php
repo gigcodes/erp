@@ -308,8 +308,18 @@
                   <select name="site_folder" id="site_folder" class="form-control siteFolder">
                      <option>--Select Site Folder--</option>
                   <?php
-                        foreach(\App\AssetsManager::whereNotNull('ip')->get() as $k => $l) {
+                        
+                        /*foreach(\App\AssetsManager::whereNotNull('ip')->get() as $k => $l) {
                             echo "<option {{if data.site_folder == '".$l->ip_name."'}} selected {{/if}} value='".$l->ip_name."'>".$l->ip_name."</option>";
+                        }*/
+                        $dataofIp = \App\AssetsManager::whereNotNull('ip')->get();
+                        foreach($dataofIp as $kk => $ll) {
+                           $arrIp = json_decode($ll->ip_name) ?? '';
+                           if(is_array($arrIp)){
+                              foreach($arrIp as $k => $l) {
+                                 echo "<option {{if data.site_folder == '".$l."'}} selected {{/if}} value='".$l."'>".$l."</option>";
+                              }
+                           }
                         }
                         ?>
                   </select>

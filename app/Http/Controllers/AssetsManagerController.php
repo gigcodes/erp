@@ -110,7 +110,8 @@ class AssetsManagerController extends Controller
         if ($catid != '') {
             $data['category_id'] = $catid;
         }
-        $data['ip_name'] = $request->ip_name;
+        $data['ip_name'] = json_encode($request->ip_name);
+        $data['server_update'] = json_encode($request->server_update);
         $insertData = AssetsManager::create($data);
         if ($request->input('payment_cycle') == 'One time') {
             //create entry in table cash_flows
@@ -212,7 +213,8 @@ class AssetsManagerController extends Controller
             $assetLog->ip =  $request->input('old_ip');
             $assetLog->save();
         }
-        $data['ip_name'] = $request->ip_name;
+        $data['ip_name'] = json_encode($request->ip_name);
+        $data['server_update'] = json_encode($request->server_update);
         //dd($data);
         AssetsManager::find($id)->update($data);
 

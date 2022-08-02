@@ -174,6 +174,17 @@
       $('#asset_amount').val(asset.amount);
       $('#usage').val(asset.usage);
       $('#capacity').val(asset.capacity);
+      $(".addUpdIpName").html("");
+      $.each(JSON.parse(asset.ip_name),function(key,value){
+          var addIpName = '<br/><input type="text" name="ip_name[]" id="ip_name'+key+'" class="form-control"  value="'+value+'" >';
+          $(".addUpdIpName").append(addIpName);
+      });
+      $(".addServerUpdate").html("");
+      $.each(JSON.parse(asset.server_update),function(key,value){
+          var addserver = '<br/><input type="text" name="server_update[]" id="server_update'+key+'" class="form-control"  value="'+value+'" >';
+          $(".addServerUpdate").append(addserver);
+      });
+      $('#server_password').val(asset.server_password);
     });
     $(document).on('click', '.expand-row-msg', function () {
       var name = $(this).data('name');
@@ -317,6 +328,37 @@
           });
         });
 
+      });
+      $( ".updIpNamebtn" ).bind( "click", function() {
+          var getCount = $(".getUpdCount").val();
+          getCount = (parseInt(getCount) + parseInt(1));
+          $(".getUpdCount").val(getCount);
+          var addIpName = '<br/><input type="text" name="ip_name[]" id="ip_name'+getCount+'" class="form-control"  value="" >';
+          $(".addUpdIpName").append(addIpName);
+      });
+
+      $( ".insIpNamebtn" ).bind( "click", function() {
+          var getCount = $(".getInsCount").val();
+          getCount = (parseInt(getCount) + parseInt(1));
+          $(".getInsCount").val(getCount);
+          var addIpName = '<br/><input type="text" name="ip_name[]" id="ip_name'+getCount+'" class="form-control"  value="" >';
+          $(".addInsIpName").append(addIpName);
+      });
+      
+      $( ".serverUpdbtn" ).bind( "click", function() {
+          var getServerUpdCount = $(".getServerUpdCount").val();
+          getServerUpdCount = (parseInt(getServerUpdCount) + parseInt(1));
+          $(".getServerUpdCount").val(getServerUpdCount);
+          var addServerUpdate = '<br/><input type="text" name="server_update[]" id="server_update'+getServerUpdCount+'" class="form-control"  value="" >';
+          $(".addServerUpdate").append(addServerUpdate);
+      });
+
+      $( ".serverInsbtn" ).bind( "click", function() {
+          var getInsServerCount = $(".getInsServerCount").val();
+          getInsServerCount = (parseInt(getInsServerCount) + parseInt(1));
+          $(".getInsServerCount").val(getInsServerCount);
+          var addInsServerUpdate = '<br/><input type="text" name="server_update[]" id="server_update'+getInsServerCount+'" class="form-control"  value="" >';
+          $(".addInsServerUpdate").append(addInsServerUpdate);
       });
 
   </script>
