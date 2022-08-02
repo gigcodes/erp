@@ -1054,19 +1054,18 @@ class HubstaffActivitiesController extends Controller {
     }
 
     public function userTreckTime(Request $request, $params = null, $where = null) {
-        $title      = "Hubstaff Activities";
+        $title = "Hubstaff Activities";
         $start_date = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
-        $end_date   = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-1 days"));
-        $user_id    = $request->user_id ? $request->user_id : null;
-        $task_id    = $request->task_id ? $request->task_id : null;
-        $task_status    = $request->task_status ? $request->task_status : null;
-        $developer_task_id    = $request->developer_task_id ? $request->developer_task_id : null;
+        $end_date = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-1 days"));
+        $user_id = $request->user_id ? $request->user_id : null;
+        $task_id = $request->task_id ? $request->task_id : null;
+        $task_status = $request->task_status ? $request->task_status : null;
+        $developer_task_id = $request->developer_task_id ? $request->developer_task_id : null;
         $status = $request->task_status ? $request->task_status : null;
 
         $taskIds = [];
-        if (!empty($developer_task_id)) {
-
-            $developer_tasks    = \App\DeveloperTask::find($developer_task_id);
+        if ($developer_task_id) {
+            $developer_tasks = \App\DeveloperTask::find($developer_task_id);
             if (!empty($developer_tasks)) {
                 if (!empty($developer_tasks->hubstaff_task_id)) {
                     $taskIds[] = $developer_tasks->hubstaff_task_id;
@@ -1091,10 +1090,7 @@ class HubstaffActivitiesController extends Controller {
         }
 
         if (!empty($task_id)) {
-            //\DB::enableQueryLog();
-            $developer_tasks    = \App\Task::where('tasks.id', '=', $task_id)->pluck('tasks.hubstaff_task_id');
-            //dd(\DB::getQueryLog()); 
-
+            $developer_tasks = \App\Task::where('tasks.id', '=', $task_id)->pluck('tasks.hubstaff_task_id');
             if (!empty($developer_tasks)) {
                 if (!empty($developer_tasks->hubstaff_task_id)) {
                     $taskIds[] = $developer_tasks->hubstaff_task_id;
@@ -1106,33 +1102,36 @@ class HubstaffActivitiesController extends Controller {
         }
 
         if (!empty($taskIds) || !empty($task_id) || !empty($developer_task_id)) {
-
             if (is_array($taskIds) && !empty($taskIds)) {
-                $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereIn('hubstaff_activities.task_id', $taskIds)->whereDate('hubstaff_activities.starts_at', '>=', $start_date)->whereDate('hubstaff_activities.starts_at', '<=', $end_date);
+                $query = HubstaffActivity::query()
+                    ->leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')
+                    ->whereIn('hubstaff_activities.task_id', $taskIds)
+                    ->whereDate('hubstaff_activities.starts_at', '>=', $start_date)
+                    ->whereDate('hubstaff_activities.starts_at', '<=', $end_date);
             } else {
-                //dd(gettype($developer_tasks->toArray()), count($developer_tasks));
                 $developer_tasks = array_unique($developer_tasks->toArray());
-                //\DB::enableQueryLog();
-                $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereIn('hubstaff_activities.task_id', $developer_tasks)->whereDate('hubstaff_activities.starts_at', '>=', $start_date)->whereDate('hubstaff_activities.starts_at', '<=', $end_date);
-                //dd(\DB::getQueryLog(), $query); 
+                $query = HubstaffActivity::query()
+                    ->leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')
+                    ->whereIn('hubstaff_activities.task_id', $developer_tasks)
+                    ->whereDate('hubstaff_activities.starts_at', '>=', $start_date)
+                    ->whereDate('hubstaff_activities.starts_at', '<=', $end_date);
             }
         } else {
             //START - Purpose : Add Date Temporary Remove this code - DEVATSK-4300
             // $start_date = '2020-09-01';
             // $end_date = '2020-09-02';
             //END - DEVATSK-4300
-            $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=', $start_date)->whereDate('hubstaff_activities.starts_at', '<=', $end_date);
+            $query = HubstaffActivity::query()
+                ->leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')
+                // ->whereBetween('hubstaff_activities.starts_at', [$start_date, $end_date]);
+                ->where('hubstaff_activities.starts_at', '>=', $start_date)
+                ->where('hubstaff_activities.starts_at', '<=', $end_date);
         }
 
         if (Auth::user()->isAdmin()) {
-
-            $query = $query;
-            $users = User::all()->pluck('name', 'id')->toArray();
+            $users = User::orderBy('name')->pluck('name', 'id')->toArray();
         } else {
-
             $members = Team::join('team_user', 'team_user.team_id', 'teams.id')->where('teams.user_id', Auth::user()->id)->distinct()->pluck('team_user.user_id');
-
-
             if (!count($members)) {
                 $members = [Auth::user()->id];
             } else {
@@ -1183,8 +1182,9 @@ class HubstaffActivitiesController extends Controller {
             "hubstaff_activity_summaries.id AS ha_summ_id"
         );
 
-        // _p($query->toSql());
+        // _pq($query); exit;
 
+        
         $activities = $query->orderBy('date', 'desc')->get();
         // _p($activities->toArray());
         // exit;
@@ -1227,8 +1227,6 @@ class HubstaffActivitiesController extends Controller {
                 'total_hours' => $activity->tracked,
                 'activity_levels' => $activity->overall / $activity->tracked * 100,
                 'overall' => $activity->overall,
-
-
             ];
         }
         /*
