@@ -1131,15 +1131,15 @@ class HubstaffActivitiesController extends Controller {
         if (Auth::user()->isAdmin()) {
             $users = User::orderBy('name')->pluck('name', 'id')->toArray();
         } else {
-            $members = Team::join('team_user', 'team_user.team_id', 'teams.id')->where('teams.user_id', Auth::user()->id)->distinct()->pluck('team_user.user_id');
-            if (!count($members)) {
-                $members = [Auth::user()->id];
-            } else {
-                $members[] = Auth::user()->id;
-            }
-            $query = $query->whereIn('hubstaff_members.user_id', $members);
+            // $members = Team::join('team_user', 'team_user.team_id', 'teams.id')->where('teams.user_id', Auth::user()->id)->distinct()->pluck('team_user.user_id');
+            // if (!count($members)) {
+            //     $members = [Auth::user()->id];
+            // } else {
+            //     $members[] = Auth::user()->id;
+            // }
+            // $query = $query->whereIn('hubstaff_members.user_id', $members);
 
-            $users = User::whereIn('id', $members)->pluck('name', 'id')->toArray();
+            $users = User::whereIn('id', [Auth::user()->id])->pluck('name', 'id')->toArray();
         }
 
         if ($request->user_id) {
@@ -1182,12 +1182,33 @@ class HubstaffActivitiesController extends Controller {
             "hubstaff_activity_summaries.id AS ha_summ_id"
         );
 
-        // _pq($query); exit;
-
+        if(request('printQ')){
+            _pq($query);
+            $starttime = microtime(true);
+            _p('START: '.$starttime);
+        }
+        
         
         $activities = $query->orderBy('date', 'desc')->get();
-        // _p($activities->toArray());
-        // exit;
+        if(request('printQ')){
+            $endtime = microtime(true);
+            _p('END: '.$endtime);
+            // _p($activities->count());
+
+            $diff = $endtime - $starttime;
+            _p($diff);
+            // Break the difference into seconds and microseconds
+            $sec = intval($diff);
+            _p($sec);
+            $micro = $diff - $sec;
+            _p($micro);
+
+            // Format the result as you want it
+            // $final will contain something like "00:00:02.452"
+            $final = strftime('%T', mktime(0, 0, $sec)) . str_replace('0.', '.', sprintf('%.3f', $micro));
+            _p($final);
+        }
+        
 
         $title = "User Track";
         $userTrack = [];
@@ -1228,6 +1249,10 @@ class HubstaffActivitiesController extends Controller {
                 'activity_levels' => $activity->overall / $activity->tracked * 100,
                 'overall' => $activity->overall,
             ];
+        }
+
+        if(request('printExit')){
+            exit;
         }
         /*
         UserTrackTime::create([
