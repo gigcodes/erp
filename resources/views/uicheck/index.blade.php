@@ -962,7 +962,9 @@
 			searchDelay: 500,
 			processing: true,
 			serverSide: true,
-			sScrollX:true,
+			autoWidth: true,
+			scrollX: 'true',
+			// sScrollX:true,
 			searching: false,
 			order: [
 				[0, 'desc']

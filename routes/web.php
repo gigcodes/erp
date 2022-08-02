@@ -43,7 +43,10 @@ Route::get('/test/analytics-user', 'AnalyticsController@cronGetUserShowData')->n
 
 Route::get('/test/dhl', 'TmpTaskController@test');
 Route::get('/store/unknown/sizes', 'ScrapController@storeUnknownSizes');
+Route::get('criteria/get/{id}', 'PositionController@list')->name('get.criteria');
 
+    Route::get('vendors/create-cv/{id}', 'VendorResumeController@create')->name('vendors.create.cv');
+    Route::post('vendors/cv/store', 'VendorResumeController@store')->name('vendor.cv.store');
 Route::middleware('auth')->group(function () {
     Route::get('discount-sale-price', 'DiscountSalePriceController@index');
     Route::delete('discount-sale-price/{id}', 'DiscountSalePriceController@delete');
@@ -1816,8 +1819,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('negative/coupon/response', 'NegativeCouponResponseController@index')->name('negative.coupon.response');
     Route::get('negative/coupon/response/search', 'NegativeCouponResponseController@search')->name('negative.coupon.response.search');
+   
+    //Position
+    Route::post('positions/store', 'PositionController@store')->name('positions.store');
+    
+
 
     Route::post('vendors/cv/store', 'VendorResumeController@store')->name('vendor.cv.store');
+
     Route::get('vendors/cv/index', 'VendorResumeController@index')->name('vendor.cv.index');
     Route::get('vendors/cv/search', 'VendorResumeController@search')->name('vendor.cv.search');
     Route::post('vendors/cv/get-work-experience', 'VendorResumeController@getWorkExperience')->name('vendors.cv.get-work-experience');
