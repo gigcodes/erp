@@ -2118,13 +2118,16 @@ class UserManagementController extends Controller {
                                         $class = 'text-secondary';
                                         $display = '<s>' . $slot . ' (' . $slotStatus . ')</s>';
                                     } else if ($slotStatus == 'NA') {
-                                        $class = 'text-danger';
+                                        $class = 'text-secondary';
+                                        // $class = 'text-danger';
                                         $display = '<s>' . $slot . ' (' . $slotStatus . ')</s>';
                                     } else if ($slotStatus == 'LUNCH') {
-                                        $class = 'text-warning';
+                                        $class = 'text-secondary';
+                                        // $class = 'text-warning';
                                         $display = '<s>' . $slot . ' (' . $slotStatus . ')</s>';
                                     } else if ($slotStatus == 'AVL') {
-                                        $class = 'text-success';
+                                        $class = 'text-secondary';
+                                        // $class = 'text-success';
                                         $display = $slot . ' <a href="javascript:void(0);" data-user_id="' . $finalRow['id'] . '" data-date="' . $finalRow['date'] . '" data-slot="' . $slotKey . '" onclick="funSlotAssignModal(this);" >(AVL)</a>';
                                     } else {
                                         $display = $slot . ' (' . $slotStatus . ')';

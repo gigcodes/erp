@@ -3452,14 +3452,16 @@ class TaskModuleController extends Controller {
         try {
             $dataArr = [];
             if ($userId = request('userId')) {
-                $dTasks = DeveloperTask::where('assigned_to', $userId)->whereNotIn('status', ['Done', 'User Complete'])->orderBy('id', 'DESC')->limit(10)->get();
+                $dTasks = DeveloperTask::where('assigned_to', $userId)
+                    ->whereNotIn('status', ['Done', 'User Complete'])
+                    ->orderBy('id', 'DESC')->limit(10)->get();
                 foreach ($dTasks as $key => $dTask) {
-                    $dataArr['Developer Tasks']['DT-' . $dTask->id] = $dTask->subject;
+                    $dataArr['Developer Tasks']['DT-' . $dTask->id] = '(DT-' . $dTask->id . ') - ' . $dTask->subject;
                 }
 
                 $tasks = Task::where('assign_to', $userId)->whereNotIn('status', [1, 15])->orderBy('id', 'DESC')->limit(10)->get();
                 foreach ($tasks as $key => $task) {
-                    $dataArr['Tasks']['T-' . $task->id] = $task->task_subject;
+                    $dataArr['Tasks']['T-' . $task->id] = '(T-' . $dTask->id . ') - ' . $task->task_subject;
                 }
             }
             return response()->json([
