@@ -1092,14 +1092,16 @@ class HubstaffActivitiesController extends Controller {
         if (Auth::user()->isAdmin()) {
             $users = User::orderBy('name')->pluck('name', 'id')->toArray();
         } else {
-            // $members = Team::join('team_user', 'team_user.team_id', 'teams.id')->where('teams.user_id', Auth::user()->id)->distinct()->pluck('team_user.user_id');
-            // if (!count($members)) {
-            //     $members = [Auth::user()->id];
-            // } else {
-            //     $members[] = Auth::user()->id;
-            // }
-            // $query = $query->whereIn('hubstaff_members.user_id', $members);
-
+            if (request('printQ')) {
+            } else {
+                $members = Team::join('team_user', 'team_user.team_id', 'teams.id')->where('teams.user_id', Auth::user()->id)->distinct()->pluck('team_user.user_id');
+                if (!count($members)) {
+                    $members = [Auth::user()->id];
+                } else {
+                    $members[] = Auth::user()->id;
+                }
+                $query = $query->whereIn('hubstaff_members.user_id', $members);
+            }
             $users = User::whereIn('id', [Auth::user()->id])->pluck('name', 'id')->toArray();
         }
 
