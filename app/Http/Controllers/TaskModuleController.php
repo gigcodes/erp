@@ -2786,46 +2786,24 @@ class TaskModuleController extends Controller {
         return response()->json(['histories' => $task_histories]);
     }
 
-    /**
-     * This function is use for create task due data log history
-     * 
-     * @param mixed $request
-     * @return JsonResponce
-     */
-    public function createTaskDueDateHistoryLog($request) {
-        try {
-            TaskDueDateHistoryLog::create([
-                'task_id' => $request->task_id,
-                'task_type' => $request->type,
-                'updated_by' => Auth::id(),
-                'old_due_date' => $request->old_due_date,
-                'new_due_date' => $request->date,
-            ]);
-            return response()->json(['code' => 200, 'message' => 'Successfully updated'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['code' => 500, 'error' => $e->getMessage], 200);
-        }
-    }
-
     public function updateTaskDueDate(Request $request) {
+        if ($new = request('value')) {
+            if ($task = Task::find(request('task_id'))) {
+                $oldValue = $task->due_date;
 
-        if ($request->type == 'TASK') {
-            $task = Task::find($request->task_id);
-            if ($request->date) {
-                $task->update(['due_date' => $request->date]);
-                $this->createTaskDueDateHistoryLog($request);
+                $task->update(['due_date' => $new]);
+                TaskDueDateHistoryLog::create([
+                    'task_id' => $task->id,
+                    'task_type' => 'TASK',
+                    'updated_by' => Auth::id(),
+                    'old_due_date' => $oldValue,
+                    'new_due_date' => $task->due_date,
+                ]);
+                return respJson(200, 'Successfully updated.');
             }
-        } else {
-            if ($request->date) {
-                DeveloperTask::where('id', $request->task_id)
-                    ->update(['due_date' => $request->date]);
-                $this->createTaskDueDateHistoryLog($request);
-            }
+            return respJson(404, 'No task found.');
         }
-
-        return response()->json([
-            'message' => 'Successfully updated'
-        ], 200);
+        return respJson(400, 'Due date is required.');
     }
 
     public function taskCreateGetRemark(Request $request) {

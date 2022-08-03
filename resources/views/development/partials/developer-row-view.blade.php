@@ -305,7 +305,7 @@
     <td>
         <?php echo $issue->language; ?>
 
-        <div class="dropdown">
+        <div class="dropdown dropleft">
             <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$issue->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Actions
             </a>

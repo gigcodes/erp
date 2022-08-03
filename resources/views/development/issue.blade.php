@@ -198,7 +198,7 @@
 
 
     <div id="modalDevelopmentTaskStartTimeUpdate" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Start Date Update</h4>
@@ -206,7 +206,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <label>Start Date:</label>
                             <div class="form-group" >
                                 <div class='input-group date cls-start-due-date'>

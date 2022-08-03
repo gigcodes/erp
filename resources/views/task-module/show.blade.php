@@ -4202,15 +4202,12 @@ $(document).on("click",".btn-save-documents",function(e){
                 url: "{!! route('task.update.due_date') !!}",
                 type: 'post',
                 data: {
-                    task_id : jQuery('#modalTaskDueDateUpdate').attr('data-task_id'),
-                    date : jQuery('#mdl_due_date').val(),
-                    type : "TASK",
-                    old_due_date : jQuery(currDueDateUpdateEle).attr('data-curr_value')
+                    task_id: jQuery('#modalTaskDueDateUpdate').attr('data-task_id'),
+                    value: jQuery('#mdl_due_date').val(),
                 }
             }).done(function (response) {
                 siteLoader(0);
                 siteSuccessAlert(response);
-                // toastr['success']('Successfully updated');
                 jQuery('#modalTaskDueDateUpdate').modal('hide');
                 jQuery(currDueDateUpdateEle).attr('data-curr_value', jQuery('#mdl_due_date').val());
             }).fail(function (errObj) {
@@ -4251,9 +4248,7 @@ $(document).on("click",".btn-save-documents",function(e){
 
 
         jQuery(document).ready(function () {
-            jQuery('.cls-start-due-date').datetimepicker({
-                format: 'YYYY-MM-DD HH:mm:ss'
-            });
+            applyDateTimePicker(jQuery('.cls-start-due-date'));
         });
     </script>
 @endsection
