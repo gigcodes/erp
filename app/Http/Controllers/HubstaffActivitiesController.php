@@ -1056,6 +1056,11 @@ class HubstaffActivitiesController extends Controller {
     public function userTreckTime(Request $request, $params = null, $where = null) {
         $title = "Hubstaff Activities";
 
+        $printQ = request('printQ');
+        $printQExit = request('printQExit');
+        $printAll = request('printAll');
+        $printExit = request('printExit');
+
         $start_date = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
         $end_date = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-1 days"));
         $user_id = $request->user_id ? $request->user_id : null;
@@ -1092,7 +1097,7 @@ class HubstaffActivitiesController extends Controller {
         if (Auth::user()->isAdmin()) {
             $users = User::orderBy('name')->pluck('name', 'id')->toArray();
         } else {
-            if (request('printQ')) {
+            if ($printAll) {
             } else {
                 $members = Team::join('team_user', 'team_user.team_id', 'teams.id')->where('teams.user_id', Auth::user()->id)->distinct()->pluck('team_user.user_id');
                 if (!count($members)) {
@@ -1126,8 +1131,7 @@ class HubstaffActivitiesController extends Controller {
             $join->on('hubstaff_activity_summaries.created_at', '=', 'hub_summary.created_at');
         });
         $query->groupBy("hubstaff_activity_summaries.date", "hubstaff_activity_summaries.user_id");
-
-
+        $query->orderBy('hubstaff_activities.starts_at', 'desc');
         $query->select(
             "hubstaff_activities.user_id",
             "hubstaff_activities.tracked",
@@ -1145,33 +1149,38 @@ class HubstaffActivitiesController extends Controller {
             "hubstaff_activity_summaries.id AS ha_summ_id"
         );
 
-        if (request('printQ')) {
-            _pq($query);
+        if ($printQ) {
             $starttime = microtime(true);
             _p('START: ' . $starttime);
+
+            _pq($query);
+            if ($printQExit) {
+                exit;
+            }
         }
 
-        $query->orderBy('hubstaff_activities.starts_at', 'desc');
         $activities = $query->get();
-        // _p($activities->toArray(), 1);
 
-        if (request('printQ')) {
+        if ($printExit) {
             $endtime = microtime(true);
             _p('END: ' . $endtime);
             // _p($activities->count());
 
             $diff = $endtime - $starttime;
-            _p($diff);
+            _p('DIFF: ' . $diff);
             // Break the difference into seconds and microseconds
             $sec = intval($diff);
-            _p($sec);
+            _p('SEC: ' . $sec);
+
             $micro = $diff - $sec;
-            _p($micro);
+            _p('MICRO: ' . $micro);
 
             // Format the result as you want it
             // $final will contain something like "00:00:02.452"
             $final = strftime('%T', mktime(0, 0, $sec)) . str_replace('0.', '.', sprintf('%.3f', $micro));
-            _p($final);
+            _p('FINAL: ' . $final);
+
+            _p($activities->toArray(), 1);
         }
 
 
