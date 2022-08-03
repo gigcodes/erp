@@ -830,23 +830,6 @@ input.cmn-toggle-round + label {
                                                 @endif
                                             @endif
 
-                                            <label for="" style="font-size: 12px;margin-top:10px;">Due date :</label>
-                                            <div class="d-flex">
-                                                <div class="form-group" style="padding-top:5px;width:70%;">
-                                                    <div class='input-group date due-datetime'>
-
-                                                        <input type="text" class="form-control input-sm due_date_cls" name="due_date" value="{{$taskDueDate}}"/>
-
-                                                        <span class="input-group-addon">
-                                                            <span class="glyphicon glyphicon-calendar"></span>
-                                                        </span>
-
-                                                    </div>
-                                                </div>
-                                                <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{ $task->id }}" data-old_due_date="{{$taskDueDate}}"><img style="padding: 0;margin-top: -14px;width:15%;" src="{{asset('images/filled-sent.png')}}"/></button>
-                                                <button style="float:right;padding-right:0px;width:15%;" type="button" class="btn btn-xs" title="Show History" data-task_type="TASK" data-taskid="{{ $task->id }}"><i class="fa fa-info-circle get_due_date_history_log" data-task_type="TASK" data-taskid="{{ $task->id }}"></i></button>
-                                            </div>
-
                                             @if($task->is_milestone)
                                                 <p style="margin-bottom:0px;">Total : {{$task->no_of_milestone}}</p>
                                                 @if($task->no_of_milestone == $task->milestone_completed)
@@ -860,25 +843,17 @@ input.cmn-toggle-round + label {
                                         </div>
                                     </td>
                                     <td>
-
-                                            
-
-                                            
-                                            <select id="master_user_id" class="form-control change-task-status select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
-                                                <option value="">Select...</option>
-                                                <?php $masterUser = isset($task->master_user_id) ? $task->master_user_id : 0; ?>
-                                                @foreach($task_statuses as $index => $status)
-                                                    @if( $status->id == $task->status )
-                                                        <option value="{{$status->id}}" selected>{{ $status->name }}</option>
-                                                    @else
-                                                        <option value="{{$status->id}}">{{ $status->name }}</option>
-                                                    @endif
-                                                @endforeach
-                                            </select>
-                                           
-                                               
-                                         
-
+                                        <select id="master_user_id" class="form-control change-task-status select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
+                                            <option value="">Select...</option>
+                                            <?php $masterUser = isset($task->master_user_id) ? $task->master_user_id : 0; ?>
+                                            @foreach($task_statuses as $index => $status)
+                                                @if( $status->id == $task->status )
+                                                    <option value="{{$status->id}}" selected>{{ $status->name }}</option>
+                                                @else
+                                                    <option value="{{$status->id}}">{{ $status->name }}</option>
+                                                @endif
+                                            @endforeach
+                                        </select>
                                     </td>
                                     <td>
                                         @if (isset($special_task->timeSpent) && $special_task->timeSpent->task_id > 0)
@@ -1031,13 +1006,16 @@ input.cmn-toggle-round + label {
                                             </div>
                                         </div>
 
-                                        <div class="dropdown">
+                                        <div class="dropdown dropleft">
                                             <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$task->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                 Actions
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$task->id}}">
                                                 <a class="dropdown-item" href="javascript:void(0);" data-task_id="{{$task->id}}" data-start_date="{{$task->start_date}}" onclick="funTaskStartDateModal(this)" >Start Time: Update</a>
                                                 <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskStartDateHistory('{{$task->id}}')" >Start Time: View History</a>
+
+                                                <a class="dropdown-item" href="javascript:void(0);" data-task_id="{{$task->id}}" data-curr_value="{{$taskDueDate}}" onclick="funTaskDueDateModal(this)" >Due Date Time: Update</a>
+                                                <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskDueDateHistory('{{$task->id}}')" >Due Date Time: View History</a>
                                             </div>
                                         </div>
                                     </td>
@@ -1329,32 +1307,7 @@ input.cmn-toggle-round + label {
     </div>
 </div>
 
-<div id="preview-task-due-date-history-log-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-        	<div class="modal-body">
-    			<div class="col-md-12">
-	        		<table class="table table-bordered">
-					    <thead>
-					      <tr>
-					        <th style="width:1%;">ID</th>
-					        <th style=" width: 12%">Update By</th>
-					        <th style="word-break: break-all; width:12%">Old Due date</th>
-                            <th style="word-break: break-all; width:12%">New Due date</th>
-					        <th style="width: 11%">Created at</th>
-                          </tr>
-					    </thead>
-					    <tbody class="task-due-date-list-view">
-					    </tbody>
-					</table>
-				</div>
-			</div>
-           <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 <div id="file-upload-area-section" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -1489,7 +1442,7 @@ input.cmn-toggle-round + label {
 
 
     <div id="modalTaskStartTimeUpdate" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Update Task's Start Date</h4>
@@ -1497,8 +1450,8 @@ input.cmn-toggle-round + label {
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-6">
-                            <label>Start Date:</label>
+                        <div class="col-md-12">
+                            <label>Start Date Time:</label>
                             <div class="form-group" >
                                 <div class='input-group date cls-start-due-date'>
                                     <input type="text" class="form-control input-sm" id="start_date" name="start_date" value="" />
@@ -1533,6 +1486,65 @@ input.cmn-toggle-round + label {
                                 <th width="20%" style="word-break: break-all;">Old Value</th>
                                 <th width="20%" style="word-break: break-all;">New Value</th>
                                 <th width="20%" >Created at</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalTaskDueDateUpdate" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Update Due Date</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label>Due Date Time:</label>
+                            <div class="form-group" >
+                                <div class='input-group date cls-start-due-date'>
+                                    <input type="text" class="form-control input-sm" id="mdl_due_date" name="mdl_due_date" value="" />
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="funTaskDueDateUpdate()" >Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="preview-task-due-date-history-log-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">History for Due Date</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th style="width:1%;">ID</th>
+                                <th style=" width: 12%">Update By</th>
+                                <th style="word-break: break-all; width:12%">Old Due date</th>
+                                <th style="word-break: break-all; width:12%">New Due date</th>
+                                <th style="width: 11%">Created at</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -1592,7 +1604,7 @@ input.cmn-toggle-round + label {
     </script>    
 
 
-    <script>
+<script>
         var taskSuggestions = {!! json_encode($search_suggestions, true) !!};
         var searchSuggestions = {!! json_encode($search_term_suggestions, true) !!};
         var cached_suggestions = localStorage['message_suggestions'];
@@ -2358,33 +2370,7 @@ input.cmn-toggle-round + label {
             $(this).closest("tr").find(".expand-col").toggleClass('dis-none');
         });
 
-        $(document).on('click', '.set-due-date', function () {
-            var thiss = $(this);
-            var task_id = $(this).data('taskid');
-            var date = $(this).siblings().find('.due_date_cls').val();
-            var oldDueDate = $(this).data('old_due_date');
-            if (date != '') {
-                $.ajax({
-                        url: "{{route('task.update.due_date')}}",
-                        type: 'post',
-                        headers: {
-                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                        },
-                        "data": {
-                            task_id : task_id,
-                            date : date,
-                            type : "TASK",
-                            old_due_date : oldDueDate
-                        }
-                    }).done(function (response) {
-                        toastr['success']('Successfully updated');
-                    }).fail(function (errObj) {
-                        toastr['error'](errObj.message);
-                    });
-            } else {
-                alert('Please enter a date first');
-            }
-        });
+        
 
         $(document).on("click",".set-remark",function(e) {
             $('.remark_pop').val("");
@@ -2456,36 +2442,7 @@ input.cmn-toggle-round + label {
         }
 
 
-        $(document).on("click",".get_due_date_history_log",function(e) {
-            var task_id = $(this).data('taskid');
-            var task_type = $(this).data('task_type');
-            $.ajax({
-                type: "POST",
-                url: "{{route('task.get.due_date_history_log')}}",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    task_id : task_id,
-                    type : task_type,
-                },
-                beforeSend: function () {
-                    $("#loading-image").show();
-                }
-            }).done(function (response) {
-                if(response.code == 200) {
-                    $("#loading-image").hide();
-                    $("#preview-task-due-date-history-log-modal").modal("show");
-                    $(".task-due-date-list-view").html(response.data);
-                    toastr['success'](response.msg);
-                }else{
-                    $("#loading-image").hide();
-                    toastr['error'](response.msg);
-                }
-                
-            }).fail(function (response) {
-                $("#loading-image").hide();
-                toastr['error'](response.msg);
-            });
-        });
+        
         // $(document).on('click', '.create-task-btn', function () {
         //     $.ajax({
         //         type: "GET",
@@ -4156,7 +4113,7 @@ $(document).on("click",".btn-save-documents",function(e){
 
         
 
-    </script>
+</script>
 
     <script>
         var currStartDateUpdateEle = null;
@@ -4216,6 +4173,7 @@ $(document).on("click",".btn-save-documents",function(e){
                 mdl.modal("show");
                 // toastr['success'](response.msg);
             }).fail(function (errObj) {
+                jQuery("#loading-image").hide();
                 if(errObj.responseJSON != undefined){
                     toastr['error'](errObj.responseJSON.message);
                 }
@@ -4227,6 +4185,70 @@ $(document).on("click",".btn-save-documents",function(e){
                 }
             });
         }
+
+
+        var currDueDateUpdateEle = null;
+        function funTaskDueDateModal(ele){
+            currDueDateUpdateEle = ele;
+            jQuery('#modalTaskDueDateUpdate').modal('show');
+            jQuery('#modalTaskDueDateUpdate').attr('data-task_id', jQuery(ele).attr('data-task_id'));
+            jQuery('#mdl_due_date').val(jQuery(ele).attr('data-curr_value'));
+        }
+        function funTaskDueDateUpdate(){
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{!! route('task.update.due_date') !!}",
+                type: 'post',
+                data: {
+                    task_id : jQuery('#modalTaskDueDateUpdate').attr('data-task_id'),
+                    date : jQuery('#mdl_due_date').val(),
+                    type : "TASK",
+                    old_due_date : jQuery(currDueDateUpdateEle).attr('data-curr_value')
+                }
+            }).done(function (response) {
+                siteLoader(0);
+                siteSuccessAlert(response);
+                // toastr['success']('Successfully updated');
+                jQuery('#modalTaskDueDateUpdate').modal('hide');
+                jQuery(currDueDateUpdateEle).attr('data-curr_value', jQuery('#mdl_due_date').val());
+            }).fail(function (errObj) {
+                siteLoader(0);
+                siteErrorAlert(errObj);
+            });
+        }
+        function funTaskDueDateHistory(task_id){
+            let mdl = jQuery('#preview-task-due-date-history-log-modal');
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{!! route('task.get.due_date_history_log') !!}",
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    task_id : task_id,
+                    type : 'TASK',
+                },
+                beforeSend: function () {
+                    siteLoader(1);
+                }
+            }).done(function (response) {
+                siteLoader(0);
+                if(response.data){
+                    mdl.find('tbody').html(response.data);
+                    mdl.modal("show");    
+                }
+                else{
+                    siteErrorAlert(response);
+                }
+            }).fail(function (errObj) {
+                siteLoader(0);
+                siteErrorAlert(errObj);
+            });
+        }
+
 
         jQuery(document).ready(function () {
             jQuery('.cls-start-due-date').datetimepicker({

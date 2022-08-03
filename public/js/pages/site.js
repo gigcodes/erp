@@ -29,6 +29,8 @@ function siteErrorAlert(err) {
     siteAlert(0, err.responseJSON.message);
   } else if (err.message != undefined) {
     siteAlert(0, err.message);
+  } else if (err.msg != undefined) {
+    siteAlert(0, err.msg);
   } else if (err) {
     siteAlert(0, err);
   } else {
