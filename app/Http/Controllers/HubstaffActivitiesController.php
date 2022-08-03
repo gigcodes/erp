@@ -1186,6 +1186,10 @@ class HubstaffActivitiesController extends Controller {
             _p('$activities->count(): '.$activities->count());
         }
 
+        if ($printExit) {
+            dd(\DB::getQueryLog());
+            exit;
+        }
 
         $title = "User Track";
         $userTrack = [];
@@ -1242,11 +1246,6 @@ class HubstaffActivitiesController extends Controller {
             //     'activity_levels' => $activity['overall'] / $activity['tracked'] * 100, 
             //     'overall' => $activity['overall'],
             // ];
-        }
-
-        if ($printExit) {
-            dd(\DB::getQueryLog());
-            exit;
         }
 
         return view("hubstaff.activities.track-users", compact('userTrack', 'title', 'users', 'start_date', 'end_date', 'status', 'user_id'));
