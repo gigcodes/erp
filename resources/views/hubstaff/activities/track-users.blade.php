@@ -118,6 +118,7 @@
                     @endphp
 
                     @foreach ($userNew as $index => $user)
+                    
                     <tr>
                         <td>{{ \Carbon\Carbon::parse($user['date'])->format('Y-m-d') }} </td>
                         <td class="expand-row-msg Website-task" data-name="userName" data-id="{{$index}}">

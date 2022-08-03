@@ -1060,6 +1060,7 @@ class HubstaffActivitiesController extends Controller {
         $printQExit = request('printQExit');
         $printAll = request('printAll');
         $printExit = request('printExit');
+        $trackExcludeGroupBy = request('trackExcludeGroupBy');
 
         \DB::enableQueryLog();
 
@@ -1132,7 +1133,11 @@ class HubstaffActivitiesController extends Controller {
             $join->on('hubstaff_activity_summaries.user_id', '=', 'hub_summary.user_id');
             $join->on('hubstaff_activity_summaries.created_at', '=', 'hub_summary.created_at');
         });
-        $query->groupBy("hubstaff_activity_summaries.date", "hubstaff_activity_summaries.user_id");
+
+        // if($trackExcludeGroupBy){
+            
+        // }
+        // $query->groupBy("hubstaff_activity_summaries.date", "hubstaff_activity_summaries.user_id");
         $query->orderBy('hubstaff_activities.starts_at', 'desc');
         $query->select(
             "hubstaff_activities.user_id",
@@ -1144,15 +1149,11 @@ class HubstaffActivitiesController extends Controller {
             "users.name as userName",
             "tasks.id as task_table_id",
             "developer_tasks.id as developer_task_table_id",
-            "hubstaff_activity_summaries.created_at AS ha_summ_created_at",
-            "hubstaff_activity_summaries.date AS ha_summ_date",
-            "hubstaff_activity_summaries.user_id AS ha_summ_user_id",
-            "hubstaff_activity_summaries.accepted AS ha_summ_accepted",
-            "hubstaff_activity_summaries.id AS ha_summ_id"
+            "hubstaff_activity_summaries.accepted AS ha_summ_accepted"
         );
 
+        $starttime = microtime(true);
         if ($printQ) {
-            $starttime = microtime(true);
             _p('START: ' . $starttime);
 
             _pq($query);
@@ -1182,7 +1183,7 @@ class HubstaffActivitiesController extends Controller {
             $final = strftime('%T', mktime(0, 0, $sec)) . str_replace('0.', '.', sprintf('%.3f', $micro));
             _p('FINAL: ' . $final);
 
-            _p($activities->toArray());
+            _p('$activities->count(): '.$activities->count());
         }
 
 
@@ -1212,7 +1213,8 @@ class HubstaffActivitiesController extends Controller {
             // }
 
             $userTrack[] = [
-                'date' => $activity->starts_at,
+                'date' => \Carbon\Carbon::parse($activity->starts_at)->format('Y-m-d'),
+                // 'fullDate' => $activity->starts_at,
                 'user_id' => $activity->user_id,
                 'userName' => $activity->userName ?? '',
                 'hubstaff_tracked_hours' => $activity->tracked,
@@ -1225,31 +1227,28 @@ class HubstaffActivitiesController extends Controller {
                 'activity_levels' => $activity->overall / $activity->tracked * 100,
                 'overall' => $activity->overall,
             ];
+
+            // $userTrack[] = [
+            //     'date' => $activity->date,
+            //     'user_id' => $activity['user_id'], 
+            //     'userName' => $activity->userName ?? '', 
+            //     'hubstaff_tracked_hours' => $activity['tracked'], 
+            //     'hours_tracked_with' => $activity['tracked'] !=0 ? $activity['tracked'] : '0', 
+            //     'hours_tracked_without' => $activity['task_id'] ==0 ? $activity['tracked'] : '0', 
+            //     'task_id' => $developer_tasks->id ?? '0', 
+            //     'approved_hours' => $hubActivitySummery->accepted ?? '0', 
+            //     'difference_hours' => isset($hubActivitySummery->accepted)? ($activity['tracked'] - $hubActivitySummery->accepted) : '0', 
+            //     'total_hours' => $activity['tracked'], 
+            //     'activity_levels' => $activity['overall'] / $activity['tracked'] * 100, 
+            //     'overall' => $activity['overall'],
+            // ];
         }
 
-        if (request('printExit')) {
+        if ($printExit) {
             dd(\DB::getQueryLog());
             exit;
         }
 
-        
-        /*
-        UserTrackTime::create([
-            'user_id' => $activityUsers['user_id'],
-            'user_name' => $activityUsers['userName'],
-            'hubstaff_tracked_hours' => $activityUsers['total_tracked'],
-            'hours_tracked_with' => $activityUsers['total_tracked'] - $activityUsers['totalPending'],
-            'hours_tracked_without' => $activityUsers['totalPending'], 
-            'task_id' => $activityUsers['tasks'], 
-            'approved_hours' => $activityUsers['totalApproved'], 
-            'difference_hours' => ($activityUsers['total_tracked'] - $activityUsers['totalApproved']), 
-            'total_hours' => $activityUsers['total_tracked'], 
-            'activity_levels' => $activityUsers['total_tracked'], 
-            'status' => '', 
-            ]);
-        */
-        //dd($userTrack);
-        //$users = User::get();
         return view("hubstaff.activities.track-users", compact('userTrack', 'title', 'users', 'start_date', 'end_date', 'status', 'user_id'));
     }
 
