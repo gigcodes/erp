@@ -1061,6 +1061,8 @@ class HubstaffActivitiesController extends Controller {
         $printAll = request('printAll');
         $printExit = request('printExit');
 
+        \DB::enableQueryLog();
+
         $start_date = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
         $end_date = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-1 days"));
         $user_id = $request->user_id ? $request->user_id : null;
@@ -1180,7 +1182,7 @@ class HubstaffActivitiesController extends Controller {
             $final = strftime('%T', mktime(0, 0, $sec)) . str_replace('0.', '.', sprintf('%.3f', $micro));
             _p('FINAL: ' . $final);
 
-            _p($activities->toArray(), 1);
+            _p($activities->toArray());
         }
 
 
@@ -1226,8 +1228,11 @@ class HubstaffActivitiesController extends Controller {
         }
 
         if (request('printExit')) {
+            dd(\DB::getQueryLog());
             exit;
         }
+
+        
         /*
         UserTrackTime::create([
             'user_id' => $activityUsers['user_id'],
