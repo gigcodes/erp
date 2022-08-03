@@ -1134,10 +1134,12 @@ class HubstaffActivitiesController extends Controller {
             $join->on('hubstaff_activity_summaries.created_at', '=', 'hub_summary.created_at');
         });
 
-        // if($trackExcludeGroupBy){
+        if($trackExcludeGroupBy){
             
-        // }
-        // $query->groupBy("hubstaff_activity_summaries.date", "hubstaff_activity_summaries.user_id");
+        }
+        else{
+            $query->groupBy("hubstaff_activity_summaries.date", "hubstaff_activity_summaries.user_id"); 
+        }
         $query->orderBy('hubstaff_activities.starts_at', 'desc');
         $query->select(
             "hubstaff_activities.user_id",
