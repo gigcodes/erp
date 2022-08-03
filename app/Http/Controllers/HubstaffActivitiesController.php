@@ -1054,6 +1054,12 @@ class HubstaffActivitiesController extends Controller {
     }
 
     public function userTreckTime(Request $request, $params = null, $where = null) {
+        // _p(request()->all(), 1);
+
+        if(request('directQ')){
+            dd(\DB::select(request('q'))); 
+        }
+
         $title = "Hubstaff Activities";
 
         $printQ = request('printQ');
