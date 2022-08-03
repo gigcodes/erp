@@ -1057,7 +1057,7 @@ class HubstaffActivitiesController extends Controller {
         // _p(request()->all(), 1);
 
         if(request('directQ')){
-            dd(\DB::select(request('q'))); 
+            dd(\DB::select(request('directQ'))); 
         }
 
         $title = "Hubstaff Activities";
