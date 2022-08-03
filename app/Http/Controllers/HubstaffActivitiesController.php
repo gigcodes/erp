@@ -1062,6 +1062,8 @@ class HubstaffActivitiesController extends Controller {
         $printExit = request('printExit');
         $trackExcludeGroupBy = request('trackExcludeGroupBy');
 
+        $qAddSummary = request('qAddSummary');
+
         \DB::enableQueryLog();
 
         $start_date = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
@@ -1121,38 +1123,58 @@ class HubstaffActivitiesController extends Controller {
         $query->leftJoin('tasks', 'tasks.hubstaff_task_id', '=', 'hubstaff_activities.task_id');
         $query->leftJoin('developer_tasks', 'developer_tasks.hubstaff_task_id', '=', 'hubstaff_activities.task_id');
 
-        $query->leftJoin(
-            \DB::raw("(SELECT date, user_id, MAX(created_at) AS created_at FROM hubstaff_activity_summaries GROUP BY date, user_id) hub_summary"),
-            function ($join) {
-                $join->on('hub_summary.date', '=', \DB::raw("DATE(hubstaff_activities.starts_at)"));
-                $join->on('hub_summary.user_id', '=', 'hubstaff_members.user_id');
-            }
-        );
-        $query->leftJoin('hubstaff_activity_summaries', function ($join) {
-            $join->on('hubstaff_activity_summaries.date', '=', 'hub_summary.date');
-            $join->on('hubstaff_activity_summaries.user_id', '=', 'hub_summary.user_id');
-            $join->on('hubstaff_activity_summaries.created_at', '=', 'hub_summary.created_at');
-        });
-
-        if($trackExcludeGroupBy){
-            
+        if ($qAddSummary) {
+            $query->leftJoin(
+                \DB::raw("(SELECT date, user_id, MAX(created_at) AS created_at FROM hubstaff_activity_summaries GROUP BY date, user_id) hub_summary"),
+                function ($join) {
+                    $join->on('hub_summary.date', '=', \DB::raw("DATE(hubstaff_activities.starts_at)"));
+                    $join->on('hub_summary.user_id', '=', 'hubstaff_members.user_id');
+                }
+            );
+            $query->leftJoin('hubstaff_activity_summaries', function ($join) {
+                $join->on('hubstaff_activity_summaries.date', '=', 'hub_summary.date');
+                $join->on('hubstaff_activity_summaries.user_id', '=', 'hub_summary.user_id');
+                $join->on('hubstaff_activity_summaries.created_at', '=', 'hub_summary.created_at');
+            });
         }
-        else{
-            $query->groupBy("hubstaff_activity_summaries.date", "hubstaff_activity_summaries.user_id"); 
+
+
+
+        // ?printQ=1&printQExit=1&printExit=0&printAll=1
+
+        if ($trackExcludeGroupBy) {
+        } else {
+            $query->groupBy("hubstaff_activity_summaries.date", "hubstaff_activity_summaries.user_id");
         }
         $query->orderBy('hubstaff_activities.starts_at', 'desc');
-        $query->select(
-            "hubstaff_activities.user_id",
-            "hubstaff_activities.tracked",
-            "hubstaff_activities.task_id",
-            "hubstaff_activities.overall",
-            "hubstaff_activities.starts_at",
-            "hubstaff_members.user_id as system_user_id",
-            "users.name as userName",
-            "tasks.id as task_table_id",
-            "developer_tasks.id as developer_task_table_id",
-            "hubstaff_activity_summaries.accepted AS ha_summ_accepted"
-        );
+
+        if ($qAddSummary) {
+            $query->select(
+                "hubstaff_activities.user_id",
+                "hubstaff_activities.tracked",
+                "hubstaff_activities.task_id",
+                "hubstaff_activities.overall",
+                "hubstaff_activities.starts_at",
+                "hubstaff_members.user_id as system_user_id",
+                "users.name as userName",
+                "tasks.id as task_table_id",
+                "developer_tasks.id as developer_task_table_id",
+                "hubstaff_activity_summaries.accepted AS ha_summ_accepted"
+            );
+        } else {
+            $query->select(
+                "hubstaff_activities.user_id",
+                "hubstaff_activities.tracked",
+                "hubstaff_activities.task_id",
+                "hubstaff_activities.overall",
+                "hubstaff_activities.starts_at",
+                "hubstaff_members.user_id as system_user_id",
+                "users.name as userName",
+                "tasks.id as task_table_id",
+                "developer_tasks.id as developer_task_table_id"
+            );
+        }
+
 
         $starttime = microtime(true);
         if ($printQ) {
@@ -1185,7 +1207,7 @@ class HubstaffActivitiesController extends Controller {
             $final = strftime('%T', mktime(0, 0, $sec)) . str_replace('0.', '.', sprintf('%.3f', $micro));
             _p('FINAL: ' . $final);
 
-            _p('$activities->count(): '.$activities->count());
+            _p('$activities->count(): ' . $activities->count());
         }
 
         if ($printExit) {
