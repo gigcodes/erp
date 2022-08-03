@@ -89,7 +89,7 @@
                         </select>
                       </div>
                     </div>
-                    
+
                   </div>
                 </div>
                 <div class="col-md-12">
@@ -108,14 +108,16 @@
         <table class="table table-bordered" style="border: 1px solid #ddd !important;">
           <thead>
             <tr>
-              <th style="width: 4%;">ID</th>
-              <th style="width: 10%;">API Url</th>
-              <th style="width: 8%;">Device</th>
-              <th style="width: 6%;">Api Type</th>
-              <th style="width: 20%;word-break: break-word;">Request Body</th>
+              <th style="width: 5%;">ID</th>
+              <th style="width: 13%;">API Url</th>
+              <th style="width: 6%;">Device</th>
+              <th style="width: 8%;">Api Type</th>
+              <th style="width: 12%;">Email</th>
               <th style="width: 8%;">Response Code</th>
-              <th style="width: 20%;">Response Body</th>
-              <th style="width: 6%;">App Version</th>
+              <th style="width: 15%;">Request Headers</th>
+              <th style="width: 9%;">User Id</th>
+              <th style="width: 8%;">App Version</th>
+              <th style="width: 8%;">Created At</th>
               <th style="width: 8%;">Action</th>
             </tr>
           </thead>
@@ -123,19 +125,41 @@
             <?php if ($updateLog->count()) { ?>
               <?php foreach ($updateLog as $key => $logData) { ?>
                 <tr>
-                  <td>{{$logData->id}}</td>
-                  <td class="expand-row-msg" data-name="url" data-id="{{$logData->id}}">
-                    <span class="show-short-url-{{$logData->id}}">{{ str_limit($logData->api_url, 20, '..')}}</span>
-                    <span style="word-break:break-all;" class="show-full-url-{{$logData->id}} hidden">{{$logData->api_url}}</span>
-                  </td>
-                  <td>{{$logData->device}}</td>
-                  <td>{{$logData->api_type}}</td>
-                  <td style="word-break: break-word;" >{!! $logData->request_body ?: '-' !!}</td>
-                  <td>{{$logData->response_code}}</td>
-                  <td style="word-break: break-word;" >{!! $logData->response_body ?: '-' !!}</td>
-                  <td>{{$logData->app_version}}</td>
+                  <td>{!! $logData->id !!}</td>
+                  <td style="word-break: break-word;">{!! $logData->api_url !!}</td>
+                  <td>{!! $logData->device !!}</td>
+                  <td>{!! $logData->api_type !!}</td>
+                  <td>{!! $logData->email !!}</td>
+                  <td>{!! $logData->response_code !!}</td>
+                  <td>{!! $logData->request_header !!}</td>
+                  <td>{!! $logData->user_id !!}</td>
+                  <td>{!! $logData->app_version !!}</td>
+                  <td>{!! $logData->created_at !!}</td>
                   <td>
-                    <a class="btn delete-updateLog-btn" data-id="{{ $logData->id }}" href="#"><img data-id="{{ $logData->id }}" src="/images/delete.png" style="cursor: nwse-resize; width: 16px;"></a>
+                    <a class="btn btn-xs" href="javascript:void(0);" onclick="funViewLog(this)" title="View Record"><i class="fa fa-eye"></i></a>
+                    <a class="btn btn-xs delete-updateLog-btn" title="Delete Record" data-id="{{ $logData->id }}" href="#"><i class="fa fa-trash"></i></a>
+
+                    <div class="hidden-vals" style="display: none !important;">
+                      <?php
+                      $dataArr = [
+                        'cls-api_url' => $logData->api_url,
+                        'cls-device' => $logData->device,
+                        'cls-api_type' => $logData->api_type,
+                        'cls-user_id' => $logData->user_id,
+                        'cls-email' => $logData->email,
+                        'cls-app_version' => $logData->app_version,
+                        'cls-other' => $logData->other,
+                        'cls-created_at' => $logData->created_at,
+                        'cls-request_header' => $logData->request_header,
+                        'cls-request_body' => $logData->request_body,
+                        'cls-response_code' => $logData->response_code,
+                        'cls-response_body' => $logData->response_body,
+                        'cls-created_at' => $logData->created_at,
+                      ];
+                      foreach ($dataArr as $key => $value) { ?>
+                        <div class="hidden-val" data-key=".{{$key}}" style="display: none;"><code>{!! $value !!}</code></div>
+                      <?php } ?>
+                    </div>
                   </td>
                 </tr>
               <?php } ?>
@@ -148,6 +172,55 @@
         </table>
         <div class="text-center">
           {!! $updateLog->appends(Request::except('page'))->links() !!}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="modalUpdateLog" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg" style="max-width: none !important;width: 85% !important;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Update Log</h2>
+        <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+      <div class="modal-body" style="overflow-y: scroll;height: 650px;">
+        <div class="table-responsive">
+          <table class="table table-bordered" style="border: 1px solid #ddd !important;">
+            <thead>
+              <tr>
+                <th width="25%">Parameter Name</th>
+                <th width="75%">Parameter Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php
+              $dataArr = [
+                'cls-api_url' => 'Api Url',
+                'cls-api_type' => 'Api Type',
+                'cls-device' => 'Device',
+                'cls-email' => 'Email',
+                'cls-user_id' => 'User id',
+                'cls-app_version' => 'App version',
+                'cls-other' => 'other',
+                'cls-created_at' => 'Created at',
+                'cls-request_header' => 'Request header',
+                'cls-request_body' => 'Request body',
+                'cls-response_code' => 'Response code',
+                'cls-response_body' => 'Rresponse body',
+                'cls-created_at' => 'Created at',
+              ];
+              foreach ($dataArr as $key => $value) {
+                echo '<tr>
+                  <td>' . $value . '</td>
+                  <td class="' . $key . '" style="word-break: break-word;"></td>
+                </tr>';
+              }
+              ?>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -240,6 +313,14 @@
   $(document).ready(function() {
     $('#per_user_name').select2();
   });
+
+  function funViewLog(ele) {
+    let mdl = jQuery('#modalUpdateLog');
+    jQuery(ele).closest('tr').find('.hidden-val').each(function() {
+      mdl.find(jQuery(this).attr('data-key')).html(jQuery(this).html());
+    });
+    mdl.modal('show');
+  }
 
   jQuery(document).ready(function() {
     applySelect2(jQuery('.select2'));
