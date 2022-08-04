@@ -9,6 +9,7 @@ use App\User;
 use App\AssetManamentUpdateLog;
 use App\AssetMagentoDevScripUpdateLog;
 use Illuminate\Http\Request;
+use App\assetUserChangeHistory;
 
 class AssetsManagerController extends Controller
 {
@@ -215,6 +216,9 @@ class AssetsManagerController extends Controller
             $assetLog->ip =  $request->input('old_ip');
             $assetLog->save();
         }
+        if($request->input('old_user_name') != $request->input('user_name')){
+            $this->createUserHistory($request, $id);
+        }
         $data['ip_name'] = $request->ip_name;
         $data['server_password'] = $request->server_password;
         $data['folder_name'] = json_encode($request->folder_name);
@@ -372,4 +376,52 @@ class AssetsManagerController extends Controller
 		}
 	}
 
+    public function userChangesHistoryLog(request $request)
+    {
+        $asset_id = $request->input('asset_id');
+        $html = '';
+        //\DB::enableQueryLog(); 
+        $assetLogs = assetUserChangeHistory::select('asset_user_change_histories.*', 'users.name AS userNameChangeBy', "u.name AS userName")
+            ->leftJoin('users', 'users.id', '=', 'asset_user_change_histories.user_id')
+            ->leftJoin('users AS u', 'u.id', '=', 'asset_user_change_histories.new_user_id')
+            ->where('asset_user_change_histories.asset_id', $asset_id)
+            ->orderBy('asset_user_change_histories.id', 'DESC')
+            ->get();
+        //dd(\DB::getQueryLog());
+        $i = 1;
+        //dd($assetLogs);
+        if (count($assetLogs) > 0) {
+            foreach ($assetLogs as $assetLog) {
+                $html .= '<tr>';
+                $html .= '<td>' . $assetLog->id . '</td>';
+                $html .= '<td>' . $assetLog->userNameChangeBy . '</td>';
+                $html .= '<td>' . $assetLog->userName . '</td>';
+                $html .= '<td>' . $assetLog->created_at . '</td>';
+                $html .= '</tr>';
+                $i++;
+            }
+            return response()->json(['html' => $html, 'success' => true], 200);
+        } else {
+            $html .= '<tr>';
+            $html .= '<td colspan="4">Record not found</td>';
+            $html .= '</tr>';
+        }
+        return response()->json(['html' => $html, 'success' => true], 200);
+
+    }
+
+    public function createUserHistory(Request $request, $id){
+        try{
+            $userHistory = assetUserChangeHistory::create([
+                "asset_id" => $id,
+                "user_id" => \Auth::user()->id,
+                "new_user_id" => $request->user_name,
+                "old_user_id" => $request->old_user_name,
+            ]);
+         } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+    
 }

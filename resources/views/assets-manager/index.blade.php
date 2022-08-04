@@ -163,7 +163,7 @@
         <!-- Modal content-->
         <div class="modal-content ">
           <div class="modal-header">
-              <h4 class="modal-title">Magento Setting Update Rersponse History</h4>
+              <h4 class="modal-title">User History</h4>
               <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
@@ -186,6 +186,36 @@
         </div>
       </div>
     </div>
+
+    <div id="showUserHistoryModel" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content ">
+          <div class="modal-header">
+              <h4 class="modal-title">Magento Setting Update Rersponse History</h4>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <div class="table-responsive mt-3">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th width="20%">ID</th>
+                      <th width="30%">Change By</th>
+                      <th width="30%">User Name</th>
+                      <th width="20%">Created At</th>
+                    </tr>
+                  </thead>
+                  <tbody class="showUserHistoryModelView">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
 @endsection
 
 @section('scripts')
@@ -295,6 +325,7 @@
       $('#assetsEditModal form').attr('action', url);
       $('#asset_name').val(asset.name);
       $('#user_name').val(asset.user_name);
+      $(".select-multiple").select2("val", asset.user_name);
       $('#old_user_name').val(asset.user_name);
       $('#password').val(asset.password);
       $('#old_password').val(asset.password);
@@ -325,6 +356,7 @@
           $(".addServerUpdate").append(addserver);
       });
       $('#server_password').val(asset.server_password);
+      $('.show-user-history-btn').attr('data-id', +asset.id);
     });
     $(document).on('click', '.expand-row-msg', function () {
       var name = $(this).data('name');
@@ -441,6 +473,30 @@
           });
         });
 
+      });
+
+      $(document).ready(function() {
+          $('.show-user-history-btn').click(function(){
+            var asset_id = $(this).data('id');
+            $.ajax({
+              type: 'POST',
+              headers: {
+                  'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+              },
+              url: "{{ route('assetsmanager.userchange.history') }}",
+              data: {
+                asset_id:asset_id,
+              },
+          }).done(response => {
+            $('#showUserHistoryModel').find('.showUserHistoryModelView').html('');
+              if(response.success==true){
+                $('#showUserHistoryModel').find('.showUserHistoryModelView').html(response.html);
+                $('#showUserHistoryModel').modal('show');
+              }
+          }).fail(function(response) {
+            alert('Could not fetch Data');
+          });
+        });
       });
 
       $(document).ready(function() {
