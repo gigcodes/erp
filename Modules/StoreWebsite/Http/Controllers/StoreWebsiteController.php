@@ -889,7 +889,7 @@ class StoreWebsiteController extends Controller
 
     public function magentoDevScriptUpdate(Request $request){
 		try{
-           $run = \Artisan::call("command:MagentoDevUpdateScript", ['id' => $request->id]);
+           $run = \Artisan::call("command:MagentoDevUpdateScript", ['id' => $request->id, 'folder_name' => $request->folder_name]);
 			return response()->json(['code' => 200, 'message' => 'Magento Setting Updated successfully']);
 		} catch (\Exception $e) {
 			$msg = $e->getMessage();
@@ -927,6 +927,10 @@ class StoreWebsiteController extends Controller
             return response()->json(['code' => 500, "data" => [], 'message' => $msg]);
         }
 	}
+
+    public function getFolderName(Request $request){
+        //$assetManager = AssetsManager::where('id', $request->id);
+    }
 	
 	public function getMagentoDevScriptUpdatesLogs(Request $request,$store_website_id) 
     {

@@ -111,7 +111,14 @@
                         <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" data-id="{{$asset->id}}">
                           <i class="fa fa-history"></i>
                         </button>
-                        <button type="button" class="btn btn-xs show-assets-history-log pull-left" data-toggle="modal" data-target="#showAssetsHistoryLogModel" data-assets_id="{{ $asset->id }}"><i class="fa fa-eye"></i></button>
+                        <button type="button" class="btn btn-xs show-assets-history-log pull-left" data-toggle="modal" data-target="#showAssetsHistoryLogModel"  data-assets_id="{{ $asset->id }}"><i class="fa fa-eye"></i></button>
+                        
+                        <a style="padding:1px;" class="btn d-inline btn-image execute-bash-command-select-folder"  data-folder_name="{{$asset->folder_name}}" data-id="{{$asset->id}}" href="#"  title="Execute Bash Command">
+                          <img src="/images/send.png" style="color:gray; cursor: nwse-resize; width: 0px;">
+                        </a>
+                        <button title="Response History" data-id="{{$asset->id}}" type="button"  class="btn execute_bash_command_response_history"style="padding:1px 0px;">
+                          <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-history"></i></a>
+                        </button>
                 </td>
               </tr>
             @endforeach
@@ -123,6 +130,62 @@
     @include('partials.modals.remarks')
     @include('assets-manager.partials.payment-history')
     @include('assets-manager.partials.assets-modals')
+
+    <div id="execute_bash_command_select_folderModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Send Bash Command</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="table-responsive mt-3">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Command Name</th>
+                    <th>Send</th>
+                  </tr>
+                </thead>
+                <tbody id="execute_select_folder_tbody">
+    
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div id="magentoDevScriptUpdateHistoryModal" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content ">
+          <div class="modal-header">
+              <h4 class="modal-title">Magento Setting Update Rersponse History</h4>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <div class="table-responsive mt-3">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th width="20%">Created At</th>
+                      <th width="20%">Ip</th>
+                      <th width="30%">Response</th>
+                      <th width="30%">Command Name</th>
+                    </tr>
+                  </thead>
+                  <tbody id="magentoDevScriptUpdateHistory">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -147,6 +210,81 @@
       });
     });
       
+    $(document).on("click", ".execute-bash-command-select-folder", function(href) {
+        
+      var folder_name = $(this).data('folder_name');
+      var id = $(this).data('id');
+      var html = '';
+      $('#execute_select_folder_tbody').html("");
+      let result =  Array.isArray(folder_name);
+      if(result){
+        $.each(folder_name,function(key,value){
+          if(value){
+            html = '<tr><td>'+value+'  </td><td><a style="padding:1px;" class="btn d-inline btn-image execute-bash-command" data-folder_name="'+value+'" href="#" class="ip_name'+key+'" data-id="'+id+'" title="Execute Bash Command"><img src="/images/send.png" style="color: gray; cursor: nwse-resize; width: 0px;"></a></td></tr>';
+            $('#execute_select_folder_tbody').append(html);
+          }
+        });
+        $('#execute_bash_command_select_folderModal').modal('show');
+      } else {
+        alert("Please Check Record Site Folder Name.");
+      }
+      
+		
+	});
+	$(document).on("click", ".execute-bash-command", function(href) {
+		if(confirm ("Do you want to run this script???")){
+			$.ajax({
+				type: 'POST',
+				url: 'assets-manager/magento-dev-script-update',
+				beforeSend: function () {
+					$("#loading-image").show();
+				},
+				data: {
+					_token: "{{ csrf_token() }}",
+					id: $(this).data('id'),
+					folder_name : $(this).data('folder_name')
+				},
+				dataType: "json"
+			}).done(function (response) {
+				$("#loading-image").hide();
+				if (response.code == 200) {
+					toastr['success'](response.message, 'success');
+				}
+			}).fail(function (response) {
+				$("#loading-image").hide();
+				toastr['error'](response.message, 'error');
+				console.log("Sorry, something went wrong");
+			});
+		}
+	});
+
+  $(document).on("click", ".execute_bash_command_response_history", function(href) {
+		
+      $.ajax({
+        type: 'POST',
+        url: 'assets-manager/magento-dev-update-script-history/'+ $(this).data('id') ,
+        beforeSend: function () {
+          $("#loading-image").show();
+        },
+        data: {
+          _token: "{{ csrf_token() }}",
+          id: $(this).data('id'),
+        },
+        dataType: "json"
+      }).done(function (response) {
+        $("#loading-image").hide();
+        if (response.code == 200) {
+          $('#magentoDevScriptUpdateHistory').html(response.data);
+          $('#magentoDevScriptUpdateHistoryModal').modal('show');
+          toastr['success'](response.message, 'success');
+        }
+      }).fail(function (response) {
+        $("#loading-image").hide();
+        console.log("Sorry, something went wrong");
+      });
+    
+  });
+
     $(document).on('click', '.edit-assets', function() {
       var asset = $(this).data('assets');
       var url = "{{ url('assets-manager') }}/" + asset.id;
@@ -174,14 +312,16 @@
       $('#asset_amount').val(asset.amount);
       $('#usage').val(asset.usage);
       $('#capacity').val(asset.capacity);
-      $(".addUpdIpName").html("");
-      $.each(JSON.parse(asset.ip_name),function(key,value){
-          var addIpName = '<br/><input type="text" name="ip_name[]" id="ip_name'+key+'" class="form-control"  value="'+value+'" >';
-          $(".addUpdIpName").append(addIpName);
-      });
+      
+      $('#ip_name_ins').val(asset.ip_name);
+      console.log(asset.ip_name);
+      // $.each(JSON.parse(asset.ip_name),function(key,value){
+      //     var addIpName = '<br/><input type="text" name="ip_name[]" id="ip_name'+key+'" class="form-control"  value="'+value+'" >';
+      //     $(".addUpdIpName").append(addIpName);
+      // });
       $(".addServerUpdate").html("");
-      $.each(JSON.parse(asset.server_update),function(key,value){
-          var addserver = '<br/><input type="text" name="server_update[]" id="server_update'+key+'" class="form-control"  value="'+value+'" >';
+      $.each(JSON.parse(asset.folder_name),function(key,value){
+          var addserver = '<br/><input type="text" name="folder_name[]" id="folder_name'+key+'" class="form-control"  value="'+value+'" >';
           $(".addServerUpdate").append(addserver);
       });
       $('#server_password').val(asset.server_password);
@@ -349,7 +489,7 @@
           var getServerUpdCount = $(".getServerUpdCount").val();
           getServerUpdCount = (parseInt(getServerUpdCount) + parseInt(1));
           $(".getServerUpdCount").val(getServerUpdCount);
-          var addServerUpdate = '<br/><input type="text" name="server_update[]" id="server_update'+getServerUpdCount+'" class="form-control"  value="" >';
+          var addServerUpdate = '<br/><input type="text" name="folder_name[]" id="folder_name'+getServerUpdCount+'" class="form-control"  value="" >';
           $(".addServerUpdate").append(addServerUpdate);
       });
 
@@ -357,7 +497,7 @@
           var getInsServerCount = $(".getInsServerCount").val();
           getInsServerCount = (parseInt(getInsServerCount) + parseInt(1));
           $(".getInsServerCount").val(getInsServerCount);
-          var addInsServerUpdate = '<br/><input type="text" name="server_update[]" id="server_update'+getInsServerCount+'" class="form-control"  value="" >';
+          var addInsServerUpdate = '<br/><input type="text" name="folder_name[]" id="folder_name'+getInsServerCount+'" class="form-control"  value="" >';
           $(".addInsServerUpdate").append(addInsServerUpdate);
       });
 

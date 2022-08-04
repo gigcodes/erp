@@ -7,6 +7,7 @@ use App\CashFlow;
 use DB;
 use App\User;
 use App\AssetManamentUpdateLog;
+use App\AssetMagentoDevScripUpdateLog;
 use Illuminate\Http\Request;
 
 class AssetsManagerController extends Controller
@@ -110,8 +111,9 @@ class AssetsManagerController extends Controller
         if ($catid != '') {
             $data['category_id'] = $catid;
         }
-        $data['ip_name'] = json_encode($request->ip_name);
-        $data['server_update'] = json_encode($request->server_update);
+        $data['ip_name'] = $request->ip_name;
+        $data['server_password'] = $request->server_password;
+        $data['folder_name'] = json_encode($request->folder_name);
         $insertData = AssetsManager::create($data);
         if ($request->input('payment_cycle') == 'One time') {
             //create entry in table cash_flows
@@ -213,8 +215,9 @@ class AssetsManagerController extends Controller
             $assetLog->ip =  $request->input('old_ip');
             $assetLog->save();
         }
-        $data['ip_name'] = json_encode($request->ip_name);
-        $data['server_update'] = json_encode($request->server_update);
+        $data['ip_name'] = $request->ip_name;
+        $data['server_password'] = $request->server_password;
+        $data['folder_name'] = json_encode($request->folder_name);
         //dd($data);
         AssetsManager::find($id)->update($data);
 
@@ -320,4 +323,53 @@ class AssetsManagerController extends Controller
         return response()->json(['html' => $html, 'success' => true], 200);
 
     }
+
+
+    public function getMagentoDevScriptUpdatesLogs(Request $request,$asset_manager_id) 
+    {
+        try{
+            $responseLog = AssetMagentoDevScripUpdateLog::where('asset_manager_id', '=', $asset_manager_id)->orderBy('id', 'desc')->get();
+            if ($responseLog != null ) {
+                $html = '';
+                foreach($responseLog as $res){
+                    $html .= '<tr>';
+                    $html .= '<td>'.$res->created_at.'</td>';
+                    $html .= '<td class="expand-row-msg" data-name="ip" data-id="'.$res->id.'" style="cursor: grabbing;">
+                    <span class="show-short-ip-'.$res->id.'">'.str_limit($res->ip, 15, "...").'</span>
+                    <span style="word-break:break-all;" class="show-full-ip-'.$res->id.' hidden">'.$res->website.'</span>
+                    </td>';
+                    $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
+                    <span class="show-short-response-'.$res->id.'">'.str_limit($res->response, 25, "...").'</span>
+                    <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
+                    </td>';
+                    $html .= '<td class="expand-row-msg" data-name="command" data-id="'.$res->id.'" style="cursor: grabbing;">
+                    <span class="show-short-command-'.$res->id.'">'.str_limit($res->command_name, 25, "...").'</span>
+                    <span style="word-break:break-all;" class="show-full-command-'.$res->id.' hidden">'.$res->command_name.'</span>
+                    </td>';
+                    
+                    $html .= '</tr>';
+                }
+                return response()->json([
+                    "code" => 200, 
+                    "data" => $html,  
+                    "message" => "Magento bash Log Listed successfully!!!"              
+                ]);
+            }
+            return response()->json(["code" => 500, "error" => "Wrong site id!"]);     
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, "data" => [], 'message' => $msg]);
+        }
+	}
+
+    public function magentoDevScriptUpdate(Request $request){
+		try{
+           $run = \Artisan::call("command:MagentoDevUpdateScriptAsset", ['id' => $request->id, 'folder_name' => $request->folder_name]);
+			return response()->json(['code' => 200, 'message' => 'Magento Setting Updated successfully']);
+		} catch (\Exception $e) {
+			$msg = $e->getMessage();
+			return response()->json(['code' => 500, 'message' => $msg]);
+		}
+	}
+
 }

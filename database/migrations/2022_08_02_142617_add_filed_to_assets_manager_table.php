@@ -14,9 +14,8 @@ class AddFiledToAssetsManagerTable extends Migration
     public function up()
     {
         Schema::table('assets_manager', function (Blueprint $table) {
-            \DB::statement("ALTER TABLE `assets_manager` CHANGE `ip_name` `ip_name` LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
             $table->string('server_password')->nullable();
-            $table->longText('server_update')->nullable();
+            $table->longText('folder_name')->nullable();
 
         });
     }

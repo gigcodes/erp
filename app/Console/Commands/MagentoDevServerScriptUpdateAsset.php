@@ -2,26 +2,27 @@
 
 namespace App\Console\Commands;
 
-use App\StoreWebsite;
-use App\MagentoDevScripUpdateLog;
+use App\AssetsManager;
+use App\AssetMagentoDevScripUpdateLog;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 
-class MagentoDevServerScriptUpdate extends Command
+
+class MagentoDevServerScriptUpdateAsset extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'command:MagentoDevUpdateScript {id?} {folder_name?}';
+    protected $signature = 'command:MagentoDevUpdateScriptAsset {id?} {folder_name?}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command Magento Dev Script Updates';
+    protected $description = 'Command Asset Magento Dev Script Updates';
 
     /**
      * Create a new command instance.
@@ -41,12 +42,13 @@ class MagentoDevServerScriptUpdate extends Command
     public function handle()
     {
         try{
-            $websites = StoreWebsite::where('is_dev_website',1)->where('id', $this->argument('id'))->get();
-            foreach($websites as $website){
+            $assetmanager = AssetsManager::where('id', $this->argument('id'))->get();
+            
+            foreach($assetmanager as $asset){
                 $folder_name = $this->argument('folder_name');
-                if($folder_name !='' && $website->server_ip !=''){
-                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-dev.sh --server ' . $website->server_ip . ' --site ' . $folder_name;  
-
+                if($folder_name !='' && $asset->ip !=''){
+                   
+                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-dev.sh --server ' . $asset->ip . ' --site ' . $folder_name;  
                     $allOutput = array();
                     $allOutput[] = $cmd;
                     $result = exec($cmd, $allOutput);
@@ -59,36 +61,40 @@ class MagentoDevServerScriptUpdate extends Command
                     else
                         $result = is_array($result)?json_encode($result, true):$result;
 
-                    MagentoDevScripUpdateLog::create(
+                    $create = AssetMagentoDevScripUpdateLog::create(
                         [
-                            "store_website_id" =>  $website->id,
-                            "website" =>  $website->website,
+                            "asset_manager_id" =>  $asset->id,
+                            "user_id" =>  \Auth::user()->id,
+                            "ip" =>  $asset->ip,
                             "response" => $result,
                             "command_name" => $cmd,
-                            "site_folder" => $website->site_folder,
+                            "site_folder" => $folder_name,
                         ]
                     );
+                    
                 } else {
-                    MagentoDevScripUpdateLog::create(
+                    AssetMagentoDevScripUpdateLog::create(
                         [
-                            "store_website_id" =>  $website->id ?? '',
-                            "website" =>  $website->website ?? '',
+                            "store_website_id" =>  $asset->id ?? '',
+                            "ip" =>  $asset->ip ?? '',
+                            "user_id" =>  \Auth::user()->id,
                             "response" => "Please check Site folder and server ip",
                             "error" => 'Error',
                             "command_name" => "Not run command. Please server Ip and site folder",
-                            "site_folder" => $website->site_folder ?? '',
+                            "site_folder" => $folder_name ?? '',
                         ]);     
                 }
                 
             } //end website foreach
         } catch (\Exception $e) {
-            MagentoDevScripUpdateLog::create(
+            AssetMagentoDevScripUpdateLog::create(
                 [
-                    "store_website_id" =>  $website[0]->id ?? '',
-                    "website" =>  $website[0]->website ?? '',
+                    "store_website_id" =>  $asset[0]->id ?? '',
+                    "user_id" =>  \Auth::user()->id,
+                    "website" =>  $asset[0]->ip ?? '',
                     "error" => $e->getMessage(),
                     "command_name" => "Not run command. Please server Ip and site folder",
-                    "site_folder" => $website[0]->site_folder ?? '',
+                    "site_folder" => $folder_name ?? '',
                 ]
             );
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
