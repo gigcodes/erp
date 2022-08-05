@@ -765,6 +765,7 @@ class UicheckController extends Controller {
     public function updateLanguage(Request $request) {
         try {
             $uiLanData = UiLanguage::where("languages_id", "=", $request->id)->get();
+            
             $uiLan["user_id"] = \Auth::user()->id;
             $uiLan["languages_id"] = $request->id;
             $uiLan["uicheck_id"] = $request->uicheck_id;
@@ -783,8 +784,8 @@ class UicheckController extends Controller {
                 $uiLans = UiLanguage::where("languages_id",$request->id)->update($uiLan);
             }
             
-            $uiMess = $uiData->message ?? "";
-            $uiLan["ui_languages_id"] = $uiData->id;
+            $uiMess = $uiLanData[0]->message ?? "";
+            $uiLan["ui_languages_id"] = $uiData->id ?? $request->id;
             if($request->message != $uiMess){
                 $reData = $this->uicheckLanUpdateHistory($uiLan);
             }
@@ -916,6 +917,7 @@ class UicheckController extends Controller {
         try {
             
             $uiDevData = UiDevice::where("uicheck_id", "=", $request->uicheck_id)->where('device_no', "=", $request->device_no)->first();
+            //dd($uiDevData);
             $uiDev["user_id"] = \Auth::user()->id;
             $uiDev["device_no"] = $request->device_no;
             $uiDev["uicheck_id"] = $request->uicheck_id;
@@ -935,7 +937,7 @@ class UicheckController extends Controller {
                 $uiLans = UiDevice::where("id",$uiDevData->id)->update($uiDev);
             }
             
-            $uiMess = $uiData->message ?? "";
+            $uiMess = $uiDevData->message ?? "";
             $uiDev["ui_devices_id"] = $uiData->id;
             if($request->message != $uiMess){
                 $reData = $this->uicheckDevUpdateHistory($uiDev);
@@ -1055,8 +1057,8 @@ class UicheckController extends Controller {
             $getHistory = UiDeviceHistory::leftJoin("users", "users.id", "ui_device_histories.user_id")
             ->leftJoin("site_development_statuses AS sds", "sds.id", "ui_device_histories.status")
             ->select("ui_device_histories.*", "users.name As userName", "sds.name AS status_name")
-            ->where("device_no", $request->device_no)
-            ->where("uicheck_id", $request->uicheck_id)
+            ->where("ui_device_histories.device_no", $request->device_no)
+            ->where("ui_device_histories.uicheck_id", $request->uicheck_id)
             ->orderBy("id", "desc")->get();         
             //dd($getHistory);
             $html = [];

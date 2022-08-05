@@ -1236,13 +1236,14 @@
 
 	//5 Device
 	function funDevUpdate(id) {
-		siteLoader(true);
+		//siteLoader(true);
 		let mdl = jQuery('#modalCreateDevice');
 		let uicheckId = jQuery('.uicheckId').val();
 		let uidevmessage = jQuery('.uidevmessage'+id).val();
 		let uidevstatus = jQuery('.uidevstatus'+id).val();
 		let device_no = jQuery('.device_no'+id).val();
 		jQuery.ajax({
+			
 			headers: {
 				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
 			},
@@ -1262,7 +1263,8 @@
 			//mdl.find('tbody').html(response.html);
 			//mdl.modal("show");
 		}).fail(function(errObj) {
-			toastr["error"](errObj);
+			console.log(errObj);
+			toastr["error"](errObj.message);
 		});
 	}
 
