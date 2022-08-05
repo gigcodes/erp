@@ -58,12 +58,24 @@
 
           <div class="form-group">
             <strong>IP Name:</strong>
+            <input type="hidden" class="getInsCount" value="0"/>
             <input type="text" name="ip_name" id="ip_name" class="form-control" value="{{ old('ip_name') }}">
+            <div class="addInsIpName"></div>
+            
             @if ($errors->has('ip'))
               <div class="alert alert-danger">{{$errors->first('ip_name')}}</div>
             @endif
           </div>
           
+          <div class="form-group">
+            <strong>Folder Name:</strong>
+            <input type="hidden" class="getInsServerCount" value="0"/>
+            <div class="addInsServerUpdate">
+              <input type="text" name="folder_name[]" id="folder_name0" class="form-control" value="{{ old('folder_name') }}">
+            </div>
+            <a href="javascript:void(0);" class="serverInsbtn">Add Folder Name</a>
+          </div>
+
           <div class="form-group">
             <strong>Assigen to</strong>
             <select class="form-control select-multiple" name="assigned_to" >
@@ -308,7 +320,7 @@
         <div class="modal-header">
           <h4 class="modal-title">Update a Assets Manager</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
+        </div>  
         <div class="modal-body">
           <div class="form-group">
             <strong>Name:</strong>
@@ -356,9 +368,27 @@
 
           <div class="form-group">
             <strong>IP Name:</strong>
-            <input type="text" name="ip_name" id="ip_name" class="form-control" value="{{ old('ip_name') }}">
+            <input type="hidden" class="getUpdCount" value="0"/>
+            <div class="addUpdIpName">
+              <input type="text" name="ip_name" id="ip_name_ins" class="form-control" value="{{ old('ip_name') }}">
+            </div>
+            {{-- <a href="javascript:void(0);" class="updIpNamebtn">Add Name</a> --}}
+          </div>
+
+          <div class="form-group">
+            <strong>Folder Name:</strong>
+            <input type="hidden" class="getServerUpdCount" value="0"/>
+            <div class="addServerUpdate">
+              <input type="text" name="folder_name[]" id="folder_name0" class="form-control" value="{{ old('folder_name') }}">
+            </div>
+            <a href="javascript:void(0);" class="serverUpdbtn">Add Folder Name</a>
+          </div>
+
+          <div class="form-group">
+            <strong>Server Password:</strong>
+            <input type="text" name="server_password" id="server_password" class="form-control" value="{{ old('server_password') }}">
             @if ($errors->has('ip'))
-              <div class="alert alert-danger">{{$errors->first('ip_name')}}</div>
+              <div class="alert alert-danger">{{$errors->first('server_password')}}</div>
             @endif
           </div>
 
