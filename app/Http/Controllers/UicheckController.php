@@ -123,6 +123,9 @@ class UicheckController extends Controller {
             if ($s = request('assign_to')) {
                 $q = $q->where('uua.user_id', $s);
             }
+            if ($s = request('id')) {
+                $q = $q->where('uichecks.id', $s);
+            }
             $q->groupBy('uichecks.id');
 
             if ($s = request('order_by')) {
