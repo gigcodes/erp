@@ -892,7 +892,7 @@ class UicheckController extends Controller {
                 $imagepath = json_decode($media->attachment);
                 $records[] = [
                     "id"            => $media->id,
-                    'url'           => "public/uploads/".$imagepath->directory."/".$imagepath->filename.".".$imagepath->extension,
+                    'url'           => "uploads/".$imagepath->directory."/".$imagepath->filename.".".$imagepath->extension,
                     'ui_attach_id'  => $media->id,
                 ];
             }
@@ -1031,7 +1031,7 @@ class UicheckController extends Controller {
                 $imagepath = json_decode($media->attachment);
                 $records[] = [
                     "id"            => $media->id,
-                    'url'           => "public/uploads/".$imagepath->directory."/".$imagepath->filename.".".$imagepath->extension,
+                    'url'           => "uploads/".$imagepath->directory."/".$imagepath->filename.".".$imagepath->extension,
                     "userName"      => $media->userName,
                     'ui_attach_id'  => $media->id,
                 ];
@@ -1052,9 +1052,9 @@ class UicheckController extends Controller {
 
     public function getuicheckDevUpdateHistory(Request $request) {
         try{
-            $getHistory = UiDeviceHistory::leftJoin("users", "users.id", "ui_device_histories.user_id", "sds.name AS status_name")
+            $getHistory = UiDeviceHistory::leftJoin("users", "users.id", "ui_device_histories.user_id")
             ->leftJoin("site_development_statuses AS sds", "sds.id", "ui_device_histories.status")
-            ->select("ui_device_histories.*", "users.name As userName")
+            ->select("ui_device_histories.*", "users.name As userName", "sds.name AS status_name")
             ->where("device_no", $request->device_no)
             ->where("uicheck_id", $request->uicheck_id)
             ->orderBy("id", "desc")->get();         
