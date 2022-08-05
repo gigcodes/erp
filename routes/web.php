@@ -3156,6 +3156,22 @@ Route::middleware('auth')->group(function () {
     Route::post('uicheck/set/message/history', 'UicheckController@CreateUiMessageHistoryLog')->name('uicheck.set.message.history');
     Route::post('uicheck/get/assign/history', 'UicheckController@getUiCheckAssignToHistoryLog')->name('uicheck.get.assign.history');
     Route::post('uicheck/set/duplicate/category', 'UicheckController@createDuplicateCategory')->name('uicheck.set.duplicate.category');
+    Route::post('uicheck/set/language', 'UicheckController@updateLanguage')->name('uicheck.set.language');
+    Route::post('uicheck/get/message/history/language', 'UicheckController@getuicheckLanUpdateHistory')->name('uicheck.get.message.language');
+    Route::post('uicheck/create/attachment', 'UicheckController@saveDocuments')->name('uicheck.create.attachment');
+    Route::get('uicheck/get/attachment', 'UicheckController@listDocuments')->name('uicheck.get.attachment');
+    Route::post('uicheck/delete/attachment', 'UicheckController@deleteDocument')->name('uicheck.delete.attachment');
+
+    // 5 Device 
+    
+    Route::post('/uicheck/set/device', 'UicheckController@updateDevice')->name('uicheck.set.device');
+    Route::post('/uicheck/device/upload-documents', 'UicheckController@uploadDocuments')->name("ui.dev.upload-documents");
+
+    Route::post('uicheck/get/message/history/dev', 'UicheckController@getuicheckDevUpdateHistory')->name('uicheck.get.message.dev');
+
+    Route::post('/uicheck/create/dev/attachment', 'UicheckController@saveDevDocuments')->name('uicheck.create.dev.attachment');
+    Route::get('uicheck/get/dev/attachment', 'UicheckController@devListDocuments')->name('uicheck.get.dev.attachment');
+    Route::post('uicheck/dev/delete/attachment', 'UicheckController@deleteDevDocument')->name('uicheck.dev.delete.attachment');
 
     Route::prefix('uicheck')->group(function () {
         Route::get('get', 'UicheckController@get')->name('uicheck.get');
