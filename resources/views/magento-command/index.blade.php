@@ -260,7 +260,7 @@
                       <label for="title">Website</label>
                       <div class="dropdown-sin-1">
                         <?php $websites = \App\StoreWebsite::get(); ?>
-                        <select name="websites_ids[]" multiple class="websites_ids form-control dropdown-mul-1" id="websites_ids" required>
+                        <select name="websites_ids[]" multiple class="websites_ids form-control dropdown-mul-1" style="width: 100%;" id="websites_ids" required>
                           <option>--Website--</option>
                           <?php 
                             foreach($websites as $website){
@@ -337,19 +337,19 @@
         "selected": true
       }]
     });
-      $('.dropdown-mul-1').dropdown({
-      //data: json1.data,
-      limitCount: 40,
-      multipleMode: 'label',
-      choice: function () {
-        // console.log(arguments,this);
-      }
-    });
+    //   $('.dropdown-mul-1').dropdown({
+    //   //data: json1.data,
+    //   limitCount: 40,
+    //   multipleMode: 'label',
+    //   choice: function () {
+    //     // console.log(arguments,this);
+    //   }
+    // });
 
-    $('.dropdown-sin-1').dropdown({
-      readOnly: true,
-      input: '<input type="text" maxLength="25" placeholder="Search">'
-    });
+    // $('.dropdown-sin-1').dropdown({
+    //   readOnly: true,
+    //   input: '<input type="text" maxLength="25" placeholder="Search">'
+    // });
 
     </script>
   </div>
@@ -464,14 +464,29 @@
           if(response.code = '200') {
             form = $('#magentoForm');
             $.each(response.data, function(key, v) {
-              console.log(key);
+
+              if(key == "website_ids") {
+                var Values = new Array();
+                $.each(v.split(","), function(i,e){
+                    console.log(e);
+                     //$(".websites_ids option[value='" + e + "']").prop("selected", true);
+                     Values.push(e);
+                });
+                $('.websites_ids').val(Values).trigger('change');
+              }
               if(form.find('[name="'+key+'"]').length){
                   form.find('[name="'+key+'"]').val(v);
+                  if(key == 'command_name'){
+                    $('#command_name_search').val(v).trigger('change');
+                  }
                   
               }else if(form.find('[name="'+key+'[]"]').length){
-                  form.find('[name="'+key+'[]"]').val(response.ops);
+                  //form.find('[name="'+key+'[]"]').val(response.ops);
                   //debugger;
+                  
+                    
                   $.each(v.split(","), function(i,e){
+                    console.log(e);
                      // $("#websites_ids option[value='" + e + "']").prop("selected", true);
                   });
               }      
@@ -614,9 +629,8 @@
     });
     $(document).ready(function(){
 		  $('.select2').select2();
-      $("#command_name_search").select2({
-        tags: true
-      });
+      $("#command_name_search").select2({});
+      $(".dropdown-mul-1").select2({});
     });
 	
     
