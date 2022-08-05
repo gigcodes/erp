@@ -1620,6 +1620,8 @@
 							'<div class="dropdown-menu" >' +
 							'<a class="dropdown-item" href="javascript:void(0);" onclick="funDateModalOpen(\'' + row.uicheck_id + '\')">Dates: Update</a>' +
 							'<a class="dropdown-item" href="javascript:void(0);" onclick="funDateUpdatesHistory(\'' + row.uicheck_id + '\')">Dates: View History</a>' +
+							'<a class="dropdown-item" href="javascript:void(0);" onclick="showLanguage(\'' + row.uicheck_id + '\')">Translation</a>' +
+							'<a class="dropdown-item" href="javascript:void(0);" onclick="showDevice(\'' + row.uicheck_id + '\')">5 Devices</a>' +
 							'</div>' +
 							'</div>';
 					}
