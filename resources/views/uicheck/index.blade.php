@@ -1290,9 +1290,9 @@
 			$("#modalCreateLanguage").modal("hide");
 			mdl.find('tbody').html(response.html);
 			mdl.modal("show");
-		}).fail(function(errObj) {
-			toastr["error"](errObj);
-			//siteLoader(false);
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {      
+			toastr["error"](jqXHR.responseJSON.message);
+			$("#loading-image").hide();
 		});
 	}
 	var uploadedDocumentMapDev = {}
