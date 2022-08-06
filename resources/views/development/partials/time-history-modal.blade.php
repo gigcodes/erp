@@ -1,77 +1,38 @@
-<!-- <div class="modal" tabindex="-1" role="dialog" id="time_history_modal">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-            <h5 class="modal-title">Estimated Time History</h5>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <form action="" id="approve-time-btn" method="POST">
-                @csrf
-                <div class="modal-body">
-                <div class="row">
-                <input type="hidden" name="developer_task_id" id="developer_task_id">
-
-                    <div class="col-md-12" id="time_history_div">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Old Value</th>
-                                    <th>New Value</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    @if(auth()->user()->isReviwerLikeAdmin())
-                        <button type="submit" class="btn btn-secondary">Confirm</button>
-                    @endif
-                </div>
-            </form>
-        </div>
-    </div>
-</div> -->
 <div id="date_history_modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title">Estimated Date History </h5>
+                <h5 class="modal-title">Estimated Date History</h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <form action="" id="approve-date-btn" method="POST">
                 @csrf
                 <div class="modal-body">
-                <div class="row">
-                <input type="hidden" name="developer_task_id" id="developer_task_id">
+                    <div class="row">
+                        <input type="hidden" name="developer_task_id" id="developer_task_id">
 
-                    <div class="col-md-12" id="time_history_div">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Old Value</th>
-                                    <th>New Value</th>
-                                    <th>Updated by</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
+                        <div class="col-md-12" id="time_history_div">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Old Value</th>
+                                        <th>New Value</th>
+                                        <th>Updated by</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     @if(auth()->user()->isReviwerLikeAdmin())
-                        <button type="submit" class="btn btn-secondary">Confirm</button>
+                    <button type="submit" class="btn btn-secondary">Confirm</button>
                     @endif
                 </div>
             </form>
@@ -85,156 +46,270 @@
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title">Status History</h5>
+                <h5 class="modal-title">Status History</h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            
-                <div class="row">
-                    <div class="col-md-12" id="status_history_div">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Old Status</th>
-                                    <th>New Status</th>
-                                    <th>Updated by</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
+
+            <div class="row">
+                <div class="col-md-12" id="status_history_div">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Old Status</th>
+                                <th>New Status</th>
+                                <th>Updated by</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
             </form>
         </div>
     </div>
 </div>
-
 
 <div id="time_history_modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title">Estimated Time History - <span class="text-danger"> Add new value should be old value + additional time </span> </h5>
+                <h5 class="modal-title">Estimated Time History - <span class="text-danger"> Add new value should be old value + additional time </span> </h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <form action="" id="approve-time-btn" method="POST">
                 @csrf
                 <div class="modal-body">
-                <div class="row">
-                <input type="hidden" name="developer_task_id" id="developer_task_id">
+                    <div class="row">
+                        <input type="hidden" name="developer_task_id" id="developer_task_id">
 
-                    <div class="col-md-12" id="time_history_div">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Old Value</th>
-                                    <th>New Value</th>
-                                    <th>Updated by</th>
-                                    <th>Remark</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
+                        <div class="col-md-12" id="time_history_div">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Old Value</th>
+                                        <th>New Value</th>
+                                        <th>Updated by</th>
+                                        <th>Remark</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
                 </div>
                 <!--Purpose : add style - DEVTASK-4354 -->
                 <div class="modal-footer1 mx-5 d-flex justify-content-between" style="margin-bottom:10px;">
                     <div class="b">
-                    @if(\Auth::user()->isAdmin())
-                        <button type="button" class="btn btn-secondary remind_btn" disabled>Remind</button>
+                        @if(\Auth::user()->isAdmin())
+                        <button type="button" class="btn btn-secondary remind_btn">Remind</button>
                         <button type="button" class="btn btn-secondary revise_btn">Revise</button>
-                    @endif
-                    <button type="button" class="btn btn-secondary approved_history" title="Approve History"> History</button>
-                    </div>
-                    <div class="a">                       
-                        <button type="button" class="btn btn-default close_btn" data-dismiss="modal">Close</button>
-                        @if(auth()->user()->isReviwerLikeAdmin())
-                            <button type="submit" class="btn btn-secondary confirm_btn">Confirm</button>
                         @endif
+                        <button type="button" class="btn btn-secondary approved_history" title="Approve History"> History</button>
+                    </div>
+                    <div class="a">
+                        <button type="button" class="btn btn-default close_btn" data-dismiss="modal">Close</button>
+                        <?php if (auth()->user()->isReviwerLikeAdmin() || isAdmin()) { ?>
+                            <button type="submit" class="btn btn-secondary confirm_btn">Confirm</button>
+                        <?php } ?>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
 <div id="ApprovedHistory" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title">Approved History</h5>
+                <h5 class="modal-title">Approved History</h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            
-                <div class="row">
-                    <div class="col-md-12" id="approve_history_form">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Old Status</th>
-                                    <th>New Status</th>
-                                    <th>Approve by</th>
-                                   
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
+
+            <div class="row">
+                <div class="col-md-12" id="approve_history_form">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Old Status</th>
+                                <th>New Status</th>
+                                <th>Approve by</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
             </form>
         </div>
     </div>
 </div>
 
+@push('scripts')
 <script>
-   $(document).on('click', '.approved_history', function() {
-    var data = $(this).data('history');
-   //var issueId = $(this).data('id');
-   var issueId = $('#developer_task_id').val();
+    jQuery(document).on('click', '.show-time-history', function() {
+        var userId = jQuery(this).data('user_id');
+        var issueId = jQuery(this).data('id');
 
-    $('#approve_history_form table tbody').html('');
-    $.ajax({
-        url: "{{ route('development/time/history/approved') }}",
-        data: {id: issueId},
-        success: function (data) {
-            if(data != 'error') {
-                $('input[name="developer_task_id"]').val(issueId);
-                $.each(data, function(i, item) {
-                    if(item['is_approved'] == 1) {
-                        var checked = 'checked';
-                    }
-                    else {
-                        var checked = ''; 
-                    }
-                    $('#approve_history_form table tbody').append(
-                        '<tr>\
-                            <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
-                            <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                            <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td>\
-                        </tr>'
+        //START - Purpose : Display Hide Remind, Revise Button - DEVTASK-4354
+        // const hasText = jQuery(this).siblings('input').val();
+        // if (!hasText || hasText == 0) {
+        //     jQuery('#time_history_modal .revise_btn').prop('disabled', true);
+        //     jQuery('#time_history_modal .remind_btn').prop('disabled', false);
+        // } else {
+        //     jQuery('#time_history_modal .revise_btn').prop('disabled', false);
+        //     jQuery('#time_history_modal .remind_btn').prop('disabled', true);
+        // }
+        //END - DEVTASK-4354
+
+        siteLoader(1);
+        jQuery.ajax({
+            url: "{{ route('task.time.history') }}",
+            data: {
+                id: issueId
+            },
+            success: function(res) {
+                jQuery('#time_history_div table tbody').html('');
+                siteLoader(0);
+                if (res != 'error') {
+                    jQuery('input[name="developer_task_id"]').val(issueId);
+                    jQuery.each(res, function(i, item) {
+                        if (item['is_approved'] == 1) {
+                            var checked = 'checked';
+                        } else {
+                            var checked = '';
+                        }
+                        jQuery('#time_history_div table tbody').append(
+                            `<tr>
+                                    <td>${ moment(item['created_at']).format('DD/MM/YYYY') }</td>
+                                    <td>${ ((item['old_value'] != null) ? item['old_value'] : '-') }</td>
+                                    <td>${item['new_value']}</td>
+                                    <td>${item['name']}</td>
+                                    <td align="center"><span title="${item['remark']}">${(item['remark'] !== null ) ? item['remark'] : '-'}</td>
+                                    <td><input type="radio" name="approve_time" value="${item['id']}" ${checked} class="approve_time"/></td>
+                                </tr>`
+                        );
+                    });
+
+                    jQuery('#time_history_div table tbody').append(
+                        '<input type="hidden" name="user_id" value="' + userId + '" class=" "/>'
                     );
-                });
+                    jQuery('#time_history_modal').modal('show');
+                }
+            },
+            error: function(err) {
+                siteLoader(0);
+                siteErrorAlert(err);
             }
-        }
+        });
     });
 
-       $('#ApprovedHistory').modal('show');
-   });
+    jQuery(document).on('click', '.remind_btn', function() {
+        var issueId = jQuery('#approve-time-btn input[name="developer_task_id"]').val();
+        var userId = jQuery('#approve-time-btn input[name="user_id"]').val();
 
-  
+        jQuery('#time_history_div table tbody').html('');
+        jQuery.ajax({
+            url: "{{ route('task.time.history.approve.sendRemindMessage') }}",
+            type: 'POST',
+            data: {
+                _token: '{{csrf_token()}}',
+                id: issueId,
+                user_id: userId,
+            },
+            success: function(data) {
+                toastr['success'](data.message, 'success');
+            }
+        });
+        $('#time_history_modal').modal('hide');
+    });
+
+    jQuery(document).on('click', '.revise_btn', function() {
+        var issueId = jQuery('#approve-time-btn input[name="developer_task_id"]').val();
+        var userId = jQuery('#approve-time-btn input[name="user_id"]').val();
+
+        jQuery('#time_history_div table tbody').html('');
+        jQuery.ajax({
+            url: "{{ route('task.time.history.approve.sendMessage') }}",
+            type: 'POST',
+            data: {
+                _token: '{{csrf_token()}}',
+                id: issueId,
+                user_id: userId,
+            },
+            success: function(data) {
+                toastr['success'](data.message, 'success');
+            }
+        });
+        $('#time_history_modal').modal('hide');
+    });
+
+    jQuery(document).on('click', '.approved_history', function() {
+        var data = jQuery(this).data('history');
+        //var issueId = jQuery(this).data('id');
+        var issueId = jQuery('#developer_task_id').val();
+
+        jQuery('#approve_history_form table tbody').html('');
+        jQuery.ajax({
+            url: "{{ route('development/time/history/approved') }}",
+            data: {
+                id: issueId
+            },
+            success: function(data) {
+                if (data != 'error') {
+                    jQuery('input[name="developer_task_id"]').val(issueId);
+                    jQuery.each(data, function(i, item) {
+                        if (item['is_approved'] == 1) {
+                            var checked = 'checked';
+                        } else {
+                            var checked = '';
+                        }
+                        jQuery('#approve_history_form table tbody').append(
+                            '<tr>\
+                            <td>' + moment(item['created_at']).format('DD/MM/YYYY') + '</td>\
+                            <td>' + ((item['old_value'] != null) ? item['old_value'] : '-') + '</td>\
+                            <td>' + item['new_value'] + '</td>\<td>' + item['name'] + '</td>\
+                        </tr>'
+                        );
+                    });
+                }
+            }
+        });
+
+        jQuery('#ApprovedHistory').modal('show');
+    });
+
+    jQuery(document).on('submit', '#approve-time-btn', function(event) {
+        event.preventDefault();
+        jQuery.ajax({
+            url: "{{route('task.time.history.approve')}}",
+            type: 'POST',
+            data: jQuery(this).serialize(),
+            success: function(response) {
+                toastr['success']('Successfully approved', 'success');
+                jQuery('#time_history_modal').modal('hide');
+            },
+            error: function() {
+                toastr["error"](error.responseJSON.message);
+            }
+        });
+    });
 </script>
+@endpush

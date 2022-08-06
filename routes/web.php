@@ -45,8 +45,8 @@ Route::get('/test/dhl', 'TmpTaskController@test');
 Route::get('/store/unknown/sizes', 'ScrapController@storeUnknownSizes');
 Route::get('criteria/get/{id}', 'PositionController@list')->name('get.criteria');
 
-    Route::get('vendors/create-cv/{id}', 'VendorResumeController@create')->name('vendors.create.cv');
-    Route::post('vendors/cv/store', 'VendorResumeController@store')->name('vendor.cv.store');
+Route::get('vendors/create-cv/{id}', 'VendorResumeController@create')->name('vendors.create.cv');
+Route::post('vendors/cv/store', 'VendorResumeController@store')->name('vendor.cv.store');
 Route::middleware('auth')->group(function () {
     Route::get('discount-sale-price', 'DiscountSalePriceController@index');
     Route::delete('discount-sale-price/{id}', 'DiscountSalePriceController@delete');
@@ -968,13 +968,22 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('meetings/all', 'Meeting\ZoomMeetingController@allMeetings')->name('meetings.all.data');
 
     Route::prefix('task')->group(function () {
-        Route::prefix('update')->group(function () {
-            Route::post('start-date', 'TaskModuleController@taskStartDateUpdate')->name('task.update.start-date');
+        Route::prefix('information')->group(function () {
+            Route::get('get', 'TaskModuleController@taskGet')->name('task.information.get');
         });
+
+        Route::prefix('update')->group(function () {
+            Route::post('start-date', 'TaskModuleController@taskUpdateStartDate')->name('task.update.start-date');
+            Route::post('due-date', 'TaskModuleController@taskUpdateDueDate')->name('task.update.due-date');
+            Route::post('cost', 'TaskModuleController@updateCost')->name('task.update.cost');
+            Route::post('approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
+        });
+
         Route::prefix('history')->group(function () {
-            Route::prefix('start-date')->group(function () {
-                Route::get('index', 'TaskModuleController@taskStartDateHistory')->name('task.history.start-date.index');
-            });
+            Route::get('start-date/index', 'TaskHistoryController@historyStartDate')->name('task.history.start-date.index');
+            Route::get('due-date/index', 'TaskHistoryController@historyDueDate')->name('task.history.due-date.index');
+            Route::get('cost/index', 'TaskHistoryController@historyCost')->name('task.history.cost.index');
+            Route::get('approximate/index', 'TaskHistoryController@historyApproximate')->name('task.history.approximate.index');
         });
         Route::get('dropdown-user-wise', 'TaskModuleController@dropdownUserWise')->name('task.dropdown-user-wise');
         Route::prefix('slot')->group(function () {
@@ -1043,16 +1052,16 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('/get-site-development-task', 'TaskModuleController@getSiteDevelopmentTask')->name('get.site.development.task');
     //END - DEVTASK-4354
 
-    Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
+    
     Route::post('task/create-get-remark', 'TaskModuleController@taskCreateGetRemark')->name('task.create.get.remark');
-    Route::post('task/get/due-date-history-log', 'TaskModuleController@getTaskDueDateHistoryLog')->name('task.get.due_date_history_log');
+    
     Route::post('task/update/priority-no', 'TaskModuleController@updatePriorityNo')->name('task.update.updatePriorityNo');
     Route::post('task/time/history/approve', 'TaskModuleController@approveTimeHistory')->name('task.time.history.approve');
 
-    Route::post('task/update/due_date', 'TaskModuleController@updateTaskDueDate')->name('task.update.due_date');
+    
     Route::get('task/time/tracked/history', 'TaskModuleController@getTrackedHistory')->name('task.time.tracked.history');
     Route::post('task/create/hubstaff_task', 'TaskModuleController@createHubstaffManualTask')->name('task.create.hubstaff_task');
-    Route::post('task/update/cost', 'TaskModuleController@updateCost')->name('task.update.cost');
+    
     Route::get('task/update/milestone', 'TaskModuleController@saveMilestone')->name('task.update.milestone');
     Route::get('task/get/details', 'TaskModuleController@getDetails')->name('task.json.details');
     Route::post('task/get/save-notes', 'TaskModuleController@saveNotes')->name('task.json.saveNotes');
@@ -1819,10 +1828,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('negative/coupon/response', 'NegativeCouponResponseController@index')->name('negative.coupon.response');
     Route::get('negative/coupon/response/search', 'NegativeCouponResponseController@search')->name('negative.coupon.response.search');
-   
+
     //Position
     Route::post('positions/store', 'PositionController@store')->name('positions.store');
-    
+
 
 
     Route::post('vendors/cv/store', 'VendorResumeController@store')->name('vendor.cv.store');
@@ -3163,7 +3172,7 @@ Route::middleware('auth')->group(function () {
     Route::post('uicheck/delete/attachment', 'UicheckController@deleteDocument')->name('uicheck.delete.attachment');
 
     // 5 Device 
-    
+
     Route::post('/uicheck/set/device', 'UicheckController@updateDevice')->name('uicheck.set.device');
     Route::post('/uicheck/device/upload-documents', 'UicheckController@uploadDocuments')->name("ui.dev.upload-documents");
 

@@ -46,6 +46,8 @@ use App\Sop;
 use App\TaskUserHistory;
 use App\LogChatMessage;
 use App\Models\Tasks\TaskHistoryForStartDate;
+use App\Models\Tasks\TaskHistoryForCost;
+
 
 class TaskModuleController extends Controller {
     use HubstaffTrait;
@@ -687,27 +689,7 @@ class TaskModuleController extends Controller {
     // 	return view( 'task-module.create-task',compact('data','task_categories','task_categories_dropdown','categories'));
     // }
 
-    public function updateCost(Request $request) {
-        $task = Task::find($request->task_id);
 
-        // if($task && $request->approximate) {
-        //     DeveloperTaskHistory::create([
-        // 		'developer_task_id' => $task->id,
-        // 		'model' => 'App\Task',
-        //         'attribute' => "estimation_minute",
-        //         'old_value' => $task->approximate,
-        //         'new_value' => $request->approximate,
-        //         'user_id' => auth()->id(),
-        //     ]);
-        // }
-        if (Auth::user()->isAdmin()) {
-            $task->cost = $request->cost;
-            $task->save();
-            return response()->json(['msg' => 'success']);
-        } else {
-            return response()->json(['msg' => 'Not authorized user to update'], 500);
-        }
-    }
 
 
 
@@ -759,52 +741,7 @@ class TaskModuleController extends Controller {
         ]);
     }
 
-    public function updateApproximate(Request $request) {
-        $task = Task::find($request->task_id);
 
-        if (Auth::user()->id == $task->assign_to || Auth::user()->isAdmin()) {
-            if ($task && $request->approximate) {
-                DeveloperTaskHistory::create([
-                    'developer_task_id' => $task->id,
-                    'model' => 'App\Task',
-                    'attribute' => "estimation_minute",
-                    'old_value' => $task->approximate,
-                    'remark' => isset($request->remark) ? $request->remark : null,
-                    'new_value' => $request->approximate,
-                    'user_id' => auth()->id(),
-                ]);
-            }
-
-            $task->approximate = $request->approximate;
-            $task->save();
-
-            if (Auth::user()->isAdmin()) {
-                $user = User::find($task->assign_to);
-                $msg = 'TIME ESTIMATED BY ADMIN FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' ' .  $request->approximate . ' MINS';
-            } else {
-                $user = User::find($task->master_user_id);
-                $msg = 'TIME ESTIMATED BY USER FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' ' .  $request->approximate . ' MINS';
-            }
-            if ($user) {
-                $receiver_user_phone = $user->phone;
-                if ($receiver_user_phone) {
-                    $chat = ChatMessage::create([
-                        'number' => $receiver_user_phone,
-                        'user_id' => $user->id,
-                        'customer_id' => $user->id,
-                        'message' => $msg,
-                        'status' => 0,
-                        'developer_task_id' => $request->task_id
-                    ]);
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
-                }
-            }
-
-            return response()->json(['msg' => 'success']);
-        } else {
-            return response()->json(['msg' => 'Unauthorized access'], 500);
-        }
-    }
 
     public function updatePriorityNo(Request $request) {
         $task = Task::find($request->task_id);
@@ -2786,25 +2723,7 @@ class TaskModuleController extends Controller {
         return response()->json(['histories' => $task_histories]);
     }
 
-    public function updateTaskDueDate(Request $request) {
-        if ($new = request('value')) {
-            if ($task = Task::find(request('task_id'))) {
-                $oldValue = $task->due_date;
 
-                $task->update(['due_date' => $new]);
-                TaskDueDateHistoryLog::create([
-                    'task_id' => $task->id,
-                    'task_type' => 'TASK',
-                    'updated_by' => Auth::id(),
-                    'old_due_date' => $oldValue,
-                    'new_due_date' => $task->due_date,
-                ]);
-                return respJson(200, 'Successfully updated.');
-            }
-            return respJson(404, 'No task found.');
-        }
-        return respJson(400, 'Due date is required.');
-    }
 
     public function taskCreateGetRemark(Request $request) {
         try {
@@ -2836,25 +2755,7 @@ class TaskModuleController extends Controller {
         }
     }
 
-    public function getTaskDueDateHistoryLog(Request $request) {
-        $taskHistory = TaskDueDateHistoryLog::where([['task_id', '=', $request->task_id]])->get();
 
-        if (count($taskHistory) > 0) {
-            $html = "";
-            foreach ($taskHistory as $taskHistoryData) {
-                $html .= "<tr>";
-                $html .= "<td>" . $taskHistoryData->id . "</td>";
-                $html .= "<td>" . $taskHistoryData->users->name . "</td>";
-                $html .= "<td>" . $taskHistoryData->old_due_date . "</td>";
-                $html .= "<td>" . $taskHistoryData->new_due_date . "</td>";
-                $html .= "<td>" . $taskHistoryData->created_at . "</td>";
-                $html .= "</tr>";
-            }
-            return response()->json(['code' => 200, 'data' => $html, 'msg' => 'Task Due Date History successfully loaded']);
-        } else {
-            return response()->json(['code' => 500, 'msg' => 'Task Due Date history long not found'], 200);
-        }
-    }
 
     public function createHubstaffManualTask(Request $request) {
         $task = Task::find($request->id);
@@ -3391,40 +3292,8 @@ class TaskModuleController extends Controller {
         return redirect('/development/automatic/tasks')->withSuccess('You have successfully assigned task!');
     }
 
-    public function taskStartDateUpdate() {
-        if ($new = request('start_date')) {
-            if ($task = Task::find(request('task_id'))) {
-                $task->updateStartDate($new);
-                return response()->json([
-                    'message' => 'Successfully updated'
-                ], 200);
-            }
-            return response()->json([
-                'message' => 'No task found.'
-            ], 404);
-        }
-        return response()->json([
-            'message' => 'Start date is required.'
-        ], 400);
-    }
-    public function taskStartDateHistory() {
-        $list = TaskHistoryForStartDate::with('updatedBy')->where([['task_id', '=', request('task_id')]])->orderBy('id')->get();
-        if ($list->count()) {
-            $html = "";
-            foreach ($list as $single) {
-                $html .= "<tr>";
-                $html .= "<td>" . $single->id . "</td>";
-                $html .= "<td>" . ($single->updatedBy ? $single->updatedBy->name : '-') . "</td>";
-                $html .= "<td>" . $single->old_value . "</td>";
-                $html .= "<td>" . $single->new_value . "</td>";
-                $html .= "<td>" . $single->created_at . "</td>";
-                $html .= "</tr>";
-            }
-            return response()->json(['data' => $html]);
-        } else {
-            return response()->json(['message' => 'No records found.'], 404);
-        }
-    }
+
+
 
     public function dropdownUserWise() {
         try {
@@ -3473,5 +3342,139 @@ class TaskModuleController extends Controller {
         } catch (\Throwable $th) {
             return respException($th);
         }
+    }
+
+
+    public function taskGet() {
+        try {
+            $errors = reqValidate(request()->all(), [
+                'id' => 'required'
+            ], []);
+            if ($errors) {
+                return respJson(400, $errors[0]);
+            }
+
+            $single = Task::find(request('id'));
+            if (!$single) {
+                return respJson(404, 'No task found.');
+            }
+            return respJson(200, '', [
+                'data' => $single
+            ]);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
+
+    public function taskUpdateStartDate() {
+        if ($new = request('value')) {
+            if ($task = Task::find(request('task_id'))) {
+                $task->updateStartDate($new);
+                return response()->json([
+                    'message' => 'Successfully updated'
+                ], 200);
+            }
+            return response()->json([
+                'message' => 'No task found.'
+            ], 404);
+        }
+        return response()->json([
+            'message' => 'Start date is required.'
+        ], 400);
+    }
+
+    public function taskUpdateDueDate() {
+        if ($new = request('value')) {
+            if ($task = Task::find(request('task_id'))) {
+                $oldValue = $task->due_date;
+
+                $task->update(['due_date' => $new]);
+                TaskDueDateHistoryLog::create([
+                    'task_id' => $task->id,
+                    'task_type' => 'TASK',
+                    'updated_by' => Auth::id(),
+                    'old_due_date' => $oldValue,
+                    'new_due_date' => $task->due_date,
+                ]);
+                return respJson(200, 'Successfully updated.');
+            }
+            return respJson(404, 'No task found.');
+        }
+        return respJson(400, 'Due date is required.');
+    }
+
+    public function updateCost() {
+        if (!isAdmin()) {
+            return respJson(403, 'Not authorized for users to update cost.');
+        }
+        $new = request('cost');
+        if (is_numeric($new)) {
+            if ($task = Task::find(request('task_id'))) {
+                $oldValue = $task->cost;
+
+                $task->update(['cost' => $new]);
+                TaskHistoryForCost::create([
+                    'task_id' => $task->id,
+                    'old_value' => $oldValue,
+                    'new_value' => $new,
+                    'updated_by' => Auth::id(),
+                ]);
+                return respJson(200, 'Successfully updated.');
+            }
+            return respJson(404, 'No task found.');
+        }
+        return respJson(400, 'Cost must be numeric.');
+    }
+
+    public function updateApproximate() {
+        $task_id = request('task_id');
+        $approximate = request('approximate');
+        $remark = request('remark');
+
+        if (!is_numeric($approximate)) {
+            return respJson(400, 'Estimated time must be numeric.');
+        }
+        if ($task = Task::find($task_id)) {
+            if (!isAdmin() && $task->assign_to != loginId()) {
+                return respJson(403, 'Unauthorized access.');
+            }
+
+            DeveloperTaskHistory::create([
+                'developer_task_id' => $task->id,
+                'model' => 'App\Task',
+                'attribute' => "estimation_minute",
+                'old_value' => $task->approximate,
+                'remark' => $remark ?: NULL,
+                'new_value' => $approximate,
+                'user_id' => auth()->id(),
+            ]);
+
+            $task->approximate = $approximate;
+            $task->save();
+
+            if (Auth::user()->isAdmin()) {
+                $user = User::find($task->assign_to);
+                $msg = 'TIME ESTIMATED BY ADMIN FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' ' .  $approximate . ' MINS';
+            } else {
+                $user = User::find($task->master_user_id);
+                $msg = 'TIME ESTIMATED BY USER FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' ' .  $approximate . ' MINS';
+            }
+            if ($user) {
+                if ($receiver_user_phone = $user->phone) {
+                    $chat = ChatMessage::create([
+                        'number' => $receiver_user_phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0,
+                        'developer_task_id' => $task_id
+                    ]);
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+                }
+            }
+
+            return respJson(200, 'Estimation updated successfully.');
+        }
+        return respJson(404, 'No task found.');
     }
 }

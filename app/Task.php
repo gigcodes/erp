@@ -17,6 +17,7 @@ use Plank\Mediable\Mediable;
 use Auth;
 use Illuminate\Http\Request;
 use App\Models\Tasks\TaskHistoryForStartDate;
+use App\Models\Tasks\TaskHistoryForCost;
 
 
 class Task extends Model {

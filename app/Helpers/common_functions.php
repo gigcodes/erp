@@ -470,3 +470,14 @@ function dailyHours($type = null) {
     }
     return $data;
 }
+function reqValidate($data, $rules = [], $messages = []) {
+	$validator = Validator::make($data, $rules, $messages);
+	return $validator->errors()->all();
+}
+
+function loginId(){
+    return \Auth::id() ?: 0;
+}
+function isAdmin(){
+    return auth()->user()->isAdmin();
+}
