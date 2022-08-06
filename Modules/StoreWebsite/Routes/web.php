@@ -34,7 +34,9 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
 
         Route::post('magento-dev-update-script-history', 'StoreWebsiteController@getMagentoDevScriptUpdatesLogs');
 
-        Route::post('magento-dev-script-update', 'StoreWebsiteController@magentoDevScriptUpdate');
+        Route::post('select-folder', 'StoreWebsiteController@getFolderName');
+
+        Route::post('magento-dev-script-update/{folder_name?}', 'StoreWebsiteController@magentoDevScriptUpdate');
 
         Route::get('/sync-stage-to-master', 'StoreWebsiteController@syncStageToMaster');
 
