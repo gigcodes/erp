@@ -60,13 +60,6 @@
     </td>
     <td data-id="{{ $issue->id }}">
         <div class="form-group">
-            <input style="min-width: 30px;" placeholder="Remark" value="" type="text" class="form-control mb-2 estimate-time-change" name="est_time_remark_{{$issue->id}}" data-id="{{$issue->id}}" id="est_time_remark_{{$issue->id}}">
-            <div class='input-group estimate_minutes'>
-                <input style="min-width: 30px;" placeholder="E.minutes" value="{{ $issue->estimate_minutes }}" type="text" class="form-control estimate-time-change" name="estimate_minutes_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_minutes_{{$issue->id}}">
-
-                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$issue->id}}" data-userId="{{$issue->user_id}}"><i class="fa fa-info-circle"></i></button>
-            </div>
-            <!-- <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button> -->
             @if($issue->ApprovedDeveloperTaskHistory)
             <span>Approved : {{$issue->ApprovedDeveloperTaskHistory ? $issue->ApprovedDeveloperTaskHistory->new_value:0  }}</span>
             @else
@@ -84,26 +77,11 @@
         <button type="button" class="btn btn-xs meeting-timing-popup" title="Add Meeting timings" data-id="{{$issue->id}}" data-type="admin">Meeting time</button>
         @endif
 
-        <div class="form-group mt-2">
-            <span>Lead dev : </span>
-            <div class='input-group estimate_minutes '>
-                <input style="min-width: 30px;" placeholder="E.minutes" value="{{ $issue->lead_estimate_time }}" type="text" class="form-control lead-estimate-time-change" name="lead_estimate_minutes_{{$issue->id}}" data-id="{{$issue->id}}" id="lead_estimate_minutes_{{$issue->id}}">
-                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-lead-time-history" title="Show History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
-            </div>
-        </div>
     </td>
     <td data-id="{{ $issue->id }}">
         <div class="form-group">
-            <div class='input-group estimate_dates'>
-
-                <input style="min-width: 30px;" placeholder="E.Date" value="{{ $issue->estimate_date }}" type="text" class="form-control estimate-date mb-2" name="estimate_date_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_date_{{$issue->id}}">
-                {{-- <input style="min-width: 30px;" placeholder="remark" value="" type="text" class="form-control mb-2" name="est_remark_{{$issue->id}}" data-id="{{$issue->id}}" id="est_remark_{{$issue->id}}"> --}}
-                <button class="btn btn-sm btn-image save-est-date" type="button" id="add_est_date" data-id="{{$issue->id}}"><img src="/images/filled-sent.png"></button>
-
-                <button type="button" class="btn btn-xs show-date-history" title="Show Date History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
-
-                <br />
-                <span>@if($issue->developerTaskHistory) @if($issue->developerTaskHistory->is_approved == 1) Approved @else Un-Approved @endif : {{ $issue->developerTaskHistory->new_value   }} @else -- @endif</span>
+            <div class='input-group'>
+                <span>{{ optional($issue->developerTaskHistory)->new_value ?: "--" }}</span>
             </div>
         </div>
     </td>
@@ -198,11 +176,7 @@
         </div>
     </td>
     <td>
-        @if($issue->cost > 0)
-        {{ $issue->cost }}
-        @else
-        <input type="text" name="cost" id="cost_{{$issue->id}}" placeholder="Amount..." class="form-control save-cost" data-id="{{$issue->id}}">
-        @endif
+    {{ $issue->cost ?: 0 }}
     </td>
     <td>
         @if($issue->is_milestone)
@@ -224,8 +198,7 @@
                 Actions
             </a>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$issue->id}}">
-            <a class="dropdown-item" href="javascript:void(0);" data-task_id="{{$issue->id}}" data-start_date="{{$issue->start_date}}" onclick="funDevelopmentTaskStartDateModal(this)">Start Date: Update</a>
-                <a class="dropdown-item" href="javascript:void(0);" onclick="funDevelopmentTaskStartDateHistory('{{$issue->id}}')">Start Date: View History</a>
+                <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskInformationModal(this, '{{ $issue->id }}')">Task Information: Update</a>
             </div>
         </div>
     </td>
