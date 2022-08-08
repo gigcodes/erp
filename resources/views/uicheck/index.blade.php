@@ -474,6 +474,123 @@
 		</div>
 	</div>
 </div>
+
+<div id="modalCreateLanguage" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Languages</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="col-md-12">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th width="5%">ID</th>
+								<th width="15%" style="word-break: break-all;">Language</th>
+								<th width="22%" style="word-break: break-all;">Message</th>
+								<th width="22%" style="word-break: break-all;">Attachment</th>
+								<th width="21%">Status</th>
+								
+							</tr>
+						</thead>
+						<tbody>
+							@foreach ($languages as $language)
+								<tr>
+									<td>{{$language->id}}</td>
+									<td>{{$language->name}}</td>
+									<td><input type="text" name="uilanmessage{{$language->id}}" class="uilanmessage{{$language->id}}" style="margin-top: 0px;width:80% !important;"/><button class="btn pr-0 btn-xs btn-image message-language" onclick="funLanUpdate('{{$language->id}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="fa fa-info-circle languageHistorty" onclick="funGetLanHistory('{{$language->id}}');"></i></td>
+									<td><input type="hidden" class="uicheckId" value=""/>
+										<button type="button" data-toggle="tooltip" title="Upload File" data-id="{{$language->id}}" class="btn btn-file-upload pd-5">
+											<i class="fa fa-upload" aria-hidden="true"></i>
+										</button>
+										<button type="button" data-id="{{$language->id}}" data-toggle="tooltip" title="List of Files" class="btn btn-file-list pd-5">
+											<i class="fa fa-list" aria-hidden="true"></i>
+										</button>	
+									</td>
+									<td>
+										{{-- <input type="text" name="uilanstatus" id="uilanstatus{{$language->id}}" class="uilanstatus{{$language->id}}" style="margin-top: 0px;width:80% !important;"/><button class="btn pr-0 btn-xs btn-image uicheck-status" onclick="funLanUpdate('{{$language->id}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button> --}}
+										<select name="uilanstatus" id="uilanstatus{{$language->id}}" class="uilanstatus{{$language->id}} pd-5" style="margin-top: 0px;width:80% !important;">
+											<option value="">-- Status --</option>
+											@forelse($allStatus as $key => $as)
+											<option value="{{ $key }}" @if($dev_status==$key) selected @endif>{{ $as }}</option>
+											@empty
+											@endforelse
+										</select>
+									</td>
+								</tr>
+							@endforeach
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="file-upload-area-section" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+		   <form action="{{ route("uicheck.create.attachment") }}" method="POST" enctype="multipart/form-data">
+			  <input type="hidden" name="id" id="language_id" value="">
+			  <input type="hidden" name="uicheck_id" class="uicheck_id" value="">
+			  <div class="modal-header">
+				  <h4 class="modal-title">Upload File(s)</h4>
+			  </div>
+			  <div class="modal-body" style="background-color: #999999;">
+			  @csrf
+			  <div class="form-group">
+				  <label for="document">Documents</label>
+				  <div class="needsclick dropzone" id="document-dropzone">
+
+				  </div>
+			  </div>
+
+			  </div>
+			  <div class="modal-footer">
+				  <button type="button" class="btn btn-default btn-save-documents">Save</button>
+				  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			  </div>
+	  </form>
+		</div>
+	</div>
+</div>
+
+<div id="modalGetMessageHistory" class="modal fade" role="dialog" >
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Ui Language Message History</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="col-md-12">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th width="5%">ID</th>
+								<th width="8%">Update By</th>
+								<th width="25%" style="word-break: break-all;">Message</th>
+								<th width="15%" style="word-break: break-all;">Status</th>
+								<th width="15%">Created at</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div id="modalHistoryDateUpdates" class="modal fade" role="dialog">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -505,6 +622,175 @@
 		</div>
 	</div>
 </div>
+
+
+
+<div id="file-upload-area-list" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-body">
+            <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th width="5%">No</th>
+                <th width="45%">Link</th>
+                <th width="25%">Send To</th>
+                <th width="25%">Action</th>
+              </tr>
+            </thead>
+            <tbody class="display-document-list">
+            </tbody>
+        </table>
+      </div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+
+
+<div id="modalCreateDevice" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">5 Devices</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="col-md-12">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th width="5%">ID</th>
+								<th width="15%" style="word-break: break-all;">Language</th>
+								<th width="22%" style="word-break: break-all;">Message</th>
+								<th width="22%" style="word-break: break-all;">Attachment</th>
+								<th width="21%">Status</th>
+								
+							</tr>
+						</thead>
+						<tbody>
+							@for ($i=1; $i<=5; $i++)
+								<tr>
+									<td>{{$i}}</td>
+									<td>Device {{$i}}</td>
+									<td><input type="text" name="uidevmessage{{$i}}" class="uidevmessage{{$i}}" style="margin-top: 0px;width:80% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('{{$i}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="fa fa-info-circle devHistorty" onclick="funGetDevHistory('{{$i}}');"></i></td>
+									<td><input type="hidden" class="uicheckId" value=""/>
+										<input type="hidden" class="ui_check_id" value=""/>
+										<button type="button" data-toggle="tooltip" title="Upload File" data-device_no="{{$i}}" class="btn btn-dev-file-upload pd-5">
+											<i class="fa fa-upload" aria-hidden="true"></i>
+										</button>
+										<button type="button" data-device_no="{{$i}}" data-toggle="tooltip" title="List of Files" class="btn btn-dev-file-list pd-5">
+											<i class="fa fa-list" aria-hidden="true"></i>
+										</button>	
+									</td>
+									<td>
+										{{-- <input type="text" name="uidevstatus" id="uidevstatus{{$i}}" class="uidevstatus{{$i}}" style="margin-top: 0px;width:80% !important;"/> --}}
+										<select name="uidevstatus" id="uidevstatus{{$i}}" class="uidevstatus{{$i}} pd-5" style="margin-top: 0px;width:80% !important;">
+											<option value="">-- Status --</option>
+											@forelse($allStatus as $key => $as)
+											<option value="{{ $key }}" @if($dev_status==$key) selected @endif>{{ $as }}</option>
+											@empty
+											@endforelse
+										</select>
+										<button class="btn pr-0 btn-xs btn-image dev-uicheck-status" onclick="funDevUpdate('{{$i}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button></td>
+								</tr>
+							@endfor
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="modalGetDevMessageHistory" class="modal fade" role="dialog" >
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Ui Device Message History</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="col-md-12">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th width="5%">ID</th>
+								<th width="8%">Update By</th>
+								<th width="25%" style="word-break: break-all;">Message</th>
+								<th width="15%" style="word-break: break-all;">Status</th>
+								<th width="15%">Created at</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="dev-file-upload-area-section" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+		   <form action="{{ route("uicheck.create.dev.attachment") }}" method="POST" enctype="multipart/form-data">
+			  <input type="hidden" name="uicheck_id" class="ui_check_id" value="">
+			  <input type="hidden" name="device_no" id="device_no" value="">
+			  <div class="modal-header">
+				  <h4 class="modal-title">Upload File(s)</h4>
+			  </div>
+			  <div class="modal-body" style="background-color: #999999;">
+			  @csrf
+			  <div class="form-group">
+				  <label for="document">Documents</label>
+				  <div class="needsclick dropzone" id="document-dropzone">
+
+				  </div>
+			  </div>
+
+			  </div>
+			  <div class="modal-footer">
+				  <button type="button" class="btn btn-default btn-dev-save-documents">Save</button>
+				  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			  </div>
+	  </form>
+		</div>
+	</div>
+</div>
+
+<div id="dev-file-upload-area-list" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-body">
+            <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th width="5%">No</th>
+                <th width="45%">Link</th>
+				<th width="45%">Uploaded By</th>
+                <th width="25%">Action</th>
+              </tr>
+            </thead>
+            <tbody class="dev-display-document-list">
+            </tbody>
+        </table>
+      </div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
 
 @if (Auth::user()->hasRole('Admin'))
 <input type="hidden" id="user-type" value="Admin">
@@ -745,6 +1031,394 @@
 		}
 	}
 
+	function showLanguage(uiid){
+		let mdl = jQuery('#modalCreateLanguage');
+		$(".uicheckId").val(uiid);
+		mdl.modal("show");
+	}
+	function showDevice(uiid){
+		let mdl = jQuery('#modalCreateDevice');
+		$(".uicheckId").val(uiid);
+		$(".ui_check_id").val(uiid);
+		
+		mdl.modal("show");
+	}
+
+	function funLanUpdate(id) {
+		siteLoader(true);
+		let mdl = jQuery('#modalCreateLanguage');
+		let uicheckId = jQuery('.uicheckId').val();
+		let uilanmessage = jQuery('.uilanmessage'+id).val();
+		let uilanstatus = jQuery('.uilanstatus'+id).val();
+		jQuery.ajax({
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			url: "/uicheck/set/language",
+			type: 'POST',
+			data: {
+				id: id,
+				uicheck_id : uicheckId,
+				message : uilanmessage,
+				uilanstatus : uilanstatus
+			},
+			beforeSend: function() {
+				//jQuery("#loading-image").show();
+			}
+		}).done(function(response) {
+			//siteLoader(false);
+			toastr["success"]("Message saved successfully!!!");
+			//mdl.find('tbody').html(response.html);
+			//mdl.modal("show");
+		}).fail(function(errObj) {
+			//siteErrorAlert(errObj);
+			toastr["error"](errObj);
+			//siteLoader(false);
+		});
+	}
+
+	var uploadedDocumentMap = {}
+    Dropzone.options.documentDropzone = {
+      url: '{{ route("voucher.upload-documents") }}',
+      maxFilesize: 20, // MB
+      addRemoveLinks: true,
+      headers: {
+          'X-CSRF-TOKEN': "{{ csrf_token() }}"
+      },
+      success: function (file, response) {
+          $('form').append('<input type="hidden" name="document[]" value="' + response.name + '">')
+          uploadedDocumentMap[file.name] = response.name
+      },
+      removedfile: function (file) {
+          file.previewElement.remove()
+          var name = ''
+          if (typeof file.file_name !== 'undefined') {
+            name = file.file_name
+          } else {
+            name = uploadedDocumentMap[file.name]
+          }
+          $('form').find('input[name="document[]"][value="' + name + '"]').remove()
+      },
+      init: function () {
+
+      }
+  }
+
+	$(document).on("click",".btn-file-upload",function() {
+      var $this = $(this);
+      $("#file-upload-area-section").modal("show");
+       $("#language_id").val($this.data("id"));
+	   
+	   $(".uicheck_id").val($(".uicheckId").val());
+      // $("#hidden-site-id").val($this.data("site-id"));
+      // $("#hidden-site-category-id").val($this.data("site-category-id"));
+    });
+
+	$(document).on("click",".btn-save-documents",function(e){
+		e.preventDefault();
+		var $this = $(this);
+		var formData = new FormData($this.closest("form")[0]);
+		$.ajax({
+		url: 'uicheck/create/attachment',
+		type: 'POST',
+		headers: {
+				'X-CSRF-TOKEN': "{{ csrf_token() }}"
+			},
+			dataType:"json",
+		data: $this.closest("form").serialize(),
+		beforeSend: function() {
+			$("#loading-image").show();
+				}
+		}).done(function (data) {
+		$("#loading-image").hide();
+		toastr["success"]("Document uploaded successfully");
+		//location.reload();
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {      
+		toastr["error"](jqXHR.responseJSON.message);
+		$("#loading-image").hide();
+		});
+	});
+
+	$(document).on("click",".btn-file-list",function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var id = $(this).data("id");
+		var uicheck_id = $(".uicheckId").val();
+        $.ajax({
+          url: 'uicheck/get/attachment?id='+id+"&uicheck_id="+uicheck_id,
+          type: 'GET',
+          headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            dataType:"json",
+          beforeSend: function() {
+            $("#loading-image").show();
+                }
+        }).done(function (response) {
+          $("#loading-image").hide();
+          var html = "";
+          $.each(response.data,function(k,v){
+            html += "<tr>";
+              html += "<td>"+v.id+"</td>";
+              html += "<td>"+v.url+"</td>";
+              html += "<td><div class='form-row'>"+v.user_list+"</div></td>";
+              html += '<td><a class="btn-secondary" href="'+v.url+'" data-id="'+v.id+'" target="__blank"><i class="fa fa-download" aria-hidden="true"></i></a>&nbsp;<a class="btn-secondary link-delete-document" data-id='+v.id+' href="_blank"><i class="fa fa-trash" aria-hidden="true"></i></a></td>';
+            html += "</tr>";
+          });
+          $(".display-document-list").html(html);
+          $("#file-upload-area-list").modal("show");
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+			toastr["error"](jqXHR.responseJSON.message);
+          $("#loading-image").hide();
+        });
+      });
+
+	  $(document).on("click",".link-delete-document",function(e) {
+        e.preventDefault();
+        var id = $(this).data("id");
+        var $this = $(this);
+        if(confirm("Are you sure you want to delete records ?")) {
+          $.ajax({
+            url: '/uicheck/delete/attachment',
+            type: 'POST',
+            headers: {
+                  'X-CSRF-TOKEN': "{{ csrf_token() }}"
+              },
+              dataType:"json",
+            data: { id : id},
+            beforeSend: function() {
+              $("#loading-image").show();
+                  }
+          }).done(function (data) {
+            $("#loading-image").hide();
+            toastr["success"]("Document deleted successfully");
+            $this.closest("tr").remove();
+          }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            toastr["error"](jqXHR.responseJSON.message);
+            $("#loading-image").hide();
+          });
+        }
+      });
+
+
+	function funGetLanHistory(id) {
+		//siteLoader(true);
+		let mdl = jQuery('#modalGetMessageHistory');
+		let uicheckId = jQuery('.uicheckId').val();
+		
+		jQuery.ajax({
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			url: "/uicheck/get/message/history/language",
+			type: 'POST',
+			data: {
+				id: id,
+				uicheck_id : uicheckId,
+			},
+			beforeSend: function() {
+				//jQuery("#loading-image").show();
+			}
+		}).done(function(response) {
+			//siteLoader(false);
+			//siteSuccessAlert("Listed successfully!!!");
+			//$("#modalCreateLanguage").modal("hide");
+			
+			mdl.find('tbody').html(response.html);
+			mdl.modal("show");
+		}).fail(function(errObj) {
+			//siteErrorAlert(errObj);
+			//siteLoader(false);
+			toastr["error"](errObj);
+		});
+	}
+
+
+	//5 Device
+	function funDevUpdate(id) {
+		//siteLoader(true);
+		let mdl = jQuery('#modalCreateDevice');
+		let uicheckId = jQuery('.uicheckId').val();
+		let uidevmessage = jQuery('.uidevmessage'+id).val();
+		let uidevstatus = jQuery('.uidevstatus'+id).val();
+		let device_no = jQuery('.device_no'+id).val();
+		jQuery.ajax({
+			
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			url: "/uicheck/set/device",
+			type: 'POST',
+			data: {
+				device_no : id,
+				uicheck_id : uicheckId,
+				message : uidevmessage,
+				uidevstatus : uidevstatus
+			},
+			beforeSend: function() {
+				//jQuery("#loading-image").show();
+			}
+		}).done(function(response) {
+			toastr["success"]("Record updated successfully!!!");
+			//mdl.find('tbody').html(response.html);
+			//mdl.modal("show");
+		}).fail(function(errObj) {
+			console.log(errObj);
+			toastr["error"](errObj.message);
+		});
+	}
+
+	function funGetDevHistory(id) {
+		//siteLoader(true);
+		let mdl = jQuery('#modalGetDevMessageHistory');
+		let uicheckId = jQuery('.uicheckId').val();
+		
+		jQuery.ajax({
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			url: "/uicheck/get/message/history/dev",
+			type: 'POST',
+			data: {
+				device_no: id,
+				uicheck_id : uicheckId,
+			},
+			beforeSend: function() {
+				//jQuery("#loading-image").show();
+			}
+		}).done(function(response) {
+			//siteLoader(false);
+			//siteSuccessAlert("Listed successfully!!!");
+			$("#modalCreateLanguage").modal("hide");
+			mdl.find('tbody').html(response.html);
+			mdl.modal("show");
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {      
+			toastr["error"](jqXHR.responseJSON.message);
+			$("#loading-image").hide();
+		});
+	}
+	var uploadedDocumentMapDev = {}
+    Dropzone.options.documentDropzone = {
+      url: '{{ route("ui.dev.upload-documents") }}',
+      maxFilesize: 20, // MB
+      addRemoveLinks: true,
+      headers: {
+          'X-CSRF-TOKEN': "{{ csrf_token() }}"
+      },
+      success: function (file, response) {
+          $('form').append('<input type="hidden" name="document[]" value="' + response.name + '">')
+          uploadedDocumentMapDev[file.name] = response.name
+      },
+      removedfile: function (file) {
+          file.previewElement.remove()
+          var name = ''
+          if (typeof file.file_name !== 'undefined') {
+            name = file.file_name
+          } else {
+            name = uploadedDocumentMapDev[file.name]
+          }
+          $('form').find('input[name="document[]"][value="' + name + '"]').remove()
+      },
+      init: function () {
+
+      }
+  }
+
+	$(document).on("click",".btn-dev-file-upload",function() {
+      var $this = $(this);
+      $("#dev-file-upload-area-section").modal("show");
+       $("#ui_check_id").val($("#ui_check_id").val());
+	   $("#device_no").val($this.data("device_no"));
+      
+    });
+
+	$(document).on("click",".btn-dev-save-documents",function(e){
+		e.preventDefault();
+		var $this = $(this);
+		var formData = new FormData($this.closest("form")[0]);
+		$.ajax({
+		url: 'uicheck/create/dev/attachment',
+		type: 'POST',
+		headers: {
+				'X-CSRF-TOKEN': "{{ csrf_token() }}"
+			},
+			dataType:"json",
+		data: $this.closest("form").serialize(),
+		beforeSend: function() {
+			$("#loading-image").show();
+				}
+		}).done(function (data) {
+		$("#loading-image").hide();
+		toastr["success"]("Document uploaded successfully");
+		//location.reload();
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {      
+		toastr["error"](jqXHR.responseJSON.message);
+		$("#loading-image").hide();
+		});
+	});
+
+	$(document).on("click",".btn-dev-file-list",function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var device_no = $(this).data("device_no");
+		var ui_check_id = $(".ui_check_id").val();
+        $.ajax({
+          url: 'uicheck/get/dev/attachment?device_no='+device_no+"&ui_check_id="+ui_check_id,
+          type: 'GET',
+          headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            dataType:"json",
+          beforeSend: function() {
+            $("#loading-image").show();
+                }
+        }).done(function (response) {
+          $("#loading-image").hide();
+          var html = "";
+          $.each(response.data,function(k,v){
+            html += "<tr>";
+              html += "<td>"+v.id+"</td>";
+              html += "<td>"+v.url+"</td>";
+              html += "<td><div class='form-row'>"+v.userName+"</div></td>";
+              html += '<td><a class="btn-secondary" href="'+v.url+'" data-id="'+v.id+'" target="__blank"><i class="fa fa-download" aria-hidden="true"></i></a>&nbsp;<a class="btn-secondary dev-link-delete-document" data-id='+v.id+' href="_blank"><i class="fa fa-trash" aria-hidden="true"></i></a></td>';
+            html += "</tr>";
+          });
+          $(".dev-display-document-list").html(html);
+          $("#dev-file-upload-area-list").modal("show");
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+          toastr["error"]("Oops,something went wrong");
+          $("#loading-image").hide();
+        });
+      });
+
+	  $(document).on("click",".dev-link-delete-document",function(e) {
+        e.preventDefault();
+        var id = $(this).data("id");
+        var $this = $(this);
+        if(confirm("Are you sure you want to delete records ?")) {
+          $.ajax({
+            url: '/uicheck/dev/delete/attachment',
+            type: 'POST',
+            headers: {
+                  'X-CSRF-TOKEN': "{{ csrf_token() }}"
+              },
+              dataType:"json",
+            data: { id : id},
+            beforeSend: function() {
+              $("#loading-image").show();
+                  }
+          }).done(function (data) {
+            $("#loading-image").hide();
+            toastr["success"]("Document deleted successfully");
+            $this.closest("tr").remove();
+          }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            toastr["error"]("Oops,something went wrong");
+            $("#loading-image").hide();
+          });
+        }
+      });
+
+
 	// START Print Table Using datatable
 	var oTable;
 	$(document).ready(function() {
@@ -855,6 +1529,8 @@
 							'<a class="dropdown-item" href="javascript:void(0);" onclick="funDateUpdatesHistory(\'' + row.uicheck_id + '\')">Dates: View History</a>' +
 							'<a class="dropdown-item" href="javascript:void(0);" onclick="funLockApply(\'developer\', \'' + row.uicheck_id + '\')">' + (row.lock_developer ? 'Show for Developer' : 'Hide for Developer') + '</a>' +
 							'<a class="dropdown-item" href="javascript:void(0);" onclick="funLockApply(\'admin\', \'' + row.uicheck_id + '\')">' + (row.lock_admin ? 'Show for Admin' : 'Hide for Admin') + '</a>' +
+							'<a class="dropdown-item" href="javascript:void(0);" onclick="showLanguage(\'' + row.uicheck_id + '\')">Translation</a>' +
+							'<a class="dropdown-item" href="javascript:void(0);" onclick="showDevice(\'' + row.uicheck_id + '\')">5 Devices</a>' +
 							'</div>' +
 							'</div>';
 					}
@@ -946,6 +1622,8 @@
 							'<div class="dropdown-menu" >' +
 							'<a class="dropdown-item" href="javascript:void(0);" onclick="funDateModalOpen(\'' + row.uicheck_id + '\')">Dates: Update</a>' +
 							'<a class="dropdown-item" href="javascript:void(0);" onclick="funDateUpdatesHistory(\'' + row.uicheck_id + '\')">Dates: View History</a>' +
+							'<a class="dropdown-item" href="javascript:void(0);" onclick="showLanguage(\'' + row.uicheck_id + '\')">Translation</a>' +
+							'<a class="dropdown-item" href="javascript:void(0);" onclick="showDevice(\'' + row.uicheck_id + '\')">5 Devices</a>' +
 							'</div>' +
 							'</div>';
 					}
@@ -1516,6 +2194,8 @@
 	jQuery(document).ready(function() {
 		applyDateTimePicker(jQuery('.cls-start-due-date'));
 	});
+
+	
 </script>
 
 @endsection
