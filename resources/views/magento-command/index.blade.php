@@ -260,7 +260,7 @@
                       <label for="title">Website</label>
                       <div class="dropdown-sin-1">
                         <?php $websites = \App\StoreWebsite::get(); ?>
-                        <select name="websites_ids[]" multiple class="websites_ids form-control dropdown-mul-1" style="width: 100%;" id="websites_ids" required>
+                        <select name="websites_ids[]" class="websites_ids form-control dropdown-mul-1" style="width: 100%;" id="websites_ids" required>
                           <option>--Website--</option>
                           <?php 
                             foreach($websites as $website){
@@ -293,7 +293,23 @@
                     </div>
                     <div class="form-group col-md-12">
                       <label for="command_type">Command</label>
-                      <input type="text" name="command_type" value="" class="form-control" id="command_type" placeholder="Enter request type">
+                      {{-- <input type="text" name="command_type" value="" class="form-control" id="command_type" placeholder="Enter request type"> --}}
+                      <?php $commandTypeArr = []; ?>
+                        @foreach ($magentoCommand as $key => $magentoComT)
+                            <?php array_push($magentoComArr,$magentoComT->command_type);?>
+                        @endforeach
+                        <?php $magentoComArr = array_unique($magentoComArr); ?>
+                        <select name="command_type"  class="form-control" id="command_type" style="width: 100%">
+                          <option value="">--Select Command Name--</option>
+                          @foreach ($magentoComArr as $key => $comType)
+                          <?php $selected  = '';
+                          if($comType == request('command_type')) {
+                            $selected  = 'selected = "selected"';
+                          }
+                            ?>
+                              <option {{$selected}} value="{{$comType}}">{{$comType}}</option>
+                          @endforeach
+                        </select>
                     </div>
                   </div>
                 </form> 
@@ -346,7 +362,7 @@
     //   }
     // });
 
-    // $('.dropdown-sin-1').dropdown({
+    //  $('.dropdown-sin-11').dropdown({
     //   readOnly: true,
     //   input: '<input type="text" maxLength="25" placeholder="Search">'
     // });
@@ -478,6 +494,9 @@
                   form.find('[name="'+key+'"]').val(v);
                   if(key == 'command_name'){
                     $('#command_name_search').val(v).trigger('change');
+                  }
+                  if(key == 'command_type'){
+                    $('#command_type').val(v).trigger('change');
                   }
                   
               }else if(form.find('[name="'+key+'[]"]').length){
@@ -629,7 +648,8 @@
     });
     $(document).ready(function(){
 		  $('.select2').select2();
-      $("#command_name_search").select2({});
+      $("#command_name_search").select2({tags: true});
+      $("#command_type").select2({tags: true});
       $(".dropdown-mul-1").select2({});
     });
 	
