@@ -133,9 +133,21 @@
                 <button type="button" data-id="{{ $vou->id }}"  title="Remark" class="btn btn-store-development-remark pd-5">
                     <i class="fa fa-comment" aria-hidden="true"></i>
                 </button>
-                <button type="button" class="btn btn-xs ml-3 mr-3 link-delete"  data-id="{{ $vou->id }}" >
+                <button type="button" class="btn btn-xs  link-delete" title="Delete Record"  data-id="{{ $vou->id }}" >
                   <i class="fa fa-trash" aria-hidden="true"></i>
                 </button>
+                <button type="button" class="btn btn-xs btn-store-code" title="Coupon Codes"  data-id="{{ $vou->id }}" >
+                  <b>C</b>
+                </button>
+                {{-- <button type="button" class="btn btn-xs btn-store-code-list" title="List of Coupon Code"  data-id="{{ $vou->id }}" >
+                  <i class="fa fa-eye" aria-hidden="true"></i>
+                </button> --}}
+                <button type="button" class="btn btn-xs btn-store-code-order"  title="Orders" data-id="{{ $vou->id }}" >
+                  <b>O</b>
+                </button>
+                {{-- <button type="button" class="btn btn-xs btn-store-code-order-list"  title="List of Coupon Code Order" data-id="{{ $vou->id }}" >
+                  <i class="fa fa-info-circle" aria-hidden="true"></i>
+                </button> --}}
                     
               </td>
             </tr>
@@ -291,18 +303,203 @@
       </div>
     </div>
 
+    <div id="addVoucherCouponCodeModel" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+          <!-- Modal content-->
+          <div class="modal-content">
+              <form action="" method="POST" id="addupdateCode" >
+                  @csrf
+
+                  <input type="hidden" name="voucher_coupons_id" id="voucher_coupons_id">
+                  <div class="modal-header">
+                      <h4 class="modal-title">Add Voucher Coupon Code</h4>
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  </div>
+                  <div class="modal-body">
+                          <div class="form-group">
+                              {!! Form::label('coupon_code', 'Coupon Code', ['class' => 'form-control-label']) !!}
+                              <input type="text" class="form-control coupon_code" name="coupon_code" id="coupon_code" required style="width: 100%;">
+                                  @if($errors->has('coupon_code'))
+                                    <div class="form-control-plateform">{{$errors->first('coupon_code')}}</div>
+                                  @endif
+                          </div>
+                          <div class="form-group">
+                            {!! Form::label('valid_date', 'Valid Date', ['class' => 'form-control-label']) !!}
+                            <input type="text" class="form-control valid_date" name="valid_date" id="valid_date" style="width: 100%;" required/>
+                              
+                              @if($errors->has('valid_date'))
+                                <div class="form-control-plateform">{{$errors->first('valid_date')}}</div>
+                              @endif
+                        </div>
+                        <div class="form-group">
+                          {!! Form::label('code_remark', 'Remark', ['class' => 'form-control-label']) !!}
+                          <input type="text" class="form-control datepicker" name="code_remark" id="code_remark" style="width: 100%;" required/>
+                            
+                            @if($errors->has('valid_date'))
+                              <div class="form-control-plateform">{{$errors->first('code_remark')}}</div>
+                            @endif
+                      </div>
+                      </div>
+                  
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-default save-voucher-code">Submit</button>
+                    </div>
+                  </div>
+              </form>
+          </div>
+      </div>
+
+      <div id="addVoucherCouponCodeOrderModel" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+              <form action="" method="POST" id="addupdateCodeOrderForm" >
+                  @csrf
+                  <input type="hidden" name="voucher_coupons_id" class="voucher_coupons_id">
+                  <div class="modal-header">
+                      <h4 class="modal-title">Add Voucher Coupon Code Order</h4>
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-group">
+                      {!! Form::label('date_order_placed', 'Date Order Placed', ['class' => 'form-control-label']) !!}
+                      <input type="text" class="form-control date_order_placed" name="date_order_placed" id="date_order_placed" style="width: 100%;" required/>
+                        @if($errors->has('date_order_placed'))
+                          <div class="form-control-plateform">{{$errors->first('date_order_placed')}}</div>
+                        @endif
+                    </div>
+                  
+                    <div class="form-group">
+                        {!! Form::label('order_no', 'Order No', ['class' => 'form-control-label']) !!}
+                        <input type="text" class="form-control" name="order_no" id="order_no" required style="width: 100%;">
+                            @if($errors->has('order_no'))
+                              <div class="form-control-plateform">{{$errors->first('order_no')}}</div>
+                            @endif
+                    </div>
+
+                    <div class="form-group">
+                      {!! Form::label('order_amount', 'Order Amount', ['class' => 'form-control-label']) !!}
+                      <input type="text" class="form-control" name="order_amount" id="order_amount" required style="width: 100%;">
+                          @if($errors->has('order_amount'))
+                            <div class="form-control-plateform">{{$errors->first('order_amount')}}</div>
+                          @endif
+                    </div>
+
+                    <div class="form-group">
+                      {!! Form::label('discount', 'Discount', ['class' => 'form-control-label']) !!}
+                      <input type="text" class="form-control" name="discount" id="discount" required style="width: 100%;">
+                          @if($errors->has('discount'))
+                            <div class="form-control-plateform">{{$errors->first('discount')}}</div>
+                          @endif
+                    </div>
+
+                    <div class="form-group">
+                      {!! Form::label('final_amount', 'Final Amount', ['class' => 'form-control-label']) !!}
+                      <input type="text" class="form-control" name="final_amount" id="final_amount" required style="width: 100%;">
+                          @if($errors->has('final_amount'))
+                            <div class="form-control-plateform">{{$errors->first('final_amount')}}</div>
+                          @endif
+                    </div>
+
+                    <div class="form-group">
+                      {!! Form::label('refund_amount', 'Refund Amount', ['class' => 'form-control-label']) !!}
+                      <input type="text" class="form-control" name="refund_amount" id="refund_amount" required style="width: 100%;">
+                          @if($errors->has('refund_amount'))
+                            <div class="form-control-plateform">{{$errors->first('refund_amount')}}</div>
+                          @endif
+                    </div>
+
+                    <div class="form-group">
+                      {!! Form::label('code_remark', 'Remark', ['class' => 'form-control-label']) !!}
+                      <input type="text" class="form-control datepicker" name="code_remark" id="code_remark" style="width: 100%;" required/>
+                        
+                        @if($errors->has('valid_date'))
+                          <div class="form-control-plateform">{{$errors->first('code_remark')}}</div>
+                        @endif
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-default save-voucher-code-order">Submit</button>
+                  </div>
+                </div>
+                </form>
+              </div>
+          </div>
+        </div>
+
+        
+        <div id="voucher-code-list-model" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+              <table class="table">
+                <thead class="thead-dark">
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">First</th>
+                    <th scope="col">Last</th>
+                    <th scope="col">Handle</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">1</th>
+                    <td>Mark</td>
+                    <td>Otto</td>
+                    <td>@mdo</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">2</th>
+                    <td>Jacob</td>
+                    <td>Thornton</td>
+                    <td>@fat</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">3</th>
+                    <td>Larry</td>
+                    <td>the Bird</td>
+                    <td>@twitter</td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              <table class="table">
+                <thead class="thead-light">
+                  <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Coupon code</th>
+                    <th scope="col">Valid Date</th>
+                    <th scope="col">Remark</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      
 @endsection
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
+  <script src="{{env('APP_URL')}}/js/bootstrap-datetimepicker.min.js"></script>
   <script type="text/javascript">
   
     $('.assign-to.select2').select2({
       width: "100%"
     });
 
+    $(".valid_date").datetimepicker({
+                format: 'YYYY-MM-DD'
+    });
+    $(".date_order_placed").datetimepicker({
+                format: 'YYYY-MM-DD'
+    });
+    
     var uploadedDocumentMap = {}
     Dropzone.options.documentDropzone = {
       url: '{{ route("voucher.upload-documents") }}',
@@ -491,20 +688,63 @@
           });
         }
       });
+      $(document).on("click",".btn-store-code",function() {
+          var $this = $(this);
+          $("#addVoucherCouponCodeModel").modal("show");
+          $("#voucher_coupons_id").val($this.data("id"));
+      });
+      $(document).on("click",".save-voucher-code",function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var formData = new FormData($this.closest("form")[0]);
+        $.ajax({
+          url: '{{route("voucher.code.create")}}',
+          type: 'POST',
+          headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            dataType:"json",
+            data: $this.closest("form").serialize(),
+          beforeSend: function() {
+            $("#loading-image").show();
+                }
+        }).done(function (data) {
+          $("#loading-image").hide();
+          toastr["success"](data.message);
+        }).fail(function (response) {      
+          toastr["error"](response.message);
+          $("#loading-image").hide();
+        });
+      });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+      $(document).on("click",".btn-store-code-order",function() {
+          var $this = $(this);
+          $("#addVoucherCouponCodeOrderModel").modal("show");
+          $(".voucher_coupons_id").val($this.data("id"));
+      });
+      $(document).on("click",".save-voucher-code-order",function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var formData = new FormData($this.closest("form")[0]);
+        $.ajax({
+          url: '{{route("voucher.code.order.create")}}',
+          type: 'POST',
+          headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            dataType:"json",
+            data: $this.closest("form").serialize(),
+          beforeSend: function() {
+            $("#loading-image").show();
+                }
+        }).done(function (data) {
+          $("#loading-image").hide();
+          toastr["success"](data.message);
+        }).fail(function (response) {      
+          toastr["error"](response.message);
+          $("#loading-image").hide();
+        });
+      });
 
 
     $(document).on('click', '.expand-row', function() {
@@ -520,8 +760,57 @@
         var voucher = button.data('voucher')
         var url = "{{ url('voucher') }}/" + voucher.id + '/reject';
         modal.find('form').attr('action', url);
-    })
+    });
     
+    $(document).on("click",".btn-store-code-list",function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var id = $(this).data("id");
+        $.ajax({
+          url: '{{route("voucher.code.list")}}',
+          type: 'GET',
+          headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+          dataType:"json",
+          data :{
+            voucher_coupons_id : id
+          },
+          beforeSend: function() {
+            $("#loading-image").show();
+                }
+        }).done(function (response) {
+          $("#loading-image").hide();
+          var html = "";
+          $.each(response.data,function(k,v){
+            html += "<tr>";
+              html += "<td>"+v.id+"</td>";
+              html += "<td>"+v.coupon_code+"</td>";
+              html += "<td><div class='form-row'>"+v.valid_date+"</div></td>";
+              html += "<td><div class='form-row'>"+v.remark+"</div></td>";
+              html += '<td><a class="btn-secondary code-delete" data-type="code" data-id='+v.id+'><i class="fa fa-trash" aria-hidden="true"></i></a></td>';
+            html += "</tr>";
+          });
+          $(".voucher-code-list").html(html);
+          $("#voucher-code-list-model").modal("show");
+          toastr["error"](response.message);
+        }).fail(function (response, ajaxOptions, thrownError) {
+          toastr["error"](response.message);
+          $("#loading-image").hide();
+        });
+      });
+
+
+
+
+
+
+
+
+
+
+
+
 
     
 

@@ -6,6 +6,8 @@ use App\VoucherCoupon;
 use App\Platform;
 use App\EmailAddress;
 use DB;
+use App\VoucherCouponCode;
+use App\VoucherCouponOrder;
 use Illuminate\Http\Request;
 
 
@@ -155,4 +157,57 @@ class VoucherCouponController extends Controller
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
+
+    public function couponCodeCreate(Request $request) {
+        try{
+            if($request->id)
+                $code = VoucherCouponCode::find($request->id);
+            else
+                $code = new VoucherCouponCode();
+            $code->user_id = \Auth::user()->id ?? '';
+            $code->voucher_coupons_id = $request->voucher_coupons_id;
+            $code->coupon_code = $request->coupon_code ?? '';
+            $code->valid_date = date('Y-m-d', strtotime($request->valid_date)) ?? '';
+            $code->remark = $request->code_remark ?? '';
+            $code->save();
+            return response()->json(['code' => 200, 'message' => 'Coupon Code Added successfully!!!']);
+        }catch(\Exception $e){
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
+    }
+    
+
+    public function couponCodeList(Request $request)
+    {
+        try{
+            $vouCode = VoucherCouponCode::where("voucher_coupons_id	", $request->id);
+            return response()->json(['code' => 200, 'data' => $vouCode, 'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function couponCodeOrderCreate(Request $request) {
+        try{
+            if($request->id)
+                $code = VoucherCouponOrder::find($request->id);
+            else
+                $code = new VoucherCouponOrder();
+            $code->user_id = \Auth::user()->id ?? '';
+            $code->voucher_coupons_id = $request->voucher_coupons_id;
+            $code->date_order_placed = date('Y-m-d', strtotime($request->date_order_placed)) ?? '';
+            $code->order_no = $request->order_no ?? '';
+            $code->order_amount = $request->order_amount ?? '';
+            $code->discount = $request->discount ?? '';
+            $code->final_amount = $request->final_amount ?? '';
+            $code->refund_amount = $request->refund_amount ?? '';
+            $code->remark = $request->code_remark ?? '';
+            $code->save();
+            return response()->json(['code' => 200, 'message' => 'Coupon Code Order Added successfully!!!']);
+        }catch(\Exception $e){
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
+    }
+    
 }
