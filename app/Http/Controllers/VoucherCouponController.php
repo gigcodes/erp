@@ -180,11 +180,22 @@ class VoucherCouponController extends Controller
     public function couponCodeList(Request $request)
     {
         try{
-            $vouCode = VoucherCouponCode::where("voucher_coupons_id	", $request->id);
+            $vouCode = VoucherCouponCode::select('voucher_coupon_codes.*', "users.name AS userName")->leftJoin("users", "users.id", "voucher_coupon_codes.user_id")->where("voucher_coupon_codes.voucher_coupons_id", $request->voucher_coupons_id)->get();
             return response()->json(['code' => 200, 'data' => $vouCode, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
             return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function couponCodeDelete(Request $request)
+    {
+        try{
+            $vou = VoucherCouponCode::find($request->id);
+            $vou->delete();
+            return response()->json(['code' => 200, 'message' => 'Deleted successfully!!!']);
+        }catch(\Exception $e){
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
 
@@ -210,4 +221,26 @@ class VoucherCouponController extends Controller
         }
     }
     
+    public function couponCodeOrderList(Request $request)
+    {
+        try{
+            $vouCodeO = VoucherCouponOrder::select('voucher_coupon_orders.*', "users.name AS userName")->leftJoin("users", "users.id", "voucher_coupon_orders.user_id")->where("voucher_coupon_orders.voucher_coupons_id", $request->voucher_coupons_id)->get();
+            return response()->json(['code' => 200, 'data' => $vouCodeO, 'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    
+    public function couponCodeOrderDelete(Request $request)
+    {
+        try{
+            $vou = VoucherCouponOrder::find($request->id);
+            $vou->delete();
+            return response()->json(['code' => 200, 'message' => 'Deleted successfully!!!']);
+        }catch(\Exception $e){
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
+    }
 }

@@ -136,18 +136,13 @@
                 <button type="button" class="btn btn-xs  link-delete" title="Delete Record"  data-id="{{ $vou->id }}" >
                   <i class="fa fa-trash" aria-hidden="true"></i>
                 </button>
-                <button type="button" class="btn btn-xs btn-store-code" title="Coupon Codes"  data-id="{{ $vou->id }}" >
+                <button type="button" class="btn btn-xs voucher-code-list-model" title="Coupon Codes"  data-id="{{ $vou->id }}" >
                   <b>C</b>
                 </button>
-                {{-- <button type="button" class="btn btn-xs btn-store-code-list" title="List of Coupon Code"  data-id="{{ $vou->id }}" >
-                  <i class="fa fa-eye" aria-hidden="true"></i>
-                </button> --}}
-                <button type="button" class="btn btn-xs btn-store-code-order"  title="Orders" data-id="{{ $vou->id }}" >
+                {{--  --}}
+                <button type="button" class="btn btn-xs voucher-code-order-list-model"  title="Orders" data-id="{{ $vou->id }}" >
                   <b>O</b>
                 </button>
-                {{-- <button type="button" class="btn btn-xs btn-store-code-order-list"  title="List of Coupon Code Order" data-id="{{ $vou->id }}" >
-                  <i class="fa fa-info-circle" aria-hidden="true"></i>
-                </button> --}}
                     
               </td>
             </tr>
@@ -302,6 +297,37 @@
           </div>
       </div>
     </div>
+    
+      <div id="voucher-code-list-model" class="modal fade in" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">List Coupon Code</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+          <button type="button" class="btn btn-xs btn-store-code" title="Add Coupon Code"  >
+            <i class="fa fa-plus btn-store-code-i"></i>
+          </button>
+          <table class="table">
+            <thead class="thead-light">
+              <tr>
+                <th>ID</th>
+                <th>Coupon code</th>
+                <th>Added By</th>
+                <th>Valid Date</th>
+                <th>Remark</th>
+                <th >Action</th>
+              </tr>
+            </thead>
+            <tbody class="voucher-code-list">
+              
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+
 
     <div id="addVoucherCouponCodeModel" class="modal fade" role="dialog">
       <div class="modal-dialog">
@@ -310,7 +336,7 @@
               <form action="" method="POST" id="addupdateCode" >
                   @csrf
 
-                  <input type="hidden" name="voucher_coupons_id" id="voucher_coupons_id">
+                  <input type="hidden" name="voucher_coupons_id" class="voucher_coupons_id">
                   <div class="modal-header">
                       <h4 class="modal-title">Add Voucher Coupon Code</h4>
                       <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -350,13 +376,46 @@
           </div>
       </div>
 
+      <div id="voucher-code-order-list-model" class="modal fade in" role="dialog">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">List Coupon orders</h4>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+            <button type="button" class="btn btn-xs store-code-order" title="Add Order"  >
+              <i class="fa fa-plus store-code-order-i"></i>
+            </button>
+            <table class="table">
+              <thead class="thead-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Date Order Placed</th>
+                  <th>Added By</th>
+                  <th>Order No</th>
+                  <th>Order Amount</th>
+                  <th>Discount</th>
+                  <th>Final Amount</th>
+                  <th>Refund Amount</th>
+                  <th>Remark</th>
+                  <th >Action</th>
+                </tr>
+              </thead>
+              <tbody class="voucher-code-order-list">
+                
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <div id="addVoucherCouponCodeOrderModel" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
               <form action="" method="POST" id="addupdateCodeOrderForm" >
                   @csrf
-                  <input type="hidden" name="voucher_coupons_id" class="voucher_coupons_id">
+                  <input type="hidden" name="voucher_coupons_id" class="voucher_coupons_order_id">
                   <div class="modal-header">
                       <h4 class="modal-title">Add Voucher Coupon Code Order</h4>
                       <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -429,56 +488,7 @@
         </div>
 
         
-        <div id="voucher-code-list-model" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-              <table class="table">
-                <thead class="thead-dark">
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">First</th>
-                    <th scope="col">Last</th>
-                    <th scope="col">Handle</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">2</th>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">3</th>
-                    <td>Larry</td>
-                    <td>the Bird</td>
-                    <td>@twitter</td>
-                  </tr>
-                </tbody>
-              </table>
-              
-              <table class="table">
-                <thead class="thead-light">
-                  <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Coupon code</th>
-                    <th scope="col">Valid Date</th>
-                    <th scope="col">Remark</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+        
       
 @endsection
 
@@ -690,8 +700,10 @@
       });
       $(document).on("click",".btn-store-code",function() {
           var $this = $(this);
+          let voucherId = $this.attr("data-vocid");
+          $(".voucher_coupons_id").val(voucherId);
+         
           $("#addVoucherCouponCodeModel").modal("show");
-          $("#voucher_coupons_id").val($this.data("id"));
       });
       $(document).on("click",".save-voucher-code",function(e){
         e.preventDefault();
@@ -710,6 +722,39 @@
                 }
         }).done(function (data) {
           $("#loading-image").hide();
+            $.ajax({
+            url: '{{route("voucher.code.list")}}',
+            type: 'post',
+            headers: {
+                  'X-CSRF-TOKEN': "{{ csrf_token() }}"
+              },
+            dataType:"json",
+            data :{
+              voucher_coupons_id : $(".voucher_coupons_id").val()
+            },
+            beforeSend: function() {
+              $("#loading-image").show();
+                  }
+          }).done(function (response) {
+            $("#loading-image").hide();
+            var html = "";
+            $.each(response.data,function(k,v){
+              html += "<tr>";
+                html += "<td>"+v.id+"</td>";
+                html += "<td>"+v.coupon_code+"</td>";
+                html += "<td>"+v.userName+"</td>";
+                html += "<td><div class='form-row'>"+v.valid_date+"</div></td>";
+                html += "<td><div class='form-row'>"+v.remark+"</div></td>";
+                html += '<td><a class="code-delete" data-type="code" data-id='+v.id+'><i class="fa fa-trash" aria-hidden="true"></i></a></td>';
+              html += "</tr>";
+            });
+            $(".voucher-code-list").html(html);
+            $("#voucher-code-list-model").modal("show");
+            toastr["success"](response.message);
+          }).fail(function (response, ajaxOptions, thrownError) {
+            toastr["error"](response.message);
+            $("#loading-image").hide();
+          });
           toastr["success"](data.message);
         }).fail(function (response) {      
           toastr["error"](response.message);
@@ -717,10 +762,13 @@
         });
       });
 
-      $(document).on("click",".btn-store-code-order",function() {
-          var $this = $(this);
+      $(document).on("click",".store-code-order",function(e) {
+          let $this = $(this);
+          //debugger;
+          var vocoid = '';
+          vocoid = $(this).attr("data-vcoid");
+          $(".voucher_coupons_order_id").val(vocoid);
           $("#addVoucherCouponCodeOrderModel").modal("show");
-          $(".voucher_coupons_id").val($this.data("id"));
       });
       $(document).on("click",".save-voucher-code-order",function(e){
         e.preventDefault();
@@ -739,6 +787,43 @@
                 }
         }).done(function (data) {
           $("#loading-image").hide();
+          $.ajax({
+            url: '{{route("voucher.code.order.list")}}',
+            type: 'post',
+            headers: {
+                  'X-CSRF-TOKEN': "{{ csrf_token() }}"
+              },
+            dataType:"json",
+            data :{
+              voucher_coupons_id : $(".voucher_coupons_order_id").val()
+            },
+            beforeSend: function() {
+              $("#loading-image").show();
+                  }
+          }).done(function (response) {
+            $("#loading-image").hide();
+            var html = "";
+            $.each(response.data,function(k,v){
+              html += "<tr>";
+                html += "<td>"+v.id+"</td>";
+                html += "<td>"+v.date_order_placed+"</td>";
+                html += "<td>"+v.userName+"</td>";
+                html += "<td>"+v.order_no+"</td>";
+                html += "<td>"+v.order_amount+"</td>";
+                html += "<td>"+v.discount+"</td>";
+                html += "<td>"+v.final_amount+"</td>";
+                html += "<td>"+v.refund_amount+"</td>";
+                html += "<td><div class='form-row'>"+v.remark+"</div></td>";
+                html += '<td><a class="code-order-delete" data-type="code" data-id='+v.id+'><i class="fa fa-trash" aria-hidden="true"></i></a></td>';
+              html += "</tr>";
+            });
+            $(".voucher-code-order-list").html(html);
+            $("#voucher-code-order-list-model").modal("show");
+            toastr["success"](response.message);
+          }).fail(function (response, ajaxOptions, thrownError) {
+            toastr["error"](response.message);
+            $("#loading-image").hide();
+          });
           toastr["success"](data.message);
         }).fail(function (response) {      
           toastr["error"](response.message);
@@ -762,13 +847,15 @@
         modal.find('form').attr('action', url);
     });
     
-    $(document).on("click",".btn-store-code-list",function(e) {
+    $(document).on("click",".voucher-code-list-model",function(e) {
         e.preventDefault();
         var $this = $(this);
         var id = $(this).data("id");
+        $(".btn-store-code").attr("data-vocid", $this.data("id"));
+        $(".btn-store-code-i").attr("data-vocid", $this.data("id"));
         $.ajax({
           url: '{{route("voucher.code.list")}}',
-          type: 'GET',
+          type: 'post',
           headers: {
                 'X-CSRF-TOKEN': "{{ csrf_token() }}"
             },
@@ -786,48 +873,68 @@
             html += "<tr>";
               html += "<td>"+v.id+"</td>";
               html += "<td>"+v.coupon_code+"</td>";
+              html += "<td>"+v.userName+"</td>";
               html += "<td><div class='form-row'>"+v.valid_date+"</div></td>";
               html += "<td><div class='form-row'>"+v.remark+"</div></td>";
-              html += '<td><a class="btn-secondary code-delete" data-type="code" data-id='+v.id+'><i class="fa fa-trash" aria-hidden="true"></i></a></td>';
+              html += '<td><a class="code-delete" data-type="code" data-id='+v.id+'><i class="fa fa-trash" aria-hidden="true"></i></a></td>';
             html += "</tr>";
           });
           $(".voucher-code-list").html(html);
           $("#voucher-code-list-model").modal("show");
-          toastr["error"](response.message);
+          toastr["success"](response.message);
         }).fail(function (response, ajaxOptions, thrownError) {
           toastr["error"](response.message);
           $("#loading-image").hide();
         });
       });
 
+      
+      $(document).on("click",".code-delete",function(e) {
+        e.preventDefault();
+        var id = $(this).data("id");
+        var $this = $(this);
+        if(confirm("Are you sure you want to delete records ?")) {
+          $.ajax({
+            url:'{{route("voucher.code.delete")}}',
+            type: 'POST',
+            headers: {
+                  'X-CSRF-TOKEN': "{{ csrf_token() }}"
+              },
+              dataType:"json",
+            data: { id : id},
+            beforeSend: function() {
+              $("#loading-image").show();
+                  }
+          }).done(function (data) {
+            $("#loading-image").hide();
+            toastr["success"]("Document deleted successfully");
+            $this.closest("tr").remove();
+          }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            toastr["error"]("Oops,something went wrong");
+            $("#loading-image").hide();
+          });
+        }
+      });
 
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-    
-
-    $(document).on("click",".btn-file-list",function(e) {
+      $(document).on("click",".voucher-code-order-list-model",function(e) {
         e.preventDefault();
         var $this = $(this);
-        var id = $(this).data("payment-receipt-id");
+        //debugger;
+        var id = $(this).data("id");
+        $(".store-code-order").attr("data-vcoid","");
+        $(".store-code-order").attr("data-vcoid", id);
+        $(".store-code-order-i").attr("data-vcoid", id);
+
         $.ajax({
-          url: '/voucher/'+id+'/list-documents',
-          type: 'GET',
+          url: '{{route("voucher.code.order.list")}}',
+          type: 'post',
           headers: {
                 'X-CSRF-TOKEN': "{{ csrf_token() }}"
             },
-            dataType:"json",
+          dataType:"json",
+          data :{
+            voucher_coupons_id : id
+          },
           beforeSend: function() {
             $("#loading-image").show();
                 }
@@ -837,19 +944,60 @@
           $.each(response.data,function(k,v){
             html += "<tr>";
               html += "<td>"+v.id+"</td>";
-              html += "<td>"+v.url+"</td>";
-              html += "<td><div class='form-row'>"+v.user_list+"</div></td>";
-              html += '<td><a class="btn-secondary" href="'+v.url+'" data-site-id="'+v.site_id+'" target="__blank"><i class="fa fa-download" aria-hidden="true"></i></a>&nbsp;<a class="btn-secondary link-delete-document" data-payment-receipt-id="'+v.payment_receipt_id+'" data-id='+v.id+' href="_blank"><i class="fa fa-trash" aria-hidden="true"></i></a></td>';
+              html += "<td>"+v.date_order_placed+"</td>";
+              html += "<td>"+v.userName+"</td>";
+              html += "<td>"+v.order_no+"</td>";
+              html += "<td>"+v.order_amount+"</td>";
+              html += "<td>"+v.discount+"</td>";
+              html += "<td>"+v.final_amount+"</td>";
+              html += "<td>"+v.refund_amount+"</td>";
+              html += "<td><div class='form-row'>"+v.remark+"</div></td>";
+              html += '<td><a class="code-order-delete" data-type="code" data-id='+v.id+'><i class="fa fa-trash" aria-hidden="true"></i></a></td>';
             html += "</tr>";
           });
-          $(".display-document-list").html(html);
-          $("#file-upload-area-list").modal("show");
-        }).fail(function (jqXHR, ajaxOptions, thrownError) {
-          toastr["error"]("Oops,something went wrong");
+          $(".voucher-code-order-list").html(html);
+          $("#voucher-code-order-list-model").modal("show");
+          toastr["success"](response.message);
+        }).fail(function (response, ajaxOptions, thrownError) {
+          toastr["error"](response.message);
           $("#loading-image").hide();
         });
       });
 
+      
+      $(document).on("click",".code-order-delete",function(e) {
+        e.preventDefault();
+        var id = $(this).data("id");
+        var $this = $(this);
+        if(confirm("Are you sure you want to delete records ?")) {
+          $.ajax({
+            url:'{{route("voucher.code.order.delete")}}',
+            type: 'POST',
+            headers: {
+                  'X-CSRF-TOKEN': "{{ csrf_token() }}"
+              },
+              dataType:"json",
+            data: { id : id},
+            beforeSend: function() {
+              $("#loading-image").show();
+                  }
+          }).done(function (data) {
+            $("#loading-image").hide();
+            toastr["success"]("Document deleted successfully");
+            $this.closest("tr").remove();
+          }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            toastr["error"]("Oops,something went wrong");
+            $("#loading-image").hide();
+          });
+        }
+      });
+
+
+
+
+
+
+    
     
   </script>
 @endsection

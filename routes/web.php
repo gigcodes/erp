@@ -4037,5 +4037,7 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
     Route::post('/coupon/code/list', 'VoucherCouponController@couponCodeList')->name('voucher.code.list');
     Route::post('/coupon/code/order/create', 'VoucherCouponController@couponCodeOrderCreate')->name('voucher.code.order.create');
     Route::post('/coupon/code/order/list', 'VoucherCouponController@couponCodeOrderList')->name('voucher.code.order.list');
+    Route::post('/voucher/code/delete', 'VoucherCouponController@couponCodeDelete')->name('voucher.code.delete');
+    Route::post('/voucher/code/order/delete', 'VoucherCouponController@couponCodeOrderDelete')->name('voucher.code.order.delete');
     
 });
