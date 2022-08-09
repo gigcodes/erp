@@ -57,6 +57,46 @@
                     </div>
                 </form>
             </div>
+            <?php
+            // $newU = $userTrack;
+            // $userNew = [];
+            // foreach ($newU as $index => $user) {
+            //     //dd($user);
+            //     $userDate = str_replace('-', '_', $user['date']);
+            //     if (isset($userNew[$user['user_id']]) && $user['date'] == $userNew[$user['user_id']]['date'] && $user['user_id'] == $userNew[$user['user_id']]['user_id']) {
+            //         $userNew[$user['user_id']] = [
+            //             'date' => $user['date'],
+            //             'user_id' => $user['user_id'],
+            //             'userName' => $user['userName'],
+            //             'hubstaff_tracked_hours' => $userNew[$user['user_id']]['hubstaff_tracked_hours'] + $user['hubstaff_tracked_hours'],
+            //             'hours_tracked_with' => $userNew[$user['user_id']]['hours_tracked_with'] + $user['hours_tracked_with'] ?? '0',
+            //             'hours_tracked_without' => $userNew[$user['user_id']]['hours_tracked_without'] + $user['hours_tracked_without'] ?? '0',
+            //             'task_id' => $user['task_id'],
+            //             'approved_hours' => $userNew[$user['user_id']]['approved_hours'] + $user['approved_hours'] ?? '0',
+            //             'difference_hours' => $userNew[$user['user_id']]['difference_hours'] + $user['difference_hours'] ?? '0',
+            //             'total_hours' => $userNew[$user['user_id']]['hubstaff_tracked_hours'] + $user['hubstaff_tracked_hours'],
+            //             'overall' => $userNew[$user['user_id']]['overall'] + $user['overall'],
+            //             'activity_levels' => (($userNew[$user['user_id']]['overall'] + $user['overall']) / ($userNew[$user['user_id']]['hubstaff_tracked_hours'] + $user['hubstaff_tracked_hours'])) * 100,
+            //         ];
+            //     } else {
+            //         $userNew[$user['user_id']] = [
+            //             'date' => $user['date'],
+            //             'user_id' => $user['user_id'],
+            //             'userName' => $user['userName'],
+            //             'hubstaff_tracked_hours' => $user['hubstaff_tracked_hours'],
+            //             'hours_tracked_with' => $user['hours_tracked_with'] ?? '0',
+            //             'hours_tracked_without' => $user['hours_tracked_without'] ?? '0',
+            //             'task_id' => $user['task_id'],
+            //             'approved_hours' => $user['approved_hours'] ?? '0',
+            //             'difference_hours' => $user['difference_hours'] ?? '0',
+            //             'total_hours' => $user['hubstaff_tracked_hours'],
+            //             'activity_levels' => ($user['overall'] / $user['hubstaff_tracked_hours']) * 100,
+            //             'overall' => $user['overall'],
+            //         ];
+            //     }
+            // }
+            // dd($userNew);
+            ?>
             <div class="col-md-12 margin-tb p-0">
                 <div class="table-responsive">
                     <table class="table table-bordered" style='table-layout: fixed;'>
@@ -75,12 +115,13 @@
                         </tr>
                         @foreach ($userTrack as $index => $user)
                         <tr>
-                            <td>{{ \Carbon\Carbon::parse($user['date'])->format('Y-m-d') }} </td>
+                            <td>{{ $user['date'] }} </td>
                             <td class="expand-row-msg Website-task" data-name="userName" data-id="{{$index}}">
                                 <span class="show-short-userName-{{$index}}">{{ str_limit($user['userName'], 5, '..')}}</span>
                                 <span style="word-break:break-all;" class="show-full-userName-{{$index}} hidden Website-task">{{$user['userName']}}</span>
                             </td>
-                            <td>{{number_format($user['hubstaff_tracked_hours'] / 60,2,".",",")}}
+                            <td>
+                                {{number_format($user['hubstaff_tracked_hours'] / 60,2,".",",")}}
                                 <form action="">
                                     <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
                                     <input type="hidden" class="date" name="date" value="{{$user['date']}}">

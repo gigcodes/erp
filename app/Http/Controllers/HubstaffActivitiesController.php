@@ -1074,6 +1074,9 @@ class HubstaffActivitiesController extends Controller {
         $developer_task_id = $request->developer_task_id ? $request->developer_task_id : null;
         $status = $request->task_status ? $request->task_status : null;
 
+        // $start_date = '2022-07-29';
+        // $end_date = '2022-07-29';
+
         $taskIds = [];
         if ($developer_task_id) {
             if ($developerTask = \App\DeveloperTask::find($developer_task_id)) {
@@ -1118,8 +1121,14 @@ class HubstaffActivitiesController extends Controller {
         }
 
         $query->leftJoin('users', 'users.id', '=', 'hubstaff_members.user_id');
-        $query->leftJoin('tasks', 'tasks.hubstaff_task_id', '=', 'hubstaff_activities.task_id');
-        $query->leftJoin('developer_tasks', 'developer_tasks.hubstaff_task_id', '=', 'hubstaff_activities.task_id');
+        $query->leftJoin('tasks', function ($join) {
+            $join->on('tasks.hubstaff_task_id', '=', 'hubstaff_activities.task_id')
+                ->where('hubstaff_activities.task_id', '>', 0);
+        });
+        $query->leftJoin('developer_tasks', function ($join) {
+            $join->on('developer_tasks.hubstaff_task_id', '=', 'hubstaff_activities.task_id')
+                ->where('hubstaff_activities.task_id', '>', 0);
+        });
         $query->leftJoin(
             \DB::raw("(SELECT date, user_id, MAX(created_at) AS created_at FROM hubstaff_activity_summaries GROUP BY date, user_id) hub_summary"),
             function ($join) {
@@ -1135,86 +1144,96 @@ class HubstaffActivitiesController extends Controller {
 
         // $query->groupBy("hubstaff_activity_summaries.date", "hubstaff_activity_summaries.user_id");
 
+        // $query->where('hubstaff_activities.user_id', 1873741);
+
         $query->orderBy('hubstaff_activities.starts_at', 'desc');
+        $query->groupBy(\DB::raw("DATE(hubstaff_activities.starts_at)"), "hubstaff_activities.user_id");
 
         $query->select(
+            \DB::raw("DATE(hubstaff_activities.starts_at) AS date"),
             \DB::raw("COALESCE(hubstaff_activities.user_id, 0) AS user_id"),
-            \DB::raw("COALESCE(hubstaff_activities.tracked, 0) AS tracked"),
             \DB::raw("COALESCE(hubstaff_activities.task_id, 0) AS task_id"),
-            \DB::raw("COALESCE(hubstaff_activities.overall, 0) AS overall"),
-            \DB::raw("DATE(hubstaff_activities.starts_at) AS starts_at"),
+            \DB::raw("SUM(COALESCE(hubstaff_activities.tracked, 0)) AS tracked"),
+            \DB::raw("SUM(IF(hubstaff_activities.task_id > 0, hubstaff_activities.tracked, 0)) AS tracked_with"),
+            \DB::raw("SUM(IF(hubstaff_activities.task_id <= 0, hubstaff_activities.tracked, 0)) AS tracked_without"),
+            \DB::raw("SUM(COALESCE(hubstaff_activities.overall, 0)) AS overall"),
+
             \DB::raw("COALESCE(hubstaff_members.user_id, 0) AS system_user_id"),
             "users.name as userName",
             \DB::raw("COALESCE(tasks.id, 0) AS task_table_id"),
             \DB::raw("COALESCE(developer_tasks.id, 0) AS developer_task_table_id"),
-            \DB::raw("COALESCE(hubstaff_activity_summaries.accepted, 0) AS ha_summ_accepted")
+            \DB::raw("COALESCE(hubstaff_activity_summaries.accepted, 0) AS approved_hours"),
+            \DB::raw("(SUM(COALESCE(hubstaff_activities.tracked, 0)) - COALESCE(hubstaff_activity_summaries.accepted, 0)) AS difference_hours")
         );
+
         $activities = $query->get();
         // $activities = $query->paginate(15);
 
         if ($printExit) {
-            dd(\DB::getQueryLog());
-            exit;
+            _p(\DB::getQueryLog());
+            // exit;
         }
 
-        // _p($activities->toArray(), 1);
+        // _p($activities->count());
+        // _p($activities->toArray());
 
-        $temp = [];
+        $userTrack = [];
         foreach ($activities as $activity) {
-            $temp[] = [
-                'date' => $activity->starts_at,
+            $userTrack[] = [
+                'date' => $activity->date,
                 'user_id' => $activity->user_id,
                 'userName' => $activity->userName ?? '',
                 'hubstaff_tracked_hours' => $activity->tracked,
-                'hours_tracked_with' => $activity->tracked,
-                'hours_tracked_without' => $activity->task_id ? $activity->tracked : 0,
+                'hours_tracked_with' => $activity->tracked_with,
+                'hours_tracked_without' => $activity->tracked_without,
                 'task_id' => $activity->developer_task_table_id ?: $activity->task_table_id,
-                'approved_hours' => $activity->ha_summ_accepted,
-                'difference_hours' => $activity->ha_summ_accepted ? ($activity->tracked - $activity->ha_summ_accepted) : 0,
+                'approved_hours' => $activity->approved_hours,
+                'difference_hours' => $activity->difference_hours,
                 'total_hours' => $activity->tracked,
                 'activity_levels' => $activity->overall / $activity->tracked * 100,
                 'overall' => $activity->overall,
             ];
         }
 
-        $userTrack = [];
-        foreach ($temp as $user) {
-            $uId = $user['user_id'] ?: 0;
-            if (isset($userTrack[$uId]) && $user['date'] == $userTrack[$uId]['date']) {
-                $userTrack[$uId] = [
-                    'date' => $user['date'],
-                    'user_id' => $uId,
-                    'userName' => $user['userName'],
-                    'hubstaff_tracked_hours' => $userTrack[$uId]['hubstaff_tracked_hours'] + $user['hubstaff_tracked_hours'],
-                    'hours_tracked_with' => $userTrack[$uId]['hours_tracked_with'] + $user['hours_tracked_with'] ?? '0',
-                    'hours_tracked_without' => $userTrack[$uId]['hours_tracked_without'] + $user['hours_tracked_without'] ?? '0',
-                    'task_id' => $user['task_id'],
-                    'approved_hours' => $userTrack[$uId]['approved_hours'] + $user['approved_hours'] ?? '0',
-                    'difference_hours' => $userTrack[$uId]['difference_hours'] + $user['difference_hours'] ?? '0',
-                    'total_hours' => $userTrack[$uId]['hubstaff_tracked_hours'] + $user['hubstaff_tracked_hours'],
-                    'overall' => $userTrack[$uId]['overall'] + $user['overall'],
-                    'activity_levels' => (($userTrack[$uId]['overall'] + $user['overall']) / ($userTrack[$uId]['hubstaff_tracked_hours'] + $user['hubstaff_tracked_hours'])) * 100,
-                ];
-            } else {
-                $userTrack[$uId] = [
-                    'date' => $user['date'],
-                    'user_id' => $uId,
-                    'userName' => $user['userName'],
-                    'hubstaff_tracked_hours' => $user['hubstaff_tracked_hours'],
-                    'hours_tracked_with' => $user['hours_tracked_with'] ?? '0',
-                    'hours_tracked_without' => $user['hours_tracked_without'] ?? '0',
-                    'task_id' => $user['task_id'],
-                    'approved_hours' => $user['approved_hours'] ?? '0',
-                    'difference_hours' => $user['difference_hours'] ?? '0',
-                    'total_hours' => $user['hubstaff_tracked_hours'],
-                    'activity_levels' => ($user['overall'] / $user['hubstaff_tracked_hours']) * 100,
-                    'overall' => $user['overall'],
-                ];
-            }
-        }
+        // $userTrack = [];
+        // foreach ($temp as $user) {
+        //     $uId = $user['user_id'] . '_' . $user['date'];
+        //     if (isset($userTrack[$uId]) && $user['date'] == $userTrack[$uId]['date']) {
+        //         $userTrack[$uId] = [
+        //             'date' => $user['date'],
+        //             'user_id' => $user['user_id'],
+        //             'userName' => $user['userName'] ?: $user['user_id'],
+        //             'hubstaff_tracked_hours' => $userTrack[$uId]['hubstaff_tracked_hours'] + $user['hubstaff_tracked_hours'],
+        //             'hours_tracked_with' => $userTrack[$uId]['hours_tracked_with'] + $user['hours_tracked_with'],
+        //             'hours_tracked_without' => $userTrack[$uId]['hours_tracked_without'] + $user['hours_tracked_without'],
+        //             'task_id' => $user['task_id'],
+        //             'approved_hours' => $userTrack[$uId]['approved_hours'] + $user['approved_hours'],
+        //             'difference_hours' => $userTrack[$uId]['difference_hours'] + $user['difference_hours'],
+        //             'total_hours' => $userTrack[$uId]['hubstaff_tracked_hours'] + $user['hubstaff_tracked_hours'],
+        //             'overall' => $userTrack[$uId]['overall'] + $user['overall'],
+        //             'activity_levels' => (($userTrack[$uId]['overall'] + $user['overall']) / ($userTrack[$uId]['hubstaff_tracked_hours'] + $user['hubstaff_tracked_hours'])) * 100,
+        //         ];
+        //     } else {
+        //         $userTrack[$uId] = [
+        //             'date' => $user['date'],
+        //             'user_id' => $user['user_id'],
+        //             'userName' => $user['userName'] ?: $user['user_id'],
+        //             'hubstaff_tracked_hours' => $user['hubstaff_tracked_hours'],
+        //             'hours_tracked_with' => $user['hours_tracked_with'],
+        //             'hours_tracked_without' => $user['hours_tracked_without'],
+        //             'task_id' => $user['task_id'],
+        //             'approved_hours' => $user['approved_hours'],
+        //             'difference_hours' => $user['difference_hours'],
+        //             'total_hours' => $user['hubstaff_tracked_hours'],
+        //             'activity_levels' => ($user['overall'] / $user['hubstaff_tracked_hours']) * 100,
+        //             'overall' => $user['overall'],
+        //         ];
+        //     }
+        // }
+
+        // _p($activities->count());
         // _p($userTrack, 1);
 
-        // activities
 
         return view("hubstaff.activities.track-users", compact(
             'activities',
@@ -1517,10 +1536,19 @@ class HubstaffActivitiesController extends Controller {
             return response()->json(['message' => '']);
         }
 
-        $activityrecords = DB::select(DB::raw("SELECT CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour( starts_at ) as onHour, status
-        FROM hubstaff_activities where DATE(starts_at) = '" . $request->date . "' and user_id = " . $request->user_id . "
-        GROUP BY hour( starts_at ) , day( starts_at )"));
-        // $activityrecords  = HubstaffActivity::whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id)->select('hubstaff_activities.*')->get();
+        $activityrecords = DB::select(
+            DB::raw("SELECT CAST(starts_at as date) AS OnDate,  
+            SUM(tracked) AS total_tracked, hour(starts_at) as onHour, 
+            status
+        FROM 
+            hubstaff_activities 
+        where 
+            DATE(starts_at) = '" . $request->date . "' 
+            and user_id = " . $request->user_id . "
+        GROUP BY 
+            hour(starts_at) , day(starts_at)")
+        );
+        // _p($activityrecords);
 
         $admins = User::join('role_user', 'role_user.user_id', 'users.id')->join('roles', 'roles.id', 'role_user.role_id')
             ->where('roles.name', 'Admin')->select('users.name', 'users.id')->get();
@@ -1556,8 +1584,17 @@ class HubstaffActivitiesController extends Controller {
         }
 
         foreach ($activityrecords as $record) {
-            $activities = DB::select(DB::raw("SELECT hubstaff_activities.*
-            FROM hubstaff_activities where DATE(starts_at) = '" . $request->date . "' and user_id = " . $request->user_id . " and hour(starts_at) = " . $record->onHour . ""));
+            $activities = DB::select(
+                DB::raw("
+                SELECT hubstaff_activities.* 
+                FROM hubstaff_activities 
+                where 
+                    DATE(starts_at) = '" . $request->date . "' 
+                and user_id = " . $request->user_id . " 
+                and hour(starts_at) = " . $record->onHour . "")
+            );
+            // _p($activities);
+
             $totalApproved = 0;
             $totalPending = 0;
             $isAllSelected = 0;
@@ -1626,6 +1663,7 @@ class HubstaffActivitiesController extends Controller {
             $record->totalApproved = $totalApproved;
             $record->totalPending = $totalPending;
         }
+
         $user_id = $request->user_id;
         $isAdmin = false;
         if (Auth::user()->isAdmin()) {
@@ -1642,8 +1680,25 @@ class HubstaffActivitiesController extends Controller {
         }
         $date = $request->date;
 
+        // exit;
+
         $member = HubstaffMember::where('hubstaff_user_id', $request->user_id)->first();
-        return view("hubstaff.activities.activity-records", compact('activityrecords', 'user_id', 'date', 'hubActivitySummery', 'teamLeaders', 'admins', 'users', 'isAdmin', 'isTeamLeader', 'taskOwner', 'member'));
+        return view(
+            "hubstaff.activities.activity-records",
+            compact(
+                'activityrecords',
+                'user_id',
+                'date',
+                'hubActivitySummery',
+                'teamLeaders',
+                'admins',
+                'users',
+                'isAdmin',
+                'isTeamLeader',
+                'taskOwner',
+                'member'
+            )
+        );
     }
 
     public function approveActivity(Request $request) {
