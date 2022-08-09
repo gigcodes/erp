@@ -4021,3 +4021,16 @@ Route::get('command', function () {
 Route::get('test-cron', function () {
     \Artisan::call('GT-metrix-test-get-report');
 });
+
+// Vouchers and Coupons
+Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
+    Route::get('/', 'VoucherCouponController@index')->name('list.voucher');
+
+    Route::post('/plateform/create', 'VoucherCouponController@plateformStore')->name('voucher.plateform.create');
+    Route::post('/store', 'VoucherCouponController@store')->name('voucher.store');
+    Route::post('/edit', 'VoucherCouponController@edit')->name('voucher.edit');
+    Route::post('/update', 'VoucherCouponController@update')->name('voucher.update');
+    Route::post('/voucher/remark/{id}', 'VoucherCouponController@update')->name('voucher.store.remark');
+    Route::post('/voucher/delete', 'VoucherCouponController@delete')->name('voucher.coupon.delete');
+
+});
