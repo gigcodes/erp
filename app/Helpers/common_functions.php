@@ -384,6 +384,16 @@ function _p($data, $exit = 0) {
     echo '<pre>______________________________________________________________________________________________________________</pre>';
     if ($exit) die('');
 }
+function _pq($q, $exit = 0) {
+    echo '<pre>';
+    print_r($q->toSql());
+    echo '</pre>';
+    echo '<pre>';
+    print_r($q->getBindings());
+    echo '</pre>';
+    echo '<pre>______________________________________________________________________________________________________________</pre>';
+    if ($exit) die('');
+}
 function dateRangeArr($stDate, $enDate) {
     $data = [];
     while ($stDate <= $enDate) {
