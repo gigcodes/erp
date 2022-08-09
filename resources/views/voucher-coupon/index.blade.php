@@ -690,7 +690,7 @@
                   }
           }).done(function (data) {
             $("#loading-image").hide();
-            toastr["success"]("Document deleted successfully");
+            toastr["success"]("Record deleted successfully");
             $this.closest("tr").remove();
           }).fail(function (jqXHR, ajaxOptions, thrownError) {
             toastr["error"]("Oops,something went wrong");
@@ -907,7 +907,7 @@
                   }
           }).done(function (data) {
             $("#loading-image").hide();
-            toastr["success"]("Document deleted successfully");
+            toastr["success"]("Record deleted successfully");
             $this.closest("tr").remove();
           }).fail(function (jqXHR, ajaxOptions, thrownError) {
             toastr["error"]("Oops,something went wrong");
@@ -983,7 +983,7 @@
                   }
           }).done(function (data) {
             $("#loading-image").hide();
-            toastr["success"]("Document deleted successfully");
+            toastr["success"]("Record deleted successfully");
             $this.closest("tr").remove();
           }).fail(function (jqXHR, ajaxOptions, thrownError) {
             toastr["error"]("Oops,something went wrong");
