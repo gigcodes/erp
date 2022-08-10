@@ -29,7 +29,7 @@
                 </div>
 
                 <div class="form-group ml-3">
-                  <select class="form-control " name="website_id" id="website_id" style="width:150px !important;">
+                  <select class="form-control " name="website_id" style="width:150px !important;">
                     <option value="">Website </option>
                     @foreach($websites as $website)
                       <option value="{{$website->id}}" {{ $website->id == old('website_id') ? 'selected' : '' }}>{{$website->website}}</option>
@@ -38,7 +38,7 @@
                 </div>
 
                 <div class="form-group ml-3">
-                  <select class="form-control " name="asset_plate_form_id" id="asset_plate_form_id" style="width:150px !important;">
+                  <select class="form-control " name="asset_plate_form_id" style="width:150px !important;">
                     <option value="">Plate Form</option>
                     @foreach($plateforms as $plateform)
                       <option value="{{$plateform->id}}" {{ $plateform->id == old('asset_plate_form_id') ? 'selected' : '' }}>{{$plateform->name}}</option>
@@ -47,7 +47,7 @@
                 </div>
       
                 <div class="form-group ml-3">
-                  <select class="form-control " name="email_address_id" id="email_address_id" style="width:150px !important; ">
+                  <select class="form-control " name="email_address_id"  style="width:150px !important; ">
                     <option value="">Email Address</option>
                     @foreach($emailAddress as $email)
                       <option value="{{$email->id}}" {{ $email->id == old('email_address_id') ? 'selected' : '' }}>{{$email->from_name}}</option>
@@ -56,7 +56,7 @@
                 </div>
       
                 <div class="form-group ml-3">
-                  <select class="form-control " name="whatsapp_config_id" id="whatsapp_config_id" style="width:150px !important; ">
+                  <select class="form-control " name="whatsapp_config_id"  style="width:150px !important; ">
                     <option value="">Phone Number</option>
                     @foreach($whatsappCon as $phone)
                       <option value="{{$phone->id}}" {{ $phone->id == old('whatsapp_config_id') ? 'selected' : '' }}>{{$phone->number}}</option>
