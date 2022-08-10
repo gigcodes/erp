@@ -100,7 +100,7 @@
             <select class="form-control select2" name="website_id" >
               <option value="">Select</option>
               @foreach($websites as $website)
-                <option value="{{$website->id}}" {{ $website->id == old('website_id') ? 'selected' : '' }}>{{$website->name}}</option>
+                <option value="{{$website->id}}" {{ $website->id == old('website_id') ? 'selected' : '' }}>{{$website->website}}</option>
               @endforeach
           </select>
             @if ($errors->has('assigned_to'))
@@ -230,7 +230,7 @@
 
           <div class="form-group">
             <strong>Start Date:</strong>
-            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date') }}">
+            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date') }}" required>
 
             @if ($errors->has('start_date'))
               <div class="alert alert-danger">{{$errors->first('start_date')}}</div>
@@ -606,7 +606,7 @@
 
           <div class="form-group">
             <strong>Start Date:</strong>
-            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date') }}">
+            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date') }}" required>
 
             @if ($errors->has('start_date'))
               <div class="alert alert-danger">{{$errors->first('start_date')}}</div>

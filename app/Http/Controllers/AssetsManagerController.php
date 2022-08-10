@@ -38,6 +38,10 @@ class AssetsManagerController extends Controller
         $paymentCycle = request("payment_cycle", "");
         $assetType = request("asset_type", "");
         $purchaseType = request("purchase_type", "");
+        $website_id = request("website_id");
+        $asset_plate_form_id = request("asset_plate_form_id");
+        $email_address_id = request("email_address_id");
+        $whatsapp_config_id = request("whatsapp_config_id");
 
         $assets = new AssetsManager;
         $assets = $assets->leftJoin("store_websites", "store_websites.id", "assets_manager.website_id")
@@ -63,6 +67,22 @@ class AssetsManagerController extends Controller
 
         if (!empty($purchaseType)) {
             $assets = $assets->where("assets_manager.purchase_type", $purchaseType);
+        }
+        //////////////////////////////////////////////////////////
+        if (!empty($website_id)) {
+            $assets = $assets->where("assets_manager.website_id", $website_id);
+        }
+
+        if (!empty($asset_plate_form_id)) {
+            $assets = $assets->where("assets_manager.asset_plate_form_id", $asset_plate_form_id);
+        }
+
+        if (!empty($email_address_id)) {
+            $assets = $assets->where("assets_manager.purchase_type", $email_address_id);
+        }
+
+        if (!empty($whatsapp_config_id)) {
+            $assets = $assets->where("assets_manager.purchase_type", $whatsapp_config_id);
         }
         // $assets = $assets->orderBy("due_date", "ASC");
         //dd($assets->get());
