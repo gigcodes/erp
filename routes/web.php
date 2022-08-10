@@ -2033,6 +2033,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('assets-manager/log', 'AssetsManagerController@assetManamentLog')->name('assetsmanager.assetManamentLog');
     Route::post('assets-manager/magento-dev-update-script-history/{asset_manager_id?}', 'AssetsManagerController@getMagentoDevScriptUpdatesLogs');
     Route::post('assets-manager/magento-dev-script-update', 'AssetsManagerController@magentoDevScriptUpdate');
+    
     // Agent Routes
     Route::resource('agent', 'AgentController');
     //Route::resource('product-templates', 'ProductTemplatesController');
@@ -4020,4 +4021,23 @@ Route::get('command', function () {
 });
 Route::get('test-cron', function () {
     \Artisan::call('GT-metrix-test-get-report');
+});
+
+// Vouchers and Coupons
+Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
+    Route::get('/', 'VoucherCouponController@index')->name('list.voucher');
+
+    Route::post('/plateform/create', 'VoucherCouponController@plateformStore')->name('voucher.plateform.create');
+    Route::post('/store', 'VoucherCouponController@store')->name('voucher.store');
+    Route::post('/edit', 'VoucherCouponController@edit')->name('voucher.edit');
+    Route::post('/update', 'VoucherCouponController@update')->name('voucher.update');
+    Route::post('/voucher/remark/{id}', 'VoucherCouponController@update')->name('voucher.store.remark');
+    Route::post('/voucher/delete', 'VoucherCouponController@delete')->name('voucher.coupon.delete');
+    Route::post('/coupon/code/create', 'VoucherCouponController@couponCodeCreate')->name('voucher.code.create');
+    Route::post('/coupon/code/list', 'VoucherCouponController@couponCodeList')->name('voucher.code.list');
+    Route::post('/coupon/code/order/create', 'VoucherCouponController@couponCodeOrderCreate')->name('voucher.code.order.create');
+    Route::post('/coupon/code/order/list', 'VoucherCouponController@couponCodeOrderList')->name('voucher.code.order.list');
+    Route::post('/voucher/code/delete', 'VoucherCouponController@couponCodeDelete')->name('voucher.code.delete');
+    Route::post('/voucher/code/order/delete', 'VoucherCouponController@couponCodeOrderDelete')->name('voucher.code.order.delete');
+    
 });
