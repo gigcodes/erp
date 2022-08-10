@@ -32,10 +32,10 @@
           <div class="form-group">
             <strong>User Name:</strong>
             {{-- <input type="text" name="user_name"  class="form-control" value="{{ old('user_name') }}"> --}}
-            <select class="form-control select-multiple" name="user_name" >
+            <select class="form-control select2" name="user_name" >
               <option value="">Select</option>
-              @foreach($users as $user)
-                <option value="{{$user->id}}" {{ $user->id == old('user_name') ? 'selected' : '' }}>{{$user->name}}</option>
+              @foreach($users as $key => $user)
+                <option value="{{$user['id']}}" {{ $user['id'] == old('user_name') ? 'selected' : '' }}>{{$user['name']}}</option>
               @endforeach
           </select>
             @if ($errors->has('user_name'))
@@ -83,16 +83,71 @@
 
           <div class="form-group">
             <strong>Assigen to</strong>
-            <select class="form-control select-multiple" name="assigned_to" >
+            <select class="form-control select2" name="assigned_to" >
               <option value="">Select</option>
-              @foreach($users as $user)
-                <option value="{{$user->id}}" {{ $user->id == old('assigned_to') ? 'selected' : '' }}>{{$user->name}}</option>
+              @foreach($users as $key => $user)
+                
+                <option value="{{$user['id']}}" {{ $user['id'] == old('user_name') ? 'selected' : '' }}>{{$user['name']}}</option>
               @endforeach
           </select>
             @if ($errors->has('assigned_to'))
               <div class="alert alert-danger">{{$errors->first('assigned_to')}}</div>
             @endif
           </div>
+
+          <div class="form-group">
+            <strong>Site Name</strong>
+            <select class="form-control select2" name="website_id" >
+              <option value="">Select</option>
+              @foreach($websites as $website)
+                <option value="{{$website->id}}" {{ $website->id == old('website_id') ? 'selected' : '' }}>{{$website->name}}</option>
+              @endforeach
+          </select>
+            @if ($errors->has('assigned_to'))
+              <div class="alert alert-danger">{{$errors->first('assigned_to')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Plate Form</strong>
+            <select class="form-control select2" name="asset_plate_form_id" >
+              <option value="">Select</option>
+              @foreach($plateforms as $plateform)
+                <option value="{{$plateform->id}}" {{ $plateform->id == old('asset_plate_form_id') ? 'selected' : '' }}>{{$plateform->name}}</option>
+              @endforeach
+          </select>
+            @if ($errors->has('asset_plate_form_id'))
+              <div class="alert alert-danger">{{$errors->first('asset_plate_form_id')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Email Address</strong>
+            <select class="form-control select2" name="email_address_id">
+              <option value="">Select</option>
+              @foreach($emailAddress as $email)
+                <option value="{{$email->id}}" {{ $email->id == old('email_address_id') ? 'selected' : '' }}>{{$email->from_name}}</option>
+              @endforeach
+          </select>
+            @if ($errors->has('email_address_id'))
+              <div class="alert alert-danger">{{$errors->first('email_address_id')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Phone Number</strong>
+            <select class="form-control select2" name="whatsapp_config_id" >
+              <option value="">Select</option>
+              @foreach($whatsappCon as $phone)
+                <option value="{{$phone->id}}" {{ $phone->id == old('whatsapp_config_id') ? 'selected' : '' }}>{{$phone->number}}</option>
+              @endforeach
+          </select>
+            @if ($errors->has('whatsapp_config_id'))
+              <div class="alert alert-danger">{{$errors->first('whatsapp_config_id')}}</div>
+            @endif
+          </div>
+
+
 
           <div class="form-group">
             <strong>Asset Type:</strong>
@@ -350,10 +405,11 @@
             {{-- <input type="text" name="user_name"  id="user_name"  class="form-control" value="{{ old('user_name') }}"> --}}
 
             <input type="hidden" name="old_user_name"  id="old_user_name"  class="form-control" value="{{ old('old_user_name') }}">
-            <select class="form-control select-multiple" name="user_name" >
+            
+            <select class="form-control select2" name="user_name" >
               <option value="">Select</option>
-              @foreach($users as $user)
-                <option value="{{$user->id}}" {{ $user->id == old('user_name') ? 'selected' : '' }}>{{$user->name}}</option>
+              @foreach($users as $key => $user)
+                <option value="{{$user['id']}}" {{ $user['id'] == old('user_name') ? 'selected' : '' }}>{{$user['name']}}</option>
               @endforeach
           </select>
             @if ($errors->has('user_name'))
@@ -407,14 +463,66 @@
 
           <div class="form-group">
             <strong>Assigen to</strong>
-            <select class="form-control select-multiple" name="assigned_to" id="assigned_to">
+            <select class="form-control select2" name="assigned_to" id="assigned_to">
               <option value="">Select</option>
-              @foreach($users as $user)
-                <option value="{{$user->id}}" {{ $user->id == old('assigned_to') ? 'selected' : '' }}>{{$user->name}}</option>
+              @foreach($users as $key => $user)
+                <option value="{{$user['id']}}" {{ $user['id'] == old('user_name') ? 'selected' : '' }}>{{$user['name']}}</option>
               @endforeach
           </select>
             @if ($errors->has('assigned_to'))
               <div class="alert alert-danger">{{$errors->first('assigned_to')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Site Name</strong>
+            <select class="form-control select2" name="website_id" id="website_id" >
+              <option value="">Select</option>
+              @foreach($websites as $website)
+                <option value="{{$website->id}}" {{ $website->id == old('website_id') ? 'selected' : '' }}>{{$website->website}}</option>
+              @endforeach
+          </select>
+            @if ($errors->has('assigned_to'))
+              <div class="alert alert-danger">{{$errors->first('website_id')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Plate Form</strong>
+            <select class="form-control select2" name="asset_plate_form_id" id="asset_plate_form_id" >
+              <option value="">Select</option>
+              @foreach($plateforms as $plateform)
+                <option value="{{$plateform->id}}" {{ $plateform->id == old('asset_plate_form_id') ? 'selected' : '' }}>{{$plateform->name}}</option>
+              @endforeach
+          </select>
+            @if ($errors->has('asset_plate_form_id'))
+              <div class="alert alert-danger">{{$errors->first('asset_plate_form_id')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Email Address</strong>
+            <select class="form-control select2" name="email_address_id" id="email_address_id" >
+              <option value="">Select</option>
+              @foreach($emailAddress as $email)
+                <option value="{{$email->id}}" {{ $email->id == old('email_address_id') ? 'selected' : '' }}>{{$email->from_name}}</option>
+              @endforeach
+          </select>
+            @if ($errors->has('email_address_id'))
+              <div class="alert alert-danger">{{$errors->first('email_address_id')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Phone Number</strong>
+            <select class="form-control select2" name="whatsapp_config_id" id="whatsapp_config_id" >
+              <option value="">Select</option>
+              @foreach($whatsappCon as $phone)
+                <option value="{{$phone->id}}" {{ $phone->id == old('whatsapp_config_id') ? 'selected' : '' }}>{{$phone->number}}</option>
+              @endforeach
+          </select>
+            @if ($errors->has('whatsapp_config_id'))
+              <div class="alert alert-danger">{{$errors->first('whatsapp_config_id')}}</div>
             @endif
           </div>
 
