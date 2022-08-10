@@ -58,22 +58,25 @@ class MagentoCommandController extends Controller
      */
     public function store(Request $request)
     {
+        
         try{
             $created_user_permission = '';
             if(isset($request->id) && $request->id > 0){
-                $mCom = MagentoCommand::find($request->id);
+                $mCom = MagentoCommand::where('id', $request->id)->first();
                 $type = 'Update';
             } else {
                 $mCom = new MagentoCommand();
                 $type = 'Created';
             }
-
-            $mCom->user_id = \Auth::user()->id;
+            //dd(\Auth::user()->id);
+            $mCom->user_id = \Auth::user()->id ?? '';
             $mCom->website_ids = isset($request->websites_ids)?implode(",",$request->websites_ids): $mCom->websites_ids;
+            //dd($mCom); 
             $mCom->command_name = $request->command_name;
             $mCom->command_type = $request->command_type;
             $mCom->save();
             //$this->createPostmanHistory($mCom->id, $type);
+            
             return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
