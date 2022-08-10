@@ -2033,7 +2033,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('assets-manager/log', 'AssetsManagerController@assetManamentLog')->name('assetsmanager.assetManamentLog');
     Route::post('assets-manager/magento-dev-update-script-history/{asset_manager_id?}', 'AssetsManagerController@getMagentoDevScriptUpdatesLogs');
     Route::post('assets-manager/magento-dev-script-update', 'AssetsManagerController@magentoDevScriptUpdate');
-    Route::post('assets-manager/user/history', 'AssetsManagerController@userChangesHistoryLog')->name('assetsmanager.userchange.history');
     // Agent Routes
     Route::resource('agent', 'AgentController');
     //Route::resource('product-templates', 'ProductTemplatesController');
@@ -3157,6 +3156,22 @@ Route::middleware('auth')->group(function () {
     Route::post('uicheck/set/message/history', 'UicheckController@CreateUiMessageHistoryLog')->name('uicheck.set.message.history');
     Route::post('uicheck/get/assign/history', 'UicheckController@getUiCheckAssignToHistoryLog')->name('uicheck.get.assign.history');
     Route::post('uicheck/set/duplicate/category', 'UicheckController@createDuplicateCategory')->name('uicheck.set.duplicate.category');
+    Route::post('uicheck/set/language', 'UicheckController@updateLanguage')->name('uicheck.set.language');
+    Route::post('uicheck/get/message/history/language', 'UicheckController@getuicheckLanUpdateHistory')->name('uicheck.get.message.language');
+    Route::post('uicheck/create/attachment', 'UicheckController@saveDocuments')->name('uicheck.create.attachment');
+    Route::get('uicheck/get/attachment', 'UicheckController@listDocuments')->name('uicheck.get.attachment');
+    Route::post('uicheck/delete/attachment', 'UicheckController@deleteDocument')->name('uicheck.delete.attachment');
+
+    // 5 Device 
+    
+    Route::post('/uicheck/set/device', 'UicheckController@updateDevice')->name('uicheck.set.device');
+    Route::post('/uicheck/device/upload-documents', 'UicheckController@uploadDocuments')->name("ui.dev.upload-documents");
+
+    Route::post('uicheck/get/message/history/dev', 'UicheckController@getuicheckDevUpdateHistory')->name('uicheck.get.message.dev');
+
+    Route::post('/uicheck/create/dev/attachment', 'UicheckController@saveDevDocuments')->name('uicheck.create.dev.attachment');
+    Route::get('uicheck/get/dev/attachment', 'UicheckController@devListDocuments')->name('uicheck.get.dev.attachment');
+    Route::post('uicheck/dev/delete/attachment', 'UicheckController@deleteDevDocument')->name('uicheck.dev.delete.attachment');
 
     Route::prefix('uicheck')->group(function () {
         Route::get('get', 'UicheckController@get')->name('uicheck.get');
@@ -4005,4 +4020,23 @@ Route::get('command', function () {
 });
 Route::get('test-cron', function () {
     \Artisan::call('GT-metrix-test-get-report');
+});
+
+// Vouchers and Coupons
+Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
+    Route::get('/', 'VoucherCouponController@index')->name('list.voucher');
+
+    Route::post('/plateform/create', 'VoucherCouponController@plateformStore')->name('voucher.plateform.create');
+    Route::post('/store', 'VoucherCouponController@store')->name('voucher.store');
+    Route::post('/edit', 'VoucherCouponController@edit')->name('voucher.edit');
+    Route::post('/update', 'VoucherCouponController@update')->name('voucher.update');
+    Route::post('/voucher/remark/{id}', 'VoucherCouponController@update')->name('voucher.store.remark');
+    Route::post('/voucher/delete', 'VoucherCouponController@delete')->name('voucher.coupon.delete');
+    Route::post('/coupon/code/create', 'VoucherCouponController@couponCodeCreate')->name('voucher.code.create');
+    Route::post('/coupon/code/list', 'VoucherCouponController@couponCodeList')->name('voucher.code.list');
+    Route::post('/coupon/code/order/create', 'VoucherCouponController@couponCodeOrderCreate')->name('voucher.code.order.create');
+    Route::post('/coupon/code/order/list', 'VoucherCouponController@couponCodeOrderList')->name('voucher.code.order.list');
+    Route::post('/voucher/code/delete', 'VoucherCouponController@couponCodeDelete')->name('voucher.code.delete');
+    Route::post('/voucher/code/order/delete', 'VoucherCouponController@couponCodeOrderDelete')->name('voucher.code.order.delete');
+    
 });

@@ -44,8 +44,8 @@ class MagentoRunCommand extends Command
     {
         try{
             $magCom = MagentoCommand::find($this->argument('id'));
-            $websites = StoreWebsite::where('is_dev_website',1)->whereIn('id', explode(',', $magCom->website_ids))->get();
-            
+            //dd(explode(',', $magCom->website_ids));
+            $websites = StoreWebsite::whereIn('id', explode(',', $magCom->website_ids))->get();
             foreach($websites as $website){
                 if($magCom->command_name !='' && $website->server_ip !=''){
                     //$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH').$magCom->command_name.' --server ' . $magCom->server_ip.' --type custom --command ' . $website->command_type; 
