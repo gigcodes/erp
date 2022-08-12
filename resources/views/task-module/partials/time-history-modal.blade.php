@@ -174,7 +174,7 @@
         // }
 
         jQuery.ajax({
-            url: "{{ route('development/time/history') }}",
+            url: "{{ route('task.time.history') }}",
             data: {
                 id: issueId,
                 user_id: userId
@@ -214,7 +214,7 @@
 
         jQuery('#time_history_div table tbody').html('');
         jQuery.ajax({
-            url: "{{ route('development/time/history/approve/sendRemindMessage') }}",
+            url: "{{ route('task.time.history.approve.sendRemindMessage') }}",
             type: 'POST',
             data: {
                 _token: '{{csrf_token()}}',
@@ -234,7 +234,7 @@
 
         jQuery('#time_history_div table tbody').html('');
         $.ajax({
-            url: "{{ route('development/time/history/approve/sendMessage') }}",
+            url: "{{ route('task.time.history.approve.sendMessage') }}",
             type: 'POST',
             data: {
                 _token: '{{csrf_token()}}',
@@ -287,7 +287,7 @@
         event.preventDefault();
         <?php if (auth()->user()->isAdmin()) { ?>
             jQuery.ajax({
-                url: "{{route('development/time/history/approve')}}",
+                url: "{{route('task.time.history.approve')}}",
                 type: 'POST',
                 data: jQuery(this).serialize(),
                 success: function(response) {
@@ -295,58 +295,6 @@
                     jQuery('#time_history_modal').modal('hide');
                 },
                 error: function(error) {
-                    toastr["error"](error.responseJSON.message);
-                }
-            });
-        <?php } ?>
-    });
-
-    jQuery(document).on('click', '.show-lead-time-history', function() {
-        var data = $(this).data('history');
-        var issueId = $(this).data('id');
-        jQuery('#lead_time_history_div table tbody').html('');
-        jQuery.ajax({
-            url: "{{ route('development/lead/time/history') }}",
-            data: {
-                id: issueId
-            },
-            success: function(data) {
-                if (data != 'error') {
-                    jQuery("#lead_developer_task_id").val(issueId);
-                    jQuery.each(data, function(i, item) {
-                        if (item['is_approved'] == 1) {
-                            var checked = 'checked';
-                        } else {
-                            var checked = '';
-                        }
-                        jQuery('#lead_time_history_div table tbody').append(
-                            '<tr>\
-                                <td>' + item['created_at'] + '</td>\
-                                <td>' + ((item['old_value'] != null) ? item['old_value'] : '-') + '</td>\
-                                <td>' + item['new_value'] + '</td>\
-                                <td>' + item['name'] + '</td>\
-                                <td><input type="radio" name="approve_time" value="' + item['id'] + '" ' + checked + ' class="approve_time"/></td>\
-                            </tr>'
-                        );
-                    });
-                }
-            }
-        });
-        jQuery('#lead_time-history-modal').modal('show');
-    });
-
-    jQuery(document).on('submit', '#approve-lead-date-btn', function(event) {
-        event.preventDefault();
-        <?php if (auth()->user()->isAdmin()) { ?>
-            jQuery.ajax({
-                url: "{{ route('development.approve.lead-estimate-minutes') }}",
-                type: 'POST',
-                data: jQuery(this).serialize(),
-                success: function(response) {
-                    toastr['success']('Successfully approved', 'success');
-                    jQuery('#lead_time-history-modal').modal('hide');
-                },
-                error: function() {
                     toastr["error"](error.responseJSON.message);
                 }
             });

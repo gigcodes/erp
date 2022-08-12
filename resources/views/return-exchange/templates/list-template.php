@@ -79,7 +79,7 @@
 					<td style="padding:1px;">
 					<div class="form-group" style="margin-bottom:0px;">
 					<div class="pt-2" style="display:flex;">
-						<div  class='input-group estimate_dates pl-2'>
+						<div  class='input-group pl-2'>
 							<input style="min-width: 30px;" placeholder="E.Date" value="{{>prop.est_completion_date}}" type="text" class="form-control estimate-date" name="estimate_date_{{>prop.id}}" data-id="{{>prop.id}}" id="estimate_date_{{>prop.id}}">
 							
 						</div>

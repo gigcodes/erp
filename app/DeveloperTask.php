@@ -60,6 +60,27 @@ class DeveloperTask extends Model {
         'message', 'reminder_from', 'reminder_last_reply', 'last_send_reminder', 'repository_id', 'last_date_time_reminder'
     ];
 
+
+    const DEV_TASK_STATUS_DONE                  = 'Done';
+    const DEV_TASK_STATUS_DISCUSSING            = 'Discussing';
+    const DEV_TASK_STATUS_IN_PROGRESS           = 'In Progress';
+    const DEV_TASK_STATUS_ISSUE                 = 'Issue';
+    const DEV_TASK_STATUS_PLANNED               = 'Planned';
+    const DEV_TASK_STATUS_DISCUSS_WITH_LEAD     = 'Discuss with Lead';
+    const DEV_TASK_STATUS_NOTE                  = 'Note';
+    const DEV_TASK_STATUS_LEAD_RESPONSE_NEEDED  = 'Lead Response Needed';
+    const DEV_TASK_STATUS_ERRORS_IN_TASK        = 'Errors in Task';
+    const DEV_TASK_STATUS_IN_REVIEW             = 'In Review';
+    const DEV_TASK_STATUS_PRIORITY              = 'Priority';
+    const DEV_TASK_STATUS_HIGH_PRIORITY         = 'High Priority';
+    const DEV_TASK_STATUS_REVIEW_ESTIMATED_TIME = 'Review Estimated Time';
+    const DEV_TASK_STATUS_USER_COMPLETE         = 'User Complete';
+    const DEV_TASK_STATUS_USER_ESTIMATED        = 'User Estimated';
+    const DEV_TASK_STATUS_DECLINE               = 'Decline';
+    const DEV_TASK_STATUS_REOPEN                = 'Reopen';
+    const DEV_TASK_STATUS_APPROVED              = 'Approved';
+
+
     public function user() {
         return $this->belongsTo('App\User');
     }

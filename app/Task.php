@@ -17,6 +17,7 @@ use Plank\Mediable\Mediable;
 use Auth;
 use Illuminate\Http\Request;
 use App\Models\Tasks\TaskHistoryForStartDate;
+use App\Models\Tasks\TaskHistoryForCost;
 
 
 class Task extends Model {
@@ -100,6 +101,27 @@ class Task extends Model {
         "Developer Task",
         "Developer Issue",
     ];
+
+    const TASK_STATUS_DONE                  = 1;
+    const TASK_STATUS_DISCUSSING            = 2;
+    const TASK_STATUS_IN_PROGRESS           = 3;
+    const TASK_STATUS_ISSUE                 = 4;
+    const TASK_STATUS_PLANNED               = 5;
+    const TASK_STATUS_DISCUSS_WITH_LEAD     = 6;
+    const TASK_STATUS_NOTE                  = 7;
+    const TASK_STATUS_LEAD_RESPONSE_NEEDED  = 8;
+    const TASK_STATUS_ERRORS_IN_TASK        = 9;
+    const TASK_STATUS_IN_REVIEW             = 10;
+    const TASK_STATUS_PRIORITY              = 11;
+    const TASK_STATUS_PRIORITY_2            = 12;
+    const TASK_STATUS_HIGH_PRIORITY         = 13;
+    const TASK_STATUS_REVIEW_ESTIMATED_TIME = 14;
+    const TASK_STATUS_USER_COMPLETE         = 15;
+    const TASK_STATUS_USER_COMPLETE_2       = 16;
+    const TASK_STATUS_USER_ESTIMATED        = 17;
+    const TASK_STATUS_DECLINE               = 18;
+    const TASK_STATUS_REOPEN                = 19;
+    const TASK_STATUS_APPROVED              = 20;
 
     protected $dates = ['deleted_at'];
 
@@ -329,9 +351,9 @@ class Task extends Model {
         return $this->belongsTo('App\SiteDevelopment', 'site_developement_id', 'id');
     }
 
-    public function updateStartDate($newValue){
+    public function updateStartDate($newValue) {
         $oldValue = $this->start_date;
-        if($oldValue != $newValue){
+        if ($oldValue != $newValue) {
             $this->start_date = $newValue;
             $this->save();
             TaskHistoryForStartDate::create([

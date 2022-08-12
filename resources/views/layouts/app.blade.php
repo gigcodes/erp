@@ -281,6 +281,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             /*    margin-right: 20px;*/
             /*}*/
     </style>
+    @stack("styles")
 </head>
 
 <body>

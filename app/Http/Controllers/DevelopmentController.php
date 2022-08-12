@@ -2501,14 +2501,7 @@ class DevelopmentController extends Controller {
             'status' => 'success'
         ]);
     }
-    public function saveAmount(Request $request) {
-        $issue = DeveloperTask::find($request->get('issue_id'));
-        $issue->cost = $request->get('cost');
-        $issue->save();
-        return response()->json([
-            'status' => 'success'
-        ]);
-    }
+
 
 
     public function saveMilestone(Request $request) {
@@ -2676,6 +2669,16 @@ class DevelopmentController extends Controller {
             ]);
 
             $issue->status = $request->get('is_resolved');
+
+            if ($issue->status == DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS) {
+                if ($issue->actual_start_date == NULL || $issue->actual_start_date == '0000-00-00 00:00:00') {
+                    $issue->actual_start_date = date('Y-m-d H:i:s');
+                }
+            }
+            if ($issue->status == DeveloperTask::DEV_TASK_STATUS_DONE) {
+                $issue->actual_end_date = date('Y-m-d H:i:s');
+            }
+
             $issue->save();
         }
         return response()->json([
@@ -2746,6 +2749,9 @@ class DevelopmentController extends Controller {
 
 
             $task = DeveloperTask::find($request->developer_task_id);
+            $task->status = DeveloperTask::DEV_TASK_STATUS_APPROVED;
+            $task->save();
+
             $time = $history->new_value !== null ? $history->new_value : $history->old_value;
             $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $time . ' MINS';
 
@@ -2878,92 +2884,9 @@ class DevelopmentController extends Controller {
         ]);
     }
 
-    public function approveLeadTimeHistory(Request $request) {
-        if (Auth::user()->isAdmin) {
-            if (!$request->approve_time || $request->approve_time == "" || !$request->lead_developer_task_id || $request->lead_developer_task_id == '') {
-                return response()->json([
-                    'message' => 'Select one time first'
-                ], 500);
-            }
-            DeveloperTaskHistory::where('developer_task_id', $request->lead_developer_task_id)->where('attribute', 'estimation_minute')->update(['is_approved' => 0]);
-            $history = DeveloperTaskHistory::find($request->approve_time);
-            $history->is_approved = 1;
-            $history->save();
-            return response()->json([
-                'message' => 'Success'
-            ], 200);
-        }
-        return response()->json([
-            'message' => 'Only admin can approve'
-        ], 500);
-    }
 
-    public function approveDateHistory(Request $request) {
-        if (Auth::user()->isAdmin) {
-            if (!$request->approve_date || $request->approve_date == "" || !$request->developer_task_id || $request->developer_task_id == '') {
-                return response()->json([
-                    'message' => 'Select one time first'
-                ], 500);
-            }
-            DeveloperTaskHistory::where('developer_task_id', $request->developer_task_id)->where('attribute', 'estimation_minute')->where('model', 'App\DeveloperTask')->update(['is_approved' => 0]);
-            $history = DeveloperTaskHistory::find($request->approve_date);
-            $history->is_approved = 1;
-            $history->save();
-            return response()->json([
-                'message' => 'Success'
-            ], 200);
-        }
-        return response()->json([
-            'message' => 'Only admin can approve'
-        ], 500);
-    }
 
-    public function saveEstimateMinutes(Request $request) {
-        $issue = DeveloperTask::find($request->get('issue_id'));
 
-        if ($issue && $request->estimate_minutes) {
-            DeveloperTaskHistory::create([
-                'developer_task_id' => $issue->id,
-                'model' => 'App\DeveloperTask',
-                'attribute' => "estimation_minute",
-                'old_value' => $issue->estimate_minutes,
-                'new_value' => $request->estimate_minutes,
-                'remark' => isset($request->remark) ? $request->remark : null,
-                'user_id' => Auth::id(),
-            ]);
-        }
-        if (Auth::user()->isAdmin()) {
-            $user = User::find($issue->user_id);
-            $msg = 'TIME ESTIMATED BY ADMIN FOR TASK ' . '#DEVTASK-' . $issue->id . '-' . $issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
-        } else {
-            $user = User::find($issue->master_user_id);
-            $msg = 'TIME ESTIMATED BY USER FOR TASK ' . '#DEVTASK-' . $issue->id . '-' . $issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
-        }
-
-        if ($user) {
-            $receiver_user_phone = $user->phone;
-
-            if ($receiver_user_phone) {
-                $chat = ChatMessage::create([
-                    'number' => $receiver_user_phone,
-                    'user_id' => $user->id,
-                    'customer_id' => $user->id,
-                    'message' => $msg,
-                    'status' => 0,
-                    'developer_task_id' => $request->issue_id
-                ]);
-
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
-
-                MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to, $issue->team_lead_id, $issue->tester_id], $msg);
-            }
-        }
-
-        $issue->estimate_minutes = $request->get('estimate_minutes');
-        $issue->save();
-
-        return response()->json(['status' => 'success']);
-    }
 
     public function savePriorityNo(Request $request) {
         $issue = DeveloperTask::find($request->get('issue_id'));
@@ -2977,30 +2900,7 @@ class DevelopmentController extends Controller {
         return response()->json(['status' => 'success']);
     }
 
-    public function saveEstimateDate(Request $request) {
-        $issue = DeveloperTask::find($request->get('issue_id'));
 
-        //$issue = Issue::find($request->get('issue_id'));
-        $estimate_date = date("Y-m-d H:i:s", strtotime($request->estimate_date));
-        if ($issue && $request->estimate_date) {
-            DeveloperTaskHistory::create([
-                'developer_task_id' => $issue->id,
-                'model' => 'App\DeveloperTask',
-                'attribute' => "estimate_date",
-                'old_value' => $issue->estimate_date,
-                'new_value' => $estimate_date,
-                'remark' => $request->get('est_remark'),
-                'user_id' => Auth::id(),
-            ]);
-        }
-        //  dd($estimate_date);
-        $issue->estimate_date = $estimate_date;
-        $issue->save();
-
-        return response()->json([
-            'status' => 'success'
-        ]);
-    }
 
 
 
@@ -3339,7 +3239,13 @@ class DevelopmentController extends Controller {
         $users = User::get();
 
         $id = $request->id;
-        $task_module = DeveloperTaskHistory::join('users', 'users.id', 'developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model', 'App\DeveloperTask')->where('attribute', 'estimation_minute')->select('developer_tasks_history.*', 'users.name')->get();
+        $task_module = DeveloperTaskHistory::join('users', 'users.id', 'developer_tasks_history.user_id')
+            ->where('developer_task_id', $id)
+            ->where('model', 'App\DeveloperTask')
+            ->where('attribute', 'estimation_minute')
+            ->select('developer_tasks_history.*', 'users.name')
+            ->orderBy('id', 'DESC')
+            ->get();
 
         if ($task_module) {
             return $task_module;
@@ -3363,18 +3269,7 @@ class DevelopmentController extends Controller {
         return 'error';
     }
 
-    public function getDateHistory(Request $request) {
-        $id = $request->id;
-        $type = "App\DeveloperTask";
-        if (isset($request->type) && $request->type == "task") {
-            $type = "App\Task";
-        }
-        $task_module = DeveloperTaskHistory::join('users', 'users.id', 'developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model', $type)->where('attribute', 'estimate_date')->select('developer_tasks_history.*', 'users.name')->get();
-        if ($task_module) {
-            return $task_module;
-        }
-        return 'error';
-    }
+
 
 
     public function getStatusHistory(Request $request) {
@@ -3593,24 +3488,7 @@ class DevelopmentController extends Controller {
         ], 200);
     }
 
-    public function saveLeadEstimateTime(Request $request) {
-        $issue = DeveloperTask::find($request->get('issue_id'));
-        //$issue = Issue::find($request->get('issue_id'));
-        if ($issue && $request->lead_estimate_minutes) {
-            DeveloperTaskHistory::create([
-                'developer_task_id' => $issue->id,
-                'attribute' => "lead_estimation_minute",
-                'old_value' => $issue->lead_estimate_minutes,
-                'new_value' => $request->lead_estimate_minutes,
-                'user_id' => Auth::id(),
-            ]);
-        }
 
-        $issue->lead_estimate_time = $request->get('lead_estimate_minutes');
-        $issue->save();
-
-        return response()->json(['status' => 'success']);
-    }
 
     public function getLeadTimeHistory(Request $request) {
         $id = $request->id;
@@ -3708,47 +3586,247 @@ class DevelopmentController extends Controller {
         return redirect()->back();
     }
 
+    public function getDateHistory(Request $request) {
+        $id = $request->id;
+        $type = "App\DeveloperTask";
+        if (isset($request->type) && $request->type == "task") {
+            $type = "App\Task";
+        }
+        $task_module = DeveloperTaskHistory::query()
+            ->join('users', 'users.id', 'developer_tasks_history.user_id')
+            ->where('developer_task_id', $id)
+            ->where('model', $type)
+            ->where('attribute', 'estimate_date')
+            ->select('developer_tasks_history.*', 'users.name')
+            ->orderBy('developer_tasks_history.id', 'DESC')
+            ->get();
+        if ($task_module) {
+            return $task_module;
+        }
+        return 'error';
+    }
 
 
+    public function taskGet() {
+        try {
+            $errors = reqValidate(request()->all(), [
+                'id' => 'required'
+            ], []);
+            if ($errors) {
+                return respJson(400, $errors[0]);
+            }
+
+            $single = DeveloperTask::find(request('id'));
+            if (!$single) {
+                return respJson(404, 'No task found.');
+            }
+            return respJson(200, '', [
+                'data' => $single
+            ]);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
 
 
     public function actionStartDateUpdate() {
-        $newValue = request('start_date');
-        if (!$newValue) {
-            return response()->json(['message' => 'Start date is required.'], 400);
-        }
-
-        $single = DeveloperTask::find(request('id'));
-        if (!$single) {
-            return response()->json(['message' => 'No task found.'], 404);
-        }
-
-        $oldValue = $single->start_date;
-        if ($oldValue == $newValue) {
-            return response()->json(['message' => 'Value is not changed.'], 400);
-        }
-
-        $single->start_date = $newValue;
-        $single->save();
-        $single->updateHistory('start_date', $oldValue, $newValue);
-        return response()->json(['message' => 'Successfully updated'], 200);
-    }
-    public function actionStartDateHistory() {
-        $list = DeveloperTaskHistory::with('user')->where('attribute', 'start_date')->where([['developer_task_id', '=', request('id')]])->orderBy('id')->get();
-        if ($list->count()) {
-            $html = "";
-            foreach ($list as $single) {
-                $html .= "<tr>";
-                $html .= "<td>" . $single->id . "</td>";
-                $html .= "<td>" . ($single->user ? $single->user->name : '-') . "</td>";
-                $html .= "<td>" . $single->old_value . "</td>";
-                $html .= "<td>" . $single->new_value . "</td>";
-                $html .= "<td>" . $single->created_at . "</td>";
-                $html .= "</tr>";
+        if ($new = request('value')) {
+            if ($single = DeveloperTask::find(request('id'))) {
+                $old = $single->start_date;
+                $single->start_date = $new;
+                $single->save();
+                $single->updateHistory('start_date', $old, $new);
+                return respJson(200, 'Successfully updated.');
             }
-            return response()->json(['data' => $html]);
-        } else {
-            return response()->json(['message' => 'No records found.'], 404);
+            return respJson(404, 'No task found.');
         }
+        return respJson(400, 'Start date is required.');
+    }
+
+
+    public function saveEstimateDate(Request $request) {
+        if ($new = request('value')) {
+            if ($single = DeveloperTask::find(request('id'))) {
+                $old = $single->estimate_date;
+
+                $single->estimate_date = $new;
+
+                $single->save();
+
+
+
+                DeveloperTaskHistory::create([
+                    'developer_task_id' => $single->id,
+                    'model' => 'App\DeveloperTask',
+                    'attribute' => "estimate_date",
+                    'old_value' => $old,
+                    'new_value' => $new,
+                    'user_id' => loginId(),
+                ]);
+
+                return respJson(200, 'Successfully updated.');
+            }
+            return respJson(404, 'No task found.');
+        }
+        return respJson(400, 'Estimate date is required.');
+    }
+    public function saveAmount(Request $request) {
+        if ($new = request('value')) {
+            if ($single = DeveloperTask::find(request('id'))) {
+                $old = $single->cost;
+
+                $single->cost = $new;
+                $single->save();
+
+                DeveloperTaskHistory::create([
+                    'developer_task_id' => $single->id,
+                    'model' => 'App\DeveloperTask',
+                    'attribute' => "cost",
+                    'old_value' => $old,
+                    'new_value' => $new,
+                    'user_id' => loginId(),
+                ]);
+
+                return respJson(200, 'Successfully updated.');
+            }
+            return respJson(404, 'No task found.');
+        }
+        return respJson(400, 'Cost is required.');
+    }
+    public function saveEstimateMinutes(Request $request) {
+        $new = request('estimate_minutes');
+        $remark = request('remark');
+
+
+        if ($issue = DeveloperTask::find(request('issue_id'))) {
+            $issue->estimate_minutes = $new;
+            $issue->status = DeveloperTask::DEV_TASK_STATUS_USER_ESTIMATED;
+            $issue->save();
+            // _p($issue->toArray(), 1);
+
+            DeveloperTaskHistory::create([
+                'developer_task_id' => $issue->id,
+                'model' => 'App\DeveloperTask',
+                'attribute' => "estimation_minute",
+                'old_value' => $issue->estimate_minutes,
+                'new_value' => $new,
+                'remark' => $remark ?: NULL,
+                'user_id' => loginId(),
+            ]);
+
+
+            if (Auth::user()->isAdmin()) {
+                $user = User::find($issue->user_id);
+                $msg = 'TIME ESTIMATED BY ADMIN FOR TASK ' . '#DEVTASK-' . $issue->id . '-' . $issue->subject . ' ' .  $new . ' MINS';
+            } else {
+                $user = User::find($issue->master_user_id);
+                $msg = 'TIME ESTIMATED BY USER FOR TASK ' . '#DEVTASK-' . $issue->id . '-' . $issue->subject . ' ' .  $new . ' MINS';
+            }
+
+            if ($user) {
+                $receiver_user_phone = $user->phone;
+                if ($receiver_user_phone) {
+                    $chat = ChatMessage::create([
+                        'number' => $receiver_user_phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0,
+                        'developer_task_id' => $issue->id,
+                    ]);
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+                    MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to, $issue->team_lead_id, $issue->tester_id], $msg);
+                }
+            }
+            return respJson(200, 'Successfully updated.');
+        }
+        return respJson(404, 'Record not found.');
+    }
+    public function saveLeadEstimateTime(Request $request) {
+        $issue = DeveloperTask::find(request('issue_id'));
+
+        DeveloperTaskHistory::create([
+            'developer_task_id' => $issue->id,
+            'model' => 'App\DeveloperTask',
+            'attribute' => "lead_estimation_minute",
+            'old_value' => $issue->lead_estimate_time,
+            'new_value' => request('lead_estimate_time'),
+            'remark' => request('remark') ?: NULL,
+            'user_id' => loginId(),
+        ]);
+        $issue->lead_estimate_time = request('lead_estimate_time');
+        // if (!isAdmin()) {
+        //     $issue->status = DeveloperTask::DEV_TASK_STATUS_USER_ESTIMATED;
+        // }
+        $issue->save();
+        return respJson(200, 'Successfully updated.');
+    }
+    public function approveLeadTimeHistory(Request $request) {
+        if (isAdmin()) {
+            if (
+                !$request->approve_time
+                || $request->approve_time == ""
+                || !$request->lead_developer_task_id
+                || $request->lead_developer_task_id == ''
+            ) {
+                return respJson(400, 'Select one time first.');
+            }
+
+            DeveloperTaskHistory::where('developer_task_id', $request->lead_developer_task_id)
+                ->where('attribute', 'estimation_minute')
+                ->update(['is_approved' => 0]);
+
+            $history = DeveloperTaskHistory::find($request->approve_time);
+            $history->is_approved = 1;
+            $history->save();
+
+            return respJson(200, 'Successfully updated.');
+        }
+        return respJson(403, 'Only admin can approve.');
+    }
+
+    public function historySimpleData($key, $id) {
+        $list = DeveloperTaskHistory::with('user')
+            ->where('model', 'App\DeveloperTask')
+            ->where('attribute', $key)
+            ->where('developer_task_id', $id)->orderBy('id', 'DESC')->get();
+
+        $html = [];
+        $html[] = '<table class="table table-bordered">';
+        $html[] = '<thead>
+            <tr>
+                <th width="10%">ID</th>
+                <th width="30%">Update By</th>
+                <th width="20%" style="word-break: break-all;">Old Value</th>
+                <th width="20%" style="word-break: break-all;">New Value</th>
+                <th width="20%">Created at</th>
+            </tr>
+        </thead>';
+        if ($list->count()) {
+            foreach ($list as $single) {
+                $html[] = '<tr>
+                    <td>' . $single->id . '</td>
+                    <td>' . ($single->user ? $single->user->name : '-') . '</td>
+                    <td>' . $single->old_value . '</td>
+                    <td>' . $single->new_value . '</td>
+                    <td>' . $single->created_at . '</td>
+                </tr>';
+            }
+        } else {
+            $html[] = '<tr>
+                <td colspan="5">No records found.</td>
+            </tr>';
+        }
+        $html[] = '</table>';
+        return respJson(200, '', ['data' => implode('', $html)]);
+    }
+    public function historyStartDate() {
+        return $this->historySimpleData('start_date', request('id'));
+    }
+    public function historyEstimateDate() {
+        return $this->historySimpleData('estimate_date', request('id'));
+    }
+    public function historyCost() {
+        return $this->historySimpleData('cost', request('id'));
     }
 }

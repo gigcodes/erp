@@ -201,13 +201,8 @@
         </select>
     </td>
     <td>
-        <input style="min-width: 30px;" placeholder="Remark" value="" type="text" class="form-control mb-2 update_approximate" name="track_time_remark_{{$task->id}}" id="track_time_remark_{{$task->id}}" data-id="{{$task->id}}">
         <div class="d-flex">
-            <input type="text" placeholder="ED" class="update_approximate form-control input-sm" name="approximate_{{$task->id}}" id="approximate_{{$task->id}}" data-id="{{$task->id}}" value="{{$task->approximate}}">
-            <button type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
-            <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
-            <input type="text" placeholder="Cost" class="update_cost form-control input-sm" name="cost" data-id="{{$task->id}}" value="{{$task->cost}}">
-            <span class="text-success update_cost_msg" style="display: none;">Successfully updated</span>
+            <button type="button" class="btn btn-xs show-time-history" title="Show Estimation History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
         </div>
         @if (isset($special_task->timeSpent) && $special_task->timeSpent->task_id > 0)
         {{ formatDuration($special_task->timeSpent->tracked) }}
@@ -297,13 +292,12 @@
             </div>
         </div>
 
-        <div class="dropdown">
+        <div class="dropdown dropleft">
             <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$task->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Actions
             </a>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$task->id}}">
-                <a class="dropdown-item" href="javascript:void(0);" data-task_id="{{$task->id}}" data-start_date="{{$task->start_date}}" onclick="funTaskStartDateModal(this)">Start Time: Update</a>
-                <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskStartDateHistory('{{$task->id}}')">Start Time: View History</a>
+                <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskInformationModal(this, '{{$task->id}}')">Task Information: Update</a>
             </div>
         </div>
     </td>
