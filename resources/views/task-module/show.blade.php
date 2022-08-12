@@ -689,15 +689,15 @@ else
                             <tr>
                                 <th width="5%">ID</th>
                                 <th width="8%">Date</th>
-                                <th width="6%" class="category">Category</th>
+                                <th width="10%" class="category">Category</th>
                                 <th width="10%">Task Subject</th>
                                 <th width="10%">Assign To</th>
-                                <th width="9%">Status</th>
-                                <th width="10%">Tracked time</th>
+                                <th width="8%">Status</th>
+                                <th width="7%">Tracked time</th>
                                 <th width="23%">Communication</th>
-                                <th width="18%">Action&nbsp;
-                                    <input type="checkbox" class="show-finished-task" name="show_finished" value="on">
-                                    <label>Finished</label>
+                                <th width="19%">
+                                    Action &nbsp;
+                                    <label><input type="checkbox" class="show-finished-task" name="show_finished" value="on"> Finished</label>
                                 </th>
                             </tr>
                         </thead>
@@ -924,34 +924,23 @@ else
 
                                 <td class="table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
                                     @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
-                                    <div class="d-flex">
-                                        <?php
-                                        $text_box = "100";
-                                        // if(isset($task->message))
-                                        // {
-                                        //     $text_box = "50";
-                                        // }
-                                        // else
-                                        // {
-                                        //     $text_box = "100";
-                                        // }
-                                        ?>
-                                        <div class="col-md-6">
-                                            <input type="text" style="width: <?php echo $text_box; ?>%;" class="form-control quick-message-field input-sm " id="getMsg{{$task->id}}" name="message" placeholder="Message" value="">
-                                        </div>
-
-                                        <div width="10%">
-                                            <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
+                                    <div style="margin-bottom:10px;width: 100%;">
+                                        <?php $text_box = "100"; ?>
+                                        <div class="d-flex">
+                                            <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message" value="">
+                                            <div style="max-width: 30px;">
+                                                <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
+                                            </div>
                                             @if (isset($task->message))
-                                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                                            <div style="max-width: 30px;">
+                                                <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                                            </div>
                                             @endif
                                         </div>
-
-                                        <div width="50%">
-                                            @if (isset($task->message))
+                                        @if (isset($task->message))
+                                        <div style="margin-bottom:10px;width: 100%;">
                                             <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
                                                 <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
-
                                                     <?php
                                                     if (!empty($task->message) && !empty($task->task_subject)) {
                                                         $pos = strpos($task->message, $task->task_subject);
@@ -968,25 +957,25 @@ else
                                                     {{substr($task->message, $start,28)}}
                                                 </span>
                                             </div>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="expand-row-msg" data-id="{{$task->id}}">
-                                        <span class="td-full-container-{{$task->id}} hidden">
-                                            {{ $task->message }}
-                                        </span>
-                                    </div>
-                                    <div class="expand-col dis-none">
-                                        <br>
-                                        @if(auth()->user()->isAdmin())
-                                        <label for="">Lead:</label>
-                                        <div class="d-flex">
-                                            <input type="text" style="width: <?php echo $text_box; ?>%;" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message" value="">
-                                            <button class="btn btn-sm btn-image send-message-lead" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
-
+                                            <div class="expand-row-msg" data-id="{{$task->id}}">
+                                                <span class="td-full-container-{{$task->id}} hidden">
+                                                    {{ $task->message }}
+                                                </span>
+                                            </div>
                                         </div>
                                         @endif
                                     </div>
+                                    @if(auth()->user()->isAdmin())
+                                    <div style="margin-bottom:10px;width: 100%;">
+                                        <div class="expand-col dis-none">
+                                            <label for="">Lead:</label>
+                                            <div class="d-flex">
+                                                <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message" value="">
+                                                <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-message-lead" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
                                     @else
                                     Private
                                     @endif
@@ -3073,7 +3062,7 @@ else
         });
     });
 
-    
+
 
     $(document).on("change", ".select2-task-disscussion", function() {
         var $this = $(this);
