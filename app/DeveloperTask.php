@@ -75,9 +75,10 @@ class DeveloperTask extends Model {
     const DEV_TASK_STATUS_HIGH_PRIORITY         = 'High Priority';
     const DEV_TASK_STATUS_REVIEW_ESTIMATED_TIME = 'Review Estimated Time';
     const DEV_TASK_STATUS_USER_COMPLETE         = 'User Complete';
-    const DEV_TASK_STATUS_USER_ESTIMATED            = 'User Estimated';
-    const DEV_TASK_STATUS_DECLINE                   = 'Decline';
-    const DEV_TASK_STATUS_REOPEN                    = 'Reopen';
+    const DEV_TASK_STATUS_USER_ESTIMATED        = 'User Estimated';
+    const DEV_TASK_STATUS_DECLINE               = 'Decline';
+    const DEV_TASK_STATUS_REOPEN                = 'Reopen';
+    const DEV_TASK_STATUS_APPROVED              = 'Approved';
 
 
     public function user() {

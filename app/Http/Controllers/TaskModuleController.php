@@ -2019,6 +2019,8 @@ class TaskModuleController extends Controller {
             $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
         } else {
+            $data["status"]    = 5; // Planned - As per DEVTASK-22162
+
             if ($request->task_type == 'quick_task') {
                 $data['is_statutory'] = 0;
                 $data['category'] = 6;
@@ -2299,6 +2301,8 @@ class TaskModuleController extends Controller {
         ]);
     }
     //END - DEVTASK-4354
+
+    
 
     public function getDiscussionSubjects() {
         $discussion_subjects = Task::where('is_statutory', 3)->where('is_verified', null)->pluck('task_subject', 'id')->toArray();
@@ -2653,6 +2657,9 @@ class TaskModuleController extends Controller {
             $history->save();
 
             $task = Task::find($request->developer_task_id);
+            $task->status = Task::TASK_STATUS_APPROVED;
+            $task->save();
+
             $time = $history->new_value !== null ? $history->new_value : $history->old_value;
             $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $time . ' MINS';
 
@@ -3449,8 +3456,12 @@ class TaskModuleController extends Controller {
                 'user_id' => auth()->id(),
             ]);
 
+            if (!isAdmin()) {
+                $task->status = Task::TASK_STATUS_USER_ESTIMATED;
+            }
             $task->approximate = $approximate;
             $task->save();
+
 
             if (Auth::user()->isAdmin()) {
                 $user = User::find($task->assign_to);

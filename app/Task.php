@@ -121,6 +121,7 @@ class Task extends Model {
     const TASK_STATUS_USER_ESTIMATED        = 17;
     const TASK_STATUS_DECLINE               = 18;
     const TASK_STATUS_REOPEN                = 19;
+    const TASK_STATUS_APPROVED              = 20;
 
     protected $dates = ['deleted_at'];
 
