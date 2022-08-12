@@ -2302,7 +2302,7 @@ class TaskModuleController extends Controller {
     }
     //END - DEVTASK-4354
 
-    
+
 
     public function getDiscussionSubjects() {
         $discussion_subjects = Task::where('is_statutory', 3)->where('is_verified', null)->pluck('task_subject', 'id')->toArray();
@@ -2886,6 +2886,15 @@ class TaskModuleController extends Controller {
 
             $task->status = $request->status;
 
+            if (request('status') == Task::TASK_STATUS_IN_PROGRESS) {
+                if ($task->actual_start_date == NULL || $task->actual_start_date == '0000-00-00 00:00:00') {
+                    $task->actual_start_date = date('Y-m-d H:i:s');
+                }
+            }
+            if (request('status') == Task::TASK_STATUS_DONE) {
+                $task->actual_end_date = date('Y-m-d H:i:s');
+            }
+
             $task->save();
             DeveloperTaskHistory::create([
                 'developer_task_id' => $request->task_id,
@@ -2895,6 +2904,8 @@ class TaskModuleController extends Controller {
                 'new_value' => $task->status,
                 'user_id' => Auth::id(),
             ]);
+
+
 
             if ($task->status == 1) {
 

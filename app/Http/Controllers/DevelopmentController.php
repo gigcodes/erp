@@ -2669,6 +2669,16 @@ class DevelopmentController extends Controller {
             ]);
 
             $issue->status = $request->get('is_resolved');
+
+            if ($issue->status == DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS) {
+                if ($issue->actual_start_date == NULL || $issue->actual_start_date == '0000-00-00 00:00:00') {
+                    $issue->actual_start_date = date('Y-m-d H:i:s');
+                }
+            }
+            if ($issue->status == DeveloperTask::DEV_TASK_STATUS_DONE) {
+                $issue->actual_end_date = date('Y-m-d H:i:s');
+            }
+
             $issue->save();
         }
         return response()->json([
@@ -2739,6 +2749,9 @@ class DevelopmentController extends Controller {
 
 
             $task = DeveloperTask::find($request->developer_task_id);
+            $task->status = DeveloperTask::DEV_TASK_STATUS_APPROVED;
+            $task->save();
+
             $time = $history->new_value !== null ? $history->new_value : $history->old_value;
             $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $time . ' MINS';
 
@@ -3637,7 +3650,10 @@ class DevelopmentController extends Controller {
                 $old = $single->estimate_date;
 
                 $single->estimate_date = $new;
+
                 $single->save();
+
+
 
                 DeveloperTaskHistory::create([
                     'developer_task_id' => $single->id,
@@ -3683,6 +3699,11 @@ class DevelopmentController extends Controller {
 
 
         if ($issue = DeveloperTask::find(request('issue_id'))) {
+            $issue->estimate_minutes = $new;
+            $issue->status = DeveloperTask::DEV_TASK_STATUS_USER_ESTIMATED;
+            $issue->save();
+            // _p($issue->toArray(), 1);
+
             DeveloperTaskHistory::create([
                 'developer_task_id' => $issue->id,
                 'model' => 'App\DeveloperTask',
@@ -3692,8 +3713,7 @@ class DevelopmentController extends Controller {
                 'remark' => $remark ?: NULL,
                 'user_id' => loginId(),
             ]);
-            $issue->estimate_minutes = $new;
-            $issue->save();
+
 
             if (Auth::user()->isAdmin()) {
                 $user = User::find($issue->user_id);
@@ -3734,7 +3754,10 @@ class DevelopmentController extends Controller {
             'remark' => request('remark') ?: NULL,
             'user_id' => loginId(),
         ]);
-        $issue->lead_estimate_time = request('lead_estimate_time    ');
+        $issue->lead_estimate_time = request('lead_estimate_time');
+        // if (!isAdmin()) {
+        //     $issue->status = DeveloperTask::DEV_TASK_STATUS_USER_ESTIMATED;
+        // }
         $issue->save();
         return respJson(200, 'Successfully updated.');
     }

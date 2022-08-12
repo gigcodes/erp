@@ -91,6 +91,19 @@
                         </div>
                     </div>
                 </div>
+
+                <hr />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Actual Start Time:</label>
+                        <div class="form-group cls-actual_start_date"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Actual End Time:</label>
+                        <div class="form-group cls-actual_end_date"></div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -142,6 +155,9 @@
                 mdl.find('input[name="cost"]').val(res.data.cost);
                 mdl.find('input[name="approximate"]').val(res.data.approximate);
                 mdl.find('input[name="remark"]').val('');
+
+                mdl.find('.cls-actual_start_date').html(res.data.actual_start_date ? res.data.actual_start_date : '-');
+                mdl.find('.cls-actual_end_date').html(res.data.actual_end_date ? res.data.actual_end_date : '-');
 
                 mdl.find('.show-time-history').attr('data-id', res.data.id);
                 mdl.find('.show-time-history').attr('data-user_id', res.data.assign_to);
