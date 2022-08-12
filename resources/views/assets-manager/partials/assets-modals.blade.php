@@ -31,8 +31,13 @@
 
           <div class="form-group">
             <strong>User Name:</strong>
-            <input type="text" name="user_name"  class="form-control" value="{{ old('user_name') }}">
-
+            {{-- <input type="text" name="user_name"  class="form-control" value="{{ old('user_name') }}"> --}}
+            <select class="form-control select-multiple" name="user_name" >
+              <option value="">Select</option>
+              @foreach($users as $user)
+                <option value="{{$user->id}}" {{ $user->id == old('user_name') ? 'selected' : '' }}>{{$user->name}}</option>
+              @endforeach
+          </select>
             @if ($errors->has('user_name'))
               <div class="alert alert-danger">{{$errors->first('user_name')}}</div>
             @endif
@@ -341,8 +346,16 @@
 
           <div class="form-group">
             <strong>User Name:</strong>
-            <input type="text" name="user_name"  id="user_name"  class="form-control" value="{{ old('user_name') }}">
+            <button type="button" class="btn btn-xs show-user-history-btn" title="Show User History" ><i class="fa fa-info-circle"></i></button>
+            {{-- <input type="text" name="user_name"  id="user_name"  class="form-control" value="{{ old('user_name') }}"> --}}
+
             <input type="hidden" name="old_user_name"  id="old_user_name"  class="form-control" value="{{ old('old_user_name') }}">
+            <select class="form-control select-multiple" name="user_name" >
+              <option value="">Select</option>
+              @foreach($users as $user)
+                <option value="{{$user->id}}" {{ $user->id == old('user_name') ? 'selected' : '' }}>{{$user->name}}</option>
+              @endforeach
+          </select>
             @if ($errors->has('user_name'))
               <div class="alert alert-danger">{{$errors->first('user_name')}}</div>
             @endif

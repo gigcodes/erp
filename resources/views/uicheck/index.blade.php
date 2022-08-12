@@ -92,6 +92,11 @@
 					<div class="row">
 						<div class="col-md-2">
 							<div class="form-group">
+								<input type="text" name="id" id="id" class="form-control" value="{{old('id')}}" placeholder="Please Enter Uicheck Id" />
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="form-group">
 								<select name="assign_to" id="assign_to" class="form-control select2">
 									<option value="">-- Select Assign to --</option>
 									@forelse($users as $user)
@@ -1664,6 +1669,7 @@
 					d.assign_to = $('#assign_to').val();
 					d.order_by = $("#order_by").val();
 					d.srch_lock_type = $("#srch_lock_type").val();
+					d.id = $("#id").val();
 					// d.subjects = $('input[name=subjects]').val();					
 				},
 			},
