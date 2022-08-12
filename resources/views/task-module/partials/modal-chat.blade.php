@@ -8,7 +8,7 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
 
-      <form action="{{ route('task_category.store') }}" method="POST">
+      <form action="{{ route('task_category.store') }}" method="POST" onsubmit="return false;" >
         @csrf
 
         <div class="modal-body">
