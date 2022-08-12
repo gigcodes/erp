@@ -3318,13 +3318,24 @@ class TaskModuleController extends Controller {
             $dataArr = [];
             if ($userId = request('userId')) {
                 $dTasks = DeveloperTask::where('assigned_to', $userId)
-                    ->whereNotIn('status', ['Done', 'User Complete'])
-                    ->orderBy('id', 'DESC')->limit(10)->get();
+                    ->whereNotIn('status', [
+                        DeveloperTask::DEV_TASK_STATUS_APPROVED,
+                        DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS,
+                        DeveloperTask::DEV_TASK_STATUS_REOPEN,
+                        DeveloperTask::DEV_TASK_STATUS_PLANNED,
+                    ])
+                    ->orderBy('id', 'DESC')->get();
                 foreach ($dTasks as $key => $dTask) {
                     $dataArr['Developer Tasks']['DT-' . $dTask->id] = '(DT-' . $dTask->id . ') - ' . $dTask->subject;
                 }
 
-                $tasks = Task::where('assign_to', $userId)->whereNotIn('status', [1, 15])->orderBy('id', 'DESC')->limit(10)->get();
+                $tasks = Task::where('assign_to', $userId)
+                    ->whereNotIn('status', [
+                        Task::TASK_STATUS_APPROVED,
+                        Task::TASK_STATUS_IN_PROGRESS,
+                        Task::TASK_STATUS_REOPEN,
+                        Task::TASK_STATUS_PLANNED,
+                    ])->orderBy('id', 'DESC')->get();
                 foreach ($tasks as $key => $task) {
                     $dataArr['Tasks']['T-' . $task->id] = '(T-' . $task->id . ') - ' . $task->task_subject;
                 }
