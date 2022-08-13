@@ -40,7 +40,7 @@
       <div class="form-group">
         <div class="input-group">
           <select name="folder_name" class="form-control" id="folder_name">
-            <option value="">--select folder--</option>
+            <option value="">-- Select Folder --</option>
             <?php
             $ops = 'id';
             foreach ($folders as $folder) {
@@ -57,15 +57,11 @@
     <div class="col">
       <div class="form-group">
         <div class="input-group">
-          <?php $requestNamrArr = []; ?>
-          @foreach ($postmans as $key => $postman)
-          <?php array_push($requestNamrArr, $postman->request_name); ?>
-          @endforeach
-          <?php $requestNamrArr = array_unique($requestNamrArr); ?>
           <select name="request_name" class="form-control" id="request_name">
-            <option value="">--Select Request Name--</option>
-            @foreach ($requestNamrArr as $key => $reqName)
-            <?php $selected  = '';
+            <option value="">-- Select Request Name --</option>
+            @foreach ($listRequestNames as $key => $reqName)
+            <?php
+            $selected  = '';
             if ($reqName == request('request_name')) {
               $selected  = 'selected = "selected"';
             }
@@ -73,17 +69,15 @@
             <option {{$selected}} value="{{$reqName}}">{{$reqName}}</option>
             @endforeach
           </select>
-          {{-- <input type="text" placeholder="Request Name" class="form-control" name="request_name" value="{{request('request_name')}}"> --}}
         </div>
       </div>
     </div>
     <div class="col">
       <div class="form-group">
         <div class="input-group">
-          {{-- <input type="text" placeholder="Request Type" class="form-control" name="request_type" value="{{request('request_type')}}"> --}}
           <select name="request_type" value="" class="form-control" id="request_types">
 
-            <option value="">--select Method</option>
+            <option value="">-- Select Method --</option>
             <option value="GET" <?php if (request('request_type') == 'GET') {
                                   echo 'selected';
                                 } ?>>GET</option>

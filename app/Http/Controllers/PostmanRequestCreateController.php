@@ -35,66 +35,53 @@ class PostmanRequestCreateController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        //\DB::enableQueryLog(); // Enable query log
-        $postmans = PostmanRequestCreate::select('postman_request_creates.*', 'pf.name', 'postman_responses.response', 'postman_responses.response_code', 'postman_responses.id AS resId')
-            ->leftJoin('postman_folders AS pf', 'pf.id', 'postman_request_creates.folder_name')
-            ->leftJoin('postman_responses', function ($query) {
-                $query->on('postman_responses.request_id', '=', 'postman_request_creates.id')
-                    ->whereRaw('postman_responses.id IN (select MAX(pr1.id) from postman_responses as pr1 WHERE pr1.request_id = postman_request_creates.id  ORDER BY id DESC )');
-            })
-            ->groupBy('postman_request_creates.id')
-            ->orderBy('postman_request_creates.id', 'DESC')
-            //->get();
-            ->paginate(15);
-        //dd($postmans);
-        //dd(\DB::getQueryLog());
+        $q = PostmanRequestCreate::query();
+        $q->select('postman_request_creates.*', 'pf.name', 'postman_responses.response', 'postman_responses.response_code', 'postman_responses.id AS resId');
+        $q->leftJoin('postman_folders AS pf', 'pf.id', 'postman_request_creates.folder_name');
+        $q->leftJoin('postman_responses', function ($query) {
+            $query->on('postman_responses.request_id', '=', 'postman_request_creates.id')
+                ->whereRaw('postman_responses.id IN (select MAX(pr1.id) from postman_responses as pr1 WHERE pr1.request_id = postman_request_creates.id  ORDER BY id DESC )');
+        });
+
+        if ($s = request('folder_name')) {
+            $q->where("folder_name", "like", "%" . $s . "%");
+        }
+        if ($s = request('request_type')) {
+            $q->where("request_type", "like", "%" . $s . "%");
+        }
+        if ($s = request('request_name')) {
+            $q->where("request_name", $s);
+        }
+        if ($s = request('search_id')) {
+            $q->where("postman_request_creates.id", $s);
+        }
+
+        $q->orderBy('postman_request_creates.id', 'DESC');
+
+        $postmans = $q->paginate(Setting::get('pagination'));
 
         $folders = PostmanFolder::all();
         $users = User::all();
-        $userID = \Auth::user()->id;
-        $userAdmin = User::where('id', $userID)->first();
-        $addAdimnAccessID = '';
-        if ($userAdmin->isAdmin()) {
-            $addAdimnAccessID = $userID;
-        }
+        $userID = loginId();
+        $addAdimnAccessID = isAdmin() ? loginId() : '';
+        $listRequestNames = PostmanRequestCreate::dropdownRequestNames();
 
-        return view("postman.index", compact('postmans', 'folders', 'users', 'userID', 'addAdimnAccessID'));
+        return view("postman.index", compact(
+            'postmans',
+            'folders',
+            'users',
+            'userID',
+            'addAdimnAccessID',
+            'listRequestNames'
+        ));
+    }
+    public function search(Request $request) {
+        return $this->index();
     }
 
     public function folderIndex() {
         $folders = PostmanFolder::paginate(15);
         return view("postman.folder", compact('folders'));
-    }
-
-    public function search(Request $request) {
-        $postmans = new PostmanRequestCreate();
-        if (!empty($request->folder_name)) {
-            $postmans = $postmans->where("folder_name", "like", "%" . $request->folder_name . "%");
-        }
-        if (!empty($request->request_type)) {
-            $postmans = $postmans->where("request_type", "like", "%" . $request->request_type . "%");
-        }
-        if (!empty($request->request_name)) {
-            $postmans = $postmans->where("request_name", "like", "%" . $request->request_name . "%");
-        }
-        if ($s = request('search_id')) {
-            $postmans = $postmans->where("postman_request_creates.id", $s);
-        }
-        $postmans = $postmans->select('postman_request_creates.*', 'pf.name', 'postman_responses.response', 'postman_responses.response_code', 'postman_responses.id AS resId')
-            ->leftJoin('postman_folders AS pf', 'pf.id', 'postman_request_creates.folder_name')
-            ->leftJoin('postman_responses', function ($query) {
-                $query->on('postman_responses.request_id', '=', 'postman_request_creates.id')
-                    ->whereRaw('postman_responses.id IN (select MAX(pr1.id) from postman_responses as pr1 WHERE pr1.request_id = postman_request_creates.id  ORDER BY id DESC )');
-            })->paginate(Setting::get('pagination'));
-        $folders = PostmanFolder::all();
-        $users = User::all();
-        $userID = \Auth::user()->id;
-        $userAdmin = User::where('id', $userID)->first();
-        $addAdimnAccessID = '';
-        if ($userAdmin->isAdmin()) {
-            $addAdimnAccessID = $userID;
-        }
-        return view("postman.index", compact('postmans', 'folders', 'users', 'userID', 'addAdimnAccessID'));
     }
 
     public function folderSearch(Request $request) {
@@ -107,7 +94,6 @@ class PostmanRequestCreateController extends Controller {
 
         return view("postman.folder", compact('folders'));
     }
-
 
     /**
      * Store a newly created resource in storage.
