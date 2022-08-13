@@ -197,7 +197,17 @@ class TaskModuleController extends Controller {
 				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
 			  ) as chat_messages  ON chat_messages.task_id = tasks.id
 			) AS tasks
-			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 ' . $isCompleteWhereClose . $userquery . $status_filter . $flag_filter . $categoryWhereClause . $searchWhereClause . $orderByClause . ' limit ' . $paginate . ' offset ' . $offSet . '; ');
+			WHERE (deleted_at IS NULL) 
+            AND (id IS NOT NULL) 
+            AND is_statutory != 1 '
+                . $isCompleteWhereClose
+                . $userquery
+                . $status_filter
+                . $flag_filter
+                . $categoryWhereClause
+                . $searchWhereClause
+                . $orderByClause
+                . ' limit ' . $paginate . ' offset ' . $offSet . '; ');
 
 
             foreach ($data['task']['pending'] as $task) {
@@ -3399,6 +3409,9 @@ class TaskModuleController extends Controller {
         if ($new = request('value')) {
             if ($task = Task::find(request('task_id'))) {
                 $task->updateStartDate($new);
+
+                // taskUpdateStartDate
+
                 return response()->json([
                     'message' => 'Successfully updated'
                 ], 200);

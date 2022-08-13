@@ -351,17 +351,18 @@ class Task extends Model {
         return $this->belongsTo('App\SiteDevelopment', 'site_developement_id', 'id');
     }
 
-    public function updateStartDate($newValue) {
+    public function updateStartDate($new) {
         $oldValue = $this->start_date;
-        if ($oldValue != $newValue) {
-            $this->start_date = $newValue;
+
+        if ($oldValue != $new) {
+            $this->start_date = $new;
             $this->save();
             TaskHistoryForStartDate::create([
                 'task_id' => $this->id,
                 'task_type' => 'TASK',
                 'updated_by' => Auth::id(),
                 'old_value' => $oldValue,
-                'new_value' => $newValue,
+                'new_value' => $new,
             ]);
         }
     }

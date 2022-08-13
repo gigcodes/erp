@@ -19,7 +19,8 @@ class TaskHistoryController extends Controller {
         $html[] = '<table class="table table-bordered">';
         $html[] = '<thead>
             <tr>
-                <th width="10%">ID</th>
+                <th width="5%">#</th>
+                <th width="5%">ID</th>
                 <th width="30%">Update By</th>
                 <th width="20%" style="word-break: break-all;">Old Value</th>
                 <th width="20%" style="word-break: break-all;">New Value</th>
@@ -29,6 +30,7 @@ class TaskHistoryController extends Controller {
         if ($list->count()) {
             foreach ($list as $single) {
                 $html[] = '<tr>
+                    <td><input type="radio" name="radio_for_approve" value="' . $single->id . '" /></td>
                     <td>' . $single->id . '</td>
                     <td>' . ($single->updatedBy ? $single->updatedBy->name : '-') . '</td>
                     <td>' . $single->old_value . '</td>
@@ -38,7 +40,7 @@ class TaskHistoryController extends Controller {
             }
         } else {
             $html[] = '<tr>
-                <td colspan="5">No records found.</td>
+                <td colspan="6">No records found.</td>
             </tr>';
         }
         $html[] = '</table>';
@@ -110,6 +112,4 @@ class TaskHistoryController extends Controller {
         $html[] = '</table>';
         return respJson(200, '', ['data' => implode('', $html)]);
     }
-
-    
 }

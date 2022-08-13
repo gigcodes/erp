@@ -14,7 +14,7 @@
                     <div class="col-md-4">
                         <label>Estimated Time: [In Minutes]</label>
                         <div class="form-group">
-                            <input type="number" class="form-control" name="approximate" value="" min="1" />
+                            <input type="number" class="form-control" name="approximate" value="" min="1" autocomplete="off" />
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -39,7 +39,7 @@
                         <label>Estimated Start Datetime:</label>
                         <div class="form-group">
                             <div class='input-group date cls-start-due-date'>
-                                <input type="text" class="form-control" name="start_date" value="" />
+                                <input type="text" class="form-control" name="start_date" value="" autocomplete="off" />
                                 <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
                             </div>
                         </div>
@@ -60,7 +60,7 @@
                         <label>Estimated End Datetime: [Due Date]</label>
                         <div class="form-group">
                             <div class='input-group date cls-start-due-date'>
-                                <input type="text" class="form-control" name="due_date" value="" />
+                                <input type="text" class="form-control" name="due_date" value="" autocomplete="off" />
                                 <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
                             </div>
                         </div>
@@ -80,7 +80,7 @@
                     <div class="{{$cls_1}}">
                         <label>Cost:</label>
                         <div class="form-group">
-                            <input type="text" class="form-control" name="cost" value="" />
+                            <input type="text" class="form-control" name="cost" value="" autocomplete="off" />
                         </div>
                     </div>
                     <div class="{{$cls_2}}">
