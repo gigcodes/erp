@@ -73,6 +73,8 @@ class UicheckController extends Controller {
                         "uichecks.admin_status_id",
                         "uichecks.lock_developer",
                         "uichecks.lock_admin",
+                        "uichecks.language_flag",
+                        "uichecks.translation_flag",
                         "uua.user_id as accessuser"
                     );
                 if ($s = request('srch_lock_type')) {
@@ -111,6 +113,8 @@ class UicheckController extends Controller {
                         "uichecks.admin_status_id",
                         "uichecks.lock_developer",
                         "uichecks.lock_admin",
+                        "uichecks.language_flag",
+                        "uichecks.translation_flag",
                         "uua.user_id as accessuser"
                     );
             }
@@ -135,6 +139,20 @@ class UicheckController extends Controller {
             if ($s = request('id')) {
                 $q = $q->where('uichecks.id', $s);
             }
+            
+            if ($s = request('srch_flags')) {
+                if ($s == 'Both') {
+                    $q = $q->where('uichecks.language_flag', 1);
+                    $q = $q->orWhere('uichecks.translation_flag', 1);
+                } else if ($s == "Language flag") {
+                    $q = $q->where('uichecks.language_flag', 1);
+                    
+                } else if ($s == "Translation flag") {
+                    $q = $q->where('uichecks.translation_flag', 1);
+                }
+                
+            }
+
             $q->groupBy('uichecks.id');
 
             if ($s = request('order_by')) {
@@ -144,8 +162,10 @@ class UicheckController extends Controller {
             } else {
                 $q->orderBy('uichecks.updated_at', "desc");
             }
+
             $counter = $q->get();
             //dd(count($q->get()));
+            //dd($q->toSql());
             //dd($q->count());
 
             // select 
@@ -202,7 +222,9 @@ class UicheckController extends Controller {
                     'site_development_categories.*',
                     'site_developments.id AS site_id',
                     'site_developments.website_id',
-                    "uichecks.id AS uicheck_id"
+                    "uichecks.id AS uicheck_id",
+                    "uichecks.language_flag",
+                    "uichecks.translation_flag"
                 )
                 //->where('site_developments.is_ui', 1);
                 ->where('uichecks.id', '>', 0);
@@ -1092,6 +1114,44 @@ class UicheckController extends Controller {
             ]);   
         }catch(\Exception $e){
             return respException($e);
+        }
+    }
+
+
+    public function languageFlag(Request $request) {
+        try{
+           
+            $data = Uicheck::where("id", $request->id);
+            $retunData = $data->get();
+            
+            if($retunData[0]->language_flag == 1)
+                $array["language_flag"] =  0;
+            else
+                $array["language_flag"] =  1;
+            $data->update($array);
+            $retunData1 = Uicheck::where("id", $request->id)->get();
+            return response()->json(['code' => 200, 'data' => $retunData1,  'message' => 'Type Updated!!!']);
+        }catch(\Exception $e){
+            return response()->json(['code' => 500, 'error' => $e->getMessage()]);
+        }
+    }
+
+    public function translationFlag(Request $request) {
+        try{
+           
+            $data = Uicheck::where("id", $request->id);
+            $retunData = $data->get();
+            
+            if($retunData[0]->translation_flag == 1)
+                $array["translation_flag"] =  0;
+            else
+                $array["translation_flag"] =  1;
+            $data->update($array);
+            $retunData1 = Uicheck::where("id", $request->id)->get();
+            
+            return response()->json(['code' => 200, 'data' => $retunData1,  'message' => 'Type Updated!!!']);
+        }catch(\Exception $e){
+            return response()->json(['code' => 500, 'error' => $e->getMessage()]);
         }
     }
 }

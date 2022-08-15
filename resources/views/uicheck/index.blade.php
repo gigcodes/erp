@@ -178,6 +178,17 @@
 								</select>
 							</div>
 						</div>
+						<div class="col-md-2">
+							<div class="form-group">
+								<select name="srch_flags" id="srch_flags" class="form-control select2">
+									<option value="">-- Select Flag --</option>
+									<option value="0">All</option>
+									<option value="Both">Both</option>
+									<option value="Language flag">Language flag</option>
+									<option value="Translation flag">Translation flag</option>
+								</select>
+							</div>
+						</div>
 						<div class="col-md-6">
 							<button type="button" class="btn btn-primary custom-filter">Search</button>
 							<button type="button" class="btn btn-secondary" onclick="loadAllHistory(1)">All History</button>
@@ -831,6 +842,14 @@
 			echo '<option value="' . $dropKey . '">' . $dropValue . '</option>';
 		} ?>
 	</select>
+
+	<select id="dropdownAllStatusAdmin" class="save-item-select-admin" style="width:55% !important;">
+		<option value="">- Select -</option>
+		<?php foreach ($allStatus as $dropKey => $dropValue) {
+			echo '<option value="' . $dropKey . '">' . $dropValue . '</option>';
+		} ?>
+	</select>
+	
 </div>
 
 @endsection
@@ -1514,13 +1533,15 @@
 				{
 					data: null,
 					render: function(data, type, row, meta) {
-						let sel = jQuery('#dropdownAllStatus').clone();
+						let sel = jQuery('#dropdownAllStatusAdmin').clone();
+						let lflag = (row.language_flag == 1) ? 'red': 'gray';
+						let tflag = (row.translation_flag == 1) ? 'flagged.png': 'unflagged.png';
 						sel.removeAttr('id');
 						sel.addClass('globalSelect2');
 						sel.find('option[value=' + row.admin_status_id + ']').attr('selected', 'selected');
 						sel.attr('onchange', 'updateAdminStatus(this, "' + row.uicheck_id + '", "' + row.site_id + '", "' + row.id + '")');
 						let html = jQuery("<div />").append(sel).html();
-						html += '<button type="button" class="btn btn-xs show-admin-status-history" title="Show" data-id="' + row.uicheck_id + '"><i data-id="' + row.uicheck_id + '" class="fa fa-info-circle"></i></button>';
+						html += '<button type="button" class="btn btn-xs show-admin-status-history" title="Show" data-id="' + row.uicheck_id + '"><i data-id="' + row.uicheck_id + '" class="fa fa-info-circle"></i></button> <button type="button" class="btn btn-xs language-flag-btn " id="language-flag-btn-' + row.uicheck_id + '" style="color:'+lflag+';" title="Language flag" data-id="' + row.uicheck_id + '"><i class="fa fa-flag"></i></button> | <button type="button" class="btn btn-xs translation-flag-btn" id="translation-flag-btn-' + row.uicheck_id + '" title="Translation flag" data-id="' + row.uicheck_id + '"><img src="/images/'+tflag+'" style="width:16px;height:16px;"></button>';
 						return html;
 					}
 				},
@@ -1670,6 +1691,7 @@
 					d.order_by = $("#order_by").val();
 					d.srch_lock_type = $("#srch_lock_type").val();
 					d.id = $("#id").val();
+					d.srch_flags = $("#srch_flags").val();
 					// d.subjects = $('input[name=subjects]').val();					
 				},
 			},
@@ -2201,7 +2223,72 @@
 		applyDateTimePicker(jQuery('.cls-start-due-date'));
 	});
 
+	$(document).on("click", ".language-flag-btn", function() {
+		var id = $(this).data("id");
+		let eleId = "#language-flag-btn-"+id;
+		
+		$.ajax({
+			method: "post",
+			url: "{{ route('uicheck.language.flag') }}",
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			data: {
+				id: id
+			},
+			dataType: "json",
+			success: function(response) {
+				if (response.code == 200) {
+					let newData = response.data;
+					if(newData[0].language_flag == 1){
+						$(eleId).css("color", "red");
+					}else{
+						$(eleId).css("color", "gray");
+					}
+				} else {
+					toastr["error"](response.error, "Message");
+				}
+			}
+		});
+	});
+
+	$(document).on("click", ".translation-flag-btn", function() {
+		var id = $(this).data("id");
+		let eleId = "#translation-flag-btn-"+id;
+		
+		$.ajax({
+			method: "post",
+			url: "{{ route('uicheck.translation.flag') }}",
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			data: {
+				id: id
+			},
+			dataType: "json",
+			success: function(response) {
+				
+				if (response.code == 200) {
+					let newData = response.data;
+					if(newData[0].translation_flag == 1){
+						$(eleId).html('');
+						$(eleId).html('<img src="/images/flagged.png" style="width: 16px; height: 16px; cursor: nwse-resize;">');
+					}else{
+						//debugger;
+						$(eleId).html('');
+						$(eleId).html('<img src="/images/unflagged.png" style="width: 16px; height: 16px; cursor: nwse-resize;">');
+					}
+				} else {
+					toastr["error"](response.error, "Message");
+				}
+			}
+		});
+	});
 	
+	//flagged.png
+
+	
+
 </script>
 
 @endsection
