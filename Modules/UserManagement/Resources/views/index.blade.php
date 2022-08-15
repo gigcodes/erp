@@ -1151,7 +1151,7 @@
         event.preventDefault();
         $.ajax({
             type: "post",
-            url: '{{ action("UserController@statusChange") }}',
+            url: "{{ action('UserController@statusChange') }}",
             data: {
                 _token: "{{ csrf_token() }}",
                 status: $(this).attr('data-status'),
@@ -1377,7 +1377,7 @@
         event.preventDefault();
         $.ajax({
             type: "post",
-            url: '{{ action('UserController@statusChange') }}',
+            url: "{{ action('UserController@statusChange') }}",
             data: {
                 _token: "{{ csrf_token() }}",
                 status: $(this).attr('data-status'),

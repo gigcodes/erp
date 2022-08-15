@@ -1331,7 +1331,7 @@ class UserManagementController extends Controller {
             'availableHour' => 'required',
             'startTime' => 'required',
             'endTime' => 'required',
-            'launchTime' => 'required',
+            'lunchTime' => 'required',
             'note' => 'required_if:status,"0"',
         ];
 
@@ -1366,7 +1366,7 @@ class UserManagementController extends Controller {
             'note'     => trim($request->note),
             'start_time' => $request->startTime,
             'end_time'   => $request->endTime,
-            'launch_time' => $request->launchTime,
+            'lunch_time' => $request->lunchTime,
         ]);
 
         // $user_avaibility = new UserAvaibility;
@@ -1405,7 +1405,7 @@ class UserManagementController extends Controller {
         $avaibility['user_id'] = $id;
         $avaibility['start_time'] = date("H:i", strtotime($avaibility['start_time']));
         $avaibility['end_time'] = date("H:i", strtotime($avaibility['end_time']));
-        $avaibility['launch_time'] = date("H:i", strtotime($avaibility['launch_time']));
+        $avaibility['lunch_time'] = date("H:i", strtotime($avaibility['lunch_time']));
         $avaibility['minute'] = date("H:i", strtotime($avaibility['minute']));
         //\Log::info('avaibility:'.json_encode($avaibility));
         return response()->json(["code" => 200, "data" => $avaibility]);
@@ -1931,7 +1931,7 @@ class UserManagementController extends Controller {
                     \DB::raw('user_avaibilities.to AS uaTo'),
                     \DB::raw('user_avaibilities.start_time AS uaStTime'),
                     \DB::raw('user_avaibilities.end_time AS uaEnTime'),
-                    \DB::raw('user_avaibilities.launch_time AS uaLunchTime'),
+                    \DB::raw('user_avaibilities.lunch_time AS uaLunchTime'),
                 ]);
                 $users = $q->get();
                 $count = $users->count();
@@ -2167,7 +2167,7 @@ class UserManagementController extends Controller {
                     \DB::raw('user_avaibilities.to AS uaTo'),
                     \DB::raw('user_avaibilities.start_time AS uaStTime'),
                     \DB::raw('user_avaibilities.end_time AS uaEnTime'),
-                    \DB::raw('user_avaibilities.launch_time AS uaLunchTime'),
+                    \DB::raw('user_avaibilities.lunch_time AS uaLunchTime'),
                 ]);
                 $users = $q->get();
                 $count = $users->count();
