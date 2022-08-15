@@ -90,4 +90,9 @@ Route::prefix('user-management')->middleware('auth')->group(function () {
         Route::any('load-data', 'UserManagementController@userSchedulesLoadData')->name("user-management.user-schedules.load-data");
     });
 
+    Route::prefix('user-delivered')->group(function () {
+        Route::get('index', 'UserDeliveredController@index')->name("user-management.user-delivered.index");
+        Route::any('load-data', 'UserDeliveredController@loadData')->name("user-management.user-delivered.load-data");
+    });
+
 });
