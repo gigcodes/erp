@@ -175,7 +175,7 @@
 
           <div class="form-group">
             <strong>Start Date:</strong>
-            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date') }}">
+            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date') }}" required>
 
             @if ($errors->has('start_date'))
               <div class="alert alert-danger">{{$errors->first('start_date')}}</div>
@@ -350,7 +350,7 @@
             {{-- <input type="text" name="user_name"  id="user_name"  class="form-control" value="{{ old('user_name') }}"> --}}
 
             <input type="hidden" name="old_user_name"  id="old_user_name"  class="form-control" value="{{ old('old_user_name') }}">
-            <select class="form-control select-multiple" name="user_name" >
+            <select class="form-control select-multiple" name="user_name" id="user_name">
               <option value="">Select</option>
               @foreach($users as $user)
                 <option value="{{$user->id}}" {{ $user->id == old('user_name') ? 'selected' : '' }}>{{$user->name}}</option>
@@ -498,7 +498,8 @@
 
           <div class="form-group">
             <strong>Start Date:</strong>
-            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date') }}">
+            <input type="date" name="start_date" id="start_date" class="form-control start_date" value="{{ old('start_date') }}" required>
+            <input type="hidden" name="old_start_date" id="old_start_date" class="form-control" value="{{ old('old_start_date') }}">
 
             @if ($errors->has('start_date'))
               <div class="alert alert-danger">{{$errors->first('start_date')}}</div>
