@@ -18,6 +18,7 @@ use Auth;
 use Illuminate\Http\Request;
 use App\Models\Tasks\TaskHistoryForStartDate;
 use App\Models\Tasks\TaskHistoryForCost;
+use App\Models\Tasks\TaskDueDateHistoryLog;
 
 
 class Task extends Model {
@@ -352,20 +353,28 @@ class Task extends Model {
     }
 
     public function updateStartDate($new) {
-        $oldValue = $this->start_date;
+        $old = $this->start_date;
 
-        if ($oldValue != $new) {
+        $count = TaskHistoryForStartDate::where('task_id', $this->id)->count();
+        if ($count) {
+            TaskHistoryForStartDate::historySave($this->id, $old, $new, 0);
+        } else {
             $this->start_date = $new;
             $this->save();
-            TaskHistoryForStartDate::create([
-                'task_id' => $this->id,
-                'task_type' => 'TASK',
-                'updated_by' => Auth::id(),
-                'old_value' => $oldValue,
-                'new_value' => $new,
-            ]);
+            TaskHistoryForStartDate::historySave($this->id, $old, $new, 1);
         }
     }
 
-    // 
+    public function updateDueDate($new) {
+        $old = $this->due_date;
+
+        $count = TaskDueDateHistoryLog::where('task_id', $this->id)->count();
+        if ($count) {
+            TaskDueDateHistoryLog::historySave($this->id, $old, $new, 0);
+        } else {
+            $this->due_date = $new;
+            $this->save();
+            TaskDueDateHistoryLog::historySave($this->id, $old, $new, 1);
+        }
+    }
 }

@@ -984,7 +984,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('due-date/index', 'TaskHistoryController@historyDueDate')->name('task.history.due-date.index');
             Route::get('cost/index', 'TaskHistoryController@historyCost')->name('task.history.cost.index');
             Route::get('approximate/index', 'TaskHistoryController@historyApproximate')->name('task.history.approximate.index');
+
+            Route::post('approve', 'TaskHistoryController@approve')->name('task.history.approve');
+            Route::get('approve/history', 'TaskHistoryController@approveHistory')->name('task.history.approve-history');
         });
+
         Route::get('dropdown-user-wise', 'TaskModuleController@dropdownUserWise')->name('task.dropdown-user-wise');
         Route::prefix('slot')->group(function () {
             Route::post('assign', 'TaskModuleController@slotAssign')->name('task.slot.assign');
@@ -4052,5 +4056,4 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
     Route::post('/coupon/code/order/list', 'VoucherCouponController@couponCodeOrderList')->name('voucher.code.order.list');
     Route::post('/voucher/code/delete', 'VoucherCouponController@couponCodeDelete')->name('voucher.code.delete');
     Route::post('/voucher/code/order/delete', 'VoucherCouponController@couponCodeOrderDelete')->name('voucher.code.order.delete');
-    
 });
