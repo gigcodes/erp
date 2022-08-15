@@ -6,7 +6,7 @@
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;background-color:rgba(255,255,255,0.6);"></div>
 <div class="row">
     <div class="col-md-12 p-0">
-        <h2 class="page-heading">{{ $title }} <span id="listUserScheduleCount" class="count-text"></span></h2>
+        <h2 class="page-heading">{{ $title }} <span id="{{$table}}Count" class="count-text"></span></h2>
     </div>
 </div>
 <div class="container-fluid">
@@ -62,8 +62,8 @@
                                     </div>
                                 </div>
                                 <div class="col-md-12">
-                                    <button type="button" class="btn btn-primary" onclick="siteDatatableSearch('#listUserSchedule')">Search</button>
-                                    <button type="button" class="btn btn-outline-secondary" onclick="siteDatatableClearSearch('#listUserSchedule', '#frm-search-crud')">Clear</button>
+                                    <button type="button" class="btn btn-primary" onclick="siteDatatableSearch('#{{$table}}')">Search</button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="siteDatatableClearSearch('#{{$table}}', '#frm-search-crud')">Clear</button>
                                 </div>
                             </div>
                         </form>
@@ -72,12 +72,13 @@
             </div>
         </div>
         <div class="col-lg-12">
-            <table id="listUserSchedule" class="table table-bordered" style="width:100%">
+            <table id="{{$table}}" class="table table-bordered" style="width:100%">
                 <thead>
                     <tr>
                         <th data-data="name" data-name="name" width="14%" data-sortable="false">User Name</th>
-                        <th data-data="date" data-name="date" width="8%" data-sortable="false">Date</th>
-                        <th data-data="slots" data-name="slots" width="78%" data-sortable="false">Hourly Slots [T-? = Task] [DT-? = Dev Task]</th>
+                        <th data-data="date" data-name="date" width="10%" data-sortable="false">Date</th>
+                        <th data-data="planned" data-name="planned" width="38%" data-sortable="false">Work Planned</th>
+                        <th data-data="actual" data-name="actual" width="38%" data-sortable="false">Actual Logins</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -85,47 +86,10 @@
         </div>
     </div>
 </div>
-<script type="text/javascript" src="{{env('APP_URL')}}/js/jsrender.min.js"></script>
-<script type="text/javascript" src="{{env('APP_URL')}}/js/jquery.validate.min.js"></script>
-<script type="text/javascript" src="{{env('APP_URL')}}/js/jquery-ui.js"></script>
 <script type="text/javascript" src="{{env('APP_URL')}}/js/common-helper.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"> </script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"> </script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pnp-sp-taxonomy/1.3.11/sp-taxonomy.es5.umd.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-tagsinput/1.3.6/jquery.tagsinput.min.js" integrity="sha512-wTIaZJCW/mkalkyQnuSiBodnM5SRT8tXJ3LkIUA/3vBJ01vWe5Ene7Fynicupjt4xqxZKXA97VgNBHvIf5WTvg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 @endsection
-
-@push('modals')
-<div id="modalSlotAssign" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Task: Add To Slots</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <label>Tasks & Developer Tasks:</label>
-                        <div class="form-group">
-                            <select id="slotTaskId" name="slotTaskId" class="form-control select2">
-                                <option value="">- Select -</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="funSlotAssignSubmit('{!! route('task.slot.assign') !!}')">Save</button>
-            </div>
-        </div>
-    </div>
-</div>
-@endpush
 
 @push('styles')
 <style>
@@ -149,75 +113,21 @@
 
 @push("scripts")
 <script>
-    var currSlotAssignee = null;
-    var dtblListUserSchedule = null;
-    var urlTaskDropdown = "{!! route('task.dropdown-user-wise') !!}";
-
-    function funSlotAssignModal(ele) {
-        currSlotAssignee = ele;
-
-        siteLoader(1);
-        jQuery.ajax({
-            headers: {
-                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-            },
-            url: urlTaskDropdown,
-            type: 'GET',
-            data: {
-                userId: jQuery(currSlotAssignee).attr('data-user_id'),
-            }
-        }).done(function(res) {
-            jQuery('#slotTaskId').html(res.list ? '<option value="">- Select -</option>' + res.list : '<option value="">No records found.</option>')
-            jQuery('#modalSlotAssign').modal('show');
-            applySelect2(jQuery('#slotTaskId'));
-            siteLoader(0);
-        }).fail(function(err) {
-            siteErrorAlert(err);
-            siteLoader(0);
-        });
-    }
-
-    function funSlotAssignSubmit(url) {
-        if (jQuery('#slotTaskId').val()) {
-            siteLoader(1);
-            jQuery.ajax({
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-                url: url,
-                type: 'POST',
-                data: {
-                    taskId: jQuery('#slotTaskId').val(),
-                    userId: jQuery(currSlotAssignee).attr('data-user_id'),
-                    date: jQuery(currSlotAssignee).attr('data-date'),
-                    slot: jQuery(currSlotAssignee).attr('data-slot'),
-                }
-            }).done(function(response) {
-                jQuery('#modalSlotAssign').modal('hide');
-                siteLoader(0);
-                dtblListUserSchedule.draw(false);
-            }).fail(function(err) {
-                siteErrorAlert(err);
-                siteLoader(0);
-            });
-        } else {
-            siteErrorAlert("Please select task.");
-        }
-    }
-
+    var dtblList = null;
     jQuery(document).ready(function() {
 
         applySelect2(jQuery('.select2'));
         applyDatePicker(jQuery('.d-datetime'));
 
         // Render datatable
-        dtblListUserSchedule = jQuery('#listUserSchedule').DataTable({
+        dtblList = jQuery('#{{$table}}').DataTable({
             lengthChange: false,
             searching: false,
             autoWidth: false,
             processing: true,
             serverSide: true,
             paging: false,
+            bInfo: false,
             ajax: {
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
@@ -232,14 +142,14 @@
                 },
                 error: function(xhr, error, code) {
                     siteErrorAlert(xhr);
-                    jQuery('#listUserSchedule_processing').hide();
+                    jQuery('#{{$table}}_processing').hide();
                 }
             },
             initComplete: function(settings, json) {
-                jQuery('#listUserScheduleCount').html('(' + dtblListUserSchedule.data().count() + ')');
+                jQuery('#{{$table}}Count').html('(' + dtblList.data().count() + ')');
             },
             drawCallback: function(settings) {
-                jQuery('#listUserScheduleCount').html('(' + dtblListUserSchedule.data().count() + ')');
+                jQuery('#{{$table}}Count').html('(' + dtblList.data().count() + ')');
             },
             order: [],
         });

@@ -13,11 +13,10 @@ use App\UserAvaibility;
 class UserDeliveredController extends Controller {
 
     public function index() {
-        $statusList = \DB::table("task_statuses")->select("name", "id")->get()->toArray();
-        return view('usermanagement::user-schedules.index', [
-            'title' => "User Schedules",
-            'urlLoadData' => route('user-management.user-schedules.load-data'),
-            'statusList' => $statusList,
+        return view('usermanagement::user-delivered.index', [
+            'title' => "User Delivered",
+            'table' => "listUserDelivered",
+            'urlLoadData' => route('user-management.user-delivered.load-data'),
             'listUsers' => User::dropdown([
                 'is_active' => 1
             ]),
@@ -30,9 +29,6 @@ class UserDeliveredController extends Controller {
             $data = [];
 
             $isPrint = !request()->ajax();
-
-            // _p(hourlySlots('2022-08-10 10:10:00', '2022-08-10 15:15:00', '12:05:00'));
-            // exit;
 
             $stDate = request('srchDateFrom');
             $enDate = request('srchDateTo');
@@ -117,7 +113,7 @@ class UserDeliveredController extends Controller {
 
                     // Get Tasks & Developer Tasks -- Arrange with End time & Mins
                     $tasksArr = [];
-                    if ($userIds) {
+                    if (0 && $userIds) {
                         $tasksInProgress = $this->typeWiseTasks('IN_PROGRESS', [
                             'userIds' => $userIds
                         ]);
@@ -237,14 +233,16 @@ class UserDeliveredController extends Controller {
                                 $data[] = [
                                     'name' => $user['name'],
                                     'date' => $date,
-                                    'slots' => implode('', $divSlots)
+                                    'planned' => 'Availability is not set for this user.',
+                                    'actual' => 'Availability is not set for this user.',
                                 ];
                             }
                         } else {
                             $data[] = [
                                 'name' => $user['name'],
                                 'date' => '-',
-                                'slots' => 'Availability is not set for this user.',
+                                'planned' => 'Availability is not set for this user.',
+                                'actual' => 'Availability is not set for this user.',
                             ];
                         }
                     }
