@@ -1675,6 +1675,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('start-date/index', 'DevelopmentController@historyStartDate')->name('development.history.start-date.index');
             Route::get('estimate-date/index', 'DevelopmentController@historyEstimateDate')->name('development.history.estimate-date.index');
             Route::get('cost/index', 'DevelopmentController@historyCost')->name('development.history.cost.index');
+
+            Route::post('approve', 'DevelopmentController@historyApproveSubmit')->name('development-task.history.approve');
+            Route::get('approve/history', 'DevelopmentController@historyApproveList')->name('development-task.history.approve-history');
         });
     });
 
