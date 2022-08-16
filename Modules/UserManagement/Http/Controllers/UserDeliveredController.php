@@ -92,19 +92,24 @@ class UserDeliveredController extends Controller {
                         $single->uaEnTime = date('H:i:00', strtotime($single->uaEnTime));
                         $single->uaLunchTime = date('H:i:00', strtotime($single->uaLunchTime));
 
-                        $single->uaDays = $single->uaDays ? explode(',', str_replace(' ', '', $single->uaDays)) : [];
+                        $single->uaDays = UserAvaibility::getAvailableDays($single->uaDays);
                         $availableDates = UserAvaibility::getAvailableDates($single->uaFrom, $single->uaTo, $single->uaDays, $filterDatesOnly);
                         $availableSlots = UserAvaibility::dateWiseHourlySlots($availableDates, $single->uaStTime, $single->uaEnTime, $single->uaLunchTime);
 
-                        $userArr[] = [
-                            'id' => $single->id,
-                            'name' => $single->name,
-                            'uaLunchTime' => substr($single->uaLunchTime, 0, 5),
-                            'uaDays' => $single->uaDays,
-                            'availableDays' => $single->uaDays,
-                            'availableDates' => $availableDates,
-                            'availableSlots' => $availableSlots,
-                        ];
+                        foreach ($availableSlots as $date => $slots) {
+                            if (isset($userArr[$single->id][$date])) {
+                                continue;
+                            }
+                            $userArr[] = [
+                                'id' => $single->id,
+                                'name' => $single->name,
+                                'uaLunchTime' => substr($single->uaLunchTime, 0, 5),
+                                'uaDays' => $single->uaDays,
+                                'availableDays' => $single->uaDays,
+                                'availableDates' => $availableDates,
+                                'availableSlots' => $availableSlots,
+                            ];
+                        }
                     }
 
                     if ($isPrint) {
