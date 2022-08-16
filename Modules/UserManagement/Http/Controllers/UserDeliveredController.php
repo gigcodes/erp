@@ -34,81 +34,81 @@ class UserDeliveredController extends Controller {
             $enDate = request('srchDateTo');
             if ($stDate && $enDate) {
                 $filterDates = dateRangeArr($stDate, $enDate);
-                $filterDatesNew = [];
-                foreach ($filterDates as $row) {
-                    $filterDatesNew[$row['date']] = $row;
+                $filterDatesOnly = array_column($filterDates, 'date');
+
+                if ($isPrint) {
+                    _p($filterDatesOnly);
+                    _p($filterDates);
                 }
 
-
-                $q = User::query();
-                $q->leftJoin('user_avaibilities', 'user_avaibilities.user_id', '=', 'users.id');
-                $q->where('users.is_task_planned', 1);
+                $q = UserAvaibility::from('user_avaibilities as ua');
+                $q->leftJoin('users as u', 'ua.user_id', '=', 'u.id');
                 if (!isAdmin()) {
-                    $q->where('users.id', loginId());
+                    $q->where('u.id', loginId());
                 }
                 if ($srch = request('srchUser')) {
-                    $q->where('users.id', $srch);
+                    $q->where('u.id', $srch);
                 }
-                if (request('is_active')) {
-                    $q->where('users.is_active', request('is_active') == 1 ? 1 : 0);
-                }
+                $q->where(function ($query) use ($stDate, $enDate) {
+                    $query->whereRaw(" ('" . $stDate . "' BETWEEN ua.from AND ua.to) ")
+                        ->orWhereRaw(" ('" . $enDate . "' BETWEEN ua.from AND ua.to) ");
+                    // $query->where('ua.from', '<=', $stDate)
+                    //     ->orWhere('ua.to', '<=', $enDate);
+                });
+                // if (request('is_active')) {
+                //     $q->where('users.is_active', request('is_active') == 1 ? 1 : 0);
+                // }
                 $q->select([
-                    'users.id',
-                    'users.name',
-                    \DB::raw('user_avaibilities.id AS uaId'),
-                    \DB::raw('user_avaibilities.date AS uaDays'),
-                    \DB::raw('user_avaibilities.from AS uaFrom'),
-                    \DB::raw('user_avaibilities.to AS uaTo'),
-                    \DB::raw('user_avaibilities.start_time AS uaStTime'),
-                    \DB::raw('user_avaibilities.end_time AS uaEnTime'),
-                    \DB::raw('user_avaibilities.launch_time AS uaLunchTime'),
+                    'u.id',
+                    'u.name',
+                    \DB::raw('ua.date AS uaDays'),
+                    \DB::raw('ua.from AS uaFrom'),
+                    \DB::raw('ua.to AS uaTo'),
+                    \DB::raw('ua.start_time AS uaStTime'),
+                    \DB::raw('ua.end_time AS uaEnTime'),
+                    \DB::raw('ua.lunch_time AS uaLunchTime'),
                 ]);
-                $users = $q->get();
-                $count = $users->count();
+                $q->orderBy('ua.id', 'DESC');
+                $userAvaibilities = $q->get();
 
-                // _p( getHourlySlots('2022-08-11 22:05:00', '2022-08-12 02:45:00') );
-                // exit;
+                $count = $userAvaibilities->count();
+
+                if ($isPrint) {
+                    _p($userAvaibilities->toArray());
+                }
 
                 if ($count) {
-                    $filterDatesOnly = array_column($filterDates, 'date');
-
                     $userIds = [];
 
                     // Prepare user's data
                     $userArr = [];
-                    foreach ($users as $single) {
+                    foreach ($userAvaibilities as $single) {
                         $userIds[] = $single->id;
-                        if ($single->uaId) {
-                            $single->uaStTime = date('H:i:00', strtotime($single->uaStTime));
-                            $single->uaEnTime = date('H:i:00', strtotime($single->uaEnTime));
-                            $single->uaLunchTime = date('H:i:00', strtotime($single->uaLunchTime));
 
-                            $single->uaDays = $single->uaDays ? explode(',', str_replace(' ', '', $single->uaDays)) : [];
-                            $availableDates = UserAvaibility::getAvailableDates($single->uaFrom, $single->uaTo, $single->uaDays, $filterDatesOnly);
-                            $availableSlots = UserAvaibility::dateWiseHourlySlots($availableDates, $single->uaStTime, $single->uaEnTime, $single->uaLunchTime);
+                        // $single->from = date('H:i:00', strtotime($single->from));
+                        // $single->to = date('H:i:00', strtotime($single->uaStTime));
 
-                            $userArr[] = [
-                                'id' => $single->id,
-                                'name' => $single->name,
-                                'uaLunchTime' => substr($single->uaLunchTime, 0, 5),
-                                'uaId' => $single->uaId,
-                                'uaDays' => $single->uaDays,
-                                'availableDays' => $single->uaDays,
-                                'availableDates' => $availableDates,
-                                'availableSlots' => $availableSlots,
-                            ];
-                        } else {
-                            $userArr[] = [
-                                'id' => $single->id,
-                                'name' => $single->name,
-                                'uaLunchTime' => NULL,
-                                'uaId' => NULL,
-                                'uaDays' => [],
-                                'availableDays' => [],
-                                'availableDates' => [],
-                                'availableSlots' => [],
-                            ];
-                        }
+                        $single->uaStTime = date('H:i:00', strtotime($single->uaStTime));
+                        $single->uaEnTime = date('H:i:00', strtotime($single->uaEnTime));
+                        $single->uaLunchTime = date('H:i:00', strtotime($single->uaLunchTime));
+
+                        $single->uaDays = $single->uaDays ? explode(',', str_replace(' ', '', $single->uaDays)) : [];
+                        $availableDates = UserAvaibility::getAvailableDates($single->uaFrom, $single->uaTo, $single->uaDays, $filterDatesOnly);
+                        $availableSlots = UserAvaibility::dateWiseHourlySlots($availableDates, $single->uaStTime, $single->uaEnTime, $single->uaLunchTime);
+
+                        $userArr[] = [
+                            'id' => $single->id,
+                            'name' => $single->name,
+                            'uaLunchTime' => substr($single->uaLunchTime, 0, 5),
+                            'uaDays' => $single->uaDays,
+                            'availableDays' => $single->uaDays,
+                            'availableDates' => $availableDates,
+                            'availableSlots' => $availableSlots,
+                        ];
+                    }
+
+                    if ($isPrint) {
+                        _p($userArr);
                     }
 
                     // Get Tasks & Developer Tasks -- Arrange with End time & Mins
@@ -189,9 +189,7 @@ class UserDeliveredController extends Controller {
                         $userArr[$k1] = $user;
                     }
 
-                    if ($isPrint) {
-                        _p($userArr);
-                    }
+
 
                     // Arange for datatable
                     foreach ($userArr as $user) {
