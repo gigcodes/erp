@@ -2054,6 +2054,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('assets-manager/log', 'AssetsManagerController@assetManamentLog')->name('assetsmanager.assetManamentLog');
     Route::post('assets-manager/magento-dev-update-script-history/{asset_manager_id?}', 'AssetsManagerController@getMagentoDevScriptUpdatesLogs');
     Route::post('assets-manager/magento-dev-script-update', 'AssetsManagerController@magentoDevScriptUpdate');
+    Route::post('assets-manager/userchange/history', 'AssetsManagerController@userChangesHistoryLog')->name('assetsmanager.userchange.history');
+    
     // Agent Routes
     Route::resource('agent', 'AgentController');
     //Route::resource('product-templates', 'ProductTemplatesController');
