@@ -7,7 +7,9 @@ use App\CashFlow;
 use DB;
 use App\User;
 use App\AssetManamentUpdateLog;
+use App\AssetMagentoDevScripUpdateLog;
 use Illuminate\Http\Request;
+use App\assetUserChangeHistory;
 
 class AssetsManagerController extends Controller
 {
@@ -88,7 +90,7 @@ class AssetsManagerController extends Controller
             'payment_cycle' => 'required',
             'amount' => 'required',
         ]);
-
+        
         $othercat = $request->input('other');
         $category_id = $request->input('category_id');
         $catid = '';
@@ -110,7 +112,10 @@ class AssetsManagerController extends Controller
         if ($catid != '') {
             $data['category_id'] = $catid;
         }
-
+        $data['start_date'] = ($request->input('start_date') == '') ? $request->input('old_start_date') : $request->input('start_date');
+        $data['ip_name'] = $request->ip_name;
+        $data['server_password'] = $request->server_password;
+        $data['folder_name'] = json_encode($request->folder_name);
         $insertData = AssetsManager::create($data);
         if ($request->input('payment_cycle') == 'One time') {
             //create entry in table cash_flows
@@ -199,6 +204,7 @@ class AssetsManagerController extends Controller
         }
 
         $data = $request->except('_token');
+        
         if ($catid != '') {
             $data['category_id'] = $catid;
         }
@@ -211,6 +217,13 @@ class AssetsManagerController extends Controller
             $assetLog->ip =  $request->input('old_ip');
             $assetLog->save();
         }
+        if($request->input('old_user_name') != $request->input('user_name')){
+            $this->createUserHistory($request, $id);
+        }
+        $data['ip_name'] = $request->ip_name;
+        $data['server_password'] = $request->server_password;
+        $data['folder_name'] = json_encode($request->folder_name);
+        //dd($data);
         AssetsManager::find($id)->update($data);
 
         return redirect()->route('assets-manager.index')
@@ -315,4 +328,101 @@ class AssetsManagerController extends Controller
         return response()->json(['html' => $html, 'success' => true], 200);
 
     }
+
+
+    public function getMagentoDevScriptUpdatesLogs(Request $request,$asset_manager_id) 
+    {
+        try{
+            $responseLog = AssetMagentoDevScripUpdateLog::where('asset_manager_id', '=', $asset_manager_id)->orderBy('id', 'desc')->get();
+            if ($responseLog != null ) {
+                $html = '';
+                foreach($responseLog as $res){
+                    $html .= '<tr>';
+                    $html .= '<td>'.$res->created_at.'</td>';
+                    $html .= '<td class="expand-row-msg" data-name="ip" data-id="'.$res->id.'" style="cursor: grabbing;">
+                    <span class="show-short-ip-'.$res->id.'">'.str_limit($res->ip, 15, "...").'</span>
+                    <span style="word-break:break-all;" class="show-full-ip-'.$res->id.' hidden">'.$res->website.'</span>
+                    </td>';
+                    $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
+                    <span class="show-short-response-'.$res->id.'">'.str_limit($res->response, 25, "...").'</span>
+                    <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
+                    </td>';
+                    $html .= '<td class="expand-row-msg" data-name="command" data-id="'.$res->id.'" style="cursor: grabbing;">
+                    <span class="show-short-command-'.$res->id.'">'.str_limit($res->command_name, 25, "...").'</span>
+                    <span style="word-break:break-all;" class="show-full-command-'.$res->id.' hidden">'.$res->command_name.'</span>
+                    </td>';
+                    
+                    $html .= '</tr>';
+                }
+                return response()->json([
+                    "code" => 200, 
+                    "data" => $html,  
+                    "message" => "Magento bash Log Listed successfully!!!"              
+                ]);
+            }
+            return response()->json(["code" => 500, "error" => "Wrong site id!"]);     
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, "data" => [], 'message' => $msg]);
+        }
+	}
+
+    public function magentoDevScriptUpdate(Request $request){
+		try{
+           $run = \Artisan::call("command:MagentoDevUpdateScriptAsset", ['id' => $request->id, 'folder_name' => $request->folder_name]);
+			return response()->json(['code' => 200, 'message' => 'Magento Setting Updated successfully']);
+		} catch (\Exception $e) {
+			$msg = $e->getMessage();
+			return response()->json(['code' => 500, 'message' => $msg]);
+		}
+	}
+
+    public function userChangesHistoryLog(request $request)
+    {
+        $asset_id = $request->input('asset_id');
+        $html = '';
+        //\DB::enableQueryLog(); 
+        $assetLogs = assetUserChangeHistory::select('asset_user_change_histories.*', 'users.name AS userNameChangeBy', "u.name AS userName")
+            ->leftJoin('users', 'users.id', '=', 'asset_user_change_histories.user_id')
+            ->leftJoin('users AS u', 'u.id', '=', 'asset_user_change_histories.new_user_id')
+            ->where('asset_user_change_histories.asset_id', $asset_id)
+            ->orderBy('asset_user_change_histories.id', 'DESC')
+            ->get();
+        //dd(\DB::getQueryLog());
+        $i = 1;
+        //dd($assetLogs);
+        if (count($assetLogs) > 0) {
+            foreach ($assetLogs as $assetLog) {
+                $html .= '<tr>';
+                $html .= '<td>' . $assetLog->id . '</td>';
+                $html .= '<td>' . $assetLog->userNameChangeBy . '</td>';
+                $html .= '<td>' . $assetLog->userName . '</td>';
+                $html .= '<td>' . $assetLog->created_at . '</td>';
+                $html .= '</tr>';
+                $i++;
+            }
+            return response()->json(['html' => $html, 'success' => true], 200);
+        } else {
+            $html .= '<tr>';
+            $html .= '<td colspan="4">Record not found</td>';
+            $html .= '</tr>';
+        }
+        return response()->json(['html' => $html, 'success' => true], 200);
+
+    }
+
+    public function createUserHistory(Request $request, $id){
+        try{
+            $userHistory = assetUserChangeHistory::create([
+                "asset_id" => $id,
+                "user_id" => \Auth::user()->id,
+                "new_user_id" => $request->user_name,
+                "old_user_id" => $request->old_user_name,
+            ]);
+         } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+    
 }

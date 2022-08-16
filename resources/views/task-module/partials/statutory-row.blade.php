@@ -1,19 +1,19 @@
 <tr id="task_{{ $task->id }}">
     <td class="p-2">
         @if(auth()->user()->isAdmin())
-            <input type="checkbox"  name="selected_issue[]" title="Task is in priority" value="{{$task->id}}" {{in_array($task->id, $priority) ? 'checked' : ''}}>
+        <input type="checkbox" name="selected_issue[]" title="Task is in priority" value="{{$task->id}}" {{in_array($task->id, $priority) ? 'checked' : ''}}>
         @endif
         {{ $task->id }}
     </td>
     <td class="p-2">{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
     <td class="expand-row table-hover-cell p-2">
         @if (isset($categories[$task->category]))
-            <span class="td-mini-container">
-                {{ strlen($categories[$task->category]) > 10 ? substr($categories[$task->category], 0, 10) : $categories[$task->category] }}
-            </span>
-            <span class="td-full-container hidden">
-                {{ $categories[$task->category] }}
-            </span>
+        <span class="td-mini-container">
+            {{ strlen($categories[$task->category]) > 10 ? substr($categories[$task->category], 0, 10) : $categories[$task->category] }}
+        </span>
+        <span class="td-full-container hidden">
+            {{ $categories[$task->category] }}
+        </span>
         @endif
     </td>
     <td class="expand-row table-hover-cell p-2" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{$task->task_details}}" data-switch="0" style="word-break: break-all;">
@@ -48,30 +48,30 @@
     </td> -->
     <td class="expand-row table-hover-cell p-2">
         @php
-            $special_task = \App\Task::find($task->id);
-            $users_list = '';
+        $special_task = \App\Task::find($task->id);
+        $users_list = '';
 
-            foreach ($special_task->users as $key => $user) {
-              if ($key != 0) {
-                $users_list .= ', ';
-              }
+        foreach ($special_task->users as $key => $user) {
+        if ($key != 0) {
+        $users_list .= ', ';
+        }
 
-              if (array_key_exists($user->id, $users)) {
-                $users_list .= $users[$user->id];
-              } else {
-                $users_list = 'User Does Not Exist';
-              }
-            }
+        if (array_key_exists($user->id, $users)) {
+        $users_list .= $users[$user->id];
+        } else {
+        $users_list = 'User Does Not Exist';
+        }
+        }
 
-            $users_list .= ' ';
+        $users_list .= ' ';
 
-            foreach ($special_task->contacts as $key => $contact) {
-              if ($key != 0) {
-                $users_list .= ', ';
-              }
+        foreach ($special_task->contacts as $key => $contact) {
+        if ($key != 0) {
+        $users_list .= ', ';
+        }
 
-              $users_list .= "$contact->name - $contact->phone" . ucwords($contact->category);
-            }
+        $users_list .= "$contact->name - $contact->phone" . ucwords($contact->category);
+        }
         @endphp
 
         <span class="td-mini-container">
@@ -86,95 +86,87 @@
     </td>
     <td>
         @if(auth()->user()->id == $task->assign_to || auth()->user()->isAdmin())
-            <input type="text" style="width:80%;display:inline;" class="update_approximate form-control input-sm" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
-            <button type="button" style="width:10%;display:inline-block;padding:0px;" class="btn btn-xs show-time-history" title="Show History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
-            <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
+        <button type="button" style="width:10%;display:inline-block;padding:0px;" class="btn btn-xs show-time-history" title="Show Estimation History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
         @else
-            <span class="apx-val">{{$task->approximate}}</span>
+        <span class="apx-val">{{$task->approximate}}</span>
         @endif
     </td>
     <td class="expand-row table-hover-cell p-2 {{ $task->message && $task->message_status == 0 ? 'text-danger' : '' }}">
         @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
         <?php
-                $text_box = "";
-                if(isset($task->message))
-                {   
-                    $text_box = "55";
-                }
-                else
-                {
-                    $text_box = "100";   
-                }
-                ?>
-            <div class="d-flex">
-                @if($task->communication_status == 0)
-                    <input type="text" id="getMsg{{$task->id}}" style="width: <?php echo $text_box;?>%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
-                    <button class="btn btn-sm btn-image send-message" id="sendMsg{{$task->id}}" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
-                @endif
-                @if($task->communication_status == 1)
-                    <input type="text" id="getMsg{{$task->id}}" style="width: <?php echo $text_box;?>%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="" readonly>
-                    <button readonly class="btn btn-sm btn-image send-message" id="sendMsg{{$task->id}}"  data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
-                @endif
-                @if (isset($task->message))
-                <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
-                @endif
-                @if (isset($task->message))
-                    <div class="d-flex justify-content-between">
-                        <span class="td-mini-container">
-                            {{ strlen($task->message) > 25 ? substr($task->message, 0, 25) . '...' : $task->message }}
-                        </span>
-                        <span class="td-full-container hidden">
-                            {{ $task->message }}
-                        </span>
-                        
-                    </div>
-                @endif
+        $text_box = "";
+        ?>
+        <div class="d-flex">
+            @if($task->communication_status == 0)
+            <input type="text" id="getMsg{{$task->id}}" style="width: 100%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
+            <button class="btn btn-sm btn-image send-message" id="sendMsg{{$task->id}}" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png" /></button>
+            @endif
+            @if($task->communication_status == 1)
+            <input type="text" id="getMsg{{$task->id}}" style="width: 100%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="" readonly>
+            <button readonly class="btn btn-sm btn-image send-message" id="sendMsg{{$task->id}}" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png" /></button>
+            @endif
+            @if (isset($task->message))
+            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+            @endif
+        </div>
+        @if (isset($task->message))
+        <div style="margin-bottom:10px;width: 100%;">
+            <div class="d-flex justify-content-between">
+                <span class="td-mini-container">
+                    {{ strlen($task->message) > 25 ? substr($task->message, 0, 25) . '...' : $task->message }}
+                </span>
+                <span class="td-full-container hidden">
+                    {{ $task->message }}
+                </span>
+
             </div>
+        </div>
+        @endif
         @else
-            Private
+        Private
         @endif
     </td>
     <td class="p-2">
         <div class="row" style="margin:0px;">
             @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
-                @if ($task->is_completed == '')
-                    <button type="button" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>
-                @else
-                    @if ($task->assign_from == Auth::id())
-                        <button type="button" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/completed-green.png"/></button>
-                    @else
-                        <button type="button" class="btn btn-image pd-5"><img src="/images/completed-green.png"/></button>
-                    @endif
-                @endif
+            @if ($task->is_completed == '')
+            <button type="button" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png" /></button>
+            @else
+            @if ($task->assign_from == Auth::id())
+            <button type="button" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/completed-green.png" /></button>
+            @else
+            <button type="button" class="btn btn-image pd-5"><img src="/images/completed-green.png" /></button>
+            @endif
+            @endif
             @endif
 
             @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
-                @if ($task->is_private == 1)
-                    <button disabled type="button" class="btn btn-image pd-5"><img src="/images/private.png"/></button>
-                @else
-                    {{-- <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="/images/view.png" /></a> --}}
-                @endif
+            @if ($task->is_private == 1)
+            <button disabled type="button" class="btn btn-image pd-5"><img src="/images/private.png" /></button>
+            @else
+            {{-- <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="/images/view.png" /></a> --}}
+            @endif
             @endif
 
             @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
-                <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="/images/view.png"/></a>
+            <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="/images/view.png" /></a>
             @endif
-            <button type="button" onClick="return confirm('Are you sure you want to delete this task ?');" data-id="<?php echo $task->id; ?>" class="btn btn-image delete-task-btn pd-5"><img src="/images/delete.png"/></button>
+            <button type="button" onClick="return confirm('Are you sure you want to delete this task ?');" data-id="<?php echo $task->id; ?>" class="btn btn-image delete-task-btn pd-5"><img src="/images/delete.png" /></button>
             @if($task->communication_status == 1)
-                <div class="switch">
-                    <input id="cmn-toggle-<?php echo $task->id; ?>" task-id="<?php echo $task->id; ?>"  class="cmn-toggle cmn-toggle-round" type="checkbox">
-                    <label for="cmn-toggle-<?php echo $task->id; ?>"></label>
-                </div>
+            <div class="switch">
+                <input id="cmn-toggle-<?php echo $task->id; ?>" task-id="<?php echo $task->id; ?>" class="cmn-toggle cmn-toggle-round" type="checkbox">
+                <label for="cmn-toggle-<?php echo $task->id; ?>"></label>
+            </div>
             @endif
             @if($task->communication_status == 0)
-                <div class="switch">
-                    <input id="cmn-toggle-<?php echo $task->id; ?>" task-id="<?php echo $task->id; ?>"  class="cmn-toggle cmn-toggle-round" type="checkbox" checked>
-                    <label for="cmn-toggle-<?php echo $task->id; ?>"></label>
-                </div>
+            <div class="switch">
+                <input id="cmn-toggle-<?php echo $task->id; ?>" task-id="<?php echo $task->id; ?>" class="cmn-toggle cmn-toggle-round" type="checkbox" checked>
+                <label for="cmn-toggle-<?php echo $task->id; ?>"></label>
+            </div>
             @endif
             <button type="button" title="Recurring history" class="btn recurring-history-btn btn-xs pull-left" data-id="<?php echo $task->id; ?>">
-              <i class="fa fa-history"></i>
-          </button>
+                <i class="fa fa-history"></i>
+            </button>
         </div>
     </td>
 </tr>

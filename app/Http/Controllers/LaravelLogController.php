@@ -13,11 +13,9 @@ use Session;
 use App\ChatMessage;
 use Illuminate\Support\Carbon;
 
-class LaravelLogController extends Controller
-{
+class LaravelLogController extends Controller {
     public $channel_filter = [];
-    public function index(Request $request)
-    {
+    public function index(Request $request) {
         if ($request->filename || $request->log || $request->log_created || $request->created || $request->updated || $request->orderCreated || $request->orderUpdated || $request->modulename || $request->controllername || $request->action) {
 
             $query = LaravelLog::query();
@@ -80,7 +78,6 @@ class LaravelLogController extends Controller
 
             $paginate = (Setting::get('pagination') * 10);
             $logs     = LaravelLog::orderby('updated_at', 'desc')->paginate($paginate);
-
         }
 
         if ($request->ajax()) {
@@ -94,9 +91,8 @@ class LaravelLogController extends Controller
         return view('logging.laravellog', compact('logs'));
     }
 
-    public function liveLogsSingle(Request $request)
-    {
-        
+    public function liveLogsSingle(Request $request) {
+
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
         //$filename = '/laravel-2020-09-10.log';
         $path         = storage_path('logs');
@@ -143,14 +139,12 @@ class LaravelLogController extends Controller
                         $errors[] = $value . "===" . str_replace('/', '', $filename);
                     }
                 }
-
             }
             //if(isset($_GET['channel']) && $_GET['channel'] == "local"){
             $errors = array_reverse($errors);
             //}
         } catch (\Exception $e) {
             $errors = [];
-
         }
 
         $other_channel_data = $this->getDirContents($path);
@@ -175,14 +169,13 @@ class LaravelLogController extends Controller
             $temp2 = explode(" ", $temp1[0]);
             $type  = $temp2[2];
             $if_available = false;
-            if (stripos(strtolower($request->msg), $temp1[1]) !== false){
-                array_push($final, $temp2[0].$temp2[1]);
+            if (stripos(strtolower($request->msg), $temp1[1]) !== false) {
+                array_push($final, $temp2[0] . $temp2[1]);
             }
         }
         return $final;
     }
-    public function liveLogs(Request $request)
-    {
+    public function liveLogs(Request $request) {
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
         //$filename = '/laravel-2020-09-10.log';
         $path         = storage_path('logs');
@@ -229,14 +222,12 @@ class LaravelLogController extends Controller
                         $errors[] = $value . "===" . str_replace('/', '', $filename);
                     }
                 }
-
             }
             //if(isset($_GET['channel']) && $_GET['channel'] == "local"){
             $errors = array_reverse($errors);
             //}
         } catch (\Exception $e) {
             $errors = [];
-
         }
 
         /*$other_channel_data = $this->getDirContents($path);
@@ -260,30 +251,29 @@ class LaravelLogController extends Controller
             $temp1 = explode(".", $str);
             $temp2 = explode(" ", $temp1[0]);
             $type  = $temp2[2];
-            
+
             $if_available = false;
             if (isset($request->channel) && $request->channel == $type) {
                 foreach ($final as $value) {
                     if (stripos(strtolower($value), $temp1[1]) !== false) $if_available = true;
                 }
-                if($if_available){
+                if ($if_available) {
                     continue;
-                }else{
+                } else {
                     array_push($final, $error);
                 }
             }
 
             if (!isset($request->channel)) {
-                
+
                 foreach ($final as $value) {
                     if (stripos(strtolower($value), $temp1[1]) !== false) $if_available = true;
                 }
-                if($if_available){
+                if ($if_available) {
                     continue;
-                }else{
+                } else {
                     array_push($final, $error);
                 }
-                
             }
         }
         //     dd($final);
@@ -308,19 +298,17 @@ class LaravelLogController extends Controller
             }
         }
         $logKeywords = LogKeyword::all();
-        $ChatMessages = ChatMessage::join("developer_tasks","developer_tasks.id","chat_messages.developer_task_id")
-                                    ->leftJoin("users","users.id","developer_tasks.assigned_to")
-                                    ->where("developer_tasks.log_keyword_id",">",0)
-                                    ->groupBy("developer_tasks.id")
-                                    ->select(\DB::raw("chat_messages.message, chat_messages.created_at , developer_tasks.id as dev_task_id, users.name"))
-                                    ->orderBy('chat_messages.created_at','DESC')->get();        
-        return view('logging.livelaravellog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename), 'errSelection' => $allErrorTypes, 'users' => $users, 'filter_channel' => $filter_channel, 'logKeywords' => $logKeywords,'ChatMessages'=>$ChatMessages]);
-
+        $ChatMessages = ChatMessage::join("developer_tasks", "developer_tasks.id", "chat_messages.developer_task_id")
+            ->leftJoin("users", "users.id", "developer_tasks.assigned_to")
+            ->where("developer_tasks.log_keyword_id", ">", 0)
+            ->groupBy("developer_tasks.id")
+            ->select(\DB::raw("chat_messages.message, chat_messages.created_at , developer_tasks.id as dev_task_id, users.name"))
+            ->orderBy('chat_messages.created_at', 'DESC')->get();
+        return view('logging.livelaravellog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename), 'errSelection' => $allErrorTypes, 'users' => $users, 'filter_channel' => $filter_channel, 'logKeywords' => $logKeywords, 'ChatMessages' => $ChatMessages]);
     }
 
-    public function LogKeyword(Request $request)
-    {
-        if($request->title){
+    public function LogKeyword(Request $request) {
+        if ($request->title) {
             //creating message
             $params = [
                 'text'              => $request->title,
@@ -337,9 +325,8 @@ class LaravelLogController extends Controller
 
 
 
-    public function LogKeywordDelete(Request $request)
-    {
-        if($request->id){
+    public function LogKeywordDelete(Request $request) {
+        if ($request->id) {
             $keyword = LogKeyword::find($request->id);
             $keyword->delete();
             return response()->json([
@@ -356,8 +343,7 @@ class LaravelLogController extends Controller
      *
      */
 
-    public function scraperLiveLogs()
-    {
+    public function scraperLiveLogs() {
         $filename = '/scraper-' . now()->format('Y-m-d') . '.log';
         $path     = storage_path('logs') . DIRECTORY_SEPARATOR . "scraper";
         $fullPath = $path . $filename;
@@ -372,11 +358,9 @@ class LaravelLogController extends Controller
         ]);
 
         return view('logging.scraperlog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename)]);
-
     }
 
-    public function assign(Request $request)
-    {
+    public function assign(Request $request) {
         if ($request->get('issue') && $request->get('assign_to')) {
             $error       = html_entity_decode($request->get('issue'), ENT_QUOTES, 'UTF-8');
             $issueName   = substr($error, 0, 150);
@@ -399,8 +383,7 @@ class LaravelLogController extends Controller
         return back()->with('error', '"issue" or "assign_to" not found in request.');
     }
 
-    public static function getErrors($fullPath)
-    {
+    public static function getErrors($fullPath) {
         $errors = [];
 
         try {
@@ -415,11 +398,9 @@ class LaravelLogController extends Controller
         }
 
         return $errors;
-
     }
 
-    public function liveLogDownloads()
-    {
+    public function liveLogDownloads() {
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
 
         $path     = storage_path('logs');
@@ -427,8 +408,7 @@ class LaravelLogController extends Controller
         return response()->download($fullPath, str_replace('/', '', $filename));
     }
 
-    public function liveMagentoDownloads()
-    {
+    public function liveMagentoDownloads() {
         $filename = '/list-magento-' . now()->format('Y-m-d') . '.log';
 
         $path     = storage_path('logs');
@@ -436,19 +416,18 @@ class LaravelLogController extends Controller
         return response()->download($fullPath, str_replace('/', '', $filename));
     }
 
-    public function saveNewLogData(Request $request)
-    {
+    public function saveNewLogData(Request $request) {
 
         $url             = $request->url;
         $message         = $request->message;
         $website         = $request->website;
         $module_name     = $request->module_name;
-        if(!empty($request->modulename)) {
+        if (!empty($request->modulename)) {
             $module_name = $request->modulename;
         }
 
         $controller_name = $request->controller_name;
-        if(!empty($request->controller)) {
+        if (!empty($request->controller)) {
             $controller_name = $request->controller;
         }
 
@@ -486,8 +465,7 @@ class LaravelLogController extends Controller
         return response()->json(['status' => 'success', 'message' => $message], 200);
     }
 
-    public function getDirContents($dir, $results = array())
-    {
+    public function getDirContents($dir, $results = array()) {
         $directories   = glob($dir . '/*', GLOB_ONLYDIR);
         $allErrorTypes = [];
         $final_result  = [];
@@ -549,50 +527,35 @@ class LaravelLogController extends Controller
         return $final_result;
     }
 
-    public function apiLogs(Request $request)
-    {
-        
-
+    public function apiLogs(Request $request) {
         $logs = new \App\LogRequest;
-
-        //echo '<pre>';print_r($request->all());
-
         if ($request->id) {
             $logs = $logs->where('id', $request->id);
         }
-
         if ($request->ip) {
             $logs = $logs->where('ip', 'like', $request->ip . '%');
         }
-
-        if ($request->method) {
-            $logs = $logs->where('method', 'like', $request->method . '%');
-        }
-
-        if ($request->method_name) {
-            $logs = $logs->where('method_name', 'like', $request->method_name . '%');
-        }
-
-        if ($request->message) {
-            $logs = $logs->where('message', 'like', '%' . $request->message . '%');
-        }
-
-        if ($request->status) {
-            $logs = $logs->where('status_code', 'like', $request->status . '%');
-        }
-
-        if ($request->url) {
-            $logs = $logs->where('url', 'like', '%' . $request->url . '%');
-        }
-
         if ($request->api_name) {
             $logs = $logs->where('api_name', 'like', '%' . $request->api_name . '%');
         }
-
+        if ($request->method) {
+            $logs = $logs->where('method', 'like', $request->method . '%');
+        }
+        if ($request->method_name) {
+            $logs = $logs->where('method_name', 'like', $request->method_name . '%');
+        }
+        if ($request->message) {
+            $logs = $logs->where('message', 'like', '%' . $request->message . '%');
+        }
+        if ($request->status) {
+            $logs = $logs->where('status_code', 'like', $request->status . '%');
+        }
+        if ($request->url) {
+            $logs = $logs->where('url', 'like', '%' . $request->url . '%');
+        }
         if ($request->created_at) {
             $logs = $logs->whereDate('created_at', \Carbon\Carbon::createFromFormat('Y/m/d', $request->created_at)->format('Y-m-d'));
         }
-
         if ($request->is_send) {
             $logs = $logs->where('is_send', $request->is_send);
         } else {
@@ -600,9 +563,7 @@ class LaravelLogController extends Controller
         }
 
         $count = $logs->count();
-
         $logs = $logs->orderBy("id", "desc")->paginate(Setting::get('pagination'));
-        $status_codes = \App\LogRequest::distinct()->get(['status_code']);
 
         if ($request->ajax()) {
             //$request->render('logging.partials.apilogdata',compact('logs'));
@@ -614,52 +575,60 @@ class LaravelLogController extends Controller
                 return array('status' => 0, 'html' => '<tr id="noresult_tr"><td colspan="7">No More Records</td></tr>');
             }
         }
-        
-        $all_method_names = \App\LogRequest::select('method_name')->whereNotNull('method_name')->groupBy('method_name')->get();
 
-        return view('logging.apilog', compact('logs', 'count','status_codes', 'all_method_names'));
+        $logMethods = \App\LogRequest::distinct()->orderBy('method')->get(['method']);
+        $status_codes = \App\LogRequest::distinct()->orderBy('status_code')->get(['status_code']);
+        $all_method_names = \App\LogRequest::select('method_name')->whereNotNull('method_name')->groupBy('method_name')->orderBy('method_name')->get();
+
+        return view(
+            'logging.apilog',
+            compact(
+                'logs',
+                'count',
+                'status_codes',
+                'all_method_names',
+                'logMethods'
+            )
+        );
     }
 
-    public function generateReport(Request $request)
-    {   
+    public function generateReport(Request $request) {
 
         $logsGroupWise = \App\LogRequest::query();
 
-        if($request->keyword != "") {
+        if ($request->keyword != "") {
             $keyword = $request->keyword;
-            $logsGroupWise = $logsGroupWise->where(function($q) use($keyword) {
-                $q->orWhere("request","like","%".$keyword."%")->orWhere("response","like","%".$keyword."%");
+            $logsGroupWise = $logsGroupWise->where(function ($q) use ($keyword) {
+                $q->orWhere("request", "like", "%" . $keyword . "%")->orWhere("response", "like", "%" . $keyword . "%");
             });
         }
 
-        if($request->for_date != "") {
+        if ($request->for_date != "") {
             $forDate = $request->for_date;
-            $logsGroupWise = $logsGroupWise->whereDate('created_at',">=",$forDate);
+            $logsGroupWise = $logsGroupWise->whereDate('created_at', ">=", $forDate);
         }
 
-        if($request->is_send != "") {
-            $logsGroupWise = $logsGroupWise->where('is_send',"=",$request->is_send);
+        if ($request->is_send != "") {
+            $logsGroupWise = $logsGroupWise->where('is_send', "=", $request->is_send);
         }
 
 
-        if($request->report_type == "time_wise") {
+        if ($request->report_type == "time_wise") {
             //$logsGroupWise = $logsGroupWise->groupBy('time_taken');
             $logsGroupWise = $logsGroupWise->where('time_taken', '>', 5);
             $logsGroupWise = $logsGroupWise->whereNotNull('time_taken');
             $logsGroupWise = $logsGroupWise->orderByRaw('CONVERT(time_taken, SIGNED) desc');
             $logsGroupWise = $logsGroupWise->select(["*", \DB::raw('1 as total_request')])->get();
-        }else{
+        } else {
             $logsGroupWise = $logsGroupWise->where('status_code', '!=', 200);
             $logsGroupWise = $logsGroupWise->groupBy('url');
-            $logsGroupWise = $logsGroupWise->orderBy('total_request','desc');
+            $logsGroupWise = $logsGroupWise->orderBy('total_request', 'desc');
             $logsGroupWise = $logsGroupWise->select(["*", \DB::raw('count(*) as total_request')])->get();
         }
 
-        
+
 
 
         return view('logging.partials.generate-report', compact('logsGroupWise'));
-
     }
-
 }

@@ -31,8 +31,13 @@
 
           <div class="form-group">
             <strong>User Name:</strong>
-            <input type="text" name="user_name"  class="form-control" value="{{ old('user_name') }}">
-
+            {{-- <input type="text" name="user_name"  class="form-control" value="{{ old('user_name') }}"> --}}
+            <select class="form-control select-multiple" name="user_name" >
+              <option value="">Select</option>
+              @foreach($users as $user)
+                <option value="{{$user->id}}" {{ $user->id == old('user_name') ? 'selected' : '' }}>{{$user->name}}</option>
+              @endforeach
+          </select>
             @if ($errors->has('user_name'))
               <div class="alert alert-danger">{{$errors->first('user_name')}}</div>
             @endif
@@ -54,6 +59,26 @@
             @if ($errors->has('ip'))
               <div class="alert alert-danger">{{$errors->first('ip')}}</div>
             @endif
+          </div>
+
+          <div class="form-group">
+            <strong>IP Name:</strong>
+            <input type="hidden" class="getInsCount" value="0"/>
+            <input type="text" name="ip_name" id="ip_name" class="form-control" value="{{ old('ip_name') }}">
+            <div class="addInsIpName"></div>
+            
+            @if ($errors->has('ip'))
+              <div class="alert alert-danger">{{$errors->first('ip_name')}}</div>
+            @endif
+          </div>
+          
+          <div class="form-group">
+            <strong>Folder Name:</strong>
+            <input type="hidden" class="getInsServerCount" value="0"/>
+            <div class="addInsServerUpdate">
+              <input type="text" name="folder_name[]" id="folder_name0" class="form-control" value="{{ old('folder_name') }}">
+            </div>
+            <a href="javascript:void(0);" class="serverInsbtn">Add Folder Name</a>
           </div>
 
           <div class="form-group">
@@ -150,7 +175,7 @@
 
           <div class="form-group">
             <strong>Start Date:</strong>
-            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date') }}">
+            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date') }}" required>
 
             @if ($errors->has('start_date'))
               <div class="alert alert-danger">{{$errors->first('start_date')}}</div>
@@ -300,7 +325,7 @@
         <div class="modal-header">
           <h4 class="modal-title">Update a Assets Manager</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
+        </div>  
         <div class="modal-body">
           <div class="form-group">
             <strong>Name:</strong>
@@ -321,8 +346,16 @@
 
           <div class="form-group">
             <strong>User Name:</strong>
-            <input type="text" name="user_name"  id="user_name"  class="form-control" value="{{ old('user_name') }}">
+            <button type="button" class="btn btn-xs show-user-history-btn" title="Show User History" ><i class="fa fa-info-circle"></i></button>
+            {{-- <input type="text" name="user_name"  id="user_name"  class="form-control" value="{{ old('user_name') }}"> --}}
+
             <input type="hidden" name="old_user_name"  id="old_user_name"  class="form-control" value="{{ old('old_user_name') }}">
+            <select class="form-control select-multiple" name="user_name" id="user_name">
+              <option value="">Select</option>
+              @foreach($users as $user)
+                <option value="{{$user->id}}" {{ $user->id == old('user_name') ? 'selected' : '' }}>{{$user->name}}</option>
+              @endforeach
+          </select>
             @if ($errors->has('user_name'))
               <div class="alert alert-danger">{{$errors->first('user_name')}}</div>
             @endif
@@ -343,6 +376,32 @@
             <input type="hidden" name="old_ip" class="form-control" value="{{ old('old_ip') }}" id="old_ip">
             @if ($errors->has('ip'))
               <div class="alert alert-danger">{{$errors->first('ip')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>IP Name:</strong>
+            <input type="hidden" class="getUpdCount" value="0"/>
+            <div class="addUpdIpName">
+              <input type="text" name="ip_name" id="ip_name_ins" class="form-control" value="{{ old('ip_name') }}">
+            </div>
+            {{-- <a href="javascript:void(0);" class="updIpNamebtn">Add Name</a> --}}
+          </div>
+
+          <div class="form-group">
+            <strong>Folder Name:</strong>
+            <input type="hidden" class="getServerUpdCount" value="0"/>
+            <div class="addServerUpdate">
+              <input type="text" name="folder_name[]" id="folder_name0" class="form-control" value="{{ old('folder_name') }}">
+            </div>
+            <a href="javascript:void(0);" class="serverUpdbtn">Add Folder Name</a>
+          </div>
+
+          <div class="form-group">
+            <strong>Server Password:</strong>
+            <input type="text" name="server_password" id="server_password" class="form-control" value="{{ old('server_password') }}">
+            @if ($errors->has('ip'))
+              <div class="alert alert-danger">{{$errors->first('server_password')}}</div>
             @endif
           </div>
 
@@ -439,7 +498,8 @@
 
           <div class="form-group">
             <strong>Start Date:</strong>
-            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date') }}">
+            <input type="date" name="start_date" id="start_date" class="form-control start_date" value="{{ old('start_date') }}" required>
+            <input type="hidden" name="old_start_date" id="old_start_date" class="form-control" value="{{ old('old_start_date') }}">
 
             @if ($errors->has('start_date'))
               <div class="alert alert-danger">{{$errors->first('start_date')}}</div>

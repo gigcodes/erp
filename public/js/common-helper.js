@@ -1,5 +1,5 @@
 var common = {
-    sendAjax: function(params, callback, isPassArg) {
+    sendAjax: function (params, callback, isPassArg) {
         var self = this;
         var sendUrl = this.checkTypeOf(params, 'url', null);
         if (!sendUrl) {
@@ -13,33 +13,36 @@ var common = {
             dataType: this.checkTypeOf(params, 'dataType', "json"),
             data: this.checkTypeOf(params, 'data', []),
             url: this.checkTypeOf(params, 'url', "/"),
-            beforeSend: function() {
+            beforeSend: function () {
                 //$(".loading").show();
                 if (common.checkTypeOf(params, 'beforeSend', false)) {
                     params.beforeSend();
                 }
             },
-            complete: function() {
+            complete: function () {
                 if (common.checkTypeOf(params, 'complete', false)) {
                     params.complete();
                 }
             }
-        }).done(function(result) {
+        }).done(function (result) {
             if (common.checkTypeOf(params, 'doneAjax', false)) {
                 params.doneAjax(result);
             }
             if (callback) {
                 if (isPassArg) {
-                    self[callback](result,isPassArg)
+                    self[callback](result, isPassArg)
                 } else {
                     self[callback](result);
                 }
             }
-        }).fail(function(jqXhr) {
-            toastr["error"](jqXhr.responseText,"");
+        }).fail(function (jqXhr) {
+            toastr["error"](jqXhr.responseText, "");
+            if ($("#loading-image").length) {
+                $("#loading-image").hide();
+            }
         });
     },
-    sendFormDataAjax: function(params, callback, fallback) {
+    sendFormDataAjax: function (params, callback, fallback) {
         var self = this;
         var sendUrl = this.checkTypeOf(params, 'url', null);
         if (!sendUrl) {
@@ -51,27 +54,30 @@ var common = {
             url: this.checkTypeOf(params, 'url', "/"),
             contentType: false,
             processData: false,
-            beforeSend: function() {
+            beforeSend: function () {
                 //$(".loading").show();
                 if (common.checkTypeOf(params, 'beforeSend', false)) {
                     params.beforeSend();
                 }
             },
-            complete: function() {
+            complete: function () {
                 //$(".loading").hide();
             }
-        }).done(function(result) {
+        }).done(function (result) {
             if (common.checkTypeOf(params, 'doneAjax', false)) {
                 params.doneAjax(result);
             }
             if (callback) {
                 self[callback](result);
             }
-        }).fail(function(jqXhr) {
-            toastr["error"](jqXhr.responseText,"");
+        }).fail(function (jqXhr) {
+            toastr["error"](jqXhr.responseText, "");
+            if ($("#loading-image").length) {
+                $("#loading-image").hide();
+            }
         });
     },
-    checkTypeOf: function(params, key, defaultVal) {
-	     return (params && typeof params[key] != "undefined") ? params[key] : defaultVal;
-	}
+    checkTypeOf: function (params, key, defaultVal) {
+        return (params && typeof params[key] != "undefined") ? params[key] : defaultVal;
+    },
 };

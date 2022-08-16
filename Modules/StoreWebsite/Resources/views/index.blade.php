@@ -169,7 +169,8 @@
 								<tr>
 									<th width="20%">Created At</th>
 									<th width="20%">Website</th>
-									<th width="60%">Response</th>
+									<th width="30%">Response</th>
+									<th width="30%">Command Name</th>
 								</tr>
 							</thead>
 							<tbody id="magentoDevScriptUpdateHistory">
@@ -226,6 +227,35 @@
 		</div>
 	</div>
 </div>
+
+<div id="execute_bash_command_select_folderModal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Send Bash Command</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="table-responsive mt-3">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th>Command Name</th>
+								<th>Send</th>
+							</tr>
+						</thead>
+						<tbody id="execute_select_folder_tbody">
+
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+
 <script type="text/javascript" src="{{ asset('/js/jsrender.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('/js/jquery.validate.min.js') }}"></script>
 <script src="{{ asset('/js/jquery-ui.js') }}"></script>
@@ -313,9 +343,29 @@
 			});
 		
 	});
-
+	$(document).on("click", ".execute-bash-command-select-folder", function(href) {
+		var folder_name = $(this).data('folder_name');
+		var id = $(this).data('id');
+		var html = '';
+		$('#execute_select_folder_tbody').html("");
+		let result =  Array.isArray(folder_name);
+		if(result){
+			$.each(folder_name,function(key,value){
+				if(value){
+					html = '<tr><td>'+value+'  </td><td><a style="padding:1px;" class="btn d-inline btn-image execute-bash-command" data-folder_name="'+value+'" href="#" class="ip_name'+key+'" data-id="'+id+'" title="Execute Bash Command"><img src="/images/send.png" style="color: gray; cursor: nwse-resize; width: 0px;"></a></td></tr>';
+					$('#execute_select_folder_tbody').append(html);
+				}
+			});
+			$('#execute_bash_command_select_folderModal').modal('show');
+		} else {
+			alert("Please Check Record Site Folder Name.");
+		}
+		
+		
+	});
 	$(document).on("click", ".execute-bash-command", function(href) {
 		if(confirm ("Do you want to run this script???")){
+			
 			$.ajax({
 				type: 'POST',
 				url: 'store-website/'+ $(this).data('id') +'/magento-dev-script-update',
@@ -325,6 +375,7 @@
 				data: {
 					_token: "{{ csrf_token() }}",
 					id: $(this).data('id'),
+					folder_name : $(this).data('folder_name')
 				},
 				dataType: "json"
 			}).done(function (response) {

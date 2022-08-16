@@ -1,10 +1,11 @@
 <style type="text/css">
-    .green-notification { 
-        color:green;
-     }
-    .red-notification { 
-        color:grey;
-     }   
+    .green-notification {
+        color: green;
+    }
+
+    .red-notification {
+        color: grey;
+    }
 </style>
 <table class="table table-bordered table-striped" style="table-layout:fixed;">
     <tr>
@@ -22,14 +23,14 @@
         <th style="width:8%;">Actions</th>
     </tr>
     <?php
-        $isReviwerLikeAdmin =  auth()->user()->isReviwerLikeAdmin();
-        $userID =  Auth::user()->id;
+    $isReviwerLikeAdmin = auth()->user()->isReviwerLikeAdmin();
+    $userID = Auth::user()->id;
     ?>
-    @foreach ($issues as $key => $issue)
-        @if($isReviwerLikeAdmin)
+    <?php foreach ($issues as $key => $issue) { ?>
+        <?php if ($isReviwerLikeAdmin) { ?>
             @include("development.partials.admin-row-view")
-        @elseif($issue->created_by == $userID || $issue->master_user_id == $userID || $issue->assigned_to == $userID || $issue->team_lead_id == $userID || $issue->tester_id == $userID)
+        <?php } elseif ($issue->created_by == $userID || $issue->master_user_id == $userID || $issue->assigned_to == $userID || $issue->team_lead_id == $userID || $issue->tester_id == $userID) { ?>
             @include("development.partials.developer-row-view")
-        @endif
-    @endforeach
+        <?php } ?>
+    <?php } ?>
 </table>

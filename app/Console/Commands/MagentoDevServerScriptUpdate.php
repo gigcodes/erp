@@ -14,7 +14,7 @@ class MagentoDevServerScriptUpdate extends Command
      *
      * @var string
      */
-    protected $signature = 'command:MagentoDevUpdateScript {id?}';
+    protected $signature = 'command:MagentoDevUpdateScript {id?} {folder_name?}';
 
     /**
      * The console command description.
@@ -43,21 +43,28 @@ class MagentoDevServerScriptUpdate extends Command
         try{
             $websites = StoreWebsite::where('is_dev_website',1)->where('id', $this->argument('id'))->get();
             foreach($websites as $website){
-                //dd($website->site_folder);
-                if($website->site_folder !='' && $website->server_ip !=''){
-                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-dev.sh --server ' . $website->server_ip . ' -site ' . $website->site_folder; 
+                $folder_name = $this->argument('folder_name');
+                if($folder_name !='' && $website->server_ip !=''){
+                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-dev.sh --server ' . $website->server_ip . ' --site ' . $folder_name;  
+
                     $allOutput = array();
                     $allOutput[] = $cmd;
                     $result = exec($cmd, $allOutput);
                     if($result == '')
                         $result = "Not any response";
+                    elseif($result == 0)
+                        $result = "Command run success Response ".$result;
+                    elseif($result == 1)
+                        $result = "Command run Fail Response ".$result;
                     else
                         $result = is_array($result)?json_encode($result, true):$result;
+
                     MagentoDevScripUpdateLog::create(
                         [
                             "store_website_id" =>  $website->id,
                             "website" =>  $website->website,
                             "response" => $result,
+                            "command_name" => $cmd,
                             "site_folder" => $website->site_folder,
                         ]
                     );
@@ -68,6 +75,7 @@ class MagentoDevServerScriptUpdate extends Command
                             "website" =>  $website->website ?? '',
                             "response" => "Please check Site folder and server ip",
                             "error" => 'Error',
+                            "command_name" => "Not run command. Please server Ip and site folder",
                             "site_folder" => $website->site_folder ?? '',
                         ]);     
                 }
@@ -79,6 +87,7 @@ class MagentoDevServerScriptUpdate extends Command
                     "store_website_id" =>  $website[0]->id ?? '',
                     "website" =>  $website[0]->website ?? '',
                     "error" => $e->getMessage(),
+                    "command_name" => "Not run command. Please server Ip and site folder",
                     "site_folder" => $website[0]->site_folder ?? '',
                 ]
             );

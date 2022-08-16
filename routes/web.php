@@ -43,7 +43,10 @@ Route::get('/test/analytics-user', 'AnalyticsController@cronGetUserShowData')->n
 
 Route::get('/test/dhl', 'TmpTaskController@test');
 Route::get('/store/unknown/sizes', 'ScrapController@storeUnknownSizes');
+Route::get('criteria/get/{id}', 'PositionController@list')->name('get.criteria');
 
+Route::get('vendors/create-cv/{id}', 'VendorResumeController@create')->name('vendors.create.cv');
+Route::post('vendors/cv/store', 'VendorResumeController@store')->name('vendor.cv.store');
 Route::middleware('auth')->group(function () {
     Route::get('discount-sale-price', 'DiscountSalePriceController@index');
     Route::delete('discount-sale-price/{id}', 'DiscountSalePriceController@delete');
@@ -430,8 +433,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/{id}/quickDownload', 'ProductController@quickDownload')->name('products.quick.download');
     Route::post('products/{id}/quickUpload', 'ProductController@quickUpload')->name('products.quick.upload');
     Route::any('products/{id}/listMagento', 'ProductController@listMagento');
-    Route::post('products/multilistMagento', 'ProductController@multilistMagento');    
-    
+    Route::post('products/multilistMagento', 'ProductController@multilistMagento');
+
     Route::post('products/{id}/unlistMagento', 'ProductController@unlistMagento');
     Route::post('products/{id}/approveMagento', 'ProductController@approveMagento');
     Route::post('products/{id}/updateMagento', 'ProductController@updateMagento');
@@ -964,6 +967,30 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('meetings/show', 'Meeting\ZoomMeetingController@allMeetings')->name('meetings.show');
     Route::get('meetings/all', 'Meeting\ZoomMeetingController@allMeetings')->name('meetings.all.data');
 
+    Route::prefix('task')->group(function () {
+        Route::prefix('information')->group(function () {
+            Route::get('get', 'TaskModuleController@taskGet')->name('task.information.get');
+        });
+
+        Route::prefix('update')->group(function () {
+            Route::post('start-date', 'TaskModuleController@taskUpdateStartDate')->name('task.update.start-date');
+            Route::post('due-date', 'TaskModuleController@taskUpdateDueDate')->name('task.update.due-date');
+            Route::post('cost', 'TaskModuleController@updateCost')->name('task.update.cost');
+            Route::post('approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
+        });
+
+        Route::prefix('history')->group(function () {
+            Route::get('start-date/index', 'TaskHistoryController@historyStartDate')->name('task.history.start-date.index');
+            Route::get('due-date/index', 'TaskHistoryController@historyDueDate')->name('task.history.due-date.index');
+            Route::get('cost/index', 'TaskHistoryController@historyCost')->name('task.history.cost.index');
+            Route::get('approximate/index', 'TaskHistoryController@historyApproximate')->name('task.history.approximate.index');
+        });
+        Route::get('dropdown-user-wise', 'TaskModuleController@dropdownUserWise')->name('task.dropdown-user-wise');
+        Route::prefix('slot')->group(function () {
+            Route::post('assign', 'TaskModuleController@slotAssign')->name('task.slot.assign');
+        });
+    });
+
     Route::post('task/reminder', 'TaskModuleController@updateTaskReminder');
 
     Route::get('task/time/history', 'TaskModuleController@getTimeHistory')->name('task.time.history');
@@ -1025,16 +1052,16 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('/get-site-development-task', 'TaskModuleController@getSiteDevelopmentTask')->name('get.site.development.task');
     //END - DEVTASK-4354
 
-    Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
+
     Route::post('task/create-get-remark', 'TaskModuleController@taskCreateGetRemark')->name('task.create.get.remark');
-    Route::post('task/get/due-date-history-log', 'TaskModuleController@getTaskDueDateHistoryLog')->name('task.get.due_date_history_log');
+
     Route::post('task/update/priority-no', 'TaskModuleController@updatePriorityNo')->name('task.update.updatePriorityNo');
     Route::post('task/time/history/approve', 'TaskModuleController@approveTimeHistory')->name('task.time.history.approve');
 
-    Route::post('task/update/due_date', 'TaskModuleController@updateTaskDueDate')->name('task.update.due_date');
+
     Route::get('task/time/tracked/history', 'TaskModuleController@getTrackedHistory')->name('task.time.tracked.history');
     Route::post('task/create/hubstaff_task', 'TaskModuleController@createHubstaffManualTask')->name('task.create.hubstaff_task');
-    Route::post('task/update/cost', 'TaskModuleController@updateCost')->name('task.update.cost');
+
     Route::get('task/update/milestone', 'TaskModuleController@saveMilestone')->name('task.update.milestone');
     Route::get('task/get/details', 'TaskModuleController@getDetails')->name('task.json.details');
     Route::post('task/get/save-notes', 'TaskModuleController@saveNotes')->name('task.json.saveNotes');
@@ -1046,6 +1073,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/create-task-from-shortcut', 'TaskModuleController@createTaskFromSortcut')->name('task.create.task.shortcut');
     Route::get('task/user/history', 'TaskModuleController@getUserHistory')->name('task/user/history');
     Route::post('task/recurring-history', 'TaskModuleController@recurringHistory')->name('task.recurringHistory');
+
+
+
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
     Route::resource('learning', 'LearningModuleController');
@@ -1551,8 +1581,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/time/history/approve', 'DevelopmentController@approveTimeHistory')->name('development/time/history/approve');
     Route::post('development/time/history/approve/sendMessage', 'DevelopmentController@sendReviseMessage')->name('development/time/history/approve/sendMessage');
     Route::post('development/time/history/approve/sendRemindMessage', 'DevelopmentController@sendRemindMessage')->name('development/time/history/approve/sendRemindMessage');
-    Route::post('development/date/history/approve', 'DevelopmentController@approveDateHistory')->name('development/date/history/approve');
-    Route::post('development/lead/time/history/approve', 'DevelopmentController@approveLeadTimeHistory')->name('development/lead/time/history/approve');
+
+
     Route::post('development/time/meeting/approve/{task_id}', 'DevelopmentController@approveMeetingHistory')->name('development/time/meeting/approve');
     Route::post('development/time/meeting/store', 'DevelopmentController@storeMeetingTime')->name('development/time/meeting/store');
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
@@ -1565,7 +1595,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/issue/module/assign', 'DevelopmentController@changeModule');
     Route::get('development/issue/user/resolve', 'DevelopmentController@resolveIssue');
     Route::get('development/issue/estimate_date/assign', 'DevelopmentController@saveEstimateTime');
-    Route::get('development/issue/estimate_date-change/assign', 'DevelopmentController@saveEstimateDate');
 
     Route::get('development/date/history', 'DevelopmentController@getDateHistory')->name('development/date/history');
 
@@ -1574,9 +1603,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/issue/estimate_minutes/assign', 'DevelopmentController@saveEstimateMinutes')->name('development.issue.estimate_minutes.store');
     Route::get('development/issue/priority-no/assign', 'DevelopmentController@savePriorityNo')->name('development.issue.savePriorityNo.store');
 
-    Route::get('development/issue/lead_estimate_minutes/assign', 'DevelopmentController@saveLeadEstimateTime')->name('development.issue.lead_estimate_minutes.store');
+
     Route::get('development/issue/responsible-user/assign', 'DevelopmentController@assignResponsibleUser');
-    Route::get('development/issue/cost/assign', 'DevelopmentController@saveAmount');
+
     Route::get('development/issue/milestone/assign', 'DevelopmentController@saveMilestone');
     Route::get('development/issue/language/assign', 'DevelopmentController@saveLanguage');
     Route::post('development/{id}/assignIssue', 'DevelopmentController@issueAssign')->name('development.issue.assign');
@@ -1616,7 +1645,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/comment/create', 'DevelopmentController@commentStore')->name('development.comment.store');
     Route::post('development/{id}/awaiting/response', 'DevelopmentController@awaitingResponse')->name('development.comment.awaiting.response');
 
-    Route::post('development/cost/store', 'DevelopmentController@costStore')->name('development.cost.store');
     Route::get('development/time/history', 'DevelopmentController@getTimeHistory')->name('development/time/history');
     Route::get('development/time/history/approved', 'DevelopmentController@getTimeHistoryApproved')->name('development/time/history/approved');
     Route::get('development/lead/time/history', 'DevelopmentController@getLeadTimeHistory')->name('development/lead/time/history');
@@ -1624,6 +1652,27 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/tracked/history', 'DevelopmentController@getTrackedHistory')->name('development/tracked/history');
     Route::post('development/create/hubstaff_task', 'DevelopmentController@createHubstaffManualTask')->name('development/create/hubstaff_task');
     Route::get('development/pull/history', 'DevelopmentController@getPullHistory')->name('development/pull/history');
+
+    Route::prefix('development')->group(function () {
+        Route::get('task/get', 'DevelopmentController@taskGet')->name('development.task.get');
+        // Route::get('development/pull/history', 'DevelopmentController@getPullHistory')->name('development/pull/history');
+
+        Route::prefix('update')->group(function () {
+            Route::post('start-date', 'DevelopmentController@actionStartDateUpdate')->name('development.update.start-date');
+            Route::post('estimate-date', 'DevelopmentController@saveEstimateDate')->name('development.update.estimate-date');
+            Route::post('cost', 'DevelopmentController@saveAmount')->name('development.update.cost');
+            Route::post('estimate-minutes', 'DevelopmentController@saveEstimateMinutes')->name('development.update.estimate-minutes');
+            Route::post('lead-estimate-minutes', 'DevelopmentController@saveLeadEstimateTime')->name('development.update.lead-estimate-minutes');
+
+            Route::post('lead-estimate-minutes/approve', 'DevelopmentController@approveLeadTimeHistory')->name('development.approve.lead-estimate-minutes');
+        });
+
+        Route::prefix('history')->group(function () {
+            Route::get('start-date/index', 'DevelopmentController@historyStartDate')->name('development.history.start-date.index');
+            Route::get('estimate-date/index', 'DevelopmentController@historyEstimateDate')->name('development.history.estimate-date.index');
+            Route::get('cost/index', 'DevelopmentController@historyCost')->name('development.history.cost.index');
+        });
+    });
 
     /*Routes For Social */
     Route::any('social/get-post/page', 'SocialController@pagePost')->name('social.get-post.page');
@@ -1781,11 +1830,17 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::delete('vendors/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@destroy')->name('vendors.payments.destroy');
     Route::resource('vendors', 'VendorController');
     Route::post('vendors/update-status', 'VendorController@updateStatus')->name('vendor.status.update');
-    
+
     Route::get('negative/coupon/response', 'NegativeCouponResponseController@index')->name('negative.coupon.response');
     Route::get('negative/coupon/response/search', 'NegativeCouponResponseController@search')->name('negative.coupon.response.search');
-    
+
+    //Position
+    Route::post('positions/store', 'PositionController@store')->name('positions.store');
+
+
+
     Route::post('vendors/cv/store', 'VendorResumeController@store')->name('vendor.cv.store');
+
     Route::get('vendors/cv/index', 'VendorResumeController@index')->name('vendor.cv.index');
     Route::get('vendors/cv/search', 'VendorResumeController@search')->name('vendor.cv.search');
     Route::post('vendors/cv/get-work-experience', 'VendorResumeController@getWorkExperience')->name('vendors.cv.get-work-experience');
@@ -1853,7 +1908,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::post('/add-efficiency', 'HubstaffActivitiesController@AddEfficiency')->name('hubstaff-acitivties.efficiency.save');
             Route::get('/task-activity', 'HubstaffActivitiesController@taskActivity')->name('hubstaff-acitivties.acitivties.task-activity');
             Route::get('/userTreckTime', 'HubstaffActivitiesController@userTreckTime')->name('hubstaff-acitivties.acitivties.userTreckTime');
-            
         });
 
         Route::post('save', 'HubstaffPaymentController@save')->name('hubstaff-payment.save');
@@ -1991,6 +2045,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');
     Route::post('assets-manager/payment-history', 'AssetsManagerController@paymentHistory')->name('assetsmanager.paymentHistory');
     Route::post('assets-manager/log', 'AssetsManagerController@assetManamentLog')->name('assetsmanager.assetManamentLog');
+    Route::post('assets-manager/magento-dev-update-script-history/{asset_manager_id?}', 'AssetsManagerController@getMagentoDevScriptUpdatesLogs');
+    Route::post('assets-manager/magento-dev-script-update', 'AssetsManagerController@magentoDevScriptUpdate');
+    Route::post('assets-manager/userchange/history', 'AssetsManagerController@userChangesHistoryLog')->name('assetsmanager.userchange.history');
+    
     // Agent Routes
     Route::resource('agent', 'AgentController');
     //Route::resource('product-templates', 'ProductTemplatesController');
@@ -2069,6 +2127,29 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
         Route::get('/email-remark', 'EmailDataExtractionController@getRemark')->name('email-data-extraction.getremark');
         Route::post('/email-remark', 'EmailDataExtractionController@addRemark')->name('email-data-extraction.addRemark');
+    });
+
+
+
+    Route::prefix('user-avaibility')->group(function () {
+        Route::get('list', 'UserAvaibilityController@index')->name('user-avaibility.index');
+        Route::post('save', 'UserAvaibilityController@save')->name('user-avaibility.save');
+        
+        // Route::prefix('update')->group(function () {
+        //     Route::post('start-date', 'DevelopmentController@actionStartDateUpdate')->name('development.update.start-date');
+        //     Route::post('estimate-date', 'DevelopmentController@saveEstimateDate')->name('development.update.estimate-date');
+        //     Route::post('cost', 'DevelopmentController@saveAmount')->name('development.update.cost');
+        //     Route::post('estimate-minutes', 'DevelopmentController@saveEstimateMinutes')->name('development.update.estimate-minutes');
+        //     Route::post('lead-estimate-minutes', 'DevelopmentController@saveLeadEstimateTime')->name('development.update.lead-estimate-minutes');
+
+        //     Route::post('lead-estimate-minutes/approve', 'DevelopmentController@approveLeadTimeHistory')->name('development.approve.lead-estimate-minutes');
+        // });
+
+        // Route::prefix('history')->group(function () {
+        //     Route::get('start-date/index', 'DevelopmentController@historyStartDate')->name('development.history.start-date.index');
+        //     Route::get('estimate-date/index', 'DevelopmentController@historyEstimateDate')->name('development.history.estimate-date.index');
+        //     Route::get('cost/index', 'DevelopmentController@historyCost')->name('development.history.cost.index');
+        // });
     });
 });
 
@@ -2243,17 +2324,17 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/postman/create', 'PostmanRequestCreateController@store');
     Route::post('/postman/edit', 'PostmanRequestCreateController@edit');
     Route::delete('postman/delete', 'PostmanRequestCreateController@destroy');
-    
+
     Route::get('postman/folder', 'PostmanRequestCreateController@folderindex');
     Route::get('postman/folder/search', 'PostmanRequestCreateController@folderSearch');
     Route::post('postman/folder/create', 'PostmanRequestCreateController@folderStore');
     Route::post('/postman/folder/edit', 'PostmanRequestCreateController@folderEdit');
     Route::delete('postman/folder/delete', 'PostmanRequestCreateController@folderDestroy');
     Route::post('postman/history', 'PostmanRequestCreateController@postmanHistoryLog');
-    
+
     Route::get('postman/call/workspace', 'PostmanRequestCreateController@getPostmanWorkSpaceAPI');
     Route::get('postman/call/collection', 'PostmanRequestCreateController@getAllPostmanCollectionApi');
-    
+
     Route::get('postman/create/collection', 'PostmanRequestCreateController@createPostmanCollectionAPI');
     //Route::get('postman/create/request', 'PostmanRequestCreateController@createPostmanRequestAPI');
     Route::get('postman/update/collection', 'PostmanRequestCreateController@updatePostmanCollectionAPI');
@@ -2269,12 +2350,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('postman/removeuser/permission', 'PostmanRequestCreateController@removeUserPermission');
     Route::post('postman/remark/history', 'PostmanRequestCreateController@postmanRemarkHistoryLog');
     Route::post('postman/user/permission', 'PostmanRequestCreateController@userPermission');
-    
+
     Route::post('postman/get/mul/request', 'PostmanRequestCreateController@getMulRequest');
     Route::post('postman/get/error/history', 'PostmanRequestCreateController@postmanErrorHistoryLog');
-    
-    
-    
+    Route::post('postman/edit/history/', 'PostmanRequestCreateController@postmanEditHistoryLog');
 });
 /*
  * @date 1/13/2019
@@ -2833,7 +2912,7 @@ Route::middleware('auth')->group(function () {
     Route::get('dev-task-planner', 'NewDevTaskController@index')->name('newDevTaskPlanner');
     Route::get('dev-task-planner', 'NewDevTaskController@index')->name('filteredNewDevTaskPlanner');
     //Supplier scrapping info
-    Route::get('supplier-scrapping-info', 'ProductController@getSupplierScrappingInfo')->name('getSupplierScrappingInfo'); 
+    Route::get('supplier-scrapping-info', 'ProductController@getSupplierScrappingInfo')->name('getSupplierScrappingInfo');
 });
 //Routes for flows
 Route::group(['middleware' => 'auth', 'prefix' => 'flow'], function () {
@@ -3099,7 +3178,7 @@ Route::middleware('auth')->group(function () {
     Route::get('website/search/log/file-list', 'WebsiteLogController@searchWebsiteLog')->name('search.website.file.list.log');
     Route::get('website/log/view', 'WebsiteLogController@websiteLogStoreView')->name('website.log.view');
     Route::get('website/search/log/view', 'WebsiteLogController@searchWebsiteLogStoreView')->name('website.search.log.view');
-    
+
     Route::get('website/command/log', 'WebsiteLogController@runWebsiteLogCommand')->name('website.command-log');
 
     Route::get('/uicheck', 'UicheckController@index')->name('uicheck');
@@ -3107,6 +3186,46 @@ Route::middleware('auth')->group(function () {
     Route::post('uicheck/dev/status/history', 'UicheckController@getUiDeveloperStatusHistoryLog')->name('uicheck.dev.status.history');
     Route::post('uicheck/admin/status/history', 'UicheckController@getUiAdminStatusHistoryLog')->name('uicheck.admin.status.history');
     Route::post('uicheck/issue/history', 'UicheckController@getUiIssueHistoryLog')->name('uicheck.get.issue.history');
+    Route::post('uicheck/user/access', 'UicheckController@access')->name('uicheck.user.access');
+    Route::post('uicheck/document/upload', 'UicheckController@upload_document')->name('uicheck.upload-document');
+    Route::get('uicheck/get-document', 'UicheckController@getDocument');
+    Route::post('uicheck/type/create', 'UicheckController@typeStore')->name('uicheck.type.store');
+    Route::post('uicheck/type/save', 'UicheckController@typeSave')->name('uicheck.type.save');
+    Route::post('uicheck/message/history', 'UicheckController@getUiCheckMessageHistoryLog')->name('uicheck.get.message.history');
+    Route::post('uicheck/set/message/history', 'UicheckController@CreateUiMessageHistoryLog')->name('uicheck.set.message.history');
+    Route::post('uicheck/get/assign/history', 'UicheckController@getUiCheckAssignToHistoryLog')->name('uicheck.get.assign.history');
+    Route::post('uicheck/set/duplicate/category', 'UicheckController@createDuplicateCategory')->name('uicheck.set.duplicate.category');
+    Route::post('uicheck/set/language', 'UicheckController@updateLanguage')->name('uicheck.set.language');
+    Route::post('uicheck/get/message/history/language', 'UicheckController@getuicheckLanUpdateHistory')->name('uicheck.get.message.language');
+    Route::post('uicheck/create/attachment', 'UicheckController@saveDocuments')->name('uicheck.create.attachment');
+    Route::get('uicheck/get/attachment', 'UicheckController@listDocuments')->name('uicheck.get.attachment');
+    Route::post('uicheck/delete/attachment', 'UicheckController@deleteDocument')->name('uicheck.delete.attachment');
+
+    // 5 Device 
+
+    Route::post('/uicheck/set/device', 'UicheckController@updateDevice')->name('uicheck.set.device');
+    Route::post('/uicheck/device/upload-documents', 'UicheckController@uploadDocuments')->name("ui.dev.upload-documents");
+
+    Route::post('uicheck/get/message/history/dev', 'UicheckController@getuicheckDevUpdateHistory')->name('uicheck.get.message.dev');
+
+    Route::post('/uicheck/create/dev/attachment', 'UicheckController@saveDevDocuments')->name('uicheck.create.dev.attachment');
+    Route::get('uicheck/get/dev/attachment', 'UicheckController@devListDocuments')->name('uicheck.get.dev.attachment');
+    Route::post('uicheck/dev/delete/attachment', 'UicheckController@deleteDevDocument')->name('uicheck.dev.delete.attachment');
+
+    Route::prefix('uicheck')->group(function () {
+        Route::get('get', 'UicheckController@get')->name('uicheck.get');
+
+        Route::prefix('history')->group(function () {
+            Route::get('all', 'UicheckController@historyAll')->name('uicheck.history.all');
+            Route::get('dates', 'UicheckController@historyDates')->name('uicheck.history.dates');
+        });
+
+
+        Route::prefix('update')->group(function () {
+            Route::post('dates', 'UicheckController@updateDates')->name('uicheck.update.dates');
+            Route::post('lock', 'UicheckController@updateLock')->name('uicheck.update.lock');
+        });
+    });
 });
 
 Route::prefix('google')->middleware('auth')->group(function () {
@@ -3198,6 +3317,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/calendar/events/stop', 'UserEventController@stopEvent')->name("calendar.event.stop");
     Route::put('/calendar/events/{id}', 'UserEventController@editEvent');
     Route::delete('/calendar/events/{id}', 'UserEventController@removeEvent');
+    Route::get('updateLog', 'UpdateLogController@index')->name('updateLog.get');
+    Route::get('updateLog/search', 'UpdateLogController@search')->name('updateLog.get.search');
+    Route::delete('updateLog/delete', 'UpdateLogController@destroy')->name('updateLog.delete');
 });
 
 Route::prefix('calendar/public')->middleware('auth')->group(function () {
@@ -3502,7 +3624,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/store-website-analytics/report/{id}', 'StoreWebsiteAnalyticsController@report');
     Route::get('/analytis/cron/showData', 'AnalyticsController@cronShowData');
 
-    
+
     Route::get('store-website-country-shipping', 'StoreWebsiteCountryShippingController@index')->name('store-website-country-shipping.index');
     Route::any('store-website-country-shipping/create', 'StoreWebsiteCountryShippingController@create')->name('store-website-country-shipping.create');
     Route::get('store-website-country-shipping/edit/{id}', 'StoreWebsiteCountryShippingController@edit')->name('store-website-country-shipping.edit');
@@ -3685,6 +3807,9 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
 
 Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::any('/database-log', 'ScrapLogsController@databaseLog');
+    Route::get('/database-log/enable', 'ScrapLogsController@enableMysqlAccess');
+    Route::get('/database-log/disable', 'ScrapLogsController@disableMysqlAccess');
+    Route::get('/database-log/history', 'ScrapLogsController@disableEnableHistory');
 });
 
 Route::get('gtmetrix', 'gtmetrix\WebsiteStoreViewGTMetrixController@index')->name('gt-metrix');
@@ -3704,11 +3829,11 @@ Route::post('gtmetrix/toggle', 'gtmetrix\WebsiteStoreViewGTMetrixController@togg
 Route::get('gtmetrix/getpagespeedstats/{type}/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstats')->name('gtmetrix.getPYstats');
 Route::post('gtmetrix/savegtmetrixcron', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCron');
 Route::get('gtmetrix/getstatscomparison/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstatsComparison')->name('gtmetrix.getstatsCmp');
-Route::any('gtmetrix/categories','gtmetrix\WebsiteStoreViewGTMetrixController@listGTmetrixCategories')->name('gtmetrix.category.list');
-Route::any('gtmetrix/gtmetrixReport','gtmetrix\WebsiteStoreViewGTMetrixController@listWebsiteWiseCategories')->name('gtmetrix.Report.list');
-Route::post('gtmetrix/gtmetrixReportData','gtmetrix\WebsiteStoreViewGTMetrixController@WebsiteWiseCategoriesReport')->name('gtmetrix.single.report');
-Route::get('gtmetrix/error-index','GTMatrixErrorLogController@index')->name('gtmetrix.error.index.list');
-Route::any('gtmetrix/error-list','GTMatrixErrorLogController@listGTmetrixError')->name('gtmetrix.error.list');
+Route::any('gtmetrix/categories', 'gtmetrix\WebsiteStoreViewGTMetrixController@listGTmetrixCategories')->name('gtmetrix.category.list');
+Route::any('gtmetrix/gtmetrixReport', 'gtmetrix\WebsiteStoreViewGTMetrixController@listWebsiteWiseCategories')->name('gtmetrix.Report.list');
+Route::post('gtmetrix/gtmetrixReportData', 'gtmetrix\WebsiteStoreViewGTMetrixController@WebsiteWiseCategoriesReport')->name('gtmetrix.single.report');
+Route::get('gtmetrix/error-index', 'GTMatrixErrorLogController@index')->name('gtmetrix.error.index.list');
+Route::any('gtmetrix/error-list', 'GTMatrixErrorLogController@listGTmetrixError')->name('gtmetrix.error.list');
 // Route::resource('GtMetrixAccounts', StoreGTMetrixAccountController::class);
 Route::get('gtmetrix-accounts', 'StoreGTMetrixAccountController@index')->name('GtMetrixAccount.index');
 Route::get('gtmetrixAccount/edit-info/{id}', 'StoreGTMetrixAccountController@edit')->name('account.edit');
@@ -3818,6 +3943,15 @@ Route::prefix('magento-product-error')->middleware('auth')->group(function () {
     Route::get('/download', 'MagentoProductPushErrors@groupErrorMessage')->name('magento_product_today_common_err');
     Route::get('/magento_product_today_common_err_report', 'MagentoProductPushErrors@groupErrorMessageReport')->name('magento_product_today_common_err_report'); //Purpose : Add Route for get Data - DEVTASK-20123
 });
+//Magento Command
+Route::get('magento/command', 'MagentoCommandController@index')->name("magento.command");
+Route::get('magento/command/search', 'MagentoCommandController@search')->name("magento.command.search");
+Route::post('magento/command/add', 'MagentoCommandController@store')->name("magento.command.add");
+Route::post('magento/command/run', 'MagentoCommandController@runCommand')->name("magento.command.run");
+Route::post('magento/command/edit', 'MagentoCommandController@edit')->name("magento.command.edit");
+Route::post('magento/command/history', 'MagentoCommandController@commandHistoryLog')->name("magento.command.history");
+Route::delete('magento/command/delete', 'MagentoCommandController@destroy')->name("magento.command.delete");
+
 
 Route::prefix('message-queue-history')->middleware('auth')->group(function () {
     Route::get('/', 'MessageQueueHistoryController@index')->name('message-queue-history.index');
@@ -3894,9 +4028,9 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::get('ads/getconfigPost', 'SocialAdsController@getpost')->name('social.ad.getpost');
 });
 Route::middleware('auth')->group(function () {
-    Route::resource('taskcategories','TaskCategoriesController');
-    Route::delete('tasklist/{id}','TaskCategoriesController@delete');
-    Route::delete('tasksubject/{id}','TaskCategoriesController@destroy');
+    Route::resource('taskcategories', 'TaskCategoriesController');
+    Route::delete('tasklist/{id}', 'TaskCategoriesController@delete');
+    Route::delete('tasksubject/{id}', 'TaskCategoriesController@destroy');
     Route::resource('zabbix', 'ZabbixController');
     Route::resource('checklist', 'CheckListController');
     Route::get('checklist/view/{id}', 'CheckListController@view')->name("checklist.view");
@@ -3925,4 +4059,22 @@ Route::get('command', function () {
 });
 Route::get('test-cron', function () {
     \Artisan::call('GT-metrix-test-get-report');
+});
+
+// Vouchers and Coupons
+Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
+    Route::get('/', 'VoucherCouponController@index')->name('list.voucher');
+
+    Route::post('/plateform/create', 'VoucherCouponController@plateformStore')->name('voucher.plateform.create');
+    Route::post('/store', 'VoucherCouponController@store')->name('voucher.store');
+    Route::post('/edit', 'VoucherCouponController@edit')->name('voucher.edit');
+    Route::post('/update', 'VoucherCouponController@update')->name('voucher.update');
+    Route::post('/voucher/remark/{id}', 'VoucherCouponController@update')->name('voucher.store.remark');
+    Route::post('/voucher/delete', 'VoucherCouponController@delete')->name('voucher.coupon.delete');
+    Route::post('/coupon/code/create', 'VoucherCouponController@couponCodeCreate')->name('voucher.code.create');
+    Route::post('/coupon/code/list', 'VoucherCouponController@couponCodeList')->name('voucher.code.list');
+    Route::post('/coupon/code/order/create', 'VoucherCouponController@couponCodeOrderCreate')->name('voucher.code.order.create');
+    Route::post('/coupon/code/order/list', 'VoucherCouponController@couponCodeOrderList')->name('voucher.code.order.list');
+    Route::post('/voucher/code/delete', 'VoucherCouponController@couponCodeDelete')->name('voucher.code.delete');
+    Route::post('/voucher/code/order/delete', 'VoucherCouponController@couponCodeOrderDelete')->name('voucher.code.order.delete');
 });
