@@ -1,16 +1,16 @@
 <script type="text/x-jsrender" id="template-result-block">
 	<style>
-		table {
+		table#reply_history_div {
 			table-layout: fixed;
 			border-collapse: collapse;
 			width: 100%;
 		}
-		td {
+		table#reply_history_div td {
 			border: 1px solid #000;
 			width: 150px;
 			word-break: break-all;
 		}
-		td+td {
+		table#reply_history_div td+td {
 			width: auto;
 		}
 		body{
@@ -114,9 +114,9 @@
 										<a title="Add Permission" class="btn btn-image load-permission-modal" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-lock" aria-hidden="true"></i></a>
 									<?php } ?>
 									<!-- Pawan added for UserAvaibility -->
-									<a title="View Avaibility" class="btn btn-image load-time-modal-view" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-eye" aria-hidden="true"></i></a>
+									<!-- <a title="View Avaibility" class="btn btn-image load-time-modal-view" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-eye" aria-hidden="true"></i></a> -->
 									<!-- end -->
-									<a title="Add Avaibility" class="btn btn-image load-time-modal" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>
+									<!-- <a title="Add Avaibility" class="btn btn-image load-time-modal" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a> -->
 									<a title="Task Hours" class="btn btn-image load-tasktime-modal" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-tasks" aria-hidden="true"></i></a>
 									<button type="button" class="btn send-email-common-btn" data-toemail="{{:prop.email}}" data-object="user" data-id="{{:prop.id}}" style="padding: 0px 1px;"><i class="fa fa-envelope-square"></i></button>
 									{{if prop.team}}
@@ -168,6 +168,15 @@
 											<i class="fa fas fa-toggle-off"></i>
 										{{/if}}
 									</button>
+
+									<div class="dropdown dropleft">
+										<a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{:prop.id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+												Actions
+										</a>
+										<div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{:prop.id}}">
+												<a class="dropdown-item" href="javascript:void(0);" onclick="funUserAvailabilityList(this, '{{:prop.id}}')">User Availabilities</a>
+										</div>
+								</div>
 								</div>
 							</td>
 						</tr>

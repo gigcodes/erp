@@ -16,11 +16,10 @@ class UserAvaibility extends Model {
         'status',
         'note',
         'date',
-        'day',
-        'minute',
         'start_time',
         'end_time',
-        'launch_time'
+        'lunch_time',
+        'is_latest'
     ];
 
     public static function getAvailableDates($stDate, $enDate, $days, $dates = []) {
