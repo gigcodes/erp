@@ -1,16 +1,16 @@
 <script type="text/x-jsrender" id="template-result-block">
 	<style>
-		table {
+		table#reply_history_div {
 			table-layout: fixed;
 			border-collapse: collapse;
 			width: 100%;
 		}
-		td {
+		table#reply_history_div td {
 			border: 1px solid #000;
 			width: 150px;
 			word-break: break-all;
 		}
-		td+td {
+		table#reply_history_div td+td {
 			width: auto;
 		}
 		body{
@@ -114,9 +114,9 @@
 										<a title="Add Permission" class="btn btn-image load-permission-modal" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-lock" aria-hidden="true"></i></a>
 									<?php } ?>
 									<!-- Pawan added for UserAvaibility -->
-									<a title="View Avaibility" class="btn btn-image load-time-modal-view" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-eye" aria-hidden="true"></i></a>
+									<!-- <a title="View Avaibility" class="btn btn-image load-time-modal-view" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-eye" aria-hidden="true"></i></a> -->
 									<!-- end -->
-									<a title="Add Avaibility" class="btn btn-image load-time-modal" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>
+									<!-- <a title="Add Avaibility" class="btn btn-image load-time-modal" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a> -->
 									<a title="Task Hours" class="btn btn-image load-tasktime-modal" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-tasks" aria-hidden="true"></i></a>
 									<button type="button" class="btn send-email-common-btn" data-toemail="{{:prop.email}}" data-object="user" data-id="{{:prop.id}}" style="padding: 0px 1px;"><i class="fa fa-envelope-square"></i></button>
 									{{if prop.team}}
@@ -160,6 +160,7 @@
 										<button title="Pem file History" class="btn user-pem-file-history pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-info-circle" aria-hidden="true" style="padding: 0px 1px;"></i></button>
 									<?php } ?>
 									<button title="user feedback" id="exampleModal" data-user_id="{{:prop.id}}" class=" btn fa fa-comment feedback_btn user-feedback-modal" data-bs-target="#exampleModal" aria-hidden="true" style="padding: 0px 1px;"><i class="fa fa comment" aria-hidden="true"></i></button>
+
 									<button type="button" title="Flagged for Plan Task" data-user_id="{{:prop.id}}" data-is_task_planned="{{:prop.is_task_planned}}" onclick="updateUserFlagForTaskPlan(this)" class="btn" style="padding: 0px 1px;">
 										{{if prop.is_task_planned}}
 											<i class="fa fas fa-toggle-on"></i>
@@ -167,6 +168,9 @@
 										{{if !prop.is_task_planned}}
 											<i class="fa fas fa-toggle-off"></i>
 										{{/if}}
+									</button>
+									<button type="button" title="Manage User Availabilities" onclick="funUserAvailabilityList(this, '{{:prop.id}}')" class="btn" style="padding: 0px 1px;">
+										<i class="fa fa-clock-o" aria-hidden="true"></i>
 									</button>
 								</div>
 							</td>

@@ -556,6 +556,11 @@
 @include("usermanagement::templates.show-task-hours")
 @include("usermanagement::templates.show-user-details")
 
+
+@push('modals')
+@include("user-availability.modal-list")
+@endpush
+
 <script>
     var urlUserManagementUpdateFlagForTaskPlan = "{!! route('user-management.update.flag-for-task-plan') !!}";
 </script>
@@ -581,31 +586,16 @@
 
 
 <script>
-    //for feedback model
+    // for feedback model
     $(document).on("click", ".feedback_btn", function() {
         $('#exampleModal123').modal('show');
 
     });
 
-
-    //for category tag
-    // $(document).on("click", ".add-feedback", function() {
-    //     var textBox = $(".quick_feedback").val();
-    //     const text_val = $('#addcategory').val();
-    //     console.log(text_val);
-
-    //addcategory
-    //btn-save
-
-    // });
-
-    //for user admin chat hisrty
+    // for user admin chat hisrty
     $(document).on("click", "#histry", function() {
         alert('helloooo');
     });
-
-
-
 
     $(document).ready(function() {
         $('#ipusers').change(function() {
@@ -616,7 +606,6 @@
                 $('#other_user_name').hide();
             }
         });
-
     });
     $('.select-multiple').select2({
         width: '100%'
@@ -639,16 +628,10 @@
         });
     });
 
-
     $('#due-datetime').datetimepicker({
         format: 'YYYY-MM-DD HH:mm'
     });
 
-
-
-    // $(document).on("click",".permission-request",function() {
-    //    $('#permission-request').modal();
-    // });
     $(document).on("click", ".today-history", function(e) {
         e.preventDefault();
         var id = $(this).data('id');
@@ -847,7 +830,6 @@
         baseUrl: "<?php echo url('/'); ?>"
     });
 
-
     function editUser(id) {
         $.ajax({
             url: "/user-management/edit/" + id,
@@ -906,9 +888,6 @@
             $('.common-modal #payment-method-input').val('');
         }).fail(function(errObj) {});
     });
-
-
-
 
     let paymentMethods;
 
@@ -990,8 +969,6 @@
 
     }
 
-
-
     function filterMethods(needle) {
         console.log(needle);
         $('#payment-method-dropdown .payment-method-option').remove();
@@ -1023,7 +1000,6 @@
         $('#payment_method').val(text);
         closeDropdown();
     }
-
 
     function toggleDropdown() {
         if ($('#payment-dropdown-wrapper').hasClass('hidden')) {
@@ -1083,9 +1059,6 @@
 
         return true;
     }
-
-
-
 
     $(document).on("change", ".quickComment", function(e) {
 
@@ -1151,7 +1124,7 @@
         event.preventDefault();
         $.ajax({
             type: "post",
-            url: '{{ action("UserController@statusChange") }}',
+            url: "{{ action('UserController@statusChange') }}",
             data: {
                 _token: "{{ csrf_token() }}",
                 status: $(this).attr('data-status'),
@@ -1377,7 +1350,7 @@
         event.preventDefault();
         $.ajax({
             type: "post",
-            url: '{{ action('UserController@statusChange') }}',
+            url: "{{ action('UserController@statusChange') }}",
             data: {
                 _token: "{{ csrf_token() }}",
                 status: $(this).attr('data-status'),
@@ -1421,12 +1394,6 @@
             }
         });
     })
-
-
-
-    // $("#page-view-result").on('load', function () {
-
-    // });
 
     function loadUsersList() {
 
@@ -1473,11 +1440,6 @@
         });
 
     }
-
-    $(window).on('load', function() {
-
-    });
-
 
     $(document).on('change', '.user_feedback_status', function() {
         var status_id = $(this).val();

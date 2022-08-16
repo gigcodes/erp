@@ -62,6 +62,7 @@ class HubstaffActivitiesController extends Controller {
         $records = \App\Hubstaff\HubstaffActivityNotification::join("users as u", "hubstaff_activity_notifications.user_id", "u.id");
 
         $records->leftJoin("user_avaibilities as av", "hubstaff_activity_notifications.user_id", "av.user_id");
+        $records->where("av.is_latest", 1);
 
         $keyword = request("keyword");
         if (!empty($keyword)) {
@@ -171,6 +172,7 @@ class HubstaffActivitiesController extends Controller {
         $records = \App\Hubstaff\HubstaffActivityNotification::join("users as u", "hubstaff_activity_notifications.user_id", "u.id");
 
         $records->leftJoin("user_avaibilities as av", "hubstaff_activity_notifications.user_id", "av.user_id");
+        $records->where("av.is_latest", 1);
 
         $keyword = request("keyword");
         if (!empty($keyword)) {
