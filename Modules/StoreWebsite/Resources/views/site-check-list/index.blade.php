@@ -115,7 +115,7 @@
             <form id="filter_data" action="{{ route('site-check-list') }}" method="get">
                 <div class="row">
                     <div class="col-md-3">
-                        {{ Form::select('store_webs', $all_store_websites, $search_website, ['class' => 'form-control  globalSelect2','placeholder' => '-- Select Website --']) }}
+                        {{ Form::select('store_webs[]', $all_store_websites, $search_website, ['class' => 'form-control  globalSelect22','placeholder' => '-- Select Website --',  "multiple" => "multiple"]) }}
                     </div>
 
                     <div class="col-md-3">
@@ -511,6 +511,10 @@
             });
         });
         $(".select2").select2();
+
+        //var PRESELECTED = [ '9','3','9'];
+        //$('.globalSelect22').select2({}).select2('val', PRESELECTED);  
+        $('.globalSelect22').select2();  
 
         $("#checkAll").click(function() {
             $('input:checkbox').not(this).prop('checked', this.checked);
