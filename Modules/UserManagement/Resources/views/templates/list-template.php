@@ -160,6 +160,7 @@
 										<button title="Pem file History" class="btn user-pem-file-history pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-info-circle" aria-hidden="true" style="padding: 0px 1px;"></i></button>
 									<?php } ?>
 									<button title="user feedback" id="exampleModal" data-user_id="{{:prop.id}}" class=" btn fa fa-comment feedback_btn user-feedback-modal" data-bs-target="#exampleModal" aria-hidden="true" style="padding: 0px 1px;"><i class="fa fa comment" aria-hidden="true"></i></button>
+
 									<button type="button" title="Flagged for Plan Task" data-user_id="{{:prop.id}}" data-is_task_planned="{{:prop.is_task_planned}}" onclick="updateUserFlagForTaskPlan(this)" class="btn" style="padding: 0px 1px;">
 										{{if prop.is_task_planned}}
 											<i class="fa fas fa-toggle-on"></i>
@@ -168,15 +169,9 @@
 											<i class="fa fas fa-toggle-off"></i>
 										{{/if}}
 									</button>
-
-									<div class="dropdown dropleft">
-										<a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{:prop.id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-												Actions
-										</a>
-										<div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{:prop.id}}">
-												<a class="dropdown-item" href="javascript:void(0);" onclick="funUserAvailabilityList(this, '{{:prop.id}}')">User Availabilities</a>
-										</div>
-								</div>
+									<button type="button" title="Manage User Availabilities" onclick="funUserAvailabilityList(this, '{{:prop.id}}')" class="btn" style="padding: 0px 1px;">
+										<i class="fa fa-clock-o" aria-hidden="true"></i>
+									</button>
 								</div>
 							</td>
 						</tr>
