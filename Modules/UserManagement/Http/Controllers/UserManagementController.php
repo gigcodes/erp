@@ -1911,9 +1911,9 @@ class UserManagementController extends Controller {
 
 
                 $q = User::query();
-                $q->leftJoin('user_avaibilities', 'user_avaibilities.user_id', '=', 'users.id');
+                $q->leftJoin('user_avaibilities as ua', 'ua.user_id', '=', 'users.id');
                 $q->where('users.is_task_planned', 1);
-                $q->where('user_avaibilities.is_latest', 1);
+                $q->where('ua.is_latest', 1);
                 if (!isAdmin()) {
                     $q->where('users.id', loginId());
                 }
@@ -1926,13 +1926,13 @@ class UserManagementController extends Controller {
                 $q->select([
                     'users.id',
                     'users.name',
-                    \DB::raw('user_avaibilities.id AS uaId'),
-                    \DB::raw('user_avaibilities.date AS uaDays'),
-                    \DB::raw('user_avaibilities.from AS uaFrom'),
-                    \DB::raw('user_avaibilities.to AS uaTo'),
-                    \DB::raw('user_avaibilities.start_time AS uaStTime'),
-                    \DB::raw('user_avaibilities.end_time AS uaEnTime'),
-                    \DB::raw('user_avaibilities.lunch_time AS uaLunchTime'),
+                    \DB::raw('ua.id AS uaId'),
+                    \DB::raw('ua.date AS uaDays'),
+                    \DB::raw('ua.from AS uaFrom'),
+                    \DB::raw('ua.to AS uaTo'),
+                    \DB::raw('ua.start_time AS uaStTime'),
+                    \DB::raw('ua.end_time AS uaEnTime'),
+                    \DB::raw('ua.lunch_time AS uaLunchTime'),
                 ]);
                 $users = $q->get();
                 $count = $users->count();
