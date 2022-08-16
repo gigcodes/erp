@@ -56,6 +56,8 @@ class UserAvaibilityController extends Controller {
 
     public function save() {
         try {
+            \Log::info('Request:' . json_encode(request()->all()));
+
             $user_id = request('user_id');
             if (!isAdmin()) {
                 $user_id = loginId();
