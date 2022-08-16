@@ -2126,6 +2126,29 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('/email-remark', 'EmailDataExtractionController@getRemark')->name('email-data-extraction.getremark');
         Route::post('/email-remark', 'EmailDataExtractionController@addRemark')->name('email-data-extraction.addRemark');
     });
+
+
+
+    Route::prefix('user-avaibility')->group(function () {
+        Route::get('list', 'UserAvaibilityController@index')->name('user-avaibility.index');
+        Route::post('save', 'UserAvaibilityController@save')->name('user-avaibility.save');
+        
+        // Route::prefix('update')->group(function () {
+        //     Route::post('start-date', 'DevelopmentController@actionStartDateUpdate')->name('development.update.start-date');
+        //     Route::post('estimate-date', 'DevelopmentController@saveEstimateDate')->name('development.update.estimate-date');
+        //     Route::post('cost', 'DevelopmentController@saveAmount')->name('development.update.cost');
+        //     Route::post('estimate-minutes', 'DevelopmentController@saveEstimateMinutes')->name('development.update.estimate-minutes');
+        //     Route::post('lead-estimate-minutes', 'DevelopmentController@saveLeadEstimateTime')->name('development.update.lead-estimate-minutes');
+
+        //     Route::post('lead-estimate-minutes/approve', 'DevelopmentController@approveLeadTimeHistory')->name('development.approve.lead-estimate-minutes');
+        // });
+
+        // Route::prefix('history')->group(function () {
+        //     Route::get('start-date/index', 'DevelopmentController@historyStartDate')->name('development.history.start-date.index');
+        //     Route::get('estimate-date/index', 'DevelopmentController@historyEstimateDate')->name('development.history.estimate-date.index');
+        //     Route::get('cost/index', 'DevelopmentController@historyCost')->name('development.history.cost.index');
+        // });
+    });
 });
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
@@ -4052,5 +4075,4 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
     Route::post('/coupon/code/order/list', 'VoucherCouponController@couponCodeOrderList')->name('voucher.code.order.list');
     Route::post('/voucher/code/delete', 'VoucherCouponController@couponCodeDelete')->name('voucher.code.delete');
     Route::post('/voucher/code/order/delete', 'VoucherCouponController@couponCodeOrderDelete')->name('voucher.code.order.delete');
-    
 });

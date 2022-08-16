@@ -16,8 +16,8 @@ class AddCurrentToUserAvaibilities extends Migration {
             \DB::statement('ALTER TABLE `user_avaibilities` ADD INDEX(`user_id`);');
             \DB::statement('ALTER TABLE `user_avaibilities` ADD INDEX(`status`);');
             \DB::statement('ALTER TABLE `user_avaibilities` ADD `is_latest` TINYINT NOT NULL AFTER `note`, ADD INDEX (`is_latest`); ');
-            \DB::statement('ALTER TABLE `user_avaibilities` DROP `day`;');
-            \DB::statement('ALTER TABLE `user_avaibilities` DROP `minute`;');
+            // \DB::statement('ALTER TABLE `user_avaibilities` DROP `day`;');
+            // \DB::statement('ALTER TABLE `user_avaibilities` DROP `minute`;');
         });
     }
 

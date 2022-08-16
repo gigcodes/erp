@@ -72,6 +72,13 @@ function applyDateTimePicker(eles) {
     });
   }
 }
+function applyTimePicker(eles) {
+  if (eles.length) {
+    eles.datetimepicker({
+      format: 'HH:mm:ss',
+    });
+  }
+}
 
 
 
