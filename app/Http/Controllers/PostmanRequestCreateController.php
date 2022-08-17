@@ -42,15 +42,28 @@ class PostmanRequestCreateController extends Controller {
             $query->on('postman_responses.request_id', '=', 'postman_request_creates.id')
                 ->whereRaw('postman_responses.id IN (select MAX(pr1.id) from postman_responses as pr1 WHERE pr1.request_id = postman_request_creates.id  ORDER BY id DESC )');
         });
-
+        
         if ($s = request('folder_name')) {
-            $q->where("folder_name", "like", "%" . $s . "%");
+            //$q->whereIn("folder_name", $s);
+
+            for($i=0; $i<count($s); $i++){
+                $q->orWhere("folder_name", "like", "%" . $s[$i] . "%");
+            }
         }
         if ($s = request('request_type')) {
-            $q->where("request_type", "like", "%" . $s . "%");
+            
+            if($s[0] !=''){
+                $q->whereIn("request_type", $s);
+            }
+            // for($i=0; $i<count($s); $i++){
+            //     $q->where("request_type", "like", "%" . $s[$i] . "%");
+            // }
         }
         if ($s = request('request_name')) {
-            $q->where("request_name", $s);
+            if($s[0] !=''){
+                $q->whereIn("request_name", $s);
+            }
+            
         }
         if ($s = request('search_id')) {
             $q->where("postman_request_creates.id", $s);

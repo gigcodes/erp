@@ -2092,6 +2092,9 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item" href="{{ url('/postman') }}">Magento Request</a>
                                             </li>
                                             <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ url('/postman') }}">Post Man</a>
+                                            </li>
+                                            <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('email.event.journey') }}">Sendgrid Event Journey</a>
                                             </li>
                                             <li class="nav-item">
