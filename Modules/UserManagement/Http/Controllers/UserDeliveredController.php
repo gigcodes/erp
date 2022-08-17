@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\User;
 use App\DeveloperTask;
 use App\Task;
+use App\TaskStatus;
+
 use App\UserAvaibility;
 // use App\Hubstaff\HubstaffActivity;
 // use App\Hubstaff\HubstaffPaymentAccount;
@@ -36,10 +38,10 @@ class UserDeliveredController extends Controller {
                 $filterDates = dateRangeArr($stDate, $enDate);
                 $filterDatesOnly = array_column($filterDates, 'date');
 
-                if ($isPrint) {
-                    _p($filterDatesOnly);
-                    _p($filterDates);
-                }
+                // if ($isPrint) {
+                //     _p($filterDatesOnly);
+                //     _p($filterDates);
+                // }
 
                 $q = UserAvaibility::from('user_avaibilities as ua');
                 $q->leftJoin('users as u', 'ua.user_id', '=', 'u.id');
@@ -52,8 +54,7 @@ class UserDeliveredController extends Controller {
                 $q->where(function ($query) use ($stDate, $enDate) {
                     $query->whereRaw(" ('" . $stDate . "' BETWEEN ua.from AND ua.to) ")
                         ->orWhereRaw(" ('" . $enDate . "' BETWEEN ua.from AND ua.to) ");
-                    // $query->where('ua.from', '<=', $stDate)
-                    //     ->orWhere('ua.to', '<=', $enDate);
+                    // $query->where('ua.from', '<=', $stDate)->orWhere('ua.to', '<=', $enDate);
                 });
                 // if (request('is_active')) {
                 //     $q->where('users.is_active', request('is_active') == 1 ? 1 : 0);
@@ -73,9 +74,9 @@ class UserDeliveredController extends Controller {
 
                 $count = $userAvaibilities->count();
 
-                if ($isPrint) {
-                    _p($userAvaibilities->toArray());
-                }
+                // if ($isPrint) {
+                //     _p($userAvaibilities->toArray());
+                // }
 
                 if ($count) {
                     $userIds = [];
@@ -84,9 +85,6 @@ class UserDeliveredController extends Controller {
                     $userArr = [];
                     foreach ($userAvaibilities as $single) {
                         $userIds[] = $single->id;
-
-                        // $single->from = date('H:i:00', strtotime($single->from));
-                        // $single->to = date('H:i:00', strtotime($single->uaStTime));
 
                         $single->uaStTime = date('H:i:00', strtotime($single->uaStTime));
                         $single->uaEnTime = date('H:i:00', strtotime($single->uaEnTime));
@@ -97,18 +95,53 @@ class UserDeliveredController extends Controller {
                         $availableSlots = UserAvaibility::dateWiseHourlySlots($availableDates, $single->uaStTime, $single->uaEnTime, $single->uaLunchTime);
 
                         foreach ($availableSlots as $date => $slots) {
-                            if (isset($userArr[$single->id][$date])) {
+                            if (!$slots || isset($userArr[$single->id]['dates'][$date])) {
                                 continue;
                             }
-                            $userArr[] = [
-                                'id' => $single->id,
-                                'name' => $single->name,
-                                'uaLunchTime' => substr($single->uaLunchTime, 0, 5),
-                                'uaDays' => $single->uaDays,
-                                'availableDays' => $single->uaDays,
-                                'availableDates' => $availableDates,
-                                'availableSlots' => $availableSlots,
+                            $userArr[$single->id]['id'] = $single->id;
+                            $userArr[$single->id]['name'] = $single->name;
+                            $userArr[$single->id]['lunch'] = substr($single->uaLunchTime, 0, 5);
+                            $userArr[$single->id]['dates'][$date] = [
+                                'stTime' => $slots[0]['st'],
+                                'enTime' => $slots[count($slots) - 1]['en'],
                             ];
+                        }
+                    }
+
+
+                    // Get Tasks & Developer Tasks -- Arrange with End time & Mins
+                    if ($userIds) {
+                        $tasks = $this->getTaskList([
+                            'userIds' => $userIds,
+                            'stDate' => $stDate,
+                            'enDate' => $enDate,
+                        ]);
+
+                        if ($tasks) {
+                            foreach ($tasks as $task) {
+                                $stDate = date('Y-m-d', strtotime($task->st_date));
+                                $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
+
+                                if (!isset($userArr[$task->assigned_to]['dates'][$stDate])) {
+                                    continue;
+                                }
+
+                                if (!isset($userArr[$task->assigned_to]['dates'][$stDate]['planned_tasks'])) {
+                                    $userArr[$task->assigned_to]['dates'][$stDate]['planned_tasks'] = [];
+                                }
+                                $userArr[$task->assigned_to]['dates'][$stDate]['planned_tasks'][] = [
+                                    'id' => $task->id,
+                                    'typeId' => $task->type . '-' . $task->id,
+                                    'subject' => $task->title,
+                                    'stDate' => $task->st_date,
+                                    'enDate' => $task->en_date,
+                                    'status' => $task->status,
+                                    'status2' => TaskStatus::printName($task->status),
+                                    'mins' => $task->est_minutes,
+                                    'stTime' => date('H:i', strtotime($task->st_date)),
+                                    'enTime' => date('H:i', strtotime($task->en_date)),
+                                ];
+                            }
                         }
                     }
 
@@ -116,136 +149,25 @@ class UserDeliveredController extends Controller {
                         _p($userArr);
                     }
 
-                    // Get Tasks & Developer Tasks -- Arrange with End time & Mins
-                    $tasksArr = [];
-                    if (0 && $userIds) {
-                        $tasksInProgress = $this->typeWiseTasks('IN_PROGRESS', [
-                            'userIds' => $userIds
-                        ]);
-                        $tasksPlanned = $this->typeWiseTasks('PLANNED', [
-                            'userIds' => $userIds
-                        ]);
-
-                        if ($tasksInProgress) {
-                            foreach ($tasksInProgress as $task) {
-                                $task->st_date = date('Y-m-d H:i:00', strtotime($task->st_date));
-                                $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
-                                if ($task->en_date <= date('Y-m-d H:i:s')) {
-                                    $task->en_date = date('Y-m-d H:i:00', strtotime('+1 hour'));
-                                    $task->est_minutes = 60;
-                                } else {
-                                    // $task->est_minutes = ceil((strtotime($task->en_date) - $task->st_date) / 60);
-                                }
-
-                                $tasksArr[$task->assigned_to][$task->status2][] = [
-                                    'id' => $task->id,
-                                    'typeId' => $task->type . '-' . $task->id,
-                                    'stDate' => $task->st_date,
-                                    'enDate' => $task->en_date,
-                                    'status' => $task->status,
-                                    'status2' => $task->status2,
-                                    'mins' => $task->est_minutes,
-                                ];
-                            }
-                        }
-                        if ($tasksPlanned) {
-                            foreach ($tasksPlanned as $task) {
-                                $task->est_minutes = 20;
-                                $task->st_date = $task->st_date ?: date('Y-m-d H:i:00');
-                                $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
-                                $tasksArr[$task->assigned_to][$task->status2][] = [
-                                    'id' => $task->id,
-                                    'typeId' => $task->type . '-' . $task->id,
-                                    'stDate' => $task->st_date,
-                                    'enDate' => $task->en_date,
-                                    'status' => $task->status,
-                                    'status2' => $task->status2,
-                                    'mins' => $task->est_minutes,
-                                ];
-                            }
-                        }
-                    }
-                    if ($isPrint) {
-                        _p($tasksArr);
-                    }
-
-                    // Arrange tasks on users slots
-                    foreach ($userArr as $k1 => $user) {
-                        $userTasks = isset($tasksArr[$user['id']]) && count($tasksArr[$user['id']]) ? $tasksArr[$user['id']] : [];
-                        if ($user['uaId'] && isset($user['availableSlots']) && count($user['availableSlots'])) {
-                            foreach ($user['availableSlots'] as $date => $slots) {
-                                foreach ($slots as $k2 => $slot) {
-                                    if ($slot['type'] == 'AVL') {
-                                        $res = $this->slotIncreaseAndShift($slot, $userTasks);
-
-                                        $userTasks = $res['userTasks'] ?? [];
-                                        $slot['taskIds'] = $res['taskIds'] ?? [];
-                                        $slot['userTasks'] = $res['userTasks'] ?? [];
-                                    }
-                                    // else if ($slotRow['type'] == 'LUNCH') {
-                                    //     // $userTasks = $this->slotIncreaseAndShift($userTasks, $slotKey);
-                                    // }
-                                    $slots[$k2] = $slot;
-                                }
-
-                                $user['availableSlots'][$date] = $slots;
-                            }
-                        }
-                        $userArr[$k1] = $user;
-                    }
-
-
-
                     // Arange for datatable
                     foreach ($userArr as $user) {
-                        if ($user['uaId'] && isset($user['availableSlots']) && count($user['availableSlots'])) {
-                            foreach ($user['availableSlots'] as $date => $slots) {
-                                $divSlots = [];
-                                foreach ($slots as $slot) {
-                                    $title = '';
-                                    $class = '';
-                                    $display = [
-                                        date('H:i', strtotime($slot['st'])),
-                                        ' - ',
-                                        date('H:i', strtotime($slot['en'])),
-                                    ];
-                                    if ($slot['type'] == 'AVL') {
-                                        if ($slot['taskIds'] ?? []) {
-                                            $display[] = ' (' . implode(', ', array_keys($slot['taskIds'])) . ')';
-
-                                            $title = [];
-                                            foreach ($slot['taskIds'] as $taskId => $taskRow) {
-                                                $title[] = $taskId . ' - (' . $taskRow['status2'] . ')';
-                                            }
-                                            $title = implode(PHP_EOL, $title);
-                                        } else {
-                                            $class = 'text-secondary';
-                                            $display[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['st'])) . '" onclick="funSlotAssignModal(this);" >(AVL)</a>';
-                                        }
-                                        // $title
-                                        $display = implode('', $display);
-                                    } else if (in_array($slot['type'], ['PAST', 'LUNCH'])) {
-                                        $title = 'Not Available';
-                                        $class = 'text-secondary';
-                                        $display[] = ' (' . $slot['type'] . ')';
-                                        $display = '<s>' . implode('', $display) . '</s>';
-                                    }
-                                    $divSlots[] = '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display . '</div>';
+                        foreach ($user['dates'] as $date => $dateRow) {
+                            $planned_tasks = $dateRow['planned_tasks'] ?? [];
+                            if ($planned_tasks) {
+                                $temp = [];
+                                foreach ($planned_tasks as $task) {
+                                    $temp[] = '<div class="div-slot" title="' . $task['subject'] . ' (' . $task['status2'] . ')" >' . $task['typeId'] . ' (' . $task['stTime'] . ' - ' . $task['enTime'] . ')' . '</div>';
                                 }
-
-                                $data[] = [
-                                    'name' => $user['name'],
-                                    'date' => $date,
-                                    'planned' => 'Availability is not set for this user.',
-                                    'actual' => 'Availability is not set for this user.',
-                                ];
+                                $planned_tasks = $temp;
                             }
-                        } else {
+
                             $data[] = [
                                 'name' => $user['name'],
-                                'date' => '-',
-                                'planned' => 'Availability is not set for this user.',
-                                'actual' => 'Availability is not set for this user.',
+                                'date' => $date,
+                                'availability' => date('H:i', strtotime($dateRow['stTime'])) . ' - ' . date('H:i', strtotime($dateRow['enTime'])),
+                                'lunch' => ($user['lunch'] ?: '-'),
+                                'planned' => $planned_tasks ? implode('', $planned_tasks) : '-',
+                                'actual' => '-',
                             ];
                         }
                     }
@@ -265,106 +187,13 @@ class UserDeliveredController extends Controller {
         }
     }
 
-    function slotIncreaseAndShift($slot, $tasks) {
-        // IN_PROGRESS, PLANNED
-        $checkDates = 0;
-
-        $taskIds = [];
-
-        if ($tasks) {
-            if ($list = ($tasks['IN_PROGRESS'] ?? [])) {
-                foreach ($list as $k => $task) {
-                    if ($slot['mins'] > 0 && $task['mins'] > 0) {
-                        if ($task['stDate'] <= $slot['en']) { // $task['stDate'] <= $slot['st'] &&
-                            $taskMins = $task['mins'];
-                            $slotMins = $slot['mins'];
-
-                            if ($taskMins >= $slotMins) {
-                                $slot['mins'] = 0;
-                                $task['mins'] -= $slotMins;
-                                $taskIds[$task['typeId']] = $task;
-                            } else {
-                                $task['mins'] = 0;
-                                $slot['mins'] -= $taskMins;
-                                $taskIds[$task['typeId']] = $task;
-                            }
-
-                            $list[$k] = $task;
-                            if ($task['mins'] <= 0) {
-                                unset($list[$k]);
-                            }
-                            if ($slot['mins'] <= 0) {
-                                break;
-                            }
-                        }
-                    }
-                }
-                $list = array_values($list);
-                $tasks['IN_PROGRESS'] = $list;
-            }
-
-            if ($list = ($tasks['PLANNED'] ?? [])) {
-                foreach ($list as $k => $task) {
-                    if ($slot['mins'] > 0 && $task['mins'] > 0) {
-
-                        if ($task['stDate'] <= $slot['en']) { // $task['stDate'] <= $slot['st'] &&
-                            $taskMins = $task['mins'];
-                            $slotMins = $slot['mins'];
-
-                            if ($taskMins >= $slotMins) {
-                                $slot['mins'] = 0;
-                                $task['mins'] -= $slotMins;
-                                $taskIds[$task['typeId']] = $task;
-                            } else {
-                                $task['mins'] = 0;
-                                $slot['mins'] -= $taskMins;
-                                $taskIds[$task['typeId']] = $task;
-                            }
-
-                            $list[$k] = $task;
-                            if ($task['mins'] <= 0) {
-                                unset($list[$k]);
-                            }
-                            if ($slot['mins'] <= 0) {
-                                break;
-                            }
-                        }
-                    }
-                }
-                $list = array_values($list);
-                $tasks['PLANNED'] = $list;
-            }
-        }
-
-        return [
-            'taskIds' => $taskIds ?? [],
-            'userTasks' => $tasks ?? [],
-        ];
-    }
-
-    function typeWiseTasks($type, $wh = []) {
+    function getTaskList($wh = []) {
         $userIds = $wh['userIds'] ?? [0];
-        $taskStatuses = [0];
-        $devTaskStatuses = ['none'];
+        $stDate = $wh['stDate'] ?? NULL;
+        $enDate = $wh['enDate'] ?? NULL;
 
-        if ($type == 'IN_PROGRESS') {
-            $taskStatuses = [
-                Task::TASK_STATUS_IN_PROGRESS,
-            ];
-            $devTaskStatuses = [
-                DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS,
-            ];
-        } else if ($type == 'PLANNED') {
-            $taskStatuses = [
-                Task::TASK_STATUS_PLANNED,
-            ];
-            $devTaskStatuses = [
-                DeveloperTask::DEV_TASK_STATUS_PLANNED,
-            ];
-        }
-
-        // start_date IS NOT NULL AND approximate > 0 
-        // start_date IS NOT NULL AND estimate_minutes > 0 
+        $stDate = $stDate . ' 00:00:00';
+        $enDate = $enDate . ' 23:59:59';
 
         $sql = "SELECT
             listdata.*
@@ -376,22 +205,16 @@ class UserDeliveredController extends Controller {
                     assign_to AS assigned_to, 
                     task_subject AS title, 
                     start_date AS st_date, 
-                    COALESCE(approximate, 0) AS est_minutes, 
-                    status,
-                    (
-                        CASE
-                            WHEN status = '" . Task::TASK_STATUS_IN_PROGRESS . "' THEN 'IN_PROGRESS'
-                            WHEN status = '" . Task::TASK_STATUS_PLANNED . "' THEN 'PLANNED'
-                        END
-                    ) AS status2
+                    COALESCE(approximate, 0) AS est_minutes,
+                    status
                 FROM 
                     tasks 
                 WHERE 
                 1
                 AND start_date IS NOT NULL
+                AND start_date BETWEEN ? AND ?
                 AND deleted_at IS NULL
                 AND assign_to IN (" . implode(',', $userIds) . ") 
-                AND status IN ('" . implode("','", $taskStatuses) . "') 
             )
             UNION
             (
@@ -401,25 +224,24 @@ class UserDeliveredController extends Controller {
                     assigned_to AS assigned_to, 
                     subject AS title, 
                     start_date AS st_date, 
-                    COALESCE(estimate_minutes, 0) AS est_minutes, 
-                    status,
-                    (
-                        CASE
-                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS . "' THEN 'IN_PROGRESS'
-                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_PLANNED . "' THEN 'PLANNED'
-                        END
-                    ) AS status2
+                    COALESCE(estimate_minutes, 0) AS est_minutes,
+                    status
                 FROM developer_tasks
                 WHERE 1
                 AND start_date IS NOT NULL
+                AND start_date BETWEEN ? AND ?
                 AND deleted_at IS NULL
                 AND assigned_to IN (" . implode(',', $userIds) . ")
-                AND status IN ('" . implode("','", $devTaskStatuses) . "')
             )
         ) AS listdata
         ORDER BY listdata.st_date ASC";
 
-        $tasks = \DB::select($sql, []);
+        $tasks = \DB::select($sql, [
+            $stDate,
+            $enDate,
+            $stDate,
+            $enDate,
+        ]);
 
         return $tasks;
     }

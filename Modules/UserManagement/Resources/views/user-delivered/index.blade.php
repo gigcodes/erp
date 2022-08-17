@@ -75,10 +75,12 @@
             <table id="{{$table}}" class="table table-bordered" style="width:100%">
                 <thead>
                     <tr>
-                        <th data-data="name" data-name="name" width="14%" data-sortable="false">User Name</th>
-                        <th data-data="date" data-name="date" width="10%" data-sortable="false">Date</th>
-                        <th data-data="planned" data-name="planned" width="38%" data-sortable="false">Work Planned</th>
-                        <th data-data="actual" data-name="actual" width="38%" data-sortable="false">Actual Logins</th>
+                        <th data-data="name" data-name="name" width="13%" data-sortable="false">User Name</th>
+                        <th data-data="date" data-name="date" width="9%" data-sortable="false">Date</th>
+                        <th data-data="availability" data-name="availability" width="9%" data-sortable="false">Availability</th>
+                        <th data-data="lunch" data-name="lunch" width="9%" data-sortable="false">Lunch</th>
+                        <th data-data="planned" data-name="planned" width="30%" data-sortable="false">Work Planned</th>
+                        <th data-data="actual" data-name="actual" width="30%" data-sortable="false">Actual Logins</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
