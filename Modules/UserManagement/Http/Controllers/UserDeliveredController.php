@@ -107,7 +107,6 @@ class UserDeliveredController extends Controller {
                         }
                     }
 
-
                     // Get Tasks & Developer Tasks -- Arrange with End time & Mins
                     if ($userIds) {
                         $tasks = $this->getTaskList([
@@ -144,15 +143,36 @@ class UserDeliveredController extends Controller {
                         }
                     }
 
+                    // Get HubStaff Data
+                    if ($userIds) {
+                        $hubstaffData = $this->getHubstaffData([
+                            'userIds' => $userIds,
+                            'stDate' => $stDate,
+                            'enDate' => $enDate,
+                        ]);
+                        if ($isPrint) {
+                            _p($hubstaffData);
+                        }
+                        if ($hubstaffData) {
+                            foreach ($hubstaffData as $userId => $user) {
+                                if (isset($user['dates']) && $user['dates']) {
+                                    foreach ($user['dates'] as $date => $rows) {
+                                        if (!isset($userArr[$userId]['dates'][$date])) {
+                                            continue;
+                                        }
+                                        if (!isset($userArr[$userId]['dates'][$date]['actual_tasks'])) {
+                                            $userArr[$userId]['dates'][$date]['actual_tasks'] = [];
+                                        }
+                                        $userArr[$userId]['dates'][$date]['actual_tasks'] = array_merge_recursive($userArr[$userId]['dates'][$date]['actual_tasks'], $rows);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     if ($isPrint) {
                         _p($userArr);
                     }
-
-                    // $this->getHubstaffData([
-                    //     'userIds' => $userIds,
-                    //     'stDate' => $stDate,
-                    //     'enDate' => $enDate,
-                    // ]);
 
                     // Arange for datatable
                     foreach ($userArr as $user) {
@@ -166,13 +186,45 @@ class UserDeliveredController extends Controller {
                                 $planned_tasks = $temp;
                             }
 
+                            $actualTasks = [];
+                            $temp = $dateRow['actual_tasks'] ?? [];
+                            if ($temp) {
+                                $trackedTotal = 0;
+                                $trackedWithTask = 0;
+                                $trackedWithoutTask = 0;
+                                $taskHours = [];
+
+                                foreach ($temp as $row) {
+                                    $trackedTotal += $row['hub_tracked'];
+                                    if ($row['hub_task_id']) {
+                                        $trackedWithTask += $row['hub_tracked'];
+                                        if ($row['task_type']) {
+                                            $taskHours[] = '<div class="div-slot" title="' . $row['task_title'] . ' ' . ($row['task_status2'] ? '(' . $row['task_status2'] . ')' : '') . '" >' .
+                                                $row['task_type'] . ': ' . printNum($row['hub_tracked'] / 60) .
+                                                '</div>';
+                                        }
+                                    } else {
+                                        $trackedWithoutTask += $row['hub_tracked'];
+                                    }
+                                }
+                                $actualTasks[] = implode(' / ', [
+                                    printNum($trackedTotal / 60),
+                                    printNum($trackedWithTask / 60),
+                                    printNum($trackedWithoutTask / 60),
+                                ]);
+                                if ($taskHours) {
+                                    $actualTasks[] = '<br />';
+                                    $actualTasks[] = implode('', $taskHours);
+                                }
+                            }
+
                             $data[] = [
                                 'name' => $user['name'],
                                 'date' => $date,
                                 'availability' => date('H:i', strtotime($dateRow['stTime'])) . ' - ' . date('H:i', strtotime($dateRow['enTime'])),
                                 'lunch' => ($user['lunch'] ?: '-'),
                                 'planned' => $planned_tasks ? implode('', $planned_tasks) : '-',
-                                'actual' => '-',
+                                'actual' => $actualTasks ? implode('', $actualTasks) : '-',
                             ];
                         }
                     }
@@ -256,46 +308,8 @@ class UserDeliveredController extends Controller {
         $userIds = $wh['userIds'] ?? [0];
         $stDate = $wh['stDate'] ?? NULL;
         $enDate = $wh['enDate'] ?? NULL;
-
         $stDate = $stDate . ' 00:00:00';
         $enDate = $enDate . ' 23:59:59';
-        _p($stDate);
-        _p($enDate);
-
-
-        // $title = "Hubstaff Activities";
-
-        // $printExit = request('printExit');
-        // if ($printExit) {
-        //     \DB::enableQueryLog();
-        // }
-
-
-        // $start_date = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
-        // $end_date = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-1 days"));
-        // $user_id = $request->user_id ? $request->user_id : null;
-        // $task_id = $request->task_id ? $request->task_id : null;
-        // $developer_task_id = $request->developer_task_id ? $request->developer_task_id : null;
-        // $status = $request->task_status ? $request->task_status : null;
-
-        // // $start_date = '2022-07-29';
-        // // $end_date = '2022-07-29';
-
-        // $taskIds = [];
-        // if ($developer_task_id) {
-        //     if ($developerTask = \App\DeveloperTask::find($developer_task_id)) {
-        //         $taskIds[] = $developerTask->hubstaff_task_id ?: 0;
-        //         $taskIds[] = $developerTask->lead_hubstaff_task_id ?: 0;
-        //         $taskIds[] = $developerTask->team_lead_hubstaff_task_id ?: 0;
-        //         $taskIds[] = $developerTask->tester_hubstaff_task_id ?: 0;
-        //     }
-        // }
-        // if ($task_id) {
-        //     if ($task = Task::find($task_id)) {
-        //         $taskIds[] = $task->hubstaff_task_id ?: 0;
-        //         $taskIds[] = $task->lead_hubstaff_task_id ?: 0;
-        //     }
-        // }
 
         $query = HubstaffActivity::query();
         $query->leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id');
@@ -306,24 +320,23 @@ class UserDeliveredController extends Controller {
         $query->leftJoin('developer_tasks', function ($join) {
             $join->on('developer_tasks.hubstaff_task_id', '=', 'hubstaff_activities.task_id')->where('hubstaff_activities.task_id', '>', 0);
         });
-        $query->leftJoin(
-            \DB::raw("(SELECT date, user_id, MAX(created_at) AS created_at FROM hubstaff_activity_summaries GROUP BY date, user_id) hub_summary"),
-            function ($join) {
-                $join->on('hub_summary.date', '=', \DB::raw("DATE(hubstaff_activities.starts_at)"));
-                $join->on('hub_summary.user_id', '=', 'hubstaff_members.user_id');
-            }
-        );
-        $query->leftJoin('hubstaff_activity_summaries', function ($join) {
-            $join->on('hubstaff_activity_summaries.date', '=', 'hub_summary.date');
-            $join->on('hubstaff_activity_summaries.user_id', '=', 'hub_summary.user_id');
-            $join->on('hubstaff_activity_summaries.created_at', '=', 'hub_summary.created_at');
-        });
-
-        // if ($taskIds) {
-        //     $query->whereIn('hubstaff_activities.task_id', $taskIds);
-        // }
+        // $query->leftJoin(
+        //     \DB::raw("(SELECT date, user_id, MAX(created_at) AS created_at FROM hubstaff_activity_summaries GROUP BY date, user_id) hub_summary"),
+        //     function ($join) {
+        //         $join->on('hub_summary.date', '=', \DB::raw("DATE(hubstaff_activities.starts_at)"));
+        //         $join->on('hub_summary.user_id', '=', 'hubstaff_members.user_id');
+        //     }
+        // );
+        // $query->leftJoin('hubstaff_activity_summaries', function ($join) {
+        //     $join->on('hubstaff_activity_summaries.date', '=', 'hub_summary.date');
+        //     $join->on('hubstaff_activity_summaries.user_id', '=', 'hub_summary.user_id');
+        //     $join->on('hubstaff_activity_summaries.created_at', '=', 'hub_summary.created_at');
+        // });
         $query->where('hubstaff_activities.starts_at', '>=', $stDate);
         $query->where('hubstaff_activities.starts_at', '<=', $enDate);
+        if ($userIds) {
+            $query = $query->whereIn('hubstaff_members.user_id', $userIds);
+        }
 
         // if (Auth::user()->isAdmin()) {
         //     $users = User::orderBy('name')->pluck('name', 'id')->toArray();
@@ -338,59 +351,62 @@ class UserDeliveredController extends Controller {
         //     $users = User::whereIn('id', [Auth::user()->id])->pluck('name', 'id')->toArray();
         // }
 
-        // if (request('user_id')) {
-        //     $query = $query->where('hubstaff_members.user_id', request('user_id'));
-        // }
-
-        $query->orderBy('hubstaff_activities.starts_at', 'desc');
-        $query->groupBy(\DB::raw("DATE(hubstaff_activities.starts_at)"), "hubstaff_activities.user_id");
-
-        $query->select(
-            \DB::raw("DATE(hubstaff_activities.starts_at) AS date"),
-            \DB::raw("COALESCE(hubstaff_activities.user_id, 0) AS user_id"),
-            \DB::raw("COALESCE(hubstaff_activities.task_id, 0) AS task_id"),
-            \DB::raw("SUM(COALESCE(hubstaff_activities.tracked, 0)) AS tracked"),
-            \DB::raw("SUM(IF(hubstaff_activities.task_id > 0, hubstaff_activities.tracked, 0)) AS tracked_with"),
-            \DB::raw("SUM(IF(hubstaff_activities.task_id <= 0, hubstaff_activities.tracked, 0)) AS tracked_without"),
-            \DB::raw("SUM(COALESCE(hubstaff_activities.overall, 0)) AS overall"),
-
-            \DB::raw("COALESCE(hubstaff_members.user_id, 0) AS system_user_id"),
-            "users.name as userName",
-            \DB::raw("COALESCE(tasks.id, 0) AS task_table_id"),
-            \DB::raw("COALESCE(developer_tasks.id, 0) AS developer_task_table_id"),
-            \DB::raw("COALESCE(hubstaff_activity_summaries.accepted, 0) AS approved_hours"),
-            \DB::raw("(SUM(COALESCE(hubstaff_activities.tracked, 0)) - COALESCE(hubstaff_activity_summaries.accepted, 0)) AS difference_hours")
+        $query->groupBy(
+            \DB::raw("DATE(hubstaff_activities.starts_at)"),
+            'hubstaff_activities.user_id',
+            'hubstaff_activities.task_id'
         );
+        $query->orderBy('hubstaff_activities.starts_at', 'desc');
+        // $query->groupBy(\DB::raw("DATE(hubstaff_activities.starts_at)"), "hubstaff_activities.user_id");
 
-        $activities = $query->get();
-        _p($activities);
-        // // $activities = $query->paginate(15);
+        $query->select([
+            \DB::raw("COALESCE(hubstaff_members.user_id, 0) AS userId"),
+            "users.name as userName",
 
-        // if ($printExit) {
-        //     _p(\DB::getQueryLog());
-        //     // exit;
-        // }
+            \DB::raw("DATE(hubstaff_activities.starts_at) AS hub_date"),
+            \DB::raw("COALESCE(hubstaff_activities.user_id, 0) AS hub_user_id"),
+            \DB::raw("COALESCE(hubstaff_activities.task_id, 0) AS hub_task_id"),
+            \DB::raw("SUM(COALESCE(hubstaff_activities.tracked, 0)) AS hub_tracked"),
+            \DB::raw("SUM(COALESCE(hubstaff_activities.overall, 0)) AS hub_overall"),
 
-        // // _p($activities->count());
-        // // _p($activities->toArray());
+            \DB::raw("COALESCE(tasks.id, 0) AS task_table_id"),
+            \DB::raw("CONCAT('T-', COALESCE(tasks.id, 0)) AS task_type_id"),
+            \DB::raw("COALESCE(tasks.task_subject, '') AS task_title"),
+            \DB::raw("COALESCE(tasks.status, '') AS task_status"),
+            \DB::raw("COALESCE(developer_tasks.id, 0) AS developer_task_table_id"),
+            \DB::raw("CONCAT('DT-', COALESCE(developer_tasks.id, 0)) AS developer_task_type_id"),
+            \DB::raw("COALESCE(developer_tasks.subject, '') AS developer_task_title"),
+            \DB::raw("COALESCE(developer_tasks.status, '') AS developer_task_status"),
+            // \DB::raw("COALESCE(hubstaff_activity_summaries.accepted, 0) AS approved_hours"),
+            // \DB::raw("(SUM(COALESCE(hubstaff_activities.tracked, 0)) - COALESCE(hubstaff_activity_summaries.accepted, 0)) AS difference_hours")
+        ]);
 
-        // $userTrack = [];
-        // foreach ($activities as $activity) {
-        //     $userTrack[] = [
-        //         'date' => $activity->date,
-        //         'user_id' => $activity->user_id,
-        //         'userName' => $activity->userName ?? '',
-        //         'hubstaff_tracked_hours' => $activity->tracked,
-        //         'hours_tracked_with' => $activity->tracked_with,
-        //         'hours_tracked_without' => $activity->tracked_without,
-        //         'task_id' => $activity->developer_task_table_id ?: $activity->task_table_id,
-        //         'approved_hours' => $activity->approved_hours,
-        //         'difference_hours' => $activity->difference_hours,
-        //         'total_hours' => $activity->tracked,
-        //         'activity_levels' => $activity->overall / $activity->tracked * 100,
-        //         'overall' => $activity->overall,
-        //     ];
-        // }
+        $list = $query->get();
+        // _p($list->toArray());
 
+        $data = [];
+        foreach ($list as $activity) {
+            $data[$activity->userId]['id'] = $activity->userId;
+            $data[$activity->userId]['name'] = $activity->userName;
+            $data[$activity->userId]['hub_user_id'] = $activity->hub_user_id;
+            $data[$activity->userId]['dates'][$activity->hub_date][] = [
+                'hub_task_id' => $activity->hub_task_id,
+                'hub_tracked' => $activity->hub_tracked,
+                'hub_overall' => $activity->hub_overall,
+
+                'task_type' => ($activity->task_table_id ? $activity->task_type_id : ($activity->developer_task_table_id ? $activity->developer_task_type_id : '')) ?: 'HB-' . $activity->hub_task_id,
+                'task_title' => ($activity->task_table_id ? $activity->task_title : ($activity->developer_task_table_id ? $activity->developer_task_title : '')) ?: 'Hubstaff Task ID: ' . $activity->hub_task_id,
+                'task_status2' => $activity->task_table_id ? TaskStatus::printName($activity->task_status) : ($activity->developer_task_table_id ? TaskStatus::printName($activity->developer_task_status) : ''),
+
+
+                // 'task_table_id' => $activity->task_table_id,
+                // 'task_title' => $activity->task_title,
+                // 'task_status' => $activity->task_status,
+                // 'developer_task_table_id' => $activity->developer_task_table_id,
+                // 'developer_task_title' => $activity->developer_task_title,
+                // 'developer_task_status' => $activity->developer_task_status,
+            ];
+        }
+        return $data;
     }
 }

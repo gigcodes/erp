@@ -71,7 +71,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-12">
+        <div class="col-lg-12 mb-5">
             <table id="{{$table}}" class="table table-bordered" style="width:100%">
                 <thead>
                     <tr>
@@ -80,7 +80,7 @@
                         <th data-data="availability" data-name="availability" width="9%" data-sortable="false">Availability</th>
                         <th data-data="lunch" data-name="lunch" width="9%" data-sortable="false">Lunch</th>
                         <th data-data="planned" data-name="planned" width="30%" data-sortable="false">Work Planned</th>
-                        <th data-data="actual" data-name="actual" width="30%" data-sortable="false">Actual Logins</th>
+                        <th data-data="actual" data-name="actual" width="30%" data-sortable="false">Actual Logins [Total Tracked / With Tasks / Without Tasks]</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
