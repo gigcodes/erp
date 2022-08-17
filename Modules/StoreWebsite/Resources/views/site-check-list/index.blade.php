@@ -115,7 +115,7 @@
             <form id="filter_data" action="{{ route('site-check-list') }}" method="get">
                 <div class="row">
                     <div class="col-md-3">
-                        {{ Form::select('store_webs[]', $all_store_websites, $search_website, ['class' => 'form-control  globalSelect22','placeholder' => '-- Select Website --',  "multiple" => "multiple"]) }}
+                        {{ Form::select('store_webs[]', $all_store_websites, $search_website, ['class' => 'form-control  globalSelect22','placeholder' => '-- All Website --',  "multiple" => "multiple"]) }}
                     </div>
 
                     <div class="col-md-3">
@@ -510,11 +510,30 @@
                 }
             });
         });
+        
+        function get_query(){
+            var url = document.location.href;
+            var qs = url.substring(url.indexOf('?') + 1).split('&');
+            for(var i = 0, result = {}; i < qs.length; i++){
+                qs[i] = qs[i].split('=');
+                result[qs[i][0]] = decodeURIComponent(qs[i][1]);
+            }
+            return result;
+        }
         $(".select2").select2();
 
-        //var PRESELECTED = [ '9','3','9'];
-        //$('.globalSelect22').select2({}).select2('val', PRESELECTED);  
-        $('.globalSelect22').select2();  
+        var selectedValues = [ '1','2','3', '5','9'];
+        $(document).ready(function() {
+            $('.globalSelect22').select2({
+                multiple: true,
+            });
+            let resu = get_query();
+            console.log(resu);
+            if(!resu['store_webs%5B%5D'] && resu['store_webs%5B%5D'] !=''){
+                $('.globalSelect22').val(selectedValues).trigger('change');
+            }
+        });
+
 
         $("#checkAll").click(function() {
             $('input:checkbox').not(this).prop('checked', this.checked);

@@ -28,12 +28,12 @@ class SiteAssetController extends Controller
         $data = array();
         $data['all_store_websites'] = StoreWebsite::all();
         $data['categories'] = SiteDevelopmentCategory::all();
-        $data['search_website'] = isset($request->store_webs)? $request->store_webs : '';
+        $data['search_website'] = is_array($request->store_webs)? $request->store_webs : '';
         $data['search_category'] = isset($request->categories)? $request->categories : '';
         $data['site_development_status_id'] = isset($request->site_development_status_id)? $request->site_development_status_id : [];
         $store_websites = StoreWebsite::select('store_websites.*')->join('site_developments','store_websites.id','=','site_developments.website_id');
         if($data['search_website'] != ''){
-            $store_websites =  $store_websites->where('store_websites.id', $data['search_website']);
+            $store_websites =  $store_websites->whereIn('store_websites.id', $data['search_website']);
         }
         $data['store_websites'] =  $store_websites->where('is_site_asset', 1)->groupBy('store_websites.id')->get();
         $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*')
@@ -92,13 +92,18 @@ class SiteAssetController extends Controller
         $data['allStatus'] = \App\SiteDevelopmentStatus::pluck("name", "id")->toArray();
         $data['all_store_websites'] = StoreWebsite::all()->pluck('title', 'id');
         $data['categories'] = SiteDevelopmentCategory::all();
-        $data['search_website'] = isset($request->store_webs)? $request->store_webs : '';
+        $data['search_website'] = isset($request->store_webs)? $request->store_webs : [ '1','2','3', '5','9'];
         $data['search_category'] = isset($request->categories)? $request->categories : '';
         $data['site_development_status_id'] = isset($request->site_development_status_id)? $request->site_development_status_id : [];
         $store_websites = StoreWebsite::select('store_websites.*')->join('site_developments','store_websites.id','=','site_developments.website_id');
-        if($data['search_website'] != ''){
-            $store_websites =  $store_websites->where('store_websites.id', $data['search_website']);
+        if(is_array($data['search_website'])){
+            if(isset($request->store_webs) && $request->store_webs[0]== ''){
+                //$store_websites =  $store_websites->get();
+            }else{
+                $store_websites =  $store_websites->whereIn('store_websites.id', $data['search_website']);
+            }
         }
+        
         $data['store_websites'] =  $store_websites->where('is_site_list', 1)->groupBy('store_websites.id')->get();
         
         $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
