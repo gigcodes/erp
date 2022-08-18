@@ -1666,11 +1666,9 @@
 
         //Popup for add new task
         $(document).on('click', '#newTaskModalBtn', function () {
-            // 
-            // alert($("#newTaskModal").length);
-            // if ($("#newTaskModal").length > 0) {
-                $("#newTaskModal").remove(); 
-            // }
+            if ($("#newTaskModal").length > 0) {
+                $("#newTaskModal").remove();
+            }
 
             $.ajax({
                 url: "{{ action('DevelopmentController@openNewTaskPopup') }}",
