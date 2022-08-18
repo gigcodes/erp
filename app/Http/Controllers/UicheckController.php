@@ -118,19 +118,49 @@ class UicheckController extends Controller {
 
             //->where('site_development_categories.id','site_developments.site_development_category_id');
             if ($s = request('category_name')) {
-                $q = $q->where('uichecks.website_id', $s);
+                //$q = $q->where('uichecks.website_id', $s);
+                $q->where(function($query) use ($s){
+                    for($i=0; $i<count($s); $i++){
+                        if($s[$i])
+                            $query->orWhere("uichecks.website_id",  $s[$i]);
+                    }
+                });
             }
             if ($s = request('sub_category_name')) {
-                $q = $q->where('site_development_categories.id', $s);
+                //$q = $q->where('site_development_categories.id', $s);
+                $q->where(function($query) use ($s){
+                    for($i=0; $i<count($s); $i++){
+                        if($s[$i])
+                            $query->orWhere("site_development_categories.id",  $s[$i]);
+                    }
+                });
             }
             if ($s = request('dev_status')) {
-                $q = $q->where('uichecks.dev_status_id', $s);
+                //$q = $q->where('uichecks.dev_status_id', $s);
+                $q->where(function($query) use ($s){
+                    for($i=0; $i<count($s); $i++){
+                        if($s[$i])
+                            $query->orWhere("uichecks.dev_status_id",  $s[$i]);
+                    }
+                });
             }
             if ($s = request('admin_status')) {
-                $q = $q->where('uichecks.admin_status_id', $s);
+                //$q = $q->where('uichecks.admin_status_id', $s);
+                $q->where(function($query) use ($s){
+                    for($i=0; $i<count($s); $i++){
+                        if($s[$i])
+                            $query->orWhere("uichecks.admin_status_id",  $s[$i]);
+                    }
+                });
             }
             if ($s = request('assign_to')) {
-                $q = $q->where('uua.user_id', $s);
+                //$q = $q->where('uua.user_id', $s);
+                    $q->where(function($query) use ($s){
+                        for($i=0; $i<count($s); $i++){
+                            if($s[$i])
+                                $query->orWhere("uua.user_id",  $s[$i]);
+                        }
+                    });
             }
             if ($s = request('id')) {
                 $q = $q->where('uichecks.id', $s);
