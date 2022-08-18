@@ -162,8 +162,7 @@
 
     <p style="font-size:16px;text-align:left;margin-top: 10px;font-weight:bold;">Quick Dev Task</p>
     @if (auth()->user()->isReviwerLikeAdmin())
-                <a href="javascript:" class="btn custom-button mt-3"style="height: 35px;" id="newTaskModalBtn" data-toggle="modal"
-                    data-target="#newTaskModal">Add New Dev Task </a>
+                <a href="javascript:" class="btn custom-button mt-3"style="height: 35px;" id="newTaskModalBtn" >Add New Dev Task </a>
             @endif
                 
     <div class="row" style="margin-top:13px ;margin-bottom:11px;float: left;">
@@ -1667,9 +1666,11 @@
 
         //Popup for add new task
         $(document).on('click', '#newTaskModalBtn', function () {
-            if ($("#newTaskModal").length > 0) {
-                $("#newTaskModal").remove();
-            }
+            // 
+            // alert($("#newTaskModal").length);
+            // if ($("#newTaskModal").length > 0) {
+                $("#newTaskModal").remove(); 
+            // }
 
             $.ajax({
                 url: "{{ action('DevelopmentController@openNewTaskPopup') }}",
