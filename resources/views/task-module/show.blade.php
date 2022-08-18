@@ -526,6 +526,11 @@ else
                 @endif
                 <div class="col-xs-12 col-md-2 pd-2">
                     <div class="form-group">
+                        <label><input type="checkbox" name="need_review_task" value="1" /> Create Review Task?</label>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-2 pd-2">
+                    <div class="form-group">
                         <button type="submit" class="btn btn-secondary cls_comm_btn" id="taskCreateButton">Create</button>
                         @if(auth()->user()->isAdmin())
                         <a class="btn btn-secondary cls_comm_btn" data-toggle="collapse" href="#openFilterCount" role="button" aria-expanded="false" aria-controls="openFilterCount">
@@ -603,11 +608,6 @@ else
                         </div>
                     </div>
                 </div>
-
-
-                <!-- <div class="col-xs-12 text-center">
-                        <button type="submit" class="btn btn-xs btn-secondary" id="taskCreateButton">Create</button>
-                    </div> -->
             </div>
         </form>
     </div>
@@ -2940,14 +2940,18 @@ else
                         dataType: "json"
                     }).done(function(response) {
                         $("#loading-image").hide();
+                        toastr["success"](response.message);
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
                         if (response.code == 200) {
-                            if (response.statutory == 1) {
-                                $(".statutory-row-render-view").prepend(response.raw);
-                            } else {
-                                $(".pending-row-render-view").prepend(response.raw);
-                            }
+                            // if (response.statutory == 1) {
+                            //     $(".statutory-row-render-view").prepend(response.raw);
+                            // } else {
+                            //     $(".pending-row-render-view").prepend(response.raw);
+                            // }
                         }
-                        //window.location.reload();
+                        
                     }).fail(function(response) {
                         console.log(response);
                     });
