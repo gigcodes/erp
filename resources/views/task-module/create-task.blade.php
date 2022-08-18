@@ -165,6 +165,10 @@
                         @endif
                     </div>
 
+                    <div class="form-group ml-3">
+                        <label><input type="checkbox" name="need_review_task" value="1" /> Create Review Task?</label>
+                    </div>
+
                     <div class="col-xs-12 text-center">
                         <button type="submit" class="btn btn-xs btn-secondary" id="taskCreateButton">Create</button>
                     </div>
