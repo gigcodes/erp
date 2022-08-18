@@ -1798,10 +1798,10 @@ class DevelopmentController extends Controller {
 
         $data['created_by'] = loginId();
 
-        if($data['parent_review_task_id'] ?? 0){
-            $data['subject'] = '#REVIEW_TASK - '.$data['subject'];
-            $data['task'] = '#REVIEW_TASK - '.$data['task'];
-        }   
+        if ($data['parent_review_task_id'] ?? 0) {
+            $data['subject'] = $data['subject'] . ' - #REVIEW_TASK';
+            $data['task'] = $data['task'] . ' - #REVIEW_TASK';
+        }
         $task = DeveloperTask::create($data);
 
         // Check the assinged user in any team ?
@@ -1886,9 +1886,7 @@ class DevelopmentController extends Controller {
         if ($hubstaffTaskId) {
             $task->hubstaff_task_id = $hubstaffTaskId;
             $task->save();
-        }
 
-        if ($hubstaffUserId) {
             $task = new HubstaffTask();
             $task->hubstaff_task_id = $hubstaffTaskId;
             $task->project_id = $hubstaff_project_id;
