@@ -225,6 +225,13 @@
                                 @endforeach
                             </select>
                         </div>
+
+                        <div class="form-group">
+						<label for="">Create Review Task?</label>
+						<div class="form-group">
+								<input type="checkbox" name="need_review_task" value="1" />
+						</div>
+					</div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
