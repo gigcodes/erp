@@ -1086,9 +1086,9 @@ class DevelopmentController extends Controller {
         $inprocessStatusID = \DB::table("task_statuses")->select("id")->where('name', "In Progress")->first();
 
 
-        $statusList = array_merge([
-            "" => "Select Status",
-        ], $statusList);
+        // $statusList = array_merge([
+        //     "" => "Select Status",
+        // ], $statusList);
 
         $task_statuses = TaskStatus::all();
 
@@ -1099,8 +1099,19 @@ class DevelopmentController extends Controller {
 
         $title = 'Flag Task List';
 
-        $issues = DeveloperTask::with('timeSpent')->where('is_flagged', '1');
-        $task =  Task::with('timeSpent')->where('is_flagged', '1');
+        $issues = DeveloperTask::with(['timeSpent', 'leadtimeSpent', 'testertimeSpent', 'assignedUser']); // ->where('is_flagged', '1')
+        $issues->whereNotIn("developer_tasks.status", [
+            DeveloperTask::DEV_TASK_STATUS_DONE,
+            DeveloperTask::DEV_TASK_STATUS_IN_REVIEW
+        ]);
+        $issues->whereRaw("developer_tasks.assigned_to IN (SELECT id FROM users WHERE is_task_planned = 1)");
+
+        $task =  Task::with(['timeSpent']); // ->where('is_flagged', '1')
+        $task->whereNotIn("tasks.status", [
+            Task::TASK_STATUS_DONE,
+            Task::TASK_STATUS_IN_REVIEW
+        ]);
+        $task->whereRaw("tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)");
 
         if ($type == 'issue') {
             $issues = $issues->where('developer_tasks.task_type_id', '3');
@@ -1196,14 +1207,13 @@ class DevelopmentController extends Controller {
         } else {
             $issues = $issues->orderBy('chat_messages.id', "desc");
         }
-        //   dd($task->get());
-        // return $issues = $issues->limit(20)->get();
-        $issues = $issues->paginate(Setting::get('pagination')); //
-        $tasks = $task->paginate(Setting::get('pagination'));
+
+        $paginateLimit = Setting::get('pagination') ?: 15;
+
+        $issues = $issues->paginate($paginateLimit);
+        $tasks = $task->paginate($paginateLimit);
 
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
-
-
         if ($request->ajax()) {
             $data = '';
             $isReviwerLikeAdmin = auth()->user()->isReviwerLikeAdmin();
