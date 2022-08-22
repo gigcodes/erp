@@ -913,7 +913,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/charity-order', 'OrderController@charity_order');
     Route::post('order/cancel-transaction', 'OrderController@cancelTransaction')->name('order.canceltransaction');
     Route::post('order/payload', 'OrderController@getOrderPayloadList')->name('order.payload');
-
+    Route::post('order/change-return-status', 'OrderController@returnStatus')->name('order.change_return_status');
+    
     Route::resource('order', 'OrderController');
 
 
