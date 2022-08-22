@@ -89,6 +89,8 @@ class SiteDevelopmentController extends Controller {
         //$categories = $categories->paginate(Setting::get('pagination'));
         // $categories = $categories->paginate(20);
 
+        // _p(request()->all(), 1);
+
         if ($id != 'all') {
             if (is_array($selectedWebsites) and count($selectedWebsites) > 0) {
                 $categories->join('site_developments', function ($q) use ($selectedWebsites) {
@@ -148,7 +150,7 @@ class SiteDevelopmentController extends Controller {
         }
 
         //main data listing
-        $categories = $categories->paginate(20);
+        $categories = $categories->paginate(50);
 
         //for filtration category
 
