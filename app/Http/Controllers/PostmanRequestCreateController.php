@@ -88,9 +88,9 @@ class PostmanRequestCreateController extends Controller {
         }
 
         $q->orderBy('postman_request_creates.id', 'DESC');
-
-        $postmans = $q->paginate(Setting::get('pagination'));
         $counter = $q->count();
+        $postmans = $q->paginate(Setting::get('pagination'));
+       
         $folders = PostmanFolder::all();
         $users = User::all();
         $userID = loginId();
