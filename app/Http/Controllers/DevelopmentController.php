@@ -1619,43 +1619,193 @@ class DevelopmentController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {
-        $loggedUser = $request->user();
+        // $loggedUser = $request->user();
+        // _p(request()->all(), 1);
 
         $this->validate($request, [
             'subject' => 'sometimes|nullable|string',
             'task' => 'required|string|min:3',
-            //'cost' => 'sometimes|nullable|integer',
             'status' => 'required',
             'repository_id' => 'required',
             'module_id' => 'required',
-
         ]);
 
         $data = $request->except('_token');
-        // $data['hubstaff_project'] = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
         $data['hubstaff_project'] = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
-
-        $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
-        //$data[ 'responsible_user_id' ] = $request->user_id ? $request->user_id : Auth::id();
+        $data['user_id'] = request('user_id', loginId());
         $data['created_by'] = Auth::id();
         $data['priority'] = 0;
-        //$data[ 'submitted_by' ] = Auth::id();
         $data['hubstaff_task_id'] = 0;
-        $data['repository_id'] = $request->get('repository_id');
-        // $module = $request->get('module_id');
-        // if (!empty($module)) {
-        //     $module = DeveloperModule::find($module);
-        //     if (!$module) {
-        //         $module = new DeveloperModule();
-        //         $module->name = $request->get('module_id');
-        //         $module->save();
-        //         $data['module_id'] = $module->id;
-        //     }
-        // }
-        $task = DeveloperTask::create($data);
+        $data['repository_id'] = request('repository_id');
+        $task = $this->developerTaskCreate($data);
+
+        if (request('need_review_task')) {
+            $data['parent_review_task_id'] = $task->id;
+            $reviewTask = $this->developerTaskCreate($data);
+        }
+
+        // _p(request()->all());
+        // _p($data, 1);
+        // // $module = $request->get('module_id');
+        // // if (!empty($module)) {
+        // //     $module = DeveloperModule::find($module);
+        // //     if (!$module) {
+        // //         $module = new DeveloperModule();
+        // //         $module->name = $request->get('module_id');
+        // //         $module->save();
+        // //         $data['module_id'] = $module->id;
+        // //     }
+        // // }
+        // $task = DeveloperTask::create($data);
 
         //check the assinged user in any team ?
-        if ($request->assigned_to > 0 && empty($task->team_lead_id)) {
+        // if ($request->assigned_to > 0 && empty($task->team_lead_id)) {
+        //     $teamUser = \App\TeamUser::where("user_id", $task->assigned_to)->first();
+        //     if ($teamUser) {
+        //         $team = $teamUser->team;
+        //         if ($team) {
+        //             $task->team_lead_id = $team->user_id;
+        //             $task->save();
+        //         }
+        //     } else {
+        //         $isTeamLeader = \App\Team::where("user_id", $task->assigned_to)->first();
+        //         if ($isTeamLeader) {
+        //             $task->team_lead_id = $task->assigned_to;
+        //             $task->save();
+        //         }
+        //     }
+        // }
+
+
+
+
+        // // if ($request->hasfile('images')) {
+        // //     foreach ($request->file('images') as $image) {
+        // //         $media = MediaUploader::fromSource($image)
+        // //             ->toDirectory('developertask/' . floor($task->id / config('constants.image_per_folder')))
+        // //             ->upload();
+        // //         $task->attachMedia($media, config('constants.media_tags'));
+        // //     }
+        // // }
+
+        // // CREATE GITHUB REPOSITORY BRANCH
+        // $newBranchName = $this->createBranchOnGithub(
+        //     $request->get('repository_id'),
+        //     $task->id,
+        //     $task->subject
+        // );
+
+        // // UPDATE TASK WITH BRANCH NAME
+        // if ($newBranchName) {
+        //     $task->github_branch_name = $newBranchName;
+        //     $task->save();
+        // }
+
+        // if (is_string($newBranchName)) {
+        //     $message = $request->input('task') . PHP_EOL . "A new branch " . $newBranchName . " has been created. Please pull the current code and run 'git checkout " . $newBranchName . "' to work in that branch.";
+        // } else {
+        //     $message = $request->input('task');
+        // }
+        // $requestData = new Request();
+        // $requestData->setMethod('POST');
+        // $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
+
+        // app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+
+        // MessageHelper::sendEmailOrWebhookNotification([$task->user_id, $task->assigned_to, $task->master_user_id, $task->responsible_user_id, $task->team_lead_id, $task->tester_id], ' [ ' . $loggedUser->name . ' ] - ' . $message);
+
+        // // if ($task->status == 'Done') {
+        // //   NotificationQueueController::createNewNotification([
+        // //     'message' => 'New Task to Verify',
+        // //     'timestamps' => ['+0 minutes'],
+        // //     'model_type' => DeveloperTask::class,
+        // //     'model_id' =>  $task->id,
+        // //     'user_id' => Auth::id(),
+        // //     'sent_to' => 6,
+        // //     'role' => '',
+        // //   ]);
+        // //
+        // //   NotificationQueueController::createNewNotification([
+        // //     'message' => 'New Task to Verify',
+        // //     'timestamps' => ['+0 minutes'],
+        // //     'model_type' => DeveloperTask::class,
+        // //     'model_id' =>  $task->id,
+        // //     'user_id' => Auth::id(),
+        // //     'sent_to' => 56,
+        // //     'role' => '',
+        // //   ]);
+        // // }
+
+        // $hubstaff_project_id = $data['hubstaff_project'];
+
+        // $assignedUser = HubstaffMember::where('user_id', $request->input('assigned_to'))->first();
+        // // $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
+
+        // $hubstaffUserId = null;
+        // if ($assignedUser) {
+        //     $hubstaffUserId = $assignedUser->hubstaff_user_id;
+        // }
+
+        // $summary = substr($request->input('task'), 0, 200);
+        // if ($data['task_type_id'] == 1) {
+        //     $taskSummery = '#DEVTASK-' . $task->id . ' => ' . $summary;
+        // } else {
+        //     $taskSummery = '#TASK-' . $task->id . ' => ' . $summary;
+        // }
+
+        // $hubstaffTaskId = '';
+
+
+        // // dd($taskSummery, $hubstaffUserId, $hubstaff_project_id,  $request->input('assigned_to'));
+
+        // if (env('PRODUCTION', true)) {
+
+        //     $hubstaffTaskId = $this->createHubstaffTask(
+        //         $taskSummery,
+        //         $hubstaffUserId,
+        //         $hubstaff_project_id
+        //     );
+        // } else {
+        //     $hubstaff_project_id = '#TASK-3';
+        //     $hubstaffUserId = 406; //for local system
+        //     $hubstaffTaskId = 34543; //for local system
+        // }
+
+        // if ($hubstaffTaskId) {
+        //     $task->hubstaff_task_id = $hubstaffTaskId;
+        //     $task->save();
+        // }
+
+        // if ($hubstaffUserId) {
+        //     $task = new HubstaffTask();
+        //     $task->hubstaff_task_id = $hubstaffTaskId;
+        //     $task->project_id = $hubstaff_project_id;
+        //     $task->hubstaff_project_id = $hubstaff_project_id;
+        //     $task->summary = $request->input('task');
+        //     $task->save();
+        // }
+
+
+
+        if ($request->ajax()) {
+            return response()->json(['task' => $task]);
+        }
+        return redirect(url('development/summarylist'))->with('success', 'You have successfully added task!');
+    }
+
+    public function developerTaskCreate($data) {
+        $loggedUser = request()->user();
+
+        $data['created_by'] = loginId();
+
+        if ($data['parent_review_task_id'] ?? 0) {
+            $data['subject'] = $data['subject'] . ' - #REVIEW_TASK';
+            $data['task'] = $data['task'] . ' - #REVIEW_TASK';
+        }
+        $task = DeveloperTask::create($data);
+
+        // Check the assinged user in any team ?
+        if ($task->assigned_to > 0 && empty($task->team_lead_id)) {
             $teamUser = \App\TeamUser::where("user_id", $task->assigned_to)->first();
             if ($teamUser) {
                 $team = $teamUser->team;
@@ -1672,21 +1822,9 @@ class DevelopmentController extends Controller {
             }
         }
 
-
-
-
-        // if ($request->hasfile('images')) {
-        //     foreach ($request->file('images') as $image) {
-        //         $media = MediaUploader::fromSource($image)
-        //             ->toDirectory('developertask/' . floor($task->id / config('constants.image_per_folder')))
-        //             ->upload();
-        //         $task->attachMedia($media, config('constants.media_tags'));
-        //     }
-        // }
-
         // CREATE GITHUB REPOSITORY BRANCH
         $newBranchName = $this->createBranchOnGithub(
-            $request->get('repository_id'),
+            $task->repository_id,
             $task->id,
             $task->subject
         );
@@ -1697,52 +1835,35 @@ class DevelopmentController extends Controller {
             $task->save();
         }
 
+        // SEND MESSAGE
         if (is_string($newBranchName)) {
-            $message = $request->input('task') . PHP_EOL . "A new branch " . $newBranchName . " has been created. Please pull the current code and run 'git checkout " . $newBranchName . "' to work in that branch.";
+            $message = $task->task . PHP_EOL . "A new branch " . $newBranchName . " has been created. Please pull the current code and run 'git checkout " . $newBranchName . "' to work in that branch.";
         } else {
-            $message = $request->input('task');
+            $message = $task->task;
         }
         $requestData = new Request();
         $requestData->setMethod('POST');
         $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
-
         app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
 
-        MessageHelper::sendEmailOrWebhookNotification([$task->user_id, $task->assigned_to, $task->master_user_id, $task->responsible_user_id, $task->team_lead_id, $task->tester_id], ' [ ' . $loggedUser->name . ' ] - ' . $message);
+        MessageHelper::sendEmailOrWebhookNotification([
+            $task->user_id,
+            $task->assigned_to,
+            $task->master_user_id,
+            $task->responsible_user_id,
+            $task->team_lead_id,
+            $task->tester_id
+        ], ' [ ' . $loggedUser->name . ' ] - ' . $message);
 
-        // if ($task->status == 'Done') {
-        //   NotificationQueueController::createNewNotification([
-        //     'message' => 'New Task to Verify',
-        //     'timestamps' => ['+0 minutes'],
-        //     'model_type' => DeveloperTask::class,
-        //     'model_id' =>  $task->id,
-        //     'user_id' => Auth::id(),
-        //     'sent_to' => 6,
-        //     'role' => '',
-        //   ]);
-        //
-        //   NotificationQueueController::createNewNotification([
-        //     'message' => 'New Task to Verify',
-        //     'timestamps' => ['+0 minutes'],
-        //     'model_type' => DeveloperTask::class,
-        //     'model_id' =>  $task->id,
-        //     'user_id' => Auth::id(),
-        //     'sent_to' => 56,
-        //     'role' => '',
-        //   ]);
-        // }
 
-        $hubstaff_project_id = $data['hubstaff_project'];
-
-        $assignedUser = HubstaffMember::where('user_id', $request->input('assigned_to'))->first();
-        // $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
+        $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID') ?: 0;
 
         $hubstaffUserId = null;
-        if ($assignedUser) {
+        if ($assignedUser = HubstaffMember::where('user_id', $task->assigned_to)->first()) {
             $hubstaffUserId = $assignedUser->hubstaff_user_id;
         }
 
-        $summary = substr($request->input('task'), 0, 200);
+        $summary = substr($task->task, 0, 200);
         if ($data['task_type_id'] == 1) {
             $taskSummery = '#DEVTASK-' . $task->id . ' => ' . $summary;
         } else {
@@ -1750,12 +1871,7 @@ class DevelopmentController extends Controller {
         }
 
         $hubstaffTaskId = '';
-
-
-        // dd($taskSummery, $hubstaffUserId, $hubstaff_project_id,  $request->input('assigned_to'));
-
         if (env('PRODUCTION', true)) {
-
             $hubstaffTaskId = $this->createHubstaffTask(
                 $taskSummery,
                 $hubstaffUserId,
@@ -1770,21 +1886,16 @@ class DevelopmentController extends Controller {
         if ($hubstaffTaskId) {
             $task->hubstaff_task_id = $hubstaffTaskId;
             $task->save();
-        }
 
-        if ($hubstaffUserId) {
             $task = new HubstaffTask();
             $task->hubstaff_task_id = $hubstaffTaskId;
             $task->project_id = $hubstaff_project_id;
             $task->hubstaff_project_id = $hubstaff_project_id;
-            $task->summary = $request->input('task');
+            $task->summary = $task->task;
             $task->save();
         }
 
-        if ($request->ajax()) {
-            return response()->json(['task' => $task]);
-        }
-        return redirect(url('development/summarylist'))->with('success', 'You have successfully added task!');
+        return $task;
     }
 
     public function issueStore(Request $request) {
