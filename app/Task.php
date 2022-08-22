@@ -89,8 +89,8 @@ class Task extends Model {
         'parent_task_id',
 
         'last_date_time_reminder',
-        'is_flow_task'
-
+        'is_flow_task',
+        'parent_review_task_id'
     ];
 
     const TASK_TYPES = [

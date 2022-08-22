@@ -210,7 +210,7 @@
                    
                     <div class="col-md-2 pd-sm pd-rt status-selection">
                         <?php 
-                        if(isset($_GET['task_status']))
+                        if(request('task_status'))
                         {
                             echo Form::select('task_status[]', $statusList, request()->get('task_status', array_values($statusList)), ['class' => 'form-control pr-0 multiselect', 'multiple' => true]);
                         }
