@@ -32,7 +32,6 @@ use App\Http\Controllers\TaskModuleController;
 class SiteDevelopmentController extends Controller {
     //
     public function index($id = null, Request $request) {
-
         $input = $request->input();
         $masterCategories = SiteDevelopmentMasterCategory::pluck('title', 'id')->toArray();
         $designDevCategories = SiteDevelopmentMasterCategory::where('title', 'Design')->orWhere('title', 'Functionality')->pluck('title', 'id')->toArray();
@@ -155,8 +154,8 @@ class SiteDevelopmentController extends Controller {
 
 
         //get filter category data
-        $filter_category = SiteDevelopmentCategory::pluck('title')->toArray();
-
+        $filter_category = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
+        
         foreach ($categories as $category) {
             $finalArray = [];
             $site_developement_id = $category->site_development_id;
