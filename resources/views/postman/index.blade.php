@@ -23,7 +23,7 @@
 
 <div class="row">
   <div class="col-12">
-    <h2 class="page-heading">Postman Request</h2>
+    <h2 class="page-heading">Postman Request ({{$counter}})</h2>
   </div>
 
   <div class="col-12 mb-3">
