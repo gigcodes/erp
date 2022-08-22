@@ -341,7 +341,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('ScrapperImage:REMOVE')->hourly(); //jenkins status detail
         
-        $schedule->command('tasks-time-reminder')->dailyAt('01:00'); // status detail
+        $schedule->command('command:tasks-time-reminder')->dailyAt('01:00'); // status detail
 
         $schedule->command('websitelog')->daily(); // website log
 
