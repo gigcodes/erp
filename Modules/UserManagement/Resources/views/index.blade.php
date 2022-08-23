@@ -169,6 +169,10 @@
                         <img src="https://e7.pngegg.com/pngimages/287/966/png-clipart-computer-icons-erp-icon-computer-network-business.png" class="mt-2 ml-4 erp-request" style="width:35px; height:25px;" alt="ERP IPs">
                         <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg" class="mt-2 ml-4 system-request" style="width:35px; height:25px;" alt="Permission request" alt=" ERP IPs" data-toggle="modal" data-target="#system-request">
                         <img src="https://www.kindpng.com/picc/m/391-3916045_task-management-task-management-icon-hd-png-download.png" class="mt-2 ml-4 today-history" style="width:31px; height:25px;" alt="Permission request" alt="All user task">
+
+                        <button type="button" class="btn btn-lg" title="View Planned Users With Availabilities" onclick="funPlannedUserAndAvailabilityList()">
+                            <i class="fa fa-eye" aria-hidden="true"></i>
+                        </button>
                         @endif
                     </div>
                 </div>
@@ -556,9 +560,23 @@
 @include("usermanagement::templates.show-task-hours")
 @include("usermanagement::templates.show-user-details")
 
-
 @push('modals')
 @include("user-availability.modal-list")
+
+<div id="modalPlannedUserAndAvailabilityList" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Planned users and their availabilities</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endpush
 
 <script>
@@ -1557,6 +1575,26 @@
             }
         });
     });
+
+    function funPlannedUserAndAvailabilityList() {
+        siteLoader(1);
+        let mdl = jQuery('#modalPlannedUserAndAvailabilityList');
+        jQuery.ajax({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('user-management.planned-user-and-availability') }}",
+            type: 'GET',
+            data: {}
+        }).done(function(response) {
+            siteLoader(0);
+            mdl.find('.modal-body').html(response.data);
+            mdl.modal('show');
+        }).fail(function(err) {
+            siteLoader(0);
+            siteErrorAlert(err);
+        });
+    }
 </script>
 
 @endsection
