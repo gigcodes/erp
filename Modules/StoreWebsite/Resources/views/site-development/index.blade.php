@@ -265,7 +265,11 @@
                             </tr>
                         </thead>
                         <tbody class="infinite-scroll-pending-inner">
+                            <?php if($categories->count()){ ?>
                             @include('storewebsite::site-development.partials.data')
+                            <?php } else { ?>
+                                <tr><td colspan="11">No records found.</td></tr>
+                            <?php } ?>
                         </tbody>
                     </table>
                 </div>

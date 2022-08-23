@@ -35,11 +35,11 @@
                 data-on="Allow" data-off="Disallow"
                 data-toggle="toggle" data-width="90"> -->
                     @if (request('status') == 'ignored')
-                    <button style="padding:0px;margin-top: 0px;" type="button" class="btn btn-image fa-ignore-category pl-0 mt-0" data-category-id="{{ $category->id }}" data-site-id="{{ isset($website) ? $website->id : $category->website_id }}" data-status="1">
+                    <button style="padding:0px;margin-top: 0px;" type="button" class="btn btn-image fa-ignore-category pl-0 mt-0" data-category-id="{{ $category->id }}" data-site-id="{{ isset($website) ? $website->id : $category->website_id }}" data-status="1" title="Allow category" >
                         <i class="fa fa-ban" aria-hidden="true" style="color:red;"></i>
                     </button>
                     @else
-                    <button style="padding:0px;margin-top: 0px;" type="button" class="btn btn-image fa-ignore-category pl-0" data-category-id="{{ $category->id }}" data-site-id="{{ isset($website) ? $website->id : $category->website_id }}" data-status="0">
+                    <button style="padding:0px;margin-top: 0px;" type="button" class="btn btn-image fa-ignore-category pl-0" data-category-id="{{ $category->id }}" data-site-id="{{ isset($website) ? $website->id : $category->website_id }}" data-status="0" title="Ignore category" >
                         <i class="fa fa-ban" aria-hidden="true"></i>
                     </button>
                     @endif
@@ -286,56 +286,56 @@
             ]); ?>
         </td>
         <td class="pt-1">
-            <button type="button" data-site-id="@if ($site) {{ $site->id }} @endif" data-site-category-id="{{ $category->id }}" data-store-website-id="{{ isset($website) ? $website->id : $category->website_id }} " class="btn btn-file-upload pd-5">
-                <i class="fa fa-upload" aria-hidden="true"></i>
-            </button>
-            @if ($site)
-            <button type="button" data-site-id="@if ($site) {{ $site->id }} @endif" data-site-category-id="{{ $category->id }}" data-store-website-id="{{ isset($website) ? $website->id : $category->website_id }}" class="btn btn-file-list pd-5">
-                <i class="fa fa-list" aria-hidden="true"></i>
-            </button>
-            <button type="button" data-site-id="@if ($site) {{ $site->id }} @endif" data-site-category-id="{{ $category->id }}" data-store-website-id="{{ isset($website) ? $website->id : $category->website_id }}" class="btn btn-store-development-remark pd-5">
-                <i class="fa fa-comment" aria-hidden="true"></i>
-            </button>
-            <button type="button" title="Artwork status history" class="btn artwork-history-btn pd-5" data-id="@if ($site) {{ $site->id }} @endif">
-                <i class="fa fa-history" aria-hidden="true"></i>
-            </button>
-            @endif
-            <br />
-            <button type="button" class="btn preview-img-btn pd-5" data-id="@if ($site) {{ $site->id }} @endif">
-                <i class="fa fa-eye" aria-hidden="true"></i>
-            </button>
+            <div style="display: inline-block;">
+                <button type="button" data-site-id="@if ($site) {{ $site->id }} @endif" data-site-category-id="{{ $category->id }}" data-store-website-id="{{ isset($website) ? $website->id : $category->website_id }} " class="btn btn-file-upload pd-5" title="Upload File">
+                    <i class="fa fa-upload" aria-hidden="true"></i>
+                </button>
+                @if ($site)
+                <button type="button" data-site-id="@if ($site) {{ $site->id }} @endif" data-site-category-id="{{ $category->id }}" data-store-website-id="{{ isset($website) ? $website->id : $category->website_id }}" class="btn btn-file-list pd-5" title="File List">
+                    <i class="fa fa-list" aria-hidden="true"></i>
+                </button>
+                <button type="button" data-site-id="@if ($site) {{ $site->id }} @endif" data-site-category-id="{{ $category->id }}" data-store-website-id="{{ isset($website) ? $website->id : $category->website_id }}" class="btn btn-store-development-remark pd-5" title="Remarks">
+                    <i class="fa fa-comment" aria-hidden="true"></i>
+                </button>
+                <button type="button" title="Artwork status history" class="btn artwork-history-btn pd-5" data-id="@if ($site) {{ $site->id }} @endif">
+                    <i class="fa fa-history" aria-hidden="true"></i>
+                </button>
+                @endif
+                <button type="button" class="btn preview-img-btn pd-5" data-id="@if ($site) {{ $site->id }} @endif" title="View Image">
+                    <i class="fa fa-eye" aria-hidden="true"></i>
+                </button>
+                <br />
 
-            @if (Auth::user()->isAdmin() || $hasSiteDevelopment)
-            @php
-            $websitenamestr = $website ? $website->title : '';
-            @endphp
-            <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="@if ($site) {{ $site->id }} @endif" data-title="@if ($site) {{ $websitenamestr . ' ' . $site->title }} @endif"><img style="width:12px !important;" src="/images/add.png" /></button>
-            <button style="padding-left: 0;padding-right:0px;" type="button" class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="@if ($site) {{ $site->id }} @endif" data-category="{{ $category->id }}"><i class="fa fa-info-circle"></i></button>
-            <button style="padding-left: 0;padding-right:0px;" type="button" class="btn  btn-image d-inline tasks-relation" title="Show task relation" data-id="@if ($site) {{ $site->id }} @endif"><i class="fa fa-dashboard"></i></button>
-            @endif
-            <br />
-            <?php $status = $site ? $site->status : 0; ?>
-            @if ($status == 3)
-            <button class="btn btn-image d-inline create-quick-task ">
-                <span>
+                @if (Auth::user()->isAdmin() || $hasSiteDevelopment)
+                @php
+                $websitenamestr = $website ? $website->title : '';
+                @endphp
+                <button title="create quick task" type="button" class="btn create-quick-task pd-5" data-id="@if ($site) {{ $site->id }} @endif" data-title="@if ($site) {{ $websitenamestr . ' ' . $site->title }} @endif">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn count-dev-customer-tasks pd-5" title="Show task history" data-id="@if ($site) {{ $site->id }} @endif" data-category="{{ $category->id }}"><i class="fa fa-info-circle"></i></button>
+                <button type="button" class="btn tasks-relation pd-5" title="Show task relation" data-id="@if ($site) {{ $site->id }} @endif"><i class="fa fa-dashboard"></i></button>
+                @endif
+                <?php $status = $site ? $site->status : 0; ?>
+                @if ($status == 3)
+                <button class="btn create-quick-task pd-5">
                     <i class="fa fa-ban save-status" data-text="4" data-site="{{ $site ? $site->id : '' }}" data-category="{{ $category->id }}" data-type="status" aria-hidden="true" style="color:red;" title="Deactivate"></i>
-                </span>
-            </button>
-            @elseif($status == 4 || $status == 0)
-            <button class="btn btn-image d-inline create-quick-task ">
-                <span>
+                </button>
+                @elseif($status == 4 || $status == 0)
+                <button class="btn create-quick-task pd-5">
                     <i class="fa fa-ban save-status" data-text="3" data-site="{{ $site ? $site->id : '' }}" data-category="{{ $category->id }}" data-type="status" aria-hidden="true" style="color:black;" title="Activate"></i>
-                </span>
-            </button>
-            @endif
+                </button>
+                @endif
 
-            <?php /* <button style="padding:3px;" type="button" class="btn btn-image d-inline toggle-class pd-5" data-id="{{ $category->id }}"><img width="2px;" src="/images/forward.png" /></button> */ ?>
-            <button type="button" data-site-id="@if ($site) {{ $site->id }} @endif" class="btn btn-status-histories-get " title="Status History" style="padding: 0px;">
-                <i class="fa fa-empire" aria-hidden="true"></i>
-            </button>
+                <?php /* <button style="padding:3px;" type="button" class="btn btn-image d-inline toggle-class pd-5" data-id="{{ $category->id }}"><img width="2px;" src="/images/forward.png" /></button> */ ?>
+                <button type="button" data-site-id="@if ($site) {{ $site->id }} @endif" class="btn btn-status-histories-get pd-5" title="Status History">
+                    <i class="fa fa-empire" aria-hidden="true"></i>
+                </button>
 
-
-
+                <!-- <button type="button" class="btn btn-status-histories-get pd-5" title="Delete Record" onclick="funDeleteCategory('{{ $category->id }}', '{{$site ? $site->id : 0}}')" >
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                </button> -->
+            </div>
         </td>
 
         </tr>
