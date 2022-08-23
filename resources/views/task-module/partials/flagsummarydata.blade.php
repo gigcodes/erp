@@ -1,5 +1,5 @@
 <?php /*@foreach ($tasks as $key => $task)
-@endforeach*/?>
+@endforeach*/ ?>
 <?php
 // $special_task = \App\Task::find($task->id);
 $task = $issue;
@@ -57,11 +57,10 @@ $special_task = $task;
     <td style="vertical-align: baseline;">
         <div class="d-flex">
             <input type="text" class="form-control send-message-textbox" data-id="{{ $task->id }}" id="send_message_{{ $task->id }}" name="send_message_{{ $task->id }}" style="margin-bottom:5px;width:calc(100% - 24px);display:inline;" />
-
-            <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message" data-id="{{ $task->id }}" style="width:10%"><img src="/images/filled-sent.png" /></button>
+            <button type="submit" class="btn btn-xs btn-image send-message-open" id="submit_message" data-id="{{ $task->id }}" ><img src="/images/filled-sent.png" /></button>
+            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="/images/chat.png" alt=""></button>
         </div>
         <div class="d-flex">
-            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" style="mmargin-top: -0%;margin-left: -2%; width:10%" title="Load messages"><img src="/images/chat.png" alt=""></button>
             <span class="Website-task pr-0 {{ ($task->message && $task->message_status == 0) ||$task->message_is_reminder == 1 ||($task->sent_to_user_id == Auth::id() && $task->message_status == 0)? '': '' }} justify-content-between expand-row-msg" style="word-break: break-all;margin-top:6px; width:100%; margin-right:-13px;" data-id="{{ $task->id }}">
                 <span class="td-mini-container-{{ $task->id }} Website-task" style="margin:0px;">
                     {{ \Illuminate\Support\Str::limit($task->message, 25, $end = '...') }}
@@ -84,8 +83,7 @@ $special_task = $task;
     </td>
 
     <td class="communication-td devtask-com " style="border-bottom: none; display: block;">
-        <!-- class="expand-row" -->
-        <p>
+        <div class="d-flex">
             <select id="master_user_id" class="form-control change-task-status select2" data-id="{{ $task->id }}" name="master_user_id" id="user_{{ $task->id }}">
                 @if (!empty($task_statuses))
                 @foreach ($task_statuses as $index => $status)
@@ -97,8 +95,6 @@ $special_task = $task;
                 @endforeach
                 @endif
             </select>
-        </p>
-        <p>
             <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history p-" title="Show Status History" data-id="{{ $task->id }}" data-type="task">
                 <i class="fa fa-info-circle"></i>
             </button>
@@ -107,7 +103,7 @@ $special_task = $task;
             @else
             <button type="button" class="btn btn-image flag-task pd-5" data-type="task" data-id="{{ $task->id }}"><img src="{{ asset('images/unflagged.png') }}" /></button>
             @endif
-        </p>
+        </div>
     </td>
     <td style="vertical-align: initial;">
         <i class="fa fa-comments-o" aria-hidden="true"></i>
