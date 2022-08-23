@@ -6,7 +6,6 @@
 			width: 100%;
 		}
 		table#reply_history_div td {
-			border: 1px solid #000;
 			width: 150px;
 			word-break: break-all;
 		}

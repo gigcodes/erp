@@ -1945,6 +1945,8 @@ class UserManagementController extends Controller {
 
                     $userIds = [];
 
+                    // _p($users->toArray(), 1);
+
                     // Prepare user's data
                     $userArr = [];
                     foreach ($users as $single) {
@@ -1952,7 +1954,7 @@ class UserManagementController extends Controller {
                         if ($single->uaId) {
                             $single->uaStTime = date('H:i:00', strtotime($single->uaStTime));
                             $single->uaEnTime = date('H:i:00', strtotime($single->uaEnTime));
-                            $single->uaLunchTime = date('H:i:00', strtotime($single->uaLunchTime));
+                            $single->uaLunchTime = $single->uaLunchTime ? date('H:i:00', strtotime($single->uaLunchTime)) : '';
 
                             $single->uaDays = $single->uaDays ? explode(',', str_replace(' ', '', $single->uaDays)) : [];
                             $availableDates = UserAvaibility::getAvailableDates($single->uaFrom, $single->uaTo, $single->uaDays, $filterDatesOnly);
@@ -1961,7 +1963,7 @@ class UserManagementController extends Controller {
                             $userArr[] = [
                                 'id' => $single->id,
                                 'name' => $single->name,
-                                'uaLunchTime' => substr($single->uaLunchTime, 0, 5),
+                                'uaLunchTime' => $single->uaLunchTime ? substr($single->uaLunchTime, 0, 5) : '',
                                 'uaId' => $single->uaId,
                                 'uaDays' => $single->uaDays,
                                 'availableDays' => $single->uaDays,
