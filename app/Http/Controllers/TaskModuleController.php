@@ -13,7 +13,6 @@ use App\User;
 use App\Task;
 use App\TaskCategory;
 use App\TaskStatus;
-use App\TaskDueDateHistoryLog;
 use App\TaskRemark;
 use App\Contact;
 use App\Setting;
@@ -199,7 +198,17 @@ class TaskModuleController extends Controller {
 				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
 			  ) as chat_messages  ON chat_messages.task_id = tasks.id
 			) AS tasks
-			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 ' . $isCompleteWhereClose . $userquery . $status_filter . $flag_filter . $categoryWhereClause . $searchWhereClause . $orderByClause . ' limit ' . $paginate . ' offset ' . $offSet . '; ');
+			WHERE (deleted_at IS NULL) 
+            AND (id IS NOT NULL) 
+            AND is_statutory != 1 '
+                . $isCompleteWhereClose
+                . $userquery
+                . $status_filter
+                . $flag_filter
+                . $categoryWhereClause
+                . $searchWhereClause
+                . $orderByClause
+                . ' limit ' . $paginate . ' offset ' . $offSet . '; ');
 
 
             foreach ($data['task']['pending'] as $task) {
@@ -3403,32 +3412,17 @@ class TaskModuleController extends Controller {
         if ($new = request('value')) {
             if ($task = Task::find(request('task_id'))) {
                 $task->updateStartDate($new);
-                return response()->json([
-                    'message' => 'Successfully updated'
-                ], 200);
+                return respJson(200, 'Successfully updated.');
             }
-            return response()->json([
-                'message' => 'No task found.'
-            ], 404);
+            return respJson(404, 'No task found.');
         }
-        return response()->json([
-            'message' => 'Start date is required.'
-        ], 400);
+        return respJson(400, 'Start date is required.');
     }
 
     public function taskUpdateDueDate() {
         if ($new = request('value')) {
             if ($task = Task::find(request('task_id'))) {
-                $oldValue = $task->due_date;
-
-                $task->update(['due_date' => $new]);
-                TaskDueDateHistoryLog::create([
-                    'task_id' => $task->id,
-                    'task_type' => 'TASK',
-                    'updated_by' => Auth::id(),
-                    'old_due_date' => $oldValue,
-                    'new_due_date' => $task->due_date,
-                ]);
+                $task->updateDueDate($new);
                 return respJson(200, 'Successfully updated.');
             }
             return respJson(404, 'No task found.');

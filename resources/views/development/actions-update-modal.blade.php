@@ -141,6 +141,26 @@
 <div id="modalTaskHistories" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
+            <form method="post">
+                <input type="hidden" name="type" value="">
+                <div class="modal-header">
+                    <h4 class="modal-title"></h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary cls-save" onclick="funTaskApproveRecord(this)">Save</button>
+                    <button type="button" class="btn btn-secondary cls-save" onclick="funTaskApproveHistory(this)">History</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="modalTaskApprovedHistories" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title"></h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -324,6 +344,8 @@
         if (type == 'start_date' || type == 'estimate_date' || type == 'cost') {
             siteLoader(1);
             let mdl = jQuery('#modalTaskHistories');
+            mdl.find('input[name="type"]').val(type);
+
             let url = '';
 
             if (type == 'start_date') {
@@ -355,6 +377,55 @@
                 siteErrorAlert(err);
             });
         }
+    }
+
+    function funTaskApproveRecord(btn) {
+        let type = jQuery(btn).attr('data-recordtype');
+        jQuery.ajax({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{!! route('development-task.history.approve') !!}",
+            type: 'POST',
+            data: jQuery(btn).closest('form').serialize(),
+        }).done(function(res) {
+            siteSuccessAlert(res);
+            siteLoader(0);
+        }).fail(function(err) {
+            siteErrorAlert(err);
+            siteLoader(0);
+        });
+    }
+
+    function funTaskApproveHistory(ele) {
+        let type = jQuery('#modalTaskHistories').find('input[name="type"]').val();
+
+        let mdl = jQuery('#modalTaskApprovedHistories');
+        mdl.find('.modal-title').html('Approved History');
+        if (type == 'start_date') {} else if (type == 'estimate_date') {} else {
+            return;
+        }
+
+        siteLoader(1);
+        jQuery.ajax({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('development-task.history.approve-history') }}",
+            type: 'GET',
+            data: {
+                type: type,
+                id: currTaskInformationTaskId
+            }
+        }).done(function(response) {
+            mdl.find('.modal-body').html(response.data);
+            mdl.modal('show');
+            siteLoader(0);
+        }).fail(function(err) {
+            siteErrorAlert(err);
+            siteLoader(0);
+        });
+
     }
 
     jQuery(document).ready(function() {

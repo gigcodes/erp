@@ -15,6 +15,8 @@ Route::prefix('user-management')->middleware('auth')->group(function () {
 
     Route::get('/', 'UserManagementController@index')->name("user-management.index");
 
+    Route::get('planned-user-and-availability', 'UserManagementController@plannedUserAndAvailability')->name("user-management.planned-user-and-availability");
+
     Route::get('/feedback-category/store', 'UserManagementController@addFeedbackCategory')->name("user.feedback-category");
     Route::get('/feedback-status/store', 'UserManagementController@addFeedbackStatus')->name("user.feedback-status");
     Route::get('/feedback-status/update', 'UserManagementController@updateFeedbackStatus')->name("user.feedback-status.update");
@@ -88,6 +90,11 @@ Route::prefix('user-management')->middleware('auth')->group(function () {
     Route::prefix('user-schedules')->group(function () {
         Route::get('index', 'UserManagementController@userSchedulesIndex')->name("user-management.user-schedules.index");
         Route::any('load-data', 'UserManagementController@userSchedulesLoadData')->name("user-management.user-schedules.load-data");
+    });
+
+    Route::prefix('user-delivered')->group(function () {
+        Route::get('index', 'UserDeliveredController@index')->name("user-management.user-delivered.index");
+        Route::any('load-data', 'UserDeliveredController@loadData')->name("user-management.user-delivered.load-data");
     });
 
 });

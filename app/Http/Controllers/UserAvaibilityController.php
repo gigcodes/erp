@@ -64,18 +64,24 @@ class UserAvaibilityController extends Controller {
             }
 
             $errors = reqValidate(request()->all(), [
-                'day' => 'required',
-                'from' => 'required',
-                'to' => 'required',
-                'start_time' => 'required',
-                'end_time' => 'required',
+                // 'day' => 'required',
+                // 'from' => 'required',
+                // 'to' => 'required',
+                // 'start_time' => 'required|date_format:H:i:s',
+                // 'end_time' => 'required|date_format:H:i:s',
             ], [
                 'day.required' => 'Days is required, please select atleast one.',
                 'from.required' => 'From date is required.',
                 'to.required' => 'To date is required.',
+                'start_time.date_format' => 'Start time is invalid.',
+                'end_time.date_format' => 'End time is invalid.',
             ]);
             if ($errors) {
                 return respJson(400, $errors[0]);
+            }
+
+            if (request('start_time') >= request('end_time')) {
+                return respJson(400, 'Start time must be greater than end time.');
             }
 
             UserAvaibility::where('user_id', $user_id)->update(['is_latest' => 0]);

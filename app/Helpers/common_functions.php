@@ -570,3 +570,6 @@ function loginId() {
 function isAdmin() {
     return auth()->user()->isAdmin();
 }
+function printNum($num) {
+    return number_format($num, 2, ".", ",");
+}
