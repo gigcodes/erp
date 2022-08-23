@@ -1702,6 +1702,12 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('updateLog.get') }}">Update Log</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('uicheck.responsive') }}">U I Responsive</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('uicheck.translation') }}">U I Languages</a>
+                                            </li>
                                         </ul>
                                     </li>
                                     
