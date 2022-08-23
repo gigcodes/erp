@@ -146,7 +146,7 @@
 											<button title="Edit Team" type="button" class="btn btn-image load-team-modal pd-5" data-id="{{:prop.id}}"><img src="/images/edit.png" / style="padding: 0px 1px;"></button>
 										{{/if}}
 									<?php } ?>
-									<button title="View user avaibility" type="button" class="btn btn-image load-avaibility-modal pd-5" data-id="{{:prop.id}}" style="padding: 0px 1px;"> <i class="fa fa-check" aria-hidden="true"></i></button>
+									<!-- <button title="View user avaibility" type="button" class="btn btn-image load-avaibility-modal pd-5" data-id="{{:prop.id}}" style="padding: 0px 1px;"> <i class="fa fa-check" aria-hidden="true"></i></button> -->
 									{{if !prop.already_approved}}
 										<button title="Approve user for the day" type="button" class="btn approve-user pd-5" data-id="{{:prop.id}}"style="padding: 0px 1px;"> <i class="fa fa-check-circle" aria-hidden="true"></i></button>
 									{{/if}}
