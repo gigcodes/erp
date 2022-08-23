@@ -44,12 +44,12 @@ class SendTasksTimeReminder extends Command {
         $messageApplicationId = 3;
         $currenttime = date("Y-m-d H:m:s");
 
-        $q = TaskMessage::where('message_type', 'est_time_message')->first();
-        $est_time_msg = $q ? $q->message : '';
-        $q = TaskMessage::where('message_type', 'est_date_message')->first();
-        $est_date_msg = $q ? $q->message : '';
-        $q = TaskMessage::where('message_type', 'overdue_time_date_message')->first();
-        $overdue_message = $q ? $q->message : '';
+        $q = TaskMessage::where('message_type', 'est_time_message')->orderBy('id', 'DESC')->first();
+        $est_time_msg = $q ? ($q->frequency != 0 ? $q->message : '') : '';
+        $q = TaskMessage::where('message_type', 'est_date_message')->orderBy('id', 'DESC')->first();
+        $est_date_msg = $q ? ($q->frequency != 0 ? $q->message : '') : '';
+        $q = TaskMessage::where('message_type', 'overdue_time_date_message')->orderBy('id', 'DESC')->first();
+        $overdue_message = $q ? ($q->frequency != 0 ? $q->message : '') : '';
 
         $q = DeveloperTask::query();
         $q->whereNotNull('user_id');
@@ -62,7 +62,7 @@ class SendTasksTimeReminder extends Command {
         $q->whereRaw("assigned_to IN (SELECT id FROM users WHERE is_task_planned = 1)");
         $developertasks = $q->get();
         foreach ($developertasks as $developertask) {
-            if ($developertask->estimate_time == NULL) {
+            if ($developertask->estimate_time == NULL && $est_time_msg) {
                 $chatMessage = \App\ChatMessage::firstOrCreate([
                     "developer_task_id" => $developertask->id,
                     "user_id" => $developertask->user_id,
@@ -74,7 +74,7 @@ class SendTasksTimeReminder extends Command {
                     "task_time_reminder" => 1,
                 ]);
                 $this->logs("#1", $developertask->id, $est_time_msg, "Created Estimate Time Message for developer task");
-            } elseif ($developertask->estimate_date == NULL) {
+            } elseif ($developertask->estimate_date == NULL && $est_date_msg) {
                 $chatMessage = \App\ChatMessage::firstOrCreate([
                     "developer_task_id" => $developertask->id,
                     "user_id" => $developertask->user_id,
@@ -86,7 +86,7 @@ class SendTasksTimeReminder extends Command {
                     "task_time_reminder" => 1,
                 ]);
                 $this->logs("#2", $developertask->id, $est_date_msg, "Created Estimate Date Message for developer task");
-            } else if ($developertask->estimate_date != null and strtotime($currenttime) > strtotime($developertask->estimate_date)) {
+            } else if ($developertask->estimate_date != null and strtotime($currenttime) > strtotime($developertask->estimate_date) && $overdue_message) {
                 $chatMessage = \App\ChatMessage::firstOrCreate([
                     "developer_task_id" => $developertask->id,
                     "user_id" => $developertask->user_id,
@@ -114,7 +114,7 @@ class SendTasksTimeReminder extends Command {
 
         $tasks = $q->get();
         foreach ($tasks as $task) {
-            if ($task->timeSpent == NULL) {
+            if ($task->timeSpent == NULL && $est_time_msg) {
                 $chatMessage = \App\ChatMessage::firstOrCreate([
                     "task_id" => $task->id,
                     "user_id" => $task->assign_to,
@@ -126,7 +126,7 @@ class SendTasksTimeReminder extends Command {
                     "task_time_reminder" => 1,
                 ]);
                 $this->logs("#4", $task->id, $est_time_msg, "Created Estimate Time message for task");
-            } elseif ($task->approximate == NULL) {
+            } elseif ($task->approximate == NULL && $est_date_msg) {
                 $chatMessage = \App\ChatMessage::firstOrCreate([
                     "task_id" => $task->id,
                     "user_id" => $task->assign_to,
@@ -138,7 +138,7 @@ class SendTasksTimeReminder extends Command {
                     "task_time_reminder" => 1,
                 ]);
                 $this->logs("#5", $task->id, $est_date_msg, "Created Estimate date message for task");
-            } elseif ($task->approximate != null and strtotime($currenttime) > strtotime($task->approximate)) {
+            } elseif ($task->approximate != null and strtotime($currenttime) > strtotime($task->approximate) && $overdue_message) {
                 $chatMessage = \App\ChatMessage::firstOrCreate([
                     "task_id" => $task->id,
                     "user_id" => $task->assign_to,
