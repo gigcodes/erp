@@ -527,7 +527,7 @@ class LaravelLogController extends Controller {
         return $final_result;
     }
 
-    public function apiLogs(Request $request) {
+    public function apiLogs() {
         $logs = new \App\LogRequest;
 
         if ($s = request('id')) {
@@ -565,26 +565,25 @@ class LaravelLogController extends Controller {
             }
         }
 
-        if ($request->created_at) {
-            $logs = $logs->whereDate('created_at', \Carbon\Carbon::createFromFormat('Y/m/d', $request->created_at)->format('Y-m-d'));
+        if ($s = request('created_at')) {
+            $logs = $logs->whereDate('created_at', \Carbon\Carbon::createFromFormat('Y/m/d', $s)->format('Y-m-d'));
         }
-        if ($request->is_send) {
-            $logs = $logs->where('is_send', $request->is_send);
+        if ($s = request('is_send')) {
+            $logs = $logs->where('is_send', $s);
         } else {
             $logs = $logs->where('is_send', '0');
         }
 
         $count = $logs->count();
-        $logs = $logs->orderBy("id", "desc")->paginate(Setting::get('pagination'));
+        $logs = $logs->orderBy("id", "desc")->paginate(Setting::get('pagination') ?: 50);
 
-        if ($request->ajax()) {
-            //$request->render('logging.partials.apilogdata',compact('logs'));
+        if (request()->ajax()) {
             $html = view('logging.partials.apilogdata', compact('logs'))->render();
 
             if (count($logs)) {
                 return array('status' => 1, 'html' => $html, 'count' => $count, 'logs' => $logs);
             } else {
-                return array('status' => 0, 'html' => '<tr id="noresult_tr"><td colspan="7">No More Records</td></tr>');
+                return array('status' => 0, 'html' => '<tr id="noresult_tr"><td colspan="11" class="text-center">No More Records</td></tr>');
             }
         }
 
