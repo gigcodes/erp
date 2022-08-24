@@ -510,7 +510,7 @@ function getHourlySlots($stTime, $enTime) {
 function siteJs($path) {
     return env('APP_URL') . '/js/pages/' . $path . '?v=' . date('YmdH');
 }
-function makeDropdown($options = [], $selected = []) {
+function makeDropdown($options = [], $selected = [], $keyValue = 1) {
     if (!is_array($selected)) {
         $selected = is_numeric($selected) ? (int) $selected : $selected;
     }
@@ -522,14 +522,15 @@ function makeDropdown($options = [], $selected = []) {
                 $return[] = makeDropdown($v, $selected);
                 $return[] = '</optgroup>';
             } else {
+                $value = $keyValue ? $k : $v;
                 $sel = '';
                 if (is_array($selected)) {
-                    if (in_array($k, $selected))
+                    if (in_array($value, $selected))
                         $sel = 'selected';
-                } else if ($selected === $k) {
+                } else if ($selected === $value) {
                     $sel = 'selected';
                 }
-                $return[] = '<option value="' . $k . '" ' . $sel . '>' . trim(strip_tags($v)) . '</option>';
+                $return[] = '<option value="' . $value . '" ' . $sel . '>' . trim(strip_tags($v)) . '</option>';
             }
         }
     }
