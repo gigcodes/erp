@@ -1134,6 +1134,7 @@ class LeadsController extends Controller {
             'lead_customer' => $request->get('lead_customer'),
             'brand_id' => $request->get('brand_id'),
             'allLeadCustomersId' => $allLeadCustomersId,
+            'statusErpLeadsSave' => Setting::getErpLeadsSave(),
         ]);
     }
 
@@ -1698,5 +1699,10 @@ class LeadsController extends Controller {
         }
         $message = "Status Changed Successsfully";
         return response()->json(['Sucess', 200, 'message' => $message]);
+    }
+
+    public function enableDisable(){
+        Setting::set('erp_leads_save', request('status', 0), 'int');
+        return respJson(200, 'Updated successfully.');
     }
 }

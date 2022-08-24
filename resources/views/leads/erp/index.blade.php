@@ -24,105 +24,109 @@
   <div class="col-lg-12 margin-tb">
     <h2 class="page-heading">Erp Leads <a class="editor_create text-secondary" href="javascript:;"><i class="fa fa-plus"></i></a></h2>
   </div>
-  <?php  /*
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <?php  /*
+    <div class="col-lg-12 margin-tb">
+      <form id="search" method="GET" class="form-inline">
+          <input name="term" type="text" class="form-control"
+                value="{{request()->get('term')}}"
+                placeholder="Search" id="customer-search">
 
-  <div class="col-lg-12 margin-tb">
-    <form id="search" method="GET" class="form-inline">
-        <input name="term" type="text" class="form-control"
-               value="{{request()->get('term')}}"
-               placeholder="Search" id="customer-search">
-
-        <div class="form-group ml-3">
-            <input placeholder="Shoe Size" type="text" name="shoe_size" value="{{request()->get('shoe_size')}}" class="form-control-sm form-control">
-        </div>
-        <div class="form-group ml-3">
-            <input placeholder="Clothing Size" type="text" name="clothing_size" value="{{request()->get('clothing_size')}}" class="form-control-sm form-control">
-        </div>
-        <div class="form-group ml-3">
-            <select class="form-control" name="shoe_size_group">
-                <option value="">Select</option>
-                <?php foreach ($shoe_size_group as $shoe_size => $customerCount) {
-                    echo '<option value="'.$shoe_size.'" '.($shoe_size == request()->get('shoe_size_group') ? 'selected' : '').'>('.$shoe_size.' Size) '.$customerCount.' Customers</option>';
-                } ?>
-            </select>
-        </div>
-        <div class="form-group ml-3">
-            <select class="form-control" name="clothing_size_group">
-                <option value="">Select</option>
-                <?php foreach ($clothing_size_group as $clothing_size => $customerCount) {
-                    echo '<option value="'.$clothing_size.'" '.($shoe_size == request()->get('shoe_size_group') ? 'selected' : '').'>('.$clothing_size.' Size) '.$customerCount.' Customers</option>';
-                } ?>
-            </select>
-        </div>
-        <input type="hidden" name="lead_customer">
-        <input type="hidden" name="lead_brand">
-        <input type="hidden" name="lead_category">
-        <input type="hidden" name="lead_color">
-        <input type="hidden" name="lead_shoe_size">
-        <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
-    </form>
-  </div>
-  */ ?>
-  @if(session()->has('success'))
-  <div class="col-lg-12 margin-tb">
-    <div class="alert alert-success">
-      {{ session()->get('success') }}
+          <div class="form-group ml-3">
+              <input placeholder="Shoe Size" type="text" name="shoe_size" value="{{request()->get('shoe_size')}}" class="form-control-sm form-control">
+          </div>
+          <div class="form-group ml-3">
+              <input placeholder="Clothing Size" type="text" name="clothing_size" value="{{request()->get('clothing_size')}}" class="form-control-sm form-control">
+          </div>
+          <div class="form-group ml-3">
+              <select class="form-control" name="shoe_size_group">
+                  <option value="">Select</option>
+                  <?php foreach ($shoe_size_group as $shoe_size => $customerCount) {
+                      echo '<option value="'.$shoe_size.'" '.($shoe_size == request()->get('shoe_size_group') ? 'selected' : '').'>('.$shoe_size.' Size) '.$customerCount.' Customers</option>';
+                  } ?>
+              </select>
+          </div>
+          <div class="form-group ml-3">
+              <select class="form-control" name="clothing_size_group">
+                  <option value="">Select</option>
+                  <?php foreach ($clothing_size_group as $clothing_size => $customerCount) {
+                      echo '<option value="'.$clothing_size.'" '.($shoe_size == request()->get('shoe_size_group') ? 'selected' : '').'>('.$clothing_size.' Size) '.$customerCount.' Customers</option>';
+                  } ?>
+              </select>
+          </div>
+          <input type="hidden" name="lead_customer">
+          <input type="hidden" name="lead_brand">
+          <input type="hidden" name="lead_category">
+          <input type="hidden" name="lead_color">
+          <input type="hidden" name="lead_shoe_size">
+          <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+      </form>
     </div>
-  </div>
-  @endif
-  <div class="col-md-12">
+    */ ?>
+    @if(session()->has('success'))
+    <div class="col-lg-12 margin-tb">
+      <div class="alert alert-success">
+        {{ session()->get('success') }}
+      </div>
+    </div>
+    @endif
+
     <?php $base_url = URL::to('/'); ?>
     <div class="col-md-12 cls_filter_box">
       <form action="{{ route('erp-leads.erpLeads') }}" method="GET">
         @csrf
-        <div class="form-group col-md-2 cls_filter_inputbox p-0 mr-3">
-          <div class="w-75 pull-left">
-            <select class="form-control lead_status multi_lead_status" name="status_id[]" multiple="">
-              <option value="">Status</option>
-              @foreach($erpLeadStatus as $status)
-              <option value="{{$status['id']}}">{{$status['name']}}</option>
+        <div class="row">
+          <div class="form-group col-md-2 cls_filter_inputbox p-0 mr-3">
+            <div class="w-75 pull-left">
+              <select class="form-control lead_status multi_lead_status" name="status_id[]" multiple="">
+                <option value="">Status</option>
+                @foreach($erpLeadStatus as $status)
+                <option value="{{$status['id']}}">{{$status['name']}}</option>
+                @endforeach
+              </select>
+            </div>
+            <div class="w-25 pull-left pt-2">
+              <button type="button" data-toggle="modal" data-target="#addStatusModal" class="btn btn-xs text-secondary"><i class="fa fa-plus"></i></button>
+            </div>
+          </div>
+          <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-3">
+            <input type="text" class="form-control-sm cls_commu_his form-control field_search lead_customer input-size" value="{{@$lead_customer}}" name="lead_customer" placeholder="Customer" />
+          </div>
+          <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-3">
+            <select placeholder="Brand" class="form-control lead_brand multi_lead_status input-size" name="brand_id[]" multiple="">
+              Brand
+              <option value="" default>Brand</option>
+              @foreach($brands as $brand_item)
+              <option value="{{$brand_item['id']}}" {{($brand_id)?in_array($brand_item['id'],$brand_id)?'selected':'':''}}>{{$brand_item['name']}}</option>
               @endforeach
             </select>
           </div>
-          <div class="w-25 pull-left pt-2">
-            <button type="button" data-toggle="modal" data-target="#addStatusModal" class="btn btn-xs text-secondary"><i class="fa fa-plus"></i></button>
+          <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-3">
+            <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search brand_segment" value="{{@$brand_segment}}" name="brand_segment" placeholder="Brand Segment" />
           </div>
-        </div>
-        <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-3">
-          <input type="text" class="form-control-sm cls_commu_his form-control field_search lead_customer input-size" value="{{@$lead_customer}}" name="lead_customer" placeholder="Customer" />
-        </div>
-        <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-3">
-          <select placeholder="Brand" class="form-control lead_brand multi_lead_status input-size" name="brand_id[]" multiple="">
-            Brand
-            <option value="" default>Brand</option>
-            @foreach($brands as $brand_item)
-            <option value="{{$brand_item['id']}}" {{($brand_id)?in_array($brand_item['id'],$brand_id)?'selected':'':''}}>{{$brand_item['name']}}</option>
-            @endforeach
-          </select>
-        </div>
-        <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-3">
-          <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search brand_segment" value="{{@$brand_segment}}" name="brand_segment" placeholder="Brand Segment" />
-        </div>
-        <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-3">
-          <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_category" value="{{@$lead_category}}" name="lead_category" placeholder="Category" />
-        </div>
-        <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-3">
-          <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_color" value="{{@$lead_color}}" name="lead_color" placeholder="Color" />
+          <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-3">
+            <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_category" value="{{@$lead_category}}" name="lead_category" placeholder="Category" />
+          </div>
+          <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-3">
+            <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_color" value="{{@$lead_color}}" name="lead_color" placeholder="Color" />
 
-        </div>
-        <div class="form-group col-md-1 cls_filter_checkbox p-0 mr-3">
-          <input type="text" class="field_search lead_shoe_size form-control-sm cls_commu_his form-control input-size" value="{{@$lead_shoe_size}}" name="lead_shoe_size" placeholder="Size" />
-        </div>
-        <div class="form-group col-md-1 cls_filter_checkbox p-0 mr-3">
-          <select class="form-control lead_type multi_lead_type" name="lead_type[]" multiple="">
-            <option value="">Status</option>
-            @foreach($erpLeadTypes as $type)
-            <option value="{{$type['type']}}" {{($lead_type)?(in_array($type['type'],$lead_type)?'selected':''):''}}>{{$type['type']}}</option>
-            @endforeach
-          </select>
-        </div>
-        <div class="form-group col-md-1 cls_filter_checkbox m-0 pt-2">
-          <button type="submit" class="btn btn-xs" id="btnFileterErpLeads"><i class="fa fa-filter"></i></button>
+          </div>
+          <div class="form-group col-md-1 cls_filter_checkbox p-0 mr-3">
+            <input type="text" class="field_search lead_shoe_size form-control-sm cls_commu_his form-control input-size" value="{{@$lead_shoe_size}}" name="lead_shoe_size" placeholder="Size" />
+          </div>
+          <div class="form-group col-md-1 cls_filter_checkbox p-0 mr-3">
+            <select class="form-control lead_type multi_lead_type" name="lead_type[]" multiple="">
+              <option value="">Status</option>
+              @foreach($erpLeadTypes as $type)
+              <option value="{{$type['type']}}" {{($lead_type)?(in_array($type['type'],$lead_type)?'selected':''):''}}>{{$type['type']}}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="form-group col-md-1 cls_filter_checkbox m-0 pt-2">
+            <button type="submit" class="btn btn-xs" id="btnFileterErpLeads"><i class="fa fa-filter"></i></button>
+          </div>
         </div>
       </form>
     </div>
@@ -151,218 +155,221 @@
       </div>
     </div>
 
-    <div class="col-lg-12 margin-tb mb-3">
+    <div class="col-md-12 margin-tb mb-3">
       <label class="text-secondary mr-3">
-        <input type="checkbox" class="all_customer_check"> Select This Page
+        <input type="checkbox" class="all_customer_check" style="height: auto;"> Select This Page
       </label>
       <label class="text-secondary mr-3">
-        <input type="checkbox" class="all_page_check"> Select All Page
+        <input type="checkbox" class="all_page_check" style="height: auto;"> Select All Page
       </label>
       <a class="btn btn-secondary btn-xs create_broadcast mr-3" href="javascript:;">Create Broadcast</a>
       <a href="javascript:;" class="btn btn-xs images_attach"><i class="fa fa-paperclip"></i></a>
 
+      <label class="ml-5"><input type="checkbox" value="1" onclick="funEnableDisableLeads(this)" {{$statusErpLeadsSave ? 'checked' : ''}} style="height: auto;"> Enable Leads Cron to save on ERP</label>
     </div>
-  </div>
 
-  <div class="col-md-12 infinite-scroll22">
-    <div class="table-responsive mt-3">
-      <table class="table table-bordered erp-leads" id="vendor-table">
-        <thead>
 
-          <tr>
-            <th width="2%"></th>
-            <th width="2%">ID</th>
-            <th width="4%">Date</th>
-            <th width="2%">Status</th>
-            <th width="2%">Cust</th>
-            <th width="2%">C Email</th>
-            <th width="5%">C WApp</th>
-            <th width="2%">Store</th>
-            <th width="2%">Image</th>
-            <th width="2%">Pro ID</th>
-            <th width="2%">Sku</th>
-            <th width="2%">Pro name</th>
-            <th width="2%">Brand</th>
-            <th width="5%">B Sgmt</th>
-            <th width="2%">Category</th>
-            <th width="2%">Color</th>
-            <th width="2%">Size</th>
-            <th width="2%">Type</th>
-            <th width="8%">Communication</th>
-            <th width="2%">Action</th>
-          </tr>
-        </thead>
+    <div class="col-md-12 infinite-scroll22">
+      <div class="table-responsive mt-3">
+        <table class="table table-bordered erp-leads" id="vendor-table">
+          <thead>
 
-        <tbody id="vendor-body">
+            <tr>
+              <th width="2%"></th>
+              <th width="2%">ID</th>
+              <th width="4%">Date</th>
+              <th width="2%">Status</th>
+              <th width="2%">Cust</th>
+              <th width="2%">C Email</th>
+              <th width="5%">C WApp</th>
+              <th width="2%">Store</th>
+              <th width="2%">Image</th>
+              <th width="2%">Pro ID</th>
+              <th width="2%">Sku</th>
+              <th width="2%">Pro name</th>
+              <th width="2%">Brand</th>
+              <th width="5%">B Sgmt</th>
+              <th width="2%">Category</th>
+              <th width="2%">Color</th>
+              <th width="2%">Size</th>
+              <th width="2%">Type</th>
+              <th width="8%">Communication</th>
+              <th width="2%">Action</th>
+            </tr>
+          </thead>
 
-          @foreach ($sourceData as $source)
-          <tr>
-            <!-- <td>{{$source['id']}}</td> -->
-            <td class="tblcell">
-              <div class=""><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'"></label></div>
-            </td>
-            <td class="tblcell">
-              <div class="checkbox"><label class="checkbox-inline">{{$source['id']}}</label></div>
-            </td>
-            <td class="tblcell expand-row-msg" data-name="date" data-id="{{$source['id']}}">
-              <div class="checkbox">
-                <label class="checkbox-inline">
-                  <span class="show-short-date-{{$source['id']}}">{{ str_limit(\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $source['created_at'])->format('d-m-y'), 5, '.')}}</span>
-                  <span style="word-break:break-all;" class="show-full-date-{{$source['id']}} hidden">{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $source['created_at'])->format('d-m-y')}}</span>
-                </label>
-              </div>
-            </td>
-            <td class="tblcell">
-              <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                  <select class="form-control update-Erp-Status" name="ErpStatus" data-id="{{$source['id']}}">
-                    @foreach(App\ErpLeadStatus::all() as $erp_status)
-                    <option value="{{ $erp_status->id }}" {{ $source['status_name'] == $erp_status->name ? 'selected' : '' }}>{{ $erp_status->name }}</option>
-                    @endforeach
-                  </select>
-                </label></div>
-            </td>
-            <td class="tblcell expand-row-msg" data-name="customer_name" data-id="{{$source['id']}}">
-              <div class="checkbox">
-                <label class="checkbox-inline ew">
-                  <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                  <a href="/customer/' + data.customer_id + '" target="_blank">
-                    <span class="show-short-customer_name-{{$source['id']}}">{{ str_limit($source['customer_name'], 5, '..')}}</span>
-                    <span style="word-break:break-all;" class="show-full-customer_name-{{$source['id']}} hidden">{{$source['customer_name']}}</span>
+          <tbody id="vendor-body">
+
+            @foreach ($sourceData as $source)
+            <tr>
+              <!-- <td>{{$source['id']}}</td> -->
+              <td class="tblcell">
+                <div class=""><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'"></label></div>
+              </td>
+              <td class="tblcell">
+                <div class="checkbox"><label class="checkbox-inline">{{$source['id']}}</label></div>
+              </td>
+              <td class="tblcell expand-row-msg" data-name="date" data-id="{{$source['id']}}">
+                <div class="checkbox">
+                  <label class="checkbox-inline">
+                    <span class="show-short-date-{{$source['id']}}">{{ str_limit(\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $source['created_at'])->format('d-m-y'), 5, '.')}}</span>
+                    <span style="word-break:break-all;" class="show-full-date-{{$source['id']}} hidden">{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $source['created_at'])->format('d-m-y')}}</span>
+                  </label>
+                </div>
+              </td>
+              <td class="tblcell">
+                <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                    <select class="form-control update-Erp-Status" name="ErpStatus" data-id="{{$source['id']}}">
+                      @foreach(App\ErpLeadStatus::all() as $erp_status)
+                      <option value="{{ $erp_status->id }}" {{ $source['status_name'] == $erp_status->name ? 'selected' : '' }}>{{ $erp_status->name }}</option>
+                      @endforeach
+                    </select>
+                  </label></div>
+              </td>
+              <td class="tblcell expand-row-msg" data-name="customer_name" data-id="{{$source['id']}}">
+                <div class="checkbox">
+                  <label class="checkbox-inline ew">
+                    <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                    <a href="/customer/' + data.customer_id + '" target="_blank">
+                      <span class="show-short-customer_name-{{$source['id']}}">{{ str_limit($source['customer_name'], 5, '..')}}</span>
+                      <span style="word-break:break-all;" class="show-full-customer_name-{{$source['id']}} hidden">{{$source['customer_name']}}</span>
+                    </a>
+                  </label>
+                </div>
+              </td>
+
+              <!-- 08-09-2021 -->
+              <td class="tblcell expand-row-msg" data-name="customer_email" data-id="{{$source['id']}}">
+                <div class="checkbox">
+                  <label class="checkbox-inline ew">
+                    <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                    <span class="show-short-customer_email-{{$source['id']}}">{{ str_limit($source['customer_email'], 7, '..')}}</span>
+                    <span style="word-break:break-all;" class="show-full-customer_email-{{$source['id']}} hidden">{{$source['customer_email']}}</span>
+                  </label>
+                </div>
+              </td>
+              <td class="tblcell expand-row-msg" data-name="customer_whatsapp_number" data-id="{{$source['id']}}">
+                <div class="checkbox">
+                  <label class="checkbox-inline ew">
+                    <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                    <span class="show-short-customer_whatsapp_number-{{$source['id']}}">{{ str_limit($source['customer_whatsapp_number'], 5, '..')}}</span>
+                    <span style="word-break:break-all;" class="show-full-customer_whatsapp_number-{{$source['id']}} hidden">{{$source['customer_whatsapp_number']}}</span>
+                  </label>
+                </div>
+              </td>
+              <!-- 08-09-2021  end -->
+
+              <td class="tblcell expand-row-msg" data-name="website" data-id="{{$source['id']}}">
+                <div class="checkbox">
+                  <label class="checkbox-inline">
+                    <span class="show-short-website-{{$source['id']}}">{{ str_limit($source['website'], 7, '..')}}</span>
+                    <span style="word-break:break-all;" class="show-full-website-{{$source['id']}} hidden">{{$source['website']}}</span>
+                  </label>
+                </div>
+              </td>
+
+              <td class="tblcell">
+                <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">@if($source['media_url']) <img class="lazy" alt="" src="' + data.media_url + '" style="width:50px;"> @else {{''}} @endif</label></div>
+              </td>
+
+              <!-- 08-09-2021 -->
+              <td class="tblcell">
+                <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['product_id']}}</label></div>
+              </td>
+              <td class="tblcell">
+                <div class="checkbox">
+                  <label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                    {{ Illuminate\Support\Str::limit($source['product_sku'], 4, '..') }}
+                  </label>
+                </div>
+              </td>
+              <td class="tblcell">
+                <div class="checkbox">
+                  <label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                    {{ Illuminate\Support\Str::limit($source['product_name'], 7, '..') }}
+                  </label>
+                </div>
+              </td>
+              <!-- 08-09-2021 end -->
+
+
+
+              <td class="tblcell">
+                <div class="checkbox">
+                  <label class="checkbox-inline ew">
+                    <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                    {{$source['brand_name']}}
+                  </label>
+                  <a class="multi_brand_category_create text-secondary" data-id="{{$source['id']}}" data-url="{{route('manage.leads.brand')}}" href="javascript:;">
+                    <i class="fa fa-plus"></i>
                   </a>
-                </label>
-              </div>
-            </td>
-
-            <!-- 08-09-2021 -->
-            <td class="tblcell expand-row-msg" data-name="customer_email" data-id="{{$source['id']}}">
-              <div class="checkbox">
-                <label class="checkbox-inline ew">
-                  <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                  <span class="show-short-customer_email-{{$source['id']}}">{{ str_limit($source['customer_email'], 7, '..')}}</span>
-                  <span style="word-break:break-all;" class="show-full-customer_email-{{$source['id']}} hidden">{{$source['customer_email']}}</span>
-                </label>
-              </div>
-            </td>
-            <td class="tblcell expand-row-msg" data-name="customer_whatsapp_number" data-id="{{$source['id']}}">
-              <div class="checkbox">
-                <label class="checkbox-inline ew">
-                  <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                  <span class="show-short-customer_whatsapp_number-{{$source['id']}}">{{ str_limit($source['customer_whatsapp_number'], 5, '..')}}</span>
-                  <span style="word-break:break-all;" class="show-full-customer_whatsapp_number-{{$source['id']}} hidden">{{$source['customer_whatsapp_number']}}</span>
-                </label>
-              </div>
-            </td>
-            <!-- 08-09-2021  end -->
-
-            <td class="tblcell expand-row-msg" data-name="website" data-id="{{$source['id']}}">
-              <div class="checkbox">
-                <label class="checkbox-inline">
-                  <span class="show-short-website-{{$source['id']}}">{{ str_limit($source['website'], 7, '..')}}</span>
-                  <span style="word-break:break-all;" class="show-full-website-{{$source['id']}} hidden">{{$source['website']}}</span>
-                </label>
-              </div>
-            </td>
-
-            <td class="tblcell">
-              <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">@if($source['media_url']) <img class="lazy" alt="" src="' + data.media_url + '" style="width:50px;"> @else {{''}} @endif</label></div>
-            </td>
-
-            <!-- 08-09-2021 -->
-            <td class="tblcell">
-              <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['product_id']}}</label></div>
-            </td>
-            <td class="tblcell">
-              <div class="checkbox">
-                <label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                  {{ Illuminate\Support\Str::limit($source['product_sku'], 4, '..') }}
-                </label>
-              </div>
-            </td>
-            <td class="tblcell">
-              <div class="checkbox">
-                <label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                  {{ Illuminate\Support\Str::limit($source['product_name'], 7, '..') }}
-                </label>
-              </div>
-            </td>
-            <!-- 08-09-2021 end -->
+                </div>
+              </td>
 
 
 
-            <td class="tblcell">
-              <div class="checkbox">
-                <label class="checkbox-inline ew">
-                  <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                  {{$source['brand_name']}}
-                </label>
-                <a class="multi_brand_category_create text-secondary" data-id="{{$source['id']}}" data-url="{{route('manage.leads.brand')}}" href="javascript:;">
-                  <i class="fa fa-plus"></i>
-                </a>
-              </div>
-            </td>
+              <td class="tblcell">
+                <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['brand_segment']}}</label></div>
+              </td>
 
 
-
-            <td class="tblcell">
-              <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['brand_segment']}}</label></div>
-            </td>
-
-
-            <td class="tblcell expand-row-msg" data-name="cat_title" data-id="{{$source['id']}}">
-              <div class="checkbox">
-                <label class="checkbox-inline ew">
-                  <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                  <?php if ($source['cat_title'] != null) {
-                  ?>
-                    <span class="show-short-cat_title-{{$source['id']}}">{{ str_limit($source['cat_title'], 5, '..')}}</span>
-                    <span style="word-break:break-all;" class="show-full-cat_title-{{$source['id']}} hidden">{{$source['cat_title']}}</span>
-                  <?php
-                  } ?>
-                </label>
-                <a class="multi_brand_category_create text-secondary" data-id="{{$source['id']}}" data-url="{{route('manage.leads.category')}}" href="javascript:;">
-                  <i class="fa fa-plus"></i>
-                </a>
-              </div>
-            </td>
+              <td class="tblcell expand-row-msg" data-name="cat_title" data-id="{{$source['id']}}">
+                <div class="checkbox">
+                  <label class="checkbox-inline ew">
+                    <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                    <?php if ($source['cat_title'] != null) {
+                    ?>
+                      <span class="show-short-cat_title-{{$source['id']}}">{{ str_limit($source['cat_title'], 5, '..')}}</span>
+                      <span style="word-break:break-all;" class="show-full-cat_title-{{$source['id']}} hidden">{{$source['cat_title']}}</span>
+                    <?php
+                    } ?>
+                  </label>
+                  <a class="multi_brand_category_create text-secondary" data-id="{{$source['id']}}" data-url="{{route('manage.leads.category')}}" href="javascript:;">
+                    <i class="fa fa-plus"></i>
+                  </a>
+                </div>
+              </td>
 
 
-            <td class="tblcell">
-              <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['color']}}</label></div>
-            </td>
-            <td class="tblcell">
-              <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['size']}}</label></div>
-            </td>
-            <td class="tblcell expand-row-msg" data-name="type" data-id="{{$source['id']}}">
-              <div class="checkbox">
-                <label class="checkbox-inline ew">
-                  <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                  <?php $type = ucwords(str_replace('-', ' ', $source['type'])); ?>
-                  <span class="show-short-type-{{$source['id']}}">{{ str_limit($type, 5, '..')}}</span>
-                  <span style="word-break:break-all;" class="show-full-type-{{$source['id']}} hidden">{{$type}}</span>
-                </label>
-              </div>
-            </td>
-            <td class="tblcell communication-td">
-              @if($source['customer_whatsapp_number'])
-              <input type="text" class="form-control send-message-textbox w-50 pull-left" data-id="{{$source['customer_id']}}" id="send_message_{{$source['customer_id']}}" name="send_message_{{$source['id']}}" placeholder="whatsapp message..." />
-              <button class="btn btn-sm btn-xs send-message-open p-0 pull-left" type="submit" id="submit_message" data-id="{{$source['id']}}"><i class="fa fa-paper-plane"></i></button>
-              <button type="button" class="btn btn-xs load-communication-modal p-0 pull-left" data-object='customer' data-id="{{ $source['customer_id'] }}" title="Load messages"><i class="fa fa-comments"></i></button>
-              @endif
-            </td>
-            <td class="tblcell"><a style="color:black;" href="javascript:;" data-id="{{ $source['id'] }}" class="supplier-discount-info view-supplier-details text-secondary"><i class="fa fa-shopping-cart"></i></a></td>
-          </tr>
-          @endforeach
+              <td class="tblcell">
+                <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['color']}}</label></div>
+              </td>
+              <td class="tblcell">
+                <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['size']}}</label></div>
+              </td>
+              <td class="tblcell expand-row-msg" data-name="type" data-id="{{$source['id']}}">
+                <div class="checkbox">
+                  <label class="checkbox-inline ew">
+                    <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                    <?php $type = ucwords(str_replace('-', ' ', $source['type'])); ?>
+                    <span class="show-short-type-{{$source['id']}}">{{ str_limit($type, 5, '..')}}</span>
+                    <span style="word-break:break-all;" class="show-full-type-{{$source['id']}} hidden">{{$type}}</span>
+                  </label>
+                </div>
+              </td>
+              <td class="tblcell communication-td">
+                @if($source['customer_whatsapp_number'])
+                <input type="text" class="form-control send-message-textbox w-50 pull-left" data-id="{{$source['customer_id']}}" id="send_message_{{$source['customer_id']}}" name="send_message_{{$source['id']}}" placeholder="whatsapp message..." />
+                <button class="btn btn-sm btn-xs send-message-open p-0 pull-left" type="submit" id="submit_message" data-id="{{$source['id']}}"><i class="fa fa-paper-plane"></i></button>
+                <button type="button" class="btn btn-xs load-communication-modal p-0 pull-left" data-object='customer' data-id="{{ $source['customer_id'] }}" title="Load messages"><i class="fa fa-comments"></i></button>
+                @endif
+              </td>
+              <td class="tblcell"><a style="color:black;" href="javascript:;" data-id="{{ $source['id'] }}" class="supplier-discount-info view-supplier-details text-secondary"><i class="fa fa-shopping-cart"></i></a></td>
+            </tr>
+            @endforeach
 
-        </tbody>
-      </table>
-    </div>
-    <div class="row">
-      <div class="col-md-12 text-center">
-        {{ $sourceData->appends(Request::except('page'))->links() }}
+          </tbody>
+        </table>
+      </div>
+      <div class="row">
+        <div class="col-md-12 text-center">
+          {{ $sourceData->appends(Request::except('page'))->links() }}
+        </div>
       </div>
     </div>
   </div>
 </div>
+
 
 
 <div id="chat-list-history" class="modal fade" role="dialog">
@@ -1202,5 +1209,29 @@
     });
 
   });
+
+  function funEnableDisableLeads(chk) {
+    if (confirm(chk.checked ? 'Are you sure, do you want to enable this function?' : 'Are you sure, do you want to disable this function?')) {
+      siteLoader(1);
+      jQuery.ajax({
+        headers: {
+          'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+        },
+        url: "{{ route('erp-leads.enable-disable') }}",
+        type: 'POST',
+        data: {
+          status: chk.checked ? 1 : 0
+        }
+      }).done(function(res) {
+        siteLoader(0);
+        siteSuccessAlert(res);
+      }).fail(function(err) {
+        siteLoader(0);
+        siteErrorAlert(err);
+      });
+    } else {
+      chk.checked = !chk.checked;
+    }
+  }
 </script>
 @endsection

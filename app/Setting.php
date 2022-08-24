@@ -45,7 +45,7 @@ class Setting extends Model {
 			return self::castValue($setting->val, $setting->type);
 		}
 
-		return '';
+		return $default;
 	}
 
 	/**
@@ -126,5 +126,10 @@ class Setting extends Model {
 			self::$allData = self::all();
 		}
 		return self::$allData;
+	}
+
+
+	public static function getErpLeadsSave() {
+		return self::get('erp_leads_save', 1);
 	}
 }
