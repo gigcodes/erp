@@ -10,10 +10,8 @@ use App\StoreWebsite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class OutOfStockSubscribeController extends Controller
-{
-    public function Subscribe(Request $request)
-    {
+class OutOfStockSubscribeController extends Controller {
+    public function Subscribe(Request $request) {
         $params = request()->all();
         // validate incoming request
         $validator = Validator::make($params, [
@@ -26,7 +24,13 @@ class OutOfStockSubscribeController extends Controller
             return response()->json(["code" => 500, "data" => $validator->messages(), "message" => "Failed"]);
         }
 
-        $storeWebsite = StoreWebsite::where("website", "like", $request->website)->select('id')->first();
+        $website = str_replace('www.', '', $request->website);
+        $website = str_replace('WWW.', '', $website);
+
+        $storeWebsite = StoreWebsite::where(function ($q) use ($website) {
+            $q->where("website", "like", $website)
+                ->orWhere("website", "like", 'www.' . $website);
+        })->select('id')->first();
 
         if ($storeWebsite) {
             $website_id = $storeWebsite->id;
@@ -34,18 +38,17 @@ class OutOfStockSubscribeController extends Controller
             $sku = explode("-", $request->get("sku"));
             $product = Product::where("sku", $sku[0])->first();
             if ($product) {
-                $customer = Customer::where('email', $data['email'])->where('store_website_id',$website_id)->first();
+                $customer = Customer::where('email', $data['email'])->where('store_website_id', $website_id)->first();
                 if ($customer == null) {
                     $customer = Customer::create(['name' => $data['email'], 'email' => $data['email'], 'store_website_id' => $website_id]);
                 }
                 $status = 0;
-                \App\ErpLeads::create(['customer_id' => $customer->id,'store_website_id' => $website_id, 'lead_status_id' => 1, 'product_id' => $product->id, 'type' => 'out-of-stock-subscribe','size' => $request->get("size",null)]);
+                \App\ErpLeads::create(['customer_id' => $customer->id, 'store_website_id' => $website_id, 'lead_status_id' => 1, 'product_id' => $product->id, 'type' => 'out-of-stock-subscribe', 'size' => $request->get("size", null)]);
                 $arrayToStore = ['customer_id' => $customer['id'], 'product_id' => $product->id, 'status' => $status, 'website_id' => $website_id];
                 OutOfStockSubscribe::updateOrCreate(['customer_id' => $customer['id'], 'product_id' => $product->id, 'website_id' => $website_id], $arrayToStore);
 
                 $message = $this->generate_erp_response("erp.lead.created.for.subscribed.success", $website_id, $default = 'Subscribed successfully.', request('lang_code'));
                 return response()->json(["code" => 'success', "message" => $message]);
-
             } else {
                 $message = $this->generate_erp_response("erp.lead.product.not.found.for.subscribed", 0, $default = 'Product not found in records', request('lang_code'));
                 return response()->json(["code" => 500, "data" => [], "message" => $message]);
@@ -54,11 +57,9 @@ class OutOfStockSubscribeController extends Controller
             $message = $this->generate_erp_response("erp.lead.failed.validation.for.subscribed", 0, $default = 'Website not found in records', request('lang_code'));
             return response()->json(["code" => 500, "data" => [], "message" => $message]);
         }
-
     }
 
-    public function getOrderState(Request $request)
-    {
+    public function getOrderState(Request $request) {
         \Log::info(json_encode($request->all()));
         if ($request->token == "PEtXGYMNqMD6Px3FKsbmgzMZrUnBtGq") {
             if ($request->isMethod('get')) {
@@ -85,7 +86,6 @@ class OutOfStockSubscribeController extends Controller
                         ],
                     ],
                 ];
-
             } else {
                 $response = [
                     "responses" => [
@@ -100,6 +100,5 @@ class OutOfStockSubscribeController extends Controller
 
             return response()->json($response);
         }
-
     }
 }

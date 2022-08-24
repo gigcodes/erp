@@ -12,6 +12,7 @@ use Plank\Mediable\Mediable;
 use Illuminate\Support\Facades\DB;
 
 use App\DeveloperTaskHistory;
+use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
 
 class DeveloperTask extends Model {
     /**
@@ -259,4 +260,41 @@ class DeveloperTask extends Model {
             ]);
         }
     }
+
+
+    public function updateStartDate($new) {
+        $type = 'start_date';
+        $old = $this->start_date;
+
+        $count = DeveloperTaskHistory::query()
+            ->where('model', 'App\DeveloperTask')
+            ->where('attribute', $type)
+            ->where('developer_task_id', $this->id)
+            ->count();
+        if ($count) {
+            DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 0);
+        } else {
+            $this->start_date = $new;
+            $this->save();
+            DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 1);
+        }
+    }
+    public function updateEstimateDate($new) {
+        $type = 'estimate_date';
+        $old = $this->estimate_date;
+
+        $count = DeveloperTaskHistory::query()
+            ->where('model', 'App\DeveloperTask')
+            ->where('attribute', $type)
+            ->where('developer_task_id', $this->id)
+            ->count();
+        if ($count) {
+            DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 0);
+        } else {
+            $this->estimate_date = $new;
+            $this->save();
+            DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 1);
+        }
+    }
+    
 }
