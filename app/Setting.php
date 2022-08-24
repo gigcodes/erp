@@ -129,7 +129,7 @@ class Setting extends Model {
 	}
 
 
-	public static function getErpLeadsSave() {
-		return self::get('erp_leads_save', 1);
+	public static function getErpLeadsCronSave() {
+		return self::get('erp_leads_cron_save', 1);
 	}
 }

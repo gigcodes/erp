@@ -34,7 +34,7 @@ class CreateErpLeadFromCancellationOrder extends Command {
      * @return mixed
      */
     public function handle() {
-        if (!(\App\Setting::getErpLeadsSave())) {
+        if (!(\App\Setting::getErpLeadsCronSave())) {
             die('Disabled');
         }
         try {
