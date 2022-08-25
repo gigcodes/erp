@@ -286,8 +286,6 @@ class UicheckController extends Controller {
         Uicheck::create([
             "site_development_id" => $uiCheck->site_development_id ?? '',
             "site_development_category_id" => $uiCheck->site_development_category_id ?? '',
-            "website_id" => $uiCheck->website_id ?? '',
-            "issue" => $uiCheck->issue ?? '',
             "created_at" => \Carbon\Carbon::now(),
         ]);
         return response()->json(['code' => 200, 'message' => 'Category Duplicate Created successfully!!!']);
