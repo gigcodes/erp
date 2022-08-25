@@ -875,11 +875,11 @@ class LeadsController extends Controller {
         ->whereNotNull('clothing_size')
         ->groupBy('clothing_size')
         ->pluck('counts', 'clothing_size');*/
-        $brands = Brand::all()->toArray();
-        $sourcePaginateArr = array();
-        // print_r($brands);
-        $erpLeadStatus = \App\ErpLeadStatus::all()->toArray();
+
+        $brands = Brand::orderBy('name')->get()->toArray();
+        $erpLeadStatus = \App\ErpLeadStatus::orderBy('name')->get()->toArray();
         $erpLeadTypes = \App\ErpLeads::select('id', 'type')->where('type', '!=', '')->whereNotNull('type')->groupBy('type')->get()->toArray();
+        
         $source = \App\ErpLeads::query()
             ->leftJoin('products', 'products.id', '=', 'erp_leads.product_id')
             ->leftJoin("customers as c", "c.id", "erp_leads.customer_id")
@@ -902,169 +902,105 @@ class LeadsController extends Controller {
                 "SW.website"
             ]);
 
-        /*$term = $request->get('term');
-        if (!empty($term)) {
-        $source = $source->where(function($q) use($term){
-        $q->where("c.name","like","%{$term}%")
-        ->orWhere("c.phone","like","%{$term}%")
-        ->orWhere("c.instahandler","like","%{$term}%")
-        ->orWhere("products.name","like","%{$term}%")
-        ->orWhere("products.name","like","%{$term}%")
-        ->orWhere("erp_leads.id","like","%{$term}%");
-        });
+        /*
+            $term = $request->get('term');
+            if (!empty($term)) {
+            $source = $source->where(function($q) use($term){
+            $q->where("c.name","like","%{$term}%")
+            ->orWhere("c.phone","like","%{$term}%")
+            ->orWhere("c.instahandler","like","%{$term}%")
+            ->orWhere("products.name","like","%{$term}%")
+            ->orWhere("products.name","like","%{$term}%")
+            ->orWhere("erp_leads.id","like","%{$term}%");
+            });
+            }
+
+            if ($request->get('shoe_size')) {
+            $source = $source->where('c.shoe_size', '=', $request->get('shoe_size'));
+            }
+
+            if ($request->get('clothing_size')) {
+            $source = $source->where('c.clothing_size', '=', $request->get('clothing_size'));
+            }
+
+            if ($request->get('shoe_size_group')) {
+            $source = $source->where('c.shoe_size', '=', $request->get('shoe_size_group'));
+            }
+
+            if ($request->get('clothing_size_group')) {
+            $source = $source->where('c.clothing_size', '=', $request->get('clothing_size_group'));
+            }
+        */
+
+        if ($s = request('lead_customer')) {
+            $source = $source->where('c.name', 'like', "%" . $s . "%");
         }
-
-        if ($request->get('shoe_size')) {
-        $source = $source->where('c.shoe_size', '=', $request->get('shoe_size'));
+        if ($s = request('lead_brand')) {
+            $source = $source->whereIn('erp_leads.brand_id', $s);
         }
-
-        if ($request->get('clothing_size')) {
-        $source = $source->where('c.clothing_size', '=', $request->get('clothing_size'));
-        }
-
-        if ($request->get('shoe_size_group')) {
-        $source = $source->where('c.shoe_size', '=', $request->get('shoe_size_group'));
-        }
-
-        if ($request->get('clothing_size_group')) {
-        $source = $source->where('c.clothing_size', '=', $request->get('clothing_size_group'));
-        }*/
-
-        if ($request->get('lead_customer')) {
-            $source = $source->where('c.name', 'like', "%" . $request->get('lead_customer') . "%");
-        }
-
-        if ($request->get('lead_brand')) {
-            $source = $source->whereIn('erp_leads.brand_id', $request->get('lead_brand'));
-        }
-
-        if ($request->get('brand_id')) {
-            $leadIds = ErpLeadsBrand::whereIn('brand_id', $request->get('brand_id'))->pluck('erp_lead_id')->toArray();
+        if ($s = request('brand_id')) {
+            $leadIds = ErpLeadsBrand::whereIn('brand_id', $s)->pluck('erp_lead_id')->toArray();
             $source = $source->whereIn('erp_leads.id', $leadIds);
         }
-
-        if ($request->get('lead_status')) {
-            $source = $source->whereIn('erp_leads.lead_status_id', $request->get('lead_status'));
+        if ($s = request('lead_status')) {
+            $source = $source->whereIn('erp_leads.lead_status_id', $s);
         }
-
-        if ($request->get('lead_category')) {
+        if ($s = request('lead_category')) {
             $leadIds = ErpLeadsCategory::leftJoin('categories', 'categories.id', '=', 'erp_leads_categories.category_id')
-                ->where('title', 'like', '%' . $request->get('lead_category') . '%')->pluck('erp_lead_id')->toArray();
+                ->where('title', 'like', '%' . $s . '%')
+                ->pluck('erp_lead_id')
+                ->toArray();
             $source = $source->whereIn('erp_leads.id', $leadIds);
         }
-
-        if ($request->get('lead_color')) {
-            $source = $source->where('erp_leads.color', '=', $request->get('lead_color'));
+        if ($s = request('lead_color')) {
+            $source = $source->where('erp_leads.color', '=', $s);
         }
-
-        if ($request->get('lead_shoe_size')) {
-            $source = $source->where('erp_leads.size', '=', $request->get('lead_shoe_size'));
+        if ($s = request('lead_shoe_size')) {
+            $source = $source->where('erp_leads.size', '=', $s);
         }
-
-        if ($request->get('lead_type')) {
-            $source = $source->whereIn('erp_leads.type', $request->get('lead_type'));
+        if ($s = request('lead_type')) {
+            $source = $source->whereIn('erp_leads.type', $s);
         }
-
-        if ($request->get('brand_segment')) {
-            $source = $source->where('erp_leads.brand_segment', '=', $request->get('brand_segment'));
+        if ($s = request('brand_segment')) {
+            $source = $source->where('erp_leads.brand_segment', '=', $s);
         }
+        
 
         $total = $source->count();
         $source2 = clone $source;
         $allLeadCustomersId = $source2->select('erp_leads.customer_id')->pluck('customer_id', 'customer_id')->toArray();
-
-        /*$source = $source->get();
-
-        foreach ($source as $key => $value) {
-
-        $curr_cat_title = $value->cat_title;
-        $curr_brand_name = $value->brand_name;
-
-        $source[$key]->media_url = null;
-        $media = $value->getMedia(config('constants.media_tags'))->first();
-        if ($media) {
-        $source[$key]->media_url = $media->getUrl();
-        }
-
-        if (empty($source[$key]->media_url) && $value->product_id) {
-        $product = Product::find($value->product_id);
-        // $media = $product->getMedia(config('constants.media_tags'))->first();
-        // if ($media) {
-        //     $source[$key]->media_url = $media->getUrl();
-        // }
-        }
-
-        $cat_titles = array();
-        $cat_title = $value['cat_title'];
-
-        $value['cat_title'] = ErpLeadsCategory::where('erp_lead_id',$value['id'])->where('category_id','!=','')->get()->pluck('category_id');
-
-        foreach ($value['cat_title'] as $key => $title) {
-        $titles = Category::where('id',$title)->pluck('title')->toArray();
-        foreach($titles as $a){
-        $cat_titles[] =  $a;
-        }
-        }
-        if(!empty($curr_cat_title)){
-        array_push($cat_titles , $curr_cat_title);
-        }
-        //if($cat_titles != null) {
-        $value['cat_title'] =  implode(',', $cat_titles);
-        // }
-
-        $brandList = [];
-        $brand_names = ErpLeadsBrand::where('erp_lead_id',$value['id'])->where('brand_id','!=','')->pluck('brand_id')->toArray();
-        foreach ($brand_names as $key => $row) {
-        $brands_names = Brand::where('id',$row)->pluck('name')->toArray();
-        foreach($brands_names as $a){
-        $brandList[] = $a;
-        //$brand .=  $a.',';
-        }
-        }
-        if(!empty($curr_brand_name)){
-        array_push($brandList , $curr_brand_name);
-        }
-        if($brandList != null) {
-        $value['brand_name'] =  implode(',', $brandList);
-        }
-        //$value['brand_name'] = $brand;
-        }
-
-        foreach ($source as $value) {
-        $srcArr = json_decode(json_encode($value), true);
-        array_push($sourcePaginateArr, $srcArr);
-        }
-        // echo "<pre>";print_r($sourcePaginateArr);die('ss');
-
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = Setting::get('pagination');
-        if (request()->get('select_all') == 'true') {
-        $perPage = count($sourcePaginateArr);
-        $currentPage = 1;
-        }
-
-        if (!is_numeric($perPage)) {
-        $perPage = 2;
-        }
-
-        $currentItems = array_slice($sourcePaginateArr, $perPage * ($currentPage - 1), $perPage);
-
-        $sourcePaginateArr = new LengthAwarePaginator($currentItems, count($sourcePaginateArr), $perPage, $currentPage, [
-        'path'  => LengthAwarePaginator::resolveCurrentPath()
-        ]);*/
-
-        //$source = $source->get();
+        // _p($allLeadCustomersId, 1);
 
         $source = $source->paginate(Setting::get('pagination'));
 
-        // dd($source);
+        $tempLeadIds = [];
+        foreach ($source as $single) {
+            $tempLeadIds[] = $single->id;
+        }
 
-        $source->getCollection()->transform(function ($value) {
-            // _p($value);
-            // Your code here
+        $listErpLeadsCategories = [];
+        $listCategories = [];
 
-            $curr_cat_title = $value['cat_title'];
-            $curr_brand_name = $value['brand_name'];
+        $listErpLeadsBrands = [];
+        $listBrands = [];
+        if ($tempLeadIds) {
+
+            $temp = ErpLeadsCategory::whereIn('erp_lead_id', $tempLeadIds)->where('category_id', '>', 0)->get(['erp_lead_id', 'category_id']);
+            foreach ($temp as $key => $value) {
+                $listErpLeadsCategories[$value->erp_lead_id][] = $value->category_id;
+            }
+            $listCategories = Category::orderBy('title')->pluck('title', 'id')->toArray();
+
+
+            $temp = ErpLeadsBrand::whereIn('erp_lead_id', $tempLeadIds)->where('brand_id', '>', 0)->get(['erp_lead_id', 'brand_id']);
+            foreach ($temp as $key => $value) {
+                $listErpLeadsBrands[$value->erp_lead_id][] = $value->brand_id;
+            }
+            $listBrands = Brand::orderBy('name')->pluck('name', 'id')->toArray();
+        }
+
+        $source->getCollection()->transform(function ($value) use ($listErpLeadsCategories, $listCategories, $listErpLeadsBrands, $listBrands) {
+            // _p($value->toArray());
 
             $value['media_url'] = null;
             $media = $value->getMedia(config('constants.media_tags'))->first();
@@ -1073,47 +1009,33 @@ class LeadsController extends Controller {
             }
 
             if (empty($value['media_url']) && $value['product_id']) {
-                $product = Product::find($value['product_id']);
-                // $media = $product->getMedia(config('constants.media_tags'))->first();
-                // if ($media) {
-                //     $source[$key]->media_url = $media->getUrl();
-                // }
+                // $product = Product::find($value['product_id']);
+                // // $media = $product->getMedia(config('constants.media_tags'))->first();
+                // // if ($media) {
+                // //     $source[$key]->media_url = $media->getUrl();
+                // // }
             }
 
-            $cat_titles = array();
-            $cat_title = $value['cat_title'];
-
-            $value['cat_title'] = ErpLeadsCategory::where('erp_lead_id', $value['id'])->where('category_id', '!=', '')->get()->pluck('category_id');
-
-            foreach ($value['cat_title'] as $key => $title) {
-                $titles = Category::where('id', $title)->pluck('title')->toArray();
-                foreach ($titles as $a) {
-                    $cat_titles[] = $a;
+            $temp = $value['cat_title'] ? [$value['cat_title']] : [];
+            if (isset($listErpLeadsCategories[$value['id']]) && $listErpLeadsCategories[$value['id']]) {
+                foreach ($listErpLeadsCategories[$value['id']] as $catId) {
+                    if (isset($listCategories[$catId]) && $listCategories[$catId]) {
+                        $temp[] = $listCategories[$catId];
+                    }
                 }
             }
-            if (!empty($curr_cat_title)) {
-                array_push($cat_titles, $curr_cat_title);
-            }
-            //if($cat_titles != null) {
-            $value['cat_title'] = implode(',', $cat_titles);
-            // }
+            $value['cat_title'] = implode(', ', array_unique($temp));
 
-            $brandList = [];
-            $brand_names = ErpLeadsBrand::where('erp_lead_id', $value['id'])->where('brand_id', '!=', '')->pluck('brand_id')->toArray();
-            foreach ($brand_names as $key => $row) {
-                $brands_names = Brand::where('id', $row)->pluck('name')->toArray();
-                foreach ($brands_names as $a) {
-                    $brandList[] = $a;
-                    //$brand .=  $a.',';
+
+            $temp = $value['brand_name'] ? [$value['brand_name']] : [];
+            if (isset($listErpLeadsBrands[$value['id']]) && $listErpLeadsBrands[$value['id']]) {
+                foreach ($listErpLeadsBrands[$value['id']] as $brandId) {
+                    if (isset($listBrands[$brandId]) && $listBrands[$brandId]) {
+                        $temp[] = $listBrands[$brandId];
+                    }
                 }
             }
-            if (!empty($curr_brand_name)) {
-                array_push($brandList, $curr_brand_name);
-            }
-            if ($brandList != null) {
-                $value['brand_name'] = implode(',', $brandList);
-            }
-            //$value['brand_name'] = $brand;
+            $value['brand_name'] = implode(', ', array_unique($temp));
 
             return $value;
         });
@@ -1126,13 +1048,6 @@ class LeadsController extends Controller {
             'erpLeadTypes' => $erpLeadTypes,
             'recordsTotal' => $total,
             'sourceData' => $source,
-            'lead_type' => @$request->get('lead_type'),
-            'lead_shoe_size' => $request->get('lead_shoe_size'),
-            'lead_color' => $request->get('lead_color'),
-            'lead_category' => $request->get('lead_category'),
-            'brand_segment' => $request->get('brand_segment'),
-            'lead_customer' => $request->get('lead_customer'),
-            'brand_id' => $request->get('brand_id'),
             'allLeadCustomersId' => $allLeadCustomersId,
             'statusErpLeadsSave' => Setting::getErpLeadsCronSave(),
         ]);
@@ -1701,7 +1616,7 @@ class LeadsController extends Controller {
         return response()->json(['Sucess', 200, 'message' => $message]);
     }
 
-    public function enableDisable(){
+    public function enableDisable() {
         Setting::set('erp_leads_cron_save', request('status', 0), 'int');
         return respJson(200, 'Updated successfully.');
     }

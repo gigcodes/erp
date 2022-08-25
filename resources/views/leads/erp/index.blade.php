@@ -92,35 +92,35 @@
             </div>
           </div>
           <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-3">
-            <input type="text" class="form-control-sm cls_commu_his form-control field_search lead_customer input-size" value="{{@$lead_customer}}" name="lead_customer" placeholder="Customer" />
+            <input type="text" class="form-control-sm cls_commu_his form-control field_search lead_customer input-size" value="{{ request('lead_customer') }}" name="lead_customer" placeholder="Customer" />
           </div>
           <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-3">
             <select placeholder="Brand" class="form-control lead_brand multi_lead_status input-size" name="brand_id[]" multiple="">
               Brand
               <option value="" default>Brand</option>
               @foreach($brands as $brand_item)
-              <option value="{{$brand_item['id']}}" {{($brand_id)?in_array($brand_item['id'],$brand_id)?'selected':'':''}}>{{$brand_item['name']}}</option>
+              <option value="{{$brand_item['id']}}" {{ in_array($brand_item['id'], request('brand_id', [])) ? 'selected' : '' }}>{{$brand_item['name']}}</option>
               @endforeach
             </select>
           </div>
           <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-3">
-            <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search brand_segment" value="{{@$brand_segment}}" name="brand_segment" placeholder="Brand Segment" />
+            <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search brand_segment" value="{{ request('brand_segment') }}" name="brand_segment" placeholder="Brand Segment" />
           </div>
           <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-3">
-            <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_category" value="{{@$lead_category}}" name="lead_category" placeholder="Category" />
+            <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_category" value="{{ request('lead_category') }}" name="lead_category" placeholder="Category" />
           </div>
           <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-3">
-            <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_color" value="{{@$lead_color}}" name="lead_color" placeholder="Color" />
+            <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_color" value="{{ request('lead_color') }}" name="lead_color" placeholder="Color" />
 
           </div>
           <div class="form-group col-md-1 cls_filter_checkbox p-0 mr-3">
-            <input type="text" class="field_search lead_shoe_size form-control-sm cls_commu_his form-control input-size" value="{{@$lead_shoe_size}}" name="lead_shoe_size" placeholder="Size" />
+            <input type="text" class="field_search lead_shoe_size form-control-sm cls_commu_his form-control input-size" value="{{ request('lead_shoe_size') }}" name="lead_shoe_size" placeholder="Size" />
           </div>
           <div class="form-group col-md-1 cls_filter_checkbox p-0 mr-3">
             <select class="form-control lead_type multi_lead_type" name="lead_type[]" multiple="">
               <option value="">Status</option>
               @foreach($erpLeadTypes as $type)
-              <option value="{{$type['type']}}" {{($lead_type)?(in_array($type['type'],$lead_type)?'selected':''):''}}>{{$type['type']}}</option>
+              <option value="{{$type['type']}}" {{ in_array($type['type'], request('lead_type', [])) ? 'selected' : '' }}>{{$type['type']}}</option>
               @endforeach
             </select>
           </div>
@@ -218,10 +218,11 @@
                 </div>
               </td>
               <td class="tblcell">
-                <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                <div class="checkbox"><label class="checkbox-inline ew">
+                    <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
                     <select class="form-control update-Erp-Status" name="ErpStatus" data-id="{{$source['id']}}">
-                      @foreach(App\ErpLeadStatus::all() as $erp_status)
-                      <option value="{{ $erp_status->id }}" {{ $source['status_name'] == $erp_status->name ? 'selected' : '' }}>{{ $erp_status->name }}</option>
+                      @foreach($erpLeadStatus as $erp_status)
+                      <option value="{{ $erp_status['id'] }}" {{ $source['status_name'] == $erp_status['name'] ? 'selected' : '' }}>{{ $erp_status['name'] }}</option>
                       @endforeach
                     </select>
                   </label></div>
@@ -317,12 +318,10 @@
                 <div class="checkbox">
                   <label class="checkbox-inline ew">
                     <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                    <?php if ($source['cat_title'] != null) {
-                    ?>
+                    <?php if ($source['cat_title'] != null) { ?>
                       <span class="show-short-cat_title-{{$source['id']}}">{{ str_limit($source['cat_title'], 5, '..')}}</span>
                       <span style="word-break:break-all;" class="show-full-cat_title-{{$source['id']}} hidden">{{$source['cat_title']}}</span>
-                    <?php
-                    } ?>
+                    <?php } ?>
                   </label>
                   <a class="multi_brand_category_create text-secondary" data-id="{{$source['id']}}" data-url="{{route('manage.leads.category')}}" href="javascript:;">
                     <i class="fa fa-plus"></i>
