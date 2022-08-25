@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('title', 'User Management > User Scheduler')
 @section('favicon', 'user-management.png')
 @section('large_content')
 @include('partials.flash_messages')

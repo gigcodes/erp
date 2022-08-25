@@ -24,7 +24,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     @elseif (!\Auth::guest())
         <link rel="shortcut icon" type="image/png" href="/generate-favicon?title={{$title}}" />
     @endif
-    <title>{{$title}}</title>
+    <title>{!! $title !!}</title>
     <!-- CSRF Token -->
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -1080,6 +1080,9 @@ if (!empty($notifications)) {
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('user-management.user-schedules.index')}}">User Schedules</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('user-management.user-delivered.index')}}">User Delivered</a>
                                         </li>
                                     </ul>
                                 </li>

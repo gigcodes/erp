@@ -14,7 +14,7 @@
                     <div class="col-md-4">
                         <label>Estimated Time: [In Minutes]</label>
                         <div class="form-group">
-                            <input type="number" class="form-control" name="approximate" value="" min="1" />
+                            <input type="number" class="form-control" name="approximate" value="" min="1" autocomplete="off" />
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -27,7 +27,7 @@
                         <label>Actions</label>
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('approximate')">Update</button>
-                            <button type="button" class="btn btn-default show-time-history" >History</button>
+                            <button type="button" class="btn btn-default show-time-history">History</button>
                         </div>
                     </div>
                 </div>
@@ -39,7 +39,7 @@
                         <label>Estimated Start Datetime:</label>
                         <div class="form-group">
                             <div class='input-group date cls-start-due-date'>
-                                <input type="text" class="form-control" name="start_date" value="" />
+                                <input type="text" class="form-control" name="start_date" value="" autocomplete="off" />
                                 <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
                             </div>
                         </div>
@@ -60,7 +60,7 @@
                         <label>Estimated End Datetime: [Due Date]</label>
                         <div class="form-group">
                             <div class='input-group date cls-start-due-date'>
-                                <input type="text" class="form-control" name="due_date" value="" />
+                                <input type="text" class="form-control" name="due_date" value="" autocomplete="off" />
                                 <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
                             </div>
                         </div>
@@ -80,7 +80,7 @@
                     <div class="{{$cls_1}}">
                         <label>Cost:</label>
                         <div class="form-group">
-                            <input type="text" class="form-control" name="cost" value="" />
+                            <input type="text" class="form-control" name="cost" value="" autocomplete="off" />
                         </div>
                     </div>
                     <div class="{{$cls_2}}">
@@ -113,6 +113,25 @@
 </div>
 
 <div id="modalTaskHistories" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="post">
+                <input type="hidden" name="type" value="">
+                <div class="modal-header">
+                    <h4 class="modal-title"></h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary cls-save" onclick="funTaskApproveRecord(this)">Save</button>
+                    <button type="button" class="btn btn-secondary cls-save" onclick="funTaskApproveHistory(this)">History</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="modalTaskApprovedHistories" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -270,6 +289,9 @@
             let mdl = jQuery('#modalTaskHistories');
             let url = '';
 
+            mdl.find('.cls-save').removeClass('d-none');
+            mdl.find('input[name="type"]').val(type);
+
             if (type == 'start_date') {
                 mdl.find('.modal-title').html('Estimated Start Datetime History');
                 url = "{{ route('task.history.start-date.index') }}";
@@ -279,6 +301,7 @@
             } else if (type == 'cost') {
                 mdl.find('.modal-title').html('Cost History');
                 url = "{{ route('task.history.cost.index') }}";
+                mdl.find('.cls-save').addClass('d-none');
             }
 
             jQuery.ajax({
@@ -299,6 +322,55 @@
                 siteErrorAlert(err);
             });
         }
+    }
+
+    function funTaskApproveRecord(btn) {
+        let type = jQuery(btn).attr('data-recordtype');
+        jQuery.ajax({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{!! route('task.history.approve') !!}",
+            type: 'POST',
+            data: jQuery(btn).closest('form').serialize(),
+        }).done(function(res) {
+            siteSuccessAlert(res);
+            siteLoader(0);
+        }).fail(function(err) {
+            siteErrorAlert(err);
+            siteLoader(0);
+        });
+    }
+
+    function funTaskApproveHistory(ele) {
+        let type = jQuery('#modalTaskHistories').find('input[name="type"]').val();
+
+        let mdl = jQuery('#modalTaskApprovedHistories');
+        mdl.find('.modal-title').html('Approved History');
+        if (type == 'start_date') {} else if (type == 'due_date') {} else {
+            return;
+        }
+
+        siteLoader(1);
+        jQuery.ajax({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('task.history.approve-history') }}",
+            type: 'GET',
+            data: {
+                type: type,
+                id: currTaskInformationTaskId
+            }
+        }).done(function(response) {
+            mdl.find('.modal-body').html(response.data);
+            mdl.modal('show');
+            siteLoader(0);
+        }).fail(function(err) {
+            siteErrorAlert(err);
+            siteLoader(0);
+        });
+
     }
 
     jQuery(document).ready(function() {
