@@ -91,109 +91,108 @@
 {{ Session::get('message') }}
 @endif
 <br />
+<div class="col-lg-12 margin-tb">
+	<div class="row">
+		<div class="col-md-12">
+			<form>
+				<div class="row">
+					<div class="col-md-2">
+						<div class="form-group">
+							<input type="text" name="id" id="id" class="form-control" value="{{request('id')}}" placeholder="Please Enter Uicheck Id" />
+						</div>
+					</div>
+					
+					<div class="col-md-2">
+						<div class="form-group">
+							<?php 
+								if(request('categories')){   $categoriesArr = request('categories'); }
+								else{ $categoriesArr = ''; }
+							  ?>
+							<select name="categories" id="store-categories" class="form-control select2">
+								<option value="" @if($categoriesArr=='') selected @endif>-- Select a categories --</option>
+								@forelse($site_development_categories as $ctId => $ctName)
+								<option value="{{ $ctId }}" @if($categoriesArr==$ctId) selected @endif>{!! $ctName !!}</option>
+								@empty
+								@endforelse
+							</select>
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="form-group">
+							<?php 
+								if(request('status')){   $statusArr = request('status'); }
+								else{ $statusArr = ''; }
+							  ?>
+							<select name="status" id="status" class="form-control select2">
+								<option value="" @if($statusArr=='') selected @endif>-- Status --</option>
+								@forelse($allStatus as $key => $as)
+								<option value="{{ $key }}" @if($statusArr==$key) selected @endif>{{ $as }}</option>
+								@empty
+								@endforelse
+							</select>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<button type="submit" class="btn btn btn-image custom-filter"><img src="/images/filter.png" style="cursor: nwse-resize;"></button>
+						<a href="{{route('uicheck.responsive')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
 <div class="row mt-2">
 	<div class="col-md-12 margin-tb infinite-scroll">
 		<div class="table-responsive">
 			<table class="table table-bordered" id="uicheck_table1">
 				<thead>
 					<tr>
-						<th width="10%">ID</th>
-						<th width="10%">Ui Check ID</th>
+						{{-- <th width="10%">ID</th> --}}
+						<th width="5%">Ui Check ID</th>
 						<th width="10%">Categories</th>
 						<th width="5%">Device1</th>
-						<th width="6%">Update By</th>
-						<th width="6%">Status</th>
-						<th width="10%">Change Status</th>
 						<th width="5%">Device2</th>
-						<th width="6%">Update By</th>
-						<th width="6%">Status</th>
-						<th width="10%">Change Status</th>
 						<th width="5%">Device3</th>
-						<th width="6%">Update By</th>
-						<th width="6%">Status</th>
-						<th width="10%">Change Status</th>
 						<th width="5%">Device4</th>
-						<th width="6%">Update By</th>
-						<th width="6%">Status</th>
-						<th width="10%">Change Status</th>
 						<th width="5%">Device5</th>
-						<th width="6%">Update By</th>
-						<th width="6%">Status</th>
-						<th width="10%">Change Status</th>
+						<th width="10%">Status</th>
 						
 					</tr>
 				</thead>
 				<tbody>
 					
 					@foreach ($uiDevDatas as $uiDevData)
-						<tr>
-							<td>{{$uiDevData->id}}</td>
-							<td>{{$uiDevData->uicheck_id}}</td>
-							<td class="expand-row-msg" data-name="title" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-								<span class="show-short-title-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ str_limit($uiDevData->title, 5, '..')}} @else   @endif</span>
-								<span style="word-break:break-all;" class="show-full-title-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->title != '') {{$uiDevData->title}} @else   @endif</span>
-							</td>
-							
-							<td>@if($uiDevData->device_no == 1) Device1 @else  @endif</td>
-							<td class="expand-row-msg" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-								<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_id != '' && $uiDevData->device_no == 1) {{ str_limit($uiDevData->username, 5, '..')}} @else   @endif</span>
-								<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->user_id != '' && $uiDevData->device_no == 1) {{$uiDevData->username}} @else   @endif</span>
-							</td>
-							<td class="expand-row-msg" data-name="statusname" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-								<span class="show-short-statusname-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->status != '' && $uiDevData->device_no == 1) {{ str_limit($uiDevData->statusname, 5, '..')}} @else   @endif</span>
-								<span style="word-break:break-all;" class="show-full-statusname-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->status != '' && $uiDevData->device_no == 1){{$uiDevData->statusname}}@else   @endif</span>
-							</td>
-							
-							<td data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" >@if($uiDevData->device_no == 1) {!! $status !!} <button type="button" class="btn btn-xs btn-status-history" title="Show Status History" data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" ><i class="fa fa-info-circle "></i></button> @else  @endif</td>
-							
-							<td>@if($uiDevData->device_no == 2) Device2 @else  @endif</td>
-							<td class="expand-row-msg" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-								<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_id != '' && $uiDevData->device_no == 2) {{ str_limit($uiDevData->username, 5, '..')}} @else   @endif</span>
-								<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->user_id != '' && $uiDevData->device_no == 2) {{$uiDevData->username}}@else   @endif</span>
-							</td>
-							<td class="expand-row-msg" data-name="statusname" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-								<span class="show-short-statusname-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->status != '' && $uiDevData->device_no == 2) {{ str_limit($uiDevData->statusname, 5, '..')}} @else   @endif</span>
-								<span style="word-break:break-all;" class="show-full-statusname-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->status != '' && $uiDevData->device_no == 2) {{$uiDevData->statusname}}  @else   @endif</span>
-							</td>
-							
-							<td data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" >@if($uiDevData->device_no == 2) {!! $status !!} <button type="button" class="btn btn-xs btn-status-history" title="Show Status History" data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" ><i class="fa fa-info-circle "></i></button> @else  @endif</td>
-
-							<td>@if($uiDevData->device_no == 3) Device3 @else  @endif</td>
-							<td class="expand-row-msg" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-								<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_id != '' && $uiDevData->device_no == 3) {{ str_limit($uiDevData->username, 5, '..')}} @else   @endif</span>
-								<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->user_id != '' && $uiDevData->device_no == 3) {{$uiDevData->username}}@else   @endif</span>
-							</td>
-							<td class="expand-row-msg" data-name="statusname" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-								<span class="show-short-statusname-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->status != '' && $uiDevData->device_no == 3) {{ str_limit($uiDevData->statusname, 5, '..')}} @else   @endif</span>
-								<span style="word-break:break-all;" class="show-full-statusname-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->status != '' && $uiDevData->device_no == 3) {{$uiDevData->statusname}}  @else   @endif</span>
-							</td>
-							
-							<td data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" >@if($uiDevData->device_no == 3) {!! $status !!} <button type="button" class="btn btn-xs btn-status-history" title="Show Status History" data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" ><i class="fa fa-info-circle "></i></button> @else  @endif</td>
-
-							<td>@if($uiDevData->device_no == 4) Device4 @else  @endif</td>
-							<td class="expand-row-msg" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-								<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_id != '' && $uiDevData->device_no == 4) {{ str_limit($uiDevData->username, 5, '..')}} @else   @endif</span>
-								<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->user_id != '' && $uiDevData->device_no == 4) {{$uiDevData->username}}@else   @endif</span>
-							</td>
-							<td class="expand-row-msg" data-name="statusname" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-								<span class="show-short-statusname-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->status != '' && $uiDevData->device_no == 4) {{ str_limit($uiDevData->statusname, 5, '..')}} @else   @endif</span>
-								<span style="word-break:break-all;" class="show-full-statusname-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->status != '' && $uiDevData->device_no == 4) {{$uiDevData->statusname}}  @else   @endif</span>
-							</td>
-							
-							<td data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" >@if($uiDevData->device_no == 4) {!! $status !!} <button type="button" class="btn btn-xs btn-status-history" title="Show Status History" data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" ><i class="fa fa-info-circle "></i></button> @else  @endif</td>
-
-							<td>@if($uiDevData->device_no == 5) Device5 @else  @endif</td>
-							<td class="expand-row-msg" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-								<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->user_id != '' && $uiDevData->device_no == 5) {{ str_limit($uiDevData->username, 5, '..')}} @else   @endif</span>
-								<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->user_id != '' && $uiDevData->device_no == 5) {{$uiDevData->username}}@else   @endif</span>
-							</td>
-							<td class="expand-row-msg" data-name="statusname" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
-								<span class="show-short-statusname-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->status != '' && $uiDevData->device_no == 5) {{ str_limit($uiDevData->statusname, 5, '..')}} @else   @endif</span>
-								<span style="word-break:break-all;" class="show-full-statusname-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->status != '' && $uiDevData->device_no == 5) {{$uiDevData->statusname}}  @else   @endif</span>
-							</td>
-							
-							<td data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" >@if($uiDevData->device_no == 5) {!! $status !!} <button type="button" class="btn btn-xs btn-status-history" title="Show Status History" data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" ><i class="fa fa-info-circle "></i></button> @else  @endif</td>
-						</tr>
+						
+							<tr>
+								{{-- <td>{{$uiDevData->id}}</td> --}}
+								<td>{{$uiDevData->uicheck_id}}</td>
+								<td class="expand-row-msg" data-name="title" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
+									<span class="show-short-title-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ str_limit($uiDevData->title, 5, '..')}} @else   @endif</span>
+									<span style="word-break:break-all;" class="show-full-title-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->title != '') {{$uiDevData->title}} @else   @endif</span>
+								</td>
+								
+								<td> Device1 </td>
+								<td> Device2</td>
+								<td> Device3 </td>
+								<td> Device4 </td>
+								<td> Device5 </td>
+								
+								<?php 
+										$devid = '';
+										$status = '';
+										$uiDev = App\UiDevice::where('device_no', 1)
+											->where('uicheck_id', $uiDevData->uicheck_id)
+											->first();
+											$device_no = $uiDev->device_no  ?? '';
+											$status = ($status) ? $status : ''; if($device_no == 1) { $status = $uiDev->status; }  
+											$devid = ($devid) ? $devid : $uiDev->id ?? ''; 
+											?>
+								<td data-id="{{$devid }}" data-uicheck_id="{{$uiDevData->uicheck_id }}" data-device_no="1"  data-old_status="{{$status }}" >
+									
+									<?php echo Form::select("statuschanges",[ "" => "-- None --"] + $allStatus ,$status , ["class" => "form-control statuschanges"]); ?>
+									<button type="button" class="btn btn-xs btn-status-history" title="Show Status History" data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" ><i class="fa fa-info-circle "></i></button></td>
+							</tr>
+						
 					@endforeach
 				</tbody>
 			</table>
@@ -278,7 +277,7 @@
 			},
 			success: function(response) {
 				if (response.code == 200) {
-					$(".statuschanges").val("");
+					//$(".statuschanges").val("");
 					toastr['success'](response.message);
 				} else {
 					toastr['error'](response.message);
@@ -373,7 +372,7 @@
 		$(full).toggleClass('hidden');
 		$(mini).toggleClass('hidden');
 	});
-	
+	$('.select2').select2();
 </script>
 
 @endsection

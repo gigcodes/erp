@@ -91,21 +91,69 @@
 {{ Session::get('message') }}
 @endif
 <br />
+<div class="col-lg-12 margin-tb">
+	<div class="row">
+		<div class="col-md-12">
+			<form>
+				<div class="row">
+					<div class="col-md-2">
+						<div class="form-group">
+							<input type="text" name="id" id="id" class="form-control" value="{{request('id')}}" placeholder="Please Enter Uicheck Id" />
+						</div>
+					</div>
+					
+					<div class="col-md-2">
+						<div class="form-group">
+							<?php 
+								if(request('categories')){   $categoriesArr = request('categories'); }
+								else{ $categoriesArr = ''; }
+							  ?>
+							<select name="categories" id="store-categories" class="form-control select2">
+								<option value="" @if($categoriesArr=='') selected @endif>-- Select a categories --</option>
+								@forelse($site_development_categories as $ctId => $ctName)
+								<option value="{{ $ctId }}" @if($categoriesArr==$ctId) selected @endif>{!! $ctName !!}</option>
+								@empty
+								@endforelse
+							</select>
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="form-group">
+							<?php 
+								if(request('status')){   $statusArr = request('status'); }
+								else{ $statusArr = ''; }
+							  ?>
+							<select name="status" id="status" class="form-control select2">
+								<option value="" @if($statusArr=='') selected @endif>-- Status --</option>
+								@forelse($allStatus as $key => $as)
+								<option value="{{ $key }}" @if($statusArr==$key) selected @endif>{{ $as }}</option>
+								@empty
+								@endforelse
+							</select>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<button type="submit" class="btn btn btn-image custom-filter"><img src="/images/filter.png" style="cursor: nwse-resize;"></button>
+						<a href="{{route('uicheck.translation')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
 <div class="row mt-2">
 	<div class="col-md-12 margin-tb infinite-scroll">
 		<div class="" style="overflow-x: auto;">
 			<table class="table table-bordered" id="uicheck_table1">
 				<thead>
 					<tr>
-						<th width="10%">ID</th>
-						<th width="10%">Ui Check ID</th>
+						{{-- <th width="10%">ID</th> --}}
+						<th width="5%">Ui Check ID</th>
 						<th width="10%">Categories</th>
 						@foreach ($languages as $language)
 							<th width="5%">{{$language->name}}</th>
-							<th width="6%">Update By</th>
-							<th width="6%">Status</th>
-							<th width="10%">Change Status</th>
 						@endforeach
+						<th width="10%">Change Status</th>
 						
 					</tr>
 				</thead>
@@ -113,32 +161,29 @@
 					
 					@foreach ($uiLanguages as $uiLanguage)
 						<tr>
-							<td>{{$uiLanguage->id}}</td>
+							{{-- <td>{{$uiLanguage->id}}</td> --}}
 							<td>{{$uiLanguage->uicheck_id}}</td>
 							<td class="expand-row-msg" data-name="title" data-id="{{$uiLanguage->id}}">
 								<span class="show-short-title-{{$uiLanguage->id}}">@if($uiLanguage->title != '') {{ str_limit($uiLanguage->title, 5, '..')}} @else   @endif</span>
 								<span style="word-break:break-all;" class="show-full-title-{{$uiLanguage->id}} hidden">@if($uiLanguage->title != '') {{$uiLanguage->title}} @else   @endif</span>
 							</td>
+							
 							@foreach ($languages as $language)
-								@if ($language->id == $uiLanguage->languages_id)
-									<td>@if($language->name != '') {{$language->name}} @else  @endif</td>
-									<td class="expand-row-msg" data-name="username" data-id="{{$language->id.$uiLanguage->id}}">
-										<span class="show-short-username-{{$language->id.$uiLanguage->id}}">@if($uiLanguage->user_id) {{ str_limit($uiLanguage->username, 5, '..')}} @else   @endif</span>
-										<span style="word-break:break-all;" class="show-full-username-{{$language->id.$uiLanguage->id}} hidden">@if($uiLanguage->user_id != '') {{$uiLanguage->username}} @else   @endif</span>
-									</td>
-									<td class="expand-row-msg" data-name="statusname" data-id="{{$language->id.$uiLanguage->id}}">
-										<span class="show-short-statusname-{{$language->id.$uiLanguage->id}}">@if($uiLanguage->status != '') {{ str_limit($uiLanguage->statusname, 5, '..')}} @else   @endif</span>
-										<span style="word-break:break-all;" class="show-full-statusname-{{$language->id.$uiLanguage->id}} hidden">@if($language->status != ''){{$uiLanguage->statusname}}@else   @endif</span>
-									</td>
-									
-									<td data-id="{{$uiLanguage->id}}" data-uicheck_id="{{$uiLanguage->uicheck_id}}" data-language_id="{{$language->id}}" data-old_status="{{$uiLanguage->status}}" >@if($uiLanguage->status != '') {!! $status !!} <button type="button" class="btn btn-xs btn-status-history" title="Show Status History" data-id="{{$uiLanguage->id}}" data-uicheck_id="{{$uiLanguage->uicheck_id}}" data-old_status="{{$uiLanguage->status}}" ><i class="fa fa-info-circle "></i></button> @else  @endif</td>
-								@else
-									<td></td>
-									<td></td>
-									<td></td>
-									<td></td>
-								@endif
+								<td>@if($language->name != '' && $uiLanguage->languages_id == $language->id) {{$language->name}} @else  @endif</td>
 							@endforeach
+							<?php 
+								$status = '';
+								$lanid = '';
+								$uiLan = App\UiLanguage::where('languages_id', 2)
+											->where('uicheck_id', $uiLanguage->uicheck_id)
+											->first();
+								$languages_id = $uiLan->languages_id  ?? '';	
+								$lanid = ($lanid) ? $lanid : $uiLan->id ?? ''; 
+								$status = ($status) ? $status : ''; if($languages_id == 2){ $status = $uiLan->status; } ?>
+							<td data-id="{{$lanid }}" data-uicheck_id="{{$uiLanguage->uicheck_id }}" data-language_id="2" data-old_status="{{$status}}" >
+								<?php echo Form::select("statuschanges",[ "" => "-- None --"] + $allStatus ,$status, ["class" => "form-control statuschanges"]); ?>
+								<button type="button" class="btn btn-xs btn-status-history" title="Show Status History" data-id="{{$uiLanguage->id}}" data-uicheck_id="{{$uiLanguage->uicheck_id}}" data-old_status="{{$uiLanguage->status}}" ><i class="fa fa-info-circle "></i></button>
+							</td>
 							
 						</tr>
 					@endforeach
@@ -227,7 +272,7 @@
 			},
 			success: function(response) {
 				if (response.code == 200) {
-					$(".statuschanges").val("");
+					//$(".statuschanges").val("");
 					toastr['success'](response.message);
 				} else {
 					toastr['error'](response.message);
@@ -324,7 +369,7 @@
 		$(full).toggleClass('hidden');
 		$(mini).toggleClass('hidden');
 	});
-	
+	$('.select2').select2();
 </script>
 
 @endsection
