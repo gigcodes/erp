@@ -22,6 +22,10 @@ class UserAvaibility extends Model {
         'is_latest'
     ];
 
+    public static function getAvailableDays($str) {
+        return $str ? explode(',', str_replace(' ', '', $str)) : [];
+    }
+
     public static function getAvailableDates($stDate, $enDate, $days, $dates = []) {
         $return = [];
         $range = dateRangeArr($stDate, $enDate);

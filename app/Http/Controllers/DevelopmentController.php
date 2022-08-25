@@ -51,6 +51,7 @@ use App\Helpers\MessageHelper;
 use App\HubstaffHistory;
 use App\UserRate;
 use App\TaskMessage;
+use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
 
 class DevelopmentController extends Controller {
     /**
@@ -1086,9 +1087,9 @@ class DevelopmentController extends Controller {
         $inprocessStatusID = \DB::table("task_statuses")->select("id")->where('name', "In Progress")->first();
 
 
-        $statusList = array_merge([
-            "" => "Select Status",
-        ], $statusList);
+        // $statusList = array_merge([
+        //     "" => "Select Status",
+        // ], $statusList);
 
         $task_statuses = TaskStatus::all();
 
@@ -1099,8 +1100,19 @@ class DevelopmentController extends Controller {
 
         $title = 'Flag Task List';
 
-        $issues = DeveloperTask::with('timeSpent')->where('is_flagged', '1');
-        $task =  Task::with('timeSpent')->where('is_flagged', '1');
+        $issues = DeveloperTask::with(['timeSpent', 'leadtimeSpent', 'testertimeSpent', 'assignedUser']); // ->where('is_flagged', '1')
+        $issues->whereNotIn("developer_tasks.status", [
+            DeveloperTask::DEV_TASK_STATUS_DONE,
+            DeveloperTask::DEV_TASK_STATUS_IN_REVIEW
+        ]);
+        $issues->whereRaw("developer_tasks.assigned_to IN (SELECT id FROM users WHERE is_task_planned = 1)");
+
+        $task =  Task::with(['timeSpent']); // ->where('is_flagged', '1')
+        $task->whereNotIn("tasks.status", [
+            Task::TASK_STATUS_DONE,
+            Task::TASK_STATUS_IN_REVIEW
+        ]);
+        $task->whereRaw("tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)");
 
         if ($type == 'issue') {
             $issues = $issues->where('developer_tasks.task_type_id', '3');
@@ -1121,9 +1133,9 @@ class DevelopmentController extends Controller {
             $task = $task->where('tasks.assign_from', $request->get('corrected_by'));
         }
 
-        if ((int) $request->get('assigned_to') > 0) {
-            $issues = $issues->where('developer_tasks.assigned_to', $request->get('assigned_to'));
-            $task = $task->where('tasks.assign_to', $request->get('assigned_to'));
+        if ($s = request('assigned_to')) {
+            $issues = $issues->whereIn('developer_tasks.assigned_to', $s);
+            $task = $task->whereIn('tasks.assign_to', $s);
         }
         if ((int) $request->get('empty_estimated_time') > 0) {
             $issues = $issues->where('developer_tasks.estimate_time', NULL);
@@ -1136,8 +1148,8 @@ class DevelopmentController extends Controller {
 
             $task = $task->where('tasks.due_date', '>', date('Y-m-d'))->where('tasks.status', '!=', 3);
         }
-        if ($request->get('module')) {
-            $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
+        if ($s = request('module_id', [])) {
+            $issues = $issues->whereIn('developer_tasks.module_id', $s);
         }
         if (!empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
@@ -1196,14 +1208,13 @@ class DevelopmentController extends Controller {
         } else {
             $issues = $issues->orderBy('chat_messages.id', "desc");
         }
-        //   dd($task->get());
-        // return $issues = $issues->limit(20)->get();
-        $issues = $issues->paginate(Setting::get('pagination')); //
-        $tasks = $task->paginate(Setting::get('pagination'));
+
+        $paginateLimit = Setting::get('pagination') ?: 15;
+
+        $issues = $issues->paginate($paginateLimit);
+        $tasks = $task->paginate($paginateLimit);
 
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
-
-
         if ($request->ajax()) {
             $data = '';
             $isReviwerLikeAdmin = auth()->user()->isReviwerLikeAdmin();
@@ -3743,44 +3754,24 @@ class DevelopmentController extends Controller {
     public function actionStartDateUpdate() {
         if ($new = request('value')) {
             if ($single = DeveloperTask::find(request('id'))) {
-                $old = $single->start_date;
-                $single->start_date = $new;
-                $single->save();
-                $single->updateHistory('start_date', $old, $new);
+                $single->updateStartDate($new);
                 return respJson(200, 'Successfully updated.');
             }
             return respJson(404, 'No task found.');
         }
         return respJson(400, 'Start date is required.');
     }
-
-
     public function saveEstimateDate(Request $request) {
         if ($new = request('value')) {
             if ($single = DeveloperTask::find(request('id'))) {
-                $old = $single->estimate_date;
-
-                $single->estimate_date = $new;
-
-                $single->save();
-
-
-
-                DeveloperTaskHistory::create([
-                    'developer_task_id' => $single->id,
-                    'model' => 'App\DeveloperTask',
-                    'attribute' => "estimate_date",
-                    'old_value' => $old,
-                    'new_value' => $new,
-                    'user_id' => loginId(),
-                ]);
-
+                $single->updateEstimateDate($new);
                 return respJson(200, 'Successfully updated.');
             }
             return respJson(404, 'No task found.');
         }
         return respJson(400, 'Estimate date is required.');
     }
+
     public function saveAmount(Request $request) {
         if ($new = request('value')) {
             if ($single = DeveloperTask::find(request('id'))) {
@@ -3904,7 +3895,22 @@ class DevelopmentController extends Controller {
 
         $html = [];
         $html[] = '<table class="table table-bordered">';
-        $html[] = '<thead>
+
+        $needApprovals = ['start_date', 'estimate_date'];
+
+        if (in_array($key, $needApprovals)) {
+            $html[] = '<thead>
+            <tr>
+                <th width="5%">#</th>
+                <th width="5%">ID</th>
+                <th width="30%">Update By</th>
+                <th width="20%" style="word-break: break-all;">Old Value</th>
+                <th width="20%" style="word-break: break-all;">New Value</th>
+                <th width="20%">Created at</th>
+            </tr>
+        </thead>';
+        } else {
+            $html[] = '<thead>
             <tr>
                 <th width="10%">ID</th>
                 <th width="30%">Update By</th>
@@ -3913,20 +3919,39 @@ class DevelopmentController extends Controller {
                 <th width="20%">Created at</th>
             </tr>
         </thead>';
+        }
+
         if ($list->count()) {
             foreach ($list as $single) {
-                $html[] = '<tr>
-                    <td>' . $single->id . '</td>
-                    <td>' . ($single->user ? $single->user->name : '-') . '</td>
-                    <td>' . $single->old_value . '</td>
-                    <td>' . $single->new_value . '</td>
-                    <td>' . $single->created_at . '</td>
-                </tr>';
+                if (in_array($key, $needApprovals)) {
+                    $html[] = '<tr>
+                        <td><input type="radio" name="radio_for_approve" value="' . $single->id . '" ' . ($single->is_approved ? 'checked' : '') . ' style="height:auto;" /></td>
+                        <td>' . $single->id . '</td>
+                        <td>' . ($single->user ? $single->user->name : '-') . '</td>
+                        <td>' . $single->old_value . '</td>
+                        <td>' . $single->new_value . '</td>
+                        <td>' . $single->created_at . '</td>
+                    </tr>';
+                } else {
+                    $html[] = '<tr>
+                        <td>' . $single->id . '</td>
+                        <td>' . ($single->user ? $single->user->name : '-') . '</td>
+                        <td>' . $single->old_value . '</td>
+                        <td>' . $single->new_value . '</td>
+                        <td>' . $single->created_at . '</td>
+                    </tr>';
+                }
             }
         } else {
-            $html[] = '<tr>
-                <td colspan="5">No records found.</td>
-            </tr>';
+            if (in_array($key, $needApprovals)) {
+                $html[] = '<tr>
+                    <td colspan="6">No records found.</td>
+                </tr>';
+            } else {
+                $html[] = '<tr>
+                    <td colspan="5">No records found.</td>
+                </tr>';
+            }
         }
         $html[] = '</table>';
         return respJson(200, '', ['data' => implode('', $html)]);
@@ -3939,5 +3964,64 @@ class DevelopmentController extends Controller {
     }
     public function historyCost() {
         return $this->historySimpleData('cost', request('id'));
+    }
+
+
+    public function historyApproveSubmit() {
+        $id = request('radio_for_approve');
+        $type = request('type');
+        if ($type == 'start_date' || $type == 'estimate_date') {
+            DeveloperTaskHistory::approved($id, $type);
+        }
+
+        return respJson(200, 'Approved successfully.');
+    }
+
+    public function historyApproveList() {
+        $type = request('type');
+        $taskId = request('id');
+        if ($type == 'start_date' || $type == 'estimate_date') {
+            $q = DeveloperTasksHistoryApprovals::from('developer_tasks_history_approvals as t1');
+            $q->with(['approvedBy']);
+            $q->leftJoin('developer_tasks_history as t2', function ($join) {
+                $join->on('t1.parent_id', '=', 't2.id');
+            });
+            $q->where('t2.model', 'App\DeveloperTask');
+            $q->where('t2.attribute', $type);
+            $q->where('t2.developer_task_id', $taskId);
+            $q->select([
+                't1.*',
+                't2.new_value AS value'
+            ]);
+            $q->orderBy('id', 'DESC');
+            $list = $q->get();
+        } 
+
+        $html = [];
+        $html[] = '<table class="table table-bordered">';
+        $html[] = '<thead>
+            <tr>
+                <th width="15%">Parent ID</th>
+                <th width="30%">Update By</th>
+                <th width="30%" style="word-break: break-all;">Approved Value</th>
+                <th width="25%">Created at</th>
+            </tr>
+        </thead>';
+        if (isset($list) && $list->count()) {
+            foreach ($list as $single) {
+                $html[] = '<tr>
+                    <td>' . $single->parent_id . '</td>
+                    <td>' . ($single->approvedByName() ?: '-') . '</td>
+                    <td>' . $single->value . '</td>
+                    <td>' . $single->created_at . '</td>
+                </tr>';
+            }
+        } else {
+            $html[] = '<tr>
+                <td colspan="4">No records found.</td>
+            </tr>';
+        }
+        $html[] = '</table>';
+        return respJson(200, '', ['data' => implode('', $html)]);
     }
 }

@@ -985,7 +985,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('due-date/index', 'TaskHistoryController@historyDueDate')->name('task.history.due-date.index');
             Route::get('cost/index', 'TaskHistoryController@historyCost')->name('task.history.cost.index');
             Route::get('approximate/index', 'TaskHistoryController@historyApproximate')->name('task.history.approximate.index');
+
+            Route::post('approve', 'TaskHistoryController@approve')->name('task.history.approve');
+            Route::get('approve/history', 'TaskHistoryController@approveHistory')->name('task.history.approve-history');
         });
+
         Route::get('dropdown-user-wise', 'TaskModuleController@dropdownUserWise')->name('task.dropdown-user-wise');
         Route::prefix('slot')->group(function () {
             Route::post('assign', 'TaskModuleController@slotAssign')->name('task.slot.assign');
@@ -1672,6 +1676,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('start-date/index', 'DevelopmentController@historyStartDate')->name('development.history.start-date.index');
             Route::get('estimate-date/index', 'DevelopmentController@historyEstimateDate')->name('development.history.estimate-date.index');
             Route::get('cost/index', 'DevelopmentController@historyCost')->name('development.history.cost.index');
+
+            Route::post('approve', 'DevelopmentController@historyApproveSubmit')->name('development-task.history.approve');
+            Route::get('approve/history', 'DevelopmentController@historyApproveList')->name('development-task.history.approve-history');
         });
     });
 
