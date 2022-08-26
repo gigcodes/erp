@@ -993,8 +993,10 @@ class UicheckController extends Controller {
         try{
             \DB::enableQueryLog();
             $uiDevDatas = new UiDevice();
-            $uiDevDatas = $uiDevDatas->leftJoin("users as u", "u.id", "ui_devices.user_id")
-                                    ->leftJoin("uichecks as uic", "uic.id", "ui_devices.uicheck_id")
+            $uiDevDatas = $uiDevDatas->leftJoin("uichecks as uic", "uic.id", "ui_devices.uicheck_id")
+                                    ->leftJoin("store_websites as sw", "sw.id", "uic.website_id")
+                                    ->leftJoin("uicheck_user_accesses as uua", "uua.uicheck_id", "uic.id")
+                                    ->leftJoin("users as u", "u.id", "uua.user_id")
                                     ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
                                     ->leftJoin("site_development_statuses as sds", "sds.id", "ui_devices.status");
                                     
@@ -1009,7 +1011,7 @@ class UicheckController extends Controller {
             }
             
             
-            $uiDevDatas = $uiDevDatas->select("ui_devices.*", 'u.name as username', 'sdc.title', 'sds.name as statusname')->orderBy('id', 'DESC')->groupBy("ui_devices.uicheck_id")->paginate(8);
+            $uiDevDatas = $uiDevDatas->select("ui_devices.*", 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname')->orderBy('id', 'DESC')->groupBy("ui_devices.uicheck_id")->paginate(8);
             $allStatus = SiteDevelopmentStatus::pluck("name", "id")->toArray();
             $status = '';
             $devid = '';
@@ -1017,7 +1019,7 @@ class UicheckController extends Controller {
             $site_development_categories = SiteDevelopmentCategory::pluck("title", "id")->toArray();
             return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'uicheck_id', 'site_development_categories'));
         }catch(\Exception $e){
-            dd($e->getMessage());
+            //dd($e->getMessage());
             return \Redirect::back()->withErrors(['msg' => $e]);
         }
     }
@@ -1082,8 +1084,10 @@ class UicheckController extends Controller {
         
         try{
             $uiLanguages = new UiLanguage();
-            $uiLanguages = $uiLanguages->leftJoin("users as u", "u.id", "ui_languages.user_id")
-                                    ->leftJoin("uichecks as uic", "uic.id", "ui_languages.uicheck_id")
+            $uiLanguages = $uiLanguages->leftJoin("uichecks as uic", "uic.id", "ui_languages.uicheck_id")
+                                    ->leftJoin("store_websites as sw", "sw.id", "uic.website_id")
+                                    ->leftJoin("uicheck_user_accesses as uua", "uua.uicheck_id", "uic.id")
+                                    ->leftJoin("users as u", "u.id", "uua.user_id")
                                     ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
                                     ->leftJoin("site_development_statuses as sds", "sds.id", "ui_languages.status");
                                     
@@ -1098,7 +1102,7 @@ class UicheckController extends Controller {
                 $uiLanguages = $uiLanguages->where('ui_languages.uicheck_id', $request->id);    
             }
 
-            $uiLanguages = $uiLanguages->select("ui_languages.*", 'u.name as username', 'sdc.title', 'sds.name as statusname')
+            $uiLanguages = $uiLanguages->select("ui_languages.*", 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname')
                                     ->groupBy("ui_languages.uicheck_id")
                                     ->orderBy('id', 'DESC')
                                     ->paginate(8);

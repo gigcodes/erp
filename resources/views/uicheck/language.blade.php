@@ -148,12 +148,14 @@
 				<thead>
 					<tr>
 						{{-- <th width="10%">ID</th> --}}
-						<th width="5%">Ui Check ID</th>
-						<th width="10%">Categories</th>
+						<th style="width:50px;">Ui Check ID</th>
+						<th style="width:50px;">Categories</th>
+						<th style="width:50px;">User Name</th>
+						<th style="width:50px;">Website</th>
 						@foreach ($languages as $language)
-							<th width="5%">{{$language->name}}</th>
+							<th  style="width:165px;">{{$language->name}}</th>
 						@endforeach
-						<th width="10%">Change Status</th>
+						<th style="width:150px;">Change Status</th>
 						
 					</tr>
 				</thead>
@@ -167,9 +169,20 @@
 								<span class="show-short-title-{{$uiLanguage->id}}">@if($uiLanguage->title != '') {{ str_limit($uiLanguage->title, 5, '..')}} @else   @endif</span>
 								<span style="word-break:break-all;" class="show-full-title-{{$uiLanguage->id}} hidden">@if($uiLanguage->title != '') {{$uiLanguage->title}} @else   @endif</span>
 							</td>
+							<td class="expand-row-msg" data-name="username" data-id="{{$uiLanguage->id}}">
+								<span class="show-short-username-{{$uiLanguage->id}}">@if($uiLanguage->username != '') {{ str_limit($uiLanguage->username, 5, '..')}} @else   @endif</span>
+								<span style="word-break:break-all;" class="show-full-username-{{$uiLanguage->id}} hidden">@if($uiLanguage->username != '') {{$uiLanguage->username}} @else   @endif</span>
+							</td>
+							<td class="expand-row-msg" data-name="website" data-id="{{$uiLanguage->id}}">
+								<span class="show-short-website-{{$uiLanguage->id}}">@if($uiLanguage->website != '') {{ str_limit($uiLanguage->website, 5, '..')}} @else   @endif</span>
+								<span style="word-break:break-all;" class="show-full-website-{{$uiLanguage->id}} hidden">@if($uiLanguage->website != '') {{$uiLanguage->website}} @else   @endif</span>
+							</td>
 							
 							@foreach ($languages as $language)
-								<td>@if($language->name != '' && $uiLanguage->languages_id == $language->id) {{$language->name}} @else  @endif</td>
+								<td>
+									<input type="text" name="uilanmessage{{$language->id.$uiLanguage->uicheck_id}}" class="uilanmessage{{$language->id.$uiLanguage->uicheck_id}}" style="margin-top: 0px;width:70% !important;float: left;"/>
+									<button class="btn pr-0 btn-xs btn-image message-language" onclick="funLanUpdate('{{$language->id}}', '{{$uiLanguage->uicheck_id}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="fa fa-info-circle languageHistorty" onclick="funGetLanHistory('{{$language->id}}', '{{$uiLanguage->uicheck_id}}');"></i>
+								</td>
 							@endforeach
 							<?php 
 								$status = '';
@@ -181,7 +194,7 @@
 								$lanid = ($lanid) ? $lanid : $uiLan->id ?? ''; 
 								$status = ($status) ? $status : ''; if($languages_id == 2){ $status = $uiLan->status; } ?>
 							<td data-id="{{$lanid }}" data-uicheck_id="{{$uiLanguage->uicheck_id }}" data-language_id="2" data-old_status="{{$status}}" >
-								<?php echo Form::select("statuschanges",[ "" => "-- None --"] + $allStatus ,$status, ["class" => "form-control statuschanges"]); ?>
+								<?php echo Form::select("statuschanges",[ "" => "-- None --"] + $allStatus ,$status, ["class" => "form-control statuschanges statusVal".$uiLanguage->uicheck_id, "style" => "width:70% !important;float:left;"]); ?>
 								<button type="button" class="btn btn-xs btn-status-history" title="Show Status History" data-id="{{$uiLanguage->id}}" data-uicheck_id="{{$uiLanguage->uicheck_id}}" data-old_status="{{$uiLanguage->status}}" ><i class="fa fa-info-circle "></i></button>
 							</td>
 							
@@ -224,6 +237,36 @@
 	</div>
 </div>
 
+<div id="modalGetMessageHistory" class="modal fade" role="dialog" >
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Ui Language Message History</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="col-md-12">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th width="5%">ID</th>
+								<th width="8%">Update By</th>
+								<th width="25%" style="word-break: break-all;">Message</th>
+								<th width="15%" style="word-break: break-all;">Status</th>
+								<th width="15%">Created at</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
 
 
 @if (Auth::user()->hasRole('Admin'))
@@ -282,6 +325,72 @@
 			toastr['error'](response.message);
 		});
 	});	
+
+	function funLanUpdate(id, uicheckId) {
+		siteLoader(true);
+		var uicheckId = uicheckId;
+		let uilanmessage = jQuery('.uilanmessage'+id+uicheckId).val();
+		let uilanstatus = jQuery('.statusVal'+uicheckId).val();
+		jQuery.ajax({
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			url: "/uicheck/set/language",
+			type: 'POST',
+			data: {
+				id: id,
+				uicheck_id : uicheckId,
+				message : uilanmessage,
+				uilanstatus : uilanstatus
+			},
+			beforeSend: function() {
+				//jQuery("#loading-image").show();
+			}
+		}).done(function(response) {
+			siteLoader(false);
+			toastr["success"]("Message saved successfully!!!");
+			//mdl.find('tbody').html(response.html);
+			//mdl.modal("show");
+		}).fail(function(errObj) {
+			siteErrorAlert(errObj);
+			toastr["error"](errObj);
+			//siteLoader(false);
+		});
+	}
+
+	function funGetLanHistory(id,uicheckId) {
+		//siteLoader(true);
+		let mdl = jQuery('#modalGetMessageHistory');
+		var uicheckId = uicheckId;
+		
+		jQuery.ajax({
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			url: "/uicheck/get/message/history/language",
+			type: 'POST',
+			data: {
+				id: id,
+				uicheck_id : uicheckId,
+			},
+			beforeSend: function() {
+				//jQuery("#loading-image").show();
+			}
+		}).done(function(response) {
+			//siteLoader(false);
+			//siteSuccessAlert("Listed successfully!!!");
+			//$("#modalCreateLanguage").modal("hide");
+			
+			mdl.find('tbody').html(response.html);
+			mdl.modal("show");
+		}).fail(function(errObj) {
+			//siteErrorAlert(errObj);
+			//siteLoader(false);
+			toastr["error"](errObj);
+		});
+	}
+
+
 	$(document).on("click",".btn-status-history",function(e) {
         e.preventDefault();
         var $this = $(this);

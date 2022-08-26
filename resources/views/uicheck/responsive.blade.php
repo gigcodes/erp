@@ -150,11 +150,13 @@
 						{{-- <th width="10%">ID</th> --}}
 						<th width="5%">Ui Check ID</th>
 						<th width="10%">Categories</th>
-						<th width="5%">Device1</th>
-						<th width="5%">Device2</th>
-						<th width="5%">Device3</th>
-						<th width="5%">Device4</th>
-						<th width="5%">Device5</th>
+						<th width="10%">Website</th>
+						<th width="10%">User Name</th>
+						<th width="10%">Device1</th>
+						<th width="10%">Device2</th>
+						<th width="10%">Device3</th>
+						<th width="10%">Device4</th>
+						<th width="10%">Device5</th>
 						<th width="10%">Status</th>
 						
 					</tr>
@@ -170,12 +172,20 @@
 									<span class="show-short-title-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ str_limit($uiDevData->title, 5, '..')}} @else   @endif</span>
 									<span style="word-break:break-all;" class="show-full-title-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->title != '') {{$uiDevData->title}} @else   @endif</span>
 								</td>
+								<td class="expand-row-msg" data-name="website" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
+									<span class="show-short-website-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->title != '') {{ str_limit($uiDevData->website, 5, '..')}} @else   @endif</span>
+									<span style="word-break:break-all;" class="show-full-website-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->website != '') {{$uiDevData->website}} @else   @endif</span>
+								</td>
+								<td class="expand-row-msg" data-name="username" data-id="{{$uiDevData->id.$uiDevData->device_no}}">
+									<span class="show-short-username-{{$uiDevData->id.$uiDevData->device_no}}">@if($uiDevData->username != '') {{ str_limit($uiDevData->username, 5, '..')}} @else   @endif</span>
+									<span style="word-break:break-all;" class="show-full-username-{{$uiDevData->id.$uiDevData->device_no}} hidden">@if($uiDevData->username != '') {{$uiDevData->username}} @else   @endif</span>
+								</td>
 								
-								<td> Device1 </td>
-								<td> Device2</td>
-								<td> Device3 </td>
-								<td> Device4 </td>
-								<td> Device5 </td>
+								<td> <input type="text" name="uidevmessage1{{$uiDevData->uicheck_id}}" class="uidevmessage1" style="margin-top: 0px;width:80% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('1', '{{$uiDevData->uicheck_id}}', '1' );"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="fa fa-info-circle devHistorty" onclick="funGetDevHistory('1','{{$uiDevData->uicheck_id}}');"></i> </td>
+								<td> <input type="text" name="uidevmessage2" class="uidevmessage2" style="margin-top: 0px;width:80% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('2', '{{$uiDevData->uicheck_id}}', '2');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="fa fa-info-circle devHistorty" onclick="funGetDevHistory('2', '{{$uiDevData->uicheck_id}}');"></i> </td>
+								<td> <input type="text" name="uidevmessage3" class="uidevmessage3" style="margin-top: 0px;width:80% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('3', '{{$uiDevData->uicheck_id}}', '3');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="fa fa-info-circle devHistorty" onclick="funGetDevHistory('3', '{{$uiDevData->uicheck_id}}');"></i> </td>
+								<td> <input type="text" name="uidevmessage4" class="uidevmessage4" style="margin-top: 0px;width:80% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('4', '{{$uiDevData->uicheck_id}}', '4');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="fa fa-info-circle devHistorty" onclick="funGetDevHistory('4', '{{$uiDevData->uicheck_id}}');"></i> </td>
+								<td> <input type="text" name="uidevmessage5" class="uidevmessage5" style="margin-top: 0px;width:80% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('5', '{{$uiDevData->uicheck_id}}', '5');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="fa fa-info-circle devHistorty" onclick="funGetDevHistory('5', '{{$uiDevData->uicheck_id}}');"></i> </td>
 								
 								<?php 
 										$devid = '';
@@ -189,8 +199,8 @@
 											?>
 								<td data-id="{{$devid }}" data-uicheck_id="{{$uiDevData->uicheck_id }}" data-device_no="1"  data-old_status="{{$status }}" >
 									
-									<?php echo Form::select("statuschanges",[ "" => "-- None --"] + $allStatus ,$status , ["class" => "form-control statuschanges"]); ?>
-									<button type="button" class="btn btn-xs btn-status-history" title="Show Status History" data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" ><i class="fa fa-info-circle "></i></button></td>
+									<?php echo Form::select("statuschanges",[ "" => "-- None --"] + $allStatus ,$status , ["class" => "form-control statuschanges statusVal".$uiDevData->uicheck_id, "style" => "width:80% !important;float: left;"]); ?>
+									<button type="button" class="btn btn-xs btn-status-history" style="float: left;" title="Show Status History" data-id="{{$uiDevData->id}}" data-uicheck_id="{{$uiDevData->uicheck_id}}" data-device_no="{{$uiDevData->device_no}}"  data-old_status="{{$uiDevData->status}}" ><i class="fa fa-info-circle "></i></button></td>
 							</tr>
 						
 					@endforeach
@@ -230,7 +240,36 @@
 		</div>
 	</div>
 </div>
-
+<div id="modalGetDevMessageHistory" class="modal fade" role="dialog" >
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Ui Device Message History</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="col-md-12">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th width="5%">ID</th>
+								<th width="8%">Update By</th>
+								<th width="25%" style="word-break: break-all;">Message</th>
+								<th width="15%" style="word-break: break-all;">Status</th>
+								<th width="15%">Created at</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
 
 
 @if (Auth::user()->hasRole('Admin'))
@@ -287,6 +326,71 @@
 			toastr['error'](response.message);
 		});
 	});	
+
+	//5 Device
+	function funDevUpdate(id, uicheckId, device_no) {
+		//siteLoader(true);
+		//let mdl = jQuery('#modalCreateDevice');
+		var uicheckId = uicheckId;
+		let uidevmessage = jQuery('.uidevmessage'+id).val();
+		let uidevstatus = jQuery('.statusVal'+uicheckId).val();
+		var device_no = device_no;
+		jQuery.ajax({
+			
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			url: "/uicheck/set/device",
+			type: 'POST',
+			data: {
+				device_no : id,
+				uicheck_id : uicheckId,
+				message : uidevmessage,
+				uidevstatus : uidevstatus
+			},
+			beforeSend: function() {
+				//jQuery("#loading-image").show();
+			}
+		}).done(function(response) {
+			toastr["success"]("Record updated successfully!!!");
+			//mdl.find('tbody').html(response.html);
+			//mdl.modal("show");
+		}).fail(function(errObj) {
+			console.log(errObj);
+			toastr["error"](errObj.message);
+		});
+	}
+
+	function funGetDevHistory(id,uicheckId) {
+		//siteLoader(true);
+		let mdl = jQuery('#modalGetDevMessageHistory');
+		var uicheckId = uicheckId;
+		
+		jQuery.ajax({
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			url: "/uicheck/get/message/history/dev",
+			type: 'POST',
+			data: {
+				device_no: id,
+				uicheck_id : uicheckId,
+			},
+			beforeSend: function() {
+				//jQuery("#loading-image").show();
+			}
+		}).done(function(response) {
+			//siteLoader(false);
+			//siteSuccessAlert("Listed successfully!!!");
+			$("#modalCreateLanguage").modal("hide");
+			mdl.find('tbody').html(response.html);
+			mdl.modal("show");
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {      
+			toastr["error"](jqXHR.responseJSON.message);
+			$("#loading-image").hide();
+		});
+	}
+
 	$(document).on("click",".btn-status-history",function(e) {
         e.preventDefault();
         var $this = $(this);
