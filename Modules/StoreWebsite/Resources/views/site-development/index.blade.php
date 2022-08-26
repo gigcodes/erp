@@ -94,7 +94,7 @@
         <input type="hidden" name="website_id_data" id="website_id_data" value="{{ isset($website) ? $website->id : 0 }}" />
         <h2 class="page-heading">Site Development {{ isset($website) ? '- ( ' . $website->website . ' )' : ' ' }} <span class="count-text"></span>
             <div class="pull-right pr-2 d-flex">
-                <?php echo Form::select('select_website', ['' => 'All Website'] + $store_websites, null, ['class' => 'form-control globalSelect2', 'id' => 'copy_from_website']); ?>
+                <?php echo Form::select('select_website', ['' => 'All Website'] + $store_websites, null, ['class' => 'form-control select2', 'id' => 'copy_from_website']); ?>
                 <button type="button" class="btn btn-secondary" onClick="copyTasksFromWebsite()">Copy Tasks from
                     website</button>
 
@@ -265,10 +265,12 @@
                             </tr>
                         </thead>
                         <tbody class="infinite-scroll-pending-inner">
-                            <?php if($categories->count()){ ?>
-                            @include('storewebsite::site-development.partials.data')
+                            <?php if ($categories->count()) { ?>
+                                @include('storewebsite::site-development.partials.data')
                             <?php } else { ?>
-                                <tr><td colspan="11">No records found.</td></tr>
+                                <tr>
+                                    <td colspan="11">No records found.</td>
+                                </tr>
                             <?php } ?>
                         </tbody>
                     </table>
@@ -2722,5 +2724,4 @@
         });
     });
 </script>
-
 @endsection
