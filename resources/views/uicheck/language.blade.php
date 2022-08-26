@@ -71,6 +71,11 @@
 	select.globalSelect2+span.select2 {
 		width: calc(100% - 26px) !important;
 	}
+	.table {
+		width: 3000px;
+		max-width: 3000px;
+		margin-bottom: 20px;
+	}
 </style>
 @endsection
 
@@ -142,18 +147,18 @@
 	</div>
 </div>
 <div class="row mt-2">
-	<div class="col-md-12 margin-tb infinite-scroll">
-		<div class="" style="overflow-x: auto;">
-			<table class="table table-bordered" id="uicheck_table1">
+	<div class="table-responsive mt-2">
+		<div class=" mt-2" style="overflow-x: scroll !important;">
+			<table class="table table-bordered text-nowrap" id="uicheck_table1">
 				<thead>
 					<tr>
 						{{-- <th width="10%">ID</th> --}}
-						<th style="width:50px;">Ui Check ID</th>
-						<th style="width:50px;">Categories</th>
-						<th style="width:50px;">User Name</th>
-						<th style="width:50px;">Website</th>
+						<th style="width:100px;overflow-wrap: anywhere;">Ui Check ID</th>
+						<th style="width:100px;overflow-wrap: anywhere;">Categories</th>
+						<th style="width:100px;overflow-wrap: anywhere;">User Name</th>
+						<th style="width:100px;overflow-wrap: anywhere;">Website</th>
 						@foreach ($languages as $language)
-							<th  style="width:165px;">{{$language->name}}</th>
+							<th  style="width:155px;overflow-wrap: anywhere;">{{$language->name}}</th>
 						@endforeach
 						<th style="width:150px;">Change Status</th>
 						
@@ -181,7 +186,7 @@
 							@foreach ($languages as $language)
 								<td>
 									<input type="text" name="uilanmessage{{$language->id.$uiLanguage->uicheck_id}}" class="uilanmessage{{$language->id.$uiLanguage->uicheck_id}}" style="margin-top: 0px;width:70% !important;float: left;"/>
-									<button class="btn pr-0 btn-xs btn-image message-language" onclick="funLanUpdate('{{$language->id}}', '{{$uiLanguage->uicheck_id}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="fa fa-info-circle languageHistorty" onclick="funGetLanHistory('{{$language->id}}', '{{$uiLanguage->uicheck_id}}');"></i>
+									<button class="btn pr-0 btn-xs btn-image message-language" onclick="funLanUpdate('{{$language->id}}', '{{$uiLanguage->uicheck_id}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="btn btn-xs fa fa-info-circle languageHistorty" onclick="funGetLanHistory('{{$language->id}}', '{{$uiLanguage->uicheck_id}}');"></i>
 								</td>
 							@endforeach
 							<?php 
