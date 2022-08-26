@@ -573,3 +573,17 @@ function isAdmin() {
 function printNum($num) {
     return number_format($num, 2, ".", ",");
 }
+
+function getDirContents($dir, &$results = array()) {
+    $files = scandir($dir);
+    foreach ($files as $key => $value) {
+        $path = realpath($dir . DIRECTORY_SEPARATOR . $value);
+        if (!is_dir($path)) {
+            $results[] = $path;
+        } else if ($value != "." && $value != "..") {
+            // $results[] = $path;
+            getDirContents($path, $results);
+        }
+    }
+    return $results;
+}
