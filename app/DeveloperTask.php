@@ -296,5 +296,8 @@ class DeveloperTask extends Model {
             DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 1);
         }
     }
-    
+
+    public static function getMessagePrefix($obj) {
+        return '#DEVTASK-' . $obj->id . '-' . $obj->subject . ' => ';
+    }
 }

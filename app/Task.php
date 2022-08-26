@@ -377,4 +377,9 @@ class Task extends Model {
             TaskDueDateHistoryLog::historySave($this->id, $old, $new, 1);
         }
     }
+
+
+    public static function getMessagePrefix($obj) {
+        return '#TASK-' . $obj->id . '-' . $obj->task_subject . ' => ';
+    }
 }
