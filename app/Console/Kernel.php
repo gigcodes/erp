@@ -155,6 +155,8 @@ use App\Console\Commands\GtMetrixReport;
 use App\Console\Commands\MagentoReportLog;
 use App\Console\Commands\MagentoSettingAddUpdate;
 use App\Console\Commands\NegativeCouponResponses;
+use App\Console\Commands\SendQueuedMessages;
+
 
 class Kernel extends ConsoleKernel
 {
@@ -315,7 +317,8 @@ class Kernel extends ConsoleKernel
         NegativeCouponResponses::class,
         ZabbixStore::class,
         ZabbixHostItems::class,
-        ZabbixProblemImport::class
+        ZabbixProblemImport::class,
+        SendQueuedMessages::class,
     ];
 
     /**
@@ -343,6 +346,8 @@ class Kernel extends ConsoleKernel
         
         $schedule->command('command:tasks-time-reminder')->dailyAt('01:00'); // status detail
         $schedule->command('command:date_time_reminder')->dailyAt('01:00'); // status detail
+        $schedule->command('command:send_message')->hourly();
+        
         
         $schedule->command('websitelog')->daily(); // website log
 

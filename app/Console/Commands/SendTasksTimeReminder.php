@@ -118,7 +118,7 @@ class SendTasksTimeReminder extends Command {
 
         $tasks = $q->get();
         foreach ($tasks as $task) {
-            $task = Task::getMessagePrefix($task);
+            $messagePrefix = Task::getMessagePrefix($task);
 
             if (!$task->approximate && $est_time_msg) {
                 $chatMessage = \App\ChatMessage::firstOrCreate([
