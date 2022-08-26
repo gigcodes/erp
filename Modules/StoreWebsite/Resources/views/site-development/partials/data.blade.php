@@ -438,7 +438,7 @@
                     <button style="padding:3px;" title="create quick task" type="button"
                         class="btn btn-image d-inline create-quick-task "
                         data-id="@if ($site) {{ $site->id }} @endif"
-                        data-title="@if ($site) {{$category->title . ' - ' . $category->website /*$websitenamestr . ' ' . $site->title*/ }} @endif"><img
+                        data-title="@if ($site) {{$category->website . ' - ' . $category->title /*$websitenamestr . ' ' . $site->title*/ }} @endif"><img
                             style="width:12px !important;" src="/images/add.png" /></button>
                     <button style="padding-left: 0;padding-right:0px;" type="button"
                         class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history"
