@@ -574,7 +574,7 @@ function printNum($num) {
     return number_format($num, 2, ".", ",");
 }
 
-function getDirContents($dir, &$results = array()) {
+function readFullFolders($dir, &$results = array()) {
     $files = scandir($dir);
     foreach ($files as $key => $value) {
         $path = realpath($dir . DIRECTORY_SEPARATOR . $value);
@@ -582,8 +582,18 @@ function getDirContents($dir, &$results = array()) {
             $results[] = $path;
         } else if ($value != "." && $value != "..") {
             // $results[] = $path;
-            getDirContents($path, $results);
+            readFullFolders($path, $results);
         }
     }
     return $results;
+}
+function readFolders($data) {
+    $return = [];
+    foreach ($data as $key => $filePath) {
+        $fileName = basename($filePath);
+        $return[] = rtrim(str_replace($fileName, '', $filePath), '/');
+    }
+    $return = array_values(array_unique($return));
+    sort($return);
+    return $return;
 }
