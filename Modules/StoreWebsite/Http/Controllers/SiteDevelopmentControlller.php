@@ -251,6 +251,7 @@ class SiteDevelopmentController extends Controller {
         $users_all = $allUsers;
         $users = User::select('id', 'name')->whereIn('id', $userIDs)->get();
         $store_websites = StoreWebsite::pluck("title", "id")->toArray();
+        
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
                 'tbody' => view('storewebsite::site-development.partials.data', compact('input', 'masterCategories', 'categories', 'users', 'website', 'users_all', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers', 'store_websites'))->render(),

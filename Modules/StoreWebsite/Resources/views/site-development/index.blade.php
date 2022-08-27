@@ -152,14 +152,14 @@
 
                                                 <label class="justify-content-start" for="select_website_id_data">Select
                                                     Website</label>
-                                                <?php echo Form::select('select_website_id_data', $store_websites, isset($website) ? $website->id : null, ['class' => 'form-control globalSelect2', 'id' => 'select_website_id_data']); ?>
+                                                <?php echo Form::select('select_website_id_data', $store_websites, isset($website) ? $website->id : null, ['class' => 'form-control select2', 'id' => 'select_website_id_data']); ?>
 
                                             </div>
                                             <div class="form-group col-md-12" style="margin-bottom: 15px;">
 
                                                 <label class="justify-content-start" for="site_development_master_category_id">Select Master
                                                     Category</label>
-                                                {{ Form::select('site_development_master_category_id', ['' => '- Select-'] + $masterCategories, null, ['class' => 'globalSelect2','id' => 'master_category_id']) }}
+                                                {{ Form::select('site_development_master_category_id', ['' => '- Select-'] + $masterCategories, null, ['class' => 'select2','id' => 'master_category_id']) }}
 
                                             </div>
 
