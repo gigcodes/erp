@@ -12,16 +12,13 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use App\Flow;
 
-class CustomerController extends Controller
-{
+class CustomerController extends Controller {
 
-    public function __construct()
-    {
+    public function __construct() {
         // $this->middleware('permission:customer');
     }
 
-    public function add_cart_data(Request $request)
-    {
+    public function add_cart_data(Request $request) {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'website' => 'required',
@@ -58,6 +55,8 @@ class CustomerController extends Controller
                 $skuarr = explode('-', $item['sku']);
                 $product = Product::where('sku', $skuarr[0])->first();
                 if ($product) {
+
+
                     $erp_lead = new ErpLeads;
                     $erp_lead->lead_status_id = 1;
                     $erp_lead->customer_id = $customer_id;
@@ -81,8 +80,7 @@ class CustomerController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Successfully Added'], 200);
     }
 
-    public function storeReviews(Request $request)
-    {
+    public function storeReviews(Request $request) {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'website' => 'required',
@@ -123,13 +121,13 @@ class CustomerController extends Controller
             $input['comment'] = $request->comment;
             $input['status'] = 0;
             $reviews = \App\CustomerReview::create($input);
-			$flowId = Flow::where('flow_name', 'order_reviews')->pluck('id')->first();
-			if($flowId != null and $checkCustomer->email != null) {
-				\App\Email::where('scheduled_at', '>=', Carbon::now())->where('email', $checkCustomer->email)
-				->where('template', 'flow#'.$flowId)->delete();
-			}
-			
-			
+            $flowId = Flow::where('flow_name', 'order_reviews')->pluck('id')->first();
+            if ($flowId != null and $checkCustomer->email != null) {
+                \App\Email::where('scheduled_at', '>=', Carbon::now())->where('email', $checkCustomer->email)
+                    ->where('template', 'flow#' . $flowId)->delete();
+            }
+
+
 
             if ($reviews) {
                 return response()->json(['status' => 'success', 'message' => 'Successfully Added'], 200);
@@ -138,11 +136,9 @@ class CustomerController extends Controller
             }
         }
         return response()->json(['status' => 'error', 'message' => 'Store website not found!'], 400);
-
     }
 
-    public function allReviews(Request $request)
-    {
+    public function allReviews(Request $request) {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'website' => 'required',
@@ -161,7 +157,5 @@ class CustomerController extends Controller
         } else {
             return response()->json(['status' => 'error', 'message' => 'Please try again'], 400);
         }
-
     }
-
 }
