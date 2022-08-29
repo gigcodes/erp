@@ -32,7 +32,6 @@ use App\Http\Controllers\TaskModuleController;
 class SiteDevelopmentController extends Controller {
     //
     public function index($id = null, Request $request) {
-
         $input = $request->input();
         $masterCategories = SiteDevelopmentMasterCategory::pluck('title', 'id')->toArray();
         $designDevCategories = SiteDevelopmentMasterCategory::where('title', 'Design')->orWhere('title', 'Functionality')->pluck('title', 'id')->toArray();
@@ -52,12 +51,34 @@ class SiteDevelopmentController extends Controller {
             if (is_array($selectedWebsites) and count($selectedWebsites) > 0) {
                 //$categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id' , 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` IN (' . implode(',', $selectedWebsites) . ') ORDER BY created_at DESC limit 1) as site_development_id'),'store_websites.website');
                 $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
-                $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_dev.website_id', 'site_dev.site_development_id', 'store_websites.website')
+                $categories = SiteDevelopmentCategory::select(
+                    'site_development_categories.*',
+                    'site_developments.site_development_master_category_id',
+                    'site_dev.website_id',
+                    'site_dev.site_development_id',
+                    'store_websites.website'
+                )
                     ->joinSub($site_dev, 'site_dev', function ($join) {
                         $join->on('site_development_categories.id', '=', 'site_dev.site_development_category_id');
                     })->whereIn('site_developments.website_id', $selectedWebsites);
             } else {
-                $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id', 'site_developments.website_id', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = ' . $id . ' ORDER BY created_at DESC limit 1) as site_development_id'), 'store_websites.website');
+                $categories = SiteDevelopmentCategory::select(
+                    'site_development_categories.*',
+                    'site_developments.site_development_master_category_id',
+                    'site_developments.website_id',
+                    DB::raw(
+                        '(SELECT 
+                            id 
+                        from site_developments 
+                        where 
+                            site_developments.site_development_category_id = site_development_categories.id 
+                            AND `website_id` = ' . $id . ' 
+                        ORDER BY created_at DESC 
+                        limit 1
+                        ) as site_development_id'
+                    ),
+                    'store_websites.website'
+                );
             }
         } else {
             $site_dev = SiteDevelopment::select(DB::raw('site_development_category_id,site_developments.id as site_development_id,website_id'));
@@ -89,6 +110,8 @@ class SiteDevelopmentController extends Controller {
 
         //$categories = $categories->paginate(Setting::get('pagination'));
         // $categories = $categories->paginate(20);
+
+        // _p(request()->all(), 1);
 
         if ($id != 'all') {
             if (is_array($selectedWebsites) and count($selectedWebsites) > 0) {
@@ -148,14 +171,16 @@ class SiteDevelopmentController extends Controller {
             $categories->orderBy('title', 'asc');
         }
 
+        // _p($categories->get(50)->toArray(), 1);
+
         //main data listing
-        $categories = $categories->paginate(20);
+        $categories = $categories->paginate(25);
 
         //for filtration category
 
 
         //get filter category data
-        $filter_category = SiteDevelopmentCategory::pluck('title')->toArray();
+        $filter_category = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
 
         foreach ($categories as $category) {
             $finalArray = [];
@@ -226,6 +251,7 @@ class SiteDevelopmentController extends Controller {
         $users_all = $allUsers;
         $users = User::select('id', 'name')->whereIn('id', $userIDs)->get();
         $store_websites = StoreWebsite::pluck("title", "id")->toArray();
+        
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
                 'tbody' => view('storewebsite::site-development.partials.data', compact('input', 'masterCategories', 'categories', 'users', 'website', 'users_all', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers', 'store_websites'))->render(),
