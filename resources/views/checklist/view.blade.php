@@ -123,7 +123,7 @@
         </div>
     </div>
     <div class="checklist_data">
-        <table class="table table-bordered " id="assign_checklist_table">
+        <table class="table table-bordered text-nowrap" id="assign_checklist_table">
 
         </table>
     </div>
@@ -175,6 +175,8 @@
         format: 'yyyy-mm-dd' //2022-06-29
     });
     var addRecord = "{{ route('checklist.add') }}";
+    var addRemarkRecord = '{{ route('checklist.add.remark') }}';
+    var addRemarkHistory = '{{ route('checklist.remark.list') }}';
     var subjects = [];
     var oTable;
     var columns = [{
@@ -195,6 +197,27 @@
                     subjects.push(row.id);
                     return row.title;
                 }
+            }
+        },
+        {
+            data: null,
+            title : "Remark",
+            
+            name: 'subjects.remark',
+            class : "expand-row-msg",
+            attr : "data-name='remark'",
+            render: function(data, type, row, meta) {
+                if(typeof row.checklistsubject_remark[0]  !== 'undefined') {
+                    var text_remark_lim = '';
+                    if(row.checklistsubject_remark[0].remark){
+                        var trtext = row.checklistsubject_remark[0].remark;
+                        text_remark_lim = trtext.substring(0, 5)+'...';
+                    }
+                    var text_remark = '<div><span class="show-short-remark-' + row.id + '">' + text_remark_lim + '</span>    <span style="word-break:break-all;" class="show-full-remark-' + row.id + ' hidden">' + row.checklistsubject_remark[0].remark + '</span></div>';
+                    return "<div style='width:200px !important;height: 35px;'><input type='text' data-subect_id='"+row.id+"' value='' class='form-control remark"+row.id+"' style='margin-top: 0px;width:70% !important;float:left;'  > <button class='btn pr-0 btn-xs btn-image add-remark' data-id='"+row.id+"' style='float:left;' onclick='saveRemarks("+row.id+")'><img src='/images/filled-sent.png' style='cursor: nwse-resize;'></button> <button style='padding-left: 0;padding-right:0px;' type='button' class='btn btn-image d-inline remark_history' title='Show remark history' data-subect_id='"+row.id+"'><i class='fa fa-info-circle'></i></button></div>"+text_remark;                                
+                } else {
+                    return "<div style='width:200px !important;float:left;'><input type='text' data-subect_id='"+row.id+"' value='' class='form-control remark"+row.id+"' style='margin-top: 0px;width:70% !important;float:left;'  > <button class='btn pr-0 btn-xs btn-image add-remark' data-id='"+row.id+"' style='float:left;' onclick='saveRemarks("+row.id+")'><img src='/images/filled-sent.png' style='cursor: nwse-resize;'></button></div>";
+                }                  
             }
         }
     ];
@@ -290,6 +313,62 @@
             });
         });
 
+        $(document).on('click', '.add-remark', function(e) {
+            var subjectID = $(this).attr("data-id");
+            var remark = $(".remark"+subjectID).val();
+            $.ajax({
+                type:'POST',
+                url: addRemarkRecord,
+                data: {
+                    "_token": $('meta[name="csrf-token"]').attr('content'),
+                    "checklist_id" : $('input[name=checklist_id]').val(),
+                    "subject_id" : subjectID,
+                    "remark" : remark
+                }, 
+                success:function(data) {                        
+                    toastr["success"](data.message);
+                    init();
+                }
+            });     
+        }); 
+        
+        $(document).on('click', '.remark_history', function(e) {
+                var subjectID = $(this).attr("data-subect_id");
+                $.ajax({
+                    type:'POST',
+                    url: addRemarkHistory,
+                    data: {
+                        "_token": $('meta[name="csrf-token"]').attr('content'),
+                        "subject_id" : subjectID,
+                    }, 
+                    success:function(response) {                        
+                        if (response.code = '200') {
+                            var t = '';
+                            $.each(response.data, function(key, v) {
+                            t += '<tr><td>' + v.id + '</td>';
+                            t += '<td>' + v.username + '</td>';
+                            t += '<td>' + v.remark + '</td>';
+                            t += '<td>' + v.created_at + '</td></tr>';
+                            });
+                            $(".remarkHistoryTboday").html(t);
+                            $('#remarkHistoryModel').modal('show');
+                            toastr['success']('History Listed successfully!!!', 'success');
+
+                        } else {
+                            toastr['error'](response.message, 'error');
+                        }
+                    }
+                });     
+            }); 
+
+            $(document).on('click', '.expand-row-msg', function() {
+                var name = $(this).data('name');
+                var id = $(this).data('id');
+                var full = '.expand-row-msg .show-short-' + name + '-' + id;
+                var mini = '.expand-row-msg .show-full-' + name + '-' + id;
+                $(full).toggleClass('hidden');
+                $(mini).toggleClass('hidden');
+            });
         $.ajax({
             type: 'POST',
             url: "{{ route('checklist.subjects') }}",
@@ -350,6 +429,16 @@
             },
             bSort: false,
             columns: columns,
+            columnDefs: [
+                            {
+                                'targets': 2,
+                                'createdCell':  function (td, cellData, rowData, row, col) {
+                                $(td).attr('data-name', 'remark'); 
+                                $(td).attr('data-id', cellData.id); 
+                                
+                                }
+                            }
+                        ]
         });
     }
     // END Print Table Using datatable
