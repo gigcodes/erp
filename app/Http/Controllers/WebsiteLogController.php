@@ -9,72 +9,148 @@ use \Carbon\Carbon;
 use InstagramAPI\Instagram;
 use App\StoreWebsite;
 
-class WebsiteLogController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        $filesDirectories = scandir(env('WEBSITES_LOGS_FOLDER'));
-        //$filesDirectories = scandir('storage');
-        $dataArr = [];
-        //dd($filesDirectories);   
-        foreach ($filesDirectories as $filesDirectory) {
-            if($filesDirectory != '.' && $filesDirectory != '..'){
-                $fullPath = \File::allFiles(env('WEBSITES_LOGS_FOLDER').$filesDirectory);
-                //dd(storage_path().'/'.$filesDirectory);
-                //$fullPath = \File::allFiles(storage_path().'/'.$filesDirectory);
-                foreach ($fullPath as $key => $val) {
-                    $fileName = $val->getFilename();
-                    $filePath = env('WEBSITES_LOGS_FOLDER').$filesDirectory.'/'.$val->getFilename();
-                    //$filePath = storage_path().'/'.$filesDirectory.'/'.$val->getFilename();
-                    $website = $filesDirectory;
-                    $dataArr[] = array("S_No" => $key+1, "File_name" => $fileName, "Website" => $website, "File_Path" => $filePath);
-                }
+class WebsiteLogController extends Controller {
 
-            }
-        }
-        
-        return view('website-logs.index',compact('dataArr')); 
+
+    public function logsPath() {
+        return env('WEBSITES_LOGS_FOLDER') ?: '../storage/';
     }
 
-    public function searchWebsiteLog(Request $request)
-    {
-        $filesDirectories = scandir(env('WEBSITES_LOGS_FOLDER'));
-        $dataArr = [];
-        
-        foreach ($filesDirectories as $filesDirectory) {
-            if($filesDirectory != '.' && $filesDirectory != '..'){
-                //dd('storage/logs/'.$filesDirectory);
-                $fullPath = \File::allFiles(env('WEBSITES_LOGS_FOLDER').$filesDirectory);
-                foreach ($fullPath as $key => $val) {
-                    $fileName = $val->getFilename();
-                    $filePath = env('WEBSITES_LOGS_FOLDER').$filesDirectory.'/'.$val->getFilename();
-                    $website = $filesDirectory;
-                    if($request->file_name == $val->getFilename())
-                        $dataArr[] = array("S_No" => $key+1, "File_name" => $fileName, "Website" => $website, "File_Path" => $filePath);
-                    if($request->website == $website && $request->file_name == $val->getFilename())
-                        $dataArr[] = array("S_No" => $key+1, "File_name" => $fileName, "Website" => $website, "File_Path" => $filePath);
-                }
-
+    public function prepareWebsite($filePath) {
+        $path = $this->logsPath();
+        $filePath = trim(str_replace($path, '', $filePath), '/');
+        $filePath = explode('/', $filePath);
+        if (count($filePath) > 1) {
+            return $filePath[0];
+        }
+        return NULL;
+    }
+    public function prepareWebsites($data) {
+        $return = [];
+        foreach ($data as $key => $filePath) {
+            $website = $this->prepareWebsite($filePath);
+            if ($website) {
+                $return[$website] = $website;
             }
         }
-        $dataArr = array_map("unserialize", array_unique(array_map("serialize", $dataArr)));;
-        $fileName = $request->file_name;
-        $website = $request->website;
-        return view('website-logs.index',compact('dataArr', 'fileName', 'website' )); 
+        $return = array_unique($return);
+        ksort($return);
+        return $return;
     }
 
-    public function runWebsiteLogCommand(Request $request)
-    {
-       // dd('sdfdsds');
+    public function index() {
+        $path = $this->logsPath();
+
+        $srchWebsite = request('website', '');
+        $srchFilename = request('file_name', '');
+
+        $listSrchFiles = [];
+
+        $logFiles = readFullFolders($path);
+        foreach ($logFiles as $key => $filePath) {
+            $fileName = basename($filePath);
+            if ($website = $this->prepareWebsite($filePath)) {
+
+                if ($srchWebsite && $website == $srchWebsite) {
+                    $listSrchFiles[$fileName] = $fileName;
+                } else {
+                    $listSrchFiles[$fileName] = $fileName;
+                }
+
+                if ($srchWebsite && $srchFilename) {
+                    if (!($website == $srchWebsite && $fileName == $srchFilename)) {
+                        continue;
+                    }
+                } else if ($srchWebsite) {
+                    if (!($website == $srchWebsite)) {
+                        continue;
+                    }
+                } else if ($srchFilename) {
+                    if (!($fileName == $srchFilename)) {
+                        continue;
+                    }
+                }
+
+
+
+                $dataArr[] = [
+                    "S_No" => $key + 1,
+                    "File_name" => $fileName,
+                    "Website" => "",
+                    "Website" => $website,
+                    "File_Path" => $filePath,
+                ];
+            }
+        }
+        $directories = readFolders($logFiles);
+        // _p($directories);
+
+        $listWebsites = $this->prepareWebsites($directories);
+
+        $listSrchFiles = array_unique($listSrchFiles);
+        ksort($listSrchFiles);
+
+        // _p($logFiles, 1);
+
+        // $filesDirectories = scandir(env('WEBSITES_LOGS_FOLDER'));
+        // //$filesDirectories = scandir('storage');
+        // $dataArr = [];
+        // //dd($filesDirectories);   
+        // foreach ($filesDirectories as $filesDirectory) {
+        //     if ($filesDirectory != '.' && $filesDirectory != '..') {
+        //         $fullPath = \File::allFiles(env('WEBSITES_LOGS_FOLDER') . $filesDirectory);
+        //         //dd(storage_path().'/'.$filesDirectory);
+        //         //$fullPath = \File::allFiles(storage_path().'/'.$filesDirectory);
+        //         foreach ($fullPath as $key => $val) {
+        //             $fileName = $val->getFilename();
+        //             $filePath = env('WEBSITES_LOGS_FOLDER') . $filesDirectory . '/' . $val->getFilename();
+        //             //$filePath = storage_path().'/'.$filesDirectory.'/'.$val->getFilename();
+        //             $website = $filesDirectory;
+        //             $dataArr[] = array("S_No" => $key + 1, "File_name" => $fileName, "Website" => $website, "File_Path" => $filePath);
+        //         }
+        //     }
+        // }
+
+        return view('website-logs.index', [
+            'dataArr' => $dataArr,
+            'listWebsites' => $listWebsites,
+            'listSrchFiles' => $listSrchFiles,
+        ]);
+    }
+
+    public function searchWebsiteLog(Request $request) {
+        return $this->index();
+
+        // $filesDirectories = scandir(env('WEBSITES_LOGS_FOLDER'));
+        // $dataArr = [];
+
+        // foreach ($filesDirectories as $filesDirectory) {
+        //     if ($filesDirectory != '.' && $filesDirectory != '..') {
+        //         //dd('storage/logs/'.$filesDirectory);
+        //         $fullPath = \File::allFiles(env('WEBSITES_LOGS_FOLDER') . $filesDirectory);
+        //         foreach ($fullPath as $key => $val) {
+        //             $fileName = $val->getFilename();
+        //             $filePath = env('WEBSITES_LOGS_FOLDER') . $filesDirectory . '/' . $val->getFilename();
+        //             $website = $filesDirectory;
+        //             if ($request->file_name == $val->getFilename())
+        //                 $dataArr[] = array("S_No" => $key + 1, "File_name" => $fileName, "Website" => $website, "File_Path" => $filePath);
+        //             if ($request->website == $website && $request->file_name == $val->getFilename())
+        //                 $dataArr[] = array("S_No" => $key + 1, "File_name" => $fileName, "Website" => $website, "File_Path" => $filePath);
+        //         }
+        //     }
+        // }
+        // $dataArr = array_map("unserialize", array_unique(array_map("serialize", $dataArr)));;
+        // $fileName = $request->file_name;
+        // $website = $request->website;
+        // return view('website-logs.index', compact('dataArr', 'fileName', 'website'));
+    }
+
+    public function runWebsiteLogCommand(Request $request) {
+        // dd('sdfdsds');
         return \Artisan::call("command:websitelog");
     }
     public function websiteLogFileView(Request $request) {
-	    if(file_exists($request->path)){
+        if (file_exists($request->path)) {
             $path = $request->path;
             return response()->file($path);
         } else {
@@ -90,7 +166,7 @@ class WebsiteLogController extends Controller
      * @param [string] $end
      * @return string
      */
-    public function get_string_between($string, $start, $end){
+    public function get_string_between($string, $start, $end) {
         $string = ' ' . $string;
         $ini = strpos($string, $start);
         if ($ini == 0) return '';
@@ -98,7 +174,7 @@ class WebsiteLogController extends Controller
         $len = strpos($string, $end, $ini) - $ini;
         return substr($string, $ini, $len);
     }
-    
+
     /**
      * This function is used to getting string for the spacific string between
      *
@@ -107,9 +183,9 @@ class WebsiteLogController extends Controller
      * @param [string] $ending_word
      * @return string
      */
-    public function string_between_two_string($str, $starting_word, $ending_word){
+    public function string_between_two_string($str, $starting_word, $ending_word) {
         $arr = explode($starting_word, $str);
-        if (isset($arr[1])){
+        if (isset($arr[1])) {
             $arr = explode($ending_word, $arr[1]);
             return $arr[0];
         }
@@ -122,11 +198,9 @@ class WebsiteLogController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function store()
-    {
-        
+    public function store() {
     }
-   /* public function store()
+    /* public function store()
     {
         //$fullPath = '/Users/satyamtripathi/Work/sololux-erp/public/db.log';
         $websiteFolderArr = array('customers', 'chatapi', 'whatsapp', 'logs');
@@ -193,32 +267,29 @@ class WebsiteLogController extends Controller
     }
     */
 
-    public function websiteLogStoreView()
-    {
-        try{
+    public function websiteLogStoreView() {
+        try {
             $dataArr = WebsiteLog::all();
-            return view('website-logs.website-log-view',compact('dataArr')); 
-        } catch(\Exception $e){
-            return redirect()->back()->with('error',$e->getMessage());
+            return view('website-logs.website-log-view', compact('dataArr'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         }
-        
     }
 
     public function searchWebsiteLogStoreView(Request $request) {
-	    try{
+        try {
 
             $dataArr = new WebsiteLog();
-            if($request->sql_query)
-                $dataArr =  $dataArr->where('sql_query', 'LIKE', '%'.$request->sql_query.'%');    
-            if($request->time)
-                $dataArr =  $dataArr->where('time', 'LIKE', '%'.$request->time.'%');    
+            if ($request->sql_query)
+                $dataArr =  $dataArr->where('sql_query', 'LIKE', '%' . $request->sql_query . '%');
+            if ($request->time)
+                $dataArr =  $dataArr->where('time', 'LIKE', '%' . $request->time . '%');
             $dataArr =  $dataArr->get();
             $sqlQuery = $request->sql_query;
             $time = $request->time;
-            return view('website-logs.website-log-view',compact('dataArr', 'sqlQuery', 'time')); 
-        } catch(\Exception $e){
-            return redirect()->back()->with('error',$e->getMessage());
+            return view('website-logs.website-log-view', compact('dataArr', 'sqlQuery', 'time'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
-
 }
