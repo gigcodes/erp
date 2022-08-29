@@ -43,7 +43,11 @@ class OutOfStockSubscribeController extends Controller {
                     $customer = Customer::create(['name' => $data['email'], 'email' => $data['email'], 'store_website_id' => $website_id]);
                 }
                 $status = 0;
+
+
                 \App\ErpLeads::create(['customer_id' => $customer->id, 'store_website_id' => $website_id, 'lead_status_id' => 1, 'product_id' => $product->id, 'type' => 'out-of-stock-subscribe', 'size' => $request->get("size", null)]);
+
+
                 $arrayToStore = ['customer_id' => $customer['id'], 'product_id' => $product->id, 'status' => $status, 'website_id' => $website_id];
                 OutOfStockSubscribe::updateOrCreate(['customer_id' => $customer['id'], 'product_id' => $product->id, 'website_id' => $website_id], $arrayToStore);
 
