@@ -3222,6 +3222,12 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('uicheck')->group(function () {
         Route::get('get', 'UicheckController@get')->name('uicheck.get');
+        Route::get('responsive', 'UicheckController@responseDevicePage')->name('uicheck.responsive');
+        Route::post('responsive/status', 'UicheckController@responseDeviceStatusChange')->name('uicheck.responsive.status');
+        Route::post('get/responsive/status/history', 'UicheckController@responseDeviceStatusHistory')->name('get.responsive.status.history');
+        Route::get('translation', 'UicheckController@responseTranslatorPage')->name('uicheck.translation');
+        Route::post('translation/status', 'UicheckController@translatorStatusChange')->name('uicheck.translator.status');
+        Route::post('get/translator/status/history', 'UicheckController@translatorStatusHistory')->name('get.translator.status.history');
 
         Route::prefix('history')->group(function () {
             Route::get('all', 'UicheckController@historyAll')->name('uicheck.history.all');
