@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Checklist;
 use App\Subject;
 use App\ChecklistSubject;
+use App\ChecklistSubjectRemarkHistory;
 use Illuminate\Http\Request;
 
 class CheckListController extends Controller {
@@ -53,9 +54,9 @@ class CheckListController extends Controller {
         return view('checklist.view', compact('title', 'id'));
     }
 
-    public function subjects(Request $request) {
-        if ($request->type == "datatable") {
-            $items = Subject::with("checklistsubject")->where('checklist_id', $request->id);
+    public function subjects(Request $request){
+        if($request->type == "datatable"){
+            $items = Subject::with("checklistsubject")->where('checklist_id',$request->id);  
             return datatables()->eloquent($items)->toJson();
         } else {
             $items = ChecklistSubject::where('user_id', \Auth::id())->where("checklist_id", $request->id)->groupBy('date')->get();
@@ -269,4 +270,34 @@ class CheckListController extends Controller {
             ], 500);
         }
     }
+
+    public function subjectRemarkList(Request $request){
+        try{
+            $remark = ChecklistSubjectRemarkHistory::leftJoin("users", "users.id", "create_checklist_subject_remark_histories.user_id")
+            ->select("create_checklist_subject_remark_histories.*", "users.name as username")
+            ->where('create_checklist_subject_remark_histories.subject_id', $request->subject_id)
+            ->get();
+            //dd($remark);
+            return response()->json(["code" => 200, "message" => "Remark listed successfully.", "data" => $remark]);
+        }catch(\Exception $e){
+            return response()->json(["code" => 500, "message" => $e->getMessage(), "data" => []]);
+        }
+    }
+
+    public function subjectRemarkCreate(Request $request){
+        try{
+            $remark = new ChecklistSubjectRemarkHistory();
+            $remark->user_id = \Auth::user()->id;
+            $remark->checklist_id = $request->checklist_id;
+            $remark->subject_id = $request->subject_id;
+            $remark->remark = $request->remark;
+            $remark->old_remark = $request->old_remark;
+
+            $remark->save();
+            return response()->json(["code" => 200, "message" => "Remark listed successfully.", "data" => $remark]);
+        }catch(\Exception $e){
+            return response()->json(["code" => 500, "message" => $e->getMessage(), "data" => []]);
+        }
+    }
+
 }

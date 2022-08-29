@@ -130,6 +130,39 @@
 
 </div>
 
+
+<div id="remarkHistoryModel" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content ">
+        <div id="add-mail-content">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 class="modal-title">Remark History</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Added by</th>
+                    <th>Remark</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody class="remarkHistoryTboday">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 @endsection
 
 @section('scripts')
@@ -322,4 +355,9 @@
     // END Print Table Using datatable
 </script>
 
+<style>
+    .dataTables_wrapper{
+        overflow-x: scroll;
+    }
+</style>
 @endsection
