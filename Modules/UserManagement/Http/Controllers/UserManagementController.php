@@ -1945,6 +1945,8 @@ class UserManagementController extends Controller {
 
                     $userIds = [];
 
+                    // _p($users->toArray(), 1);
+
                     // Prepare user's data
                     $userArr = [];
                     foreach ($users as $single) {
@@ -1952,7 +1954,7 @@ class UserManagementController extends Controller {
                         if ($single->uaId) {
                             $single->uaStTime = date('H:i:00', strtotime($single->uaStTime));
                             $single->uaEnTime = date('H:i:00', strtotime($single->uaEnTime));
-                            $single->uaLunchTime = date('H:i:00', strtotime($single->uaLunchTime));
+                            $single->uaLunchTime = $single->uaLunchTime ? date('H:i:00', strtotime($single->uaLunchTime)) : '';
 
                             $single->uaDays = $single->uaDays ? explode(',', str_replace(' ', '', $single->uaDays)) : [];
                             $availableDates = UserAvaibility::getAvailableDates($single->uaFrom, $single->uaTo, $single->uaDays, $filterDatesOnly);
@@ -1961,7 +1963,7 @@ class UserManagementController extends Controller {
                             $userArr[] = [
                                 'id' => $single->id,
                                 'name' => $single->name,
-                                'uaLunchTime' => substr($single->uaLunchTime, 0, 5),
+                                'uaLunchTime' => $single->uaLunchTime ? substr($single->uaLunchTime, 0, 5) : '',
                                 'uaId' => $single->uaId,
                                 'uaDays' => $single->uaDays,
                                 'availableDays' => $single->uaDays,
@@ -2254,7 +2256,11 @@ class UserManagementController extends Controller {
                     tasks 
                 WHERE 
                 1
-                AND start_date IS NOT NULL
+                AND (
+                    ( status = '" . Task::TASK_STATUS_IN_PROGRESS . "' AND start_date IS NOT NULL )
+                    OR 
+                    ( status != '" . Task::TASK_STATUS_IN_PROGRESS . "' )
+                )
                 AND deleted_at IS NULL
                 AND assign_to IN (" . implode(',', $userIds) . ") 
                 AND status IN ('" . implode("','", $taskStatuses) . "') 
@@ -2277,7 +2283,11 @@ class UserManagementController extends Controller {
                     ) AS status2
                 FROM developer_tasks
                 WHERE 1
-                AND start_date IS NOT NULL
+                AND (
+                    ( status = '" . DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS . "' AND start_date IS NOT NULL )
+                    OR 
+                    ( status != '" . DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS . "' )
+                )
                 AND deleted_at IS NULL
                 AND assigned_to IN (" . implode(',', $userIds) . ")
                 AND status IN ('" . implode("','", $devTaskStatuses) . "')
@@ -2288,5 +2298,65 @@ class UserManagementController extends Controller {
         $tasks = \DB::select($sql, []);
 
         return $tasks;
+    }
+
+    public function plannedUserAndAvailability() {
+        try {
+            $q = User::query();
+            $q->leftJoin('user_avaibilities AS ua', function ($join) {
+                $join->on('ua.user_id', '=', 'users.id')
+                    ->where('ua.is_latest', '=', 1);
+            });
+            $q->where('is_task_planned', 1);
+            if (!isAdmin()) {
+                $q->where('id', loginId());
+            }
+            $q->orderBy('name');
+            $q->select([
+                'users.*',
+                'ua.from',
+                'ua.to',
+                'ua.start_time',
+                'ua.end_time',
+                'ua.date',
+                'ua.created_at AS latest_updated',
+            ]);
+            $list = $q->get();
+
+            $html = [];
+            $html[] = '<table class="table table-bordered">';
+            $html[] = '<thead>
+                    <tr>
+                        <th width="20%">Username</th>
+                        <th width="15%" style="word-break: break-all;">From/To Date</th>
+                        <th width="10%" style="word-break: break-all;">Start/End Time</th>
+                        <th width="30%" style="word-break: break-all;">Available Days</th>
+                        <th width="10%" style="word-break: break-all;">Lunch Time</th>
+                        <th width="15%">Created at</th>
+                    </tr>
+                </thead>';
+            if ($list->count()) {
+                foreach ($list as $single) {
+                    $html[] = '<tr>
+                            <td>' . $single->name . '</td>
+                            <td>' . $single->from . ' - ' . $single->to . '</td>
+                            <td>' . $single->start_time . ' - ' . $single->end_time . '</td>
+                            <td>' . (str_replace(',', ', ', $single->date) ?: '-') . '</td>
+                            <td>' . ($single->lunch_time ?: '-') . '</td>
+                            <td>' . ($single->latest_updated ?: '-') . '</td>
+                        </tr>';
+                }
+            } else {
+                $html[] = '<tr>
+                        <td colspan="5">No records found.</td>
+                    </tr>';
+            }
+            $html[] = '</table>';
+            return respJson(200, '', [
+                'data' => implode('', $html)
+            ]);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
     }
 }

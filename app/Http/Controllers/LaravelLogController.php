@@ -527,69 +527,81 @@ class LaravelLogController extends Controller {
         return $final_result;
     }
 
-    public function apiLogs(Request $request) {
+    public function apiLogs() {
         $logs = new \App\LogRequest;
-        if ($request->id) {
-            $logs = $logs->where('id', $request->id);
+
+        if ($s = request('id')) {
+            $logs = $logs->where('id', $s);
         }
-        if ($request->ip) {
-            $logs = $logs->where('ip', 'like', $request->ip . '%');
+        if ($s = request('ip')) {
+            $logs = $logs->where('ip', 'like', $s . '%');
         }
-        if ($request->api_name) {
-            $logs = $logs->where('api_name', 'like', '%' . $request->api_name . '%');
+        if ($s = request('api_name')) {
+            if ($s != 'all') {
+                $logs = $logs->where('api_name', $s);
+            }
         }
-        if ($request->method) {
-            $logs = $logs->where('method', 'like', $request->method . '%');
+        if ($s = request('method_name')) {
+            if ($s != 'all') {
+                $logs = $logs->where('method_name', $s);
+            }
         }
-        if ($request->method_name) {
-            $logs = $logs->where('method_name', 'like', $request->method_name . '%');
+        if ($s = request('method')) {
+            if ($s != 'all') {
+                $logs = $logs->where('method', $s);
+            }
         }
-        if ($request->message) {
-            $logs = $logs->where('message', 'like', '%' . $request->message . '%');
+        if ($s = request('url')) {
+            if ($s != 'all') {
+                $logs = $logs->where('url', $s);
+            }
         }
-        if ($request->status) {
-            $logs = $logs->where('status_code', 'like', $request->status . '%');
+        if ($s = request('message')) {
+            $logs = $logs->where('message', 'like', '%' . $s . '%');
         }
-        if ($request->url) {
-            $logs = $logs->where('url', 'like', '%' . $request->url . '%');
+        if ($s = request('status')) {
+            if ($s != 'all') {
+                $logs = $logs->where('status_code', $s);
+            }
         }
-        if ($request->created_at) {
-            $logs = $logs->whereDate('created_at', \Carbon\Carbon::createFromFormat('Y/m/d', $request->created_at)->format('Y-m-d'));
+
+        if ($s = request('created_at')) {
+            $logs = $logs->whereDate('created_at', \Carbon\Carbon::createFromFormat('Y/m/d', $s)->format('Y-m-d'));
         }
-        if ($request->is_send) {
-            $logs = $logs->where('is_send', $request->is_send);
+        if ($s = request('is_send')) {
+            $logs = $logs->where('is_send', $s);
         } else {
             $logs = $logs->where('is_send', '0');
         }
 
         $count = $logs->count();
-        $logs = $logs->orderBy("id", "desc")->paginate(Setting::get('pagination'));
+        $logs = $logs->orderBy("id", "desc")->paginate(Setting::get('pagination') ?: 50);
 
-        if ($request->ajax()) {
-            //$request->render('logging.partials.apilogdata',compact('logs'));
+        if (request()->ajax()) {
             $html = view('logging.partials.apilogdata', compact('logs'))->render();
 
             if (count($logs)) {
                 return array('status' => 1, 'html' => $html, 'count' => $count, 'logs' => $logs);
             } else {
-                return array('status' => 0, 'html' => '<tr id="noresult_tr"><td colspan="7">No More Records</td></tr>');
+                return array('status' => 0, 'html' => '<tr id="noresult_tr"><td colspan="11" class="text-center">No More Records</td></tr>');
             }
         }
 
-        $logMethods = \App\LogRequest::distinct()->orderBy('method')->get(['method']);
-        $status_codes = \App\LogRequest::distinct()->orderBy('status_code')->get(['status_code']);
-        $all_method_names = \App\LogRequest::select('method_name')->whereNotNull('method_name')->groupBy('method_name')->orderBy('method_name')->get();
+        $filterApiNames = \App\LogRequest::distinct()->orderBy('api_name')->pluck('api_name')->toArray();
+        $filterMethodNames = \App\LogRequest::distinct()->whereNotNull('method_name')->orderBy('method_name')->pluck('method_name')->toArray();
+        $filterMethods = \App\LogRequest::distinct()->orderBy('method')->pluck('method')->toArray();
+        $filterUrls = \App\LogRequest::distinct()->orderBy('url')->pluck('url')->toArray();
+        $filterStatusCodes = \App\LogRequest::distinct()->orderBy('status_code')->pluck('status_code')->toArray();
 
-        return view(
-            'logging.apilog',
-            compact(
-                'logs',
-                'count',
-                'status_codes',
-                'all_method_names',
-                'logMethods'
-            )
-        );
+        return view('logging.apilog', compact(
+            'logs',
+            'count',
+            'filterApiNames',
+            'filterMethodNames',
+            'filterMethods',
+            'filterUrls',
+            'filterStatusCodes'
+        ));
     }
 
     public function generateReport(Request $request) {

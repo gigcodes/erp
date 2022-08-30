@@ -74,31 +74,35 @@
                 <tr>
                     <th><input type="text" class="search form-control tbInput" name="id" id="filename"></th>
                     <th><input type="text" class="search form-control tbInput" id="log" name="ip"></th>
-                    <th><input type="text" class="search form-control tbInput" id="api_name" name="api_name"></th>
                     <th>
-                        <select name="method_name" class="search form-control tbInput" id="method_name">
-                            <option value="">- All -</option>
-                            @foreach ($all_method_names as $all_method_name)
-                            <option value="{{ $all_method_name->method_name }}">{{ $all_method_name->method_name }}</option>
-                            @endforeach
+                        <select class="search form-control tbInput select2" name="api_name" id="api_name">
+                            <option value="all">- All -</option>
+                            {!! makeDropdown($filterApiNames, [], 0) !!}
                         </select>
                     </th>
                     <th>
-                        <select name="method" class="search form-control tbInput" id="method">
-                            <option value="">- All -</option>
-                            @foreach ($logMethods as $row)
-                            <option value="{{ $row->method }}">{{ $row->method }}</option>
-                            @endforeach
+                        <select class="search form-control tbInput select2" name="method_name" id="method_name">
+                            <option value="all">- All -</option>
+                            {!! makeDropdown($filterMethodNames, [], 0) !!}
                         </select>
                     </th>
-                    <th><input type="text" name="url" class="search form-control tbInput" id="url"></th>
+                    <th>
+                        <select class="search form-control tbInput select2" name="method" id="method">
+                            <option value="all">- All -</option>
+                            {!! makeDropdown($filterMethods, [], 0) !!}
+                        </select>
+                    </th>
+                    <th>
+                        <select name="url" class="search form-control tbInput select2" id="url">
+                            <option value="all">- All -</option>
+                            {!! makeDropdown($filterUrls, [], 0) !!}
+                        </select>
+                    </th>
                     <th><input type="text" name="message" class="search form-control tbInput" id="message"></th>
                     <th>
-                        <select name="status" class="search form-control tbInput" id="action">
-                            <option value="">- All -</option>
-                            @foreach ($status_codes as $status_code)
-                            <option value="{{ $status_code->status_code }}">{{ $status_code->status_code }}</option>
-                            @endforeach
+                        <select class="search form-control tbInput select2" name="status" id="action">
+                            <option value="all">- All -</option>
+                            {!! makeDropdown($filterStatusCodes, [], 0) !!}
                         </select>
                     </th>
                     <th></th>
@@ -169,10 +173,14 @@
     //Ajax Request For Search
     $(document).ready(function() {
 
-        $(document).on('keyup', '.tbInput', function() {
+        applySelect2(jQuery('.select2'));
 
+        $(document).on('keyup', '.tbInput', function() {
             filterResults();
-            // console.log(data);
+        });
+
+        $(document).on('change', 'select[name="url"]', function() {
+            filterResults();
         });
 
         $(document).on('change', 'select[name="status"]', function() {
@@ -180,6 +188,10 @@
         });
 
         $(document).on('change', 'select[name="method"]', function() {
+            filterResults();
+        });
+
+        $(document).on('change', 'select[name="api_name"]', function() {
             filterResults();
         });
 
