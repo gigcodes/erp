@@ -7,8 +7,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 
-class RunErpEvents extends Command
-{
+class RunErpEvents extends Command {
     /**
      * The name and signature of the console command.
      *
@@ -28,8 +27,7 @@ class RunErpEvents extends Command
      *
      * @return void
      */
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct();
     }
 
@@ -38,8 +36,7 @@ class RunErpEvents extends Command
      *
      * @return mixed
      */
-    public function handle()
-    {
+    public function handle() {
         try {
             // disable all events which is past if still active
             $startDate = date("Y-m-d H:i:s");
