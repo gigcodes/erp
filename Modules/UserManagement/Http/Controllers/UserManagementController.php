@@ -2256,7 +2256,11 @@ class UserManagementController extends Controller {
                     tasks 
                 WHERE 
                 1
-                AND start_date IS NOT NULL
+                AND (
+                    ( status = '" . Task::TASK_STATUS_IN_PROGRESS . "' AND start_date IS NOT NULL )
+                    OR 
+                    ( status != '" . Task::TASK_STATUS_IN_PROGRESS . "' )
+                )
                 AND deleted_at IS NULL
                 AND assign_to IN (" . implode(',', $userIds) . ") 
                 AND status IN ('" . implode("','", $taskStatuses) . "') 
@@ -2279,7 +2283,11 @@ class UserManagementController extends Controller {
                     ) AS status2
                 FROM developer_tasks
                 WHERE 1
-                AND start_date IS NOT NULL
+                AND (
+                    ( status = '" . DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS . "' AND start_date IS NOT NULL )
+                    OR 
+                    ( status != '" . DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS . "' )
+                )
                 AND deleted_at IS NULL
                 AND assigned_to IN (" . implode(',', $userIds) . ")
                 AND status IN ('" . implode("','", $devTaskStatuses) . "')

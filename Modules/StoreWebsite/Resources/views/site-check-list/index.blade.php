@@ -119,18 +119,19 @@
                     </div>
 
                     <div class="col-md-3">
-                        <select name="categories" class="form-control select2">
+                        {{-- <select name="categories[]"  class="form-control globalSelect22" multiple>
                             <option value="">-- Select a categories --</option>
                             @forelse($categories as $ct)
-                                <option value="{{ $ct->id }}" @if ($search_category == $ct->id) selected @endif>
+                                <option value="{{ $ct->id }}" @if (in_array($ct->id, $search_category) && is_array($search_category)) selected @endif>
                                     {{ $ct->title }}</option>
                             @empty
                             @endforelse
-                        </select>
+                        </select> --}}
+                        {{ Form::select('categories[]', $categories, $search_category, ['class' => 'form-control  globalSelect2','placeholder' => '-- All categories --',  "multiple" => "multiple"]) }}
                     </div>
 
                     <div class="col-md-3">
-                        {{ Form::select('site_development_status_id', $allStatus, $site_development_status_id, ['class' => 'form-control globalSelect2','placeholder' => '--- Select Status---']) }}
+                        {{ Form::select('site_development_status_id[]', $allStatus, $site_development_status_id, ['class' => 'form-control globalSelect2','placeholder' => '--- Select Status---',  "multiple" => "multiple"]) }}
                     </div>
 
                     <div class="col-md-3">
