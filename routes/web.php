@@ -914,7 +914,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/charity-order', 'OrderController@charity_order');
     Route::post('order/cancel-transaction', 'OrderController@cancelTransaction')->name('order.canceltransaction');
     Route::post('order/payload', 'OrderController@getOrderPayloadList')->name('order.payload');
-
+    Route::post('order/change-return-status', 'OrderController@returnStatus')->name('order.change_return_status');
+    
     Route::resource('order', 'OrderController');
 
 
@@ -4052,6 +4053,8 @@ Route::middleware('auth')->group(function () {
     Route::post('checklist/add_checklist', 'CheckListController@add')->name("checklist.add");
     Route::post('checklist/get_checked_value', 'CheckListController@checked')->name("checklist.get.checked");
     Route::post('checklist/checklist_update', 'CheckListController@checklistUpdate')->name("checklist.update.c");
+    Route::post('checklist/add-remark', 'CheckListController@subjectRemarkCreate')->name("checklist.add.remark");
+    Route::post('checklist/list', 'CheckListController@subjectRemarkList')->name("checklist.remark.list");
 });
 
 

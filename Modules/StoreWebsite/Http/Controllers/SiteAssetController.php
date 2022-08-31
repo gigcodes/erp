@@ -90,10 +90,11 @@ class SiteAssetController extends Controller
       
     public function siteCheckList(Request $request)
     {
+        //dd('sdfdsf');
         $data = array();
         $data['allStatus'] = \App\SiteDevelopmentStatus::pluck("name", "id")->toArray();
         $data['all_store_websites'] = StoreWebsite::all()->pluck('title', 'id');
-        $data['categories'] = SiteDevelopmentCategory::all();
+        $data['categories'] = SiteDevelopmentCategory::all()->pluck('title', 'id');
         $data['search_website'] = isset($request->store_webs)? $request->store_webs : [ '1','2','3', '5','9'];
         $data['search_category'] = isset($request->categories)? $request->categories : '';
         $data['site_development_status_id'] = isset($request->site_development_status_id)? $request->site_development_status_id : [];
@@ -116,7 +117,7 @@ class SiteAssetController extends Controller
                 $join->on('site_development_categories.id','=','site_developments.site_development_category_id');
 
                 if(isset($request->site_development_status_id) && !empty($request->site_development_status_id)){
-                    $join->where('site_developments.status', $request->site_development_status_id);
+                    $join->whereIn('site_developments.status', $request->site_development_status_id);
                 }
             })
             ->joinSub($site_dev, 'site_dev', function ($join)
@@ -126,7 +127,8 @@ class SiteAssetController extends Controller
             ->where('is_site_list', 1);
 
         if($data['search_category'] != ''){
-            $site_development_categories =  $site_development_categories->where('site_development_categories.id',  $data['search_category']);
+            //$site_development_categories =  $site_development_categories->where('site_development_categories.id',  $data['search_category']);
+            $site_development_categories =  $site_development_categories->whereIn('site_development_categories.id', $data['search_category']);
         }
 
         $data['site_development_categories'] = $site_development_categories->leftJoin('store_development_remarks', 'store_development_remarks.store_development_id', '=', 'site_developments.id')->groupBy('site_development_categories.id')->get();
