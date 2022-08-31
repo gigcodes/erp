@@ -690,6 +690,60 @@
                 }
             });
         });
+
+        $(document).on('click', '.send-message', function() {
+            var thiss = $(this);
+            var data = new FormData();
+            var task_id = $(this).data('taskid');
+            var message = $(this).closest('tr').find('.quick-message-field').val();
+            var mesArr = $(this).closest('tr').find('.quick-message-field');
+            $.each(mesArr, function(index, value) {
+                if ($(value).val()) {
+                    message = $(value).val();
+                }
+            });
+
+            data.append("task_id", task_id);
+            data.append("message", message);
+            data.append("status", 1);
+
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: '/whatsapp/sendMessage/task',
+                        type: 'POST',
+                        "dataType": 'json', // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function() {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function(response) {
+                        thiss.closest('tr').find('.quick-message-field').val('');
+
+                        toastr["success"]("Message successfully send!", "Message")
+                        // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+                        //   .done(function( data ) {
+                        //
+                        //   }).fail(function(response) {
+                        //     console.log(response);
+                        //     alert(response.responseJSON.message);
+                        //   });
+
+                        $(thiss).attr('disabled', false);
+                    }).fail(function(errObj) {
+                        $(thiss).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
     </script>
 
 @endsection

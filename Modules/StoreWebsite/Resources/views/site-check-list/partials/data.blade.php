@@ -99,15 +99,33 @@
                                 @endif
                             @endif
                         </div>
-                    </div>
+                   
 
-
-
-
-
-
-
-
+                    <?php 
+                        //user Helper function
+                        $merged = getCommunicationData($sdc, $sw);
+                        //dd($merged);
+                        echo "<div class='d-flex'><b>Assign To : </b> ".$merged[0]->assigned_to_name."</div>";
+                    ?>
+                        <div class="col-8" style="margin: 0;padding: 5px;">
+                            <div class="mb-1 p-0 d-flex pl-0 pt-0 mt-1 msg">
+                                <?php
+                                    $MsgPreview = '# ';
+                                    if ($merged[0]->task_type == 'Othertask') {
+                                        $MsgPreview = $merged[0]->id.".".$merged[0]->subject;
+                                    } else {
+                                        $MsgPreview = $merged[0]->id."-".$merged[0]->task_type."=>".$merged[0]->subject;
+                                    }
+                                    ?>
+                                <input type="text" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
+                                <div class="d-flex p-0">
+                                    <button style="float: left;padding: 0 0 0 5px" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $merged[0]->id }}"><img src="/images/filled-sent.png" style="cursor: default;"></button>
+                                </div>
+                                <button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="{{ $merged[0]->message_type }}" data-id="{{ $merged[0]->id }}" title="Load messages" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>
+                            </div>
+                            {{ $MsgPreview }}
+                        </div>
+                </div>
                     <?php /*
                         if (count($category->assignedTo) > 0)
                             echo '<a href="javascript::void();" data-id="' . $pagrank . '" class="show_moreCls" style="float: left;height: 16px;width: 100%;"><i class="fa fa-info-circle"></i></a>';

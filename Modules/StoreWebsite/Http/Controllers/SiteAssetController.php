@@ -14,6 +14,8 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Storage;
+use App\DeveloperTask;
+use App\Task;
 use PDF;
 
 class SiteAssetController extends Controller
