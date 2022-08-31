@@ -82,6 +82,7 @@ $special_task = $task;
         </div>
     </td>
 
+    
     <td class="communication-td devtask-com " style="border-bottom: none; display: block;">
         <div class="d-flex">
             <select id="master_user_id" class="form-control change-task-status select2" data-id="{{ $task->id }}" name="master_user_id" id="user_{{ $task->id }}">
