@@ -100,6 +100,81 @@
                             @endif
                         </div>
                     </div>
+
+
+
+
+
+
+
+
+                    <?php /*
+                        if (count($category->assignedTo) > 0)
+                            echo '<a href="javascript::void();" data-id="' . $pagrank . '" class="show_moreCls" style="float: left;height: 16px;width: 100%;"><i class="fa fa-info-circle"></i></a>';
+                        $tableTrCounter = 0; ?>
+                        @foreach ($category->assignedTo as $assignedTo)
+                        <?php $tableTrCounter++;
+                        if ($tableTrCounter != 1)
+                            $tTrClass = 'comm-' . $pagrank . ' hidden';
+                        else
+                            $tTrClass = '';
+                        ?>
+
+                        <div class="row {{$tTrClass}}" style="overflow: hidden;width: 100%;float: left;margin-left: 0px;border: 1px solid #bfbfbf;padding-top: 4px;margin-top: 2px;margin-bottom: 7px;">
+                            <div class="col-4" style="margin: 0;padding: 5px;">
+                                @if (auth()->user()->isAdmin())
+                                <select class="form-control assign-user" data-id="{{ $assignedTo['id'] }}" name="master_user_id" style="width: 100% !important;">
+                                    <option value="">Select...</option>
+                                    @foreach ($users_all as $value)
+                                    @if ($assignedTo['assigned_to_name'] == $value->name)
+                                    <option value="{{ $value->id }}" selected>{{ $value->name }}
+                                    </option>
+                                    @else
+                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                    @endif
+                                    @endforeach
+                                </select>
+                                @else
+                                {{ $assignedTo['assigned_to_name'] }}
+                                @endif
+                            </div>
+                            <div class="col-8" style="margin: 0;padding: 5px;">
+                                <div class="mb-1 p-0 d-flex pl-0 pt-0 mt-1 msg">
+                                    <?php
+                                    $MsgPreview = '# ';
+                                    if ($website) {
+                                        $MsgPreview = $website->website;
+                                    }
+                                    if ($site) {
+                                        $MsgPreview = $MsgPreview . ' ' . $site->title;
+                                    }
+                                    ?>
+                                    <input type="text" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
+                                    <div class="d-flex p-0">
+                                        <button style="float: left;padding: 0 0 0 5px" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $assignedTo['id'] }}"><img src="/images/filled-sent.png" style="cursor: default;"></button>
+                                    </div>
+                                    <button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="{{ $assignedTo['message_type'] }}" data-id="{{ $assignedTo['id'] }}" title="Load messages" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>
+                                </div>
+
+                                <div class="col-md-12 p-0 pl-1 text">
+                                    <!-- START - Purpose : Show / Hide Chat & Remarks , Add Last Remarks - #DEVTASK-19918 -->
+                                    <div class="d-flex">
+                                        <div class="justify-content-between expand-row-msg-chat" data-id="{{ $assignedTo['id'] }}">
+                                            <span class="td-full-chat-container-{{ $assignedTo['id'] }} pl-1">
+                                                {{ str_limit($assignedTo['message'], 30, '...') }} </span>
+                                        </div>
+                                    </div>
+                                    <div class="expand-row-msg-chat" data-id="{{ $assignedTo['id'] }}" style="white-space: normal;">
+                                        <span class="td-full-chat-container-{{ $assignedTo['id'] }} hidden">
+                                            {{ $assignedTo['message'] }} </span>
+                                    </div>
+                                    <!-- END - #DEVTASK-19918 -->
+                                </div>
+                            </div>
+                        </div>
+
+                        @endforeach
+                        */ ?>
                 </td>
             @endforeach
 
