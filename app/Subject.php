@@ -14,4 +14,9 @@ class Subject extends Model
     {
         return $this->hasMany(ChecklistSubject::class)->where('user_id', \Auth::id());
     }
+
+    public function checklistsubjectRemark()
+    {
+        return $this->hasMany(ChecklistSubjectRemarkHistory::class, "subject_id", "id")->orderBy('id', 'DESC');
+    }
 }

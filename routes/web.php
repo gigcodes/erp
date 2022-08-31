@@ -4052,6 +4052,8 @@ Route::middleware('auth')->group(function () {
     Route::post('checklist/add_checklist', 'CheckListController@add')->name("checklist.add");
     Route::post('checklist/get_checked_value', 'CheckListController@checked')->name("checklist.get.checked");
     Route::post('checklist/checklist_update', 'CheckListController@checklistUpdate')->name("checklist.update.c");
+    Route::post('checklist/add-remark', 'CheckListController@subjectRemarkCreate')->name("checklist.add.remark");
+    Route::post('checklist/list', 'CheckListController@subjectRemarkList')->name("checklist.remark.list");
 });
 
 
