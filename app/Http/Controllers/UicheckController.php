@@ -1335,10 +1335,24 @@ class UicheckController extends Controller {
             $data = Uicheck::where("id", $request->id);
             $retunData = $data->get();
             
-            if($retunData[0]->language_flag == 1)
+            if($retunData[0]->language_flag == 1){
                 $array["language_flag"] =  0;
-            else
+            }else{
                 $array["language_flag"] =  1;
+                $langs = Language::get();
+                
+                foreach($langs AS $lang){
+                    $uiDevDatas = UiLanguage::where(['uicheck_id' => $request->id, "languages_id" => $lang->id])->first();
+                    if(!$uiDevDatas){
+                        UiLanguage::create([
+                            'user_id' => \Auth::user()->id,
+                            'uicheck_id' => $request->id,
+                            'languages_id' => $lang->id
+                        ]);
+                       
+                    }
+                }
+            }
             $data->update($array);
             $retunData1 = Uicheck::where("id", $request->id)->get();
             return response()->json(['code' => 200, 'data' => $retunData1,  'message' => 'Type Updated!!!']);
@@ -1353,10 +1367,22 @@ class UicheckController extends Controller {
             $data = Uicheck::where("id", $request->id);
             $retunData = $data->get();
             
-            if($retunData[0]->translation_flag == 1)
+            if($retunData[0]->translation_flag == 1){
                 $array["translation_flag"] =  0;
-            else
+            }else{
                 $array["translation_flag"] =  1;
+                
+                for($i=1; $i<=5; $i++){
+                    $uiDevDatas = UiDevice::where(['uicheck_id' => $request->id, "device_no" => $i])->first();
+                    if(!$uiDevDatas){
+                        UiDevice::create([
+                            'user_id' => \Auth::user()->id,
+                            'device_no' => $i,
+                            'uicheck_id' => $request->id,
+                        ]);
+                    }
+                }
+            }
             $data->update($array);
             $retunData1 = Uicheck::where("id", $request->id)->get();
             
