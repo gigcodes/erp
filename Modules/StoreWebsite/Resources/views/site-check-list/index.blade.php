@@ -127,7 +127,7 @@
                             @empty
                             @endforelse
                         </select> --}}
-                        {{ Form::select('categories[]', $categories, $search_category, ['class' => 'form-control  globalSelect2','placeholder' => '-- All categories --',  "multiple" => "multiple"]) }}
+                        {{ Form::select('categories[]', $categories, $search_category, ['class' => 'form-control  globalSelect2', "multiple" => "multiple"]) }}
                     </div>
 
                     <div class="col-md-3">
