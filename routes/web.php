@@ -3209,6 +3209,9 @@ Route::middleware('auth')->group(function () {
     Route::post('uicheck/create/attachment', 'UicheckController@saveDocuments')->name('uicheck.create.attachment');
     Route::get('uicheck/get/attachment', 'UicheckController@listDocuments')->name('uicheck.get.attachment');
     Route::post('uicheck/delete/attachment', 'UicheckController@deleteDocument')->name('uicheck.delete.attachment');
+    Route::post('uicheck/language/flag', 'UicheckController@languageFlag')->name('uicheck.language.flag');
+    Route::post('uicheck/translation/flag', 'UicheckController@translationFlag')->name('uicheck.translation.flag');
+    
 
     // 5 Device 
 
