@@ -259,6 +259,7 @@
               <a title="Preview Response" data-id="{{ $postman->id }}" class="btn btn-image preview_response pd-5 btn-ht" href="javascript:;"><i class="fa fa-product-hunt" aria-hidden="true"></i></a>
               <a title="Preview Requested" data-id="{{ $postman->id }}" class="btn btn-image preview_requested pd-5 btn-ht" href="javascript:;"><i class="fa fa-eye" aria-hidden="true"></i></a>
               <a title="Preview Remark History" data-id="{{ $postman->id }}" class="btn btn-image preview_remark_history pd-5 btn-ht" href="javascript:;"><i class="fa fa-history" aria-hidden="true"></i></a>
+                  <a title="Preview Error" data-id="{{ $postman->id }}" class="btn btn-image preview_postman_error pd-5 btn-ht" href="javascript:;"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
             </td>
           </tr>
           @endif
@@ -480,6 +481,39 @@
             </table>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="postmanErrorModel" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div id="add-mail-content">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 class="modal-title">Postman Error History</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>User Name</th>
+                    <th>Error Type</th>
+                    <th>Error</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody class="tbodayPostmanErrorHistory">
+                </tbody>
+              </table>  
+            </div>
+          </div>
       </div>
     </div>
   </div>
@@ -1124,55 +1158,102 @@
     });
   });
 
-  $(document).on("click", ".preview_response", function(e) {
-    e.preventDefault();
-    var $this = $(this);
-    var id = $this.data('id');
-    $.ajax({
-      url: "/postman/response/history/",
-      type: "post",
-      headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-      },
-      data: {
-        id: id
-      }
-    }).done(function(response) {
-      if (response.code = '200') {
-        var t = '';
-        $.each(response.data, function(key, v) {
-          var responseString = '';
-          if (v.response)
-            responseString = v.response.substring(0, 10);
-          var request_data_val = '';
-          if (v.request_data)
-            request_data_val = v.request_data.substring(0, 10);
-          var request_url_val = '';
-          if (v.request_data)
-            request_url_val = v.request_url.substring(0, 10)
+    $(document).on("click",".preview_response",function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+        $.ajax({
+          url: "/postman/response/history/",
+          type: "post",
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+          data:{
+            id:id
+          }
+        }).done(function(response) {
+          if(response.code = '200') {
+            var t = '';
+            $.each(response.data, function(key, v) {
+              var responseString  = '';
+              if(v.response)
+                responseString = v.response.substring(0,10);
+              var request_data_val  = '';
+              if(v.request_data)
+                request_data_val = v.request_data.substring(0,10);
+              var request_url_val  = '';
+              if(v.request_data)
+              request_url_val = v.request_url.substring(0,10)
 
 
-          t += '<tr><td>' + v.id + '</td>';
-          t += '<td>' + v.userName + '</td>';
-          t += '<td  class="expand-row-msg" data-name="response" data-id="' + v.id + '" ><span class="show-short-response-' + v.id + '">' + responseString + '...</span>    <span style="word-break:break-all;" class="show-full-response-' + v.id + ' hidden">' + v.response + '</span></td>';
-          t += '<td>' + v.response_code + '</td>';
-          t += '<td  class="expand-row-msg" data-name="request_url" data-id="' + v.id + '" ><span class="show-short-request_url-' + v.id + '">' + request_url_val + '...</span>    <span style="word-break:break-all;" class="show-full-request_url-' + v.id + ' hidden">' + v.request_url + '</span></td>';
-          t += '<td  class="expand-row-msg" data-name="request_data" data-id="' + v.id + '" ><span class="show-short-request_data-' + v.id + '">' + request_data_val + '...</span>    <span style="word-break:break-all;" class="show-full-request_data-' + v.id + ' hidden">' + v.request_data + '</span></td>';
-          t += '<td>' + v.created_at + '</td></tr>';
+              t += '<tr><td>'+v.id+'</td>';
+              t += '<td>'+v.userName+'</td>';
+              t += '<td  class="expand-row-msg" data-name="response" data-id="'+v.id+'" ><span class="show-short-response-'+v.id+'">'+responseString+'...</span>    <span style="word-break:break-all;" class="show-full-response-'+v.id+' hidden">'+v.response+'</span></td>';
+              t += '<td>'+v.response_code+'</td>';
+              t += '<td  class="expand-row-msg" data-name="request_url" data-id="'+v.id+'" ><span class="show-short-request_url-'+v.id+'">'+request_url_val+'...</span>    <span style="word-break:break-all;" class="show-full-request_url-'+v.id+' hidden">'+v.request_url+'</span></td>';
+              t += '<td  class="expand-row-msg" data-name="request_data" data-id="'+v.id+'" ><span class="show-short-request_data-'+v.id+'">'+request_data_val+'...</span>    <span style="word-break:break-all;" class="show-full-request_data-'+v.id+' hidden">'+v.request_data+'</span></td>';
+              t += '<td>'+v.created_at+'</td></tr>';
+            });
+            $(".tbodayPostmanResponseHistory").html(t);
+            $('#postmanResponseHistoryModel').modal('show');
+            toastr['success']('Postman response listed successfully!!!', 'success'); 
+            
+          } else {
+            toastr['error'](response.message, 'error'); 
+          }
+        }).fail(function(errObj) {
+          $('#loading-image').hide();
+           $("#postmanResponseHistory").hide();
+           toastr['error'](errObj.message, 'error');
         });
-        $(".tbodayPostmanResponseHistory").html(t);
-        $('#postmanResponseHistoryModel').modal('show');
-        toastr['success']('Postman response listed successfully!!!', 'success');
-
-      } else {
-        toastr['error'](response.message, 'error');
-      }
-    }).fail(function(errObj) {
-      $('#loading-image').hide();
-      $("#postmanResponseHistory").hide();
-      toastr['error'](errObj.message, 'error');
     });
-  });
+
+    
+    $(document).on("click",".preview_postman_error",function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+        $.ajax({
+          url: "/postman/get/error/history",
+          type: "post",
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+          data:{
+            id:id
+          }
+        }).done(function(response) {
+          if(response.code = '200') {
+            var t = '';
+            $.each(response.data, function(key, v) {
+              var parent_id_type  = '';
+              if(v.parent_id_type)
+                parent_id_type = v.parent_id_type.substring(0,10);
+              var error  = '';
+              if(v.error)
+              error = v.error.substring(0,10)
+
+
+              t += '<tr><td>'+v.id+'</td>';
+              t += '<td>'+v.userName+'</td>';
+              t += '<td  class="expand-row-msg" data-name="type" data-id="'+v.id+'" ><span class="show-short-type-'+v.id+'">'+parent_id_type+'...</span>    <span style="word-break:break-all;" class="show-full-type-'+v.id+' hidden">'+v.parent_id_type+'</span></td>';
+              t += '<td  class="expand-row-msg" data-name="error" data-id="'+v.id+'" ><span class="show-short-error-'+v.id+'">'+error+'...</span>    <span style="word-break:break-all;" class="show-full-error-'+v.id+' hidden">'+v.error+'</span></td>';
+              t += '<td>'+v.created_at+'</td></tr>';
+            });
+            $(".tbodayPostmanErrorHistory").html(t);
+            $('#postmanErrorModel').modal('show');
+            toastr['success']('Postman Error history listed successfully!!!', 'success'); 
+            
+          } else {
+            toastr['error'](response.message, 'error'); 
+          }
+        }).fail(function(errObj) {
+          $('#loading-image').hide();
+           $("#postmanErrorModel").hide();
+           toastr['error'](errObj.message, 'error');
+        });
+    });
+    
 
   $(document).on("click", ".preview_edit_history", function(e) {
     e.preventDefault();
