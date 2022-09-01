@@ -65,24 +65,55 @@ class PostmanRequestCreateController extends Controller
             $query->on('postman_responses.request_id', '=', 'postman_request_creates.id')
                 ->whereRaw('postman_responses.id IN (select MAX(pr1.id) from postman_responses as pr1 WHERE pr1.request_id = postman_request_creates.id  ORDER BY id DESC )');
         });
-
+        
         if ($s = request('folder_name')) {
-            $q->where("folder_name", "like", "%" . $s . "%");
+            //$q->whereIn("folder_name", $s);
+            /*for($i=0; $i<count($s); $i++){
+                $q->orWhere("folder_name", "like", "%" . $s[$i] . "%");
+            } */
+            $q->where(function($query) use ($s){
+                for($i=0; $i<count($s); $i++){
+                    if($s[$i])
+                        $query->orWhere("folder_name", "like", "%" . $s[$i] . "%");
+                }
+            });
         }
         if ($s = request('request_type')) {
-            $q->where("request_type", "like", "%" . $s . "%");
+            $q->where(function($query) use ($s){
+                for($i=0; $i<count($s); $i++){
+                    if($s[$i])
+                        $query->orWhere("request_type",  $s[$i]);
+                }
+            });
+            /*if($s[0] !=''){
+                $q->whereIn("request_type", $s);
+            } */
+            // for($i=0; $i<count($s); $i++){
+            //     $q->where("request_type", "like", "%" . $s[$i] . "%");
+            // }
         }
         if ($s = request('request_name')) {
-            $q->where("request_name", $s);
+            /*if($s[0] !=''){
+                $q->whereIn("request_name", $s);
+            }
+            */
+            $q->where(function($query) use ($s){
+                for($i=0; $i<count($s); $i++){
+                    if($s[$i])
+                        $query->orWhere("request_name",  $s[$i]);
+                }
+            });
+            
+            
         }
         if ($s = request('search_id')) {
             $q->where("postman_request_creates.id", $s);
         }
 
         $q->orderBy('postman_request_creates.id', 'DESC');
-
+        $counter = $q->count();
         $postmans = $q->paginate(Setting::get('pagination'));
-
+       
         $folders = PostmanFolder::all();
         $users = User::all();
         $userID = loginId();
@@ -95,7 +126,8 @@ class PostmanRequestCreateController extends Controller
             'users',
             'userID',
             'addAdimnAccessID',
-            'listRequestNames'
+            'listRequestNames',
+            'counter'
         ));
     }
     public function search(Request $request) {

@@ -23,7 +23,7 @@
 
 <div class="row">
   <div class="col-12">
-    <h2 class="page-heading">Postman Request</h2>
+    <h2 class="page-heading">Postman Request ({{$counter}})</h2>
   </div>
 
   <div class="col-12 mb-3">
@@ -39,13 +39,19 @@
     <div class="col">
       <div class="form-group">
         <div class="input-group">
-          <select name="folder_name" class="form-control" id="folder_name">
-            <option value="">-- Select Folder --</option>
+          <?php 
+            //dd(request('folder_name'));
+            if(request('folder_name')){   $folder_nameArr = request('folder_name'); }
+            else{ $folder_nameArr = array(); }
+          ?>
+          <select name="folder_name[]" class="form-control select2" multiple id="folder_name">
+            <option value="" @if(count($folder_nameArr)==0) selected @endif>-- Select Folder --</option>
             <?php
             $ops = 'id';
+            
             foreach ($folders as $folder) {
               $selected  = '';
-              if ($folder->id == request('folder_name'))
+              if (in_array($folder->id, $folder_nameArr))
                 $selected  = 'selected';
               echo '<option value="' . $folder->id . '" ' . $selected . '>' . $folder->name . '</option>';
             }
@@ -57,12 +63,17 @@
     <div class="col">
       <div class="form-group">
         <div class="input-group">
-          <select name="request_name" class="form-control" id="request_name">
-            <option value="">-- Select Request Name --</option>
+          <?php 
+            //dd(request('folder_name'));
+            if(request('request_name')){   $request_nameArr = request('request_name'); }
+            else{ $request_nameArr = array(); }
+          ?>
+          <select name="request_name[]" class="form-control select2" multiple id="request_name">
+            <option value="" @if(count($request_nameArr)==0) selected @endif>-- Select Request Name --</option>
             @foreach ($listRequestNames as $key => $reqName)
             <?php
             $selected  = '';
-            if ($reqName == request('request_name')) {
+            if (in_array($reqName, $request_nameArr)) {
               $selected  = 'selected = "selected"';
             }
             ?>
@@ -75,22 +86,27 @@
     <div class="col">
       <div class="form-group">
         <div class="input-group">
-          <select name="request_type" value="" class="form-control" id="request_types">
+          <?php 
+            //dd(request('folder_name'));
+            if(request('request_type')){   $request_typeArr = request('request_type'); }
+            else{ $request_typeArr = array(); }
+          ?>
+          <select name="request_type[]" value="" class="form-control select2" multiple id="request_types">
 
-            <option value="">-- Select Method --</option>
-            <option value="GET" <?php if (request('request_type') == 'GET') {
+            <option value="" @if(count($request_typeArr)==0) selected @endif>-- Select Method --</option>
+            <option value="GET" <?php if (in_array('GET', $request_typeArr)) {
                                   echo 'selected';
                                 } ?>>GET</option>
-            <option value="POST" <?php if (request('request_type') == 'POST') {
+            <option value="POST" <?php if (in_array('POST', $request_typeArr)) {
                                     echo 'selected';
                                   } ?>>POST</option>
-            <option value="PUT" <?php if (request('request_type') == 'PUT') {
+            <option value="PUT" <?php  if (in_array('PUT', $request_typeArr)) {
                                   echo 'selected';
                                 } ?>>PUT</option>
-            <option value="PATCH" <?php if (request('request_type') == 'PATCH') {
+            <option value="PATCH" <?php if (in_array('PATCH', $request_typeArr)) {
                                     echo 'selected';
                                   } ?>>PATCH</option>
-            <option value="DELETE" <?php if (request('request_type') == 'DELETE') {
+            <option value="DELETE" <?php if (in_array("DELETE", $request_typeArr)) {
                                       echo 'selected';
                                     } ?>>DELETE</option>
           </select>
@@ -1499,6 +1515,7 @@
   }); */
   $(document).ready(function() {
     $('#per_user_name').select2();
+    $(".select2").select2();
   });
 </script>
 @endsection
