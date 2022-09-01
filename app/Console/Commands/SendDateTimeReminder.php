@@ -10,8 +10,7 @@ use App\Task;
 use App\TaskMessage;
 use Carbon\Carbon;
 
-class SendDateTimeReminder extends Command
-{
+class SendDateTimeReminder extends Command {
     /**
      * The name and signature of the console command.
      *
@@ -31,8 +30,7 @@ class SendDateTimeReminder extends Command
      *
      * @return void
      */
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct();
     }
 
@@ -41,18 +39,19 @@ class SendDateTimeReminder extends Command
      *
      * @return mixed
      */
-    public function handle()
-    {
+    public function handle() {
         $report = CronJobReport::create([
             'signature'  => $this->signature,
             'start_time' => Carbon::now(),
         ]);
 
         $now = Carbon::now()->toDateTimeString();
-		$taskMessage = TaskMessage::where('message_type', 'date_time_reminder_message')->first();
-		if($taskMessage != null) {
-			// task page logic starting from here
-			/*$tasks = \App\Task::where('is_flagged', 1)->whereNotNull('is_completed')->select(["*", \DB::raw('TIMESTAMPDIFF(MINUTE, `last_date_time_reminder`, "' . $now . '") as diff_min')])->get();
+        $taskMessage = TaskMessage::where('message_type', 'date_time_reminder_message')->orderBy('id', 'DESC')->first();
+        if ($taskMessage != null) {
+            if ($taskMessage->frequency) {
+
+                // task page logic starting from here
+                /*$tasks = \App\Task::where('is_flagged', 1)->whereNotNull('is_completed')->select(["*", \DB::raw('TIMESTAMPDIFF(MINUTE, `last_date_time_reminder`, "' . $now . '") as diff_min')])->get();
 			if (!$tasks->isEmpty()) {
 				foreach ($tasks as $task) {
 					$templateMessage = $taskMessage['message'];	
@@ -64,27 +63,37 @@ class SendDateTimeReminder extends Command
 					}
 				}
 			}*/
-			
-			$tasks = \App\DeveloperTask::where('is_flagged', 1)->where('status', '<>', 'Done')->whereNull('estimate_time')->whereNull('estimate_minutes')
-			->select(["*", \DB::raw('TIMESTAMPDIFF(MINUTE, `last_date_time_reminder`, "' . $now . '") as diff_min')])->get();
 
-			if (!$tasks->isEmpty()) {
-				foreach ($tasks as $task) { 
-					$templateMessage = $taskMessage['message'];	
-					if ($task->last_date_time_reminder == null || $task->diff_min >= $taskMessage['frequency']) { 
-						$this->sendDevMessage($task->id, $templateMessage,$task);
-						
-						$task->last_date_time_reminder = date("Y-m-d H:i:s");
-						$task->save();
-					}
-				}
-			}		
+                $tasks = \App\DeveloperTask::query()
+                    ->whereNotIn("status", [
+                        DeveloperTask::DEV_TASK_STATUS_DONE,
+                        DeveloperTask::DEV_TASK_STATUS_IN_REVIEW
+                    ])
+                    ->whereRaw("assigned_to IN (SELECT id FROM users WHERE is_task_planned = 1)")
+                    // ->where('is_flagged', 1)
+                    ->where('status', '<>', 'Done')
+                    ->whereNull('estimate_time')
+                    ->whereNull('estimate_minutes')
+                    ->select(["*", \DB::raw('TIMESTAMPDIFF(MINUTE, `last_date_time_reminder`, "' . $now . '") as diff_min')])
+                    ->get();
+
+                if (!$tasks->isEmpty()) {
+                    foreach ($tasks as $task) {
+                        $templateMessage = $taskMessage['message'];
+                        if ($task->last_date_time_reminder == null || $task->diff_min >= $taskMessage['frequency']) {
+                            $this->sendDevMessage($task->id, $templateMessage, $task);
+
+                            $task->last_date_time_reminder = date("Y-m-d H:i:s");
+                            $task->save();
+                        }
+                    }
+                }
+            }
         }
         $report->update(['end_time' => Carbon::now()]);
     }
-	
-	private function sendDevMessage($taskId, $message, $task = null)
-    {
+
+    private function sendDevMessage($taskId, $message, $task = null) {
 
         $params = [
             'number'            => null,
@@ -147,6 +156,5 @@ class SendDateTimeReminder extends Command
                 'reply_from'      => 'reminder',
             ]);
         }
-
     }
 }

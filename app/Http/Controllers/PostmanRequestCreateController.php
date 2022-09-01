@@ -14,10 +14,31 @@ use App\PostmanResponse;
 use App\PostmanRequestJsonHistory;
 use App\PostmanMultipleUrl;
 use App\PostmanEditHistory;
+use App\PostmanError;
 
-class PostmanRequestCreateController extends Controller {
+class PostmanRequestCreateController extends Controller
+{
+    public function PostmanErrorLog($id = '', $type = '', $error = '', $tabName = ''){
+        try{
+            PostmanError::create([
+                "user_id" => \Auth::user()->id,
+                "parent_id" => $id,
+                "parent_id_type" => $type,
+                "parent_table" => $tabName,
+                "error" => $error
+            ]);
+        }catch(\Exception $e){
+            PostmanError::create([
+                "user_id" => \Auth::user()->id,
+                "parent_id" => $id,
+                "parent_id_type" => $type,
+                "parent_table" => $tabName,
+                "error" => $e->getMessage()
+            ]);
+        }
+    }
 
-    public function createPostmanHistory($postmanId, $type) {
+    public function createPostmanHistory($postmanId,$type){
         try {
             $postHis = new PostmanHistory();
             $postHis->user_id = \Auth::user()->id;
@@ -26,6 +47,8 @@ class PostmanRequestCreateController extends Controller {
             $postHis->save();
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+            \Log::error("Create Postman History  Error => ". json_decode($e). " #id #".$postmanId  ?? '');
+            $this->PostmanErrorLog($postmanId, 'Create Postman History  Error', $msg, 'postman_request_creates');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -231,6 +254,8 @@ class PostmanRequestCreateController extends Controller {
             return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+            \Log::error("Create Postman Request Error => ". json_decode($e). " #id #".$request->id  ?? '');
+            $this->PostmanErrorLog($request->id ?? '', 'Create Postman History  Error', $msg, 'postman_request_creates');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -258,6 +283,8 @@ class PostmanRequestCreateController extends Controller {
             return response()->json(['code' => 200, 'message' => 'Permission Updated successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+            \Log::error("Postman User permission Error => ". json_decode($e). " #id #".$request->id  ?? '');
+            //$this->PostmanErrorLog($request->id ?? '', 'Postman User permission Error', $msg, 'postman_request_creates');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -284,6 +311,8 @@ class PostmanRequestCreateController extends Controller {
             return response()->json(['code' => 200, 'data' => $html, 'message' => 'Request listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+            \Log::error("Postman get Mul Request Error => ". json_decode($e). " #id #".$request->id  ?? '');
+            $this->PostmanErrorLog($request->id ?? '', 'Postman get Mul Request Error', $msg, 'postman_request_creates');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -302,6 +331,8 @@ class PostmanRequestCreateController extends Controller {
             return response()->json(['code' => 200, 'data' => $jsonVersion, 'message' => 'Added successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+            \Log::error("Postman Create Json Version history Error => ". json_decode($e). " #id #".$request->id  ?? '');
+            $this->PostmanErrorLog($request->id ?? '', 'Postman Create Json Version history Error', $msg, 'postman_request_creates');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -316,6 +347,8 @@ class PostmanRequestCreateController extends Controller {
             return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+            \Log::error("Postman Create Folder Error => ". json_decode($e). " #id #".$request->id  ?? '');
+            $this->PostmanErrorLog($request->id ?? '', 'Postman Create Folder Error', $msg, 'postman_folders');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -350,6 +383,8 @@ class PostmanRequestCreateController extends Controller {
             return response()->json(['code' => 200, 'data' => $postman, 'postmanUrl' => $postmanUrl,  'ops' => $ops, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+            \Log::error("Postman Edit Data Error => ". json_decode($e). " #id #".$request->id  ?? '');
+            $this->PostmanErrorLog($request->id ?? '', 'Postman Edit Data Error', $msg, 'postman_request_creates');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -360,6 +395,8 @@ class PostmanRequestCreateController extends Controller {
             return response()->json(['code' => 200, 'data' => $folders, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+            \Log::error("Postman Edit Folder Data Error => ". json_decode($e). " #id #".$request->id  ?? '');
+            $this->PostmanErrorLog($request->id ?? '', 'Postman Edit Folder Data Error', $msg, 'postman_folders');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -377,6 +414,8 @@ class PostmanRequestCreateController extends Controller {
             return response()->json(['code' => 200, 'data' => $postman, 'message' => 'Deleted successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+            \Log::error("Postman Request Delete Error => ". json_decode($e). " #id #".$request->id  ?? '');
+            $this->PostmanErrorLog($request->id ?? '', 'Postman Request Delete Error', $msg, 'postman_request_creates');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -387,6 +426,8 @@ class PostmanRequestCreateController extends Controller {
             return response()->json(['code' => 200, 'data' => $folders, 'message' => 'Deleted successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+            \Log::error("Postman Edit Folder Data Error => ". json_decode($e). " #id #".$request->id  ?? '');
+            $this->PostmanErrorLog($request->id ?? '', 'Postman Edit Folder Data Error', $msg, 'postman_folders');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -399,6 +440,8 @@ class PostmanRequestCreateController extends Controller {
             return response()->json(['code' => 200, 'data' => $postHis, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+            \Log::error("Postman Get History Error => ". json_decode($e). " #id #".$request->id  ?? '');
+            $this->PostmanErrorLog($request->id ?? '', 'Postman Get History Error', $msg, 'postman_request_creates');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -411,6 +454,22 @@ class PostmanRequestCreateController extends Controller {
             return response()->json(['code' => 200, 'data' => $postHis, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+            \Log::error("Postman Get Remark History Error => ". json_decode($e). " #id #".$request->id  ?? '');
+            $this->PostmanErrorLog($request->id ?? '', 'Postman Get Remark History Error', $msg, 'postman_request_creates');
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function postmanErrorHistoryLog(Request $request) {
+        try {
+            $postHis = PostmanError::select('postman_errors.*', 'u.name AS userName')
+                ->leftJoin('users AS u', 'u.id', 'postman_errors.user_id')
+                ->where('postman_errors.parent_id', '=', $request->id)->orderby('postman_errors.id', 'DESC')->get();
+            return response()->json(['code' => 200, 'data' => $postHis, 'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            \Log::error("Postman Error history Log Error => ". json_decode($e). " #id #".$request->id  ?? '');
+            $this->PostmanErrorLog($request->id ?? '', 'Postman Error history Log Error', $msg, 'postman_request_creates');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -423,6 +482,8 @@ class PostmanRequestCreateController extends Controller {
             return response()->json(['code' => 200, 'data' => $postHis, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+            \Log::error("Postman Get Request History Error => ". json_decode($e). " #id #".$request->id  ?? '');
+            $this->PostmanErrorLog($request->id ?? '', 'Postman Get Request History Error', $msg, 'postman_request_creates');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -438,27 +499,7 @@ class PostmanRequestCreateController extends Controller {
             //     $html += '<td>'.json_encode($postManH->response).'</td>';
             //     $html += '<td>'.$postManH->created_at.'</td>';
             // }
-            return response()->json(['code' => 200, 'data' => $postHis, 'message' => 'Listed successfully!!!']);
-        } catch (\Exception $e) {
-            $msg = $e->getMessage();
-            return response()->json(['code' => 500, 'message' => $msg]);
-        }
-    }
-
-    public function postmanEditHistoryLog(Request $request) {
-        try {
-            $postHis = PostmanEditHistory::select('postman_edit_histories.id', 'postman_edit_histories.body_json', 'postman_edit_histories.request_url', 'postman_edit_histories.created_at',  'u.name AS userName')
-                ->leftJoin('users AS u', 'u.id', 'postman_edit_histories.user_id')
-                ->where('postman_edit_histories.postman_request_id', '=', $request->id)->orderby('id', 'DESC')->get();
-            // $html = '';
-            // foreach($postHis AS $postManH) {
-            //      $html += '<td>'.$postManH->id.'</td>';
-            //      $html += '<td>'.$postManH->userName.'</td>';
-            //      $html += '<td>'.$postManH->userName.'</td>';
-            //      $html += '<td>'.json_encode($postManH->response).'</td>';
-            //      $html += '<td>'.$postManH->created_at.'</td>';
-            // }
-            return response()->json(['code' => 200, 'data' => $postHis, 'message' => 'Listed successfully!!!']);
+            return response()->json(['code' => 200, 'data' => $postHis,'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
             return response()->json(['code' => 500, 'message' => $msg]);
@@ -477,6 +518,8 @@ class PostmanRequestCreateController extends Controller {
             return response()->json(['code' => 200, 'data' => $postHis, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+            \Log::error("Postman Get Request Response History Error => ". json_decode($e). " #id #".$request->id  ?? '');
+            $this->PostmanErrorLog($request->id ?? '', 'Postman Get Request Response History Error', $msg, 'postman_request_creates');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -928,7 +971,9 @@ class PostmanRequestCreateController extends Controller {
             foreach ($postmanUrls as $postmanUrl) {
                 $postman = PostmanRequestCreate::where('id', $postmanUrl->postman_request_create_id)->first();
                 //dd($postmanUrls);
-                if (empty($postman)) {
+                if(empty($postman)) {
+                    \Log::error("Postman Send request API Error=> Postman request data not found". " #id #".$postmanUrl->postman_request_create_id  ?? '');
+                    $this->PostmanErrorLog($postmanUrl->postman_request_create_id ?? '', 'Postman Send request API ', " Postman request data not found", 'postman_request_creates');
                     return response()->json(['code' => 500, 'message' => 'Request Data not found']);
                 } else {
                     PostmanRequestHistory::create(
@@ -977,10 +1022,16 @@ class PostmanRequestCreateController extends Controller {
                         ]
                     );
                 }
+                \Log::info("Postman Send request API Response => ". $response. " #id #".$postman->id  ?? '');
+                $this->PostmanErrorLog($postman->id ?? '', 'Postman Send request API Response ', $response, 'postman_responses');
+            
             }
+            
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Postman requested successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+            \Log::error("Postman Send request Send postman request API Error => ". json_decode($e));
+            $this->PostmanErrorLog($request->urls ?? '', 'Postman Send postman request API Error', $msg . " #ids ".$request->urls ?? '', 'postman_request_creates');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }

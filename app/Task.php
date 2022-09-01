@@ -18,6 +18,7 @@ use Auth;
 use Illuminate\Http\Request;
 use App\Models\Tasks\TaskHistoryForStartDate;
 use App\Models\Tasks\TaskHistoryForCost;
+use App\Models\Tasks\TaskDueDateHistoryLog;
 
 
 class Task extends Model {
@@ -351,20 +352,34 @@ class Task extends Model {
         return $this->belongsTo('App\SiteDevelopment', 'site_developement_id', 'id');
     }
 
-    public function updateStartDate($newValue) {
-        $oldValue = $this->start_date;
-        if ($oldValue != $newValue) {
-            $this->start_date = $newValue;
+    public function updateStartDate($new) {
+        $old = $this->start_date;
+
+        $count = TaskHistoryForStartDate::where('task_id', $this->id)->count();
+        if ($count) {
+            TaskHistoryForStartDate::historySave($this->id, $old, $new, 0);
+        } else {
+            $this->start_date = $new;
             $this->save();
-            TaskHistoryForStartDate::create([
-                'task_id' => $this->id,
-                'task_type' => 'TASK',
-                'updated_by' => Auth::id(),
-                'old_value' => $oldValue,
-                'new_value' => $newValue,
-            ]);
+            TaskHistoryForStartDate::historySave($this->id, $old, $new, 1);
         }
     }
 
-    // 
+    public function updateDueDate($new) {
+        $old = $this->due_date;
+
+        $count = TaskDueDateHistoryLog::where('task_id', $this->id)->count();
+        if ($count) {
+            TaskDueDateHistoryLog::historySave($this->id, $old, $new, 0);
+        } else {
+            $this->due_date = $new;
+            $this->save();
+            TaskDueDateHistoryLog::historySave($this->id, $old, $new, 1);
+        }
+    }
+
+
+    public static function getMessagePrefix($obj) {
+        return '#TASK-' . $obj->id . '-' . $obj->task_subject . ' => ';
+    }
 }
