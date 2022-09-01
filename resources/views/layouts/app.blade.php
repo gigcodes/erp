@@ -24,7 +24,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     @elseif (!\Auth::guest())
         <link rel="shortcut icon" type="image/png" href="/generate-favicon?title={{$title}}" />
     @endif
-    <title>{{$title}}</title>
+    <title>{!! $title !!}</title>
     <!-- CSRF Token -->
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -1081,6 +1081,9 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('user-management.user-schedules.index')}}">User Schedules</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('user-management.user-delivered.index')}}">User Delivered</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1702,6 +1705,12 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('updateLog.get') }}">Update Log</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('uicheck.responsive') }}">U I Responsive</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('uicheck.translation') }}">U I Languages</a>
+                                            </li>
                                         </ul>
                                     </li>
                                     
@@ -2090,6 +2099,9 @@ if (!empty($notifications)) {
                                             </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ url('/postman') }}">Magento Request</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ url('/postman') }}">Post Man</a>
                                             </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('email.event.journey') }}">Sendgrid Event Journey</a>

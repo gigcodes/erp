@@ -427,11 +427,11 @@
                 <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 order_email_send_log" data-id="{{$order->id}}">
                     <img src="http://erp.local:8080/images/chat.png" alt="">
                 </button>
-                <button type="button" title="Order email send model" class="btn  btn-xs btn-image pd-5 order-resend-popup" data-status_id="{{ $order->order_status_id }}" data-id="{{$order->id}}">
-                  <i style="color:#6c757d;" class="fa fa-address-card" data-id="{{$order->id}}"  aria-hidden="true"></i>
+                <button type="button" title="Order return true" class="btn  btn-xs btn-image pd-5 order_return" data-status="1" data-id="{{$order->id}}">
+                  <i style="color:#6c757d;" class="fa fa-check" data-id="{{$order->id}}"  aria-hidden="true"></i>
                 </button>
-                <a title="Payload" data-id="{{$order->id}}" class="btn btn-image order_payload pd-5 btn-ht">
-                  <i class="fa fa-product-hunt" aria-hidden="true"></i>
+                <a title="Order return False" data-id="{{$order->id}}"  data-status="0" class="btn btn-image order_return pd-5 btn-ht">
+                  <i class="fa fa-times" aria-hidden="true"></i>
                 </a>
                 </div>
               </td>
@@ -1430,6 +1430,29 @@
            });
           }
           
+      });
+      
+      $(document).on("click", ".order_return", function(e) {
+        
+        e.preventDefault();
+        let id = $(this).data("id");
+        let status = $(this).data("status");
+        $.ajax({
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "/order/change-return-status",
+            type: "post",
+            async : false,
+            data : {
+              id : id,
+              status : status
+            }
+            }).done( function(response) {
+              toastr['success'](response.message);
+            }).fail(function(errObj) {
+              toastr['error'](errObj.message);
+           });
       });
 
       $(document).on("change",".product_order_status_delivery",function() {

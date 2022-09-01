@@ -34,8 +34,7 @@ use Webklex\IMAP\Client;
 use App\VendorStatus;
 use App\VendorStatusHistory as VSHM;
 
-class VendorController extends Controller
-{
+class VendorController extends Controller {
 
     use githubTrait;
     use HubstaffTrait;
@@ -47,15 +46,13 @@ class VendorController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function __construct()
-    {
+    public function __construct() {
         // $this->middleware('permission:vendor-all');
         // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
         $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
     }
 
-    public function updateReminder(Request $request)
-    {
+    public function updateReminder(Request $request) {
         $vendor                      = Vendor::find($request->get('vendor_id'));
         $vendor->frequency           = $request->get('frequency');
         $vendor->reminder_message    = $request->get('message');
@@ -71,8 +68,7 @@ class VendorController extends Controller
         ]);
     }
 
-    public function index(Request $request)
-    {
+    public function index(Request $request) {
 
         $term         = $request->term ?? '';
         $sortByClause = '';
@@ -101,7 +97,8 @@ class VendorController extends Controller
             $permittedCategories = Auth::user()->vendorCategoryPermission->pluck('id')->all() + [0];
         }
         //getting request
-        if ($request->term || $request->name || $request->id || $request->category || $request->email || $request->phone ||
+        if (
+            $request->term || $request->name || $request->id || $request->category || $request->email || $request->phone ||
             $request->address || $request->email || $request->communication_history || $request->status != null || $request->updated_by != null || $request->whatsapp_number != null || $request->flt_vendor_status != null
         ) {
             //Query Initiate
@@ -114,7 +111,6 @@ class VendorController extends Controller
                 } else {
                     $query = Vendor::query();
                 }
-
             }
 
             if (request('term') != null) {
@@ -173,7 +169,6 @@ class VendorController extends Controller
             //if email is not nyll
             if (request('email') != null) {
                 $query->where('email', 'like', '%' . request('email') . '%');
-
             }
 
             if (request('communication_history') != null && !request('with_archived')) {
@@ -191,7 +186,6 @@ class VendorController extends Controller
 
                 $totalVendor = $query->orderby('name', 'asc')->whereNotNull('deleted_at')->count();
                 $vendors     = $query->orderby('name', 'asc')->whereNotNull('deleted_at')->paginate($pagination);
-
             } else {
                 $pagination = Setting::get('pagination');
                 if (request()->get('select_all') == 'true') {
@@ -213,7 +207,6 @@ class VendorController extends Controller
                 } else {
                     $permittedCategories = 'and vendors.category_id in (' . implode(',', $permittedCategories) . ')';
                 }
-
             }
             $vendors = DB::select('
                   SELECT *,
@@ -308,17 +301,16 @@ class VendorController extends Controller
     }
 
     /**
-  * This will use to change vendor whatsapp number
-  */
-  public function changeWhatsapp(Request $request) {
-      $vendor = Vendor::find($request->vendor_id)->first();
-      $data =  array('whatsapp_number'=>$request->whatsapp_number);
-      $vendor->update($data);
-      return response()->json(['success'=>'successfully updated','data'=>$data]);
-  }
+     * This will use to change vendor whatsapp number
+     */
+    public function changeWhatsapp(Request $request) {
+        $vendor = Vendor::find($request->vendor_id)->first();
+        $data =  array('whatsapp_number' => $request->whatsapp_number);
+        $vendor->update($data);
+        return response()->json(['success' => 'successfully updated', 'data' => $data]);
+    }
 
-    public function vendorSearch()
-    {
+    public function vendorSearch() {
         $term = request()->get("q", null);
         /*$search = Vendor::where('name', 'LIKE', "%" . $term . "%")
         ->orWhere('address', 'LIKE', "%" . $term . "%")
@@ -331,16 +323,14 @@ class VendorController extends Controller
             ->get();
         return response()->json($search);
     }
-    public function vendorSearchPhone()
-    {
+    public function vendorSearchPhone() {
         $term   = request()->get("q", null);
         $search = Vendor::where('phone', 'LIKE', "%" . $term . "%")
             ->get();
         return response()->json($search);
     }
 
-    public function email(Request $request)
-    {
+    public function email(Request $request) {
         $vendorArr = Vendor::join('emails', 'emails.model_id', 'vendors.id')
             ->where('emails.model_type', Vendor::class)
             ->where('vendors.id', $request->get('id', 0))
@@ -364,8 +354,7 @@ class VendorController extends Controller
         return response()->json($data);
     }
 
-    public function assignUserToCategory(Request $request)
-    {
+    public function assignUserToCategory(Request $request) {
         $user     = $request->get('user_id');
         $category = $request->get('category_id');
 
@@ -378,8 +367,7 @@ class VendorController extends Controller
         ]);
     }
 
-    public function product()
-    {
+    public function product() {
         $products = VendorProduct::with('vendor')->latest()->paginate(Setting::get('pagination'));
         $vendors  = Vendor::select(['id', 'name'])->get();
 
@@ -394,8 +382,7 @@ class VendorController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
+    public function create() {
         //
     }
 
@@ -405,8 +392,7 @@ class VendorController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $this->validate($request, [
             'category_id'          => 'sometimes|nullable|numeric',
             'name'                 => 'required|string|max:255',
@@ -518,8 +504,7 @@ class VendorController extends Controller
         return redirect()->route('vendors.index')->withSuccess('You have successfully saved a vendor!');
     }
 
-    public function productStore(Request $request)
-    {
+    public function productStore(Request $request) {
         $this->validate($request, [
             'vendor_id'       => 'required|numeric',
             'images.*'        => 'sometimes|nullable|image',
@@ -557,8 +542,7 @@ class VendorController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
+    public function show($id) {
         $vendor            = Vendor::find($id);
         $vendor_categories = VendorCategory::all();
         $vendor_show       = true;
@@ -582,8 +566,7 @@ class VendorController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
+    public function edit($id) {
         //
     }
 
@@ -594,8 +577,7 @@ class VendorController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
+    public function update(Request $request, $id) {
         $this->validate($request, [
             'category_id'          => 'sometimes|nullable|numeric',
             'name'                 => 'required|string|max:255',
@@ -628,8 +610,7 @@ class VendorController extends Controller
         return redirect()->route('vendors.index')->withSuccess('You have successfully updated a vendor!');
     }
 
-    public function productUpdate(Request $request, $id)
-    {
+    public function productUpdate(Request $request, $id) {
         $this->validate($request, [
             'vendor_id'       => 'sometimes|nullable|numeric',
             'images.*'        => 'sometimes|nullable|image',
@@ -668,8 +649,7 @@ class VendorController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
-    {
+    public function destroy($id) {
         $vendor = Vendor::find($id);
 
         //      foreach ($vendor->products as $product) {
@@ -684,8 +664,7 @@ class VendorController extends Controller
         return redirect()->route('vendors.index')->withSuccess('You have successfully deleted a vendor');
     }
 
-    public function productDestroy($id)
-    {
+    public function productDestroy($id) {
         $product = VendorProduct::find($id);
 
         $product->detachMediaTags(config('constants.media_tags'));
@@ -694,8 +673,7 @@ class VendorController extends Controller
         return redirect()->back()->withSuccess('You have successfully deleted a vendor product!');
     }
 
-    public function sendEmailBulk(Request $request)
-    {
+    public function sendEmailBulk(Request $request) {
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
@@ -809,8 +787,7 @@ class VendorController extends Controller
         return redirect()->route('vendors.index')->withSuccess('You have successfully sent emails in bulk!');
     }
 
-    public function sendEmail(Request $request)
-    {
+    public function sendEmail(Request $request) {
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
@@ -909,8 +886,7 @@ class VendorController extends Controller
         }
     }
 
-    public function emailInbox(Request $request)
-    {
+    public function emailInbox(Request $request) {
         $imap = new Client([
             'host'          => env('IMAP_HOST_PURCHASE'),
             'port'          => env('IMAP_PORT_PURCHASE'),
@@ -940,8 +916,8 @@ class VendorController extends Controller
         $latest_email = Email::where('type', $type)->where('model_id', $vendor->id)->where('model_type', 'App\Vendor')->latest()->first();
 
         $latest_email_date = $latest_email
-        ? Carbon::parse($latest_email->created_at)
-        : Carbon::parse('1990-01-01');
+            ? Carbon::parse($latest_email->created_at)
+            : Carbon::parse('1990-01-01');
 
         $vendorAgentsCount = $vendor->agents()->count();
 
@@ -1015,8 +991,7 @@ class VendorController extends Controller
         return response()->json(['emails' => $view]);
     }
 
-    private function createEmailsForEmailInbox($vendor, $type, $latest_email_date, $emails)
-    {
+    private function createEmailsForEmailInbox($vendor, $type, $latest_email_date, $emails) {
         foreach ($emails as $email) {
             $content = $email->hasHTMLBody() ? $email->getHTMLBody() : $email->getTextBody();
 
@@ -1048,8 +1023,7 @@ class VendorController extends Controller
             }
         }
     }
-    public function block(Request $request)
-    {
+    public function block(Request $request) {
         $vendor = Vendor::find($request->vendor_id);
 
         if ($vendor->is_blocked == 0) {
@@ -1063,8 +1037,7 @@ class VendorController extends Controller
         return response()->json(['is_blocked' => $vendor->is_blocked]);
     }
 
-    public function addReply(Request $request)
-    {
+    public function addReply(Request $request) {
         $reply     = $request->get("reply");
         $autoReply = [];
         // add reply from here
@@ -1074,14 +1047,12 @@ class VendorController extends Controller
                 ['reply' => $reply, 'model' => 'Vendor', "category_id" => 1],
                 ['reply' => $reply]
             );
-
         }
 
         return response()->json(["code" => 200, 'data' => $autoReply]);
     }
 
-    public function deleteReply(Request $request)
-    {
+    public function deleteReply(Request $request) {
         $id = $request->get("id");
 
         if ($id > 0) {
@@ -1099,8 +1070,7 @@ class VendorController extends Controller
         ]);
     }
 
-    public function createUser(Request $request)
-    {
+    public function createUser(Request $request) {
         $vendor = Vendor::find($request->id);
         //Check If User Exist
         $userEmail = User::where('email', $vendor->email)->first();
@@ -1130,8 +1100,7 @@ class VendorController extends Controller
         }
     }
 
-    public function inviteGithub(Request $request)
-    {
+    public function inviteGithub(Request $request) {
         $email = $request->get('email');
         if ($email) {
             if ($this->sendGithubInvitaion($email)) {
@@ -1150,8 +1119,7 @@ class VendorController extends Controller
         );
     }
 
-    public function inviteHubstaff(Request $request)
-    {
+    public function inviteHubstaff(Request $request) {
         $email = $request->get('email');
         if ($email) {
             $response = $this->sendHubstaffInvitation($email);
@@ -1171,12 +1139,10 @@ class VendorController extends Controller
         );
     }
 
-    private function sendGithubInvitaion(string $email)
-    {
+    private function sendGithubInvitaion(string $email) {
         return $this->inviteUser($email);
     }
-    public function changeHubstaffUserRole(Request $request)
-    {
+    public function changeHubstaffUserRole(Request $request) {
         $id   = $request->vendor_id;
         $role = $request->role;
         if ($id && $role && $role != '') {
@@ -1194,14 +1160,12 @@ class VendorController extends Controller
                         return response()->json(['message' => $response['message']], 500);
                     }
                 }
-
             }
         }
         return response()->json(['message' => 'User or hubstaff member not found'], 500);
     }
 
-    private function changeHubstaffUserRoleApi($hubstaff_member_id)
-    {
+    private function changeHubstaffUserRoleApi($hubstaff_member_id) {
         try {
             $tokens = $this->getTokens();
             // $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/update_members';
@@ -1249,8 +1213,7 @@ class VendorController extends Controller
             }
         }
     }
-    private function sendHubstaffInvitation(string $email)
-    {
+    private function sendHubstaffInvitation(string $email) {
         // try {
         //   $this->doHubstaffOperationWithAccessToken(
         //     function ($accessToken) use ($email) {
@@ -1312,8 +1275,7 @@ class VendorController extends Controller
         }
     }
 
-    public function changeStatus(Request $request)
-    {
+    public function changeStatus(Request $request) {
         $vendorId = $request->get("vendor_id");
         $statusId = $request->get("status");
 
@@ -1328,14 +1290,13 @@ class VendorController extends Controller
         return response()->json(["code" => 200, "data" => [], "message" => "Status updated successfully"]);
     }
 
-    public function sendMessage(Request $request)
-    {
+    public function sendMessage(Request $request) {
 
         // return $request->all();
         set_time_limit(0);
         $vendors = Vendor::whereIn('id', $request->vendors)->get();
         //Create broadcast
-        $broadcast = \App\BroadcastMessage::create(['name'=>$request->name]);
+        $broadcast = \App\BroadcastMessage::create(['name' => $request->name]);
         if (count($vendors)) {
             foreach ($vendors as $key => $item) {
                 $params = [
@@ -1365,8 +1326,7 @@ class VendorController extends Controller
         return response()->json(["code" => 200, "data" => [], "message" => "Message sent successfully"]);
     }
 
-    public function editVendor(Request $request)
-    {
+    public function editVendor(Request $request) {
         if (!$request->vendor_id || $request->vendor_id == "" || !$request->column || $request->column == "" || !$request->value || $request->value == "") {
             return response()->json(['message' => 'Incomplete data'], 500);
         }
@@ -1377,8 +1337,7 @@ class VendorController extends Controller
         return response()->json(['message' => 'Successful'], 200);
     }
 
-    public function statusStore(Request $request)
-    {
+    public function statusStore(Request $request) {
         $this->validate($request, [
             'name' => 'required|string'
         ]);
@@ -1387,8 +1346,7 @@ class VendorController extends Controller
         return redirect()->back()->with('success', 'You have successfully created a status!');
     }
 
-    public function updateStatus(Request $request)
-    {
+    public function updateStatus(Request $request) {
         $vendor = Vendor::find($request->id);
         $vendor->vendor_status = $request->status;
         $vendor->save();
@@ -1400,9 +1358,8 @@ class VendorController extends Controller
         $vshm->save();
     }
 
-    public function vendorStatusHistory(Request $request)
-    {
-        $data = VSHM::with(['user'=>function($query){
+    public function vendorStatusHistory(Request $request) {
+        $data = VSHM::with(['user' => function ($query) {
             // $query->select('name', 'email');
         }])->where('vendor_id', $request->id)->get();
         return response()->json(["code" => 200, "data" => $data, "message" => "Message sent successfully"]);

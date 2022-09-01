@@ -108,17 +108,19 @@
         <table class="table table-bordered" style="border: 1px solid #ddd !important;">
           <thead>
             <tr>
-              <th style="width: 5%;">ID</th>
-              <th style="width: 13%;">API Url</th>
+              <th style="width: 3%;">ID</th>
+              <th style="width: 12%;">API Url</th>
               <th style="width: 6%;">Device</th>
-              <th style="width: 8%;">Api Type</th>
-              <th style="width: 12%;">Email</th>
-              <th style="width: 8%;">Response Code</th>
+              <th style="width: 6%;">Api Type</th>
+              <th style="width: 10%;">Email</th>
+              <th style="width: 6%;">Response Code</th>
               <th style="width: 15%;">Request Headers</th>
-              <th style="width: 9%;">User Id</th>
-              <th style="width: 8%;">App Version</th>
+              <th style="width: 6%;">User Id</th>
+              <th style="width: 6%;">App Version</th>
+              <th style="width: 8%;">Start Time</th>
+              <th style="width: 8%;">End Time</th>
               <th style="width: 8%;">Created At</th>
-              <th style="width: 8%;">Action</th>
+              <th style="width: 6%;">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -134,6 +136,8 @@
                   <td>{!! $logData->request_header !!}</td>
                   <td>{!! $logData->user_id !!}</td>
                   <td>{!! $logData->app_version !!}</td>
+                  <td>{!! $logData->start_time ?: 0 !!}</td>
+                  <td>{!! $logData->end_time ?: 0 !!}</td>
                   <td>{!! $logData->created_at !!}</td>
                   <td>
                     <a class="btn btn-xs" href="javascript:void(0);" onclick="funViewLog(this)" title="View Record"><i class="fa fa-eye"></i></a>
@@ -149,12 +153,13 @@
                         'cls-email' => $logData->email,
                         'cls-app_version' => $logData->app_version,
                         'cls-other' => $logData->other,
+                        'cls-start_time' => $logData->start_time ?: 0,
+                        'cls-end_time' => $logData->end_time ?: 0,
                         'cls-created_at' => $logData->created_at,
                         'cls-request_header' => $logData->request_header,
                         'cls-request_body' => $logData->request_body,
                         'cls-response_code' => $logData->response_code,
                         'cls-response_body' => $logData->response_body,
-                        'cls-created_at' => $logData->created_at,
                       ];
                       foreach ($dataArr as $key => $value) { ?>
                         <div class="hidden-val" data-key=".{{$key}}" style="display: none;"><code>{!! $value !!}</code></div>
@@ -204,13 +209,14 @@
                 'cls-email' => 'Email',
                 'cls-user_id' => 'User id',
                 'cls-app_version' => 'App version',
-                'cls-other' => 'other',
+                'cls-other' => 'Other',
+                'cls-start_time' => 'Start Time',
+                'cls-end_time' => 'End Time',
                 'cls-created_at' => 'Created at',
                 'cls-request_header' => 'Request header',
                 'cls-request_body' => 'Request body',
                 'cls-response_code' => 'Response code',
                 'cls-response_body' => 'Rresponse body',
-                'cls-created_at' => 'Created at',
               ];
               foreach ($dataArr as $key => $value) {
                 echo '<tr>

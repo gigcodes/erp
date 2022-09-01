@@ -1,13 +1,14 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+
 use Illuminate\Database\Eloquent\Model;
 
-class Setting extends Model
-{
+class Setting extends Model {
 	/**
 	 * The attributes that aren't mass assignable.
 	 *
@@ -23,9 +24,8 @@ class Setting extends Model
 	 * @param string $type
 	 * @return bool
 	 */
-	public static function add($key, $val, $type = 'string')
-	{
-		if ( self::has($key) ) {
+	public static function add($key, $val, $type = 'string') {
+		if (self::has($key)) {
 			return self::set($key, $val, $type);
 		}
 
@@ -39,14 +39,13 @@ class Setting extends Model
 	 * @param null $default
 	 * @return bool|int|mixed
 	 */
-	public static function get($key, $default = null)
-	{
-		if ( self::has($key) ) {
+	public static function get($key, $default = null) {
+		if (self::has($key)) {
 			$setting = self::getAllSettings()->where('name', $key)->first();
 			return self::castValue($setting->val, $setting->type);
 		}
 
-		return '';
+		return $default;
 	}
 
 	/**
@@ -57,13 +56,13 @@ class Setting extends Model
 	 * @param string $type
 	 * @return bool
 	 */
-	public static function set($key, $val, $type = 'string')
-	{
-		if ( $setting = self::getAllSettings()->where('name', $key)->first() ) {
+	public static function set($key, $val, $type = 'string') {
+		if ($setting = self::getAllSettings()->where('name', $key)->first()) {
 			return $setting->update([
 				'name' => $key,
 				'val' => $val,
-				'type' => $type]) ? $val : false;
+				'type' => $type
+			]) ? $val : false;
 		}
 
 		return self::add($key, $val, $type);
@@ -75,9 +74,8 @@ class Setting extends Model
 	 * @param $key
 	 * @return bool
 	 */
-	public static function remove($key)
-	{
-		if( self::has($key) ) {
+	public static function remove($key) {
+		if (self::has($key)) {
 			return self::whereName($key)->delete();
 		}
 
@@ -91,8 +89,7 @@ class Setting extends Model
 	 * @param $castTo
 	 * @return bool|int
 	 */
-	private static function castValue($val, $castTo)
-	{
+	private static function castValue($val, $castTo) {
 		switch ($castTo) {
 			case 'int':
 			case 'integer':
@@ -114,9 +111,8 @@ class Setting extends Model
 		}
 	}
 
-	public static function has($key)
-	{
-		return (boolean) self::getAllSettings()->whereStrict('name', $key)->count();
+	public static function has($key) {
+		return (bool) self::getAllSettings()->whereStrict('name', $key)->count();
 	}
 
 	/**
@@ -124,8 +120,16 @@ class Setting extends Model
 	 *
 	 * @return mixed
 	 */
-	public static function getAllSettings()
-	{
-		return self::all();
+	public static $allData = NULL;
+	public static function getAllSettings() {
+		if (self::$allData == NULL) {
+			self::$allData = self::all();
+		}
+		return self::$allData;
+	}
+
+
+	public static function getErpLeadsCronSave() {
+		return self::get('erp_leads_cron_save', 1);
 	}
 }
