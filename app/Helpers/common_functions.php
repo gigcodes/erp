@@ -510,7 +510,7 @@ function getHourlySlots($stTime, $enTime) {
 function siteJs($path) {
     return env('APP_URL') . '/js/pages/' . $path . '?v=' . date('YmdH');
 }
-function makeDropdown($options = [], $selected = []) {
+function makeDropdown($options = [], $selected = [], $keyValue = 1) {
     if (!is_array($selected)) {
         $selected = is_numeric($selected) ? (int) $selected : $selected;
     }
@@ -522,14 +522,15 @@ function makeDropdown($options = [], $selected = []) {
                 $return[] = makeDropdown($v, $selected);
                 $return[] = '</optgroup>';
             } else {
+                $value = $keyValue ? $k : $v;
                 $sel = '';
                 if (is_array($selected)) {
-                    if (in_array($k, $selected))
+                    if (in_array($value, $selected))
                         $sel = 'selected';
-                } else if ($selected === $k) {
+                } else if ($selected === $value) {
                     $sel = 'selected';
                 }
-                $return[] = '<option value="' . $k . '" ' . $sel . '>' . trim(strip_tags($v)) . '</option>';
+                $return[] = '<option value="' . $value . '" ' . $sel . '>' . trim(strip_tags($v)) . '</option>';
             }
         }
     }
@@ -569,4 +570,43 @@ function loginId() {
 }
 function isAdmin() {
     return auth()->user()->isAdmin();
+}
+function printNum($num) {
+    return number_format($num, 2, ".", ",");
+}
+
+function readFullFolders($dir, &$results = array()) {
+    $files = scandir($dir);
+    foreach ($files as $key => $value) {
+        $path = realpath($dir . DIRECTORY_SEPARATOR . $value);
+        if (!is_dir($path)) {
+            $results[] = $path;
+        } else if ($value != "." && $value != "..") {
+            // $results[] = $path;
+            readFullFolders($path, $results);
+        }
+    }
+    return $results;
+}
+function readFolders($data) {
+    $return = [];
+    foreach ($data as $key => $filePath) {
+        $fileName = basename($filePath);
+        $return[] = rtrim(str_replace($fileName, '', $filePath), '/');
+    }
+    $return = array_values(array_unique($return));
+    sort($return);
+    return $return;
+}
+function getCommunicationData($sdc, $sw){
+    $site_dev = \App\SiteDevelopment::where(["site_development_category_id" => $sdc->id, "website_id" => $sw->id])->orderBy('id', "DESC")->get()->pluck('id');
+    $query = \App\DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->whereIn('site_developement_id', $site_dev)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+    $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+    $taskStatistics = $query->orderBy("developer_tasks.id", "DESC")->get();
+    $query1 = \App\Task::join('users', 'users.id', 'tasks.assign_to')->whereIn('site_developement_id', $site_dev)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+    $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+    $othertaskStatistics = $query1->orderBy("tasks.id", "DESC")->get();
+    $merged = $othertaskStatistics->merge($taskStatistics);
+    return $merged;
+    
 }

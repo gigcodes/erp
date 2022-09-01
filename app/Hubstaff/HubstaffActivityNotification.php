@@ -1,12 +1,10 @@
 <?php
 
 namespace App\Hubstaff;
-use App\UserAvaibility;
 
 use Illuminate\Database\Eloquent\Model;
 
-class HubstaffActivityNotification extends Model
-{
+class HubstaffActivityNotification extends Model {
     protected $fillable = [
         'user_id',
         'start_date',

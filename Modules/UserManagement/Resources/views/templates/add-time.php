@@ -62,8 +62,8 @@
 			</div>
          <div class="form-group">
             <strong>Lunch Time </strong>
-            <input type="time" step="3600000"  class="form-control" name="launchTime" 
-            value={{if data.launch_time}}{{:data.launch_time}}{{/if}}>
+            <input type="time" step="3600000"  class="form-control" name="lunchTime" 
+            value={{if data.lunch_time}}{{:data.lunch_time}}{{/if}}>
 			</div>
          <div class="form-group">
                <strong>Available From (eg. 10) <small>24 Hours format</small> </strong>
@@ -122,8 +122,8 @@
             {{if data.end_time }}
                <p><strong>End Time:</strong> <span>{{:data.end_time}} </span></><br>
             {{/if}}
-            {{if data.launch_time }}
-               <p><strong>Lunch Time:</strong> <span>{{:data.launch_time}} </span></><br>
+            {{if data.lunch_time }}
+               <p><strong>Lunch Time:</strong> <span>{{:data.lunch_time}} </span></><br>
             {{/if}}
             {{if data.day }}
                <p><strong>Available Day:</strong> <span>{{:data.day}} </span></><br>

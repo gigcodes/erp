@@ -4,59 +4,71 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 {{-- <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> --}}
-
 @endsection
 
-
 @section('content')
-	<div class="row">
-		<div class="col-lg-12 margin-tb">
-		    <h2 class="page-heading">Website Logs</h2>
-		</div>
+<div class="row">
+	<div class="col-lg-12 margin-tb">
+		<h2 class="page-heading">Website Logs</h2>
 	</div>
-	<div class="mt-3 col-md-12">
-		<form action="{{route('search.website.file.list.log')}}" method="get">
-			@csrf
-			<div class="col-1">
-				<b>Search</b> 
-			</div>
-			<div class="col-lg-2">
-				<input class="form-control" type="text" id="fieName" placeholder="Search file name" name="file_name" value="{{ old('file_name') }}">
-			</div>
-			<div class="col-lg-2">
-				<input class="form-control" type="text" id="website" placeholder="Search website" name="website" value="{{ old('website') }}">
-			</div>
-			<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-				<a href="{{route('website.file.list.log')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
-				<button type="submit" style="" class="btn btn-image pl-0"><img src="http://erp.local:8080/images/filter.png"></button>
+</div>
+<div class="col-md-12 mt-3">
+	<form action="{{route('search.website.file.list.log')}}" method="get">
+		@csrf
+		<div class="row">
+			<div class="col-md-2">
+				<div class="form-group">
+					<select name="website" class="form-control select2" id="website" data-placeholder="- All Websites -">
+						<option value="">- All Websites -</option>
+						{!! makeDropdown($listWebsites, request('website')) !!}
+					</select>
 				</div>
-		</form>
-	</div>
-	<div class="mt-3 col-md-12">
-		<table class="table table-bordered table-striped" id="log-table">
-		    <thead>
-			    <tr>
-			    	<th width="10%">S.No</th>
-			        <th width="10%">File Name</th>
-			        <th width="10%">Website</th>
-			        <th width="30%">Folder Path</th>
-			        <th width="10%">Action</th>
-			    </tr>
-		    	<tbody>
-                    @foreach ($dataArr as $data)
-                        <tr>
-                            <td>{{$data['S_No']}}</td>
-                            <td><a href="{{route('website.log.file.view')}}?path={{$data['File_Path']}}">{{$data['File_name']}}</a></td>
-                            <td>{{$data['Website']}}</td>
-                            <td>{{$data['File_Path']}}</td>
-							<td><a style="padding:1px;" class="btn d-inline btn-image execute-task" href="#" data-id="4" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a></td>
-						</tr>                        
-                    @endforeach
-		    	</tbody>
-		    </thead>
-		</table>
-	</div>
-    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+			</div>
+			<div class="col-md-2">
+				<div class="form-group">
+					<select name="file_name" class="form-control select2" id="file_name" data-placeholder="- All File Names -">
+						<option value="">- All Websites -</option>
+						{!! makeDropdown($listSrchFiles, request('file_name')) !!}
+					</select>
+					<!-- <input class="form-control" type="text" name="file_name" id="file_name" value="{{ request('file_name') }}" placeholder="Search File Name"> -->
+				</div>
+			</div>
+			<div class="col-md-2">
+				<div class="form-group cls_filter_inputbox">
+					<button type="submit" class="btn btn-secondary">Search</button>
+					<a href="{{route('website.file.list.log')}}" title="Clear Filter">
+						<button type="button" class="btn btn-default">Clear Search</button>
+					</a>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+<div class="mt-3 col-md-12">
+	<table class="table table-bordered table-striped" id="log-table">
+		<thead>
+			<tr>
+				<th width="10%">S.No</th>
+				<th width="10%">File Name</th>
+				<th width="10%">Website</th>
+				<th width="30%">Folder Path</th>
+				<th width="10%">Action</th>
+			</tr>
+		<tbody>
+			@foreach ($dataArr as $data)
+			<tr>
+				<td>{{$data['S_No']}}</td>
+				<td><a href="{{route('website.log.file.view')}}?path={{$data['File_Path']}}">{{$data['File_name']}}</a></td>
+				<td>{{$data['Website']}}</td>
+				<td>{{$data['File_Path']}}</td>
+				<td><a style="padding:1px;" class="btn d-inline btn-image execute-task" href="#" data-id="4" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a></td>
+			</tr>
+			@endforeach
+		</tbody>
+		</thead>
+	</table>
+</div>
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
     50% 50% no-repeat;display:none;">
 </div>
 @endsection
@@ -106,27 +118,30 @@
 		}
 	});
 	*/
-	$(document).on("click",".execute-task",function(e) {
-        thiss = $(this);
-        thiss.html(`<img src="/images/loading_new.gif" style="cursor: pointer; width: 0px;">`);
-        $.ajax({
-            type: "GET",
-            url: "/website/command/log", 
-            dataType : "json",
-            success: function (response) {
-                toastr['success']('Task executed successfully!');
-                thiss.html(`<img src="/images/send.png" style="cursor: pointer; width: 0px;">`);
-            },
-            error: function (response) {
-                if(response.status == 200){
-                    toastr['success']('Task executed successfully!');
-                }else{
-                    toastr['error'](response);
-                }
-                thiss.html(`<img src="/images/send.png" style="cursor: pointer; width: 0px;">`);
-            }
-        });
-    }); 
-</script> 
+	$(document).on("click", ".execute-task", function(e) {
+		thiss = $(this);
+		thiss.html(`<img src="/images/loading_new.gif" style="cursor: pointer; width: 0px;">`);
+		$.ajax({
+			type: "GET",
+			url: "/website/command/log",
+			dataType: "json",
+			success: function(response) {
+				toastr['success']('Task executed successfully!');
+				thiss.html(`<img src="/images/send.png" style="cursor: pointer; width: 0px;">`);
+			},
+			error: function(response) {
+				if (response.status == 200) {
+					toastr['success']('Task executed successfully!');
+				} else {
+					toastr['error'](response);
+				}
+				thiss.html(`<img src="/images/send.png" style="cursor: pointer; width: 0px;">`);
+			}
+		});
+	});
+
+	jQuery(document).ready(function() {
+		applySelect2(jQuery('.select2'));
+	});
+</script>
 @endsection
-    

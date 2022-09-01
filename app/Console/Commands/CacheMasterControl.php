@@ -15,8 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
-class CacheMasterControl extends Command
-{
+class CacheMasterControl extends Command {
     /**
      * The name and signature of the console command.
      *
@@ -36,8 +35,7 @@ class CacheMasterControl extends Command
      *
      * @return void
      */
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct();
     }
 
@@ -46,8 +44,7 @@ class CacheMasterControl extends Command
      *
      * @return mixed
      */
-    public function handle()
-    {
+    public function handle() {
         //
         try {
 
@@ -116,7 +113,7 @@ class CacheMasterControl extends Command
             });
 
             //Getting Customer Chat
-            $chat = null;//ChatMessage::where('created_at','>=', Carbon::now()->subDay()->toDateTimeString());
+            $chat = null; //ChatMessage::where('created_at','>=', Carbon::now()->subDay()->toDateTimeString());
 
             /*Cache::remember('result_customer_chat', 30, function () use ($chat) {
 
@@ -197,15 +194,16 @@ class CacheMasterControl extends Command
             });
 
             Cache::remember('latestScrapRemarks', 30, function () use ($chat) {
-                return \DB::select("
+                return \DB::select(
+                    "
                     select * 
                     from scrap_remarks as sr 
                     join ( select max(id) as id from scrap_remarks group by scraper_name) as max_s on sr.id =  max_s.id order by created_at desc"
                 );
             });
 
-            Cache::remember('todaytaskhistory', 30, function (){
-                $date = "'%".date('Y-m-d')."%'";   
+            Cache::remember('todaytaskhistory', 30, function () {
+                $date = "'%" . date('Y-m-d') . "%'";
 
                 return DB::select("SELECT users.name, developer_tasks.subject, developer_tasks.id as devtaskId,tasks.id as task_id,tasks.task_subject as task_subject,  hubstaff_activities.starts_at, SUM(tracked) as day_tracked 
                   FROM `users` 
@@ -218,48 +216,45 @@ class CacheMasterControl extends Command
                     order by day_tracked desc ");
             });
 
-            Cache::remember('hubstafftrackingnotiification', 30, function (){
+            Cache::remember('hubstafftrackingnotiification', 30, function () {
 
                 $yesterdayDate = Carbon::now()->subDays(1)->format('Y-m-d');
 
-
-
                 $hubstaff_notifications = \App\Hubstaff\HubstaffActivityNotification::join("users as u", "hubstaff_activity_notifications.user_id", "u.id")->leftJoin("user_avaibilities as av", "hubstaff_activity_notifications.user_id", "av.user_id")
-                ->whereDate('start_date',$yesterdayDate)
-                ->select([
-                    "hubstaff_activity_notifications.*", 
-                    "u.name as user_name",
-                    "av.minute as daily_working_hour",
-                ])
-                ->get()->toArray();
+                    ->where("av.is_latest", 1)
+                    ->whereDate('start_date', $yesterdayDate)
+                    ->select([
+                        "hubstaff_activity_notifications.*",
+                        "u.name as user_name",
+                        "av.minute as daily_working_hour",
+                    ])
+                    ->get()->toArray();
 
                 return $hubstaff_notifications;
-
             });
 
 
-            Cache::remember('hubstafftrackingnotiification', 30, function (){
-                
+            Cache::remember('hubstafftrackingnotiification', 30, function () {
+
                 $yesterdayDate = Carbon::now()->subDays(1)->format('Y-m-d');
 
-                
+
 
                 $hubstaff_notifications = \App\Hubstaff\HubstaffActivityNotification::join("users as u", "hubstaff_activity_notifications.user_id", "u.id")->leftJoin("user_avaibilities as av", "hubstaff_activity_notifications.user_id", "av.user_id")
-                ->whereDate('start_date',$yesterdayDate)
-                ->select([
-                    "hubstaff_activity_notifications.*", 
-                    "u.name as user_name",
-                    "av.minute as daily_working_hour",
-                ])
-                ->get()->toArray();
+                    ->where("av.is_latest", 1)
+                    ->whereDate('start_date', $yesterdayDate)
+                    ->select([
+                        "hubstaff_activity_notifications.*",
+                        "u.name as user_name",
+                        "av.minute as daily_working_hour",
+                    ])
+                    ->get()->toArray();
 
                 return $hubstaff_notifications;
-
             });
 
 
             $report->update(['end_time' => Carbon::now()]);
-
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
