@@ -413,25 +413,104 @@ function nextHour($curr) {
     if ($curr == 24) $curr = '0';
     return $curr < 10 ? '0' . $curr : $curr;
 }
-function hourlySlots($stTime, $enTime) {
+function hourlySlots($stTime, $enTime, $lunchTime = NULL) {
     $slots = [];
-    $intrvl =  strtotime("1970-01-01 01:00:00 UTC");
+    if ($stTime < $enTime) {
+        $stTime = date('Y-m-d H:i:00', strtotime($stTime));
+        $enTime = date('Y-m-d H:i:00', strtotime($enTime));
+    } else {
+        $stTime = date('Y-m-d H:i:00', strtotime($stTime));
+        $enTime = date('Y-m-d H:i:00', strtotime($enTime . ' + 1 day'));
+    }
 
-    $dateTimes = new \DatePeriod(
-        new \DateTime($stTime),
-        new \DateInterval('PT' . $intrvl . 'S'),
-        new \DateTime($enTime)
-    );
-    foreach ($dateTimes as $dt) {
-        $slots[] = $dt->format('Y-m-d H:i');
+    if ($stTime >= $lunchTime && $lunchTime <= $enTime) {
+        if ($lunchTime < date('H:i:00', strtotime($stTime))) {
+            $lunchTime = date('Y-m-d H:i:00', strtotime($lunchTime . ' + 1 day'));
+        } else {
+            $lunchTime = date('Y-m-d H:i:00', strtotime($lunchTime));
+        }
+    }
+
+    // echo $stTime < $enTime ? 'Y' : 'N';
+    // _p($stTime . ' -- ' . $enTime . ' || ' . $lunchTime);
+    // exit;
+
+    if ($lunchTime && ($stTime <= $lunchTime && $lunchTime <= $enTime)) {
+        // $slots = array_merge_recursive($slots, hourlySlots($stTime, $enTime));
+        // _p('ORG: ' . $stTime . ' -- ' . $enTime . ' ||| ' . $lunchTime);
+
+        $stTime1 = $stTime;
+        $enTime1 = date('Y-m-d H:i:00', strtotime($lunchTime));
+        // _p('1st: ' . $stTime1 . ' -- ' . $enTime1 . ' ||| ' . $lunchTime);
+        $slots = array_merge_recursive($slots, hourlySlots($stTime1, $enTime1));
+        // _p(hourlySlots($stTime1, $enTime1));
+
+        $stTime = date('Y-m-d H:i:00', strtotime($lunchTime . ' +1 hour'));
+
+        $temp = hourlySlots($lunchTime, $stTime);
+        foreach ($temp as $key => $value) {
+            $temp[$key]['type'] = 'LUNCH';
+        }
+        $slots = array_merge_recursive($slots, $temp);
+
+        $slots = array_merge_recursive($slots, hourlySlots($stTime, $enTime));
+        // _p('2nd: ' . $stTime . ' -- ' . $enTime . ' ||| ' . $lunchTime);
+    } else {
+        while ($stTime < $enTime) {
+            $stSlot = $stTime;
+            $enSlot = date('Y-m-d H:i:00', strtotime($stSlot . ' +1 hour'));
+            if ($enSlot > $enTime) {
+                $enSlot = $enTime;
+            }
+            $diff = strtotime($enSlot) - strtotime($stSlot);
+            $slots[] = [
+                'st' => $stSlot,
+                'en' => $enSlot,
+                'mins' => round($diff / 60),
+                'type' => 'AVL',
+            ];
+            // hourlySlots
+            $stTime = date('Y-m-d H:i:00', strtotime($stTime . ' +1 hour'));
+        }
     }
     return $slots;
 }
 
+function getHourlySlots($stTime, $enTime) {
+    $return = [];
+    if (date('Y-m-d', strtotime($stTime)) != date('Y-m-d', strtotime($enTime))) {
+        $st1 = $stTime;
+        $en1 = date('Y-m-d 23:59:59', strtotime($stTime));
+        $return = array_merge_recursive($return, getHourlySlots($st1, $en1));
+
+        $st1 = date('Y-m-d 00:00:00', strtotime($enTime));
+        $en1 = $enTime;
+        $return = array_merge_recursive($return, getHourlySlots($st1, $en1));
+    } else {
+        while ($stTime < $enTime) {
+            $stSlot = $stTime;
+            $enSlot = date('Y-m-d H:i:00', strtotime($stSlot . ' +1 hour'));
+            if ($enSlot > $enTime) {
+                $enSlot = $enTime;
+            }
+            $return[] = [
+                'st' => $stSlot,
+                'en' => $enSlot,
+                'mins' => round((strtotime($enSlot) - strtotime($stSlot)) / 60),
+            ];
+            $stTime = date('Y-m-d H:i:00', strtotime($stTime . ' +1 hour'));
+        }
+    }
+    return $return;
+}
+
+
+
+
 function siteJs($path) {
     return env('APP_URL') . '/js/pages/' . $path . '?v=' . date('YmdH');
 }
-function makeDropdown($options = [], $selected = []) {
+function makeDropdown($options = [], $selected = [], $keyValue = 1) {
     if (!is_array($selected)) {
         $selected = is_numeric($selected) ? (int) $selected : $selected;
     }
@@ -443,14 +522,15 @@ function makeDropdown($options = [], $selected = []) {
                 $return[] = makeDropdown($v, $selected);
                 $return[] = '</optgroup>';
             } else {
+                $value = $keyValue ? $k : $v;
                 $sel = '';
                 if (is_array($selected)) {
-                    if (in_array($k, $selected))
+                    if (in_array($value, $selected))
                         $sel = 'selected';
-                } else if ($selected === $k) {
+                } else if ($selected === $value) {
                     $sel = 'selected';
                 }
-                $return[] = '<option value="' . $k . '" ' . $sel . '>' . trim(strip_tags($v)) . '</option>';
+                $return[] = '<option value="' . $value . '" ' . $sel . '>' . trim(strip_tags($v)) . '</option>';
             }
         }
     }
@@ -479,4 +559,54 @@ function dailyHours($type = null) {
         $data[$temp] = $temp;
     }
     return $data;
+}
+function reqValidate($data, $rules = [], $messages = []) {
+    $validator = Validator::make($data, $rules, $messages);
+    return $validator->errors()->all();
+}
+
+function loginId() {
+    return \Auth::id() ?: 0;
+}
+function isAdmin() {
+    return auth()->user()->isAdmin();
+}
+function printNum($num) {
+    return number_format($num, 2, ".", ",");
+}
+
+function readFullFolders($dir, &$results = array()) {
+    $files = scandir($dir);
+    foreach ($files as $key => $value) {
+        $path = realpath($dir . DIRECTORY_SEPARATOR . $value);
+        if (!is_dir($path)) {
+            $results[] = $path;
+        } else if ($value != "." && $value != "..") {
+            // $results[] = $path;
+            readFullFolders($path, $results);
+        }
+    }
+    return $results;
+}
+function readFolders($data) {
+    $return = [];
+    foreach ($data as $key => $filePath) {
+        $fileName = basename($filePath);
+        $return[] = rtrim(str_replace($fileName, '', $filePath), '/');
+    }
+    $return = array_values(array_unique($return));
+    sort($return);
+    return $return;
+}
+function getCommunicationData($sdc, $sw){
+    $site_dev = \App\SiteDevelopment::where(["site_development_category_id" => $sdc->id, "website_id" => $sw->id])->orderBy('id', "DESC")->get()->pluck('id');
+    $query = \App\DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->whereIn('site_developement_id', $site_dev)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+    $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+    $taskStatistics = $query->orderBy("developer_tasks.id", "DESC")->get();
+    $query1 = \App\Task::join('users', 'users.id', 'tasks.assign_to')->whereIn('site_developement_id', $site_dev)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+    $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+    $othertaskStatistics = $query1->orderBy("tasks.id", "DESC")->get();
+    $merged = $othertaskStatistics->merge($taskStatistics);
+    return $merged;
+    
 }

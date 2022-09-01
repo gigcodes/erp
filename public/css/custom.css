@@ -2465,3 +2465,12 @@ table {
 .bg-custom-gray {
   background-color: #eee !important;
 }
+
+.modal-xl {
+  width: 90% !important;
+  max-width: 1200px !important;
+}
+
+.select2-results__option {
+  word-break: break-all;
+}

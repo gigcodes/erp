@@ -201,13 +201,8 @@
         </select>
     </td>
     <td>
-        <input style="min-width: 30px;" placeholder="Remark" value="" type="text" class="form-control mb-2 update_approximate" name="track_time_remark_{{$task->id}}" id="track_time_remark_{{$task->id}}" data-id="{{$task->id}}">
         <div class="d-flex">
-            <input type="text" placeholder="ED" class="update_approximate form-control input-sm" name="approximate_{{$task->id}}" id="approximate_{{$task->id}}" data-id="{{$task->id}}" value="{{$task->approximate}}">
-            <button type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
-            <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
-            <input type="text" placeholder="Cost" class="update_cost form-control input-sm" name="cost" data-id="{{$task->id}}" value="{{$task->cost}}">
-            <span class="text-success update_cost_msg" style="display: none;">Successfully updated</span>
+            <button type="button" class="btn btn-xs show-time-history" title="Show Estimation History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
         </div>
         @if (isset($special_task->timeSpent) && $special_task->timeSpent->task_id > 0)
         {{ formatDuration($special_task->timeSpent->tracked) }}
@@ -217,29 +212,45 @@
     </td>
     <td class="table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
         @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
-        <div class="d-flex">
-            <?php
-            $text_box = "";
-            if (isset($task->message)) {
-                $text_box = "55";
-            } else {
-                $text_box = "100";
-            }
-            ?>
-            <input type="text" style="width: <?php echo $text_box; ?>%;" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message" value="">
-            <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
-            @if (isset($task->message))
-            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
-            @endif
-            @if (isset($task->message))
-            <div class="d-flex justify-content-between">
-                <span class="td-mini-container">
-                    {{ strlen($task->message) > 25 ? substr($task->message, 0, 25) . '...' : $task->message }}
-                </span>
-                <span class="td-full-container hidden">
-                    {{ $task->message }}
-                </span>
 
+        <div style="margin-bottom:10px;width: 100%;">
+            <?php $text_box = "100"; ?>
+            <div class="d-flex">
+                <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message" value="">
+                <div style="max-width: 30px;">
+                    <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
+                </div>
+                @if (isset($task->message))
+                <div style="max-width: 30px;">
+                    <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                </div>
+                @endif
+            </div>
+            @if (isset($task->message))
+            <div style="margin-bottom:10px;width: 100%;">
+                <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
+                    <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
+                        <?php
+                        if (!empty($task->message) && !empty($task->task_subject)) {
+                            $pos = strpos($task->message, $task->task_subject);
+                            $length = strlen($task->task_subject);
+                            if ($pos) {
+                                $start = $pos + $length + 1;
+                            } else {
+                                $start = 0;
+                            }
+                        } else {
+                            $start = 0;
+                        }
+                        ?>
+                        {{substr($task->message, $start,28)}}
+                    </span>
+                </div>
+                <div class="expand-row-msg" data-id="{{$task->id}}">
+                    <span class="td-full-container-{{$task->id}} hidden">
+                        {{ $task->message }}
+                    </span>
+                </div>
             </div>
             @endif
         </div>
@@ -297,13 +308,12 @@
             </div>
         </div>
 
-        <div class="dropdown">
+        <div class="dropdown dropleft">
             <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$task->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Actions
             </a>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$task->id}}">
-                <a class="dropdown-item" href="javascript:void(0);" data-task_id="{{$task->id}}" data-start_date="{{$task->start_date}}" onclick="funTaskStartDateModal(this)">Start Time: Update</a>
-                <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskStartDateHistory('{{$task->id}}')">Start Time: View History</a>
+                <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskInformationModal(this, '{{$task->id}}')">Task Information: Update</a>
             </div>
         </div>
     </td>

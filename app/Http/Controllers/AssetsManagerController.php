@@ -130,7 +130,7 @@ class AssetsManagerController extends Controller
             'payment_cycle' => 'required',
             'amount' => 'required',
         ]);
-
+        
         $othercat = $request->input('other');
         $category_id = $request->input('category_id');
         $catid = '';
@@ -152,6 +152,7 @@ class AssetsManagerController extends Controller
         if ($catid != '') {
             $data['category_id'] = $catid;
         }
+        $data['start_date'] = ($request->input('start_date') == '') ? $request->input('old_start_date') : $request->input('start_date');
         $data['ip_name'] = $request->ip_name;
         $data['server_password'] = $request->server_password;
         $data['folder_name'] = json_encode($request->folder_name);

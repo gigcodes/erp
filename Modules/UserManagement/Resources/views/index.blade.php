@@ -156,7 +156,7 @@
                                 </div>
                                 <div class="form-group pl-3">
                                     <label for="button">&nbsp;</label>
-                                    <button style="display: inline-block;width: 10%;margin-top: -16px;" class="btn btn-sm btn-image btn-search-action">
+                                    <button style="display: inline-block;width: 10%;margin-top: -16px;" class="btn btn-sm btn-image btn-search-action" title="Search">
                                         <img src="/images/search.png" style="cursor: default;">
                                     </button>
                                 </div>
@@ -164,11 +164,15 @@
                         </form>
                         @if (auth()->user()->isAdmin())
 
-                        <img src="http://cdn.onlinewebfonts.com/svg/img_108143.png" class="mt-3 permission-request" style="width:20px; height:20px;" alt="Permission request">
+                        <img src="http://cdn.onlinewebfonts.com/svg/img_108143.png" class="mt-3 permission-request" style="width:20px; height:20px;" alt="Permission request" title="Permission request" >
 
-                        <img src="https://e7.pngegg.com/pngimages/287/966/png-clipart-computer-icons-erp-icon-computer-network-business.png" class="mt-2 ml-4 erp-request" style="width:35px; height:25px;" alt="ERP IPs">
-                        <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg" class="mt-2 ml-4 system-request" style="width:35px; height:25px;" alt="Permission request" alt=" ERP IPs" data-toggle="modal" data-target="#system-request">
-                        <img src="https://www.kindpng.com/picc/m/391-3916045_task-management-task-management-icon-hd-png-download.png" class="mt-2 ml-4 today-history" style="width:31px; height:25px;" alt="Permission request" alt="All user task">
+                        <img src="https://e7.pngegg.com/pngimages/287/966/png-clipart-computer-icons-erp-icon-computer-network-business.png" class="mt-2 ml-4 erp-request" style="width:35px; height:25px;" alt="ERP IPs" title="ERP IPs">
+                        <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg" class="mt-2 ml-4 system-request" style="width:35px; height:25px;" data-toggle="modal" data-target="#system-request" title="System Request" >
+                        <img src="https://www.kindpng.com/picc/m/391-3916045_task-management-task-management-icon-hd-png-download.png" class="mt-2 ml-4 today-history" style="width:31px; height:25px;" alt="All user task" title="All user task" >
+
+                        <button type="button" class="btn btn-lg" title="View Planned Users With Availabilities" onclick="funPlannedUserAndAvailabilityList()" style="padding-top: 0px;" >
+                            <i class="fa fa-eye" aria-hidden="true"></i>
+                        </button>
                         @endif
                     </div>
                 </div>
@@ -556,6 +560,25 @@
 @include("usermanagement::templates.show-task-hours")
 @include("usermanagement::templates.show-user-details")
 
+@push('modals')
+@include("user-availability.modal-list")
+
+<div id="modalPlannedUserAndAvailabilityList" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Planned users and their availabilities</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endpush
+
 <script>
     var urlUserManagementUpdateFlagForTaskPlan = "{!! route('user-management.update.flag-for-task-plan') !!}";
 </script>
@@ -581,31 +604,16 @@
 
 
 <script>
-    //for feedback model
+    // for feedback model
     $(document).on("click", ".feedback_btn", function() {
         $('#exampleModal123').modal('show');
 
     });
 
-
-    //for category tag
-    // $(document).on("click", ".add-feedback", function() {
-    //     var textBox = $(".quick_feedback").val();
-    //     const text_val = $('#addcategory').val();
-    //     console.log(text_val);
-
-    //addcategory
-    //btn-save
-
-    // });
-
-    //for user admin chat hisrty
+    // for user admin chat hisrty
     $(document).on("click", "#histry", function() {
         alert('helloooo');
     });
-
-
-
 
     $(document).ready(function() {
         $('#ipusers').change(function() {
@@ -616,7 +624,6 @@
                 $('#other_user_name').hide();
             }
         });
-
     });
     $('.select-multiple').select2({
         width: '100%'
@@ -639,16 +646,10 @@
         });
     });
 
-
     $('#due-datetime').datetimepicker({
         format: 'YYYY-MM-DD HH:mm'
     });
 
-
-
-    // $(document).on("click",".permission-request",function() {
-    //    $('#permission-request').modal();
-    // });
     $(document).on("click", ".today-history", function(e) {
         e.preventDefault();
         var id = $(this).data('id');
@@ -847,7 +848,6 @@
         baseUrl: "<?php echo url('/'); ?>"
     });
 
-
     function editUser(id) {
         $.ajax({
             url: "/user-management/edit/" + id,
@@ -906,9 +906,6 @@
             $('.common-modal #payment-method-input').val('');
         }).fail(function(errObj) {});
     });
-
-
-
 
     let paymentMethods;
 
@@ -990,8 +987,6 @@
 
     }
 
-
-
     function filterMethods(needle) {
         console.log(needle);
         $('#payment-method-dropdown .payment-method-option').remove();
@@ -1023,7 +1018,6 @@
         $('#payment_method').val(text);
         closeDropdown();
     }
-
 
     function toggleDropdown() {
         if ($('#payment-dropdown-wrapper').hasClass('hidden')) {
@@ -1083,9 +1077,6 @@
 
         return true;
     }
-
-
-
 
     $(document).on("change", ".quickComment", function(e) {
 
@@ -1151,7 +1142,7 @@
         event.preventDefault();
         $.ajax({
             type: "post",
-            url: '{{ action("UserController@statusChange") }}',
+            url: "{{ action('UserController@statusChange') }}",
             data: {
                 _token: "{{ csrf_token() }}",
                 status: $(this).attr('data-status'),
@@ -1377,7 +1368,7 @@
         event.preventDefault();
         $.ajax({
             type: "post",
-            url: '{{ action('UserController@statusChange') }}',
+            url: "{{ action('UserController@statusChange') }}",
             data: {
                 _token: "{{ csrf_token() }}",
                 status: $(this).attr('data-status'),
@@ -1421,12 +1412,6 @@
             }
         });
     })
-
-
-
-    // $("#page-view-result").on('load', function () {
-
-    // });
 
     function loadUsersList() {
 
@@ -1473,11 +1458,6 @@
         });
 
     }
-
-    $(window).on('load', function() {
-
-    });
-
 
     $(document).on('change', '.user_feedback_status', function() {
         var status_id = $(this).val();
@@ -1595,6 +1575,26 @@
             }
         });
     });
+
+    function funPlannedUserAndAvailabilityList() {
+        siteLoader(1);
+        let mdl = jQuery('#modalPlannedUserAndAvailabilityList');
+        jQuery.ajax({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('user-management.planned-user-and-availability') }}",
+            type: 'GET',
+            data: {}
+        }).done(function(response) {
+            siteLoader(0);
+            mdl.find('.modal-body').html(response.data);
+            mdl.modal('show');
+        }).fail(function(err) {
+            siteLoader(0);
+            siteErrorAlert(err);
+        });
+    }
 </script>
 
 @endsection

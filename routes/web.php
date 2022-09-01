@@ -45,8 +45,8 @@ Route::get('/test/dhl', 'TmpTaskController@test');
 Route::get('/store/unknown/sizes', 'ScrapController@storeUnknownSizes');
 Route::get('criteria/get/{id}', 'PositionController@list')->name('get.criteria');
 
-    Route::get('vendors/create-cv/{id}', 'VendorResumeController@create')->name('vendors.create.cv');
-    Route::post('vendors/cv/store', 'VendorResumeController@store')->name('vendor.cv.store');
+Route::get('vendors/create-cv/{id}', 'VendorResumeController@create')->name('vendors.create.cv');
+Route::post('vendors/cv/store', 'VendorResumeController@store')->name('vendor.cv.store');
 Route::middleware('auth')->group(function () {
     Route::get('discount-sale-price', 'DiscountSalePriceController@index');
     Route::delete('discount-sale-price/{id}', 'DiscountSalePriceController@delete');
@@ -690,6 +690,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::delete('leads/permanentDelete/{leads}', 'LeadsController@permanentDelete')->name('leads.permanentDelete');
     Route::resource('chat', 'ChatController');
     Route::get('erp-leads', 'LeadsController@erpLeads')->name('erp-leads.erpLeads');
+    Route::post('erp-leads/enable-disable', 'LeadsController@enableDisable')->name('erp-leads.enable-disable');
     // Route::post('erp-leads', 'LeadsController@filterErpLeads')->name('erp-leads.filterErpLeads');
     Route::post('erp-leads-send-message', 'LeadsController@sendMessage')->name('erp-leads-send-message');
     Route::get('erp-leads/response', 'LeadsController@erpLeadsResponse')->name('leads.erpLeadsResponse');
@@ -913,7 +914,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/charity-order', 'OrderController@charity_order');
     Route::post('order/cancel-transaction', 'OrderController@cancelTransaction')->name('order.canceltransaction');
     Route::post('order/payload', 'OrderController@getOrderPayloadList')->name('order.payload');
-
+    Route::post('order/change-return-status', 'OrderController@returnStatus')->name('order.change_return_status');
+    
     Route::resource('order', 'OrderController');
 
 
@@ -968,14 +970,27 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('meetings/all', 'Meeting\ZoomMeetingController@allMeetings')->name('meetings.all.data');
 
     Route::prefix('task')->group(function () {
+        Route::prefix('information')->group(function () {
+            Route::get('get', 'TaskModuleController@taskGet')->name('task.information.get');
+        });
+
         Route::prefix('update')->group(function () {
-            Route::post('start-date', 'TaskModuleController@taskStartDateUpdate')->name('task.update.start-date');
+            Route::post('start-date', 'TaskModuleController@taskUpdateStartDate')->name('task.update.start-date');
+            Route::post('due-date', 'TaskModuleController@taskUpdateDueDate')->name('task.update.due-date');
+            Route::post('cost', 'TaskModuleController@updateCost')->name('task.update.cost');
+            Route::post('approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
         });
+
         Route::prefix('history')->group(function () {
-            Route::prefix('start-date')->group(function () {
-                Route::get('index', 'TaskModuleController@taskStartDateHistory')->name('task.history.start-date.index');
-            });
+            Route::get('start-date/index', 'TaskHistoryController@historyStartDate')->name('task.history.start-date.index');
+            Route::get('due-date/index', 'TaskHistoryController@historyDueDate')->name('task.history.due-date.index');
+            Route::get('cost/index', 'TaskHistoryController@historyCost')->name('task.history.cost.index');
+            Route::get('approximate/index', 'TaskHistoryController@historyApproximate')->name('task.history.approximate.index');
+
+            Route::post('approve', 'TaskHistoryController@approve')->name('task.history.approve');
+            Route::get('approve/history', 'TaskHistoryController@approveHistory')->name('task.history.approve-history');
         });
+
         Route::get('dropdown-user-wise', 'TaskModuleController@dropdownUserWise')->name('task.dropdown-user-wise');
         Route::prefix('slot')->group(function () {
             Route::post('assign', 'TaskModuleController@slotAssign')->name('task.slot.assign');
@@ -1043,16 +1058,16 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('/get-site-development-task', 'TaskModuleController@getSiteDevelopmentTask')->name('get.site.development.task');
     //END - DEVTASK-4354
 
-    Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
+
     Route::post('task/create-get-remark', 'TaskModuleController@taskCreateGetRemark')->name('task.create.get.remark');
-    Route::post('task/get/due-date-history-log', 'TaskModuleController@getTaskDueDateHistoryLog')->name('task.get.due_date_history_log');
+
     Route::post('task/update/priority-no', 'TaskModuleController@updatePriorityNo')->name('task.update.updatePriorityNo');
     Route::post('task/time/history/approve', 'TaskModuleController@approveTimeHistory')->name('task.time.history.approve');
 
-    Route::post('task/update/due_date', 'TaskModuleController@updateTaskDueDate')->name('task.update.due_date');
+
     Route::get('task/time/tracked/history', 'TaskModuleController@getTrackedHistory')->name('task.time.tracked.history');
     Route::post('task/create/hubstaff_task', 'TaskModuleController@createHubstaffManualTask')->name('task.create.hubstaff_task');
-    Route::post('task/update/cost', 'TaskModuleController@updateCost')->name('task.update.cost');
+
     Route::get('task/update/milestone', 'TaskModuleController@saveMilestone')->name('task.update.milestone');
     Route::get('task/get/details', 'TaskModuleController@getDetails')->name('task.json.details');
     Route::post('task/get/save-notes', 'TaskModuleController@saveNotes')->name('task.json.saveNotes');
@@ -1572,8 +1587,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/time/history/approve', 'DevelopmentController@approveTimeHistory')->name('development/time/history/approve');
     Route::post('development/time/history/approve/sendMessage', 'DevelopmentController@sendReviseMessage')->name('development/time/history/approve/sendMessage');
     Route::post('development/time/history/approve/sendRemindMessage', 'DevelopmentController@sendRemindMessage')->name('development/time/history/approve/sendRemindMessage');
-    Route::post('development/date/history/approve', 'DevelopmentController@approveDateHistory')->name('development/date/history/approve');
-    Route::post('development/lead/time/history/approve', 'DevelopmentController@approveLeadTimeHistory')->name('development/lead/time/history/approve');
+
+
     Route::post('development/time/meeting/approve/{task_id}', 'DevelopmentController@approveMeetingHistory')->name('development/time/meeting/approve');
     Route::post('development/time/meeting/store', 'DevelopmentController@storeMeetingTime')->name('development/time/meeting/store');
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
@@ -1586,7 +1601,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/issue/module/assign', 'DevelopmentController@changeModule');
     Route::get('development/issue/user/resolve', 'DevelopmentController@resolveIssue');
     Route::get('development/issue/estimate_date/assign', 'DevelopmentController@saveEstimateTime');
-    Route::get('development/issue/estimate_date-change/assign', 'DevelopmentController@saveEstimateDate');
 
     Route::get('development/date/history', 'DevelopmentController@getDateHistory')->name('development/date/history');
 
@@ -1595,9 +1609,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/issue/estimate_minutes/assign', 'DevelopmentController@saveEstimateMinutes')->name('development.issue.estimate_minutes.store');
     Route::get('development/issue/priority-no/assign', 'DevelopmentController@savePriorityNo')->name('development.issue.savePriorityNo.store');
 
-    Route::get('development/issue/lead_estimate_minutes/assign', 'DevelopmentController@saveLeadEstimateTime')->name('development.issue.lead_estimate_minutes.store');
+
     Route::get('development/issue/responsible-user/assign', 'DevelopmentController@assignResponsibleUser');
-    Route::get('development/issue/cost/assign', 'DevelopmentController@saveAmount');
+
     Route::get('development/issue/milestone/assign', 'DevelopmentController@saveMilestone');
     Route::get('development/issue/language/assign', 'DevelopmentController@saveLanguage');
     Route::post('development/{id}/assignIssue', 'DevelopmentController@issueAssign')->name('development.issue.assign');
@@ -1637,7 +1651,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/comment/create', 'DevelopmentController@commentStore')->name('development.comment.store');
     Route::post('development/{id}/awaiting/response', 'DevelopmentController@awaitingResponse')->name('development.comment.awaiting.response');
 
-    Route::post('development/cost/store', 'DevelopmentController@costStore')->name('development.cost.store');
     Route::get('development/time/history', 'DevelopmentController@getTimeHistory')->name('development/time/history');
     Route::get('development/time/history/approved', 'DevelopmentController@getTimeHistoryApproved')->name('development/time/history/approved');
     Route::get('development/lead/time/history', 'DevelopmentController@getLeadTimeHistory')->name('development/lead/time/history');
@@ -1647,16 +1660,26 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/pull/history', 'DevelopmentController@getPullHistory')->name('development/pull/history');
 
     Route::prefix('development')->group(function () {
+        Route::get('task/get', 'DevelopmentController@taskGet')->name('development.task.get');
         // Route::get('development/pull/history', 'DevelopmentController@getPullHistory')->name('development/pull/history');
 
         Route::prefix('update')->group(function () {
             Route::post('start-date', 'DevelopmentController@actionStartDateUpdate')->name('development.update.start-date');
+            Route::post('estimate-date', 'DevelopmentController@saveEstimateDate')->name('development.update.estimate-date');
+            Route::post('cost', 'DevelopmentController@saveAmount')->name('development.update.cost');
+            Route::post('estimate-minutes', 'DevelopmentController@saveEstimateMinutes')->name('development.update.estimate-minutes');
+            Route::post('lead-estimate-minutes', 'DevelopmentController@saveLeadEstimateTime')->name('development.update.lead-estimate-minutes');
+
+            Route::post('lead-estimate-minutes/approve', 'DevelopmentController@approveLeadTimeHistory')->name('development.approve.lead-estimate-minutes');
         });
 
         Route::prefix('history')->group(function () {
-            Route::prefix('start-date')->group(function () {
-                Route::get('index', 'DevelopmentController@actionStartDateHistory')->name('development.history.start-date.index');
-            });
+            Route::get('start-date/index', 'DevelopmentController@historyStartDate')->name('development.history.start-date.index');
+            Route::get('estimate-date/index', 'DevelopmentController@historyEstimateDate')->name('development.history.estimate-date.index');
+            Route::get('cost/index', 'DevelopmentController@historyCost')->name('development.history.cost.index');
+
+            Route::post('approve', 'DevelopmentController@historyApproveSubmit')->name('development-task.history.approve');
+            Route::get('approve/history', 'DevelopmentController@historyApproveList')->name('development-task.history.approve-history');
         });
     });
 
@@ -1819,10 +1842,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('negative/coupon/response', 'NegativeCouponResponseController@index')->name('negative.coupon.response');
     Route::get('negative/coupon/response/search', 'NegativeCouponResponseController@search')->name('negative.coupon.response.search');
-   
+
     //Position
     Route::post('positions/store', 'PositionController@store')->name('positions.store');
-    
+
 
 
     Route::post('vendors/cv/store', 'VendorResumeController@store')->name('vendor.cv.store');
@@ -2115,6 +2138,29 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('/email-remark', 'EmailDataExtractionController@getRemark')->name('email-data-extraction.getremark');
         Route::post('/email-remark', 'EmailDataExtractionController@addRemark')->name('email-data-extraction.addRemark');
     });
+
+
+
+    Route::prefix('user-avaibility')->group(function () {
+        Route::get('list', 'UserAvaibilityController@index')->name('user-avaibility.index');
+        Route::post('save', 'UserAvaibilityController@save')->name('user-avaibility.save');
+        
+        // Route::prefix('update')->group(function () {
+        //     Route::post('start-date', 'DevelopmentController@actionStartDateUpdate')->name('development.update.start-date');
+        //     Route::post('estimate-date', 'DevelopmentController@saveEstimateDate')->name('development.update.estimate-date');
+        //     Route::post('cost', 'DevelopmentController@saveAmount')->name('development.update.cost');
+        //     Route::post('estimate-minutes', 'DevelopmentController@saveEstimateMinutes')->name('development.update.estimate-minutes');
+        //     Route::post('lead-estimate-minutes', 'DevelopmentController@saveLeadEstimateTime')->name('development.update.lead-estimate-minutes');
+
+        //     Route::post('lead-estimate-minutes/approve', 'DevelopmentController@approveLeadTimeHistory')->name('development.approve.lead-estimate-minutes');
+        // });
+
+        // Route::prefix('history')->group(function () {
+        //     Route::get('start-date/index', 'DevelopmentController@historyStartDate')->name('development.history.start-date.index');
+        //     Route::get('estimate-date/index', 'DevelopmentController@historyEstimateDate')->name('development.history.estimate-date.index');
+        //     Route::get('cost/index', 'DevelopmentController@historyCost')->name('development.history.cost.index');
+        // });
+    });
 });
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
@@ -2316,7 +2362,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('postman/user/permission', 'PostmanRequestCreateController@userPermission');
 
     Route::post('postman/get/mul/request', 'PostmanRequestCreateController@getMulRequest');
-
+    Route::post('postman/get/error/history', 'PostmanRequestCreateController@postmanErrorHistoryLog');
     Route::post('postman/edit/history/', 'PostmanRequestCreateController@postmanEditHistoryLog');
 });
 /*
@@ -3164,9 +3210,12 @@ Route::middleware('auth')->group(function () {
     Route::post('uicheck/create/attachment', 'UicheckController@saveDocuments')->name('uicheck.create.attachment');
     Route::get('uicheck/get/attachment', 'UicheckController@listDocuments')->name('uicheck.get.attachment');
     Route::post('uicheck/delete/attachment', 'UicheckController@deleteDocument')->name('uicheck.delete.attachment');
+    Route::post('uicheck/language/flag', 'UicheckController@languageFlag')->name('uicheck.language.flag');
+    Route::post('uicheck/translation/flag', 'UicheckController@translationFlag')->name('uicheck.translation.flag');
+    
 
     // 5 Device 
-    
+
     Route::post('/uicheck/set/device', 'UicheckController@updateDevice')->name('uicheck.set.device');
     Route::post('/uicheck/device/upload-documents', 'UicheckController@uploadDocuments')->name("ui.dev.upload-documents");
 
@@ -3178,6 +3227,12 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('uicheck')->group(function () {
         Route::get('get', 'UicheckController@get')->name('uicheck.get');
+        Route::get('responsive', 'UicheckController@responseDevicePage')->name('uicheck.responsive');
+        Route::post('responsive/status', 'UicheckController@responseDeviceStatusChange')->name('uicheck.responsive.status');
+        Route::post('get/responsive/status/history', 'UicheckController@responseDeviceStatusHistory')->name('get.responsive.status.history');
+        Route::get('translation', 'UicheckController@responseTranslatorPage')->name('uicheck.translation');
+        Route::post('translation/status', 'UicheckController@translatorStatusChange')->name('uicheck.translator.status');
+        Route::post('get/translator/status/history', 'UicheckController@translatorStatusHistory')->name('get.translator.status.history');
 
         Route::prefix('history')->group(function () {
             Route::get('all', 'UicheckController@historyAll')->name('uicheck.history.all');
@@ -4002,6 +4057,8 @@ Route::middleware('auth')->group(function () {
     Route::post('checklist/add_checklist', 'CheckListController@add')->name("checklist.add");
     Route::post('checklist/get_checked_value', 'CheckListController@checked')->name("checklist.get.checked");
     Route::post('checklist/checklist_update', 'CheckListController@checklistUpdate')->name("checklist.update.c");
+    Route::post('checklist/add-remark', 'CheckListController@subjectRemarkCreate')->name("checklist.add.remark");
+    Route::post('checklist/list', 'CheckListController@subjectRemarkList')->name("checklist.remark.list");
 });
 
 
@@ -4041,5 +4098,4 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
     Route::post('/coupon/code/order/list', 'VoucherCouponController@couponCodeOrderList')->name('voucher.code.order.list');
     Route::post('/voucher/code/delete', 'VoucherCouponController@couponCodeDelete')->name('voucher.code.delete');
     Route::post('/voucher/code/order/delete', 'VoucherCouponController@couponCodeOrderDelete')->name('voucher.code.order.delete');
-    
 });

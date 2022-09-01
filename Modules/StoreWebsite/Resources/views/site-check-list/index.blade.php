@@ -115,22 +115,23 @@
             <form id="filter_data" action="{{ route('site-check-list') }}" method="get">
                 <div class="row">
                     <div class="col-md-3">
-                        {{ Form::select('store_webs', $all_store_websites, $search_website, ['class' => 'form-control  globalSelect2','placeholder' => '-- Select Website --']) }}
+                        {{ Form::select('store_webs[]', $all_store_websites, $search_website, ['class' => 'form-control  globalSelect22','placeholder' => '-- All Website --',  "multiple" => "multiple"]) }}
                     </div>
 
                     <div class="col-md-3">
-                        <select name="categories" class="form-control select2">
+                        {{-- <select name="categories[]"  class="form-control globalSelect22" multiple>
                             <option value="">-- Select a categories --</option>
                             @forelse($categories as $ct)
-                                <option value="{{ $ct->id }}" @if ($search_category == $ct->id) selected @endif>
+                                <option value="{{ $ct->id }}" @if (in_array($ct->id, $search_category) && is_array($search_category)) selected @endif>
                                     {{ $ct->title }}</option>
                             @empty
                             @endforelse
-                        </select>
+                        </select> --}}
+                        {{ Form::select('categories[]', $categories, $search_category, ['class' => 'form-control  globalSelect2', "multiple" => "multiple"]) }}
                     </div>
 
                     <div class="col-md-3">
-                        {{ Form::select('site_development_status_id', $allStatus, $site_development_status_id, ['class' => 'form-control globalSelect2','placeholder' => '--- Select Status---']) }}
+                        {{ Form::select('site_development_status_id[]', $allStatus, $site_development_status_id, ['class' => 'form-control globalSelect2','placeholder' => '--- Select Status---',  "multiple" => "multiple"]) }}
                     </div>
 
                     <div class="col-md-3">
@@ -138,6 +139,8 @@
                         <a href="{{ route('site-check-list') }}" class="btn btn-secondary">Reset</a>
                         <button type="button" class="btn btn-secondary download_check_list_data">Download</button>
                     </div>
+
+                   
 
                 </div>
             </form>
@@ -225,6 +228,13 @@
                                 @endforeach
                             </select>
                         </div>
+
+                        <div class="form-group">
+						<label for="">Create Review Task?</label>
+						<div class="form-group">
+								<input type="checkbox" name="need_review_task" value="1" />
+						</div>
+					</div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -510,7 +520,30 @@
                 }
             });
         });
+        
+        function get_query(){
+            var url = document.location.href;
+            var qs = url.substring(url.indexOf('?') + 1).split('&');
+            for(var i = 0, result = {}; i < qs.length; i++){
+                qs[i] = qs[i].split('=');
+                result[qs[i][0]] = decodeURIComponent(qs[i][1]);
+            }
+            return result;
+        }
         $(".select2").select2();
+
+        var selectedValues = [ '1','2','3', '5','9'];
+        $(document).ready(function() {
+            $('.globalSelect22').select2({
+                multiple: true,
+            });
+            let resu = get_query();
+            console.log(resu);
+            if(!resu['store_webs%5B%5D'] && resu['store_webs%5B%5D'] !=''){
+                $('.globalSelect22').val(selectedValues).trigger('change');
+            }
+        });
+
 
         $("#checkAll").click(function() {
             $('input:checkbox').not(this).prop('checked', this.checked);
@@ -657,6 +690,60 @@
                     $("#loading-image").hide();
                 }
             });
+        });
+
+        $(document).on('click', '.send-message', function() {
+            var thiss = $(this);
+            var data = new FormData();
+            var task_id = $(this).data('taskid');
+            var message = $(this).closest('tr').find('.quick-message-field').val();
+            var mesArr = $(this).closest('tr').find('.quick-message-field');
+            $.each(mesArr, function(index, value) {
+                if ($(value).val()) {
+                    message = $(value).val();
+                }
+            });
+
+            data.append("task_id", task_id);
+            data.append("message", message);
+            data.append("status", 1);
+
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: '/whatsapp/sendMessage/task',
+                        type: 'POST',
+                        "dataType": 'json', // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function() {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function(response) {
+                        thiss.closest('tr').find('.quick-message-field').val('');
+
+                        toastr["success"]("Message successfully send!", "Message")
+                        // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+                        //   .done(function( data ) {
+                        //
+                        //   }).fail(function(response) {
+                        //     console.log(response);
+                        //     alert(response.responseJSON.message);
+                        //   });
+
+                        $(thiss).attr('disabled', false);
+                    }).fail(function(errObj) {
+                        $(thiss).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
         });
     </script>
 

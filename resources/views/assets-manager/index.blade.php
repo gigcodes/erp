@@ -406,14 +406,19 @@
     $(document).on('click', '.edit-assets', function() {
       var asset = $(this).data('assets');
       var url = "{{ url('assets-manager') }}/" + asset.id;
-      console.log(asset);
+      //console.log(asset);
       var d = new Date(asset.start_date);
       var day = (d.getDate() < 10 ? '0' : '') + d.getDate();
-      var str = d.getFullYear() + '-' + (d.getMonth()+1) + '-' + day;
+      var mon = ((d.getMonth()+1) < 10 ? '0' : '') + (d.getMonth()+1);
+      var str =  d.getFullYear()+ '-' + mon + '-' + day;
       $('#assetsEditModal form').attr('action', url);
       $('#asset_name').val(asset.name);
       $('#user_name').val(asset.user_name);
-      $(".select-multiple").select2("val", asset.user_name);
+      if(asset.user_name)
+        $(".select-multiple").select2("val", asset.user_name);
+      else
+        $(".select-multiple").select2("val", "");
+
       $('#old_user_name').val(asset.user_name);
       $('#password').val(asset.password);
       $('#old_password').val(asset.password);
@@ -427,7 +432,13 @@
       $('#provider_name').val(asset.provider_name);
       $('#location').val(asset.location);
       $('#currency').val(asset.currency);
-      $('#start_date').val(''+str+'');
+      if(asset.start_date !='0000-00-00' && asset.start_date != null){
+        $('.start_date').val(''+str+'');
+        $('#old_start_date').val(''+str+'');
+      }else{
+        $('.start_date').val("dd/mm/yyyy");
+        $('#old_start_date').val("yyyy-mm-dd");
+      }
       $('#asset_asset_type').val(asset.asset_type);
       $('#category_id2').val(asset.category_id);
       $('#asset_purchase_type').val(asset.purchase_type);
@@ -438,18 +449,17 @@
       
       
       $('#ip_name_ins').val(asset.ip_name);
-      console.log(asset.ip_name);
-      // $.each(JSON.parse(asset.ip_name),function(key,value){
-      //     var addIpName = '<br/><input type="text" name="ip_name[]" id="ip_name'+key+'" class="form-control"  value="'+value+'" >';
-      //     $(".addUpdIpName").append(addIpName);
-      // });
+      
       $(".addServerUpdate").html("");
-      $.each(JSON.parse(asset.folder_name),function(key,value){
-          var addserver = '<br/><input type="text" name="folder_name[]" id="folder_name'+key+'" class="form-control"  value="'+value+'" >';
-          $(".addServerUpdate").append(addserver);
+      var addserver = '';
+      let folderName = JSON.parse(asset.folder_name);
+      $.each(folderName,function(key,value){
+        addserver = addserver+'<br/><input type="text" name="folder_name[]" id="folder_name'+key+'" class="form-control"  value="'+value+'" >';
+          
       });
+      $(".addServerUpdate").append(addserver);
       $('#server_password').val(asset.server_password);
-      $('.show-user-history-btn').attr('data-id', +asset.id);
+      $('.show-user-history-btn').attr('data-id', asset.id);
     });
     $(document).on('click', '.expand-row-msg', function () {
       var name = $(this).data('name');
@@ -570,7 +580,7 @@
 
       $(document).ready(function() {
           $('.show-user-history-btn').click(function(){
-            var asset_id = $(this).data('id');
+            var asset_id = $(this).attr('data-id');//$(this).data('id');
             $.ajax({
               type: 'POST',
               headers: {
