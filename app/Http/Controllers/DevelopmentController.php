@@ -51,6 +51,7 @@ use App\Helpers\MessageHelper;
 use App\HubstaffHistory;
 use App\UserRate;
 use App\TaskMessage;
+use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
 
 class DevelopmentController extends Controller {
     /**
@@ -1086,9 +1087,9 @@ class DevelopmentController extends Controller {
         $inprocessStatusID = \DB::table("task_statuses")->select("id")->where('name', "In Progress")->first();
 
 
-        $statusList = array_merge([
-            "" => "Select Status",
-        ], $statusList);
+        // $statusList = array_merge([
+        //     "" => "Select Status",
+        // ], $statusList);
 
         $task_statuses = TaskStatus::all();
 
@@ -1099,8 +1100,19 @@ class DevelopmentController extends Controller {
 
         $title = 'Flag Task List';
 
-        $issues = DeveloperTask::with('timeSpent')->where('is_flagged', '1');
-        $task =  Task::with('timeSpent')->where('is_flagged', '1');
+        $issues = DeveloperTask::with(['timeSpent', 'leadtimeSpent', 'testertimeSpent', 'assignedUser']); // ->where('is_flagged', '1')
+        $issues->whereNotIn("developer_tasks.status", [
+            DeveloperTask::DEV_TASK_STATUS_DONE,
+            DeveloperTask::DEV_TASK_STATUS_IN_REVIEW
+        ]);
+        $issues->whereRaw("developer_tasks.assigned_to IN (SELECT id FROM users WHERE is_task_planned = 1)");
+
+        $task =  Task::with(['timeSpent']); // ->where('is_flagged', '1')
+        $task->whereNotIn("tasks.status", [
+            Task::TASK_STATUS_DONE,
+            Task::TASK_STATUS_IN_REVIEW
+        ]);
+        $task->whereRaw("tasks.assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)");
 
         if ($type == 'issue') {
             $issues = $issues->where('developer_tasks.task_type_id', '3');
@@ -1121,9 +1133,9 @@ class DevelopmentController extends Controller {
             $task = $task->where('tasks.assign_from', $request->get('corrected_by'));
         }
 
-        if ((int) $request->get('assigned_to') > 0) {
-            $issues = $issues->where('developer_tasks.assigned_to', $request->get('assigned_to'));
-            $task = $task->where('tasks.assign_to', $request->get('assigned_to'));
+        if ($s = request('assigned_to')) {
+            $issues = $issues->whereIn('developer_tasks.assigned_to', $s);
+            $task = $task->whereIn('tasks.assign_to', $s);
         }
         if ((int) $request->get('empty_estimated_time') > 0) {
             $issues = $issues->where('developer_tasks.estimate_time', NULL);
@@ -1136,8 +1148,8 @@ class DevelopmentController extends Controller {
 
             $task = $task->where('tasks.due_date', '>', date('Y-m-d'))->where('tasks.status', '!=', 3);
         }
-        if ($request->get('module')) {
-            $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
+        if ($s = request('module_id', [])) {
+            $issues = $issues->whereIn('developer_tasks.module_id', $s);
         }
         if (!empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
@@ -1196,14 +1208,13 @@ class DevelopmentController extends Controller {
         } else {
             $issues = $issues->orderBy('chat_messages.id', "desc");
         }
-        //   dd($task->get());
-        // return $issues = $issues->limit(20)->get();
-        $issues = $issues->paginate(Setting::get('pagination')); //
-        $tasks = $task->paginate(Setting::get('pagination'));
+
+        $paginateLimit = Setting::get('pagination') ?: 15;
+
+        $issues = $issues->paginate($paginateLimit);
+        $tasks = $task->paginate($paginateLimit);
 
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
-
-
         if ($request->ajax()) {
             $data = '';
             $isReviwerLikeAdmin = auth()->user()->isReviwerLikeAdmin();
@@ -1619,43 +1630,193 @@ class DevelopmentController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {
-        $loggedUser = $request->user();
+        // $loggedUser = $request->user();
+        // _p(request()->all(), 1);
 
         $this->validate($request, [
             'subject' => 'sometimes|nullable|string',
             'task' => 'required|string|min:3',
-            //'cost' => 'sometimes|nullable|integer',
             'status' => 'required',
             'repository_id' => 'required',
             'module_id' => 'required',
-
         ]);
 
         $data = $request->except('_token');
-        // $data['hubstaff_project'] = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
         $data['hubstaff_project'] = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
-
-        $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
-        //$data[ 'responsible_user_id' ] = $request->user_id ? $request->user_id : Auth::id();
+        $data['user_id'] = request('user_id', loginId());
         $data['created_by'] = Auth::id();
         $data['priority'] = 0;
-        //$data[ 'submitted_by' ] = Auth::id();
         $data['hubstaff_task_id'] = 0;
-        $data['repository_id'] = $request->get('repository_id');
-        // $module = $request->get('module_id');
-        // if (!empty($module)) {
-        //     $module = DeveloperModule::find($module);
-        //     if (!$module) {
-        //         $module = new DeveloperModule();
-        //         $module->name = $request->get('module_id');
-        //         $module->save();
-        //         $data['module_id'] = $module->id;
-        //     }
-        // }
-        $task = DeveloperTask::create($data);
+        $data['repository_id'] = request('repository_id');
+        $task = $this->developerTaskCreate($data);
+
+        if (request('need_review_task')) {
+            $data['parent_review_task_id'] = $task->id;
+            $reviewTask = $this->developerTaskCreate($data);
+        }
+
+        // _p(request()->all());
+        // _p($data, 1);
+        // // $module = $request->get('module_id');
+        // // if (!empty($module)) {
+        // //     $module = DeveloperModule::find($module);
+        // //     if (!$module) {
+        // //         $module = new DeveloperModule();
+        // //         $module->name = $request->get('module_id');
+        // //         $module->save();
+        // //         $data['module_id'] = $module->id;
+        // //     }
+        // // }
+        // $task = DeveloperTask::create($data);
 
         //check the assinged user in any team ?
-        if ($request->assigned_to > 0 && empty($task->team_lead_id)) {
+        // if ($request->assigned_to > 0 && empty($task->team_lead_id)) {
+        //     $teamUser = \App\TeamUser::where("user_id", $task->assigned_to)->first();
+        //     if ($teamUser) {
+        //         $team = $teamUser->team;
+        //         if ($team) {
+        //             $task->team_lead_id = $team->user_id;
+        //             $task->save();
+        //         }
+        //     } else {
+        //         $isTeamLeader = \App\Team::where("user_id", $task->assigned_to)->first();
+        //         if ($isTeamLeader) {
+        //             $task->team_lead_id = $task->assigned_to;
+        //             $task->save();
+        //         }
+        //     }
+        // }
+
+
+
+
+        // // if ($request->hasfile('images')) {
+        // //     foreach ($request->file('images') as $image) {
+        // //         $media = MediaUploader::fromSource($image)
+        // //             ->toDirectory('developertask/' . floor($task->id / config('constants.image_per_folder')))
+        // //             ->upload();
+        // //         $task->attachMedia($media, config('constants.media_tags'));
+        // //     }
+        // // }
+
+        // // CREATE GITHUB REPOSITORY BRANCH
+        // $newBranchName = $this->createBranchOnGithub(
+        //     $request->get('repository_id'),
+        //     $task->id,
+        //     $task->subject
+        // );
+
+        // // UPDATE TASK WITH BRANCH NAME
+        // if ($newBranchName) {
+        //     $task->github_branch_name = $newBranchName;
+        //     $task->save();
+        // }
+
+        // if (is_string($newBranchName)) {
+        //     $message = $request->input('task') . PHP_EOL . "A new branch " . $newBranchName . " has been created. Please pull the current code and run 'git checkout " . $newBranchName . "' to work in that branch.";
+        // } else {
+        //     $message = $request->input('task');
+        // }
+        // $requestData = new Request();
+        // $requestData->setMethod('POST');
+        // $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
+
+        // app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+
+        // MessageHelper::sendEmailOrWebhookNotification([$task->user_id, $task->assigned_to, $task->master_user_id, $task->responsible_user_id, $task->team_lead_id, $task->tester_id], ' [ ' . $loggedUser->name . ' ] - ' . $message);
+
+        // // if ($task->status == 'Done') {
+        // //   NotificationQueueController::createNewNotification([
+        // //     'message' => 'New Task to Verify',
+        // //     'timestamps' => ['+0 minutes'],
+        // //     'model_type' => DeveloperTask::class,
+        // //     'model_id' =>  $task->id,
+        // //     'user_id' => Auth::id(),
+        // //     'sent_to' => 6,
+        // //     'role' => '',
+        // //   ]);
+        // //
+        // //   NotificationQueueController::createNewNotification([
+        // //     'message' => 'New Task to Verify',
+        // //     'timestamps' => ['+0 minutes'],
+        // //     'model_type' => DeveloperTask::class,
+        // //     'model_id' =>  $task->id,
+        // //     'user_id' => Auth::id(),
+        // //     'sent_to' => 56,
+        // //     'role' => '',
+        // //   ]);
+        // // }
+
+        // $hubstaff_project_id = $data['hubstaff_project'];
+
+        // $assignedUser = HubstaffMember::where('user_id', $request->input('assigned_to'))->first();
+        // // $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
+
+        // $hubstaffUserId = null;
+        // if ($assignedUser) {
+        //     $hubstaffUserId = $assignedUser->hubstaff_user_id;
+        // }
+
+        // $summary = substr($request->input('task'), 0, 200);
+        // if ($data['task_type_id'] == 1) {
+        //     $taskSummery = '#DEVTASK-' . $task->id . ' => ' . $summary;
+        // } else {
+        //     $taskSummery = '#TASK-' . $task->id . ' => ' . $summary;
+        // }
+
+        // $hubstaffTaskId = '';
+
+
+        // // dd($taskSummery, $hubstaffUserId, $hubstaff_project_id,  $request->input('assigned_to'));
+
+        // if (env('PRODUCTION', true)) {
+
+        //     $hubstaffTaskId = $this->createHubstaffTask(
+        //         $taskSummery,
+        //         $hubstaffUserId,
+        //         $hubstaff_project_id
+        //     );
+        // } else {
+        //     $hubstaff_project_id = '#TASK-3';
+        //     $hubstaffUserId = 406; //for local system
+        //     $hubstaffTaskId = 34543; //for local system
+        // }
+
+        // if ($hubstaffTaskId) {
+        //     $task->hubstaff_task_id = $hubstaffTaskId;
+        //     $task->save();
+        // }
+
+        // if ($hubstaffUserId) {
+        //     $task = new HubstaffTask();
+        //     $task->hubstaff_task_id = $hubstaffTaskId;
+        //     $task->project_id = $hubstaff_project_id;
+        //     $task->hubstaff_project_id = $hubstaff_project_id;
+        //     $task->summary = $request->input('task');
+        //     $task->save();
+        // }
+
+
+
+        if ($request->ajax()) {
+            return response()->json(['task' => $task]);
+        }
+        return redirect(url('development/summarylist'))->with('success', 'You have successfully added task!');
+    }
+
+    public function developerTaskCreate($data) {
+        $loggedUser = request()->user();
+
+        $data['created_by'] = loginId();
+
+        if ($data['parent_review_task_id'] ?? 0) {
+            $data['subject'] = $data['subject'] . ' - #REVIEW_TASK';
+            $data['task'] = $data['task'] . ' - #REVIEW_TASK';
+        }
+        $task = DeveloperTask::create($data);
+
+        // Check the assinged user in any team ?
+        if ($task->assigned_to > 0 && empty($task->team_lead_id)) {
             $teamUser = \App\TeamUser::where("user_id", $task->assigned_to)->first();
             if ($teamUser) {
                 $team = $teamUser->team;
@@ -1672,21 +1833,9 @@ class DevelopmentController extends Controller {
             }
         }
 
-
-
-
-        // if ($request->hasfile('images')) {
-        //     foreach ($request->file('images') as $image) {
-        //         $media = MediaUploader::fromSource($image)
-        //             ->toDirectory('developertask/' . floor($task->id / config('constants.image_per_folder')))
-        //             ->upload();
-        //         $task->attachMedia($media, config('constants.media_tags'));
-        //     }
-        // }
-
         // CREATE GITHUB REPOSITORY BRANCH
         $newBranchName = $this->createBranchOnGithub(
-            $request->get('repository_id'),
+            $task->repository_id,
             $task->id,
             $task->subject
         );
@@ -1697,52 +1846,35 @@ class DevelopmentController extends Controller {
             $task->save();
         }
 
+        // SEND MESSAGE
         if (is_string($newBranchName)) {
-            $message = $request->input('task') . PHP_EOL . "A new branch " . $newBranchName . " has been created. Please pull the current code and run 'git checkout " . $newBranchName . "' to work in that branch.";
+            $message = $task->task . PHP_EOL . "A new branch " . $newBranchName . " has been created. Please pull the current code and run 'git checkout " . $newBranchName . "' to work in that branch.";
         } else {
-            $message = $request->input('task');
+            $message = $task->task;
         }
         $requestData = new Request();
         $requestData->setMethod('POST');
         $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
-
         app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
 
-        MessageHelper::sendEmailOrWebhookNotification([$task->user_id, $task->assigned_to, $task->master_user_id, $task->responsible_user_id, $task->team_lead_id, $task->tester_id], ' [ ' . $loggedUser->name . ' ] - ' . $message);
+        MessageHelper::sendEmailOrWebhookNotification([
+            $task->user_id,
+            $task->assigned_to,
+            $task->master_user_id,
+            $task->responsible_user_id,
+            $task->team_lead_id,
+            $task->tester_id
+        ], ' [ ' . $loggedUser->name . ' ] - ' . $message);
 
-        // if ($task->status == 'Done') {
-        //   NotificationQueueController::createNewNotification([
-        //     'message' => 'New Task to Verify',
-        //     'timestamps' => ['+0 minutes'],
-        //     'model_type' => DeveloperTask::class,
-        //     'model_id' =>  $task->id,
-        //     'user_id' => Auth::id(),
-        //     'sent_to' => 6,
-        //     'role' => '',
-        //   ]);
-        //
-        //   NotificationQueueController::createNewNotification([
-        //     'message' => 'New Task to Verify',
-        //     'timestamps' => ['+0 minutes'],
-        //     'model_type' => DeveloperTask::class,
-        //     'model_id' =>  $task->id,
-        //     'user_id' => Auth::id(),
-        //     'sent_to' => 56,
-        //     'role' => '',
-        //   ]);
-        // }
 
-        $hubstaff_project_id = $data['hubstaff_project'];
-
-        $assignedUser = HubstaffMember::where('user_id', $request->input('assigned_to'))->first();
-        // $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
+        $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID') ?: 0;
 
         $hubstaffUserId = null;
-        if ($assignedUser) {
+        if ($assignedUser = HubstaffMember::where('user_id', $task->assigned_to)->first()) {
             $hubstaffUserId = $assignedUser->hubstaff_user_id;
         }
 
-        $summary = substr($request->input('task'), 0, 200);
+        $summary = substr($task->task, 0, 200);
         if ($data['task_type_id'] == 1) {
             $taskSummery = '#DEVTASK-' . $task->id . ' => ' . $summary;
         } else {
@@ -1750,12 +1882,7 @@ class DevelopmentController extends Controller {
         }
 
         $hubstaffTaskId = '';
-
-
-        // dd($taskSummery, $hubstaffUserId, $hubstaff_project_id,  $request->input('assigned_to'));
-
         if (env('PRODUCTION', true)) {
-
             $hubstaffTaskId = $this->createHubstaffTask(
                 $taskSummery,
                 $hubstaffUserId,
@@ -1770,21 +1897,16 @@ class DevelopmentController extends Controller {
         if ($hubstaffTaskId) {
             $task->hubstaff_task_id = $hubstaffTaskId;
             $task->save();
-        }
 
-        if ($hubstaffUserId) {
             $task = new HubstaffTask();
             $task->hubstaff_task_id = $hubstaffTaskId;
             $task->project_id = $hubstaff_project_id;
             $task->hubstaff_project_id = $hubstaff_project_id;
-            $task->summary = $request->input('task');
+            $task->summary = $task->task;
             $task->save();
         }
 
-        if ($request->ajax()) {
-            return response()->json(['task' => $task]);
-        }
-        return redirect(url('development/summarylist'))->with('success', 'You have successfully added task!');
+        return $task;
     }
 
     public function issueStore(Request $request) {
@@ -3632,44 +3754,24 @@ class DevelopmentController extends Controller {
     public function actionStartDateUpdate() {
         if ($new = request('value')) {
             if ($single = DeveloperTask::find(request('id'))) {
-                $old = $single->start_date;
-                $single->start_date = $new;
-                $single->save();
-                $single->updateHistory('start_date', $old, $new);
+                $single->updateStartDate($new);
                 return respJson(200, 'Successfully updated.');
             }
             return respJson(404, 'No task found.');
         }
         return respJson(400, 'Start date is required.');
     }
-
-
     public function saveEstimateDate(Request $request) {
         if ($new = request('value')) {
             if ($single = DeveloperTask::find(request('id'))) {
-                $old = $single->estimate_date;
-
-                $single->estimate_date = $new;
-
-                $single->save();
-
-
-
-                DeveloperTaskHistory::create([
-                    'developer_task_id' => $single->id,
-                    'model' => 'App\DeveloperTask',
-                    'attribute' => "estimate_date",
-                    'old_value' => $old,
-                    'new_value' => $new,
-                    'user_id' => loginId(),
-                ]);
-
+                $single->updateEstimateDate($new);
                 return respJson(200, 'Successfully updated.');
             }
             return respJson(404, 'No task found.');
         }
         return respJson(400, 'Estimate date is required.');
     }
+
     public function saveAmount(Request $request) {
         if ($new = request('value')) {
             if ($single = DeveloperTask::find(request('id'))) {
@@ -3793,7 +3895,22 @@ class DevelopmentController extends Controller {
 
         $html = [];
         $html[] = '<table class="table table-bordered">';
-        $html[] = '<thead>
+
+        $needApprovals = ['start_date', 'estimate_date'];
+
+        if (in_array($key, $needApprovals)) {
+            $html[] = '<thead>
+            <tr>
+                <th width="5%">#</th>
+                <th width="5%">ID</th>
+                <th width="30%">Update By</th>
+                <th width="20%" style="word-break: break-all;">Old Value</th>
+                <th width="20%" style="word-break: break-all;">New Value</th>
+                <th width="20%">Created at</th>
+            </tr>
+        </thead>';
+        } else {
+            $html[] = '<thead>
             <tr>
                 <th width="10%">ID</th>
                 <th width="30%">Update By</th>
@@ -3802,20 +3919,39 @@ class DevelopmentController extends Controller {
                 <th width="20%">Created at</th>
             </tr>
         </thead>';
+        }
+
         if ($list->count()) {
             foreach ($list as $single) {
-                $html[] = '<tr>
-                    <td>' . $single->id . '</td>
-                    <td>' . ($single->user ? $single->user->name : '-') . '</td>
-                    <td>' . $single->old_value . '</td>
-                    <td>' . $single->new_value . '</td>
-                    <td>' . $single->created_at . '</td>
-                </tr>';
+                if (in_array($key, $needApprovals)) {
+                    $html[] = '<tr>
+                        <td><input type="radio" name="radio_for_approve" value="' . $single->id . '" ' . ($single->is_approved ? 'checked' : '') . ' style="height:auto;" /></td>
+                        <td>' . $single->id . '</td>
+                        <td>' . ($single->user ? $single->user->name : '-') . '</td>
+                        <td>' . $single->old_value . '</td>
+                        <td>' . $single->new_value . '</td>
+                        <td>' . $single->created_at . '</td>
+                    </tr>';
+                } else {
+                    $html[] = '<tr>
+                        <td>' . $single->id . '</td>
+                        <td>' . ($single->user ? $single->user->name : '-') . '</td>
+                        <td>' . $single->old_value . '</td>
+                        <td>' . $single->new_value . '</td>
+                        <td>' . $single->created_at . '</td>
+                    </tr>';
+                }
             }
         } else {
-            $html[] = '<tr>
-                <td colspan="5">No records found.</td>
-            </tr>';
+            if (in_array($key, $needApprovals)) {
+                $html[] = '<tr>
+                    <td colspan="6">No records found.</td>
+                </tr>';
+            } else {
+                $html[] = '<tr>
+                    <td colspan="5">No records found.</td>
+                </tr>';
+            }
         }
         $html[] = '</table>';
         return respJson(200, '', ['data' => implode('', $html)]);
@@ -3828,5 +3964,64 @@ class DevelopmentController extends Controller {
     }
     public function historyCost() {
         return $this->historySimpleData('cost', request('id'));
+    }
+
+
+    public function historyApproveSubmit() {
+        $id = request('radio_for_approve');
+        $type = request('type');
+        if ($type == 'start_date' || $type == 'estimate_date') {
+            DeveloperTaskHistory::approved($id, $type);
+        }
+
+        return respJson(200, 'Approved successfully.');
+    }
+
+    public function historyApproveList() {
+        $type = request('type');
+        $taskId = request('id');
+        if ($type == 'start_date' || $type == 'estimate_date') {
+            $q = DeveloperTasksHistoryApprovals::from('developer_tasks_history_approvals as t1');
+            $q->with(['approvedBy']);
+            $q->leftJoin('developer_tasks_history as t2', function ($join) {
+                $join->on('t1.parent_id', '=', 't2.id');
+            });
+            $q->where('t2.model', 'App\DeveloperTask');
+            $q->where('t2.attribute', $type);
+            $q->where('t2.developer_task_id', $taskId);
+            $q->select([
+                't1.*',
+                't2.new_value AS value'
+            ]);
+            $q->orderBy('id', 'DESC');
+            $list = $q->get();
+        } 
+
+        $html = [];
+        $html[] = '<table class="table table-bordered">';
+        $html[] = '<thead>
+            <tr>
+                <th width="15%">Parent ID</th>
+                <th width="30%">Update By</th>
+                <th width="30%" style="word-break: break-all;">Approved Value</th>
+                <th width="25%">Created at</th>
+            </tr>
+        </thead>';
+        if (isset($list) && $list->count()) {
+            foreach ($list as $single) {
+                $html[] = '<tr>
+                    <td>' . $single->parent_id . '</td>
+                    <td>' . ($single->approvedByName() ?: '-') . '</td>
+                    <td>' . $single->value . '</td>
+                    <td>' . $single->created_at . '</td>
+                </tr>';
+            }
+        } else {
+            $html[] = '<tr>
+                <td colspan="4">No records found.</td>
+            </tr>';
+        }
+        $html[] = '</table>';
+        return respJson(200, '', ['data' => implode('', $html)]);
     }
 }

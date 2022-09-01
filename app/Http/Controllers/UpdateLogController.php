@@ -29,6 +29,8 @@ class UpdateLogController extends Controller {
                 $q->where("response_code", $s);
             }
 
+            //kuldeep3@gmail.com", "startTime": 0, "endTime": 2522
+
             $updateLog = $q->orderBy('id', 'DESC')->paginate(Setting::get('pagination'));
 
             $listApiUrls = UpdateLog::orderBy('api_url')->select('api_url')->distinct()->pluck('api_url', 'api_url');

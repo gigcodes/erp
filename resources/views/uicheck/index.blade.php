@@ -97,8 +97,13 @@
 						</div>
 						<div class="col-md-2">
 							<div class="form-group">
-								<select name="assign_to" id="assign_to" class="form-control select2">
-									<option value="">-- Select Assign to --</option>
+								<?php 
+								//dd(request('folder_name'));
+								if(request('assign_to')){   $assign_toArr = request('assign_to'); }
+								else{ $assign_toArr = array(); }
+							  ?>
+								<select name="assign_to[]" id="assign_to" multiple class="form-control select2">
+									<option value="" @if(count($assign_toArr)==0) selected @endif>-- Select Assign to --</option>
 									@forelse($users as $user)
 									<option value="{{ $user->id }}" @if($assign_to==$user->id)
 										selected
@@ -110,8 +115,12 @@
 						</div>
 						<div class="col-md-2">
 							<div class="form-group">
-								<select name="store_webs" id="store_webiste" class="form-control select2">
-									<option value="">-- Select a website --</option>
+								<?php 
+									if(request('store_webs')){   $store_websArr = request('store_webs'); }
+									else{ $store_websArr = array(); }
+							  	?>
+								<select name="store_webs[]" id="store_webiste" multiple class="form-control select2">
+									<option value=""  @if(count($store_websArr)==0) selected @endif>-- Select a website --</option>
 									@forelse($all_store_websites as $asw)
 									<option value="{{ $asw->id }}" @if($search_website==$asw->id)
 										selected
@@ -123,8 +132,12 @@
 						</div>
 						<div class="col-md-2">
 							<div class="form-group">
-								<select name="categories" id="store-categories" class="form-control select2">
-									<option value="">-- Select a categories --</option>
+								<?php 
+									if(request('store_webs')){   $categoriesArr = request('store_webs'); }
+									else{ $categoriesArr = array(); }
+							  	?>
+								<select name="categories[]" id="store-categories" multiple class="form-control select2">
+									<option value="" @if(count($categoriesArr)==0) selected @endif>-- Select a categories --</option>
 									@forelse($site_development_categories as $ctId => $ctName)
 									<option value="{{ $ctId }}" @if($search_category==$ctId) selected @endif>{!! $ctName !!}</option>
 									@empty
@@ -134,8 +147,12 @@
 						</div>
 						<div class="col-md-2">
 							<div class="form-group">
-								<select name="dev_status" id="dev_status" class="form-control select2">
-									<option value="">-- Developer Status --</option>
+								<?php 
+									if(request('store_webs')){   $dev_statusArr = request('store_webs'); }
+									else{ $dev_statusArr = array(); }
+							  	?>
+								<select name="dev_status[]" id="dev_status" multiple class="form-control select2">
+									<option value="" @if(count($dev_statusArr)==0) selected @endif>-- Developer Status --</option>
 									@forelse($allStatus as $key => $ds)
 									<option value="{{ $key }}" @if($dev_status==$key) selected @endif>{{ $ds }}</option>
 									@empty
@@ -145,8 +162,12 @@
 						</div>
 						<div class="col-md-2">
 							<div class="form-group">
-								<select name="admin_status" id="admin_status" class="form-control select2">
-									<option value="">-- Admin Status --</option>
+								<?php 
+									if(request('admin_status')){   $admin_statusArr = request('store_webs'); }
+									else{ $admin_statusArr = array(); }
+							  	?>
+								<select name="admin_status[]" id="admin_status" multiple class="form-control select2">
+									<option value="" @if(count($admin_statusArr)==0) selected @endif>-- Admin Status --</option>
 									@forelse($allStatus as $key => $as)
 									<option value="{{ $key }}" @if($dev_status==$key) selected @endif>{{ $as }}</option>
 									@empty

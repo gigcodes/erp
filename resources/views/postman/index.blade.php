@@ -860,6 +860,27 @@
     </div>
   </div>
 </div>
+
+<div id="postmanShowFullTextModel" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div id="add-mail-content">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title">Full text view</h3>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body postmanShowFullTextBody">
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.css')}}">
 @section('scripts')
@@ -1459,13 +1480,23 @@
   });
 
   $(document).on('click', '.expand-row-msg', function() {
+    $('#postmanShowFullTextModel').modal('toggle');
+    $(".postmanShowFullTextBody").html("");
+    var id = $(this).data('id');
+    var name = $(this).data('name');
+    var full = '.expand-row-msg .show-full-' + name + '-' + id;
+    var fullText = $(full).html();
+    $(".postmanShowFullTextBody").html(fullText);
+  });
+
+  /*$(document).on('click', '.expand-row-msg', function() {
     var name = $(this).data('name');
     var id = $(this).data('id');
     var full = '.expand-row-msg .show-short-' + name + '-' + id;
     var mini = '.expand-row-msg .show-full-' + name + '-' + id;
     $(full).toggleClass('hidden');
     $(mini).toggleClass('hidden');
-  });
+  }); */
   $(document).ready(function() {
     $('#per_user_name').select2();
   });

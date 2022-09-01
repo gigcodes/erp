@@ -690,6 +690,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::delete('leads/permanentDelete/{leads}', 'LeadsController@permanentDelete')->name('leads.permanentDelete');
     Route::resource('chat', 'ChatController');
     Route::get('erp-leads', 'LeadsController@erpLeads')->name('erp-leads.erpLeads');
+    Route::post('erp-leads/enable-disable', 'LeadsController@enableDisable')->name('erp-leads.enable-disable');
     // Route::post('erp-leads', 'LeadsController@filterErpLeads')->name('erp-leads.filterErpLeads');
     Route::post('erp-leads-send-message', 'LeadsController@sendMessage')->name('erp-leads-send-message');
     Route::get('erp-leads/response', 'LeadsController@erpLeadsResponse')->name('leads.erpLeadsResponse');
@@ -913,7 +914,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/charity-order', 'OrderController@charity_order');
     Route::post('order/cancel-transaction', 'OrderController@cancelTransaction')->name('order.canceltransaction');
     Route::post('order/payload', 'OrderController@getOrderPayloadList')->name('order.payload');
-
+    Route::post('order/change-return-status', 'OrderController@returnStatus')->name('order.change_return_status');
+    
     Route::resource('order', 'OrderController');
 
 
@@ -984,7 +986,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('due-date/index', 'TaskHistoryController@historyDueDate')->name('task.history.due-date.index');
             Route::get('cost/index', 'TaskHistoryController@historyCost')->name('task.history.cost.index');
             Route::get('approximate/index', 'TaskHistoryController@historyApproximate')->name('task.history.approximate.index');
+
+            Route::post('approve', 'TaskHistoryController@approve')->name('task.history.approve');
+            Route::get('approve/history', 'TaskHistoryController@approveHistory')->name('task.history.approve-history');
         });
+
         Route::get('dropdown-user-wise', 'TaskModuleController@dropdownUserWise')->name('task.dropdown-user-wise');
         Route::prefix('slot')->group(function () {
             Route::post('assign', 'TaskModuleController@slotAssign')->name('task.slot.assign');
@@ -1671,6 +1677,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('start-date/index', 'DevelopmentController@historyStartDate')->name('development.history.start-date.index');
             Route::get('estimate-date/index', 'DevelopmentController@historyEstimateDate')->name('development.history.estimate-date.index');
             Route::get('cost/index', 'DevelopmentController@historyCost')->name('development.history.cost.index');
+
+            Route::post('approve', 'DevelopmentController@historyApproveSubmit')->name('development-task.history.approve');
+            Route::get('approve/history', 'DevelopmentController@historyApproveList')->name('development-task.history.approve-history');
         });
     });
 
@@ -3214,6 +3223,12 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('uicheck')->group(function () {
         Route::get('get', 'UicheckController@get')->name('uicheck.get');
+        Route::get('responsive', 'UicheckController@responseDevicePage')->name('uicheck.responsive');
+        Route::post('responsive/status', 'UicheckController@responseDeviceStatusChange')->name('uicheck.responsive.status');
+        Route::post('get/responsive/status/history', 'UicheckController@responseDeviceStatusHistory')->name('get.responsive.status.history');
+        Route::get('translation', 'UicheckController@responseTranslatorPage')->name('uicheck.translation');
+        Route::post('translation/status', 'UicheckController@translatorStatusChange')->name('uicheck.translator.status');
+        Route::post('get/translator/status/history', 'UicheckController@translatorStatusHistory')->name('get.translator.status.history');
 
         Route::prefix('history')->group(function () {
             Route::get('all', 'UicheckController@historyAll')->name('uicheck.history.all');
@@ -4038,6 +4053,8 @@ Route::middleware('auth')->group(function () {
     Route::post('checklist/add_checklist', 'CheckListController@add')->name("checklist.add");
     Route::post('checklist/get_checked_value', 'CheckListController@checked')->name("checklist.get.checked");
     Route::post('checklist/checklist_update', 'CheckListController@checklistUpdate')->name("checklist.update.c");
+    Route::post('checklist/add-remark', 'CheckListController@subjectRemarkCreate')->name("checklist.add.remark");
+    Route::post('checklist/list', 'CheckListController@subjectRemarkList')->name("checklist.remark.list");
 });
 
 
