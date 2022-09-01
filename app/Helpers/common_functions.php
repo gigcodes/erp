@@ -598,3 +598,15 @@ function readFolders($data) {
     sort($return);
     return $return;
 }
+function getCommunicationData($sdc, $sw){
+    $site_dev = \App\SiteDevelopment::where(["site_development_category_id" => $sdc->id, "website_id" => $sw->id])->orderBy('id', "DESC")->get()->pluck('id');
+    $query = \App\DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->whereIn('site_developement_id', $site_dev)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+    $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+    $taskStatistics = $query->orderBy("developer_tasks.id", "DESC")->get();
+    $query1 = \App\Task::join('users', 'users.id', 'tasks.assign_to')->whereIn('site_developement_id', $site_dev)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+    $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+    $othertaskStatistics = $query1->orderBy("tasks.id", "DESC")->get();
+    $merged = $othertaskStatistics->merge($taskStatistics);
+    return $merged;
+    
+}
