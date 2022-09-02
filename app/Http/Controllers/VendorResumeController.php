@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\VendorResume;
 use App\Setting;
+use App\Position;
 use Illuminate\Http\Request;
 use App\Models\File;
+use GuzzleHttp\Client;
 
 class VendorResumeController extends Controller
 {
@@ -199,6 +201,11 @@ class VendorResumeController extends Controller
         }
     }
 
+    public function create($vendor_id = null){
+        $positions = Position::get();
+        return view("vendor-resume.create",["vendor_id"=>$vendor_id,"positions"=>$positions]);
+    }
+
     public function getAddress(Request $request){
         try{
             $resumes = VendorResume::where('id',$request->id)->first();
@@ -272,6 +279,10 @@ class VendorResumeController extends Controller
             $vendorResume->second_name = $request->second_name;
             $vendorResume->email = $request->email;
             $vendorResume->mobile = $request->mobile;
+            $vendorResume->position_id = $request->position_id;
+            if(!empty($request->criteria)){
+                $vendorResume->criteria = implode(",",$request->criteria);
+            }  
             $vendorResume->career_objective = $request->career_objective;
             $vendorResume->salary_in_usd = serialize($request->salary_in_usd);
             $vendorResume->expected_salary_in_usd = $request->expected_salary_in_usd;

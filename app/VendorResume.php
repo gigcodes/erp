@@ -17,6 +17,8 @@ class VendorResume extends Model
     'preferred_working_hours' ,
     'start_time' ,
     'end_time' ,
+    'position_id',
+    'criteria',
     'time_zone' ,
     'preferred_working_days' ,
     'start_day' ,

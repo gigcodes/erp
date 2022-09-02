@@ -10,6 +10,7 @@ class MagentoDevScripUpdateLog extends Model
     protected $fillable = [
         'store_website_id', 
         'website', 
+        'command_name',
         'response', 
         'site_folder', 
         'website', 

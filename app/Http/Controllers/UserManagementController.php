@@ -39,6 +39,7 @@ class UserManagementController extends Controller
                 $user_id = \Auth::user()->id;
             }
         }
+        $sops = Sop::all();
         $users = User::all();
         $sops = Sop::all();
         //dd($sops);

@@ -35,7 +35,7 @@ class AssetsManager extends Model
      * @SWG\Property(property="due_date",type="datetime")
      */
     protected $fillable = [
-        'name', 'capacity', 'asset_type', 'category_id', 'start_date', 'purchase_type', 'payment_cycle', 'amount', 'archived', 'password', 'provider_name', 'location', 'currency', 'usage', 'due_date', 'user_name', 'assigned_to', 'ip'];
+        'name', 'capacity', 'asset_type', 'category_id', 'start_date', 'purchase_type', 'payment_cycle', 'amount', 'archived', 'password', 'provider_name', 'location', 'currency', 'usage', 'due_date', 'user_name', 'assigned_to', 'ip', 'ip_name', 'folder_name', 'server_password'];
 
     public function category()
     {

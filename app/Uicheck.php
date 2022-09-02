@@ -23,6 +23,8 @@ class Uicheck extends Model {
         'actual_completion_time',
         'lock_developer',
         'lock_admin',
+        'language_flag',
+        'translation_flag'
     ];
 
     public function whatsappAll($needBroadCast = false) {

@@ -12,6 +12,7 @@ use Plank\Mediable\Mediable;
 use Illuminate\Support\Facades\DB;
 
 use App\DeveloperTaskHistory;
+use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
 
 class DeveloperTask extends Model {
     /**
@@ -56,9 +57,72 @@ class DeveloperTask extends Model {
 
 
     protected $fillable = [
-        'user_id', 'module_id', 'log_keyword_id', 'priority', 'subject', 'task', 'cost', 'status', 'module', 'completed', 'estimate_time', 'start_date', 'start_time', 'end_time', 'task_type_id', 'parent_id', 'created_by', 'submitted_by', 'responsible_user_id', 'assigned_to', 'assigned_by', 'language', 'master_user_id', 'hubstaff_task_id', 'is_milestone', 'no_of_milestone', 'milestone_completed', 'customer_id', 'lead_hubstaff_task_id', 'team_lead_id', 'tester_id', 'team_lead_hubstaff_task_id', 'tester_hubstaff_task_id', 'site_developement_id', 'priority_no', 'scraper_id', 'frequency',
-        'message', 'reminder_from', 'reminder_last_reply', 'last_send_reminder', 'repository_id', 'last_date_time_reminder'
+        'user_id',
+        'module_id',
+        'log_keyword_id',
+        'priority',
+        'subject',
+        'task',
+        'cost',
+        'status',
+        'module',
+        'completed',
+        'estimate_time',
+        'start_date',
+        'start_time',
+        'end_time',
+        'task_type_id',
+        'parent_id',
+        'created_by',
+        'submitted_by',
+        'responsible_user_id',
+        'assigned_to',
+        'assigned_by',
+        'language',
+        'master_user_id',
+        'hubstaff_task_id',
+        'is_milestone',
+        'no_of_milestone',
+        'milestone_completed',
+        'customer_id',
+        'lead_hubstaff_task_id',
+        'team_lead_id',
+        'tester_id',
+        'team_lead_hubstaff_task_id',
+        'tester_hubstaff_task_id',
+        'site_developement_id',
+        'priority_no',
+        'scraper_id',
+        'frequency',
+        'message',
+        'reminder_from',
+        'reminder_last_reply',
+        'last_send_reminder',
+        'repository_id',
+        'last_date_time_reminder',
+        'parent_review_task_id'
     ];
+
+
+    const DEV_TASK_STATUS_DONE                  = 'Done';
+    const DEV_TASK_STATUS_DISCUSSING            = 'Discussing';
+    const DEV_TASK_STATUS_IN_PROGRESS           = 'In Progress';
+    const DEV_TASK_STATUS_ISSUE                 = 'Issue';
+    const DEV_TASK_STATUS_PLANNED               = 'Planned';
+    const DEV_TASK_STATUS_DISCUSS_WITH_LEAD     = 'Discuss with Lead';
+    const DEV_TASK_STATUS_NOTE                  = 'Note';
+    const DEV_TASK_STATUS_LEAD_RESPONSE_NEEDED  = 'Lead Response Needed';
+    const DEV_TASK_STATUS_ERRORS_IN_TASK        = 'Errors in Task';
+    const DEV_TASK_STATUS_IN_REVIEW             = 'In Review';
+    const DEV_TASK_STATUS_PRIORITY              = 'Priority';
+    const DEV_TASK_STATUS_HIGH_PRIORITY         = 'High Priority';
+    const DEV_TASK_STATUS_REVIEW_ESTIMATED_TIME = 'Review Estimated Time';
+    const DEV_TASK_STATUS_USER_COMPLETE         = 'User Complete';
+    const DEV_TASK_STATUS_USER_ESTIMATED        = 'User Estimated';
+    const DEV_TASK_STATUS_DECLINE               = 'Decline';
+    const DEV_TASK_STATUS_REOPEN                = 'Reopen';
+    const DEV_TASK_STATUS_APPROVED              = 'Approved';
+
 
     public function user() {
         return $this->belongsTo('App\User');
@@ -195,5 +259,45 @@ class DeveloperTask extends Model {
                 'user_id' => \Auth::id(),
             ]);
         }
+    }
+
+
+    public function updateStartDate($new) {
+        $type = 'start_date';
+        $old = $this->start_date;
+
+        $count = DeveloperTaskHistory::query()
+            ->where('model', 'App\DeveloperTask')
+            ->where('attribute', $type)
+            ->where('developer_task_id', $this->id)
+            ->count();
+        if ($count) {
+            DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 0);
+        } else {
+            $this->start_date = $new;
+            $this->save();
+            DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 1);
+        }
+    }
+    public function updateEstimateDate($new) {
+        $type = 'estimate_date';
+        $old = $this->estimate_date;
+
+        $count = DeveloperTaskHistory::query()
+            ->where('model', 'App\DeveloperTask')
+            ->where('attribute', $type)
+            ->where('developer_task_id', $this->id)
+            ->count();
+        if ($count) {
+            DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 0);
+        } else {
+            $this->estimate_date = $new;
+            $this->save();
+            DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 1);
+        }
+    }
+
+    public static function getMessagePrefix($obj) {
+        return '#DEVTASK-' . $obj->id . '-' . $obj->subject . ' => ';
     }
 }

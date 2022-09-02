@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('title', 'User Management > User Scheduler')
 @section('favicon', 'user-management.png')
 @section('large_content')
 @include('partials.flash_messages')
@@ -40,7 +41,7 @@
                                             <div class="form-group">
                                                 <label for="form-label">From Date</label>
                                                 <div class="input-group date d-datetime">
-                                                    <input type="text" class="form-control input-sm" name="srchDateFrom" value="{{date('Y-m-d')}}" />
+                                                    <input type="text" class="form-control input-sm" name="srchDateFrom" value="{{ request('srchDateFrom', date('Y-m-d')) }}" />
                                                     <span class="input-group-addon">
                                                         <span class="glyphicon glyphicon-calendar"></span>
                                                     </span>
@@ -51,7 +52,7 @@
                                             <div class="form-group">
                                                 <label for="form-label">To Date</label>
                                                 <div class="input-group date d-datetime">
-                                                    <input type="text" class="form-control input-sm" name="srchDateTo" value="{{date('Y-m-d', strtotime('+3 days'))}}" />
+                                                    <input type="text" class="form-control input-sm" name="srchDateTo" value="{{ request('srchDateTo', date('Y-m-d', strtotime('+3 days'))) }}" />
                                                     <span class="input-group-addon">
                                                         <span class="glyphicon glyphicon-calendar"></span>
                                                     </span>
@@ -126,6 +127,18 @@
 </div>
 @endpush
 
+@push('styles')
+<style>
+    .div-slot {
+        display: inline-block;
+        padding: 4px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        margin: 2px;
+    }
+</style>
+@endpush
+
 @push("link-css")
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
 @endpush
@@ -182,7 +195,7 @@
             }).done(function(response) {
                 jQuery('#modalSlotAssign').modal('hide');
                 siteLoader(0);
-                jQuery(crudTableId).DataTable().draw(false);
+                dtblListUserSchedule.draw(false);
             }).fail(function(err) {
                 siteErrorAlert(err);
                 siteLoader(0);

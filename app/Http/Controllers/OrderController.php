@@ -4901,4 +4901,29 @@ class OrderController extends Controller
 
     }
 
+    public function returnStatus(Request $request) 
+    {
+        try{
+            $order_id = $request->get('id');
+            $return_status = $request->get('status');
+            if($return_status)
+                $return_name = 'true';
+            else
+                $return_name = 'false';
+            $order = Order::where('id', $order_id)->first();
+            $message  = "Return Order status updated with ".$return_name;
+            $success= false;
+            if($order) {
+                $order->order_return_request = $return_status;
+                $order->save();
+                $message = "Return Order updated successfully with ".$return_name;
+                $success=true;
+            }
+            return response()->json(['message' => $message, 'success' => $success, "code" => 200], 200);
+        }catch(\Exception $e){
+            return response()->json(["code" => 500, "message" => $e->getMessage()]);
+        }   
+
+    }
+
 }

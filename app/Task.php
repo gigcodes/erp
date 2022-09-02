@@ -17,6 +17,8 @@ use Plank\Mediable\Mediable;
 use Auth;
 use Illuminate\Http\Request;
 use App\Models\Tasks\TaskHistoryForStartDate;
+use App\Models\Tasks\TaskHistoryForCost;
+use App\Models\Tasks\TaskDueDateHistoryLog;
 
 
 class Task extends Model {
@@ -89,8 +91,8 @@ class Task extends Model {
 
 		'last_date_time_reminder',
 		'is_flow_task',
-        'user_feedback_cat_id'
-
+        'user_feedback_cat_id',
+        'parent_review_task_id'
 	];
 
 	const TASK_TYPES = [
@@ -101,6 +103,27 @@ class Task extends Model {
 		"Developer Task",
 		"Developer Issue",
 	];
+
+    const TASK_STATUS_DONE                  = 1;
+    const TASK_STATUS_DISCUSSING            = 2;
+    const TASK_STATUS_IN_PROGRESS           = 3;
+    const TASK_STATUS_ISSUE                 = 4;
+    const TASK_STATUS_PLANNED               = 5;
+    const TASK_STATUS_DISCUSS_WITH_LEAD     = 6;
+    const TASK_STATUS_NOTE                  = 7;
+    const TASK_STATUS_LEAD_RESPONSE_NEEDED  = 8;
+    const TASK_STATUS_ERRORS_IN_TASK        = 9;
+    const TASK_STATUS_IN_REVIEW             = 10;
+    const TASK_STATUS_PRIORITY              = 11;
+    const TASK_STATUS_PRIORITY_2            = 12;
+    const TASK_STATUS_HIGH_PRIORITY         = 13;
+    const TASK_STATUS_REVIEW_ESTIMATED_TIME = 14;
+    const TASK_STATUS_USER_COMPLETE         = 15;
+    const TASK_STATUS_USER_COMPLETE_2       = 16;
+    const TASK_STATUS_USER_ESTIMATED        = 17;
+    const TASK_STATUS_DECLINE               = 18;
+    const TASK_STATUS_REOPEN                = 19;
+    const TASK_STATUS_APPROVED              = 20;
 
 	protected $dates = ['deleted_at'];
 
@@ -338,20 +361,34 @@ class Task extends Model {
         return $this->belongsTo('App\SiteDevelopment', 'site_developement_id', 'id');
     }
 
-    public function updateStartDate($newValue){
-        $oldValue = $this->start_date;
-        if($oldValue != $newValue){
-            $this->start_date = $newValue;
+    public function updateStartDate($new) {
+        $old = $this->start_date;
+
+        $count = TaskHistoryForStartDate::where('task_id', $this->id)->count();
+        if ($count) {
+            TaskHistoryForStartDate::historySave($this->id, $old, $new, 0);
+        } else {
+            $this->start_date = $new;
             $this->save();
-            TaskHistoryForStartDate::create([
-                'task_id' => $this->id,
-                'task_type' => 'TASK',
-                'updated_by' => Auth::id(),
-                'old_value' => $oldValue,
-                'new_value' => $newValue,
-            ]);
+            TaskHistoryForStartDate::historySave($this->id, $old, $new, 1);
         }
     }
 
-    // 
+    public function updateDueDate($new) {
+        $old = $this->due_date;
+
+        $count = TaskDueDateHistoryLog::where('task_id', $this->id)->count();
+        if ($count) {
+            TaskDueDateHistoryLog::historySave($this->id, $old, $new, 0);
+        } else {
+            $this->due_date = $new;
+            $this->save();
+            TaskDueDateHistoryLog::historySave($this->id, $old, $new, 1);
+        }
+    }
+
+
+    public static function getMessagePrefix($obj) {
+        return '#TASK-' . $obj->id . '-' . $obj->task_subject . ' => ';
+    }
 }

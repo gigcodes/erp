@@ -92,8 +92,18 @@
 					<div class="row">
 						<div class="col-md-2">
 							<div class="form-group">
-								<select name="assign_to" id="assign_to" class="form-control select2">
-									<option value="">-- Select Assign to --</option>
+								<input type="text" name="id" id="id" class="form-control" value="{{old('id')}}" placeholder="Please Enter Uicheck Id" />
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="form-group">
+								<?php 
+								//dd(request('folder_name'));
+								if(request('assign_to')){   $assign_toArr = request('assign_to'); }
+								else{ $assign_toArr = array(); }
+							  ?>
+								<select name="assign_to[]" id="assign_to" multiple class="form-control select2">
+									<option value="" @if(count($assign_toArr)==0) selected @endif>-- Select Assign to --</option>
 									@forelse($users as $user)
 									<option value="{{ $user->id }}" @if($assign_to==$user->id)
 										selected
@@ -105,8 +115,12 @@
 						</div>
 						<div class="col-md-2">
 							<div class="form-group">
-								<select name="store_webs" id="store_webiste" class="form-control select2">
-									<option value="">-- Select a website --</option>
+								<?php 
+									if(request('store_webs')){   $store_websArr = request('store_webs'); }
+									else{ $store_websArr = array(); }
+							  	?>
+								<select name="store_webs[]" id="store_webiste" multiple class="form-control select2">
+									<option value=""  @if(count($store_websArr)==0) selected @endif>-- Select a website --</option>
 									@forelse($all_store_websites as $asw)
 									<option value="{{ $asw->id }}" @if($search_website==$asw->id)
 										selected
@@ -118,8 +132,12 @@
 						</div>
 						<div class="col-md-2">
 							<div class="form-group">
-								<select name="categories" id="store-categories" class="form-control select2">
-									<option value="">-- Select a categories --</option>
+								<?php 
+									if(request('store_webs')){   $categoriesArr = request('store_webs'); }
+									else{ $categoriesArr = array(); }
+							  	?>
+								<select name="categories[]" id="store-categories" multiple class="form-control select2">
+									<option value="" @if(count($categoriesArr)==0) selected @endif>-- Select a categories --</option>
 									@forelse($site_development_categories as $ctId => $ctName)
 									<option value="{{ $ctId }}" @if($search_category==$ctId) selected @endif>{!! $ctName !!}</option>
 									@empty
@@ -129,8 +147,12 @@
 						</div>
 						<div class="col-md-2">
 							<div class="form-group">
-								<select name="dev_status" id="dev_status" class="form-control select2">
-									<option value="">-- Developer Status --</option>
+								<?php 
+									if(request('store_webs')){   $dev_statusArr = request('store_webs'); }
+									else{ $dev_statusArr = array(); }
+							  	?>
+								<select name="dev_status[]" id="dev_status" multiple class="form-control select2">
+									<option value="" @if(count($dev_statusArr)==0) selected @endif>-- Developer Status --</option>
 									@forelse($allStatus as $key => $ds)
 									<option value="{{ $key }}" @if($dev_status==$key) selected @endif>{{ $ds }}</option>
 									@empty
@@ -140,8 +162,12 @@
 						</div>
 						<div class="col-md-2">
 							<div class="form-group">
-								<select name="admin_status" id="admin_status" class="form-control select2">
-									<option value="">-- Admin Status --</option>
+								<?php 
+									if(request('admin_status')){   $admin_statusArr = request('store_webs'); }
+									else{ $admin_statusArr = array(); }
+							  	?>
+								<select name="admin_status[]" id="admin_status" multiple class="form-control select2">
+									<option value="" @if(count($admin_statusArr)==0) selected @endif>-- Admin Status --</option>
 									@forelse($allStatus as $key => $as)
 									<option value="{{ $key }}" @if($dev_status==$key) selected @endif>{{ $as }}</option>
 									@empty
@@ -170,6 +196,17 @@
 									<option value="2">Admin & Developer both hidden</option>
 									<option value="3">Admin hidden only</option>
 									<option value="4">Developer hidden only</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="form-group">
+								<select name="srch_flags" id="srch_flags" class="form-control select2">
+									<option value="">-- Select Flag --</option>
+									<option value="0">All</option>
+									<option value="Both">Both</option>
+									<option value="Language flag">Language flag</option>
+									<option value="Translation flag">Translation flag</option>
 								</select>
 							</div>
 						</div>
@@ -215,27 +252,29 @@
 <br />
 <div class="row mt-2">
 	<div class="col-md-12 margin-tb infinite-scroll">
-		<table class="table table-bordered " id="uicheck_table">
-			<thead>
-				<tr>
-					<th width="5%"><input type="checkbox" id="checkAll" title="click here to select all" /></th>
-					<th width="5%">Uicheck Id</th>
-					<th width="10%">Categories</th>
-					<th width="5%">Website</th>
-					@if (Auth::user()->hasRole('Admin'))
-					<th width="6%">Assign To</th>
-					@endif
-					<th width="10%">Issue</th>
-					<th width="10%">Communication</th>
-					<th width="10%">Developer Status</th>
-					<th width="10%">Type</th>
-					<th width="10%">Admin Status</th>
-					<th width="10%">Actions</th>
-				</tr>
-			</thead>
-			<tbody>
-			</tbody>
-		</table>
+		<div class="table-responsive">
+			<table class="table table-bordered" id="uicheck_table">
+				<thead>
+					<tr>
+						<th width="5%"><input type="checkbox" id="checkAll" title="click here to select all" /></th>
+						<th width="5%">Uicheck Id</th>
+						<th width="10%">Categories</th>
+						<th width="5%">Website</th>
+						@if (Auth::user()->hasRole('Admin'))
+						<th width="6%">Assign To</th>
+						@endif
+						<th width="10%">Issue</th>
+						<th width="10%">Communication</th>
+						<th width="10%">Developer Status</th>
+						<th width="10%">Type</th>
+						<th width="10%">Admin Status</th>
+						<th width="10%">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
 	</div>
 </div>
 <div id="dev_status_model" class="modal fade" role="dialog">
@@ -472,6 +511,123 @@
 		</div>
 	</div>
 </div>
+
+<div id="modalCreateLanguage" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Languages</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="col-md-12">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th width="5%">ID</th>
+								<th width="15%" style="word-break: break-all;">Language</th>
+								<th width="22%" style="word-break: break-all;">Message</th>
+								<th width="22%" style="word-break: break-all;">Attachment</th>
+								<th width="21%">Status</th>
+								
+							</tr>
+						</thead>
+						<tbody>
+							@foreach ($languages as $language)
+								<tr>
+									<td>{{$language->id}}</td>
+									<td>{{$language->name}}</td>
+									<td><input type="text" name="uilanmessage{{$language->id}}" class="uilanmessage{{$language->id}}" style="margin-top: 0px;width:80% !important;"/><button class="btn pr-0 btn-xs btn-image message-language" onclick="funLanUpdate('{{$language->id}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="fa fa-info-circle languageHistorty" onclick="funGetLanHistory('{{$language->id}}');"></i></td>
+									<td><input type="hidden" class="uicheckId" value=""/>
+										<button type="button" data-toggle="tooltip" title="Upload File" data-id="{{$language->id}}" class="btn btn-file-upload pd-5">
+											<i class="fa fa-upload" aria-hidden="true"></i>
+										</button>
+										<button type="button" data-id="{{$language->id}}" data-toggle="tooltip" title="List of Files" class="btn btn-file-list pd-5">
+											<i class="fa fa-list" aria-hidden="true"></i>
+										</button>	
+									</td>
+									<td>
+										{{-- <input type="text" name="uilanstatus" id="uilanstatus{{$language->id}}" class="uilanstatus{{$language->id}}" style="margin-top: 0px;width:80% !important;"/><button class="btn pr-0 btn-xs btn-image uicheck-status" onclick="funLanUpdate('{{$language->id}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button> --}}
+										<select name="uilanstatus" id="uilanstatus{{$language->id}}" class="uilanstatus{{$language->id}} pd-5" style="margin-top: 0px;width:80% !important;">
+											<option value="">-- Status --</option>
+											@forelse($allStatus as $key => $as)
+											<option value="{{ $key }}" @if($dev_status==$key) selected @endif>{{ $as }}</option>
+											@empty
+											@endforelse
+										</select>
+									</td>
+								</tr>
+							@endforeach
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="file-upload-area-section" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+		   <form action="{{ route("uicheck.create.attachment") }}" method="POST" enctype="multipart/form-data">
+			  <input type="hidden" name="id" id="language_id" value="">
+			  <input type="hidden" name="uicheck_id" class="uicheck_id" value="">
+			  <div class="modal-header">
+				  <h4 class="modal-title">Upload File(s)</h4>
+			  </div>
+			  <div class="modal-body" style="background-color: #999999;">
+			  @csrf
+			  <div class="form-group">
+				  <label for="document">Documents</label>
+				  <div class="needsclick dropzone" id="document-dropzone">
+
+				  </div>
+			  </div>
+
+			  </div>
+			  <div class="modal-footer">
+				  <button type="button" class="btn btn-default btn-save-documents">Save</button>
+				  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			  </div>
+	  </form>
+		</div>
+	</div>
+</div>
+
+<div id="modalGetMessageHistory" class="modal fade" role="dialog" >
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Ui Language Message History</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="col-md-12">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th width="5%">ID</th>
+								<th width="8%">Update By</th>
+								<th width="25%" style="word-break: break-all;">Message</th>
+								<th width="15%" style="word-break: break-all;">Status</th>
+								<th width="15%">Created at</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div id="modalHistoryDateUpdates" class="modal fade" role="dialog">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -503,6 +659,175 @@
 		</div>
 	</div>
 </div>
+
+
+
+<div id="file-upload-area-list" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-body">
+            <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th width="5%">No</th>
+                <th width="45%">Link</th>
+                <th width="25%">Send To</th>
+                <th width="25%">Action</th>
+              </tr>
+            </thead>
+            <tbody class="display-document-list">
+            </tbody>
+        </table>
+      </div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+
+
+<div id="modalCreateDevice" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">5 Devices</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="col-md-12">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th width="5%">ID</th>
+								<th width="15%" style="word-break: break-all;">Language</th>
+								<th width="22%" style="word-break: break-all;">Message</th>
+								<th width="22%" style="word-break: break-all;">Attachment</th>
+								<th width="21%">Status</th>
+								
+							</tr>
+						</thead>
+						<tbody>
+							@for ($i=1; $i<=5; $i++)
+								<tr>
+									<td>{{$i}}</td>
+									<td>Device {{$i}}</td>
+									<td><input type="text" name="uidevmessage{{$i}}" class="uidevmessage{{$i}}" style="margin-top: 0px;width:80% !important;"/><button class="btn pr-0 btn-xs btn-image div-message-language" onclick="funDevUpdate('{{$i}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button><i class="fa fa-info-circle devHistorty" onclick="funGetDevHistory('{{$i}}');"></i></td>
+									<td><input type="hidden" class="uicheckId" value=""/>
+										<input type="hidden" class="ui_check_id" value=""/>
+										<button type="button" data-toggle="tooltip" title="Upload File" data-device_no="{{$i}}" class="btn btn-dev-file-upload pd-5">
+											<i class="fa fa-upload" aria-hidden="true"></i>
+										</button>
+										<button type="button" data-device_no="{{$i}}" data-toggle="tooltip" title="List of Files" class="btn btn-dev-file-list pd-5">
+											<i class="fa fa-list" aria-hidden="true"></i>
+										</button>	
+									</td>
+									<td>
+										{{-- <input type="text" name="uidevstatus" id="uidevstatus{{$i}}" class="uidevstatus{{$i}}" style="margin-top: 0px;width:80% !important;"/> --}}
+										<select name="uidevstatus" id="uidevstatus{{$i}}" class="uidevstatus{{$i}} pd-5" style="margin-top: 0px;width:80% !important;">
+											<option value="">-- Status --</option>
+											@forelse($allStatus as $key => $as)
+											<option value="{{ $key }}" @if($dev_status==$key) selected @endif>{{ $as }}</option>
+											@empty
+											@endforelse
+										</select>
+										<button class="btn pr-0 btn-xs btn-image dev-uicheck-status" onclick="funDevUpdate('{{$i}}');"><img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;"></button></td>
+								</tr>
+							@endfor
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="modalGetDevMessageHistory" class="modal fade" role="dialog" >
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Ui Device Message History</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="col-md-12">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th width="5%">ID</th>
+								<th width="8%">Update By</th>
+								<th width="25%" style="word-break: break-all;">Message</th>
+								<th width="15%" style="word-break: break-all;">Status</th>
+								<th width="15%">Created at</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="dev-file-upload-area-section" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+		   <form action="{{ route("uicheck.create.dev.attachment") }}" method="POST" enctype="multipart/form-data">
+			  <input type="hidden" name="uicheck_id" class="ui_check_id" value="">
+			  <input type="hidden" name="device_no" id="device_no" value="">
+			  <div class="modal-header">
+				  <h4 class="modal-title">Upload File(s)</h4>
+			  </div>
+			  <div class="modal-body" style="background-color: #999999;">
+			  @csrf
+			  <div class="form-group">
+				  <label for="document">Documents</label>
+				  <div class="needsclick dropzone" id="document-dropzone">
+
+				  </div>
+			  </div>
+
+			  </div>
+			  <div class="modal-footer">
+				  <button type="button" class="btn btn-default btn-dev-save-documents">Save</button>
+				  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			  </div>
+	  </form>
+		</div>
+	</div>
+</div>
+
+<div id="dev-file-upload-area-list" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-body">
+            <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th width="5%">No</th>
+                <th width="45%">Link</th>
+				<th width="45%">Uploaded By</th>
+                <th width="25%">Action</th>
+              </tr>
+            </thead>
+            <tbody class="dev-display-document-list">
+            </tbody>
+        </table>
+      </div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
 
 @if (Auth::user()->hasRole('Admin'))
 <input type="hidden" id="user-type" value="Admin">
@@ -538,6 +863,14 @@
 			echo '<option value="' . $dropKey . '">' . $dropValue . '</option>';
 		} ?>
 	</select>
+
+	<select id="dropdownAllStatusAdmin" class="save-item-select-admin" style="width:55% !important;">
+		<option value="">- Select -</option>
+		<?php foreach ($allStatus as $dropKey => $dropValue) {
+			echo '<option value="' . $dropKey . '">' . $dropValue . '</option>';
+		} ?>
+	</select>
+	
 </div>
 
 @endsection
@@ -743,6 +1076,394 @@
 		}
 	}
 
+	function showLanguage(uiid){
+		let mdl = jQuery('#modalCreateLanguage');
+		$(".uicheckId").val(uiid);
+		mdl.modal("show");
+	}
+	function showDevice(uiid){
+		let mdl = jQuery('#modalCreateDevice');
+		$(".uicheckId").val(uiid);
+		$(".ui_check_id").val(uiid);
+		
+		mdl.modal("show");
+	}
+
+	function funLanUpdate(id) {
+		siteLoader(true);
+		let mdl = jQuery('#modalCreateLanguage');
+		let uicheckId = jQuery('.uicheckId').val();
+		let uilanmessage = jQuery('.uilanmessage'+id).val();
+		let uilanstatus = jQuery('.uilanstatus'+id).val();
+		jQuery.ajax({
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			url: "/uicheck/set/language",
+			type: 'POST',
+			data: {
+				id: id,
+				uicheck_id : uicheckId,
+				message : uilanmessage,
+				uilanstatus : uilanstatus
+			},
+			beforeSend: function() {
+				//jQuery("#loading-image").show();
+			}
+		}).done(function(response) {
+			//siteLoader(false);
+			toastr["success"]("Message saved successfully!!!");
+			//mdl.find('tbody').html(response.html);
+			//mdl.modal("show");
+		}).fail(function(errObj) {
+			//siteErrorAlert(errObj);
+			toastr["error"](errObj);
+			//siteLoader(false);
+		});
+	}
+
+	var uploadedDocumentMap = {}
+    Dropzone.options.documentDropzone = {
+      url: '{{ route("voucher.upload-documents") }}',
+      maxFilesize: 20, // MB
+      addRemoveLinks: true,
+      headers: {
+          'X-CSRF-TOKEN': "{{ csrf_token() }}"
+      },
+      success: function (file, response) {
+          $('form').append('<input type="hidden" name="document[]" value="' + response.name + '">')
+          uploadedDocumentMap[file.name] = response.name
+      },
+      removedfile: function (file) {
+          file.previewElement.remove()
+          var name = ''
+          if (typeof file.file_name !== 'undefined') {
+            name = file.file_name
+          } else {
+            name = uploadedDocumentMap[file.name]
+          }
+          $('form').find('input[name="document[]"][value="' + name + '"]').remove()
+      },
+      init: function () {
+
+      }
+  }
+
+	$(document).on("click",".btn-file-upload",function() {
+      var $this = $(this);
+      $("#file-upload-area-section").modal("show");
+       $("#language_id").val($this.data("id"));
+	   
+	   $(".uicheck_id").val($(".uicheckId").val());
+      // $("#hidden-site-id").val($this.data("site-id"));
+      // $("#hidden-site-category-id").val($this.data("site-category-id"));
+    });
+
+	$(document).on("click",".btn-save-documents",function(e){
+		e.preventDefault();
+		var $this = $(this);
+		var formData = new FormData($this.closest("form")[0]);
+		$.ajax({
+		url: 'uicheck/create/attachment',
+		type: 'POST',
+		headers: {
+				'X-CSRF-TOKEN': "{{ csrf_token() }}"
+			},
+			dataType:"json",
+		data: $this.closest("form").serialize(),
+		beforeSend: function() {
+			$("#loading-image").show();
+				}
+		}).done(function (data) {
+		$("#loading-image").hide();
+		toastr["success"]("Document uploaded successfully");
+		//location.reload();
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {      
+		toastr["error"](jqXHR.responseJSON.message);
+		$("#loading-image").hide();
+		});
+	});
+
+	$(document).on("click",".btn-file-list",function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var id = $(this).data("id");
+		var uicheck_id = $(".uicheckId").val();
+        $.ajax({
+          url: 'uicheck/get/attachment?id='+id+"&uicheck_id="+uicheck_id,
+          type: 'GET',
+          headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            dataType:"json",
+          beforeSend: function() {
+            $("#loading-image").show();
+                }
+        }).done(function (response) {
+          $("#loading-image").hide();
+          var html = "";
+          $.each(response.data,function(k,v){
+            html += "<tr>";
+              html += "<td>"+v.id+"</td>";
+              html += "<td>"+v.url+"</td>";
+              html += "<td><div class='form-row'>"+v.user_list+"</div></td>";
+              html += '<td><a class="btn-secondary" href="'+v.url+'" data-id="'+v.id+'" target="__blank"><i class="fa fa-download" aria-hidden="true"></i></a>&nbsp;<a class="btn-secondary link-delete-document" data-id='+v.id+' href="_blank"><i class="fa fa-trash" aria-hidden="true"></i></a></td>';
+            html += "</tr>";
+          });
+          $(".display-document-list").html(html);
+          $("#file-upload-area-list").modal("show");
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+			toastr["error"](jqXHR.responseJSON.message);
+          $("#loading-image").hide();
+        });
+      });
+
+	  $(document).on("click",".link-delete-document",function(e) {
+        e.preventDefault();
+        var id = $(this).data("id");
+        var $this = $(this);
+        if(confirm("Are you sure you want to delete records ?")) {
+          $.ajax({
+            url: '/uicheck/delete/attachment',
+            type: 'POST',
+            headers: {
+                  'X-CSRF-TOKEN': "{{ csrf_token() }}"
+              },
+              dataType:"json",
+            data: { id : id},
+            beforeSend: function() {
+              $("#loading-image").show();
+                  }
+          }).done(function (data) {
+            $("#loading-image").hide();
+            toastr["success"]("Document deleted successfully");
+            $this.closest("tr").remove();
+          }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            toastr["error"](jqXHR.responseJSON.message);
+            $("#loading-image").hide();
+          });
+        }
+      });
+
+
+	function funGetLanHistory(id) {
+		//siteLoader(true);
+		let mdl = jQuery('#modalGetMessageHistory');
+		let uicheckId = jQuery('.uicheckId').val();
+		
+		jQuery.ajax({
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			url: "/uicheck/get/message/history/language",
+			type: 'POST',
+			data: {
+				id: id,
+				uicheck_id : uicheckId,
+			},
+			beforeSend: function() {
+				//jQuery("#loading-image").show();
+			}
+		}).done(function(response) {
+			//siteLoader(false);
+			//siteSuccessAlert("Listed successfully!!!");
+			//$("#modalCreateLanguage").modal("hide");
+			
+			mdl.find('tbody').html(response.html);
+			mdl.modal("show");
+		}).fail(function(errObj) {
+			//siteErrorAlert(errObj);
+			//siteLoader(false);
+			toastr["error"](errObj);
+		});
+	}
+
+
+	//5 Device
+	function funDevUpdate(id) {
+		//siteLoader(true);
+		let mdl = jQuery('#modalCreateDevice');
+		let uicheckId = jQuery('.uicheckId').val();
+		let uidevmessage = jQuery('.uidevmessage'+id).val();
+		let uidevstatus = jQuery('.uidevstatus'+id).val();
+		let device_no = jQuery('.device_no'+id).val();
+		jQuery.ajax({
+			
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			url: "/uicheck/set/device",
+			type: 'POST',
+			data: {
+				device_no : id,
+				uicheck_id : uicheckId,
+				message : uidevmessage,
+				uidevstatus : uidevstatus
+			},
+			beforeSend: function() {
+				//jQuery("#loading-image").show();
+			}
+		}).done(function(response) {
+			toastr["success"]("Record updated successfully!!!");
+			//mdl.find('tbody').html(response.html);
+			//mdl.modal("show");
+		}).fail(function(errObj) {
+			console.log(errObj);
+			toastr["error"](errObj.message);
+		});
+	}
+
+	function funGetDevHistory(id) {
+		//siteLoader(true);
+		let mdl = jQuery('#modalGetDevMessageHistory');
+		let uicheckId = jQuery('.uicheckId').val();
+		
+		jQuery.ajax({
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			url: "/uicheck/get/message/history/dev",
+			type: 'POST',
+			data: {
+				device_no: id,
+				uicheck_id : uicheckId,
+			},
+			beforeSend: function() {
+				//jQuery("#loading-image").show();
+			}
+		}).done(function(response) {
+			//siteLoader(false);
+			//siteSuccessAlert("Listed successfully!!!");
+			$("#modalCreateLanguage").modal("hide");
+			mdl.find('tbody').html(response.html);
+			mdl.modal("show");
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {      
+			toastr["error"](jqXHR.responseJSON.message);
+			$("#loading-image").hide();
+		});
+	}
+	var uploadedDocumentMapDev = {}
+    Dropzone.options.documentDropzone = {
+      url: '{{ route("ui.dev.upload-documents") }}',
+      maxFilesize: 20, // MB
+      addRemoveLinks: true,
+      headers: {
+          'X-CSRF-TOKEN': "{{ csrf_token() }}"
+      },
+      success: function (file, response) {
+          $('form').append('<input type="hidden" name="document[]" value="' + response.name + '">')
+          uploadedDocumentMapDev[file.name] = response.name
+      },
+      removedfile: function (file) {
+          file.previewElement.remove()
+          var name = ''
+          if (typeof file.file_name !== 'undefined') {
+            name = file.file_name
+          } else {
+            name = uploadedDocumentMapDev[file.name]
+          }
+          $('form').find('input[name="document[]"][value="' + name + '"]').remove()
+      },
+      init: function () {
+
+      }
+  }
+
+	$(document).on("click",".btn-dev-file-upload",function() {
+      var $this = $(this);
+      $("#dev-file-upload-area-section").modal("show");
+       $("#ui_check_id").val($("#ui_check_id").val());
+	   $("#device_no").val($this.data("device_no"));
+      
+    });
+
+	$(document).on("click",".btn-dev-save-documents",function(e){
+		e.preventDefault();
+		var $this = $(this);
+		var formData = new FormData($this.closest("form")[0]);
+		$.ajax({
+		url: 'uicheck/create/dev/attachment',
+		type: 'POST',
+		headers: {
+				'X-CSRF-TOKEN': "{{ csrf_token() }}"
+			},
+			dataType:"json",
+		data: $this.closest("form").serialize(),
+		beforeSend: function() {
+			$("#loading-image").show();
+				}
+		}).done(function (data) {
+		$("#loading-image").hide();
+		toastr["success"]("Document uploaded successfully");
+		//location.reload();
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {      
+		toastr["error"](jqXHR.responseJSON.message);
+		$("#loading-image").hide();
+		});
+	});
+
+	$(document).on("click",".btn-dev-file-list",function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var device_no = $(this).data("device_no");
+		var ui_check_id = $(".ui_check_id").val();
+        $.ajax({
+          url: 'uicheck/get/dev/attachment?device_no='+device_no+"&ui_check_id="+ui_check_id,
+          type: 'GET',
+          headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            dataType:"json",
+          beforeSend: function() {
+            $("#loading-image").show();
+                }
+        }).done(function (response) {
+          $("#loading-image").hide();
+          var html = "";
+          $.each(response.data,function(k,v){
+            html += "<tr>";
+              html += "<td>"+v.id+"</td>";
+              html += "<td>"+v.url+"</td>";
+              html += "<td><div class='form-row'>"+v.userName+"</div></td>";
+              html += '<td><a class="btn-secondary" href="'+v.url+'" data-id="'+v.id+'" target="__blank"><i class="fa fa-download" aria-hidden="true"></i></a>&nbsp;<a class="btn-secondary dev-link-delete-document" data-id='+v.id+' href="_blank"><i class="fa fa-trash" aria-hidden="true"></i></a></td>';
+            html += "</tr>";
+          });
+          $(".dev-display-document-list").html(html);
+          $("#dev-file-upload-area-list").modal("show");
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+          toastr["error"]("Oops,something went wrong");
+          $("#loading-image").hide();
+        });
+      });
+
+	  $(document).on("click",".dev-link-delete-document",function(e) {
+        e.preventDefault();
+        var id = $(this).data("id");
+        var $this = $(this);
+        if(confirm("Are you sure you want to delete records ?")) {
+          $.ajax({
+            url: '/uicheck/dev/delete/attachment',
+            type: 'POST',
+            headers: {
+                  'X-CSRF-TOKEN': "{{ csrf_token() }}"
+              },
+              dataType:"json",
+            data: { id : id},
+            beforeSend: function() {
+              $("#loading-image").show();
+                  }
+          }).done(function (data) {
+            $("#loading-image").hide();
+            toastr["success"]("Document deleted successfully");
+            $this.closest("tr").remove();
+          }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            toastr["error"]("Oops,something went wrong");
+            $("#loading-image").hide();
+          });
+        }
+      });
+
+
 	// START Print Table Using datatable
 	var oTable;
 	$(document).ready(function() {
@@ -833,13 +1554,15 @@
 				{
 					data: null,
 					render: function(data, type, row, meta) {
-						let sel = jQuery('#dropdownAllStatus').clone();
+						let sel = jQuery('#dropdownAllStatusAdmin').clone();
+						let lflag = (row.language_flag == 1) ? 'red': 'gray';
+						let tflag = (row.translation_flag == 1) ? 'flagged.png': 'unflagged.png';
 						sel.removeAttr('id');
 						sel.addClass('globalSelect2');
 						sel.find('option[value=' + row.admin_status_id + ']').attr('selected', 'selected');
 						sel.attr('onchange', 'updateAdminStatus(this, "' + row.uicheck_id + '", "' + row.site_id + '", "' + row.id + '")');
 						let html = jQuery("<div />").append(sel).html();
-						html += '<button type="button" class="btn btn-xs show-admin-status-history" title="Show" data-id="' + row.uicheck_id + '"><i data-id="' + row.uicheck_id + '" class="fa fa-info-circle"></i></button>';
+						html += '<button type="button" class="btn btn-xs show-admin-status-history" title="Show" data-id="' + row.uicheck_id + '"><i data-id="' + row.uicheck_id + '" class="fa fa-info-circle"></i></button> <button type="button" class="btn btn-xs language-flag-btn " id="language-flag-btn-' + row.uicheck_id + '" style="color:'+lflag+';" title="Language flag" data-id="' + row.uicheck_id + '"><i class="fa fa-flag"></i></button> | <button type="button" class="btn btn-xs translation-flag-btn" id="translation-flag-btn-' + row.uicheck_id + '" title="Translation flag" data-id="' + row.uicheck_id + '"><img src="/images/'+tflag+'" style="width:16px;height:16px;"></button>';
 						return html;
 					}
 				},
@@ -853,6 +1576,8 @@
 							'<a class="dropdown-item" href="javascript:void(0);" onclick="funDateUpdatesHistory(\'' + row.uicheck_id + '\')">Dates: View History</a>' +
 							'<a class="dropdown-item" href="javascript:void(0);" onclick="funLockApply(\'developer\', \'' + row.uicheck_id + '\')">' + (row.lock_developer ? 'Show for Developer' : 'Hide for Developer') + '</a>' +
 							'<a class="dropdown-item" href="javascript:void(0);" onclick="funLockApply(\'admin\', \'' + row.uicheck_id + '\')">' + (row.lock_admin ? 'Show for Admin' : 'Hide for Admin') + '</a>' +
+							'<a class="dropdown-item" href="javascript:void(0);" onclick="showLanguage(\'' + row.uicheck_id + '\')">Translation</a>' +
+							'<a class="dropdown-item" href="javascript:void(0);" onclick="showDevice(\'' + row.uicheck_id + '\')">5 Devices</a>' +
 							'</div>' +
 							'</div>';
 					}
@@ -944,6 +1669,8 @@
 							'<div class="dropdown-menu" >' +
 							'<a class="dropdown-item" href="javascript:void(0);" onclick="funDateModalOpen(\'' + row.uicheck_id + '\')">Dates: Update</a>' +
 							'<a class="dropdown-item" href="javascript:void(0);" onclick="funDateUpdatesHistory(\'' + row.uicheck_id + '\')">Dates: View History</a>' +
+							'<a class="dropdown-item" href="javascript:void(0);" onclick="showLanguage(\'' + row.uicheck_id + '\')">Translation</a>' +
+							'<a class="dropdown-item" href="javascript:void(0);" onclick="showDevice(\'' + row.uicheck_id + '\')">5 Devices</a>' +
 							'</div>' +
 							'</div>';
 					}
@@ -960,6 +1687,8 @@
 			searchDelay: 500,
 			processing: true,
 			serverSide: true,
+			autoWidth: true,
+			scrollX: 'true',
 			// sScrollX:true,
 			searching: false,
 			order: [
@@ -982,6 +1711,8 @@
 					d.assign_to = $('#assign_to').val();
 					d.order_by = $("#order_by").val();
 					d.srch_lock_type = $("#srch_lock_type").val();
+					d.id = $("#id").val();
+					d.srch_flags = $("#srch_flags").val();
 					// d.subjects = $('input[name=subjects]').val();					
 				},
 			},
@@ -993,11 +1724,11 @@
 			columns: columns,
 			createdRow: function(row, data, dataIndex) {
 				if (data.lock_developer == 1 && data.lock_admin == 1) {
-					jQuery(row).addClass('bg-warning');
+					jQuery(row).addClass('bg-custom-gray');
 				} else if (isAdmin == 1 && data.lock_admin == 1) {
-					jQuery(row).addClass('bg-warning');
+					jQuery(row).addClass('bg-custom-gray');
 				} else if (isAdmin == 0 && data.lock_developer == 1) {
-					jQuery(row).addClass('bg-warning');
+					jQuery(row).addClass('bg-custom-gray');
 				}
 			}
 
@@ -1512,6 +2243,73 @@
 	jQuery(document).ready(function() {
 		applyDateTimePicker(jQuery('.cls-start-due-date'));
 	});
+
+	$(document).on("click", ".language-flag-btn", function() {
+		var id = $(this).data("id");
+		let eleId = "#language-flag-btn-"+id;
+		
+		$.ajax({
+			method: "post",
+			url: "{{ route('uicheck.language.flag') }}",
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			data: {
+				id: id
+			},
+			dataType: "json",
+			success: function(response) {
+				if (response.code == 200) {
+					let newData = response.data;
+					if(newData[0].language_flag == 1){
+						$(eleId).css("color", "red");
+					}else{
+						$(eleId).css("color", "gray");
+					}
+				} else {
+					toastr["error"](response.error, "Message");
+				}
+			}
+		});
+	});
+
+	$(document).on("click", ".translation-flag-btn", function() {
+		var id = $(this).data("id");
+		let eleId = "#translation-flag-btn-"+id;
+		
+		$.ajax({
+			method: "post",
+			url: "{{ route('uicheck.translation.flag') }}",
+			headers: {
+				'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+			},
+			data: {
+				id: id
+			},
+			dataType: "json",
+			success: function(response) {
+				
+				if (response.code == 200) {
+					let newData = response.data;
+					if(newData[0].translation_flag == 1){
+						$(eleId).html('');
+						$(eleId).html('<img src="/images/flagged.png" style="width: 16px; height: 16px; cursor: nwse-resize;">');
+					}else{
+						//debugger;
+						$(eleId).html('');
+						$(eleId).html('<img src="/images/unflagged.png" style="width: 16px; height: 16px; cursor: nwse-resize;">');
+					}
+				} else {
+					toastr["error"](response.error, "Message");
+				}
+			}
+		});
+	});
+	
+	//flagged.png
+
+	
+
 </script>
 
 @endsection

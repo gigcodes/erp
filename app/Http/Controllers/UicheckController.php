@@ -27,6 +27,16 @@ use App\SiteDevelopmentCategory;
 use App\UiCheckIssueHistoryLog;
 use App\UiCheckCommunication;
 use App\UiCheckAssignToHistory;
+use App\Language;
+use App\UiLanguage;
+use App\UiDevice;
+use App\UicheckLanguageMessageHistory;
+use App\UicheckLangAttchment;
+use App\UiDeviceHistory;
+use App\UicheckDeviceAttachment;
+use App\UiResponsivestatusHistory;
+use App\Setting;
+use App\UiTranslatorStatusHistory;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -64,6 +74,8 @@ class UicheckController extends Controller {
                         "uichecks.admin_status_id",
                         "uichecks.lock_developer",
                         "uichecks.lock_admin",
+                        "uichecks.language_flag",
+                        "uichecks.translation_flag",
                         "uua.user_id as accessuser"
                     );
                 if ($s = request('srch_lock_type')) {
@@ -102,6 +114,8 @@ class UicheckController extends Controller {
                         "uichecks.admin_status_id",
                         "uichecks.lock_developer",
                         "uichecks.lock_admin",
+                        "uichecks.language_flag",
+                        "uichecks.translation_flag",
                         "uua.user_id as accessuser"
                     );
             }
@@ -109,20 +123,67 @@ class UicheckController extends Controller {
 
             //->where('site_development_categories.id','site_developments.site_development_category_id');
             if ($s = request('category_name')) {
-                $q = $q->where('uichecks.website_id', $s);
+                //$q = $q->where('uichecks.website_id', $s);
+                $q->where(function($query) use ($s){
+                    for($i=0; $i<count($s); $i++){
+                        if($s[$i])
+                            $query->orWhere("uichecks.website_id",  $s[$i]);
+                    }
+                });
             }
             if ($s = request('sub_category_name')) {
-                $q = $q->where('site_development_categories.id', $s);
+                //$q = $q->where('site_development_categories.id', $s);
+                $q->where(function($query) use ($s){
+                    for($i=0; $i<count($s); $i++){
+                        if($s[$i])
+                            $query->orWhere("site_development_categories.id",  $s[$i]);
+                    }
+                });
             }
             if ($s = request('dev_status')) {
-                $q = $q->where('uichecks.dev_status_id', $s);
+                //$q = $q->where('uichecks.dev_status_id', $s);
+                $q->where(function($query) use ($s){
+                    for($i=0; $i<count($s); $i++){
+                        if($s[$i])
+                            $query->orWhere("uichecks.dev_status_id",  $s[$i]);
+                    }
+                });
             }
             if ($s = request('admin_status')) {
-                $q = $q->where('uichecks.admin_status_id', $s);
+                //$q = $q->where('uichecks.admin_status_id', $s);
+                $q->where(function($query) use ($s){
+                    for($i=0; $i<count($s); $i++){
+                        if($s[$i])
+                            $query->orWhere("uichecks.admin_status_id",  $s[$i]);
+                    }
+                });
             }
             if ($s = request('assign_to')) {
-                $q = $q->where('uua.user_id', $s);
+                //$q = $q->where('uua.user_id', $s);
+                    $q->where(function($query) use ($s){
+                        for($i=0; $i<count($s); $i++){
+                            if($s[$i])
+                                $query->orWhere("uua.user_id",  $s[$i]);
+                        }
+                    });
             }
+            if ($s = request('id')) {
+                $q = $q->where('uichecks.id', $s);
+            }
+            
+            if ($s = request('srch_flags')) {
+                if ($s == 'Both') {
+                    $q = $q->where('uichecks.language_flag', 1);
+                    $q = $q->orWhere('uichecks.translation_flag', 1);
+                } else if ($s == "Language flag") {
+                    $q = $q->where('uichecks.language_flag', 1);
+                    
+                } else if ($s == "Translation flag") {
+                    $q = $q->where('uichecks.translation_flag', 1);
+                }
+                
+            }
+
             $q->groupBy('uichecks.id');
 
             if ($s = request('order_by')) {
@@ -132,8 +193,10 @@ class UicheckController extends Controller {
             } else {
                 $q->orderBy('uichecks.updated_at', "desc");
             }
+
             $counter = $q->get();
             //dd(count($q->get()));
+            //dd($q->toSql());
             //dd($q->count());
 
             // select 
@@ -190,7 +253,9 @@ class UicheckController extends Controller {
                     'site_development_categories.*',
                     'site_developments.id AS site_id',
                     'site_developments.website_id',
-                    "uichecks.id AS uicheck_id"
+                    "uichecks.id AS uicheck_id",
+                    "uichecks.language_flag",
+                    "uichecks.translation_flag"
                 )
                 //->where('site_developments.is_ui', 1);
                 ->where('uichecks.id', '>', 0);
@@ -211,6 +276,7 @@ class UicheckController extends Controller {
             //echo '<pre>';
             //print_r($data['site_development_categories']);
             // exit;
+            $data['languages'] = Language::all();
             return view('uicheck.index', $data);
         }
     }
@@ -243,8 +309,6 @@ class UicheckController extends Controller {
         Uicheck::create([
             "site_development_id" => $uiCheck->site_development_id ?? '',
             "site_development_category_id" => $uiCheck->site_development_category_id ?? '',
-            "website_id" => $uiCheck->website_id ?? '',
-            "issue" => $uiCheck->issue ?? '',
             "created_at" => \Carbon\Carbon::now(),
         ]);
         return response()->json(['code' => 200, 'message' => 'Category Duplicate Created successfully!!!']);
@@ -751,4 +815,589 @@ class UicheckController extends Controller {
         }
     }
     // 
+
+    public function updateLanguage(Request $request) {
+        try {
+            $uiLanData = UiLanguage::where("languages_id", "=", $request->id)->get();
+            
+            $uiLan["user_id"] = \Auth::user()->id;
+            $uiLan["languages_id"] = $request->id;
+            $uiLan["uicheck_id"] = $request->uicheck_id;
+            if($request->message){
+                $uiLan["message"] = $request->message;
+            }
+            if($request->uilanstatus){
+                $uiLan["status"] = $request->uilanstatus;
+            }
+            
+            if (count($uiLanData) == 0){ 
+                $uiLans = UiLanguage::create($uiLan);
+                $uiData = UiLanguage::where("languages_id",$uiLans->id)->first();
+            } else {
+                $uiData = UiLanguage::where("languages_id",$request->id)->first();
+                $uiLans = UiLanguage::where("languages_id",$request->id)->update($uiLan);
+            }
+            
+            $uiMess = $uiLanData[0]->message ?? "";
+            $uiLan["ui_languages_id"] = $uiData->id ?? $request->id;
+            if($request->message != $uiMess){
+                $reData = $this->uicheckLanUpdateHistory($uiLan);
+            }
+            $uistatus = $uiData->status ?? "";
+            if($request->uilanstatus != $uistatus){
+                //$this->uicheckLanUpdateHistory($uiLan);
+            }
+
+            return respJson(200, 'Record updated successfully.', []);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
+
+    public function uicheckLanUpdateHistory($data) {
+        try{
+            $createdHistory = UicheckLanguageMessageHistory::create(
+                $data
+            );            
+        }catch(\Exception $e){
+            return respException($e);
+        }
+    }
+
+    public function getuicheckLanUpdateHistory(Request $request) {
+        try{
+            $getHistory = UicheckLanguageMessageHistory::leftJoin("users", "users.id", "uicheck_language_message_histories.user_id")
+            ->leftJoin("site_development_statuses AS sds", "sds.id", "uicheck_language_message_histories.status")
+            ->select("uicheck_language_message_histories.*", "users.name As userName", "sds.name as status_name")
+            ->where("languages_id", $request->id)
+            ->where("uicheck_id", $request->uicheck_id)
+            ->orderBy("id", "desc")->get();         
+            //dd($getHistory);
+            $html = [];
+            if ($getHistory->count()) {
+                foreach ($getHistory as $value) {
+                    $html[] = implode('', [
+                        '<tr>',
+                        '<td>' . ($value->id ?: '-') . '</td>',
+                        '<td>' . ($value->userName ?: '-') . '</td>',
+                        '<td class="expand-row-msg" data-name="lan_message" data-id="'.$value->id.'" >
+                            <span class="show-short-lan_message-'.$value->id.'">'.str_limit($value->message, 5, "...").'</span>
+                            <span style="word-break:break-all;" class="show-full-lan_message-'.$value->id.' hidden">'.$value->message.'</span>
+                        </td>',
+                        '<td>' . ($value->status_name ?: '-') . '</td>',
+                        '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
+                        '</tr>',
+                    ]);
+                }
+            } else {
+                $html[] = implode('', [
+                    '<tr>',
+                    '<td colspan="6">No records found.</td>',
+                    '</tr>',
+                ]);
+            }
+            return respJson(200, '', [
+                'html' => implode('', $html)
+            ]);   
+        }catch(\Exception $e){
+            return respException($e);
+        }
+    }
+   
+    public function saveDocuments(Request $request)
+    {
+
+        $documents = $request->input('document', []);
+        if (!empty($documents)) {
+            $uiDevData = UiLanguage::where("languages_id", "=", $request->id)->where('uicheck_id', "=", $request->uicheck_id)->first();
+            
+            foreach ($request->input('document', []) as $file) {
+                $path  = storage_path('tmp/uploads/' . $file);
+                $media = MediaUploader::fromSource($path)
+                    ->toDirectory('uicheckAttach/' . floor($request->id / config('constants.image_per_folder')))
+                    ->upload();
+                //$receipt->attachMedia($media, config('constants.media_tags'));
+                $attachment = UicheckLangAttchment::create([
+                    "languages_id" => $request->id,
+                    "user_id" => \Auth::user()->id,
+                    'uicheck_id' => $request->uicheck_id ?? '',
+                    "attachment" => $media
+                ]);
+            }
+
+            return response()->json(["code" => 200, "data" => [], "message" => "Done!"]);
+        } else {
+            return response()->json(["code" => 500, "data" => [], "message" => "No documents for upload"]);
+        }
+
+    }
+
+    public function listDocuments(Request $request)
+    {
+        $uicheckAttch = UicheckLangAttchment::where("languages_id", $request->id)
+        ->where("uicheck_id", $request->uicheck_id)
+        ->get();
+        
+        $userList = [];
+
+        $records = [];
+        if ($uicheckAttch) {
+            foreach ($uicheckAttch as $media) {
+                // Convert JSON string to Object
+                $imagepath = json_decode($media->attachment);
+                $records[] = [
+                    "id"            => $media->id,
+                    'url'           => "uploads/".$imagepath->directory."/".$imagepath->filename.".".$imagepath->extension,
+                    'ui_attach_id'  => $media->id,
+                ];
+            }
+        }
+
+        return response()->json(["code" => 200, "data" => $records]);
+    }
+
+    public function deleteDocument(Request $request)
+    {
+        if ($request->id != null) {
+            $uicheckAttch = UicheckLangAttchment::where("id", $request->id)->delete();
+            return response()->json(["code" => 200, "message" => "Document delete succesfully"]);
+        }
+        return response()->json(["code" => 500, "message" => "No document found"]);
+    }
+
+
+
+    public function updateDevice(Request $request) {
+        try {
+            
+            $uiDevData = UiDevice::where("uicheck_id", "=", $request->uicheck_id)->where('device_no', "=", $request->device_no)->first();
+            //dd($uiDevData);
+            $uiDev["user_id"] = \Auth::user()->id;
+            $uiDev["device_no"] = $request->device_no;
+            $uiDev["uicheck_id"] = $request->uicheck_id;
+            if($request->message){
+                $uiDev["message"] = $request->message;
+            }
+            if($request->uidevstatus){
+                $uiDev["status"] = $request->uidevstatus;
+            }
+            $uiDevid = $uiDevData->id ?? '';
+            if ($uiDevid == ''){ 
+                $uiDevs = UiDevice::create($uiDev);
+                $uiData = UiDevice::where("id",$uiDevs->id)->first();
+
+            } else {
+                $uiData = $uiDevData;
+                $uiLans = UiDevice::where("id",$uiDevData->id)->update($uiDev);
+            }
+            
+            $uiMess = $uiDevData->message ?? "";
+            $uiDev["ui_devices_id"] = $uiData->id;
+            if($request->message != $uiMess){
+                $reData = $this->uicheckDevUpdateHistory($uiDev);
+               
+            }
+            $uistatus = $uiData->status ?? "";
+            if($request->uidevstatus != $uistatus){
+                //$this->uicheckLanUpdateHistory($uiDev);
+            }
+
+            return respJson(200, 'Record updated successfully.', []);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
+
+    public function responseDevicePage(Request $request) {
+        
+        try{
+            \DB::enableQueryLog();
+            $uiDevDatas = new UiDevice();
+            $uiDevDatas = $uiDevDatas->join("uichecks as uic", "uic.id", "ui_devices.uicheck_id")
+                                    ->leftJoin("store_websites as sw", "sw.id", "uic.website_id")
+                                    ->leftJoin("uicheck_user_accesses as uua", "ui_devices.uicheck_id", "uua.uicheck_id")
+                                    ->leftJoin("users as u", "u.id", "uua.user_id")
+                                    ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
+                                    ->leftJoin("site_development_statuses as sds", "sds.id", "ui_devices.status");
+                                    
+            if($request->status != ''){
+                $uiDevDatas = $uiDevDatas->where('ui_devices.status', $request->status);    
+            }
+            if($request->categories != ''){
+                $uiDevDatas = $uiDevDatas->where('uic.site_development_category_id', $request->categories)->where('ui_devices.device_no', '1');    
+            }
+            if($request->id != ''){
+                $uiDevDatas = $uiDevDatas->where('ui_devices.uicheck_id', $request->id);    
+            }
+            
+            if(!Auth::user()->hasRole('Admin'))
+                $uiDevDatas = $uiDevDatas->where(['uua.user_id' => \Auth::user()->id]);    
+            
+            
+            $uiDevDatas = $uiDevDatas->select("ui_devices.*", 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname')->orderBy('id', 'DESC')->groupBy("ui_devices.uicheck_id")->paginate(8);
+            $allStatus = SiteDevelopmentStatus::pluck("name", "id")->toArray();
+            $status = '';
+            $devid = '';
+            $uicheck_id = '';
+            $site_development_categories = SiteDevelopmentCategory::pluck("title", "id")->toArray();
+            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'uicheck_id', 'site_development_categories'));
+        }catch(\Exception $e){
+            //dd($e->getMessage());
+            return \Redirect::back()->withErrors(['msg' => $e]);
+        }
+    }
+    public function responseDeviceStatusChange(Request $request) {
+        try{
+            $uiDevDatas = UiDevice::where('id', $request->id)
+                    ->where('device_no', $request->device_no)
+                    ->where('uicheck_id', $request->uicheck_id)
+                    ->update(["status" => $request->status]);
+            if($uiDevDatas == 0){
+                UiDevice::create([
+                    'user_id' => \Auth::user()->id,
+                    'device_no' => $request->device_no,
+                    'uicheck_id' => $request->uicheck_id,
+                    'languages_id' => $request->language_id,
+                    'status' => $request->status,
+                ]);
+            }
+
+            $this->uicheckResponsiveUpdateHistory($request);
+            return response()->json(["code" => 200, "message" => "Status updated succesfully"]);
+        }catch(\Exception $e){
+            return response()->json(["code" => 500, "message" => $e->getMessage()]);
+        }
+    }
+
+    public function uicheckResponsiveUpdateHistory($data) {
+        try{
+            $data['user_id'] = \Auth::user()->id ?? '';
+           
+            $createdHistory = UiResponsivestatusHistory::create(
+                [
+                    'user_id' => \Auth::user()->id ?? '',
+                    'ui_device_id' => $data->id ?? '',
+                    'uicheck_id' => $data->uicheck_id ?? '',
+                    'device_no' => $data->device_no ?? '',
+                    'status' => $data->status ?? '',
+                    'old_status' => $data->old_status ?? ''
+                ]
+            );            
+        }catch(\Exception $e){
+            return respException($e);
+        }
+    }
+    
+    public function responseDeviceStatusHistory(Request $request){
+        try{
+            $createdHistory = UiResponsivestatusHistory::leftJoin("site_development_statuses as sds", "sds.id", "ui_responsivestatus_histories.status")
+            ->leftJoin("site_development_statuses as sds1", "sds1.id", "ui_responsivestatus_histories.old_status")
+            ->leftJoin("users as u", "u.id", "ui_responsivestatus_histories.user_id")
+            ->where('ui_device_id', '=', $request->id)
+            ->where('device_no', '=', $request->device_no)
+            ->select("ui_responsivestatus_histories.*", 'u.name as username', 'sds.name as statusname', 'sds1.name as oldstatusname')->orderBy('ui_responsivestatus_histories.id', 'DESC')
+            ->get();
+            return response()->json(["code" => 200, "message" => "Listed succesfully", "data" => $createdHistory]);
+        }catch(\Exception $e){
+            return response()->json(["code" => 500, "message" => $e->getMessage()], 500);
+        }
+    }
+    
+    public function responseTranslatorPage(Request $request) {
+        
+        try{
+            $uiLanguages = new UiLanguage();
+            $uiLanguages = $uiLanguages->join("uichecks as uic", "uic.id", "ui_languages.uicheck_id")
+                                    ->leftJoin("store_websites as sw", "sw.id", "uic.website_id")
+                                    ->leftJoin("uicheck_user_accesses as uua", "ui_languages.uicheck_id", "uua.uicheck_id")
+                                    ->leftJoin("users as u", "u.id", "uua.user_id")
+                                    ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
+                                    ->leftJoin("site_development_statuses as sds", "sds.id", "ui_languages.status");
+                                    
+                                    //->get();
+            if($request->status != ''){
+                $uiLanguages = $uiLanguages->where('ui_languages.status', $request->status);    
+            }
+            if($request->categories != ''){
+                $uiLanguages = $uiLanguages->where('uic.site_development_category_id', $request->categories)->where('ui_languages.languages_id', '2');    
+            }
+            if($request->id != ''){
+                $uiLanguages = $uiLanguages->where('ui_languages.uicheck_id', $request->id);    
+            }
+            
+            
+            if(!Auth::user()->hasRole('Admin'))
+                $uiLanguages = $uiLanguages->where(['uua.user_id' => \Auth::user()->id]);    
+            
+            $uiLanguages = $uiLanguages->select("ui_languages.*", 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname')
+                                    ->groupBy("ui_languages.uicheck_id")
+                                    ->orderBy('id', 'DESC')
+                                    ->paginate(8);
+           // dd($uiLanguages);
+            $allStatus = SiteDevelopmentStatus::pluck("name", "id")->toArray();
+            $status = '';
+            $lanid = '';
+            $languages = Language::all();
+            $site_development_categories = SiteDevelopmentCategory::pluck("title", "id")->toArray();
+            return view('uicheck.language', compact('uiLanguages', 'status', 'languages', 'allStatus', 'lanid', 'site_development_categories'));
+        }catch(\Exception $e){
+            return \Redirect::back()->withErrors(['msg' => $e]);
+        }
+    }
+
+    public function translatorStatusChange(Request $request) {
+        try{
+            $uiDevDatas = UiLanguage::where('uicheck_id', $request->uicheck_id)
+                    ->where('languages_id', $request->language_id)
+                    ->update(["status" => $request->status]);
+            if($uiDevDatas == 0){
+                UiLanguage::create([
+                    'user_id' => \Auth::user()->id,
+                    'uicheck_id' => $request->uicheck_id,
+                    'languages_id' => $request->language_id,
+                    'status' => $request->status,
+                ]);
+            }
+            $this->uicheckTranslatorUpdateHistory($request);
+            return response()->json(["code" => 200, "message" => "Status updated succesfully"]);
+        }catch(\Exception $e){
+            return response()->json(["code" => 500, "message" => $e->getMessage()]);
+        }
+    }
+
+    public function uicheckTranslatorUpdateHistory($data) {
+        try{
+            $data['user_id'] = \Auth::user()->id ?? '';
+           
+            $createdHistory = UiTranslatorStatusHistory::create(
+                [
+                    'user_id' => \Auth::user()->id ?? '',
+                    'ui_language_id' => $data->id ?? '',
+                    'language_id' => $data->language_id ?? '',
+                    'uicheck_id' => $data->uicheck_id ?? '',
+                    'status' => $data->status ?? '',
+                    'old_status' => $data->old_status ?? ''
+                ]);            
+        }catch(\Exception $e){
+            return respException($e);
+        }
+    }
+
+    public function translatorStatusHistory(Request $request){
+        try{
+            $createdHistory = UiTranslatorStatusHistory::leftJoin("site_development_statuses as sds", "sds.id", "ui_translator_status_histories.status")
+            ->leftJoin("site_development_statuses as sds1", "sds1.id", "ui_translator_status_histories.old_status")
+            ->leftJoin("users as u", "u.id", "ui_translator_status_histories.user_id")
+            ->where('ui_language_id', '=', $request->id)
+            ->where('language_id', '=', $request->language_id)
+            ->where('uicheck_id', '=', $request->uicheck_id)
+            ->select("ui_translator_status_histories.*", 'u.name as username', 'sds.name as statusname', 'sds1.name as oldstatusname')->orderBy('ui_translator_status_histories.id', 'DESC')
+            ->get();
+            return response()->json(["code" => 200, "message" => "Listed succesfully", "data" => $createdHistory]);
+        }catch(\Exception $e){
+            return response()->json(["code" => 500, "message" => $e->getMessage()], 500);
+        }
+    }
+    
+    public function uicheckDevUpdateHistory($data) {
+        
+        try{
+            $createdHistory = UiDeviceHistory::create(
+                $data
+            );            
+        }catch(\Exception $e){
+            return respException($e);
+        }
+    }
+
+    public function uploadDocuments(Request $request)
+    {
+        $path = storage_path('tmp/uploads');
+
+        if (!file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
+
+        $file = $request->file('file');
+
+        $name = uniqid() . '_' . trim($file->getClientOriginalName());
+
+        $file->move($path, $name);
+
+        return response()->json([
+            'name'          => $name,
+            'original_name' => $file->getClientOriginalName(),
+        ]);
+    }
+
+    public function saveDevDocuments(Request $request)
+    {
+
+        $documents = $request->input('document', []);
+        if (!empty($documents)) {
+            $uiDevData = UiDevice::where("uicheck_id", "=", $request->uicheck_id)->where('device_no', "=", $request->device_no)->first();
+            
+
+            foreach ($request->input('document', []) as $file) {
+                $path  = storage_path('tmp/uploads/' . $file);
+                $media = MediaUploader::fromSource($path)
+                    ->toDirectory('uicheckAttach/dev/' . floor($request->id / config('constants.image_per_folder')))
+                    ->upload();
+                //$receipt->attachMedia($media, config('constants.media_tags'));
+                $attachment = UicheckDeviceAttachment::create([
+                    "device_no" => $request->device_no ?? '',
+                    "uicheck_id" => $request->uicheck_id,
+                    "ui_devices_id" => $uiDevData->id ?? '',
+                    "user_id" => \Auth::user()->id,
+                    "attachment" => $media
+                ]);
+            }
+
+            return response()->json(["code" => 200, "data" => [], "message" => "Done!"]);
+        } else {
+            return response()->json(["code" => 500, "data" => [], "message" => "No documents for upload"]);
+        }
+
+    }
+
+    public function devListDocuments(Request $request)
+    {
+        $uicheckAttch = UicheckDeviceAttachment::leftJoin("users", "users.id", "uicheck_device_attachments.user_id")
+        ->select("uicheck_device_attachments.*", "users.name as userName")
+        ->where("device_no", $request->device_no)->where("device_no", $request->device_no)
+        ->where("uicheck_id", $request->ui_check_id)
+        ->get();
+        
+        $userList = [];
+
+        $records = [];
+        if ($uicheckAttch) {
+            foreach ($uicheckAttch as $media) {
+                // Convert JSON string to Object
+                $imagepath = json_decode($media->attachment);
+                $records[] = [
+                    "id"            => $media->id,
+                    'url'           => "uploads/".$imagepath->directory."/".$imagepath->filename.".".$imagepath->extension,
+                    "userName"      => $media->userName,
+                    'ui_attach_id'  => $media->id,
+                ];
+            }
+        }
+
+        return response()->json(["code" => 200, "data" => $records]);
+    }
+
+    public function deleteDevDocument(Request $request)
+    {
+        if ($request->id != null) {
+            $uicheckAttch = UicheckDeviceAttachment::where("id", $request->id)->delete();
+            return response()->json(["code" => 200, "message" => "Document delete succesfully"]);
+        }
+        return response()->json(["code" => 500, "message" => "No document found"]);
+    }
+
+    public function getuicheckDevUpdateHistory(Request $request) {
+        try{
+            $getHistory = UiDeviceHistory::leftJoin("users", "users.id", "ui_device_histories.user_id")
+            ->leftJoin("site_development_statuses AS sds", "sds.id", "ui_device_histories.status")
+            ->select("ui_device_histories.*", "users.name As userName", "sds.name AS status_name")
+            ->where("ui_device_histories.device_no", $request->device_no)
+            ->where("ui_device_histories.uicheck_id", $request->uicheck_id)
+            ->orderBy("id", "desc")->get();         
+            //dd($getHistory);
+            $html = [];
+            if ($getHistory->count()) {
+                foreach ($getHistory as $value) {
+                    $html[] = implode('', [
+                        '<tr>',
+                        '<td>' . ($value->id ?: '-') . '</td>',
+                        '<td>' . ($value->userName ?: '-') . '</td>',
+                        '<td class="expand-row-msg" data-name="dev_message" data-id="'.$value->id.'" >
+                            <span class="show-short-dev_message-'.$value->id.'">'.str_limit($value->message, 5, "...").'</span>
+                            <span style="word-break:break-all;" class="show-full-dev_message-'.$value->id.' hidden">'.$value->message.'</span>
+                        </td>',
+                        '<td>' . ($value->status_name ?: '-') . '</td>',
+                        '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
+                        '</tr>',
+                    ]);
+                }
+            } else {
+                $html[] = implode('', [
+                    '<tr>',
+                    '<td colspan="6">No records found.</td>',
+                    '</tr>',
+                ]);
+            }
+            return respJson(200, '', [
+                'html' => implode('', $html)
+            ]);   
+        }catch(\Exception $e){
+            return respException($e);
+        }
+    }
+
+
+    public function languageFlag(Request $request) {
+        try{
+           
+            $data = Uicheck::where("id", $request->id);
+            $retunData = $data->get();
+            
+            if($retunData[0]->language_flag == 1){
+                $array["language_flag"] =  0;
+            }else{
+                $array["language_flag"] =  1;
+                $langs = Language::get();
+                
+                foreach($langs AS $lang){
+                    $uiDevDatas = UiLanguage::where(['uicheck_id' => $request->id, "languages_id" => $lang->id])->first();
+                    if(!$uiDevDatas){
+                        UiLanguage::create([
+                            'user_id' => \Auth::user()->id,
+                            'uicheck_id' => $request->id,
+                            'languages_id' => $lang->id
+                        ]);
+                       
+                    }
+                }
+            }
+            $data->update($array);
+            $retunData1 = Uicheck::where("id", $request->id)->get();
+            return response()->json(['code' => 200, 'data' => $retunData1,  'message' => 'Type Updated!!!']);
+        }catch(\Exception $e){
+            return response()->json(['code' => 500, 'error' => $e->getMessage()]);
+        }
+    }
+
+    public function translationFlag(Request $request) {
+        try{
+           
+            $data = Uicheck::where("id", $request->id);
+            $retunData = $data->get();
+            
+            if($retunData[0]->translation_flag == 1){
+                $array["translation_flag"] =  0;
+            }else{
+                $array["translation_flag"] =  1;
+                
+                for($i=1; $i<=5; $i++){
+                    $uiDevDatas = UiDevice::where(['uicheck_id' => $request->id, "device_no" => $i])->first();
+                    if(!$uiDevDatas){
+                        UiDevice::create([
+                            'user_id' => \Auth::user()->id,
+                            'device_no' => $i,
+                            'uicheck_id' => $request->id,
+                        ]);
+                    }
+                }
+            }
+            $data->update($array);
+            $retunData1 = Uicheck::where("id", $request->id)->get();
+            
+            return response()->json(['code' => 200, 'data' => $retunData1,  'message' => 'Type Updated!!!']);
+        }catch(\Exception $e){
+            return response()->json(['code' => 500, 'error' => $e->getMessage()]);
+        }
+    }
 }
+
