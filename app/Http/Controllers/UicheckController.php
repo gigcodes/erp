@@ -1013,9 +1013,9 @@ class UicheckController extends Controller {
         try{
             \DB::enableQueryLog();
             $uiDevDatas = new UiDevice();
-            $uiDevDatas = $uiDevDatas->leftJoin("uichecks as uic", "uic.id", "ui_devices.uicheck_id")
+            $uiDevDatas = $uiDevDatas->join("uichecks as uic", "uic.id", "ui_devices.uicheck_id")
                                     ->leftJoin("store_websites as sw", "sw.id", "uic.website_id")
-                                    ->leftJoin("uicheck_user_accesses as uua", "uua.uicheck_id", "uic.id")
+                                    ->leftJoin("uicheck_user_accesses as uua", "ui_devices.uicheck_id", "uua.uicheck_id")
                                     ->leftJoin("users as u", "u.id", "uua.user_id")
                                     ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
                                     ->leftJoin("site_development_statuses as sds", "sds.id", "ui_devices.status");
@@ -1029,6 +1029,9 @@ class UicheckController extends Controller {
             if($request->id != ''){
                 $uiDevDatas = $uiDevDatas->where('ui_devices.uicheck_id', $request->id);    
             }
+            
+            if(!Auth::user()->hasRole('Admin'))
+                $uiDevDatas = $uiDevDatas->where(['uua.user_id' => \Auth::user()->id]);    
             
             
             $uiDevDatas = $uiDevDatas->select("ui_devices.*", 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname')->orderBy('id', 'DESC')->groupBy("ui_devices.uicheck_id")->paginate(8);
@@ -1104,9 +1107,9 @@ class UicheckController extends Controller {
         
         try{
             $uiLanguages = new UiLanguage();
-            $uiLanguages = $uiLanguages->leftJoin("uichecks as uic", "uic.id", "ui_languages.uicheck_id")
+            $uiLanguages = $uiLanguages->join("uichecks as uic", "uic.id", "ui_languages.uicheck_id")
                                     ->leftJoin("store_websites as sw", "sw.id", "uic.website_id")
-                                    ->leftJoin("uicheck_user_accesses as uua", "uua.uicheck_id", "uic.id")
+                                    ->leftJoin("uicheck_user_accesses as uua", "ui_languages.uicheck_id", "uua.uicheck_id")
                                     ->leftJoin("users as u", "u.id", "uua.user_id")
                                     ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
                                     ->leftJoin("site_development_statuses as sds", "sds.id", "ui_languages.status");
@@ -1121,11 +1124,16 @@ class UicheckController extends Controller {
             if($request->id != ''){
                 $uiLanguages = $uiLanguages->where('ui_languages.uicheck_id', $request->id);    
             }
-
+            
+            
+            if(!Auth::user()->hasRole('Admin'))
+                $uiLanguages = $uiLanguages->where(['uua.user_id' => \Auth::user()->id]);    
+            
             $uiLanguages = $uiLanguages->select("ui_languages.*", 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname')
                                     ->groupBy("ui_languages.uicheck_id")
                                     ->orderBy('id', 'DESC')
                                     ->paginate(8);
+           // dd($uiLanguages);
             $allStatus = SiteDevelopmentStatus::pluck("name", "id")->toArray();
             $status = '';
             $lanid = '';
