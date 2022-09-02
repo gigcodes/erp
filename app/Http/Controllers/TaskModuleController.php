@@ -1994,8 +1994,16 @@ class TaskModuleController extends Controller {
                 $data['task_type_id'] = 3;
             }
 
-            $cntrl = new DevelopmentController();
-            $task = $cntrl->developerTaskCreate($data);
+            $data["subject"]         = $request->get("task_subject");
+            $data["task"]             = $request->get("task_detail");
+            $data["task_type_id"]    = 1;
+            $data["user_feedback_cat_id"]    = $request->get("user_feedback_cat_id");
+            $data["site_developement_id"]    = $request->get("site_id");
+            $data["cost"]    = $request->get("cost", 0);
+            $data["status"]    = 'In Progress';
+            $data["created_by"]    = Auth::id();
+            
+            //echo $data["site_developement_id"]; die;
 
             if (request('need_review_task')) {
                 $data['parent_review_task_id'] = $task->id;
