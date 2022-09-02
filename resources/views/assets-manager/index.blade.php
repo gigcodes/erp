@@ -27,43 +27,6 @@
                 <div class="form-group ml-3">
                   <?php echo Form::select("payment_cycle", \App\AssetsManager::paymentCycleList(), request("payment_cycle", ""), ["class" => "form-control"]); ?>
                 </div>
-
-                <div class="form-group ml-3">
-                  <select class="form-control " name="website_id" style="width:150px !important;">
-                    <option value="">Website </option>
-                    @foreach($websites as $website)
-                      <option value="{{$website->id}}" {{ $website->id == old('website_id') ? 'selected' : '' }}>{{$website->website}}</option>
-                    @endforeach
-                </select>
-                </div>
-
-                <div class="form-group ml-3">
-                  <select class="form-control " name="asset_plate_form_id" style="width:150px !important;">
-                    <option value="">Plate Form</option>
-                    @foreach($plateforms as $plateform)
-                      <option value="{{$plateform->id}}" {{ $plateform->id == old('asset_plate_form_id') ? 'selected' : '' }}>{{$plateform->name}}</option>
-                    @endforeach
-                </select>
-                </div>
-      
-                <div class="form-group ml-3">
-                  <select class="form-control " name="email_address_id"  style="width:150px !important; ">
-                    <option value="">Email Address</option>
-                    @foreach($emailAddress as $email)
-                      <option value="{{$email->id}}" {{ $email->id == old('email_address_id') ? 'selected' : '' }}>{{$email->from_name}}</option>
-                    @endforeach
-                </select>
-                </div>
-      
-                <div class="form-group ml-3">
-                  <select class="form-control " name="whatsapp_config_id"  style="width:150px !important; ">
-                    <option value="">Phone Number</option>
-                    @foreach($whatsappCon as $phone)
-                      <option value="{{$phone->id}}" {{ $phone->id == old('whatsapp_config_id') ? 'selected' : '' }}>{{$phone->number}}</option>
-                    @endforeach
-                </select>
-                </div>
-                
                 <button type="submit" class="btn btn-xs"><i class="fa fa-filter"></i></button>
               </form>
             </div>
@@ -73,9 +36,6 @@
             <div class="pull-right">
                 <button type="button" class="btn btn-xs ml-3 mr-3" data-toggle="modal" data-target="#cashflows">Cash Flows</button>
             </div>
-            <div class="pull-right">
-              <button type="button" class="btn btn-xs ml-3 mr-3" title="Add Plate Form" data-toggle="modal" data-target="#plateFormModal"><i class="fa fa-plus"></i> Plate Form</button>
-          </div>
         </div>
     </div>
 
@@ -92,21 +52,17 @@
               <th width="6%">Capacity</th>
               <th width="5%">User Name</th>
               <th width="6%">Pwd</th>
-              <th width="6%">Ast Type</th>
+              <th width="7%">Ast Type</th>
               <th width="5%">Cat</th>
-              <th width="6%">Pro Name</th>
-              <th width="6%">Pur Type</th>
-              <th width="5%">Pymt Cycle</th>
-              <th width="6%">Due Date</th>
+              <th width="7%">Pro Name</th>
+              <th width="7%">Pur Type</th>
+              <th width="6%">Pymt Cycle</th>
+              <th width="8%">Due Date</th>
               <th width="5%">Amount</th>
-              <th width="4%">Currency</th>
+              <th width="5%">Currency</th>
               <th width="3%">Location</th>
               <th width="5%">Usage</th>
-              <th width="3%">Site Name</th>
-              <th width="3%">Plate Form</th>
-              <th width="3%">Email</th>
-              <th width="3%">Phone </th>
-              <th width="15%">Action</th>
+              <th width="34%">Action</th>
             </tr>
           </thead>
 
@@ -115,7 +71,7 @@
               <tr>
                 <td>{{ $asset->id }}</td>
                 <td class="expand-row-msg" data-name="name" data-id="{{$asset->id}}">
-                  <span class="show-short-name-{{$asset->id}}">{{ str_limit($asset->name, 12, '..')}}</span>
+                  <span class="show-short-name-{{$asset->id}}">{{ str_limit($asset->name, 8, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-name-{{$asset->id}} hidden">{{$asset->name}}</span>
                 </td>
                 <td class="expand-row-msg" data-name="capacity" data-id="{{$asset->id}}">
@@ -145,23 +101,6 @@
                   <span class="show-short-usage-{{$asset->id}}">{{ str_limit($asset->usage, 9, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-usage-{{$asset->id}} hidden">{{$asset->usage}}</span>
                 </td>
-                <td class="expand-row-msg" data-name="website" data-id="{{$asset->id}}">
-                  <span class="show-short-website-{{$asset->id}}">{{ str_limit($asset->website_name, 3, '..')}}</span>
-                  <span style="word-break:break-all;" class="show-full-website-{{$asset->id}} hidden">{{$asset->website_name}}</span>
-                </td>
-                <td class="expand-row-msg" data-name="plateform_name" data-id="{{$asset->id}}">
-                  <span class="show-short-plateform_name-{{$asset->id}}">{{ str_limit($asset->plateform_name, 3, '..')}}</span>
-                  <span style="word-break:break-all;" class="show-full-plateform_name-{{$asset->id}} hidden">{{$asset->plateform_name}}</span>
-                </td>
-                <td class="expand-row-msg" data-name="from_address" data-id="{{$asset->id}}">
-                  <span class="show-short-from_address-{{$asset->id}}">{{ str_limit($asset->from_address, 3, '..')}}</span>
-                  <span style="word-break:break-all;" class="show-full-from_address-{{$asset->id}} hidden">{{$asset->from_address}}</span>
-                </td>
-                <td class="expand-row-msg" data-name="number" data-id="{{$asset->id}}">
-                  <span class="show-short-number-{{$asset->id}}">{{ str_limit($asset->number, 3, '..')}}</span>
-                  <span style="word-break:break-all;" class="show-full-number-{{$asset->id}} hidden">{{$asset->number}}</span>
-                </td>
-                
                 <td>
                     <!--   <a href="{{ route('assets-manager.show', $asset->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a> -->
                     <button type="button" class="btn btn-xs edit-assets pull-left" data-toggle="modal" data-target="#assetsEditModal" data-assets="{{ json_encode($asset) }}"><i class="fa fa-edit"></i></button>
@@ -219,7 +158,6 @@
       </div>
     </div>
     </div>
-
     <div id="magentoDevScriptUpdateHistoryModal" class="modal fade" role="dialog">
       <div class="modal-dialog modal-lg">
         <!-- Modal content-->
@@ -248,8 +186,6 @@
         </div>
       </div>
     </div>
-
-
 
     <div id="showUserHistoryModel" class="modal fade" role="dialog">
       <div class="modal-dialog modal-lg">
@@ -280,29 +216,6 @@
       </div>
     </div>
 
-    <div id="plateFormModal" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content ">
-          <div class="modal-header">
-              <h4 class="modal-title">Add Plate Form Name</h4>
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-              <div class="table-responsive mt-3">
-                <form id="add-remark">
-                    <div class="form-group">
-                      <input type="text" name="plateformName" id="plateformName" class="plateformname" value="">
-                    </div>
-                  <button type="button" class="btn btn-secondary btn-save-plateform mt-2" >Add</button>
-                </form> 
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
 @endsection
 
 @section('scripts')
@@ -311,7 +224,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript">
    $('.select-multiple').select2({width: '100%'});
-   $('.select2').select2({width: '100%'});
     $('ul.pagination').hide();
     $(function() {
       $('.infinite-scroll').jscroll({
@@ -425,10 +337,6 @@
       $('#ip').val(asset.ip);
       $('#old_ip').val(asset.ip);
       $('#assigned_to').val(asset.assigned_to);
-      $('#website_id').val(asset.website_id).trigger('change');
-      $('#asset_plate_form_id').val(asset.asset_plate_form_id).trigger('change');
-      $('#email_address_id').val(asset.email_address_id).trigger('change');
-      $('#whatsapp_config_id').val(asset.whatsapp_config_id).trigger('change');
       $('#provider_name').val(asset.provider_name);
       $('#location').val(asset.location);
       $('#currency').val(asset.currency);
@@ -446,7 +354,6 @@
       $('#asset_amount').val(asset.amount);
       $('#usage').val(asset.usage);
       $('#capacity').val(asset.capacity);
-      
       
       $('#ip_name_ins').val(asset.ip_name);
       
@@ -602,7 +509,6 @@
         });
       });
 
-
       $(document).ready(function() {
           $('.show-assets-history-log').click(function(){
             var asset_id = $(this).data('assets_id');
@@ -659,27 +565,6 @@
           $(".getInsServerCount").val(getInsServerCount);
           var addInsServerUpdate = '<br/><input type="text" name="folder_name[]" id="folder_name'+getInsServerCount+'" class="form-control"  value="" >';
           $(".addInsServerUpdate").append(addInsServerUpdate);
-      });
-
-      $(document).ready(function() {
-          $('.btn-save-plateform').click(function(){
-            var plateForm = $("#plateformName").val();
-            $.ajax({
-              type: 'POST',
-              headers: {
-                  'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-              },
-              url: "{{ route('asset.manage.plateform.add') }}",
-              data: {
-                name:plateForm,
-              },
-          }).done(response => {
-            toastr['success'](response.message, 'success');
-            location.reload();
-          }).fail(function(response) {
-            toastr['error'](response.message, 'error');
-          });
-        });
       });
 
   </script>
