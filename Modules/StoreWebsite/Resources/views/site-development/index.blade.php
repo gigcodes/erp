@@ -125,7 +125,7 @@
         <div class="row">
             <div class="col col-md-12">
                 <div class="row mb-3">
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <form class="form-inline message-search-handler" onsubmit="event.preventDefault(); saveCategory();">
                             <div class="row">
                                 <div class="col">
@@ -176,9 +176,23 @@
                             </div>
                         </form>
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-md-10">
                         <form class="handle-search">
                             <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <select class="form-control select2" name="assignto[]" multiple style="width: 100% !important;">
+                                            <option value="">Select...</option>
+                                            @foreach ($users_all as $value)
+                                                @if (isset(request()->assignto) and in_array($value->id, request()->assignto))
+                                                    <option selected value="{{ $value->id }}">{{ $value->name }}</option>
+                                                @else
+                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <select class="form-control select2" name="k[]" id="k" multiple>
