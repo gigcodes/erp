@@ -97,7 +97,7 @@
                 <?php echo Form::select('select_website', ['' => 'All Website'] + $store_websites, null, ['class' => 'form-control select2', 'id' => 'copy_from_website']); ?>
                 <button type="button" class="btn btn-secondary" onClick="copyTasksFromWebsite()">Copy Tasks from
                     website</button>
-
+ 
 
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createTasksModal" id="">Create Tasks</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#masterCategoryModal" id="">Add Category</button>

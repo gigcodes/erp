@@ -7,10 +7,6 @@
     @endphp
    
     @foreach ($categories as $key => $category)
-        @foreach ($cat->assignedTo as $assignedToUser)
-            @if (request('assignto') != null and request('assignto') != "undefined")
-            @endif
-        @endforeach 
     <?php
     //$site = $category->getDevelopment($category->id, isset($website) ? $website->id : $category->website_id, $category->site_development_id);//
     $site = $category->getDevelopment($category->id,  $category->website_id, $category->site_development_id); //
