@@ -803,6 +803,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         });
     });
 
+    Route::get('/hr-ticket/countdevtask/{id}/{user_id?}', 'UserManagementController@taskCount');
+
     //
     // Route::post('/delete-document', 'SiteDevelopmentController@deleteDocument')->name("site-development.delete-documents");
     // Route::post('/send-document', 'SiteDevelopmentController@sendDocument')->name("site-development.send-documents");
@@ -2517,9 +2519,12 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::get('post/edit', 'InstagramPostsController@editPost')->name('post.edit');
     Route::post('post/create', 'InstagramPostsController@createPost')->name('post.store');
 
+    
     Route::get('users', 'InstagramPostsController@users')->name('instagram.users');
     Route::post('users/save', 'InstagramController@addUserForPost')->name('instagram.users.add');
     Route::get('users/{id}', 'InstagramPostsController@userPost')->name('instagram.users.post');
+    Route::post('users/feedback/hr-ticket/create', 'UsersFeedbackHrTicketController@store')->name('users.feedback.task.create');
+    Route::get('users/feedback/get/hr_ticket', 'UsersFeedbackHrTicketController@show');
 
     //direct message new
     Route::get('direct', 'DirectMessageController@index')->name('direct.index');
