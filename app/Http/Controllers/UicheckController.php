@@ -1030,6 +1030,11 @@ class UicheckController extends Controller {
             if($request->id != ''){
                 $uiDevDatas = $uiDevDatas->where('ui_devices.uicheck_id', $request->id);    
             }
+
+            if ($request->user_name != null and $request->user_name != "undefined") {
+            //if($request->user_name != ''){
+                $uiDevDatas = $uiDevDatas->whereIn('u.id', $request->user_name);    
+            }
             
             if(!Auth::user()->hasRole('Admin'))
                 $uiDevDatas = $uiDevDatas->where(['uua.user_id' => \Auth::user()->id]);    
@@ -1043,7 +1048,8 @@ class UicheckController extends Controller {
             $devid = '';
             $uicheck_id = '';
             $site_development_categories = SiteDevelopmentCategory::pluck("title", "id")->toArray();
-            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'uicheck_id', 'site_development_categories'));
+            $allUsers = User::where('is_active', '1')->get();
+            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'uicheck_id', 'site_development_categories', 'allUsers'));
         }catch(\Exception $e){
             //dd($e->getMessage());
             return \Redirect::back()->withErrors(['msg' => $e]);
@@ -1128,6 +1134,10 @@ class UicheckController extends Controller {
                 $uiLanguages = $uiLanguages->where('ui_languages.uicheck_id', $request->id);    
             }
             
+            if ($request->user_name != null and $request->user_name != "undefined") {
+            //if($request->user_name != ''){
+                $uiLanguages = $uiLanguages->whereIn('u.id', $request->user_name);    
+            }
             
             if(!Auth::user()->hasRole('Admin'))
                 $uiLanguages = $uiLanguages->where(['uua.user_id' => \Auth::user()->id]);    
@@ -1141,8 +1151,9 @@ class UicheckController extends Controller {
             $status = '';
             $lanid = '';
             $languages = Language::all();
+            $allUsers = User::where('is_active', '1')->get();
             $site_development_categories = SiteDevelopmentCategory::pluck("title", "id")->toArray();
-            return view('uicheck.language', compact('uiLanguages', 'status', 'languages', 'allStatus', 'lanid', 'site_development_categories'));
+            return view('uicheck.language', compact('uiLanguages', 'status', 'languages', 'allStatus', 'lanid', 'site_development_categories', 'allUsers'));
         }catch(\Exception $e){
             return \Redirect::back()->withErrors(['msg' => $e]);
         }
