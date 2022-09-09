@@ -125,6 +125,21 @@
 					<div class="col-md-2">
 						<div class="form-group">
 							<?php 
+								if(request('user_name')){   $userNameArr = request('user_name'); }
+								else{ $userNameArr = []; }
+							?>
+							<select name="user_name[]" id="user_name" class="form-control select2" multiple>
+								<option value="" @if($userNameArr=='') selected @endif>-- Select a User --</option>
+								@forelse($allUsers as $uId => $uName)
+								<option value="{{ $uName->id }}" @if(in_array($uName->id, $userNameArr)) selected @endif>{!! $uName->name !!}</option>
+								@empty
+								@endforelse
+							</select>
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="form-group">
+							<?php 
 								if(request('status')){   $statusArr = request('status'); }
 								else{ $statusArr = ''; }
 							  ?>
@@ -137,7 +152,7 @@
 							</select>
 						</div>
 					</div>
-					<div class="col-md-6">
+					<div class="col-md-4">
 						<button type="submit" class="btn btn btn-image custom-filter"><img src="/images/filter.png" style="cursor: nwse-resize;"></button>
 						<a href="{{route('uicheck.translation')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
 					</div>
@@ -251,7 +266,7 @@
 			</div>
 			<div class="modal-body">
 				<div class="col-md-12">
-					<table class="table table-bordered">
+					<table class="table table-bordered" style="width: 100%;">
 						<thead>
 							<tr>
 								<th width="5%">ID</th>
