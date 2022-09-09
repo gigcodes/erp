@@ -881,7 +881,7 @@ class UicheckController extends Controller {
                         '<td>' . ($value->id ?: '-') . '</td>',
                         '<td>' . ($value->userName ?: '-') . '</td>',
                         '<td class="expand-row-msg" data-name="lan_message" data-id="'.$value->id.'" >
-                            <span class="show-short-lan_message-'.$value->id.'">'.str_limit($value->message, 5, "...").'</span>
+                            <span class="show-short-lan_message-'.$value->id.'">'.str_limit($value->message, 30, "...").'</span>
                             <span style="word-break:break-all;" class="show-full-lan_message-'.$value->id.' hidden">'.$value->message.'</span>
                         </td>',
                         '<td>' . ($value->status_name ?: '-') . '</td>',
@@ -1018,8 +1018,9 @@ class UicheckController extends Controller {
                                     ->leftJoin("uicheck_user_accesses as uua", "ui_devices.uicheck_id", "uua.uicheck_id")
                                     ->leftJoin("users as u", "u.id", "uua.user_id")
                                     ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
-                                    ->leftJoin("site_development_statuses as sds", "sds.id", "ui_devices.status");
-                                    
+                                    ->leftJoin("site_development_statuses as sds", "sds.id", "ui_devices.status")
+                                    ->leftJoin("ui_device_histories as udh", "ui_devices.id", "udh.status");
+            
             if($request->status != ''){
                 $uiDevDatas = $uiDevDatas->where('ui_devices.status', $request->status);    
             }
@@ -1039,7 +1040,9 @@ class UicheckController extends Controller {
                 $uiDevDatas = $uiDevDatas->where(['uua.user_id' => \Auth::user()->id]);    
             
             
-            $uiDevDatas = $uiDevDatas->select("ui_devices.*", 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname')->orderBy('id', 'DESC')->groupBy("ui_devices.uicheck_id")->paginate(8);
+            $uiDevDatas = $uiDevDatas->select("ui_devices.*", 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname', 
+            DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail')  
+            )->orderBy('id', 'DESC')->groupBy("ui_devices.uicheck_id")->paginate(8);
             $allStatus = SiteDevelopmentStatus::pluck("name", "id")->toArray();
             $status = '';
             $devid = '';
@@ -1324,7 +1327,7 @@ class UicheckController extends Controller {
                         '<td>' . ($value->id ?: '-') . '</td>',
                         '<td>' . ($value->userName ?: '-') . '</td>',
                         '<td class="expand-row-msg" data-name="dev_message" data-id="'.$value->id.'" >
-                            <span class="show-short-dev_message-'.$value->id.'">'.str_limit($value->message, 5, "...").'</span>
+                            <span class="show-short-dev_message-'.$value->id.'">'.str_limit($value->message, 30, "...").'</span>
                             <span style="word-break:break-all;" class="show-full-dev_message-'.$value->id.' hidden">'.$value->message.'</span>
                         </td>',
                         '<td>' . ($value->status_name ?: '-') . '</td>',
