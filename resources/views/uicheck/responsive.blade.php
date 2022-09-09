@@ -82,7 +82,7 @@
 
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
-		<h2 class="page-heading">Ui Check Responsive({{$uiDevDatas->count()}})</h2>
+		<h2 class="page-heading">Ui Check Responsive({{$uiDevDatas->total()}})</h2>
 	</div>
 
 </div>
