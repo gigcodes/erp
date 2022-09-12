@@ -8,7 +8,7 @@
     @foreach ($categories as $key => $category)
         <?php 
             if (request('assignto') != null and request('assignto') != "undefined") {
-                $userSearch = "false"; 
+                $userSearch = "true"; 
                 foreach ($category->assignedTo as $assignedToUser){
                     if (in_array($assignedToUser['userID'], request('assignto')) ){
                         $userSearch = "true";

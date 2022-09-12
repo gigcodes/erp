@@ -139,7 +139,26 @@ class SiteDevelopmentController extends Controller {
             });
         }
 
-
+        if(is_array(request('assignto')) and count(request('assignto')) > 0){
+            $categories->leftJoin('developer_tasks', function ($q) {
+                $q->on('site_developments.id', '=', 'developer_tasks.site_developement_id');
+            })->leftJoin('users as u1', function ($q){
+                $q->on('u1.id', '=', 'developer_tasks.assigned_to');
+            });
+            
+            $categories->leftJoin('tasks', function ($q) {
+                $q->on('site_developments.id', '=', 'tasks.site_developement_id');
+            })->leftJoin('users as u2', function ($q){
+                $q->on('u2.id', '=', 'tasks.assign_to');
+            });
+            
+            $categories->where(function ($query) {
+                $query->whereIn('u1.id', request('assignto'))
+                    ->orWhere(function ($q) {
+                        $q->whereIn('u2.id', request('assignto'));
+                    });
+            });
+        }
         /* Status filter */
         if ($request->status) {
             //$categories->where('site_developments.status' , $request->status);
@@ -187,12 +206,12 @@ class SiteDevelopmentController extends Controller {
             $site_developement_id = $category->site_development_id;
             $taskStatistics['Devtask'] = DeveloperTask::where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select();
 
-            $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name', 'users.id AS userID');
+            $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
             $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
             $taskStatistics = $query->orderBy("developer_tasks.id", "DESC")->get();
             //print_r($taskStatistics);
             $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
-            $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name', 'users.id AS userID');
+            $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
             $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
             $othertaskStatistics = $query1->orderBy("tasks.id", "DESC")->get();
             $merged = $othertaskStatistics->merge($taskStatistics);
@@ -247,7 +266,7 @@ class SiteDevelopmentController extends Controller {
         }
 
 
-        $allUsers = User::select('id', 'name')->orderBy('name')->get();
+        $allUsers = User::where('is_active', '1')->select('id', 'name')->orderBy('name')->get();
         $users_all = $allUsers;
         $users = User::select('id', 'name')->whereIn('id', $userIDs)->get();
         $store_websites = StoreWebsite::pluck("title", "id")->toArray();
