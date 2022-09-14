@@ -1009,4 +1009,4 @@ aria-hidden="true">
             }
          });
 </script>
-@endsection
+@endsection 
