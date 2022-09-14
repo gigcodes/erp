@@ -46,6 +46,7 @@ use App\TaskUserHistory;
 use App\LogChatMessage;
 use App\Models\Tasks\TaskHistoryForStartDate;
 use App\Models\Tasks\TaskHistoryForCost;
+use App\StoreWebsite;
 
 use App\Http\Controllers\DevelopmentController;
 
@@ -1959,6 +1960,38 @@ class TaskModuleController extends Controller {
         }
 
         return response()->json(["code" => 500, "message" => "Sorry, no task found"]);
+    }
+    public function getWebsiteList(Request $request){
+        if($request->website[0] == 'all'){
+            $websiteData = StoreWebsite::all();
+        }else{
+            $websiteData = StoreWebsite::whereIn('id', $request->website);
+        }
+        foreach(){
+            
+        }
+
+    }
+    public function createMultipleTaskFromSortcut(Request $request){
+        try{
+            $this->validate($request, [
+                'task_subject' => 'required',
+                'task_detail' => 'required',
+                'task_asssigned_to' => 'required_without:assign_to_contacts',
+                //'cost'=>'sometimes|integer'
+            ]);
+    
+            if(is_array($request->websiteName)){
+                foreach($request->websiteName AS $website){
+                    $request->task_subject = $website;
+                    $this->createTaskFromSortcut($request);
+                }
+            }
+            return response()->json(["code" => 200, "data" => [], "message" => "Your quick task has been created!"]);
+        }catch(\Exception $e){
+            return response()->json(["code" => 500, "message" => $e->getMessage()]);
+        }
+        
     }
 
     public function createTaskFromSortcut(Request $request) {

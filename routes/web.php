@@ -1079,6 +1079,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/addWhatsAppGroup', 'TaskModuleController@addWhatsAppGroup')->name('task.add.whatsapp.group');
     Route::post('task/addGroupParticipant', 'TaskModuleController@addGroupParticipant')->name('task.add.whatsapp.participant');
     Route::post('task/create-task-from-shortcut', 'TaskModuleController@createTaskFromSortcut')->name('task.create.task.shortcut');
+    Route::post('task/create-multiple-task-from-shortcut', 'TaskModuleController@createMultipleTaskFromSortcut')->name('task.create.multiple.task.shortcut');
     Route::get('task/user/history', 'TaskModuleController@getUserHistory')->name('task/user/history');
     Route::post('task/recurring-history', 'TaskModuleController@recurringHistory')->name('task.recurringHistory');
 

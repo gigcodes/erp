@@ -92,7 +92,7 @@
 <div class="row" id="common-page-layout">
     <div class="col-lg-12 margin-tb p-0">
         <input type="hidden" name="website_id_data" id="website_id_data" value="{{ isset($website) ? $website->id : 0 }}" />
-        <h2 class="page-heading">Site Development {{ isset($website) ? '- ( ' . $website->website . ' )' : ' ' }} <span class="count-text"></span>
+        <h2 class="page-heading">Site Development 2 {{ isset($website) ? '- ( ' . $website->website . ' )' : ' ' }} <span class="count-text"></span>
             <div class="pull-right pr-2 d-flex">
                 <?php echo Form::select('select_website', ['' => 'All Website'] + $store_websites, null, ['class' => 'form-control select2', 'id' => 'copy_from_website']); ?>
                 <button type="button" class="btn btn-secondary" onClick="copyTasksFromWebsite()">Copy Tasks from
@@ -1303,6 +1303,28 @@
             toastr["error"]("Please add title first");
             return;
         }
+
+        $.ajax({
+            url: '//remarks',
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            data: {
+                remark: val
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+        }).done(function(response) {
+            $("#loading-image").hide();
+            $this.siblings('input').val("");
+            // $('#latest-remarks-modal').modal('hide');
+            toastr["success"]("Remarks fetched successfully");
+        }).fail(function(jqXHR, ajaxOptions, thrownError) {
+            toastr["error"]("Oops,something went wrong");
+            $("#loading-image").hide();
+        });
 
         $("#create-quick-task").modal("show");
 
