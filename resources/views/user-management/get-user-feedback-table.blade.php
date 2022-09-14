@@ -202,8 +202,9 @@
                     </td>
                     <td>
                         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-feedback_cat_id="{{$cat->id}}" data-object='user-feedback' data-id="{{$cat->user_id}}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
-                        <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal"  data-feedback_cat_id="{{$cat->id}}" data-id="{{$cat->user_id}}" data-cat_name="{{$cat->category}}" title="Add Ticket" data-target="#hrTicketModal" id="hrTicket"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                        <button type="button" class="btn btn-secondary1 mr-2 hrTicket" data-toggle="modal"  data-feedback_cat_id="{{$cat->id}}" data-id="{{$cat->user_id}}" data-cat_name="{{$cat->category}}" title="Add Ticket" data-target="#hrTicketModal" id="hrTicket"><i class="fa fa-plus" aria-hidden="true"></i></button>
                         <button style="padding-left: 0;padding-right:0px;" type="button" class="btn pt-1 btn-image d-inline count-dev-customer-tasks"  title="Show task history" data-id="{{$cat->id}}" data-user_id="{{$cat->user_id}}"><i class="fa fa-info-circle"></i></button>
+                        <button style="padding-left: 0;padding-right:0px;" type="button" class="btn pt-1 btn-image d-inline delete-category"  title="Delete Category with all data" data-id="{{$cat->id}}" ><i class="fa fa-trash"></i></button>
                     </td>
                 </tr>
             @endforeach
@@ -543,7 +544,8 @@ aria-hidden="true">
         });
     });
 
-    $("#hrTicket").bind("click", function() { 
+    $(".hrTicket").bind("click", function() { 
+        debugger;
         var feedback_cat_id = $(this).data("feedback_cat_id");
         var cat_name = $(this).data("cat_name");
         $("#user_feedback_cat_id").val(feedback_cat_id);
@@ -973,5 +975,38 @@ aria-hidden="true">
         $(full).toggleClass('hidden');
         $(mini).toggleClass('hidden');
     });
+
+    $(document).on("click", ".delete-category",function(e){
+            // $('#btn-save').attr("disabled", "disabled");
+            e.preventDefault();
+            let _token = $("input[name=_token]").val();
+            let category_id =  $(this).data('id');
+            if(category_id!=""){
+                if(confirm("Are you sure you want to delete record?")) {
+                    debugger;
+                    $.ajax({
+                        url:"{{ route('delete.user.feedback-category') }}",
+                        type:"post",
+                        data:{
+                            id:category_id,
+                            _token: _token
+                        },
+                        cashe:false,
+                        success:function(response){
+                            if (response.message) {
+                                toastr["success"](response.message, "Message");
+                                location.reload();
+                            }else{
+                                toastr.error(response.message);
+                            }
+                        }
+                    });
+                } else {
+
+                }
+            }else{
+                toastr.error("Please realod and try again");
+            }
+         });
 </script>
 @endsection
