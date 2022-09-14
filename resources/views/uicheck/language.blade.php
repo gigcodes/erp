@@ -266,7 +266,7 @@
 			</div>
 			<div class="modal-body">
 				<div class="col-md-12">
-					<table class="table table-bordered">
+					<table class="table table-bordered" style="width: 100%;">
 						<thead>
 							<tr>
 								<th width="5%">ID</th>
