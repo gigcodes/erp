@@ -87,7 +87,7 @@
 
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
-		<h2 class="page-heading">Ui Check Languages ({{$languages->count()}})</h2>
+		<h2 class="page-heading">Ui Check Languages ({{$uiLanguages->total()}})</h2>
 	</div>
 
 </div>
