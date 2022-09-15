@@ -2981,6 +2981,7 @@ class TaskModuleController extends Controller {
             ->where('model', 'App\Task')
             ->where('attribute', 'estimation_minute')
             ->select('developer_tasks_history.*', 'users.name')
+            ->orderBy('developer_tasks_history.id', 'DESC')
             ->get();
         if ($task_module) {
             return $task_module;
@@ -3496,8 +3497,13 @@ class TaskModuleController extends Controller {
             if ($errors) {
                 return respJson(400, $errors[0]);
             }
-
-            $single = Task::find(request('id'));
+            $subquery = DB::raw("SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC");
+            $single = Task::where('tasks.id', request('id'))
+                    ->select('tasks.*', DB::raw("(SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_remark"),
+                    DB::raw("(SELECT new_value FROM task_history_for_start_date WHERE task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_start_date"),
+                    DB::raw("(SELECT new_due_date FROM task_due_date_history_logs WHERE task_id=tasks.id AND task_type='TASK' ORDER BY id DESC LIMIT 1) as task_new_due_date"))
+                    ->first();
+            //dd($single);
             if (!$single) {
                 return respJson(404, 'No task found.');
             }
