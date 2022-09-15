@@ -1961,17 +1961,20 @@ class TaskModuleController extends Controller {
 
         return response()->json(["code" => 500, "message" => "Sorry, no task found"]);
     }
+
     public function getWebsiteList(Request $request){
-        if($request->website[0] == 'all'){
+        if($request->id[0] == 'all'){
             $websiteData = StoreWebsite::all();
         }else{
-            $websiteData = StoreWebsite::whereIn('id', $request->website);
+            $websiteData = StoreWebsite::whereIn('id', $request->id)->get();
         }
-        foreach(){
-            
+        $websiteCheckbox = '';
+        foreach($websiteData As $website){
+            $websiteCheckbox .= '<div class="col-4 py-1"><div style="float: left;height: auto;margin-right: 6px;"><input style="height:13px;" type="checkbox" name="website_name[]" value="'.$website->title.' - '.$request->cat_title.'"/></div> <div class=""  style="float: left;height: auto;margin-right: 6px;overflow-wrap: anywhere;width: 80%;">'.$website->website ."</div></div>";
         }
-
+        return response()->json(["code" => 200, "data" => $websiteCheckbox, "message" => "List of website!"]);
     }
+
     public function createMultipleTaskFromSortcut(Request $request){
         try{
             $this->validate($request, [
@@ -1981,11 +1984,69 @@ class TaskModuleController extends Controller {
                 //'cost'=>'sometimes|integer'
             ]);
     
-            if(is_array($request->websiteName)){
-                foreach($request->websiteName AS $website){
+            if(is_array($request->website_name)){
+                //dd($request->website_name);
+                foreach($request->website_name AS $website){
                     $request->task_subject = $website;
-                    $this->createTaskFromSortcut($request);
+                    
+                    $message = '';
+                    $assignedUserId = 0;
+                    $taskType = request("task_type");
+                    $data = $request->except('_token');
+                    $data['task_subject'] = $website;
+                    if ($taskType == "4" || $taskType == "5" || $taskType == "6") {
+                        $data = [];
+                        if (is_array($request->task_asssigned_to)) {
+                            $data['assigned_to'] = $request->task_asssigned_to[0];
+                        } else {
+                            $data['assigned_to'] = $request->task_asssigned_to;
+                        }
+                        $data['user_id'] = loginId();
+                        $data['subject'] = $website;//$request->get("task_subject");
+                        $data['task'] = $request->get("task_detail");
+                        $data['task_type_id'] = 1;
+                        $data['site_developement_id'] = $request->get("site_id");
+                        $data['cost'] = $request->get("cost", 0);
+                        $data['status'] = DeveloperTask::DEV_TASK_STATUS_PLANNED;
+                        $data['created_by'] = loginId();
+                        if ($taskType == 5 || $taskType == 6) {
+                            $data['task_type_id'] = 3;
+                        }
+
+                        $data["subject"]         = $website;//$request->get("task_subject");
+                        $data["task"]             = $request->get("task_detail");
+                        $data["task_type_id"]    = 1;
+                        $data["user_feedback_cat_id"]    = $request->get("user_feedback_cat_id");
+                        $data["site_developement_id"]    = $request->get("site_id");
+                        $data["cost"]    = $request->get("cost", 0);
+                        $data["status"]    = 'In Progress';
+                        $data["created_by"]    = Auth::id();
+                        
+                        //echo $data["site_developement_id"]; die;
+
+                        if (request('need_review_task')) {
+                            $data['parent_review_task_id'] = $task->id;
+                            $reviewTask = $cntrl->developerTaskCreate($data);
+                        }
+                    } else {
+                        $data['task_subject'] = $website;
+                        $data['task_type'] = $data['task_type'] ?? NULL;
+                        $data['assign_from'] = loginId();
+                        $data['status'] = 5; // Planned - As per DEVTASK-22162
+                        $data['customer_id'] = $data['customer_id'] ?? NULL;
+                        $data['cost'] = $data['cost'] ?? NULL;
+
+                        $task = $this->taskCreateMaster($data);
+
+                        if (request('need_review_task')) {
+                            $data['parent_review_task_id'] = $task->id;
+                            $reviewTask = $this->taskCreateMaster($data);
+                        }
+                    }
+                    
                 }
+            } else {
+                $this->createTaskFromSortcut($request);
             }
             return response()->json(["code" => 200, "data" => [], "message" => "Your quick task has been created!"]);
         }catch(\Exception $e){
@@ -2100,7 +2161,6 @@ class TaskModuleController extends Controller {
     }
 
     public function taskCreateMaster($data) {
-
         if ($data['task_type'] ?? NULL) {
             $data['is_statutory'] = $data['task_type'];
         }

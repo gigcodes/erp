@@ -394,7 +394,7 @@
 <div id="create-quick-task" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form action="<?php echo route('task.create.task.shortcut'); ?>" method="post">
+            <form action="<?php echo route('task.create.multiple.task.shortcut'); ?>" method="post">
                 <?php echo csrf_field(); ?>
                 <div class="modal-header">
                     <h4 class="modal-title">Create Task</h4>
@@ -402,6 +402,7 @@
                 <div class="modal-body">
 
                     <input class="form-control" value="49" type="hidden" name="category_id" />
+                    <input class="form-control" value="" type="hidden" name="category_title" id="category_title" />
                     <input class="form-control" type="hidden" name="site_id" id="site_id" />
                     <div class="form-group">
                         <label for="">Subject</label>
@@ -448,6 +449,12 @@
                         <label for="">Create Review Task?</label>
                         <div class="form-group">
                             <input type="checkbox" name="need_review_task" value="1" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Websites</label>
+                        <div class="form-group website-list row">
+                           
                         </div>
                     </div>
                 </div>
@@ -1298,29 +1305,32 @@
         var $this = $(this);
         site = $(this).data("id");
         title = $(this).data("title");
+        cat_title = $(this).data("category_title");
         development = $(this).data("development");
         if (!title || title == '') {
             toastr["error"]("Please add title first");
             return;
         }
-
+        //debugger;
+        let val = $("#change_website1").select2("val");
         $.ajax({
-            url: '//remarks',
+            url: '/task/get/websitelist',
             type: 'POST',
             headers: {
                 'X-CSRF-TOKEN': "{{ csrf_token() }}"
             },
             data: {
-                remark: val
+                id: val,
+                cat_title:cat_title
             },
             beforeSend: function() {
                 $("#loading-image").show();
             }
         }).done(function(response) {
             $("#loading-image").hide();
-            $this.siblings('input').val("");
-            // $('#latest-remarks-modal').modal('hide');
-            toastr["success"]("Remarks fetched successfully");
+            //$this.siblings('input').val("");
+            $('.website-list').html(response.data);
+            //toastr["success"]("Remarks fetched successfully");
         }).fail(function(jqXHR, ajaxOptions, thrownError) {
             toastr["error"]("Oops,something went wrong");
             $("#loading-image").hide();
