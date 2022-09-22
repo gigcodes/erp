@@ -10,6 +10,12 @@ use App\AssetManamentUpdateLog;
 use App\AssetMagentoDevScripUpdateLog;
 use Illuminate\Http\Request;
 use App\assetUserChangeHistory;
+use App\AssetPlateForm;
+use App\StoreWebsite;
+use App\EmailAddress;
+use App\WhatsappConfig;
+
+
 
 class AssetsManagerController extends Controller
 {
@@ -32,34 +38,68 @@ class AssetsManagerController extends Controller
         $paymentCycle = request("payment_cycle", "");
         $assetType = request("asset_type", "");
         $purchaseType = request("purchase_type", "");
+        $website_id = request("website_id");
+        $asset_plate_form_id = request("asset_plate_form_id");
+        $email_address_id = request("email_address_id");
+        $whatsapp_config_id = request("whatsapp_config_id");
 
         $assets = new AssetsManager;
+        $assets = $assets->leftJoin("store_websites", "store_websites.id", "assets_manager.website_id")
+                ->leftJoin("asset_plate_forms AS apf", "apf.id", "assets_manager.asset_plate_form_id")
+                ->leftJoin("email_addresses As ea", "ea.id", "assets_manager.email_address_id")
+                ->leftJoin("whatsapp_configs AS wc", "wc.id", "assets_manager.whatsapp_config_id")
+                    ;
+        
 
         if (!empty($search)) {
             $assets = $assets->where(function ($q) use ($search) {
-                $q->where("name", "LIKE", "%" . $search . "%")->orWhere("provider_name", "LIKE", "%" . $search . "%");
+                $q->where("assets_manager.name", "LIKE", "%" . $search . "%")->orWhere("provider_name", "LIKE", "%" . $search . "%");
             });
         }
 
         if (!empty($paymentCycle)) {
-            $assets = $assets->where("payment_cycle", $paymentCycle);
+            $assets = $assets->where("assets_manager.payment_cycle", $paymentCycle);
         }
 
         if (!empty($assetType)) {
-            $assets = $assets->where("asset_type", $assetType);
+            $assets = $assets->where("assets_manager.asset_type", $assetType);
         }
 
         if (!empty($purchaseType)) {
-            $assets = $assets->where("purchase_type", $purchaseType);
+            $assets = $assets->where("assets_manager.purchase_type", $purchaseType);
+        }
+        //////////////////////////////////////////////////////////
+        if (!empty($website_id)) {
+            $assets = $assets->where("assets_manager.website_id", $website_id);
+        }
+
+        if (!empty($asset_plate_form_id)) {
+            $assets = $assets->where("assets_manager.asset_plate_form_id", $asset_plate_form_id);
+        }
+
+        if (!empty($email_address_id)) {
+            $assets = $assets->where("assets_manager.purchase_type", $email_address_id);
+        }
+
+        if (!empty($whatsapp_config_id)) {
+            $assets = $assets->where("assets_manager.purchase_type", $whatsapp_config_id);
         }
         // $assets = $assets->orderBy("due_date", "ASC");
-        $assetsIds = $assets->select('id')->get()->toArray();
-        $assets = $assets->orderBy('due_date', 'asc')->paginate(25);
+        //dd($assets->get());
+        $assetsIds = $assets->select('assets_manager.id')->get()->toArray();
+        $assets = $assets->select('assets_manager.*','store_websites.website AS website_name', 'apf.name AS plateform_name', 'ea.from_address', 'wc.number');
+        $assets = $assets->orderBy('assets_manager.due_date', 'asc')->paginate(25);
+        
+        $websites = StoreWebsite::all();
+        $plateforms = AssetPlateForm::all();
+        $emailAddress = EmailAddress::all();
+        $whatsappCon = \DB::table('whatsapp_configs')->get();
 
         //Cash Flows
         $cashflows = \App\CashFlow::whereIn('cash_flow_able_id', $assetsIds)->where(['cash_flow_able_type' => 'App\AssetsManager'])->get();
-        $users = User::all();
-        return view('assets-manager.index', compact('assets', 'category', 'cashflows', 'users'))
+        $users = User::get()->toArray();
+        //dd($users);
+        return view('assets-manager.index', compact('assets', 'category', 'cashflows', 'users', 'websites', 'plateforms', 'whatsappCon', 'emailAddress'))
             ->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
@@ -116,6 +156,10 @@ class AssetsManagerController extends Controller
         $data['ip_name'] = $request->ip_name;
         $data['server_password'] = $request->server_password;
         $data['folder_name'] = json_encode($request->folder_name);
+        $data['website_id'] = $request->website_id;
+        $data['asset_plate_form_id'] = $request->asset_plate_form_id;
+        $data['email_address_id'] = $request->email_address_id;
+        $data['whatsapp_config_id'] = $request->whatsapp_config_id;
         $insertData = AssetsManager::create($data);
         if ($request->input('payment_cycle') == 'One time') {
             //create entry in table cash_flows
@@ -223,6 +267,11 @@ class AssetsManagerController extends Controller
         $data['ip_name'] = $request->ip_name;
         $data['server_password'] = $request->server_password;
         $data['folder_name'] = json_encode($request->folder_name);
+        $data['website_id'] = $request->website_id;
+        $data['asset_plate_form_id'] = $request->asset_plate_form_id;
+        $data['email_address_id'] = $request->email_address_id;
+        $data['whatsapp_config_id'] = $request->whatsapp_config_id;
+        
         //dd($data);
         AssetsManager::find($id)->update($data);
 
@@ -420,6 +469,18 @@ class AssetsManagerController extends Controller
                 "old_user_id" => $request->old_user_name,
             ]);
          } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function plateFormStore(Request $request){
+        try{
+            $plateform = AssetPlateForm::create([
+                "name" => $request->name,
+            ]);
+            return response()->json(['code' => 500, 'data' => $plateform, 'message' => "Plateform Data has been saved successfully"]);
+        } catch (\Exception $e) {
             $msg = $e->getMessage();
             return response()->json(['code' => 500, 'message' => $msg]);
         }

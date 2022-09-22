@@ -48,7 +48,7 @@
           <thead>
             <tr>
               <th width="4%">ID</th>
-              <th width="7%">Name</th>
+              <th width="6%">Name</th>
               <th width="6%">Capacity</th>
               <th width="5%">User Name</th>
               <th width="6%">Pwd</th>
@@ -56,13 +56,13 @@
               <th width="5%">Cat</th>
               <th width="7%">Pro Name</th>
               <th width="7%">Pur Type</th>
-              <th width="9%">Pymt Cycle</th>
-              <th width="7%">Due Date</th>
+              <th width="6%">Pymt Cycle</th>
+              <th width="8%">Due Date</th>
               <th width="5%">Amount</th>
               <th width="5%">Currency</th>
               <th width="3%">Location</th>
-              <th width="7%">Usage</th>
-              <th width="15%">Action</th>
+              <th width="5%">Usage</th>
+              <th width="34%">Action</th>
             </tr>
           </thead>
 
@@ -71,7 +71,7 @@
               <tr>
                 <td>{{ $asset->id }}</td>
                 <td class="expand-row-msg" data-name="name" data-id="{{$asset->id}}">
-                  <span class="show-short-name-{{$asset->id}}">{{ str_limit($asset->name, 12, '..')}}</span>
+                  <span class="show-short-name-{{$asset->id}}">{{ str_limit($asset->name, 8, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-name-{{$asset->id}} hidden">{{$asset->name}}</span>
                 </td>
                 <td class="expand-row-msg" data-name="capacity" data-id="{{$asset->id}}">
