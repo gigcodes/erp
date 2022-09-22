@@ -6,10 +6,22 @@
     $pagrank = $categories->perPage() * ($categories->currentPage() - 1) + 1;
     @endphp
     @foreach ($categories as $key => $category)
+        <?php 
+            if (request('assignto') != null and request('assignto') != "undefined") {
+                $userSearch = "true"; 
+                foreach ($category->assignedTo as $assignedToUser){
+                    if (in_array($assignedToUser['userID'], request('assignto')) ){
+                        $userSearch = "true";
+                    }
+                }
+            } else {
+                $userSearch = "true";
+            }
+        ?>
     <?php
     //$site = $category->getDevelopment($category->id, isset($website) ? $website->id : $category->website_id, $category->site_development_id);//
     $site = $category->getDevelopment($category->id,  $category->website_id, $category->site_development_id); //
-    if ($isAdmin || $hasSiteDevelopment || ($site && $site->developer_id == $userId)) {
+    if (($isAdmin || $hasSiteDevelopment || ($site && $site->developer_id == $userId)) && $userSearch == 'true') {
     ?>
 
         <tr>
