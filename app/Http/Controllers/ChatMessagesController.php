@@ -676,6 +676,10 @@ class ChatMessagesController extends Controller
             $records = $records->where("customer_id", $request->customer_id);
         }
 
+        if (!empty($request->created_at)) {
+            $records = $records->whereDate("created_at", date('Y-m-d', strtotime($request->created_at)));
+        }
+        
         $records = $records->latest()->paginate(20);
         $recorsArray = [];
 
