@@ -1134,8 +1134,10 @@ class DevelopmentController extends Controller {
         }
 
         if ($s = request('assigned_to')) {
-            $issues = $issues->whereIn('developer_tasks.assigned_to', $s);
-            $task = $task->whereIn('tasks.assign_to', $s);
+            if($s[0] !='') {
+                $issues = $issues->whereIn('developer_tasks.assigned_to', $s);
+                $task = $task->whereIn('tasks.assign_to', $s);
+            }
         }
         if ((int) $request->get('empty_estimated_time') > 0) {
             $issues = $issues->where('developer_tasks.estimate_time', NULL);
@@ -1149,7 +1151,9 @@ class DevelopmentController extends Controller {
             $task = $task->where('tasks.due_date', '>', date('Y-m-d'))->where('tasks.status', '!=', 3);
         }
         if ($s = request('module_id', [])) {
-            $issues = $issues->whereIn('developer_tasks.module_id', $s);
+            if($s[0] !=''){
+                $issues = $issues->whereIn('developer_tasks.module_id', $s);
+            }
         }
         if (!empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
