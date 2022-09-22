@@ -24,6 +24,7 @@ use App\Payment;
 use App\PaymentMethod;
 use App\Team;
 use App\UserAvaibility;
+use App\UserAvaibilityHistory;
 use App\PermissionRequest;
 use App\UserSysyemIp;
 use DB;
@@ -36,6 +37,8 @@ use App\Task;
 use App\DeveloperTask;
 use Google\Service\CloudTasks\Task as CloudTasksTask;
 use phpDocumentor\Reflection\Types\Null_;
+use App\UserFeedbackCategorySopHistory;
+use App\UserFeedbackCategorySopHistoryComment;
 
 class UserManagementController extends Controller {
     /**
@@ -2358,5 +2361,76 @@ class UserManagementController extends Controller {
         } catch (\Throwable $th) {
             return respException($th);
         }
+    }
+
+       
+    public function userAvailabilitiesEdit(Request $request) {
+        try {
+            $avaibility = UserAvaibility::where('id', '=', $request->id)->first();
+            return response()->json(['code' => 200, "data" => $avaibility, 'message' => 'Edited successfully!!!']);
+        } catch (\Throwable $th) {
+            return respException($th);
+        }
+    }
+
+    public function userAvaibilityHistoryLog() {
+        $q = UserAvaibilityHistory::query();
+        $q->leftJoin('users', "user_id", "users.id");
+        $q->select('user_avaibility_histories.*', "users.name AS username");
+        $q->where('user_avaibility_id', request('id'));
+        $list = $q->orderBy('id', 'DESC')->get();
+
+        $html = [];
+        $html[] = '<table class="table table-bordered">';
+        $html[] = '<thead>
+            <tr>
+                <th width="5%">ID</th>
+                <th width="5%" style="word-break: break-all;">User</th>
+                <th width="20%" style="word-break: break-all;">From/To Date</th>
+                <th width="15%" style="word-break: break-all;">Start/End Time</th>
+                <th width="30%" style="word-break: break-all;">Available Days</th>
+                <th width="10%" style="word-break: break-all;">Lunch Time</th>
+                <th width="15%">Created at</th>
+            </tr>
+        </thead>';
+        if ($list->count()) {
+            foreach ($list as $single) {
+                $html[] = '<tr>
+                    <td>' . $single->id . '</td>
+                    <td>' . $single->username . '</td>
+                    <td>' . $single->from . ' - ' . $single->to . '</td>
+                    <td>' . $single->start_time . ' - ' . $single->end_time . '</td>
+                    <td>' . (str_replace(',', ', ', $single->date) ?: '-') . '</td>
+                    <td>' . ($single->lunch_time ?: '-') . '</td>
+                    <td>' . $single->created_at . '</td>
+                </tr>';
+            }
+        } else {
+            $html[] = '<tr>
+                <td colspan="5">No records found.</td>
+            </tr>';
+        }
+        $html[] = '</table>';
+        return implode('', $html);
+    }
+    
+    public function deleteFeedbackCategory(Request $request){
+        try{
+            $userFCH = UserFeedbackCategorySopHistory::where('category_id', $request->id);
+            $getUserFCH = $userFCH->get();
+            if(!empty($getUserFCH)){
+                foreach($getUserFCH AS $key => $val) {
+                    $userFCHC = UserFeedbackCategorySopHistoryComment::where('sop_history_id', $val->id)->delete();
+                }
+                $userFCH->delete();
+            }
+            //DeveloperTask::where('user_feedback_cat_id', $request->id)->delete();
+            //Task::where('user_feedback_cat_id', $request->id)->delete();
+            UserFeedbackCategory::where('id', $request->id)->delete();
+            return response()->json(['code'=>'200', 'data' => [], 'message' => 'Data deleted successfully']);
+        } catch(\Exception $e){
+            return response()->json(['code'=>'500',  'message' => $e->getMessage()]);
+        }
+        
     }
 }

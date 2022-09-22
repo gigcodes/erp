@@ -880,15 +880,20 @@ class UicheckController extends Controller {
                         '<tr>',
                         '<td>' . ($value->id ?: '-') . '</td>',
                         '<td>' . ($value->userName ?: '-') . '</td>',
-                        '<td class="expand-row-msg" data-name="lan_message" data-id="'.$value->id.'" >
-                            <span class="show-short-lan_message-'.$value->id.'">'.str_limit($value->message, 5, "...").'</span>
-                            <span style="word-break:break-all;" class="show-full-lan_message-'.$value->id.' hidden">'.$value->message.'</span>
+                        '<td>
+                            <div style="width: 86%;float: left;" class="expand-row-msg" data-name="lan_message" data-id="'.$value->id.'">
+                                <span class="show-short-lan_message-'.$value->id.'">'.str_limit($value->message, 30, "...").' </span>
+                                <span style="word-break:break-all;" id="show-full-lan_message-'.$value->id.'" class="show-full-lan_message-'.$value->id.' hidden">'.$value->message.' </span>
+                            </div>
+                            <i class="fa fa-copy" data-text="'.$value->message.'"></i>
+                            
                         </td>',
                         '<td>' . ($value->status_name ?: '-') . '</td>',
                         '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
                         '</tr>',
                     ]);
                 }
+                $html[] = '';
             } else {
                 $html[] = implode('', [
                     '<tr>',
@@ -1018,8 +1023,9 @@ class UicheckController extends Controller {
                                     ->leftJoin("uicheck_user_accesses as uua", "ui_devices.uicheck_id", "uua.uicheck_id")
                                     ->leftJoin("users as u", "u.id", "uua.user_id")
                                     ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
-                                    ->leftJoin("site_development_statuses as sds", "sds.id", "ui_devices.status");
-                                    
+                                    ->leftJoin("site_development_statuses as sds", "sds.id", "ui_devices.status")
+                                    ->leftJoin("ui_device_histories as udh", "ui_devices.id", "udh.status");
+            
             if($request->status != ''){
                 $uiDevDatas = $uiDevDatas->where('ui_devices.status', $request->status);    
             }
@@ -1029,18 +1035,26 @@ class UicheckController extends Controller {
             if($request->id != ''){
                 $uiDevDatas = $uiDevDatas->where('ui_devices.uicheck_id', $request->id);    
             }
+
+            if ($request->user_name != null and $request->user_name != "undefined") {
+            //if($request->user_name != ''){
+                $uiDevDatas = $uiDevDatas->whereIn('u.id', $request->user_name);    
+            }
             
             if(!Auth::user()->hasRole('Admin'))
                 $uiDevDatas = $uiDevDatas->where(['uua.user_id' => \Auth::user()->id]);    
             
             
-            $uiDevDatas = $uiDevDatas->select("ui_devices.*", 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname')->orderBy('id', 'DESC')->groupBy("ui_devices.uicheck_id")->paginate(8);
+            $uiDevDatas = $uiDevDatas->select("ui_devices.*", 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname', 
+            DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail')  
+            )->orderBy('id', 'DESC')->groupBy("ui_devices.uicheck_id")->paginate(8);
             $allStatus = SiteDevelopmentStatus::pluck("name", "id")->toArray();
             $status = '';
             $devid = '';
             $uicheck_id = '';
             $site_development_categories = SiteDevelopmentCategory::pluck("title", "id")->toArray();
-            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'uicheck_id', 'site_development_categories'));
+            $allUsers = User::where('is_active', '1')->get();
+            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'uicheck_id', 'site_development_categories', 'allUsers'));
         }catch(\Exception $e){
             //dd($e->getMessage());
             return \Redirect::back()->withErrors(['msg' => $e]);
@@ -1125,6 +1139,10 @@ class UicheckController extends Controller {
                 $uiLanguages = $uiLanguages->where('ui_languages.uicheck_id', $request->id);    
             }
             
+            if ($request->user_name != null and $request->user_name != "undefined") {
+            //if($request->user_name != ''){
+                $uiLanguages = $uiLanguages->whereIn('u.id', $request->user_name);    
+            }
             
             if(!Auth::user()->hasRole('Admin'))
                 $uiLanguages = $uiLanguages->where(['uua.user_id' => \Auth::user()->id]);    
@@ -1138,8 +1156,9 @@ class UicheckController extends Controller {
             $status = '';
             $lanid = '';
             $languages = Language::all();
+            $allUsers = User::where('is_active', '1')->get();
             $site_development_categories = SiteDevelopmentCategory::pluck("title", "id")->toArray();
-            return view('uicheck.language', compact('uiLanguages', 'status', 'languages', 'allStatus', 'lanid', 'site_development_categories'));
+            return view('uicheck.language', compact('uiLanguages', 'status', 'languages', 'allStatus', 'lanid', 'site_development_categories', 'allUsers'));
         }catch(\Exception $e){
             return \Redirect::back()->withErrors(['msg' => $e]);
         }
@@ -1312,9 +1331,12 @@ class UicheckController extends Controller {
                         '<tr>',
                         '<td>' . ($value->id ?: '-') . '</td>',
                         '<td>' . ($value->userName ?: '-') . '</td>',
-                        '<td class="expand-row-msg" data-name="dev_message" data-id="'.$value->id.'" >
-                            <span class="show-short-dev_message-'.$value->id.'">'.str_limit($value->message, 5, "...").'</span>
-                            <span style="word-break:break-all;" class="show-full-dev_message-'.$value->id.' hidden">'.$value->message.'</span>
+                        '<td >
+                            <div style="width: 86%;float: left;" class="expand-row-msg" data-name="dev_message" data-id="'.$value->id.'" >
+                                <span class="show-short-dev_message-'.$value->id.'">'.str_limit($value->message, 30, "...").'<i class="fa-solid fa-copy"></i></span>
+                                <span style="word-break:break-all;" class="show-full-dev_message-'.$value->id.' hidden">'.$value->message.'<i class="fa-solid fa-copy "></i></span>
+                            </div>
+                            <i class="fa fa-copy" data-text="'.$value->message.'"></i>
                         </td>',
                         '<td>' . ($value->status_name ?: '-') . '</td>',
                         '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',

@@ -89,19 +89,20 @@ class Task extends Model {
 
         'parent_task_id',
 
-        'last_date_time_reminder',
-        'is_flow_task',
+		'last_date_time_reminder',
+		'is_flow_task',
+        'user_feedback_cat_id',
         'parent_review_task_id'
-    ];
+	];
 
-    const TASK_TYPES = [
-        "Other Task",
-        "Statutory Task",
-        "Calendar Task",
-        "Discussion Task",
-        "Developer Task",
-        "Developer Issue",
-    ];
+	const TASK_TYPES = [
+		"Other Task",
+		"Statutory Task",
+		"Calendar Task",
+		"Discussion Task",
+		"Developer Task",
+		"Developer Issue",
+	];
 
     const TASK_STATUS_DONE                  = 1;
     const TASK_STATUS_DISCUSSING            = 2;
@@ -124,50 +125,58 @@ class Task extends Model {
     const TASK_STATUS_REOPEN                = 19;
     const TASK_STATUS_APPROVED              = 20;
 
-    protected $dates = ['deleted_at'];
+	protected $dates = ['deleted_at'];
 
-    public static function hasremark($id) {
-        $task = Task::find($id);
-        if (!empty($task->remark)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+	public static function hasremark( $id ) {
+		$task = Task::find( $id );
+		if ( ! empty( $task->remark ) ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
-    // getting remarks
-    public static function getremarks($taskid) {
-        $results = DB::select('select * from remarks where taskid = :taskid order by created_at DESC', ['taskid' => $taskid]);
-        return json_decode(json_encode($results), true);
-    }
+	// getting remarks
+	public static function getremarks($taskid)
+	{
+			$results = DB::select('select * from remarks where taskid = :taskid order by created_at DESC', ['taskid' => $taskid]);
+			return json_decode(json_encode($results),true);
+	}
 
-    public function remarks() {
-        return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task')->latest();
-    }
+	public function remarks()
+	{
+		return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task')->latest();
+	}
 
-    public function notes() {
-        return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-note')->latest();
-    }
+	public function notes()
+	{
+		return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-note')->latest();
+	}
+	
+	public function users()
+	{
+		return $this->belongsToMany('App\User', 'task_users', 'task_id', 'user_id')->where('type', 'App\User');
+	}
 
-    public function users() {
-        return $this->belongsToMany('App\User', 'task_users', 'task_id', 'user_id')->where('type', 'App\User');
-    }
+	public function assignedTo()
+	{
+		return $this->belongsTo('App\User', 'assign_to', 'id');
+	}
 
-    public function assignedTo() {
-        return $this->belongsTo('App\User', 'assign_to', 'id');
-    }
+	public function contacts()
+	{
+		return $this->belongsToMany('App\Contact', 'task_users', 'task_id', 'user_id')->where('type', 'App\Contact');
+	}
 
-    public function contacts() {
-        return $this->belongsToMany('App\Contact', 'task_users', 'task_id', 'user_id')->where('type', 'App\Contact');
-    }
+	public function whatsappgroup()
+	{
+		return $this->hasOne(WhatsAppGroup::class);
+	}
 
-    public function whatsappgroup() {
-        return $this->hasOne(WhatsAppGroup::class);
-    }
-
-    public function whatsappAll($needBroadCast = false) {
-        if ($needBroadCast) {
-            return $this->hasMany('App\ChatMessage', 'task_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
+	public function whatsappAll($needBroadCast = false)
+    {
+    	if($needBroadCast) {
+            return $this->hasMany('App\ChatMessage', 'task_id')->whereIn('status', ['7', '8', '9', '10'])->latest();    
         }
 
         return $this->hasMany('App\ChatMessage', 'task_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();

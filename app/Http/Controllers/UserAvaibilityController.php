@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\UserAvaibility;
+use Illuminate\Http\Request;
+use App\UserAvaibilityHistory;
 
 class UserAvaibilityController extends Controller {
 
@@ -32,6 +34,7 @@ class UserAvaibilityController extends Controller {
                 <th width="35%" style="word-break: break-all;">Available Days</th>
                 <th width="10%" style="word-break: break-all;">Lunch Time</th>
                 <th width="15%">Created at</th>
+                <th width="35%" >Action</th>
             </tr>
         </thead>';
         if ($list->count()) {
@@ -43,6 +46,9 @@ class UserAvaibilityController extends Controller {
                     <td>' . (str_replace(',', ', ', $single->date) ?: '-') . '</td>
                     <td>' . ($single->lunch_time ?: '-') . '</td>
                     <td>' . $single->created_at . '</td>
+                    <td><a class="btn btn-image" onclick="funUserAvailabilityEdit(' . $single->id . ')" style="padding: 0px 1px;"><img src="/images/edit.png" style="cursor: nwse-resize;"></a> 
+                     <i onclick="UserAvailabilityHistory(' . $single->id . ')" data-id="' . $single->id . '" class="btn fa fa-info-circle user-avaibility-history" aria-hidden="true" style="padding: 0px 1px;"></i>
+                    </td>
                 </tr>';
             }
         } else {
@@ -84,20 +90,35 @@ class UserAvaibilityController extends Controller {
                 return respJson(400, 'Start time must be greater than end time.');
             }
 
-            UserAvaibility::where('user_id', $user_id)->update(['is_latest' => 0]);
+            $recData = UserAvaibility::find(request('id'));
+            
+            if($recData){
+                $recData = UserAvaibility::find(request('id'));
+                $recData->user_id = $user_id;
+                $recData->from = request('from');
+                $recData->to = request('to');
+                $recData->date = implode(',', request('day'));
+                $recData->start_time = request('start_time');
+                $recData->end_time = request('end_time');
+                $recData->lunch_time = request('lunch_time') ?: NULL;
+                $recData->save();
+                $this->userAvaibilityHistory();
+            }else{
+                UserAvaibility::where('user_id', $user_id)->update(['is_latest' => 0]);
 
-            UserAvaibility::create([
-                'user_id' => $user_id,
-                'from' => request('from'),
-                'to' => request('to'),
-                'status' => 1,
-                'note' => null,
-                'date' => implode(',', request('day')),
-                'start_time' => request('start_time'),
-                'end_time' => request('end_time'),
-                'lunch_time' => request('lunch_time') ?: NULL,
-                'is_latest' => 1,
-            ]);
+                UserAvaibility::create([
+                    'user_id' => $user_id,
+                    'from' => request('from'),
+                    'to' => request('to'),
+                    'status' => 1,
+                    'note' => null,
+                    'date' => implode(',', request('day')),
+                    'start_time' => request('start_time'),
+                    'end_time' => request('end_time'),
+                    'lunch_time' => request('lunch_time') ?: NULL,
+                    'is_latest' => 1,
+                ]);
+            }
 
             return respJson(200, 'Added successfully.', [
                 'list' => $this->loadIndex($user_id)
@@ -106,4 +127,59 @@ class UserAvaibilityController extends Controller {
             return respException($th);
         }
     }
+
+    public function userAvaibilityHistory(){
+        UserAvaibilityHistory::create([
+            'user_avaibility_id' => request('id'),
+            'user_id' => \Auth::user()->id ?? request('user_id'),
+            'from' => request('from'),
+            'to' => request('to'),
+            'status' => request('status'),
+            'note' => request('note'),
+            'date' => implode(',', request('day')),
+            'start_time' => request('start_time'),
+            'end_time' => request('end_time'),
+            'lunch_time' => request('lunch_time') ?: NULL
+        ]);
+    }
+
+    public function userAvaibilityHistoryLog() {
+        $q = UserAvaibilityHistory::query();
+        $q->where('user_avaibility_id', request('id'));
+        $list = $q->orderBy('id', 'DESC')->get();
+
+        $html = [];
+        $html[] = '<table class="table table-bordered">';
+        $html[] = '<thead>
+            <tr>
+                <th width="5%">ID</th>
+                <th width="20%" style="word-break: break-all;">From/To Date</th>
+                <th width="15%" style="word-break: break-all;">Start/End Time</th>
+                <th width="35%" style="word-break: break-all;">Available Days</th>
+                <th width="10%" style="word-break: break-all;">Lunch Time</th>
+                <th width="15%">Created at</th>
+                <th width="15%" >Action</th>
+            </tr>
+        </thead>';
+        if ($list->count()) {
+            foreach ($list as $single) {
+                $html[] = '<tr>
+                    <td>' . $single->id . '</td>
+                    <td>' . $single->from . ' - ' . $single->to . '</td>
+                    <td>' . $single->start_time . ' - ' . $single->end_time . '</td>
+                    <td>' . (str_replace(',', ', ', $single->date) ?: '-') . '</td>
+                    <td>' . ($single->lunch_time ?: '-') . '</td>
+                    <td>' . $single->created_at . '</td>
+                </tr>';
+            }
+        } else {
+            $html[] = '<tr>
+                <td colspan="5">No records found.</td>
+            </tr>';
+        }
+        $html[] = '</table>';
+        return implode('', $html);
+    }
+    
+    
 }

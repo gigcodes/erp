@@ -139,7 +139,26 @@ class SiteDevelopmentController extends Controller {
             });
         }
 
-
+        if(is_array(request('assignto')) and count(request('assignto')) > 0){
+            $categories->leftJoin('developer_tasks', function ($q) {
+                $q->on('site_developments.id', '=', 'developer_tasks.site_developement_id');
+            })->leftJoin('users as u1', function ($q){
+                $q->on('u1.id', '=', 'developer_tasks.assigned_to');
+            });
+            
+            $categories->leftJoin('tasks', function ($q) {
+                $q->on('site_developments.id', '=', 'tasks.site_developement_id');
+            })->leftJoin('users as u2', function ($q){
+                $q->on('u2.id', '=', 'tasks.assign_to');
+            });
+            
+            $categories->where(function ($query) {
+                $query->whereIn('u1.id', request('assignto'))
+                    ->orWhere(function ($q) {
+                        $q->whereIn('u2.id', request('assignto'));
+                    });
+            });
+        }
         /* Status filter */
         if ($request->status) {
             //$categories->where('site_developments.status' , $request->status);
@@ -247,7 +266,7 @@ class SiteDevelopmentController extends Controller {
         }
 
 
-        $allUsers = User::select('id', 'name')->orderBy('name')->get();
+        $allUsers = User::where('is_active', '1')->select('id', 'name')->orderBy('name')->get();
         $users_all = $allUsers;
         $users = User::select('id', 'name')->whereIn('id', $userIDs)->get();
         $store_websites = StoreWebsite::pluck("title", "id")->toArray();

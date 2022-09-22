@@ -5,11 +5,24 @@
     $userId = auth()->user()->id;
     $pagrank = $categories->perPage() * ($categories->currentPage() - 1) + 1;
     @endphp
+   
     @foreach ($categories as $key => $category)
+        <?php 
+            if (request('assignto') != null and request('assignto') != "undefined") {
+                $userSearch = "true"; 
+                foreach ($category->assignedTo as $assignedToUser){
+                    if (in_array($assignedToUser['userID'], request('assignto')) ){
+                        $userSearch = "true";
+                    }
+                }
+            } else {
+                $userSearch = "true";
+            }
+        ?>
     <?php
     //$site = $category->getDevelopment($category->id, isset($website) ? $website->id : $category->website_id, $category->site_development_id);//
     $site = $category->getDevelopment($category->id,  $category->website_id, $category->site_development_id); //
-    if ($isAdmin || $hasSiteDevelopment || ($site && $site->developer_id == $userId)) {
+    if (($isAdmin || $hasSiteDevelopment || ($site && $site->developer_id == $userId)) && $userSearch == 'true') {
     ?>
 
         <tr>
@@ -310,7 +323,7 @@
                 @php
                 $websitenamestr = $website ? $website->title : '';
                 @endphp
-                <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="@if ($site) {{ $site->id }} @endif" data-title="@if ($site) {{$category->website . ' - ' . $category->title /*$websitenamestr . ' ' . $site->title*/ }} @endif"><img style="width:12px !important;" src="/images/add.png" /></button>
+                <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="@if ($site) {{ $site->id }} @endif"  data-category_title="{{$category->title}}" data-title="@if ($site) {{$category->website . ' - ' . $category->title /*$websitenamestr . ' ' . $site->title*/ }} @endif"><img style="width:12px !important;" src="/images/add.png" /></button>
                 <button style="padding-left: 0;padding-right:0px;" type="button" class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="@if ($site) {{ $site->id }} @endif" data-category="{{ $category->id }}"><i class="fa fa-info-circle"></i></button>
                 <button style="padding-left: 0;padding-right:0px;" type="button" class="btn  btn-image d-inline tasks-relation" title="Show task relation" data-id="@if ($site) {{ $site->id }} @endif"><i class="fa fa-dashboard"></i></button>
 
