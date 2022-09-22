@@ -880,15 +880,20 @@ class UicheckController extends Controller {
                         '<tr>',
                         '<td>' . ($value->id ?: '-') . '</td>',
                         '<td>' . ($value->userName ?: '-') . '</td>',
-                        '<td class="expand-row-msg" data-name="lan_message" data-id="'.$value->id.'" >
-                            <span class="show-short-lan_message-'.$value->id.'">'.str_limit($value->message, 30, "...").'</span>
-                            <span style="word-break:break-all;" class="show-full-lan_message-'.$value->id.' hidden">'.$value->message.'</span>
+                        '<td>
+                            <div style="width: 86%;float: left;" class="expand-row-msg" data-name="lan_message" data-id="'.$value->id.'">
+                                <span class="show-short-lan_message-'.$value->id.'">'.str_limit($value->message, 30, "...").' </span>
+                                <span style="word-break:break-all;" id="show-full-lan_message-'.$value->id.'" class="show-full-lan_message-'.$value->id.' hidden">'.$value->message.' </span>
+                            </div>
+                            <i class="fa fa-copy" data-text="'.$value->message.'"></i>
+                            
                         </td>',
                         '<td>' . ($value->status_name ?: '-') . '</td>',
                         '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
                         '</tr>',
                     ]);
                 }
+                $html[] = '';
             } else {
                 $html[] = implode('', [
                     '<tr>',
@@ -1326,9 +1331,12 @@ class UicheckController extends Controller {
                         '<tr>',
                         '<td>' . ($value->id ?: '-') . '</td>',
                         '<td>' . ($value->userName ?: '-') . '</td>',
-                        '<td class="expand-row-msg" data-name="dev_message" data-id="'.$value->id.'" >
-                            <span class="show-short-dev_message-'.$value->id.'">'.str_limit($value->message, 30, "...").'</span>
-                            <span style="word-break:break-all;" class="show-full-dev_message-'.$value->id.' hidden">'.$value->message.'</span>
+                        '<td >
+                            <div style="width: 86%;float: left;" class="expand-row-msg" data-name="dev_message" data-id="'.$value->id.'" >
+                                <span class="show-short-dev_message-'.$value->id.'">'.str_limit($value->message, 30, "...").'<i class="fa-solid fa-copy"></i></span>
+                                <span style="word-break:break-all;" class="show-full-dev_message-'.$value->id.' hidden">'.$value->message.'<i class="fa-solid fa-copy "></i></span>
+                            </div>
+                            <i class="fa fa-copy" data-text="'.$value->message.'"></i>
                         </td>',
                         '<td>' . ($value->status_name ?: '-') . '</td>',
                         '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
