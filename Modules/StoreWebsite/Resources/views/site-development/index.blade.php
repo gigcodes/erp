@@ -92,12 +92,12 @@
 <div class="row" id="common-page-layout">
     <div class="col-lg-12 margin-tb p-0">
         <input type="hidden" name="website_id_data" id="website_id_data" value="{{ isset($website) ? $website->id : 0 }}" />
-        <h2 class="page-heading">Site Development {{ isset($website) ? '- ( ' . $website->website . ' )' : ' ' }} <span class="count-text"></span>
+        <h2 class="page-heading">Site Development 2 {{ isset($website) ? '- ( ' . $website->website . ' )' : ' ' }} <span class="count-text"></span>
             <div class="pull-right pr-2 d-flex">
                 <?php echo Form::select('select_website', ['' => 'All Website'] + $store_websites, null, ['class' => 'form-control select2', 'id' => 'copy_from_website']); ?>
                 <button type="button" class="btn btn-secondary" onClick="copyTasksFromWebsite()">Copy Tasks from
                     website</button>
-
+ 
 
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createTasksModal" id="">Create Tasks</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#masterCategoryModal" id="">Add Category</button>
@@ -125,7 +125,7 @@
         <div class="row">
             <div class="col col-md-12">
                 <div class="row mb-3">
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <form class="form-inline message-search-handler" onsubmit="event.preventDefault(); saveCategory();">
                             <div class="row">
                                 <div class="col">
@@ -176,9 +176,37 @@
                             </div>
                         </form>
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-md-10">
                         <form class="handle-search">
                             <div class="row">
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <select class="form-control select2" name="assignto[]" multiple style="width: 100% !important;">
+                                            <option value="">Select...</option>
+                                            @foreach ($users_all as $value)
+                                                @if (isset(request()->assignto) and in_array($value->id, request()->assignto))
+                                                    <option selected value="{{ $value->id }}">{{ $value->name }}</option>
+                                                @else
+                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <select class="form-control select2" name="assignto[]" multiple style="width: 100% !important;">
+                                            <option value="">Select...</option>
+                                            @foreach ($users_all as $value)
+                                                @if (isset(request()->assignto) and in_array($value->id, request()->assignto))
+                                                    <option selected value="{{ $value->id }}">{{ $value->name }}</option>
+                                                @else
+                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <select class="form-control select2" name="k[]" id="k" multiple>
@@ -192,17 +220,17 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <div class="form-group">
                                         <?php echo Form::select('status', ['' => 'All Status'] + $allStatus, request('status'), ['class' => 'form-control select2', 'id' => 'enter-status']); ?>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <div class="form-group">
                                         <?php echo Form::select('websites[]', ['all' => 'All Website'] + $store_websites, isset(request()->websites) ? request()->websites : $website->id, ['class' => 'form-control select2', 'multiple', 'id' => 'change_website1']); ?>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-sm btn-image btn-search-keyword">
                                             <img src="{{ env('APP_URL') }}/images/send.png" style="cursor: default;width: 16px;">
@@ -394,7 +422,7 @@
 <div id="create-quick-task" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form action="<?php echo route('task.create.task.shortcut'); ?>" method="post">
+            <form action="<?php echo route('task.create.multiple.task.shortcut'); ?>" method="post">
                 <?php echo csrf_field(); ?>
                 <div class="modal-header">
                     <h4 class="modal-title">Create Task</h4>
@@ -402,6 +430,7 @@
                 <div class="modal-body">
 
                     <input class="form-control" value="49" type="hidden" name="category_id" />
+                    <input class="form-control" value="" type="hidden" name="category_title" id="category_title" />
                     <input class="form-control" type="hidden" name="site_id" id="site_id" />
                     <div class="form-group">
                         <label for="">Subject</label>
@@ -448,6 +477,12 @@
                         <label for="">Create Review Task?</label>
                         <div class="form-group">
                             <input type="checkbox" name="need_review_task" value="1" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Websites</label>
+                        <div class="form-group website-list row">
+                           
                         </div>
                     </div>
                 </div>
@@ -1298,11 +1333,36 @@
         var $this = $(this);
         site = $(this).data("id");
         title = $(this).data("title");
+        cat_title = $(this).data("category_title");
         development = $(this).data("development");
         if (!title || title == '') {
             toastr["error"]("Please add title first");
             return;
         }
+        //debugger;
+        let val = $("#change_website1").select2("val");
+        $.ajax({
+            url: '/task/get/websitelist',
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            data: {
+                id: val,
+                cat_title:cat_title
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+        }).done(function(response) {
+            $("#loading-image").hide();
+            //$this.siblings('input').val("");
+            $('.website-list').html(response.data);
+            //toastr["success"]("Remarks fetched successfully");
+        }).fail(function(jqXHR, ajaxOptions, thrownError) {
+            toastr["error"]("Oops,something went wrong");
+            $("#loading-image").hide();
+        });
 
         $("#create-quick-task").modal("show");
 

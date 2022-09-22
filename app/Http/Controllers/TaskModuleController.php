@@ -46,6 +46,7 @@ use App\TaskUserHistory;
 use App\LogChatMessage;
 use App\Models\Tasks\TaskHistoryForStartDate;
 use App\Models\Tasks\TaskHistoryForCost;
+use App\StoreWebsite;
 
 use App\Http\Controllers\DevelopmentController;
 
@@ -1961,6 +1962,109 @@ class TaskModuleController extends Controller {
         return response()->json(["code" => 500, "message" => "Sorry, no task found"]);
     }
 
+    public function getWebsiteList(Request $request){
+        if($request->id[0] == 'all'){
+            $websiteData = StoreWebsite::all();
+        }else{
+            $websiteData = StoreWebsite::whereIn('id', $request->id)->get();
+        }
+        $websiteCheckbox = '';
+        foreach($websiteData As $website){
+            $websiteCheckbox .= '<div class="col-4 py-1"><div style="float: left;height: auto;margin-right: 6px;"><input style="height:13px;" type="checkbox" name="website_name['.$website->id.']" value="'.$website->title.' - '.$request->cat_title.'"/></div> <div class=""  style="float: left;height: auto;margin-right: 6px;overflow-wrap: anywhere;width: 80%;">'.$website->website ."</div></div>";
+        }
+        return response()->json(["code" => 200, "data" => $websiteCheckbox, "message" => "List of website!"]);
+    }
+
+    public function createMultipleTaskFromSortcut(Request $request){
+        try{
+            $this->validate($request, [
+                'task_subject' => 'required',
+                'task_detail' => 'required',
+                'task_asssigned_to' => 'required_without:assign_to_contacts',
+                //'cost'=>'sometimes|integer'
+            ]);
+            $site_dev_category_id = \App\SiteDevelopment::where("id", $request->site_id)->select("site_development_category_id")->first();
+            $cat_id = $site_dev_category_id->id;
+            if(is_array($request->website_name)) {
+                //dd($request->website_name);
+                //echo ($request->website_name);
+                foreach($request->website_name AS $key => $website) {
+                    $site_developement_id = \App\SiteDevelopment::select("id")->where(["site_development_category_id" => $site_dev_category_id->site_development_category_id, 'website_id' => $key])->first();
+                    if(isset($site_developement_id->id)){
+                        //echo ($site_developement_id->id);
+                        
+                        $request->task_subject = $website;
+                        //$request->site_id = $site_developement_id->id;
+                        $message = '';
+                        $assignedUserId = 0;
+                        $taskType = request("task_type");
+                        $data = $request->except('_token');
+                        $data['site_id'] = $site_developement_id->id;
+                        $data['task_subject'] = $website;
+                        if ($taskType == "4" || $taskType == "5" || $taskType == "6") {
+                            $data = [];
+                            if (is_array($request->task_asssigned_to)) {
+                                $data['assigned_to'] = $request->task_asssigned_to[0];
+                            } else {
+                                $data['assigned_to'] = $request->task_asssigned_to;
+                            }
+                            $data['user_id'] = loginId();
+                            $data['subject'] = $website;//$request->get("task_subject");
+                            $data['task'] = $request->get("task_detail");
+                            $data['task_type_id'] = 1;
+                            $data['site_developement_id'] = $request->get("site_id");
+                            $data['cost'] = $request->get("cost", 0);
+                            $data['status'] = DeveloperTask::DEV_TASK_STATUS_PLANNED;
+                            $data['created_by'] = loginId();
+                            if ($taskType == 5 || $taskType == 6) {
+                                $data['task_type_id'] = 3;
+                            }
+
+                            $data["subject"]         = $website;//$request->get("task_subject");
+                            $data["task"]             = $request->get("task_detail");
+                            $data["task_type_id"]    = 1;
+                            $data["user_feedback_cat_id"]    = $request->get("user_feedback_cat_id");
+                            $data["site_developement_id"]    = $request->get("site_id");
+                            $data["cost"]    = $request->get("cost", 0);
+                            $data["status"]    = 'In Progress';
+                            $data["created_by"]    = Auth::id();
+                            
+                            //echo $data["site_developement_id"]; die;
+
+                            if (request('need_review_task')) {
+                                $data['parent_review_task_id'] = $task->id;
+                                $reviewTask = $cntrl->developerTaskCreate($data);
+                            }
+                        } else {
+                            $data["site_developement_id"]    = $site_developement_id->id;
+                            $data['task_subject'] = $website;
+                            $data['task_type'] = $data['task_type'] ?? NULL;
+                            $data['assign_from'] = loginId();
+                            $data['status'] = 5; // Planned - As per DEVTASK-22162
+                            $data['customer_id'] = $data['customer_id'] ?? NULL;
+                            $data['cost'] = $data['cost'] ?? NULL;
+
+                            $task = $this->taskCreateMaster($data);
+
+                            if (request('need_review_task')) {
+                                $data['parent_review_task_id'] = $task->id;
+                                $reviewTask = $this->taskCreateMaster($data);
+                            }
+                        }
+                        
+                    }
+                }
+             
+            } else {
+                $this->createTaskFromSortcut($request);
+            }
+            return response()->json(["code" => 200, "data" => [], "message" => "Your quick task has been created!"]);
+        }catch(\Exception $e){
+            return response()->json(["code" => 500, "message" => $e->getMessage()]);
+        }
+        
+    }
+
     public function createTaskFromSortcut(Request $request) {
         // _p(request()->all(), 1);
         $this->validate($request, [
@@ -2067,7 +2171,6 @@ class TaskModuleController extends Controller {
     }
 
     public function taskCreateMaster($data) {
-
         if ($data['task_type'] ?? NULL) {
             $data['is_statutory'] = $data['task_type'];
         }
@@ -2888,6 +2991,7 @@ class TaskModuleController extends Controller {
             ->where('model', 'App\Task')
             ->where('attribute', 'estimation_minute')
             ->select('developer_tasks_history.*', 'users.name')
+            ->orderBy('developer_tasks_history.id', 'DESC')
             ->get();
         if ($task_module) {
             return $task_module;
@@ -3403,8 +3507,13 @@ class TaskModuleController extends Controller {
             if ($errors) {
                 return respJson(400, $errors[0]);
             }
-
-            $single = Task::find(request('id'));
+            $subquery = DB::raw("SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC");
+            $single = Task::where('tasks.id', request('id'))
+                    ->select('tasks.*', DB::raw("(SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_remark"),
+                    DB::raw("(SELECT new_value FROM task_history_for_start_date WHERE task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_start_date"),
+                    DB::raw("(SELECT new_due_date FROM task_due_date_history_logs WHERE task_id=tasks.id AND task_type='TASK' ORDER BY id DESC LIMIT 1) as task_new_due_date"))
+                    ->first();
+            //dd($single);
             if (!$single) {
                 return respJson(404, 'No task found.');
             }

@@ -1525,7 +1525,7 @@ class LiveChatController extends Controller
         if ($pageSize == '') {
             $pageSize = 1;
         }
-
+        $query = $query->groupBy('tickets.ticket_id');
         $data = $query->orderBy('date', 'DESC')->paginate($pageSize)->appends(request()->except(['page']));
 
         if ($request->ajax()) {

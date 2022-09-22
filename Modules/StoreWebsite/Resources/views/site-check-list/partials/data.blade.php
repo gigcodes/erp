@@ -22,7 +22,7 @@
                     <div class="row m-2" style="width: 260px;">
 
                         @php
-                            $websitenamestr = $sw ? $sw->title : '';
+                            $websitenamestr = $sw ? $sw->title.' - ' .$sdc->title : '';
                         @endphp
                         <div class="col-md-12 mb-1 p-0 d-flex pt-2 mt-1">
                             <input style="margin-top: 0px;" type=" text" class="form-control width-auto quick-message-field"
@@ -62,7 +62,7 @@
                                     <button title="create quick task" style="vertical-align: middle;" type="button"
                                         class="btn btn-sm d-inline create-quick-task "
                                         data-id="@if ($site) {{ $site->id }} @endif"
-                                        data-title="@if ($site) {{ $websitenamestr . ' ' . $site->title }} @endif"
+                                        data-title="@if ($site) {{ $websitenamestr  }} @endif"
                                         data-category_id="{{ $sdc->id }}">
                                         <i class="fa fa-plus"></i>
                                     </button>
