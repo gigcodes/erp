@@ -14,11 +14,28 @@
   </div>
 </div>
 
+<div id="modalUserAvailabilitysaveHistories" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">User Availabilities History</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="modalUserAvailabilityForm" class="modal fade" role="dialog">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <form action="" method="post">
+      <form action="" method="post" id="addEditUserAvaibility">
         <input type="hidden" name="user_id" value="">
+        <input type="hidden" name="id" value="">
+        
         <div class="modal-header">
           <h4 class="modal-title">Add User Availability</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -136,6 +153,48 @@
       siteErrorAlert(err);
     });
   }
+  
+  function funUserAvailabilityEdit(id) {
+    let mdl = jQuery('#modalUserAvailabilityForm');
+    jQuery.ajax({
+      headers: {
+        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+      },
+      url: "{{ route('user-availabilities.edit') }}",
+      type: 'POST',
+      data: {
+        id: id
+      }
+    }).done(function(response) {
+      siteLoader(0);
+      form = $('#addEditUserAvaibility');
+        $.each(response.data, function(key, v) {
+          console.log(key, v)
+          if (form.find('[name="' + key + '"]').length) {
+            form.find('[name="' + key + '"]').val(v);
+          } else if (key == 'date') {
+            const dayArr = v.split(",");
+            console.log(dayArr);
+            $.each(dayArr, function(i, e) {
+              var values = $("input[name='day[]']");
+              $.each(values, function(ind, ev) {
+                console.log(ev.value);
+                if(ev.value === e){
+                  //ev.checked;
+                  //ev.value.checked;
+                  $(ev).prop('checked', true);
+                }
+                  //ev.checked;
+              });
+            });
+          }
+        });
+      mdl.modal('show');
+    }).fail(function(err) {
+      siteLoader(0);
+      siteErrorAlert(err);
+    });
+  }
 
   function funUserAvailabilityAdd() {
     let mdl = jQuery('#modalUserAvailabilityForm');
@@ -143,6 +202,7 @@
 
     frm.find('input[name="from"]').val('');
     frm.find('input[name="to"]').val('');
+    frm.find('input[name="id"]').val('');
     frm.find('input[name="start_time"]').val('');
     frm.find('input[name="end_time"]').val('');
     frm.find('input[name="lunch_time"]').val('');
@@ -175,6 +235,27 @@
     });
   }
 
+  function UserAvailabilityHistory(id) {
+    siteLoader(1);
+    jQuery.ajax({
+      headers: {
+        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+      },
+      url: "{{ route('user-availabilities.history') }}",
+      type: 'POST',
+      data: {
+        id:id
+      }
+    }).done(function(res) {
+      siteLoader(0);
+      //siteSuccessAlert('success');
+      jQuery('#modalUserAvailabilitysaveHistories').find('.modal-body').html(res);
+      $("#modalUserAvailabilitysaveHistories").modal('show');
+    }).fail(function(err) {
+      siteLoader(0);
+      siteErrorAlert(err);
+    });
+  }
   jQuery(document).ready(function() {
     applyDatePicker(jQuery('.cls-datepicker'));
     applyTimePicker(jQuery('.cls-timepicker'));

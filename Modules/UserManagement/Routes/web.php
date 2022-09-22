@@ -98,4 +98,11 @@ Route::prefix('user-management')->middleware('auth')->group(function () {
         Route::any('load-data', 'UserDeliveredController@loadData')->name("user-management.user-delivered.load-data");
     });
 
+    Route::prefix('user-availabilities')->group(function () {
+        Route::post('/edit', 'UserManagementController@userAvailabilitiesEdit')->name("user-availabilities.edit");
+        Route::post('/history', 'UserManagementController@userAvaibilityHistoryLog')->name("user-availabilities.history");
+        
+    });
+
+
 });
