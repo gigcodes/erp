@@ -18,6 +18,7 @@ Route::prefix('user-management')->middleware('auth')->group(function () {
     Route::get('planned-user-and-availability', 'UserManagementController@plannedUserAndAvailability')->name("user-management.planned-user-and-availability");
 
     Route::get('/feedback-category/store', 'UserManagementController@addFeedbackCategory')->name("user.feedback-category");
+    Route::post('/feedback-category/delete', 'UserManagementController@deleteFeedbackCategory')->name("delete.user.feedback-category");
     Route::get('/feedback-status/store', 'UserManagementController@addFeedbackStatus')->name("user.feedback-status");
     Route::get('/feedback-status/update', 'UserManagementController@updateFeedbackStatus')->name("user.feedback-status.update");
     Route::get('/feedback-table/data', 'UserManagementController@addFeedbackTableData')->name("user.feedback-table-data");

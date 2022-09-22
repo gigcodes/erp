@@ -87,7 +87,7 @@
 
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
-		<h2 class="page-heading">Ui Check Languages ({{$languages->count()}})</h2>
+		<h2 class="page-heading">Ui Check Languages ({{$uiLanguages->total()}})</h2>
 	</div>
 
 </div>
@@ -125,6 +125,21 @@
 					<div class="col-md-2">
 						<div class="form-group">
 							<?php 
+								if(request('user_name')){   $userNameArr = request('user_name'); }
+								else{ $userNameArr = []; }
+							?>
+							<select name="user_name[]" id="user_name" class="form-control select2" multiple>
+								<option value="" @if($userNameArr=='') selected @endif>-- Select a User --</option>
+								@forelse($allUsers as $uId => $uName)
+								<option value="{{ $uName->id }}" @if(in_array($uName->id, $userNameArr)) selected @endif>{!! $uName->name !!}</option>
+								@empty
+								@endforelse
+							</select>
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="form-group">
+							<?php 
 								if(request('status')){   $statusArr = request('status'); }
 								else{ $statusArr = ''; }
 							  ?>
@@ -137,7 +152,7 @@
 							</select>
 						</div>
 					</div>
-					<div class="col-md-6">
+					<div class="col-md-4">
 						<button type="submit" class="btn btn btn-image custom-filter"><img src="/images/filter.png" style="cursor: nwse-resize;"></button>
 						<a href="{{route('uicheck.translation')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
 					</div>
@@ -246,12 +261,12 @@
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title">Ui Language Message History</h4>
+				<h4 class="modal-title">Ui Language Message History fghgfhfg <i class="fa fa-copy"  data-text="Ui Language Message History">ghghghg</i></h4>
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
 			<div class="modal-body">
 				<div class="col-md-12">
-					<table class="table table-bordered">
+					<table class="table table-bordered" style="width: 100%;">
 						<thead>
 							<tr>
 								<th width="5%">ID</th>
@@ -484,6 +499,22 @@
 		$(mini).toggleClass('hidden');
 	});
 	$('.select2').select2();
+
+	function copyToClipboard(text) {
+		var sampleTextarea = document.createElement("textarea");
+		document.body.appendChild(sampleTextarea);
+		sampleTextarea.value = text; //save main text in it
+		sampleTextarea.select(); //select textarea contenrs
+		document.execCommand("copy");
+		document.body.removeChild(sampleTextarea);
+	}
+	$(document).on("click", ".fa-copy", function() {
+		console.log("asdasdasd");		
+		var id = $(this).data("text");
+		copyToClipboard(id);
+		toastr['success']("Text copy successfully");
+	});
 </script>
+
 
 @endsection

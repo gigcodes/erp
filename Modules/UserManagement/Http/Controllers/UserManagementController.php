@@ -37,6 +37,8 @@ use App\Task;
 use App\DeveloperTask;
 use Google\Service\CloudTasks\Task as CloudTasksTask;
 use phpDocumentor\Reflection\Types\Null_;
+use App\UserFeedbackCategorySopHistory;
+use App\UserFeedbackCategorySopHistoryComment;
 
 class UserManagementController extends Controller {
     /**
@@ -2410,5 +2412,25 @@ class UserManagementController extends Controller {
         }
         $html[] = '</table>';
         return implode('', $html);
+    }
+    
+    public function deleteFeedbackCategory(Request $request){
+        try{
+            $userFCH = UserFeedbackCategorySopHistory::where('category_id', $request->id);
+            $getUserFCH = $userFCH->get();
+            if(!empty($getUserFCH)){
+                foreach($getUserFCH AS $key => $val) {
+                    $userFCHC = UserFeedbackCategorySopHistoryComment::where('sop_history_id', $val->id)->delete();
+                }
+                $userFCH->delete();
+            }
+            //DeveloperTask::where('user_feedback_cat_id', $request->id)->delete();
+            //Task::where('user_feedback_cat_id', $request->id)->delete();
+            UserFeedbackCategory::where('id', $request->id)->delete();
+            return response()->json(['code'=>'200', 'data' => [], 'message' => 'Data deleted successfully']);
+        } catch(\Exception $e){
+            return response()->json(['code'=>'500',  'message' => $e->getMessage()]);
+        }
+        
     }
 }

@@ -330,7 +330,7 @@
 
             $("#hidden-task-subject").val(title);
             $('#site_id').val(site);
-            $('#category_id').val(category_id);
+            $('#category_id').val(49);
         });
 
         function saveRemarks(rowId) {
