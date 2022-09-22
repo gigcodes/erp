@@ -261,7 +261,7 @@
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title">Ui Language Message History</h4>
+				<h4 class="modal-title">Ui Language Message History fghgfhfg <i class="fa fa-copy"  data-text="Ui Language Message History">ghghghg</i></h4>
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
 			<div class="modal-body">
@@ -499,6 +499,22 @@
 		$(mini).toggleClass('hidden');
 	});
 	$('.select2').select2();
+
+	function copyToClipboard(text) {
+		var sampleTextarea = document.createElement("textarea");
+		document.body.appendChild(sampleTextarea);
+		sampleTextarea.value = text; //save main text in it
+		sampleTextarea.select(); //select textarea contenrs
+		document.execCommand("copy");
+		document.body.removeChild(sampleTextarea);
+	}
+	$(document).on("click", ".fa-copy", function() {
+		console.log("asdasdasd");		
+		var id = $(this).data("text");
+		copyToClipboard(id);
+		toastr['success']("Text copy successfully");
+	});
 </script>
+
 
 @endsection
