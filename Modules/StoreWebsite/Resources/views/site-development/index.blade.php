@@ -97,7 +97,7 @@
                 <?php echo Form::select('select_website', ['' => 'All Website'] + $store_websites, null, ['class' => 'form-control select2', 'id' => 'copy_from_website']); ?>
                 <button type="button" class="btn btn-secondary" onClick="copyTasksFromWebsite()">Copy Tasks from
                     website</button>
-
+ 
 
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createTasksModal" id="">Create Tasks</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#masterCategoryModal" id="">Add Category</button>
@@ -180,6 +180,20 @@
                         <form class="handle-search">
                             <div class="row">
                                 <div class="col-md-2">
+                                    <div class="form-group">
+                                        <select class="form-control select2" name="assignto[]" multiple style="width: 100% !important;">
+                                            <option value="">Select...</option>
+                                            @foreach ($users_all as $value)
+                                                @if (isset(request()->assignto) and in_array($value->id, request()->assignto))
+                                                    <option selected value="{{ $value->id }}">{{ $value->name }}</option>
+                                                @else
+                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
                                     <div class="form-group">
                                         <select class="form-control select2" name="assignto[]" multiple style="width: 100% !important;">
                                             <option value="">Select...</option>

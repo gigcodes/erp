@@ -5,6 +5,7 @@
     $userId = auth()->user()->id;
     $pagrank = $categories->perPage() * ($categories->currentPage() - 1) + 1;
     @endphp
+   
     @foreach ($categories as $key => $category)
         <?php 
             if (request('assignto') != null and request('assignto') != "undefined") {
