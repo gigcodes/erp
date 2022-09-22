@@ -132,5 +132,5 @@ class UserManagementController extends Controller
         } catch(\Exception $e){
             return response()->json(['code'=>'500',  'message' => $e->getMessage()]);
         }
-    }
+    } 
 }
