@@ -1595,6 +1595,12 @@
             siteErrorAlert(err);
         });
     }
+    //Select all permission
+    $(document).on('click', '#selectAll', function(event) {
+        $("input[name='permissions[]']").prop('checked', $(this).prop('checked'));
+    });
+
+    //});
 </script>
 
 @endsection
