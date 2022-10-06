@@ -59,9 +59,13 @@ class EmailAddressesController extends Controller
         $allPort = EmailAddress::pluck('port')->unique();
         $allEncryption = EmailAddress::pluck('encryption')->unique();
 
-        //dd($allDriver);
-        $users = User::orderBy('name', 'asc')->get();
-
+        $users = User::orderBy('name', 'asc')->get()->toArray();
+        // dd($users);
+        $ops = "";
+        foreach($users as $key => $user){
+            $ops .= '<option class="form-control" value="'.$user['id'].'">'. $user['name'] .'</option>';
+        }
+        //dd($ops);
         if ($request->ajax()) {
 
             return view('email-addresses.index_ajax', [
@@ -71,6 +75,7 @@ class EmailAddressesController extends Controller
                 'allPort' => $allPort,
                 'allEncryption' => $allEncryption,
                 'users' => $users,
+                'uops' => $ops,
             ]);
         } else {
 
@@ -81,6 +86,7 @@ class EmailAddressesController extends Controller
                 'allPort' => $allPort,
                 'allEncryption' => $allEncryption,
                 'users' => $users,
+                'uops' => $ops,
             ]);
         }
     }

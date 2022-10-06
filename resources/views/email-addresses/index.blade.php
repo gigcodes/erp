@@ -102,6 +102,9 @@
         </thead>
 
         <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
+          {{-- @foreach($users as $user)
+          <option class="form-control" value="{{ $user->id }}">{{ $user->name }}</option>
+          @endforeach --}}
           @foreach ($emailAddress as $server)
           
             <tr>
@@ -178,9 +181,7 @@
                         <div class="modal-body">
                           <div class="form-group">
                             <select class="form-control" name="user_id">
-                              @foreach($users as $user)
-                              <option class="form-control" value="{{ $user->id }}">{{ $user->name }}</option>
-                              @endforeach
+                              {!!$uops!!}
                             </select>
                             <input type="hidden" name="id" value="{{ $server->id }}"/>
                             <input type="hidden" name="send_message" value="1">
@@ -229,12 +230,12 @@
             </div>
             <div class="modal-body">
 
-          <div class="form-group">
+          <div class="form-group"> 
                   <strong>Users:</strong>
             <Select name="users[]" id="users" multiple class="form-control select-multiple globalSelect2">
               <option value = ''>None</option>
               @foreach ($users as $key => $val)
-                <option value="{{ $val->id }}" {{in_array($val->id,$assignids)?'selected':''}}>{{ $val->name }}</option>
+                <option value="{{ $val['id'] }}" {{in_array($val['id'],$assignids)?'selected':''}}>{{ $val['name'] }}</option>
               @endforeach
             </Select>
             @if ($errors->has('users'))

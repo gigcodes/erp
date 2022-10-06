@@ -71,9 +71,7 @@
                         <div class="modal-body">
                           <div class="form-group">
                             <select class="form-control" name="user_id">
-                              @foreach($users as $user)
-                              <option class="form-control" value="{{ $user->id }}">{{ $user->name }}</option>
-                              @endforeach
+                              {!!$uops!!}
                             </select>
                             <input type="hidden" name="id" value="{{ $server->id }}"/>
                             <input type="hidden" name="send_message" value="1">
