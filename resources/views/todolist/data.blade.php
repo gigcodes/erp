@@ -12,8 +12,17 @@
             <tr>
 			        <td>{{ $todolist->id ?? '' }}</td>
              <td>{{ $todolist->title ?? '' }}</td>
-              <td>{{ $todolist->username->name ?? '' }}</td>
-              <td>{{ $todolist->status ?? '' }}</td>
+             <td>{{ $todolist->subject ?? '' }}</td>
+              {{-- <td>{{ $todolist->username->name ?? '' }}</td> --}}
+
+              <td>
+                <select name="status" id="status" class="form-control" onchange="statusChange({{$todolist->id}}, this.value)" data-id="{{$todolist->id}}">
+                  <option>--Select--</option>  
+                  @foreach ($statuses as $status )
+                    <option value="{{$status['id']}}" @if ($todolist->status == $status['id']) selected @endif>{{$status['name']}}</option>
+                    @endforeach
+                </select>
+              </td>
               <td>{{ $todolist->todo_date ?? '' }}</td>
               <td>{{ $todolist->remark ?? '' }}</td>
               <td>

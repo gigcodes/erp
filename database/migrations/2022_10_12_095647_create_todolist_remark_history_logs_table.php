@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateToDoListRemarkHistoryLogsTable extends Migration
+class CreateTodolistRemarkHistoryLogsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,12 @@ class CreateToDoListRemarkHistoryLogsTable extends Migration
      */
     public function up()
     {
-        Schema::create('to_do_list_remark_history_logs', function (Blueprint $table) {
+        Schema::create('todolist_remark_history_logs', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('todo_list_id')->nullble();
-            $table->integer('user_id')->nullble();
-            $table->text('remark')->nullble();
-            $table->text('old_remark')->nullble();
+            $table->integer('todo_list_id')->nullable();
+            $table->integer('user_id')->nullable();
+            $table->text('remark')->nullable();
+            $table->text('old_remark')->nullable();
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ class CreateToDoListRemarkHistoryLogsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('to_do_list_remark_history_logs');
+        Schema::dropIfExists('todolist_remark_history_logs');
     }
 }

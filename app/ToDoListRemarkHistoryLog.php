@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ToDoListRemarkHistoryLog extends Model
 {
-    protected $table = 'to_do_list_remark_history_logs';
+    protected $table = 'todolist_remark_history_logs';
     protected $fillable = ['id', 'todo_list_id', 'remark', 'old_remark', 'created_at', 'updated_at'];
 
     public function username(){

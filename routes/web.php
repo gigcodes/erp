@@ -4114,4 +4114,6 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
     Route::post('/edit', 'TodoListController@edit')->name('todolist.edit');
     Route::post('/update', 'TodoListController@update')->name('todolist.update');
     Route::post('/remark/history', 'TodoListController@getRemarkHistory')->name('todolist.remark.history');
+    Route::post('/status/store', 'TodoListController@storeStatus')->name('todolist.status.store');
+    Route::post('/status/update', 'TodoListController@statusUpdate')->name('todolist.status.update');
 });

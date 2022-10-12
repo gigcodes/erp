@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\TodoList;
 use App\Setting;
 use App\ToDoListRemarkHistoryLog;
+use App\TodoStatus;
 use Auth;
 use Illuminate\Http\Request;
 
@@ -34,16 +35,18 @@ class TodoListController extends Controller
                 $todolists->where('todo_date',  $s);
             }  
 
-            $todolists = $todolists->orderBy("todo_lists.id", "desc")->paginate(Setting::get('pagination'));
+            //$todolists = $todolists->orderBy("todo_lists.todo_date", "desc")->paginate(Setting::get('pagination'));
+            $todolists = $todolists->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->paginate(Setting::get('pagination'));
 
-            
+            $statuses = TodoStatus::all()->toArray();
+            //dd($statuses);
             if ($request->ajax()) {
                 return response()->json([
-                    'tbody' => view('todolist.data', compact('todolists', 'search_title'))->render(),
+                    'tbody' => view('todolist.data', compact('todolists', 'search_title', 'statuses'))->render(),
                     'links' => (string)$todolists->render()
                 ], 200);
             }
-            return view("todolist.index",compact('todolists', 'search_title', 'search_status', 'search_date'));
+            return view("todolist.index",compact('todolists', 'search_title', 'search_status', 'search_date', 'statuses'));
 
         }catch(\Exception $e){
             return response()->json(["code" => 500, "message" => $e->getMessage()]);
@@ -72,6 +75,7 @@ class TodoListController extends Controller
             $todolists = new TodoList();
             $todolists->user_id = Auth::user()->id ?? '';
             $todolists->title = $request->title;
+            $todolists->subject = $request->subject;
             $todolists->status = $request->status;
             $todolists->todo_date = $request->todo_date;
             $todolists->remark = $request->remark;
@@ -112,7 +116,7 @@ class TodoListController extends Controller
                 $todolists->where('id', $s);
             }   
             $todolists = $todolists->orderBy("todo_lists.id", "desc")->first();
-            return response()->json(["code" => 200, "data" => $todolists, "message" => "Your Todo List has been update!"]);
+            return response()->json(["code" => 200, "data" => $todolists, "message" => "Your Todo List has been listed!"]);
         }catch(\Exception $e){
             return response()->json(["code" => 500, "message" => $e->getMessage()]);
         }
@@ -131,6 +135,7 @@ class TodoListController extends Controller
             $todolists = TodoList::findorfail($request->id);
             $todolists->user_id = Auth::user()->id ?? '';
             $todolists->title = $request->title;
+            $todolists->subject = $request->subject;
             $todolists->status = $request->status;
             $todolists->todo_date = $request->todo_date;
             $todolists->remark = $request->remark;
@@ -164,7 +169,7 @@ class TodoListController extends Controller
             $todoRemark->user_id = Auth::user()->id;
             $todoRemark->todo_list_id = $id;
             $todoRemark->remark = $request->remark;
-            $todoRemark->old_remark = $request->old_remark;
+            $todoRemark->old_remark = $request->old_remark ?? '';
             $todoRemark->save();
         } catch(\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
@@ -179,5 +184,23 @@ class TodoListController extends Controller
         } catch(\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
         }
+    }
+
+    public function storeStatus(Request $request){
+        try{
+            $todoStatus = new TodoStatus();
+            $todoStatus->name = $request->status_name;
+            $todoStatus->save();
+            return redirect()->back()->with('success','Your Todo status has been Added!');
+        } catch(\Exception $e) {
+            return redirect()->back()->withErrors($e->getMessage());
+        }   
+    }
+
+    public function statusUpdate(Request $request) {
+        $todolists = TodoList::findorfail($request->id);
+        $todolists->status = $request->status;
+        $todolists->save();
+        return response()->json(["code" => 200, "data" => $todolists, "message" => "Your Todo Status has been Updated!"]);
     }
 }

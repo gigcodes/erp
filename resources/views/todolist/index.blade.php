@@ -61,6 +61,10 @@
             <div class="pull-right">
                 <button type="button" class="btn btn-secondary" data-toggle="modal"
                     data-target="#todolistCreateModal">+</a>
+                </button>
+                &nbsp;
+                <button type="button" class="btn btn-primary" data-toggle="modal"
+                    data-target="#todolistStatusCreateModal">Add Status</a> </button> &nbsp; &nbsp;
             </div>
         </div>
     </div>
@@ -94,7 +98,7 @@
                 <tr>
                     <th>#</th>
                     <th>Title</th>
-                    <th>Username</th>
+                    <th>Subject</th>
                     <th>status</th>
                     <th>Date</th>
                     <th>Remark</th>
@@ -145,11 +149,22 @@
                                 <div class="alert alert-danger">{{ $errors->first('title') }}</div>
                             @endif
                         </div>
+                        <div class="form-group">
+                            <strong>Subject:</strong>
+                            <input type="text" name="subject" class="form-control" value="{{ old('subject') }}">
 
+                            @if ($errors->has('subject'))
+                                <div class="alert alert-danger">{{ $errors->first('subject') }}</div>
+                            @endif
+                        </div>
                         <div class="form-group">
                             <strong>Status:</strong>
-                            <input type="text" name="status" class="form-control" value="{{ old('status') }}" required>
-
+                            {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
+                            <select name="status" class="form-control">
+                                @foreach ($statuses as $status )
+                                <option value="{{$status['id']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
+                                @endforeach
+                            </select>
                             @if ($errors->has('status'))
                                 <div class="alert alert-danger">{{ $errors->first('status') }}</div>
                             @endif
@@ -211,11 +226,22 @@
                                 <div class="alert alert-danger">{{ $errors->first('title') }}</div>
                             @endif
                         </div>
+                        <div class="form-group">
+                            <strong>Subject:</strong>
+                            <input type="text" name="subject" class="form-control" value="{{ old('subject') }}">
 
+                            @if ($errors->has('subject'))
+                                <div class="alert alert-danger">{{ $errors->first('subject') }}</div>
+                            @endif
+                        </div>
                         <div class="form-group">
                             <strong>Status:</strong>
-                            <input type="text" name="status" class="form-control" value="{{ old('status') }}" required>
-
+                            {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
+                            <select name="status" class="form-control">
+                                @foreach ($statuses as $status )
+                                    <option value="{{$status['id']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
+                                @endforeach
+                            </select>
                             @if ($errors->has('status'))
                                 <div class="alert alert-danger">{{ $errors->first('status') }}</div>
                             @endif
@@ -263,7 +289,7 @@
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Password History</h4>
+                    <h4 class="modal-title">Remark History</h4>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
@@ -293,6 +319,37 @@
         </div>
     </div>
 
+    <div id="todolistStatusCreateModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form action="{{ route('todolist.status.store') }}" method="POST">
+                    @csrf
+
+                    <div class="modal-header">
+                        <h4 class="modal-title">Create Todo List Status</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <strong>Name:</strong>
+                            <input type="text" name="status_name" class="form-control" value="{{ old('status_name') }}">
+
+                            @if ($errors->has('status_name'))
+                                <div class="alert alert-danger">{{ $errors->first('status_name') }}</div>
+                            @endif
+                        </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Store</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
 
 @endsection
 
@@ -353,7 +410,7 @@
                         }
                     });
                     $('#todolistUpdateModal').modal('show');
-                    toastr['success']('Postman added successfully!!!', 'success');
+                    toastr['success']('Edited successfully!!!', 'success');
 
                 } else {
                     toastr['error'](response.message, 'error');
@@ -391,8 +448,8 @@
                         var detials = "";
                         $.each(message.data, function(key, value) {
 
-                            detials += "<tr><th>" + value.id + "</th><th>" + value.username.name +
-                                "</th><th>" + value.remark + "</th><th>" + value.created_at + "</th><tr>";
+                            detials += "<tr><td>" + value.id + "</td><td>" + value.username.name +
+                                "</td><td>" + value.remark + "</td><td>" + value.created_at + "</td><tr>";
                         });
                         console.log(detials);
                         $('#data').html(detials);
@@ -499,8 +556,32 @@
             $('#userIds').val(values);
         });
 
-        function sendtoWhatsapp(password_id) {
-            $("#sendToWhatsapp" + password_id + "").modal('show');
+        
+
+        function statusChange(id, xvla) {
+            $.ajax({
+                type: "POST",
+                url: "{{ route('todolist.status.update') }}",
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "id": id,
+                    "status":xvla
+                },
+                dataType: "json",
+                success: function(message) {
+                    $c = message.length;
+                    if ($c == 0) {
+                        alert('No History Exist');
+                    } else {
+                        toastr['success'](message.message, 'success');
+                    }
+                },
+                error: function(error) {
+                    toastr['error'](error, 'error');
+                }
+
+            });
+
         }
     </script>
 @endsection
