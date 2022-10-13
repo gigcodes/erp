@@ -72,7 +72,15 @@
             </ul>
         </div>
     @endif
-
+    <?php   $docType = [];
+            $fileName = [];
+    ?>
+    @foreach ($documents as $doc)
+        <?php   array_push($docType, $doc->name);
+                array_push($fileName,$doc->filename);
+        ?>
+    @endforeach
+    
     <div class="table-responsive mt-3">
         <table class="table table-bordered documnets-manager" id="documents-table">
             <thead>
@@ -87,11 +95,43 @@
             </tr>
             <tr>
             <th></th>    
-            <th><input type="text" id="user" class="search form-control"></th>
+            <th>
+                {{-- <input type="text" id="user" class="search form-control"> --}}
+                <select id="user" class="search form-control select2">
+                    <option value="">--Select User--</option>    
+                @foreach ($users as $keyU => $user )
+                    <option value="{{$user->name}}">{{$user->name}}</option>
+                @endforeach
+                </select>
+            </th>
             <th></th>
-            <th><input type="text" id="document_type" class="search form-control"></th>
-            <th><input type="text" id="category" class="search form-control"></th>
-            <th><input type="text" id="filename" class="search form-control"></th>
+            <th>
+                {{-- <input type="text" id="document_type" class="search form-control"> --}}
+                <select id="document_type" class="search form-control select2">
+                <option value="">--Select Document--</option>
+                @foreach (array_unique($docType) as $keyD => $docT )
+                    <option value="{{$docT}}">{{$docT}}</option>
+                @endforeach
+                </select>
+            </th>
+            <th>
+                {{-- <input type="text" id="category" class="search form-control"> --}}
+                <select id="category" class="search form-control select2">
+                    <option value="">--Select Category--</option>
+                    @foreach ($category as $cat)
+                        <option value="{{$cat->name}}">{{$cat->name}}</option>
+                    @endforeach
+                </select>
+            </th>
+            <th>
+                {{-- <input type="text" id="filename" class="search form-control"> --}}
+                <select id="filename" class="search form-control select2">
+                    <option value="">--Select File--</option>
+                @foreach (array_unique($fileName) as $keyF => $fileN )
+                    <option value="{{$fileN}}">{{$fileN}}</option>
+                @endforeach
+                </select>
+            </th>
             <th></th>
           </tr>
             </thead>
@@ -571,47 +611,56 @@
 
 
         $(document).ready(function() {
-        src = "{{ route('document.index') }}";
-        $(".search").autocomplete({
-        source: function(request, response) {
-            user = $('#user').val();
-            document_type = $('#document_type').val();
-            category = $('#category').val();
-            filename = $('#filename').val();
-          
+            var $eventSelect = $(".search");
+            $eventSelect.on("change", function (e) { 
+                src = "{{ route('document.index') }}";
 
-            $.ajax({
-                url: src,
-                dataType: "json",
-                data: {
-                    user : user,
-                    document_type : document_type,
-                    category : category,
-                    filename : filename,
+                user = $('#user').select2('val');//.val();
+                    document_type = $('#document_type').val();
+                    category = $('#category').val();
+                    filename = $('#filename').val();
                 
+
+                    $.ajax({
+                        url: src,
+                        dataType: "json",
+                        data: {
+                            user : user,
+                            document_type : document_type,
+                            category : category,
+                            filename : filename,
+                        
+                        },
+                        beforeSend: function() {
+                            $("#loading-image").show();
+                        },
+                    
+                    }).done(function (data) {
+                        $("#loading-image").hide();
+                        console.log(data);
+                        $("#documents-table tbody").empty().html(data.tbody);
+                        if (data.links.length > 10) {
+                            $('ul.pagination').replaceWith(data.links);
+                        } else {
+                            $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                        }
+                        
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                        alert('No response from server');
+                    });
+
+
+                /*
+                $(".search").autocomplete({
+                source: function(request, response) {
+                    debugger;
+                    
                 },
-                beforeSend: function() {
-                       $("#loading-image").show();
-                },
+                minLength: 1,
             
-            }).done(function (data) {
-                 $("#loading-image").hide();
-                console.log(data);
-                $("#documents-table tbody").empty().html(data.tbody);
-                if (data.links.length > 10) {
-                    $('ul.pagination').replaceWith(data.links);
-                } else {
-                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                }
-                
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                alert('No response from server');
-            });
-        },
-        minLength: 1,
-       
+                });*/
+             });
         });
-    });
 
         $(document).ready(function() {
         src = "{{ route('document.index') }}";
