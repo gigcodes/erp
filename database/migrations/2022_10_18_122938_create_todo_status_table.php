@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTodoStatusesTable extends Migration
+class CreateTodoStatusTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,7 +15,7 @@ class CreateTodoStatusesTable extends Migration
     {
         Schema::create('todo_statuses', function (Blueprint $table) {
             $table->increments('id');
-            $table->status('name')->nullable();
+            $table->string('name')->nullable();
             $table->timestamps();
         });
     }

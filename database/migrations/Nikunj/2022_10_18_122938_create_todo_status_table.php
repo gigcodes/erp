@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddSubjectToTodoListTable extends Migration
+class CreateTodoStatusTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,10 @@ class AddSubjectToTodoListTable extends Migration
      */
     public function up()
     {
-        Schema::table('todo_lists', function (Blueprint $table) {
-            $table->string('subject')->nullable()->after('title');
+        Schema::create('todo_statuses', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -25,8 +27,6 @@ class AddSubjectToTodoListTable extends Migration
      */
     public function down()
     {
-        Schema::table('todo_lists', function (Blueprint $table) {
-            $table->dropColumn('subject');
-        });
+        Schema::dropIfExists('todo_statuses');
     }
 }
