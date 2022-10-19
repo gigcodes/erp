@@ -4106,3 +4106,14 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
     Route::post('/voucher/code/delete', 'VoucherCouponController@couponCodeDelete')->name('voucher.code.delete');
     Route::post('/voucher/code/order/delete', 'VoucherCouponController@couponCodeOrderDelete')->name('voucher.code.order.delete');
 });
+
+//TODOLIST:: 
+Route::prefix('todolist')->middleware('auth')->group(function () {
+    Route::get('/', 'TodoListController@index')->name('todolist');
+    Route::post('/store', 'TodoListController@store')->name('todolist.store');
+    Route::post('/edit', 'TodoListController@edit')->name('todolist.edit');
+    Route::post('/update', 'TodoListController@update')->name('todolist.update');
+    Route::post('/remark/history', 'TodoListController@getRemarkHistory')->name('todolist.remark.history');
+    Route::post('/status/store', 'TodoListController@storeStatus')->name('todolist.status.store');
+    Route::post('/status/update', 'TodoListController@statusUpdate')->name('todolist.status.update');
+});
