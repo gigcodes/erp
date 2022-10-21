@@ -1770,7 +1770,7 @@ class UserManagementController extends Controller {
         }
 
         $content = implode("\n", $string);
-
+        $content = $content."\n";
         $nameF = $server . ".pem";
 
 
