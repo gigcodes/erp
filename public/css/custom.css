@@ -2474,3 +2474,7 @@ table {
 .select2-results__option {
   word-break: break-all;
 }
+
+.table-horizontal-scroll {
+  overflow-x: scroll !important;
+}
