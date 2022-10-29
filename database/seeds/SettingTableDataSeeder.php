@@ -41,5 +41,12 @@ class SettingTableDataSeeder extends Seeder
                 'val' => 1,
             ]);
         }
+        if (!Setting::get('log_apis')) {
+            Setting::insert([
+                'name' => 'log_apis',
+                'val' => 1,
+                'type' => 'tinyint'
+            ]);
+        }
     }
 }
