@@ -40,8 +40,12 @@
                             value="{{ isset($search_title) ? $search_title : '' }}" placeholder="Title">
                     </div>
                     <div class="form-group mr-3 mb-3">
-                        <input name="search_status" type="text" class="form-control global" id="search_status"
-                            value="{{ isset($search_status) ? $search_status : '' }}" placeholder="Status">
+                        <select class="form-control global" id="search_status" name="search_status">
+                            <option value="">Select Status</option>
+                            @foreach($statuses as $status)
+                                <option value="{{$status['id']}}" @if($status['id'] == $search_status) selected @endif>{{$status['name']}}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="form-group ml-3">
                         <div class='input-group date' id='filter-date'>
@@ -88,7 +92,7 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Todo list</h2>
+            <h2 class="page-heading">Todo list ({{count($todolists)}})</h2>
         </div>
     </div>
 
