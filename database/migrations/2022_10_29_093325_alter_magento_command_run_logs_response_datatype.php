@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AlterMagentoCommandRunLogsResponseDatatype extends Migration
 {
@@ -13,9 +14,7 @@ class AlterMagentoCommandRunLogsResponseDatatype extends Migration
      */
     public function up()
     {
-        Schema::table('magento_command_run_logs', function (Blueprint $table) {
-            $table->text('response')->change();
-        });
+        DB::statement('ALTER TABLE `magento_command_run_logs` MODIFY `response` TEXT;');
     }
 
     /**
@@ -25,8 +24,6 @@ class AlterMagentoCommandRunLogsResponseDatatype extends Migration
      */
     public function down()
     {
-        Schema::table('magento_command_run_logs', function (Blueprint $table) {
-            $table->string('response')->change();
-        });
+        DB::statement('ALTER TABLE `magento_command_run_logs` MODIFY `response` VARCHAR(191);');
     }
 }
