@@ -203,31 +203,12 @@
 						         	<label for="meta_title">Server List</label>
 						         	<select class="form-control select2" name="for_server">
 						         		<option value="Erp-Server">Erp-Server</option>
-						         		<option value="s01">Scrap-Server-s01</option>
-						         		<option value="s02">Scrap-Server-s02</option>
-						         		<option value="s03">Scrap-Server-s03</option>
-						         		<option value="s04">Scrap-Server-s04</option>
-						         		<option value="s05">Scrap-Server-s05</option>
-						         		<option value="s06">Scrap-Server-s06</option>
-						         		<option value="s07">Scrap-Server-s07</option>
-						         		<option value="s08">Scrap-Server-s08</option>
-						         		<option value="s09">Scrap-Server-s09</option>
-						         		<option value="s10">Scrap-Server-s10</option>
-						         		<option value="s11">Scrap-Server-s11</option>
-						         		<option value="s12">Scrap-Server-s12</option>
-						         		<option value="s13">Scrap-Server-s13</option>
-						         		<option value="s14">Scrap-Server-s14</option>
-						         		<option value="s15">Scrap-Server-s15</option>
-						         		<option value="Cropper-Server">Cropper-Server</option>
-						         		<option value="BRANDS">BRANDS</option>
-						         		<option value="AVOIRCHIC">AVOIRCHIC</option>
-						         		<option value="OLABELS">OLABELS</option>
-						         		<option value="SOLOLUXURY">SOLOLUXURY</option>
-						         		<option value="SUVANDNAT">SUVANDNAT</option>
-						         		<option value="THEFITEDIT">THEFITEDIT</option>
-						         		<option value="THESHADESSHOP">THESHADESSHOP</option>
-						         		<option value="UPEAU">UPEAU</option>
-						         		<option value="VERALUSSO">VERALUSSO</option>
+						         		<?php if (isset($servers)) { ?>
+                                            <?php foreach ($servers as $server) { ?>
+						         		        <option value="<?php echo $server->name; ?>"><?php echo $server->name; ?></option>
+						         		    <?php } ?>
+                                        <?php } ?>
+
 						         	</select>
 						         </div>
 					        </div> 
