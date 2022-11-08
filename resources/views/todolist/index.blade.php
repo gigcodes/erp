@@ -147,7 +147,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <strong>Title:</strong>
-                            <input type="text" name="title" class="form-control" value="{{ old('title') }}">
+                            <input type="text" name="title" class="form-control add_title" value="{{ old('title') }}">
 
                             @if ($errors->has('title'))
                                 <div class="alert alert-danger">{{ $errors->first('title') }}</div>
@@ -155,7 +155,7 @@
                         </div>
                         <div class="form-group">
                             <strong>Subject:</strong>
-                            <input type="text" name="subject" class="form-control" value="{{ old('subject') }}">
+                            <input type="text" name="subject" class="form-control add_subject" value="{{ old('subject') }}">
 
                             @if ($errors->has('subject'))
                                 <div class="alert alert-danger">{{ $errors->first('subject') }}</div>
@@ -224,7 +224,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <strong>Title:</strong>
-                            <input type="text" name="title" class="form-control" value="{{ old('title') }}">
+                            <input type="text" name="title" class="form-control edit_title" value="{{ old('title') }}">
 
                             @if ($errors->has('title'))
                                 <div class="alert alert-danger">{{ $errors->first('title') }}</div>
@@ -232,7 +232,7 @@
                         </div>
                         <div class="form-group">
                             <strong>Subject:</strong>
-                            <input type="text" name="subject" class="form-control" value="{{ old('subject') }}">
+                            <input type="text" name="subject" class="form-control edit_subject" value="{{ old('subject') }}">
 
                             @if ($errors->has('subject'))
                                 <div class="alert alert-danger">{{ $errors->first('subject') }}</div>
@@ -386,7 +386,6 @@
         // $('.date').change(function(){
         //     alert('date selected');
         // });
-
 
         function changetodolist(id) {
             //$("#passwordEditModal" + id + "").modal('show');
@@ -587,5 +586,20 @@
             });
 
         }
+
+        $(document).ready(function () {
+            $('.add_title').change(function () {
+                if ($('.add_subject').val() == "") {
+                    $('.add_subject').val("");
+                    $('.add_subject').val($('.add_title').val());
+                }
+            })
+            $('.edit_title').change(function () {
+                if ($('.edit_subject').val() == "") {
+                    $('.edit_subject').val("");
+                    $('.edit_subject').val($('.edit_title').val());
+                }
+            })
+        })
     </script>
 @endsection
