@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Redirect;
 use View;
 use App\Issue;
 use App\OldCategory;
+use App\OldStatus;
 use App\User;
 use App\ReplyCategory;
 use App\Helpers;
@@ -57,34 +58,45 @@ class OldController extends Controller
     {
        if($request->type == 2){
 
-            if($request->term != null || $request->status != null){
-                if($request->status && $request->term){
-                $olds  =   Old::query()
+            if($request->term != null || $request->status != null || $request->category != null){
+                if($request->status && $request->term && $request->category){
+                    $olds  =  Old::query()
                         ->where('status', '=', $request->status)
                         ->orWhere('name', 'LIKE', "%{$request->term}%")
                         ->orWhere('description', 'LIKE', "%{$request->term}%")
                         ->orWhere('email', 'LIKE', "%{$request->term}%")
                         ->orWhereHas('category', function ($q) use ($request) {
-                        $q->where('category', 'like', "%{$request->term}%");
+                            $q->where('category', 'like', "%{$request->term}%");
                         })
-                        ->paginate(10);  
+                        ->orWhereHas('category', function ($q) use ($request) {
+                            $q->where('category', '=', $request->category);
+                        })
+                        ->paginate(10);
                 }
 
-                if($request->status){
+                if($request->category) {
+                    $olds  = Old::query()
+                        ->whereHas('category', function ($q) use ($request) {
+                            $q->where('category', '=', $request->category);
+                        })
+                        ->paginate(10);
+                }
+
+                if($request->status) {
                     $olds  = Old::query()->where('status', '=', $request->status)->paginate(10);
                 }
 
-                if($request->term){
-                
-                $olds  = Old::query()
-                            ->where('name', 'LIKE', "%{$request->term}%")
-                            ->orWhere('description', 'LIKE', "%{$request->term}%")
-                            ->orWhere('email', 'LIKE', "%{$request->term}%")
-                            ->orWhereHas('category', function ($q) use ($request) {
+                if($request->term) {
+                    $olds = Old::query()
+                        ->where('name', 'LIKE', "%{$request->term}%")
+                        ->orWhere('description', 'LIKE', "%{$request->term}%")
+                        ->orWhere('email', 'LIKE', "%{$request->term}%")
+                        ->orWhereHas('category', function ($q) use ($request) {
                             $q->where('category', 'like', "%{$request->term}%");
-                            })
-                            ->paginate(10);         
+                        })
+                        ->paginate(10);         
                 }
+
                 $title = 'Old Info';
                 $type = '2';    
             }else{
@@ -97,7 +109,7 @@ class OldController extends Controller
 
           if($request->term != null || $request->status != null){
                 if($request->status && $request->term){
-                $olds  =   Old::query()
+                    $olds = Old::query()
                         ->where('status', '=', $request->status)
                         ->orWhere('name', 'LIKE', "%{$request->term}%")
                         ->orWhere('description', 'LIKE', "%{$request->term}%")
@@ -135,13 +147,13 @@ class OldController extends Controller
        }elseif ($request->type == 1 && $request->type != null) {
           if($request->term != null || $request->status != null){
                 if($request->status && $request->term){
-                $olds  =   Old::query()
+                    $olds = Old::query()
                         ->where('status', '=', $request->status)
                         ->orWhere('name', 'LIKE', "%{$request->term}%")
                         ->orWhere('description', 'LIKE', "%{$request->term}%")
                         ->orWhere('email', 'LIKE', "%{$request->term}%")
                         ->orWhereHas('category', function ($q) use ($request) {
-                        $q->where('category', 'like', "%{$request->term}%");
+                            $q->where('category', 'like', "%{$request->term}%");
                         })
                         ->where('is_payable',1)
                         ->paginate(10);  
@@ -208,39 +220,39 @@ class OldController extends Controller
      */
     public function store(Request $request)
     {
-       $this->validate($request, [
-            'name' => 'required|string|max:255',
-            'category_id' => 'required',
-            'phone' => 'required',
-            'email' => 'required',
-            'pending_payment' => 'required',
-            'status' => 'required',
-        ]);
+//       $this->validate($request, [
+//             'name' => 'required|string|max:255',
+//             'category_id' => 'required',
+//             'phone' => 'required',
+//             'email' => 'required',
+//             'pending_payment' => 'required',
+//             'status' => 'required',
+//        ]);
 
         $new = new Old();
-        $new->name = $request->name;
-        $new->description = $request->description;
+        $new->name = $request->name ?? '';
+        $new->description = $request->description ?? '';
         if($request->amount == null){
           $new->amount = 0;
         }else{
           $new->amount = $request->amount;
         }
         
-        $new->email = $request->email;
-        $new->number = $request->number;
-        $new->address = $request->address;
-        $new->phone = $request->phone;
-        $new->gst = $request->gst;
-        $new->amount = $request->amount;
-        $new->account_name = $request->account_name;
-        $new->account_number = $request->account_number;
-        $new->account_iban = $request->account_iban;
-        $new->account_swift = $request->account_swift;
+        $new->email = $request->email ?? '';
+        $new->number = $request->number ?? '';
+        $new->address = $request->address ?? '';
+        $new->phone = $request->phone ?? '';
+        $new->gst = $request->gst ?? '';
+        $new->amount = $request->amount ?? '';
+        $new->account_name = $request->account_name ?? '';
+        $new->account_number = $request->account_number ?? '';
+        $new->account_iban = $request->account_iban ?? '';
+        $new->account_swift = $request->account_swift ?? '';
         $new->category_id = $request->category_id;
-        $new->pending_payment = $request->pending_payment;
-        $new->currency = $request->currency;
-        $new->is_payable = $request->is_payable;
-        $new->status = $request->status;
+        $new->pending_payment = $request->pending_payment ?? '';
+        $new->currency = $request->currency ?? '';
+        $new->is_payable = $request->is_payable ?? '';
+        $new->status = $request->status ?? '';
         $new->save();
 
         Session::flash('success', 'Record Created');
@@ -367,6 +379,21 @@ class OldController extends Controller
       OldCategory::create($data);
 
       return redirect()->route('old.index')->withSuccess('You have successfully created a old category!');
+    }
+
+
+    // create status
+    public function createStatus(Request $request)
+    {
+        $this->validate($request, [
+            'status' => 'required|string|unique:old_status'
+        ]);
+
+        $data = $request->except('_token');
+
+        OldStatus::create($data);
+
+        return redirect()->route('old.index')->withSuccess('You have successfully created a old status!');
     }
 
     //Get Remark

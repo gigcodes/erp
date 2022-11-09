@@ -2725,6 +2725,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('old', 'OldController');
     Route::post('old/block', 'OldController@block')->name('old.block');
     Route::post('old/category/create', 'OldController@createCategory')->name('old.category.create');
+    Route::post('old/status/create', 'OldController@createStatus')->name('old.status.create');
     Route::post('old/update/status', 'OldController@updateOld')->name('old.update.status');
 
     //Simple Duty
