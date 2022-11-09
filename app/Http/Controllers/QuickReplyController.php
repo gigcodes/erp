@@ -121,7 +121,8 @@ class QuickReplyController extends Controller
                 $website_length = count($store_websites);
             }
             //all categories replies related to store website id
-            $all_replies = DB::select("SELECT * from replies");
+//            $all_replies = DB::select("SELECT * from replies");
+            $all_replies = Reply::all();
             $category_wise_reply = [];
             foreach ($all_replies as $replies) {
                 $category_wise_reply[$replies->category_id][$replies->store_website_id][$replies->id] = $replies;
