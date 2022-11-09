@@ -35,7 +35,8 @@ class SettingController extends Controller
 			$query = $query->orWhere('type', 'LIKE','%'.$request->type.'%');
 		}
 		$data = $query->orderBy('id', 'asc')->paginate(10)->appends(request()->except(['page']));
-		return view('setting.index',compact('data'));
+        $settings= Setting::all();
+		return view('setting.index',compact('data','settings'));
 	}
 
 
