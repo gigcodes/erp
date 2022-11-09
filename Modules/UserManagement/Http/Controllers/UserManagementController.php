@@ -104,7 +104,8 @@ class UserManagementController extends Controller {
         $servers = AssetsManager::whereHas('category', function($q){
             $q->where('cat_name', '=', 'Servers');
         })->get();
-        return view('usermanagement::index', compact('title', 'permissionRequest', 'statusList', 'usersystemips', 'userlist', 'whatsapp', 'servers'));
+        $userlists = User::orderBy('name')->where('is_active', 1)->pluck('name', 'id');
+        return view('usermanagement::index', compact('title', 'permissionRequest', 'statusList', 'usersystemips', 'userlist', 'whatsapp', 'servers','userlists'));
     }
 
     public function getUserList(Request $request) {

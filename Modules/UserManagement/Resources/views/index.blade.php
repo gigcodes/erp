@@ -143,7 +143,12 @@
                             <div class="col">
                                 <div class="form-group">
                                     <?php echo Form::text('keyword', request('keyword'), ['class' =>
-                                    'form-control data-keyword', 'placeholder' => 'Enter keyword']); ?>
+                                    'form-control data-keyword', 'placeholder' => 'Enter keyword','list'=>'name-lists']); ?>
+                                    <datalist id="name-lists">
+                                        @foreach ($userlists as $key => $val )
+                                            <option value="{{$val}}">
+                                        @endforeach
+                                    </datalist>
                                 </div>
                                 <div class="form-group">
                                     <select name="is_active" class="form-control" placholder="Active:">
