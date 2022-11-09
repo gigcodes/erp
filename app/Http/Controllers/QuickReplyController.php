@@ -108,18 +108,16 @@ class QuickReplyController extends Controller
         try {
             $subcat = '';
             $all_categories = ReplyCategory::where('parent_id', 0);
-            if($request->sub_category){
+            if ($request->sub_category) {
                 $subcat = $request->sub_category;
                 $parent_id = ReplyCategory::find($request->sub_category);
-                $all_categories->where('id',$parent_id->parent_id);
+                $all_categories->where('id', $parent_id->parent_id);
             }
             $all_categories = $all_categories->get();
             $store_websites = StoreWebsite::all();
-            $sub_categories = [''=>'Select Sub Category'] + ReplyCategory::where('parent_id','!=', 0)->pluck('name', 'id')->toArray();
-            $website_length = 0;
-            if (count($store_websites) > 0) {
-                $website_length = count($store_websites);
-            }
+            $sub_categories = ['' => 'Select Sub Category'] + ReplyCategory::where('parent_id', '!=', 0)->pluck('name', 'id')->toArray();
+            $website_length = count($store_websites);
+
             //all categories replies related to store website id
 //            $all_replies = DB::select("SELECT * from replies");
             $all_replies = Reply::all();
@@ -130,12 +128,12 @@ class QuickReplyController extends Controller
             if ($all_categories) {
                 foreach ($all_categories as $k => $_cat) {
                     $childs = ReplyCategory::where('parent_id', $_cat->id);
-                    if($request->sub_category){
-                        $childs->where('id',$request->sub_category);
+                    if ($request->sub_category) {
+                        $childs->where('id', $request->sub_category);
                     }
                     $childs = $childs->get();
                     $all_categories[$k]['childs'] = $childs;
-                    if($childs){
+                    if ($childs) {
                         foreach ($all_categories[$k]['childs'] as $c => $_child) {
                             $subchilds = ReplyCategory::where('parent_id', $_child->id);
                             $subchilds = $subchilds->get();
