@@ -13,10 +13,8 @@ class AlterTableUserAutoApprovalWhiteList extends Migration
      */
     public function up()
     {
-        Schema::table("users", function (Blueprint $table) {
-            $table->integer("is_auto_approval")->default(1)->change();
-            $table->integer("is_whitelisted")->default(1)->change();
-        });
+        DB::statement('ALTER TABLE `users` MODIFY COLUMN `is_auto_approval` INTEGER (1) NOT NULL DEFAULT "1";');
+        DB::statement('ALTER TABLE `users` MODIFY COLUMN `is_whitelisted` INTEGER (1) NOT NULL DEFAULT "1";');
     }
 
     /**
@@ -26,9 +24,7 @@ class AlterTableUserAutoApprovalWhiteList extends Migration
      */
     public function down()
     {
-        Schema::table("users", function (Blueprint $table) {
-            $table->integer("is_auto_approval")->default(0)->change();
-            $table->integer("is_whitelisted")->default(0)->change();
-        });
+        DB::statement('ALTER TABLE `users` MODIFY COLUMN `is_auto_approval` INTEGER (1) NOT NULL DEFAULT "0";');
+        DB::statement('ALTER TABLE `users` MODIFY COLUMN `is_whitelisted` INTEGER (1) NOT NULL DEFAULT "0";');
     }
 }
