@@ -2,13 +2,15 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Schema;
-use Facebook\Facebook;
 use Blade;
+use Facebook\Facebook;
 use Studio\Totem\Totem;
-use App\ScrapedProducts;
 use App\CallBusyMessage;
+use App\ScrapedProducts;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use App\Observers\CallBusyMessageObserver;
 
@@ -46,6 +48,12 @@ class AppServiceProvider extends ServiceProvider
                 return false;
             }
         }, 'image is not valid base64 encoded string.');
+
+        DB::listen(function ($query) {
+            if($query->time>2000){
+                Log::channel("server_audit")->info("time exceeded 2000: ".$query->time, ["sql"=>$query->sql,$query->bindings]);
+            }
+        });
 		CallBusyMessage::observe(CallBusyMessageObserver::class);
     }
 

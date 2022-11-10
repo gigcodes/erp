@@ -93,6 +93,9 @@
 								$dateStr = str_replace(';', '', $index[1]);
 								$dateResult = date('d M Y', (int)$dateStr);
 							}
+							if(str_contains($line, "exceeded")){
+								$dateResult = date('d M Y H:s:i', strtotime(substr($line,1,19)));
+							}
 						?>
 						@if($dateResult || $dateTime) 
 							<td>{{$dateResult.' '.$dateTime}}</td>
@@ -100,7 +103,11 @@
 							<td></td>
 						@endif
 	    					<!-- <td></td> -->
+							@if(str_contains($line, "exceeded"))
+	    					<td>{{substr($line,32)}}</td>
+							@else 
 	    					<td>{{$line}}</td>
+							@endif
 	    			</tr>
 				@endforeach
 			</tbody>

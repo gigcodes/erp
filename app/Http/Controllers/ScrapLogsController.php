@@ -314,7 +314,7 @@ class ScrapLogsController extends Controller
 		} else {
     		$namefile = env('DATABASE_LOGS_FILE');
 		}
-		//dd($namefile);
+
     	if(!empty($namefile)){
 	    	$lines = @file($namefile);
 			//print_r($lines);

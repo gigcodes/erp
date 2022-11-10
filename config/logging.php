@@ -171,6 +171,11 @@ return [
             'path'   => storage_path('logs/social_webhook/social_webhook.log'),
             'days'   => 7,
         ],
+        'server_audit' => [
+            'driver' => 'single',
+            'path'   => storage_path('logs/mysql/server_audit.log'),
+            'days'   => 7,
+        ],
     ],
 
 ];
