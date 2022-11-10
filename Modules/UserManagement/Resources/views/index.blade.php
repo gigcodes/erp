@@ -272,7 +272,6 @@
     </div>
 </div>
 
-
 <div id="erp-request" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
@@ -304,9 +303,6 @@
         </div>
     </div>
 </div>
-
-
-
 
 <div id="system-request" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -379,8 +375,6 @@
         </div>
     </div>
 </div>
-
-
 
 <div id="user-task-activity" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -508,6 +502,7 @@
         </div>
     </div>
 </div>
+
 <div id="logMessageModel" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
 
@@ -527,7 +522,6 @@
     </div>
 </div>
 
-
 <div id="logMessageModelTask" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
 
@@ -546,8 +540,9 @@
 
     </div>
 </div>
+
 @include('common.commonEmailModal')
-@include("usermanagement::templates.list-template")
+@include("usermanagement::templates.list-template", array('servers' => $servers))
 @include("usermanagement::templates.create-solution-template")
 @include("usermanagement::templates.load-communication-history")
 @include("usermanagement::templates.add-role")
