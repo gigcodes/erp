@@ -185,6 +185,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/delete', 'WebsiteStoreController@delete')->name("store-website.website-stores.delete");
         Route::get('/{id}/push', 'WebsiteStoreController@push')->name("store-website.website-stores.push");
         Route::get('dropdown', 'WebsiteStoreController@dropdown')->name("store-website.website-stores.dropdown");
+        Route::post('multiple-delete', 'WebsiteStoreController@deteleMultiple')->name("store-website.websites.deteleMultiple");
+
     });
 
     //Site Attributes
