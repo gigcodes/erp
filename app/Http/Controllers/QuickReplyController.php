@@ -108,6 +108,8 @@ class QuickReplyController extends Controller
         try {
             $subcat = '';
             $all_categories = ReplyCategory::where('parent_id', 0);
+//            $all_categories = $all_categories->with(['childrenRecursive']);
+
             if ($request->sub_category) {
                 $subcat = $request->sub_category;
                 $parent_id = ReplyCategory::find($request->sub_category);
