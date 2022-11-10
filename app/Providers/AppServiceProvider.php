@@ -51,7 +51,7 @@ class AppServiceProvider extends ServiceProvider
 
         DB::listen(function ($query) {
             if($query->time>2000){
-                Log::channel("server_audit")->info("time exceeded 2000: ".$query->time, ["sql"=>$query->sql,$query->bindings]);
+                Log::channel("server_audit")->info("time exceeded 2000: ".$query->time, ["url"=>request()->url(),"sql"=>$query->sql,$query->bindings]);
             }
         });
 		CallBusyMessage::observe(CallBusyMessageObserver::class);
