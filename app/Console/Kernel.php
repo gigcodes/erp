@@ -5,6 +5,7 @@ namespace App\Console;
 use App\Console\Commands\AccountHubstaffActivities;
 use App\Console\Commands\AddGroupTheme;
 use App\Console\Commands\AddRoutesToGroups;
+use App\Console\Commands\DatabaseLogCron;
 use App\Console\Commands\ZabbixStore;
 use App\Console\Commands\ZabbixHostItems;
 use App\Console\Commands\ZabbixProblemImport;
@@ -319,6 +320,7 @@ class Kernel extends ConsoleKernel
         ZabbixHostItems::class,
         ZabbixProblemImport::class,
         SendQueuedMessages::class,
+        DatabaseLogCron::class
     ];
 
     /**
@@ -688,6 +690,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('command:MagentoSettingUpdates')->dailyAt('23:59')->timezone('Asia/Kolkata');
 
         $schedule->command('command:NegativeCouponResponses')->hourly();
+        // Database log Cron
+        $schedule->command('databaselog:cron')->dailyAt("0:00");
 
     }
 
