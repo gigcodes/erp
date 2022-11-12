@@ -45,7 +45,19 @@ class DatabaseLogCron extends Command
             $lines = @file($namefile);
             if ($lines) {
                 for ($i = count($lines) - 1; $i >= 0; $i--) {
-                    DatabaseLog::create(['logmessage' => $lines[$i]]);
+                    if (str_contains($lines[$i], '{"url":')) {
+                        $data = explode("{", $lines[$i]);
+                        if ($data) {
+                            $time = substr($data[0], strrpos($data[0], '2000:') + 6);
+                            $logData = explode('",', $data[1]);
+                            $url = str_replace('"url":', "", $logData[0]);
+                            $sql = str_replace('"sql":', "", $logData[1]);
+                            DatabaseLog::create(['url' => $url, 'sql_data' => $sql, 'time_taken' => $time,'logmessage' => $lines[$i]]);
+                        }
+
+                    } else {
+                        DatabaseLog::create(['logmessage' => $lines[$i]]);
+                    }
                 }
                 return 'Database Log Inserted Successfully';
             }

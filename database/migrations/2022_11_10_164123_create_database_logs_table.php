@@ -15,6 +15,9 @@ class CreateDatabaseLogsTable extends Migration
     {
         Schema::create('database_logs', function (Blueprint $table) {
             $table->increments('id');
+            $table->bigInteger('time_taken')->nullable();
+            $table->string('url')->nullable();
+            $table->longText('sql_data')->nullable();
             $table->longText('logmessage')->nullable();
             $table->timestamps();
         });

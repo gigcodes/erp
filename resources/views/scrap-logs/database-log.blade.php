@@ -69,6 +69,9 @@
 		    <thead>
 				<td width="5%">Index</td>
 				<td width="10%">Date Time</td>
+				<td width="10%">Time Taken</td>
+				<td width="10%">Url</td>
+				<td width="10%">Sql</td>
 				<td width="85%">Log Messages</td>
 			</thead>
 			<tbody id="log_popup_body">
@@ -103,7 +106,9 @@
 						@else
 							<td></td>
 						@endif
-						<!-- <td></td> -->
+						<td>{{$database_log->time_taken}}</td>
+						<td>{{$database_log->url}}</td>
+						<td>{{$database_log->sql_data}}</td>
 						@if(str_contains($database_log->logmessage, "exceeded"))
 							<td>{{substr($database_log->logmessage,32)}}</td>
 						@else
