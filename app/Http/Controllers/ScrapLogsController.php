@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DatabaseLog;
 use Illuminate\Http\Request;
 use File;
 use \Carbon\Carbon;
@@ -309,37 +310,48 @@ class ScrapLogsController extends Controller
     public function databaseLog(Request $request){
 		
     	$search = '';
-		if($_SERVER['HTTP_HOST'] == 'erp.local:8080') {
-			$namefile = storage_path('logs/mysql/server_audit.log');
-		} else {
-    		$namefile = env('DATABASE_LOGS_FILE');
-		}
-		//dd($namefile);
-    	if(!empty($namefile)){
-	    	$lines = @file($namefile);
-			//print_r($lines);
-			if($lines){
-				$logBtn = SlowLogsEnableDisable::orderBy('id', "desc")->first();
-				//print('Line in');
-	    		$output = array();
-				for($i = count($lines) -1; $i >= 0; $i--){
-					$output[] = $lines[$i];
-				}
-		    	if($request->search){
-		    		$search = $request->search;
-		    		$result = array_filter($output, function ($item) use ($search) {
-					    if (stripos($item, $search) !== false) {
-					        return true;
-					    }
-					    return false;
-					});
-		    		$output = $result;
-		    	}
-		    	return view('scrap-logs.database-log', compact('output','search', 'logBtn'));
-	    	}
-	    	return 'File not found!';
-		}
-    	return 'File not found!';
+//		if($_SERVER['HTTP_HOST'] == 'erp.local:8080') {
+//			$namefile = storage_path('logs/mysql/server_audit.log');
+//		} else {
+//    		$namefile = env('DATABASE_LOGS_FILE');
+//		}
+//    	if(!empty($namefile)){
+//	    	$lines = @file($namefile);
+//			//print_r($lines);
+//			if($lines){
+//				$logBtn = SlowLogsEnableDisable::orderBy('id', "desc")->first();
+//				//print('Line in');
+//	    		$output = array();
+//				for($i = count($lines) -1; $i >= 0; $i--){
+//					$output[] = $lines[$i];
+//				}
+//
+//		    	if($request->search){
+//		    		$search = $request->search;
+//		    		$result = array_filter($output, function ($item) use ($search) {
+//					    if (stripos($item, $search) !== false) {
+//					        return true;
+//					    }
+//					    return false;
+//					});
+//		    		$output = $result;
+//		    	}
+//		    	return view('scrap-logs.database-log', compact('output','search', 'logBtn'));
+//	    	}
+//	    	return 'File not found!';
+//		}
+//        return 'File not found!';
+
+        $database_logs = DatabaseLog::orderBy('created_at','asc');
+        $logBtn = SlowLogsEnableDisable::orderBy('id', "desc")->first();
+        if($request->search){
+            $database_logs =   $database_logs->where('logmessage','Like','%'.$search. '%');
+        }
+        $database_logs =$database_logs->get();
+
+        return view('scrap-logs.database-log', compact('database_logs','search', 'logBtn'));
+
+
     }
 
 	public function enableMysqlAccess(Request $request) {
@@ -390,7 +402,15 @@ class ScrapLogsController extends Controller
             return response()->json(['code' => 500, "data" => [], 'message' => $msg]);
         }
 	}
-	
+    public function databaseTruncate(Request $request) {
+        try{
+            $data =DatabaseLog::query()->truncate();
+            return response()->json(['code' => 200, "data" => $data,  'message' => 'Datalog Truncated successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, "data" => [], 'message' => $msg]);
+        }
+    }
     public function store(Request $request){
     	
     	$data = array(
