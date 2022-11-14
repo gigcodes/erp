@@ -13,7 +13,7 @@ class AddUrlFieldsDatabaseLogs extends Migration
      */
     public function up()
     {
-        Schema::create('database_logs', function (Blueprint $table) {
+        Schema::table('database_logs', function (Blueprint $table) {
             $table->bigInteger('time_taken')->nullable()->after('logmessage');
             $table->string('url')->nullable()->after('time_taken');
             $table->longText('sql_data')->nullable()->after('url');
