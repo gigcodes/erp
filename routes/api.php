@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\v1\Auth\LoginController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -263,9 +265,9 @@ Route::group([
     'middleware' => 'api',
     'prefix' => 'auth'
 ], function ($router) {
-    Route::post('login', '\App\Http\Controllers\Api\v1\Auth\LoginController@login');
-    Route::post('logout', '\App\Http\Controllers\Api\v1\Auth\LoginController@logout');
-    Route::post('refresh', '\App\Http\Controllers\Api\v1\Auth\LoginController@refresh');
-    Route::post('me', '\App\Http\Controllers\Api\v1\Auth\LoginController@me');
+    Route::post('login', 'LoginController@login');
+    Route::post('logout', 'LoginController@logout');
+    Route::post('refresh', 'LoginController@refresh');
+    Route::post('me', 'LoginController@me');
 
 });
