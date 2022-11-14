@@ -60,7 +60,6 @@
 		</div>
 	</form>
 	<?php $typeBtn = $logBtn->type ?? '';?>
-	<button style='padding:3px;  background-color: #28a745 !important;  color: #ffffff !important;' type='button' class='btn custom-button float-right mr-3 truncate'>Truncate Log</button>
 	<a href="/database-log/enable" class="btn custom-button float-right mr-3 " style="@if ($typeBtn == 'Enable')  background-color: #28a745 !important; @endif">Enabled</a>
 	<a href="/database-log/disable" class="btn custom-button float-right mr-3 "  style="@if ($typeBtn == 'Disable') background-color: #ffc107 !important; @endif">Disable</a>
 	<button style='padding:3px;' type='button' class='btn custom-button float-right mr-3 history' data-toggle='modal' data-target='#slow_loh_history_model'>Log History</button>
@@ -69,52 +68,40 @@
 		    <thead>
 				<td width="5%">Index</td>
 				<td width="10%">Date Time</td>
-				<td width="10%">Time Taken</td>
-				<td width="10%">Url</td>
-				<td width="10%">Sql</td>
 				<td width="85%">Log Messages</td>
 			</thead>
 			<tbody id="log_popup_body">
 				@php $count = 1;  @endphp
-				@foreach($database_logs as $key => $database_log)
+				@foreach($output as $key => $line)
 					<tr>
 						<td>{{$key+1}}</td>
-							<?php $timeCol = false;
+						<?php $timeCol = false;
 							$dateResult = '';
 							$dateTime = '';
-							if(str_contains($database_log->logmessage, '# Time: ') OR str_contains($database_log->logmessage, 'Time: ')){
+							if(str_contains($line, '# Time: ') OR str_contains($line, 'Time: ')){
 								$timeCol = true;
-								$dateString = $database_log->logmessage;
+								$dateString = $line;
 								$prefix = "# Time:";
 								$index = explode(" ",$dateString);
 								//$dateResult = date('d M Y H:s:i', "1652880141");
 								$dateTime = $index[3];
-							}
-							if(str_contains($database_log->logmessage, "SET timestamp=")){
-								$dateString = $database_log->logmessage;
+							}	
+							if(str_contains($line, "SET timestamp=")){
+								$dateString = $line;
 								$prefix = "SET timestamp=";
 								$index = explode("=",$dateString);//strpos($dateString, $prefix) + strlen($prefix);
 								$dateStr = str_replace(';', '', $index[1]);
 								$dateResult = date('d M Y', (int)$dateStr);
 							}
-							if(str_contains($database_log->logmessage, "exceeded")){
-								$dateResult = date('d M Y H:s:i', strtotime(substr($database_log->logmessage,1,19)));
-							}
-							?>
-						@if($dateResult || $dateTime)
+						?>
+						@if($dateResult || $dateTime) 
 							<td>{{$dateResult.' '.$dateTime}}</td>
 						@else
 							<td></td>
 						@endif
-						<td>{{$database_log->time_taken}}</td>
-						<td>{{$database_log->url}}</td>
-						<td>{{$database_log->sql_data}}</td>
-						@if(str_contains($database_log->logmessage, "exceeded"))
-							<td>{{substr($database_log->logmessage,32)}}</td>
-						@else
-							<td>{{$database_log->logmessage}}</td>
-						@endif
-					</tr>
+	    					<!-- <td></td> -->
+	    					<td>{{$line}}</td>
+	    			</tr>
 				@endforeach
 			</tbody>
 		</table>
@@ -222,28 +209,6 @@
 					$(".slow_loh_history_tbody").append("<tr><td>"+row['id']+"</td><td>"+row['created_at']+"</td><td>"+row['userName']+"</td><td>"+row['type']+"</td></tr>");
 				});
 				toastr['success'](data.message, 'success');
-			}
-		});
-	});
-	$(document).on('click', '.truncate', function (e) {
-
-		$.ajax({
-			url: BASE_URL + "/database-log/truncate",
-			method: "get",
-			headers: {
-				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-			},
-			data: {},
-			cache: false,
-			success: function (data) {
-				console.log(data);
-				if(data.code == 200){
-					toastr['success'](data.message, 'success');
-					location.reload();
-				}else{
-					toastr['error'](data.message, 'error');
-
-				}
 			}
 		});
 	});
