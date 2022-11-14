@@ -257,3 +257,15 @@ Route::post('social/webhook', 'SocialWebhookController@webhook');
 Route::post('order/sync-transaction', 'OrderController@syncTransaction');
 
 Route::post('updateLog', 'UpdateLogController@store');
+
+
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'auth'
+], function ($router) {
+    Route::post('login', '\App\Http\Controllers\Api\v1\Auth\LoginController@login');
+    Route::post('logout', '\App\Http\Controllers\Api\v1\Auth\LoginController@logout');
+    Route::post('refresh', '\App\Http\Controllers\Api\v1\Auth\LoginController@refresh');
+    Route::post('me', '\App\Http\Controllers\Api\v1\Auth\LoginController@me');
+
+});
