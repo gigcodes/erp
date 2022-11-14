@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TodolistRemarkHistoryLog extends Model
+class DatabaseLog extends Model
 {
-    //
+    protected $guarded =['id'];
 }
