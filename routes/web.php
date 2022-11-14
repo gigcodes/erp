@@ -3836,7 +3836,6 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::get('/database-log/enable', 'ScrapLogsController@enableMysqlAccess');
     Route::get('/database-log/disable', 'ScrapLogsController@disableMysqlAccess');
     Route::get('/database-log/history', 'ScrapLogsController@disableEnableHistory');
-    Route::get('/database-log/truncate', 'ScrapLogsController@databaseTruncate');
 });
 
 Route::get('gtmetrix', 'gtmetrix\WebsiteStoreViewGTMetrixController@index')->name('gt-metrix');
