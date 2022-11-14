@@ -27,7 +27,7 @@ class AddUrlFieldsDatabaseLogs extends Migration
      */
     public function down()
     {
-        Schema::table('todo_lists', function (Blueprint $table) {
+        Schema::table('database_logs', function (Blueprint $table) {
             $table->dropColumn('time_taken');
             $table->dropColumn('url');
             $table->dropColumn('sql_data');
