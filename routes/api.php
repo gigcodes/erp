@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\v1\Auth\LoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -263,7 +262,8 @@ Route::post('updateLog', 'UpdateLogController@store');
 
 Route::group([
     'middleware' => 'api',
-    'prefix' => 'auth'
+    'prefix' => 'auth',
+    'namespace' => 'Api\v1\Auth'
 ], function ($router) {
     Route::post('login', 'LoginController@login');
     Route::post('logout', 'LoginController@logout');
