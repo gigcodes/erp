@@ -156,10 +156,10 @@ class WebsiteStoreController extends Controller {
             if ($websiteStores) {
                 return response()->json(["code" => 200, 'message' => "Website-Store Deleted Successfully"]);
             }
-            return response()->json(["code" => 500, "error" => "Wrong Website-Store id!"]);
+            return response()->json(["code" => 500, "error" => "Website store id doesn't exist in this request, please request with a valid store id!"]);
         } else {
 
-            return response()->json(["code" => 500, "error" => "Wrong Website-Store id!"]);
+            return response()->json(["code" => 500, "error" => "Website store id doesn't exist in this request, please request with a valid store id!"]);
         }
     }
 
