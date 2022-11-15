@@ -30,4 +30,4 @@ done
 
 ssh root@65.21.155.81 "rsync -az /home*/$repo/shared/pub/static/ root@$server:/home/$repo/shared/pub/static/"
 echo "Assigning permissions"
-ssh root@$server "chown -R www-data.www-data /home/$repo/shared/pub/static ; service varnish restart ; service php7.2-fpm restart ; redis-cli flushall"
+ssh root@$server "chown -R www-data.www-data /home/$repo/shared/pub/static ; service varnish restart ; service php7.3-fpm restart ; redis-cli -n 0 FLUSHDB; redis-cli -n 1 FLUSHDB;"
