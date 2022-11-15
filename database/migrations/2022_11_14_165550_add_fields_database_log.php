@@ -14,7 +14,8 @@ class AddFieldsDatabaseLog extends Migration
     public function up()
     {
         Schema::table('database_logs', function (Blueprint $table) {
-            $table->bigInteger('time_taken')->nullable()->after('logmessage');
+            $table->renameColumn('logmessage', 'log_message');
+            $table->bigInteger('time_taken')->nullable()->after('log_message');
             $table->string('url')->nullable()->after('time_taken');
             $table->longText('sql_data')->nullable()->after('url');
         });
@@ -28,6 +29,7 @@ class AddFieldsDatabaseLog extends Migration
     public function down()
     {
         Schema::table('database_logs', function (Blueprint $table) {
+            $table->renameColumn('log_message', 'logmessage');
             $table->dropColumn('time_taken');
             $table->dropColumn('url');
             $table->dropColumn('sql_data');

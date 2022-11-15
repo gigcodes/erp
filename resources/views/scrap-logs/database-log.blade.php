@@ -60,7 +60,7 @@
 		</div>
 	</form>
 	<?php $typeBtn = $logBtn->type ?? '';?>
-	<button style='padding:3px;  background-color: #28a745 !important;  color: #ffffff !important;' type='button' class='btn custom-button float-right mr-3 truncate'>Truncate Log</button>
+	<button type='button' class='btn custom-button float-right mr-3 truncate'>Truncate Log</button>
 	<a href="/database-log/enable" class="btn custom-button float-right mr-3 " style="@if ($typeBtn == 'Enable')  background-color: #28a745 !important; @endif">Enabled</a>
 	<a href="/database-log/disable" class="btn custom-button float-right mr-3 "  style="@if ($typeBtn == 'Disable') background-color: #ffc107 !important; @endif">Disable</a>
 	<button style='padding:3px;' type='button' class='btn custom-button float-right mr-3 history' data-toggle='modal' data-target='#slow_loh_history_model'>Log History</button>
@@ -76,29 +76,29 @@
 			</thead>
 			<tbody id="log_popup_body">
 				@php $count = 1;  @endphp
-				@foreach($database_logs as $key => $database_log)
+				@foreach($databaseLogs as $key => $databaseLog)
 					<tr>
 						<td>{{$key+1}}</td>
 						<?php $timeCol = false;
 							$dateResult = '';
 							$dateTime = '';
-							if(str_contains($database_log->logmessage, '# Time: ') OR str_contains($database_log->logmessage, 'Time: ')){
+							if(str_contains($databaseLog->log_message, '# Time: ') OR str_contains($databaseLog->log_message, 'Time: ')){
 								$timeCol = true;
-								$dateString = $database_log->logmessage;
+								$dateString = $databaseLog->log_message;
 								$prefix = "# Time:";
 								$index = explode(" ",$dateString);
 								//$dateResult = date('d M Y H:s:i', "1652880141");
 								$dateTime = $index[3];
 							}
-							if(str_contains($database_log->logmessage, "SET timestamp=")){
-								$dateString = $database_log->logmessage;
+							if(str_contains($databaseLog->log_message, "SET timestamp=")){
+								$dateString = $databaseLog->log_message;
 								$prefix = "SET timestamp=";
 								$index = explode("=",$dateString);//strpos($dateString, $prefix) + strlen($prefix);
 								$dateStr = str_replace(';', '', $index[1]);
 								$dateResult = date('d M Y', (int)$dateStr);
 							}
-							if(str_contains($database_log->logmessage, "exceeded")){
-								$dateResult = date('d M Y H:s:i', strtotime(substr($database_log->logmessage,1,19)));
+							if(str_contains($databaseLog->log_message, "exceeded")){
+								$dateResult = date('d M Y H:s:i', strtotime(substr($databaseLog->log_message,1,19)));
 							}
 							?>
 						@if($dateResult || $dateTime)
@@ -106,13 +106,13 @@
 						@else
 							<td></td>
 						@endif
-						<td>{{$database_log->time_taken}}</td>
-						<td>{{$database_log->url}}</td>
-						<td>{{$database_log->sql_data}}</td>
-						@if(str_contains($database_log->logmessage, "exceeded"))
-							<td>{{substr($database_log->logmessage,32)}}</td>
+						<td>{{$databaseLog->time_taken}}</td>
+						<td>{{$databaseLog->url}}</td>
+						<td>{{$databaseLog->sql_data}}</td>
+						@if(str_contains($databaseLog->log_message, "exceeded"))
+							<td>{{substr($databaseLog->log_message,32)}}</td>
 						@else
-							<td>{{$database_log->logmessage}}</td>
+							<td>{{$databaseLog->log_message}}</td>
 						@endif
 	    			</tr>
 				@endforeach

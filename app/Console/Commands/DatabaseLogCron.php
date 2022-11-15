@@ -40,8 +40,9 @@ class DatabaseLogCron extends Command
 
     public function handle()
     {
-        $namefile = storage_path('logs/mysql/test.log');
-        if (!empty($namefile)) {
+        $namefile = storage_path('logs/mysql/server_audit.log');
+        if (file_exists($namefile)) {
+
             $lines = @file($namefile);
             if ($lines) {
                 for ($i = count($lines) - 1; $i >= 0; $i--) {
@@ -52,16 +53,19 @@ class DatabaseLogCron extends Command
                             $logData = explode('",', $data[1]);
                             $url = str_replace('"url":', "", $logData[0]);
                             $sql = str_replace('"sql":', "", $logData[1]);
-                            DatabaseLog::create(['url' => $url, 'sql_data' => $sql, 'time_taken' => $time,'logmessage' => $lines[$i]]);
+                            DatabaseLog::create(['url' => $url, 'sql_data' => $sql, 'time_taken' => $time,'log_message' => $lines[$i]]);
+                        }else{
+                            return 'Wrong Database Log';
                         }
 
                     } else {
-                        DatabaseLog::create(['logmessage' => $lines[$i]]);
+                        DatabaseLog::create(['log_message' => $lines[$i]]);
                     }
                 }
                 return 'Database Log Inserted Successfully';
             }
             return 'File not found!';
         }
+        return 'File not found!';
     }
 }

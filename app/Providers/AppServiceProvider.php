@@ -53,7 +53,7 @@ class AppServiceProvider extends ServiceProvider
         DB::listen(function ($query) {
             if($query->time>2000){
                 Log::channel("server_audit")->info("time exceeded 2000: ".$query->time, ["url"=>request()->url(),"sql"=>$query->sql,$query->bindings]);
-                DatabaseLog::create(['url' =>request()->url(), 'sql_data' => $query->sql, 'time_taken' => $query->time,'logmessage' =>$query->bindings]);
+                DatabaseLog::create(['url' =>request()->url(), 'sql_data' => $query->sql, 'time_taken' => $query->time,'log_message' =>$query->bindings]);
             }
         });
 
