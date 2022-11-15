@@ -43,12 +43,9 @@ class DailyPlannerController extends Controller
                      ->orWhere('assign_to', '=', $userid);
       })->where('is_statutory', 1)->whereNull('is_verified')->count();
 
-        $daily_activities = DailyActivity::where('user_id', $userid)->where('for_date', $planned_at)->get()->groupBy('time_slot');
-        $user_events= \App\UserEvent\UserEvent::where('date', $planned_at)->orderBy('start','asc')->get();
+        $dailyActivities = DailyActivity::where('user_id', $userid)->where('for_date', $planned_at)->get()->groupBy('time_slot');
+        $userEvents= \App\UserEvent\UserEvent::where('date', $planned_at)->orderBy('start','asc')->get();
 
-      // dd($daily_activities);
-
-      // dd($statutory);
 
       $time_slots = [
         '08:00am - 09:00am' => [],
@@ -87,7 +84,7 @@ class DailyPlannerController extends Controller
         }
       }
 
-      foreach ($daily_activities as $time_slot => $data) {
+      foreach ($dailyActivities as $time_slot => $data) {
         foreach ($data as $task) {
           $time_slots[$time_slot][] = $task;
         }
@@ -131,7 +128,7 @@ class DailyPlannerController extends Controller
         'planned_at'        => $planned_at,
         'generalCategories' => $generalCategories,
         'spentTime'         => $spentTime,
-        'meetings' => $user_events,
+        'meetings' => $userEvents,
         ]);
     }
 
