@@ -16,12 +16,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Build and push
-      uses: docker/build-push-action@v3
-      with:
-        context: .
-        push: true
-        tags: erp-web
+#    - name: Build and push
+#      uses: docker/build-push-action@v3
+#      with:
+#        context: .
+#        push: true
+#        tags: erp-web
 #    - uses: php-actions/composer@v6
 #      with:
 #        php_version: "7.4"
@@ -29,6 +29,7 @@ jobs:
 #        version: 1.10.22
     - name: Validate composer.json and composer.lock
       run: |
+        curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=1.10.22
         composer --version
         composer validate --strict
 
