@@ -31,7 +31,7 @@ jobs:
       run: |
         curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=1.10.22
         composer --version
-        composer validate --strict
+        composer validate  
 
     - name: Cache Composer packages
       id: composer-cache
