@@ -10,12 +10,12 @@ permissions:
   contents: read
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
+#  build:
+#
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#    - uses: actions/checkout@v3
 #    - name: Build and push
 #      uses: docker/build-push-action@v3
 #      with:
@@ -27,34 +27,42 @@ jobs:
 #        php_version: "7.4"
 ##        php_extensions: redis exif
 #        version: 1.10.22
-    - name: Validate composer.json and composer.lock
-      run: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=1.10.22
-
-    - name: composer version
-      run: composer --version
-
-    - name: secrets
-      run: echo ${{secrets}}
-
-    - name: Validate composer.json and composer.lock
-      run: composer validate
-
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v3
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-
-
-    - name: Install dependencies
-      env:
-        COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{secrets.GITHUB_TOKEN}}"} }' # [tl! **]
-      run: composer install --prefer-dist --no-progress
-
-    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-    # Docs: https://getcomposer.org/doc/articles/scripts.md
-
-    # - name: Run test suite
-    #   run: composer run-script test
+#    - name: Validate composer.json and composer.lock
+#      run: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=1.10.22
+#
+#    - name: composer version
+#      run: composer --version
+#
+#    - name: Validate composer.json and composer.lock
+#      run: composer validate
+#
+#    - name: Cache Composer packages
+#      id: composer-cache
+#      uses: actions/cache@v3
+#      with:
+#        path: vendor
+#        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+#        restore-keys: |
+#          ${{ runner.os }}-php-
+#
+#    - name: Install dependencies
+#      env:
+#        COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{secrets.GITHUB_TOKEN}}"} }' # [tl! **]
+#      run: composer install --prefer-dist --no-progress
+#
+#    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
+#    # Docs: https://getcomposer.org/doc/articles/scripts.md
+#
+#    # - name: Run test suite
+#    #   run: composer run-script test
+  phplint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: "laravel-pint"
+        uses: aglipanci/laravel-pint-action@1.0.0
+        with:
+          preset: laravel
+          verboseMode: true
+          testMode: true
+#          configPath: "vendor/my-company/coding-style/pint.json"
