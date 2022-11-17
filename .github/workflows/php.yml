@@ -65,4 +65,4 @@ jobs:
           preset: laravel
           verboseMode: true
           testMode: true
-#          configPath: "vendor/my-company/coding-style/pint.json"
+#          configPath: "vendor/my-company/coding-style/pint.json".
