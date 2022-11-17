@@ -28,10 +28,13 @@ jobs:
 ##        php_extensions: redis exif
 #        version: 1.10.22
     - name: Validate composer.json and composer.lock
-      run: |
-        curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=1.10.22
-        composer --version
-        composer validate  
+      run: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=1.10.22
+
+    - name: composer version
+      run: composer --version
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate
 
     - name: Cache Composer packages
       id: composer-cache
