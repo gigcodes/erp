@@ -1,5 +1,6 @@
 <?php
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -257,3 +258,16 @@ Route::post('social/webhook', 'SocialWebhookController@webhook');
 Route::post('order/sync-transaction', 'OrderController@syncTransaction');
 
 Route::post('updateLog', 'UpdateLogController@store');
+
+
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'auth',
+    'namespace' => 'Api\v1\Auth'
+], function ($router) {
+    Route::post('login', 'LoginController@login');
+    Route::post('logout', 'LoginController@logout');
+    Route::post('refresh', 'LoginController@refresh');
+    Route::post('me', 'LoginController@me');
+
+});
