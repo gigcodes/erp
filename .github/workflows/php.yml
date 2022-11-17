@@ -46,6 +46,8 @@ jobs:
           ${{ runner.os }}-php-
 
     - name: Install dependencies
+      env:
+        COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{secrets.GITHUB_TOKEN}}"} }' # [tl! **]
       run: composer install --prefer-dist --no-progress
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
