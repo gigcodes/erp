@@ -64,7 +64,7 @@ jobs:
         with:
           preset: laravel
           verboseMode: false
-          testMode: true
+          testMode: false
 #          configPath: "vendor/my-company/coding-style/pint.json"..
 
       - name: Create Pull Request
