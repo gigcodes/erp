@@ -145,7 +145,7 @@ if (isset($_POST["action"]) && $_POST["action"] == "process" )
     if (isset($msg) )
     {
         ?>
-        <p class="successMsg"><?php= $msg ?></p>
+        <p class="successMsg"><?php $msg ?></p>
         <br>
         <?php
     }
