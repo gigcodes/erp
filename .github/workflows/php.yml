@@ -63,8 +63,8 @@ jobs:
         uses: aglipanci/laravel-pint-action@1.0.0
         with:
           preset: laravel
-          verboseMode: false
-          testMode: false
+#          verboseMode: false
+#          testMode: false
 #          configPath: "vendor/my-company/coding-style/pint.json"..
 
       - name: Create Pull Request
