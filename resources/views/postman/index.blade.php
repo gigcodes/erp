@@ -15,6 +15,9 @@
   .multiselect-container li a {
     line-height: 3;
   }
+  .select2{
+    width:200px !important;
+  }
 </style>
 
 @endsection
@@ -34,7 +37,7 @@
     </div>
   </div>
 </div>
-<div class=" row ">
+<div class=" row " style="margin-left:20px;">
   <form class="form-inline" action="/postman/search" method="GET">
     <div class="col">
       <div class="form-group">
@@ -121,6 +124,13 @@
       </div>
     </div>
     <div class="col">
+      <div class="form-group">
+        <div class="input-group">
+          <input type="text" placeholder="Search By Keyword" class="form-control" name="keyword" value="{{request('keyword')}}">
+        </div>
+      </div>
+    </div>
+    <div class="col">
       <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
       <a href="/postman" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
     </div>
@@ -177,7 +187,6 @@
         <thead>
           <tr>
             <th style="width: 3%;">ID</th>
-            <th style="width: 5%;overflow-wrap: anywhere;">User Permission</th>
             <th style="width: 4%;overflow-wrap: anywhere;">Folder Name</th>
             <th style="width: 5%;overflow-wrap: anywhere;">Controller Name</th>
             <th style="width: 4%;overflow-wrap: anywhere;">Method Name</th>
@@ -203,20 +212,6 @@
           @if (in_array($userID, $userAccessArr))
           <tr>
             <td>{{$postman->id}}</td>
-            <td>
-              <?php
-              $useNames = '';
-              foreach ($users as $user) {
-                if (in_array($user->id, $userAccessArr)) {
-                  //$selected = 'selected';
-                  //echo '<option value="'.$user->id.'" '.$selected.' data-folder_name="'.$user->name.'">'.$user->name.'</option>';
-                  $useNames .= '<span id="' . $postman->id . $user->id . '"><i style="font-size:24px;color:red; cursor: pointer;" class="fa removeuser" data-user_permision_id="' . $user->id . '" data-id="' . $postman->id . '">&#xf00d;</i><b>' . $user->id . '</b>-' . $user->name . ' <b>Email => </b>' . $user->email . ',<br/></span> ';
-                }
-              }
-              ?>
-
-              <a href="#" id="see_users" data-user_details="{{$useNames}}" data-toggle="modal" data-target="#postmanUserDetailsModel">See</a>
-            </td>
             <td class="expand-row-msg" data-name="name" data-id="{{$postman->id}}">
               <span class="show-short-name-{{$postman->id}}">{{ str_limit($postman->name, 5, '..')}}</span>
               <span style="word-break:break-all;" class="show-full-name-{{$postman->id}} hidden">{{$postman->name}}</span>
@@ -1460,7 +1455,7 @@
     var per_user_name = $('#per_user_name').val();
     if (per_folder_name && per_user_name) {
       $.ajax({
-        url: "postman/user/permission",
+        url: "{{route('postman.permission')}}",
         type: "post",
         headers: {
           'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -1514,8 +1509,9 @@
     $(mini).toggleClass('hidden');
   }); */
   $(document).ready(function() {
-    $('#per_user_name').select2();
     $(".select2").select2();
+    $('#per_user_name').select2();
+    $('#per_folder_name ').select2();
   });
 </script>
 @endsection
