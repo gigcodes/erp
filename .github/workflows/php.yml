@@ -72,10 +72,10 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
-          commit-message: update styling
-          title: Update styling
-          body: styling
-          branch: update-styling
+          commit-message: Styling fixes by Github Action
+          title: Styling fixes by Github Action
+          body: Styling fixes by Github Action
+          branch: styling-fixes-by-pint
 
 ## THIS IS WORKING FINE - FOR TESTING PURPOSE ONLY
 #  updateAuthors:
