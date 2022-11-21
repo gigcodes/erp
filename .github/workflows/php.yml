@@ -76,14 +76,15 @@ jobs:
           title: Styling fixes by Github Action
           body: Styling fixes by Github Action
           branch: styling-fixes-by-pint
-  phpstan:
-    runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3
-      - uses: php-actions/phpstan@v3
-        with:
-          path: .
+#  phpstan:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: php-actions/phpstan@v3
+#        with:
+#          path: .
 ## THIS IS WORKING FINE - FOR TESTING PURPOSE ONLY
 #  updateAuthors:
 #    runs-on: ubuntu-latest
