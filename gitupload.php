@@ -156,8 +156,8 @@ if (isset($_POST["action"]) && $_POST["action"] == "process" )
         <br>
 
         <select name="server">
-            <option <?php= (isset($_POST["server"]) && $_POST["server"] == "quality") ? 'selected="selected"' : '' ?> value="quality">Quality</option>
-            <option <?php= (isset($_POST["server"]) && $_POST["server"] == "production") ? 'selected="selected"' : '' ?> value="production">Production</option>
+            <option <?php echo (isset($_POST["server"]) && $_POST["server"] == "quality") ? 'selected="selected"' : '' ?> value="quality">Quality</option>
+            <option <?php echo (isset($_POST["server"]) && $_POST["server"] == "production") ? 'selected="selected"' : '' ?> value="production">Production</option>
         </select>
 
         <br>
