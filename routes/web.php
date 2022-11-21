@@ -1861,6 +1861,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('vendors/cv/get-address', 'VendorResumeController@getAddress')->name('vendors.cv.address');
 
     Route::get('vendor/status/history', 'VendorController@vendorStatusHistory')->name('vendor.status.history.get');
+    Route::get('vendor/status/history/detail', 'VendorController@vendorDetailStatusHistory')->name('vendor.status.history.detail');
+    Route::post('vendor/addStatusDetail', 'VendorController@addStatus')->name('vendors.addStatus');
 
     Route::get('vendor-search', 'VendorController@vendorSearch')->name('vendor-search');
     Route::get('vendor-search-phone', 'VendorController@vendorSearchPhone')->name('vendor-search-phone');

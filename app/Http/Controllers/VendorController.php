@@ -19,6 +19,8 @@ use App\User;
 use App\Vendor;
 use App\VendorCategory;
 use App\VendorProduct;
+use App\VendorStatusDetail;
+use App\VendorStatusDetailHistory;
 use Auth;
 use Carbon\Carbon;
 use Exception;
@@ -1336,6 +1338,38 @@ class VendorController extends Controller {
         $vendor->save();
         return response()->json(['message' => 'Successful'], 200);
     }
+    public function addStatus(Request $request) {
+        if ($request->vendor_id == ""|| $request->status == "" || $request->agency == "" || $request->hourly_rate == "" || $request->available_hour == "" || $request->experience_level == "" || $request->communication_skill == "") {
+            return response()->json(['message' => 'Incomplete data'], 500);
+        }
+        $vendorStatus = VendorStatusDetail::where('vendor_id',$request->vendor_id)->first();
+        if(!$vendorStatus){
+            $vendorStatus = new VendorStatusDetail();
+        }
+        $vendorStatus->vendor_id = $request->vendor_id;
+        $vendorStatus->user_id = Auth::user()->id;
+        $vendorStatus->status = $request->status;
+        $vendorStatus->hourly_rate = $request->hourly_rate;
+        $vendorStatus->available_hour = $request->available_hour;
+        $vendorStatus->experience_level = $request->experience_level;
+        $vendorStatus->communication_skill = $request->communication_skill;
+        $vendorStatus->agency = $request->agency;
+        $vendorStatus->remark = $request->remark;
+        $vendorStatus->save();
+
+        $vendorStatusHistory = new VendorStatusDetailHistory();
+        $vendorStatusHistory->vendor_id = $request->vendor_id;
+        $vendorStatusHistory->user_id = Auth::user()->id;
+        $vendorStatusHistory->status = $request->status;
+        $vendorStatusHistory->hourly_rate = $request->hourly_rate;
+        $vendorStatusHistory->available_hour = $request->available_hour;
+        $vendorStatusHistory->experience_level = $request->experience_level;
+        $vendorStatusHistory->communication_skill = $request->communication_skill;
+        $vendorStatusHistory->agency = $request->agency;
+        $vendorStatusHistory->remark = $request->remark;
+        $vendorStatusHistory->save();
+        return response()->json(['message' => 'Successful'], 200);
+    }
 
     public function statusStore(Request $request) {
         $this->validate($request, [
@@ -1363,5 +1397,12 @@ class VendorController extends Controller {
             // $query->select('name', 'email');
         }])->where('vendor_id', $request->id)->get();
         return response()->json(["code" => 200, "data" => $data, "message" => "Message sent successfully"]);
+    }
+
+    public function vendorDetailStatusHistory(Request $request) {
+        $data = VendorStatusDetailHistory::where('vendor_id',$request->id)->with('user')->get();
+        return response()->json(["code" => 200, "data" => $data, "message" => "Message sent successfully"]);
+
+
     }
 }
