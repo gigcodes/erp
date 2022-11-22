@@ -109,6 +109,9 @@ class PostmanRequestCreateController extends Controller
         if ($s = request('search_id')) {
             $q->where("postman_request_creates.id", $s);
         }
+        if ($s = request('keyword')) {
+            $q->where("postman_request_creates.request_url", 'LIKE','%'. $s. '%')->orWhere("postman_request_creates.body_json", 'LIKE','%'. $s. '%');
+        }
 
         $q->orderBy('postman_request_creates.id', 'DESC');
         $counter = $q->count();
