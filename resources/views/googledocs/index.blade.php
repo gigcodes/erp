@@ -21,26 +21,27 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Google File Translator Listing (<span id="Referral_count">{{ $data->total() }}</span>)</h2>
+            <h2 class="page-heading">Google Docs</h2>
             <div class="pull-left">
                 <div class="form-group">
                         <div class="row">
-                            <div class="col-md-4">
-                                <input name="term" type="text" class="form-control"
-                                       value="{{ isset($term) ? $term : '' }}"
-                                       placeholder="Search Referral Program" id="term">
-                            </div>
-                            <div class="col-md-2">
-                               <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="/images/filter.png"/></button>
-                            </div>
-                            <div class="col-md-2">
-                                <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png"/></button>    
-                            </div>
+{{--                            <div class="col-md-4">--}}
+{{--                                <input name="term" type="text" class="form-control"--}}
+{{--                                       value="{{ isset($term) ? $term : '' }}"--}}
+{{--                                       placeholder="Search Referral Program" id="term">--}}
+{{--                            </div>--}}
+{{--                            <div class="col-md-2">--}}
+{{--                               <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="/images/filter.png"/></button>--}}
+{{--                            </div>--}}
+{{--                            <div class="col-md-2">--}}
+{{--                                <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png"/></button>    --}}
+{{--                            </div>--}}
                         </div>
                     </div>
             </div>
             <div class="pull-right">
-                <a class="btn btn-secondary" href="{{ route('googlefiletranslator.add') }}">+</a>
+                <a class="btn btn-secondary" href="{{ route('googlefiletranslator.add') }}">+ Google Spreadsheet</a>
+                <a class="btn btn-secondary" href="{{ route('googlefiletranslator.add') }}">+ Google Doc</a>
             </div>
         </div>
     </div>
@@ -64,10 +65,8 @@
         </table>
     </div>
 
-    {!! $data->render() !!}
-
-
 @endsection
+
 
 @section('scripts')
  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>

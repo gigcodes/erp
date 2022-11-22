@@ -11,6 +11,8 @@
 |
  */
 
+use App\Http\Controllers\GoogleDocController;
+
 Auth::routes();
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
 Route::post('customer/add_customer_address', 'CustomerController@add_customer_address');
@@ -4120,6 +4122,7 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
     Route::post('/status/update', 'TodoListController@statusUpdate')->name('todolist.status.update');
 });
 
-Route::prefix('docs')->middleware('auth')->group(function(){
-    Route::get('/', [\App\Http\Controllers\GoogleDocController::class, 'index'])->name('todolist');
+Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function(){
+    Route::get('/', [GoogleDocController::class, 'index'])->name('.index');
+//    Route::get('/', [GoogleDocController::class, 'create'])->name('.create');
 });
