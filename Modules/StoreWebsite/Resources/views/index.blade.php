@@ -411,6 +411,16 @@
       $(mini).toggleClass('hidden');
     });
 
+	
+	$(document).on('click', '.btn_expand_inactive', function () {
+		var cls = $(this).parent();
+		//console.log(cls.height());
+		if(cls.height() != '297')
+			$(cls).css('height', 'auto');
+		else
+			$(cls).css('height', '44px');
+	});
+
 </script>
 
 @endsection
