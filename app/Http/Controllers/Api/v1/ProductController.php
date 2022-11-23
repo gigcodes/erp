@@ -169,14 +169,15 @@ class ProductController extends Controller
                     $ordercurrent = strtotime(date('Y-m-d H:i:s'));
                     $timeleft = $ordercurrent - $orderDays;
                     $daysPanding = round((($timeleft/24)/60)/60); 
+                    if($order->order_return_request == 1){
+                        $result_input = ["has_return_request" => true];
+                    }
                 }              
                 
                 if ($returnExchange || (isset($daysPanding) && isset($productRef) && isset($categoriesRef) && $productRef >= $daysPanding && $categoriesRef >= $daysPanding)) {
                     $result_input = ["has_return_request" => true];
                 }
-                if($order->order_return_request == 1){
-                    $result_input = ["has_return_request" => true];
-                }
+                
                 $message = $this->generate_erp_response("order.return-check.success", 0, $default = "Success", request('lang_code'));
                 return response()->json(["code" => 200, "message" => $message, "data" => $result_input]);
 

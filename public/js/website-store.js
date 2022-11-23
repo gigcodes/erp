@@ -49,6 +49,13 @@ var page = {
         page.config.bodyView.on("click",".btn-push",function(e) {
             page.push($(this));
         });
+        $(document).on("click",".btn-delete-group",function(e) {
+            page.deleteMuliples($(this));
+        });
+
+        $(document).on("click",".check-all",function(e) {
+            $(".groups").trigger("click");
+        });
 
     },
     validationRule : function(response) {
@@ -183,7 +190,35 @@ var page = {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
         }
-    }
+    },
+    deleteMuliples : function(ele) {
+
+        var groups = [];
+        var checkedGroups = $(".groups:checked");
+
+        $.each(checkedGroups,function(k,v) {
+            groups.push($(v).val());
+        });
+
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/website-stores/multiple-delete",
+            method: "post",
+            data : {
+                ids : groups,
+            }
+        }
+
+        this.sendAjax(_z, 'afterdeleteMuliples');
+    },
+    afterdeleteMuliples : function(response) {
+        if(response.code  == 200) {
+            toastr["success"](response.message,"");
+            location.reload();
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
 }
 
 $.extend(page, common);

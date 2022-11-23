@@ -3528,6 +3528,14 @@ class TaskModuleController extends Controller {
     public function taskUpdateStartDate() {
         if ($new = request('value')) {
             if ($task = Task::find(request('task_id'))) {
+                if($task->assign_to == Auth::user()->id) {
+                    $params['message'] = "Estimated Start Datetime: " . $new;
+                    $params['user_id'] = Auth::user()->id;
+                    $params['task_id'] = $task->id;
+                    $params['approved'] = 1;
+                    $params['status'] = 2;
+                    ChatMessage::create($params);
+                }
                 $task->updateStartDate($new);
                 return respJson(200, 'Successfully updated.');
             }
@@ -3539,6 +3547,14 @@ class TaskModuleController extends Controller {
     public function taskUpdateDueDate() {
         if ($new = request('value')) {
             if ($task = Task::find(request('task_id'))) {
+                if($task->assign_to == Auth::user()->id) {
+                    $params['message'] = "Estimated End Datetime: " . $new;
+                    $params['user_id'] = Auth::user()->id;
+                    $params['task_id'] = $task->id;
+                    $params['approved'] = 1;
+                    $params['status'] = 2;
+                    ChatMessage::create($params);
+                }
                 $task->updateDueDate($new);
                 return respJson(200, 'Successfully updated.');
             }
@@ -3555,7 +3571,14 @@ class TaskModuleController extends Controller {
         if (is_numeric($new)) {
             if ($task = Task::find(request('task_id'))) {
                 $oldValue = $task->cost;
-
+                if($task->assign_to == Auth::user()->id) {
+                    $params['message'] = "New Cost: " . $new;
+                    $params['user_id'] = Auth::user()->id;
+                    $params['task_id'] = $task->id;
+                    $params['approved'] = 1;
+                    $params['status'] = 2;
+                    ChatMessage::create($params);
+                }
                 $task->update(['cost' => $new]);
                 TaskHistoryForCost::create([
                     'task_id' => $task->id,
@@ -3581,6 +3604,14 @@ class TaskModuleController extends Controller {
         if ($task = Task::find($task_id)) {
             if (!isAdmin() && $task->assign_to != loginId()) {
                 return respJson(403, 'Unauthorized access.');
+            }
+            if($task->assign_to == Auth::user()->id){
+                $params['message']="Estimated Time: [In Minutes] ". $approximate . ",  ". "Remark: " . $remark;
+                $params['user_id']= Auth::user()->id;
+                $params['task_id']=  $task_id;
+                $params['approved'] = 1;
+                $params['status'] = 2;
+                ChatMessage::create($params);
             }
 
             DeveloperTaskHistory::create([
