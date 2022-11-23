@@ -1861,6 +1861,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('vendors/cv/get-address', 'VendorResumeController@getAddress')->name('vendors.cv.address');
 
     Route::get('vendor/status/history', 'VendorController@vendorStatusHistory')->name('vendor.status.history.get');
+    Route::get('vendor/status/history/detail', 'VendorController@vendorDetailStatusHistory')->name('vendor.status.history.detail');
+    Route::post('vendor/addStatusDetail', 'VendorController@addStatus')->name('vendors.addStatus');
 
     Route::get('vendor-search', 'VendorController@vendorSearch')->name('vendor-search');
     Route::get('vendor-search-phone', 'VendorController@vendorSearchPhone')->name('vendor-search-phone');
@@ -2363,11 +2365,27 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('postman/add/json/version', 'PostmanRequestCreateController@jsonVersion');
     Route::post('postman/removeuser/permission', 'PostmanRequestCreateController@removeUserPermission');
     Route::post('postman/remark/history', 'PostmanRequestCreateController@postmanRemarkHistoryLog');
-    Route::post('postman/user/permission', 'PostmanRequestCreateController@userPermission');
+    Route::post('postman/user/permission', 'PostmanRequestCreateController@userPermission')->name('postman.permission');
 
     Route::post('postman/get/mul/request', 'PostmanRequestCreateController@getMulRequest');
     Route::post('postman/get/error/history', 'PostmanRequestCreateController@postmanErrorHistoryLog');
     Route::post('postman/edit/history/', 'PostmanRequestCreateController@postmanEditHistoryLog');
+
+
+    Route::get('bug-tracking', 'BugTrackingController@index')->name('bug-tracking.index');
+    Route::get('bug-tracking/create', 'BugTrackingController@create')->name('bug-tracking.create');
+    Route::post('bug-tracking/store', 'BugTrackingController@store')->name('bug-tracking.store');
+    Route::get('bug-tracking/edit/{id}', 'BugTrackingController@edit')->name('bug-tracking.edit');
+    Route::post('bug-tracking/update/{id}', 'BugTrackingController@update')->name('bug-tracking.update');
+
+    Route::post('bug-tracking/status', 'BugTrackingController@status')->name('bug-tracking.status');
+    Route::post('bug-tracking/environment', 'BugTrackingController@environment')->name('bug-tracking.environment');
+    Route::post('bug-tracking/type', 'BugTrackingController@type')->name('bug-tracking.type');
+    Route::post('bug-tracking/severity', 'BugTrackingController@severity')->name('bug-tracking.severity');
+    Route::delete('bug-tracking/delete', 'BugTrackingController@destroy');
+
+
+
 });
 /*
  * @date 1/13/2019
@@ -2725,6 +2743,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('old', 'OldController');
     Route::post('old/block', 'OldController@block')->name('old.block');
     Route::post('old/category/create', 'OldController@createCategory')->name('old.category.create');
+    Route::post('old/status/create', 'OldController@createStatus')->name('old.status.create');
     Route::post('old/update/status', 'OldController@updateOld')->name('old.update.status');
 
     //Simple Duty
@@ -3836,6 +3855,7 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::get('/database-log/enable', 'ScrapLogsController@enableMysqlAccess');
     Route::get('/database-log/disable', 'ScrapLogsController@disableMysqlAccess');
     Route::get('/database-log/history', 'ScrapLogsController@disableEnableHistory');
+    Route::get('/database-log/truncate', 'ScrapLogsController@databaseTruncate');
 });
 
 Route::get('gtmetrix', 'gtmetrix\WebsiteStoreViewGTMetrixController@index')->name('gt-metrix');
@@ -4105,4 +4125,15 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
     Route::post('/coupon/code/order/list', 'VoucherCouponController@couponCodeOrderList')->name('voucher.code.order.list');
     Route::post('/voucher/code/delete', 'VoucherCouponController@couponCodeDelete')->name('voucher.code.delete');
     Route::post('/voucher/code/order/delete', 'VoucherCouponController@couponCodeOrderDelete')->name('voucher.code.order.delete');
+});
+
+//TODOLIST:: 
+Route::prefix('todolist')->middleware('auth')->group(function () {
+    Route::get('/', 'TodoListController@index')->name('todolist');
+    Route::post('/store', 'TodoListController@store')->name('todolist.store');
+    Route::post('/edit', 'TodoListController@edit')->name('todolist.edit');
+    Route::post('/update', 'TodoListController@update')->name('todolist.update');
+    Route::post('/remark/history', 'TodoListController@getRemarkHistory')->name('todolist.remark.history');
+    Route::post('/status/store', 'TodoListController@storeStatus')->name('todolist.status.store');
+    Route::post('/status/update', 'TodoListController@statusUpdate')->name('todolist.status.update');
 });

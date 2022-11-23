@@ -259,6 +259,7 @@
                     data: {
                         id: currTaskInformationTaskId,
                         value: mdl.find('input[name="estimate_date"]').val(),
+                        remark: mdl.find('input[name="remark"]').val(),
                     }
                 }).done(function(res) {
                     siteLoader(0);
@@ -303,7 +304,7 @@
                     data: {
                         issue_id: currTaskInformationTaskId,
                         estimate_minutes: mdl.find('input[name="estimate_minutes"]').val(),
-                        remark: mdl.find('input[name="remark"]').val(),
+                        remark: mdl.find('textarea[name="remark"]').val(),
                     }
                 }).done(function(res) {
                     siteLoader(0);
