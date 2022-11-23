@@ -18,7 +18,11 @@
                 <a href="{{ $password->url }}" target="_blank"><small class="text-muted">{{ $password->url }}</small></a>
               </td>
               <td>{{ $password->username }}</td>
-              <td>{{ Crypt::decrypt($password->password) }}</td>
+              <td><span class="user-password">{{ Crypt::decrypt($password->password) }}</span> 
+                <button type="button" data-id="" class="btn btn-copy-password btn-sm" style="border:1px solid">
+                  <i class="fa fa-clone" aria-hidden="true"></i>
+                </button>
+              </td>
               <td>{{ $password->registered_with }}</td>
                 <td><button onclick="changePassword({{ $password->id }})" class="btn btn-secondary btn-sm">Change</button>
                 <button onclick="getData({{ $password->id }})" class="btn btn-secondary btn-sm">History</button>
