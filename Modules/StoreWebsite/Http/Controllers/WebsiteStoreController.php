@@ -137,7 +137,7 @@ class WebsiteStoreController extends Controller {
                     $website->platform_id = $id;
                     $website->save();
                 } else {
-                    return response()->json(["code" => 200, "data" => $website, "error" => "Website-Store push failed"]);
+                    return response()->json(["code" => 500, "data" => $website, "error" => "Website-Store push failed"]);
                 }
 
                 return response()->json(["code" => 200, 'message' => "Website-Store pushed successfully"]);
@@ -147,6 +147,20 @@ class WebsiteStoreController extends Controller {
         }
 
         return response()->json(["code" => 500, "error" => "Wrong site id!"]);
+    }
+
+    public function deteleMultiple(Request $request)
+    {
+        if ($request->ids) {
+            $websiteStores = WebsiteStore::whereIn("id", $request->ids)->delete();
+            if ($websiteStores) {
+                return response()->json(["code" => 200, 'message' => "Website-Store Deleted Successfully"]);
+            }
+            return response()->json(["code" => 500, "error" => "Website store id doesn't exist in this request, please request with a valid store id!"]);
+        } else {
+
+            return response()->json(["code" => 500, "error" => "Website store id doesn't exist in this request, please request with a valid store id!"]);
+        }
     }
 
     public function dropdown() {

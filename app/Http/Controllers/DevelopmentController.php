@@ -3758,6 +3758,13 @@ class DevelopmentController extends Controller {
     public function actionStartDateUpdate() {
         if ($new = request('value')) {
             if ($single = DeveloperTask::find(request('id'))) {
+                $params['message']="Estimated Start Datetime: ". $new;
+                $params['user_id']= Auth::user()->id;
+                $params['developer_task_id']= $single->id;
+                $params['approved'] = 1;
+                $params['status'] = 2;
+                $params['sent_to_user_id'] = $single->user_id;
+                ChatMessage::create($params);
                 $single->updateStartDate($new);
                 return respJson(200, 'Successfully updated.');
             }
@@ -3768,6 +3775,13 @@ class DevelopmentController extends Controller {
     public function saveEstimateDate(Request $request) {
         if ($new = request('value')) {
             if ($single = DeveloperTask::find(request('id'))) {
+                $params['message']="Estimated End Datetime: ". $new;
+                $params['user_id']= Auth::user()->id;
+                $params['developer_task_id']= $single->id;
+                $params['approved'] = 1;
+                $params['status'] = 2;
+                $params['sent_to_user_id'] = $single->user_id;
+                ChatMessage::create($params);
                 $single->updateEstimateDate($new);
                 return respJson(200, 'Successfully updated.');
             }
@@ -3783,7 +3797,13 @@ class DevelopmentController extends Controller {
 
                 $single->cost = $new;
                 $single->save();
-
+                $params['message']="New Cost: ". $new;
+                $params['user_id']= Auth::user()->id;
+                $params['developer_task_id']= $single->id;
+                $params['approved'] = 1;
+                $params['status'] = 2;
+                $params['sent_to_user_id'] = $single->user_id;
+                ChatMessage::create($params);
                 DeveloperTaskHistory::create([
                     'developer_task_id' => $single->id,
                     'model' => 'App\DeveloperTask',
@@ -3809,6 +3829,13 @@ class DevelopmentController extends Controller {
             $issue->status = DeveloperTask::DEV_TASK_STATUS_USER_ESTIMATED;
             $issue->save();
             // _p($issue->toArray(), 1);
+            $params['message']="Estimated Time: ". $new. " Mins, Remark:". $remark;
+            $params['user_id']= Auth::user()->id;
+            $params['developer_task_id']= $issue->id;
+            $params['approved'] = 1;
+            $params['status'] = 2;
+            $params['sent_to_user_id'] = $issue->user_id;
+            ChatMessage::create($params);
 
             DeveloperTaskHistory::create([
                 'developer_task_id' => $issue->id,
