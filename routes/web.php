@@ -2365,11 +2365,27 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('postman/add/json/version', 'PostmanRequestCreateController@jsonVersion');
     Route::post('postman/removeuser/permission', 'PostmanRequestCreateController@removeUserPermission');
     Route::post('postman/remark/history', 'PostmanRequestCreateController@postmanRemarkHistoryLog');
-    Route::post('postman/user/permission', 'PostmanRequestCreateController@userPermission');
+    Route::post('postman/user/permission', 'PostmanRequestCreateController@userPermission')->name('postman.permission');
 
     Route::post('postman/get/mul/request', 'PostmanRequestCreateController@getMulRequest');
     Route::post('postman/get/error/history', 'PostmanRequestCreateController@postmanErrorHistoryLog');
     Route::post('postman/edit/history/', 'PostmanRequestCreateController@postmanEditHistoryLog');
+
+
+    Route::get('bug-tracking', 'BugTrackingController@index')->name('bug-tracking.index');
+    Route::get('bug-tracking/create', 'BugTrackingController@create')->name('bug-tracking.create');
+    Route::post('bug-tracking/store', 'BugTrackingController@store')->name('bug-tracking.store');
+    Route::get('bug-tracking/edit/{id}', 'BugTrackingController@edit')->name('bug-tracking.edit');
+    Route::post('bug-tracking/update/{id}', 'BugTrackingController@update')->name('bug-tracking.update');
+
+    Route::post('bug-tracking/status', 'BugTrackingController@status')->name('bug-tracking.status');
+    Route::post('bug-tracking/environment', 'BugTrackingController@environment')->name('bug-tracking.environment');
+    Route::post('bug-tracking/type', 'BugTrackingController@type')->name('bug-tracking.type');
+    Route::post('bug-tracking/severity', 'BugTrackingController@severity')->name('bug-tracking.severity');
+    Route::delete('bug-tracking/delete', 'BugTrackingController@destroy');
+
+
+
 });
 /*
  * @date 1/13/2019
