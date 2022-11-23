@@ -76,7 +76,7 @@
             <strong>Folder Name:</strong>
             <input type="hidden" class="getInsServerCount" value="0"/>
             <div class="addInsServerUpdate">
-              <input type="text" name="folder_name[]" id="folder_name0" class="form-control" value="{{ old('folder_name') }}">
+              <input type="text" name="folder_name[]" id="folder_name0" class="form-control" value="">
             </div>
             <a href="javascript:void(0);" class="serverInsbtn">Add Folder Name</a>
           </div>
@@ -448,7 +448,7 @@
             <strong>Folder Name:</strong>
             <input type="hidden" class="getServerUpdCount" value="0"/>
             <div class="addServerUpdate">
-              <input type="text" name="folder_name[]" id="folder_name0" class="form-control" value="{{ old('folder_name') }}">
+              <input type="text" name="folder_name[]" id="folder_name0" class="form-control" value="">
             </div>
             <a href="javascript:void(0);" class="serverUpdbtn">Add Folder Name</a>
           </div>
