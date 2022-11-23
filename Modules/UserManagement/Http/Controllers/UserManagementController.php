@@ -39,6 +39,7 @@ use Google\Service\CloudTasks\Task as CloudTasksTask;
 use phpDocumentor\Reflection\Types\Null_;
 use App\UserFeedbackCategorySopHistory;
 use App\UserFeedbackCategorySopHistoryComment;
+use App\AssetsManager;
 
 class UserManagementController extends Controller {
     /**
@@ -100,8 +101,11 @@ class UserManagementController extends Controller {
         // $user->save();
         $whatsapp = DB::select('SELECT number FROM whatsapp_configs WHERE status = 1');
         // _p($whatsapp); exit;
-
-        return view('usermanagement::index', compact('title', 'permissionRequest', 'statusList', 'usersystemips', 'userlist', 'whatsapp'));
+        $servers = AssetsManager::whereHas('category', function($q){
+            $q->where('cat_name', '=', 'Servers');
+        })->get();
+        $userLists = User::orderBy('name')->where('is_active', 1)->pluck('name', 'id');
+        return view('usermanagement::index', compact('title', 'permissionRequest', 'statusList', 'usersystemips', 'userlist', 'whatsapp', 'servers','userLists'));
     }
 
     public function getUserList(Request $request) {

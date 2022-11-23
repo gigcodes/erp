@@ -156,7 +156,7 @@ use App\Console\Commands\MagentoReportLog;
 use App\Console\Commands\MagentoSettingAddUpdate;
 use App\Console\Commands\NegativeCouponResponses;
 use App\Console\Commands\SendQueuedMessages;
-
+use App\Console\Commands\DatabaseLogCron;
 
 class Kernel extends ConsoleKernel
 {
@@ -319,6 +319,7 @@ class Kernel extends ConsoleKernel
         ZabbixHostItems::class,
         ZabbixProblemImport::class,
         SendQueuedMessages::class,
+        DatabaseLogCron::class
     ];
 
     /**
@@ -689,6 +690,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('command:NegativeCouponResponses')->hourly();
 
+        // Database log Cron
+        $schedule->command('databaselog:cron')->dailyAt("0:00");
     }
 
     /**
