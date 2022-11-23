@@ -29,7 +29,7 @@ The product push journey starts from `pushProduct` function in the `ProductContr
         - Does the product is for charity or not will define here. 2 variables `$charity` and `$isCharityChecked` will be declared with a default value `0`. `0` denotes the product is not for charity and the charity check of the product is not done.
         -  `$isCharityChecked` will be set to `1` if one of the following conditions get satisfied.
             - If the parent of the product's category is `NEW` and `charity_condition` is exists in the `$conditions` array.
-            - If the parent of the product's category is `PREOWNED` and `charity_condition` is exists in the `$upteamconditions` array.
+            - If the parent of the product's category is `PREOWNED` and `charity_condition` is exists in the `$upteamconditions` array. Up team is a supplier, this supplier has category preowned only.
         - if one of the above conditions satisfies, then a check will perform to find the product from the `customer_charities` table. If there is an entry with the `product_id` int the `customer_charities` table, then the value `$charity` variable will set as `1`.
         - These `$charity` and `$isCharityChecked` will be used in the product push flow in multiple cases.
     - The product push will move to the next step only if one of the following conditions get satisfied.
@@ -101,7 +101,7 @@ The product push journey starts from `pushProduct` function in the `ProductContr
         - If the `push_type` of the product's category is `0` and not `NULL` then it's single product push. The `$pushSingle` variable will set as `true`.
         - If the `push_type` of the product's category is `1` then it's configurable product with children push. The `$pushSingle` variable will set as `false`.
         - If the `$this->sizes` is not empty and count is greater than `1` then it's configurable product with children push. The `$pushSingle` variable will set as `false`.
-        - If the `size_eu` of the product is `OS` then the `$product->size_eu` set as `NULL` and he `$pushSingle` variable will set as `true`.
+        - If the `size_eu` of the product is `OS` then the `$product->size_eu` set as `NULL` and he `$pushSingle` variable will set as `true`. Here `OS` denotes single size.
     - **Single product push:**
         - It starts from `_pushSingleProduct` function.
         - Some of the default values of the products will be set statically as array `$d` and this array will be passed to `defaultData` function to add default values of product from the database. This function will return an array with all default values.
@@ -113,10 +113,10 @@ The product push journey starts from `pushProduct` function in the `ProductContr
         - If the response code is not `200`, `sync_status` will update as `error` and response will be update as `message`.
         - The result will be send back to `_pushSingleProduct`.
     - **Configurable product with children push**:
-        -  It starts from `_pushConfigurableProductWithChildren` function.
-        - Two types of product push happens in this function, configurable product push and simple configurable product push.
+        - It starts from `_pushConfigurableProductWithChildren` function. Configurable products are products which have sizes so like shirts / trousers / etc -  so there will be one main product and the different  sizes in that are considered as child products of the main product.
+          - Two types of product push happens in this function, configurable product push and simple configurable product push.
         - Some of the default values of the products will be set statically as array `$d` and this array will be passed to `defaultData` function to add default values of product from the database. This function will return an array with all default values.
         - This default data will be passed to `_pushProduct` along with product push type as `configurable`, `sku`.
-        - If push type is `configurable`, product images will be added to product in `_pushProduct` function.
-        - If push type is `simple_configurable`, product visibility will set as `1`.
+        - If push type is `configurable`, product images will be added to product in `_pushProduct` function. Here `configurable` is products with multiple size options. 
+        - If push type is `simple_configurable`, product visibility will set as `1`. Here `simple_configurable` is products with one size option.
         - After this step it will follow the same steps of single product push.
