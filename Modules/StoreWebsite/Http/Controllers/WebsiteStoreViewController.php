@@ -154,7 +154,7 @@ class WebsiteStoreViewController extends Controller {
                     $website->platform_id = $id;
                     $website->save();
                 } else {
-                    return response()->json(["code" => 200, "data" => $website, "error" => "Website-Store-View push failed"]);
+                    return response()->json(["code" => 500, "data" => $website, "error" => "Website-Store-View push failed"]);
                 }
 
                 return response()->json(["code" => 200, 'message' => "Website-Store-View pushed successfully"]);

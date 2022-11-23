@@ -16,11 +16,35 @@
         <div class="col-xs-12 pl-5">
             <form class="form-search-data">
                 <div class="row">
-                    <div class="col-xs-12 col-md-3 pd-2">
+                    <div class="col-2 pd-2">
                         <div class="form-group cls_task_subject mb-0">
-                            <input type="text" name="keyword" placeholder="Search Keyword" class="form-control input-sm" value="{{ request('keyword') }}">
+                            <input type="text" name="keyword" placeholder="Search Keyword" class="form-control" value="{{ request('keyword') }}">
                         </div>
                     </div>
+                    <div class="col-2 pd-2">
+                      <div class="form-group username mb-0">
+                          <input type="text" name="username" placeholder="Search User Name" class="form-control" value="{{ request('username') }}">
+                      </div>
+                    </div>
+                    <div class="col-2 pd-2">
+                      <div class="form-group status mb-0">
+                          <select name="status" class="form-control">
+                              <option value="">--Select Status--</option>
+                              <option value="0" @if(request('status') === 0) selected @endif>Error</option>
+                              <option value="1" @if(request('status') == 1) selected @endif>Success</option>
+                          </select>
+                      </div>
+                  </div>
+                  <div class="col-2 pd-2">
+                    <div class="form-group status mb-0">
+                      <Select name="website_id" class="form-control">
+                        <option value>-- Select Website --</option>
+                        @foreach ($allStores as $key => $val)
+                          <option value="{{ $val->id }}" @if(request('website_id') == $val->id) selected @endif>{{ $val->title }}</option>
+                        @endforeach
+                      </Select>
+                    </div>
+                  </div>
                     <!-- Language Selection -->
                     <div class="col-xs-12 col-md-3 pd-2">
                         <div class="form-group mb-0">
@@ -32,7 +56,6 @@
                               <i class="fa fa-plus"></i>
                             </button>
                         </div>
-
                     </div>
                     <!-- Search Network -->
 
@@ -79,7 +102,11 @@
         </thead>
 
         <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
+          {{-- @foreach($users as $user)
+          <option class="form-control" value="{{ $user->id }}">{{ $user->name }}</option>
+          @endforeach --}}
           @foreach ($emailAddress as $server)
+          
             <tr>
                <td>
 				        <input type="checkbox" class="checkbox_ch" id="u{{ $server->id }}" name="userIds[]" value="{{ $server->id }}">
@@ -118,7 +145,7 @@
                   @if($server->website){{ $server->website->title }} @endif
               </td>
               <td>
-                @if($server->is_success == 1) {{ 'Success' }} @elseif(isset($server->is_success)) {{'Error'}} @else {{'-'}} @endif
+                @if($server->history_last_message->is_success ?? '' == 1) {{ 'Success' }} @elseif(isset($server->history_last_message->is_success)) {{'Error'}} @else {{'-'}} @endif
               </td>
               <td>
                 <button type="button" class="btn btn-xs assign-users p-0 m-0 text-secondary mr-2"  title="Assign users"  data-toggle="modal" data-target="#assignUsersModal{{$server->id}}" data-email-id="{{ $server->id }}" data-users="{{json_encode($server->email_assignes)}}">
@@ -154,9 +181,7 @@
                         <div class="modal-body">
                           <div class="form-group">
                             <select class="form-control" name="user_id">
-                              @foreach($users as $user)
-                              <option class="form-control" value="{{ $user->id }}">{{ $user->name }}</option>
-                              @endforeach
+                              {!!$uops!!}
                             </select>
                             <input type="hidden" name="id" value="{{ $server->id }}"/>
                             <input type="hidden" name="send_message" value="1">
@@ -205,12 +230,12 @@
             </div>
             <div class="modal-body">
 
-          <div class="form-group">
+          <div class="form-group"> 
                   <strong>Users:</strong>
             <Select name="users[]" id="users" multiple class="form-control select-multiple globalSelect2">
               <option value = ''>None</option>
               @foreach ($users as $key => $val)
-                <option value="{{ $val->id }}" {{in_array($val->id,$assignids)?'selected':''}}>{{ $val->name }}</option>
+                <option value="{{ $val['id'] }}" {{in_array($val['id'],$assignids)?'selected':''}}>{{ $val['name'] }}</option>
               @endforeach
             </Select>
             @if ($errors->has('users'))
