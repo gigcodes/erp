@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\GoogleDoc;
+use App\Jobs\CreateGoogleSpreadsheet;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class GoogleDocController extends Controller
 {
@@ -16,7 +18,9 @@ class GoogleDocController extends Controller
     {
         $data = GoogleDoc::orderBy('created_at', 'desc')->get();
 
-        return view('googledocs.index', compact('data'));
+        return view('googledocs.index', compact('data'))
+            ->with('i', ($request->input('page', 1) - 1) * 5);
+        ;
     }
 
 
@@ -25,9 +29,22 @@ class GoogleDocController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $data = $this->validate($request, [
+            'type' => ['required', Rule::in('spreadsheet', 'doc')],
+            'doc_name' => ['required', 'max:800']
+        ]);
+
+        $googleDoc = new GoogleDoc();
+        $googleDoc->type = $data['type'];
+        $googleDoc->name = $data['doc_name'];
+        $googleDoc->save();
+
+        CreateGoogleSpreadsheet::dispatch($googleDoc);
+        return back();
+//        return response()->json(['message' => "Doc created successfully."]);
+
     }
 
     /**

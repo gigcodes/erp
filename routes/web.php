@@ -4124,5 +4124,5 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
 
 Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function(){
     Route::get('/', [GoogleDocController::class, 'index'])->name('.index');
-//    Route::get('/', [GoogleDocController::class, 'create'])->name('.create');
+    Route::post('/', [GoogleDocController::class, 'create'])->name('.create');
 });

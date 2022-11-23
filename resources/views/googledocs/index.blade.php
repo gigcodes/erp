@@ -4,8 +4,7 @@
 @section('title', 'Google Docs')
 
 @section('styles')
-
-<style type="text/css">
+    <style type="text/css">
     #loading-image {
             position: fixed;
             top: 50%;
@@ -15,6 +14,7 @@
         }
 </style>
 @endsection
+
 @section('content')
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
@@ -25,23 +25,12 @@
             <div class="pull-left">
                 <div class="form-group">
                         <div class="row">
-{{--                            <div class="col-md-4">--}}
-{{--                                <input name="term" type="text" class="form-control"--}}
-{{--                                       value="{{ isset($term) ? $term : '' }}"--}}
-{{--                                       placeholder="Search Referral Program" id="term">--}}
-{{--                            </div>--}}
-{{--                            <div class="col-md-2">--}}
-{{--                               <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="/images/filter.png"/></button>--}}
-{{--                            </div>--}}
-{{--                            <div class="col-md-2">--}}
-{{--                                <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png"/></button>    --}}
-{{--                            </div>--}}
                         </div>
                     </div>
             </div>
             <div class="pull-right">
-                <a class="btn btn-secondary" href="{{ route('googlefiletranslator.add') }}">+ Google Spreadsheet</a>
-                <a class="btn btn-secondary" href="{{ route('googlefiletranslator.add') }}">+ Google Doc</a>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createGoogleDocModal">+ Google Spreadsheet</button>
+{{--                <a class="btn btn-secondary" href="{{ route('googlefiletranslator.add') }}">+ Google Doc</a>--}}
             </div>
         </div>
     </div>
@@ -60,11 +49,12 @@
             </tr>
             </thead>
             <tbody>
-                @include('googlefiletranslator.partials.list-files')
+                @include('googledocs.partials.list-files')
             </tbody>
         </table>
     </div>
 
+    @include('googledocs.partials.create-doc')
 @endsection
 
 
