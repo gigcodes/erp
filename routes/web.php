@@ -1861,6 +1861,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('vendors/cv/get-address', 'VendorResumeController@getAddress')->name('vendors.cv.address');
 
     Route::get('vendor/status/history', 'VendorController@vendorStatusHistory')->name('vendor.status.history.get');
+    Route::get('vendor/status/history/detail', 'VendorController@vendorDetailStatusHistory')->name('vendor.status.history.detail');
+    Route::post('vendor/addStatusDetail', 'VendorController@addStatus')->name('vendors.addStatus');
 
     Route::get('vendor-search', 'VendorController@vendorSearch')->name('vendor-search');
     Route::get('vendor-search-phone', 'VendorController@vendorSearchPhone')->name('vendor-search-phone');
@@ -2313,6 +2315,7 @@ Route::delete('google/bigData/delete', 'GoogleBigQueryDataController@destroy')->
 Route::group(['middleware' => ['auth']], function () {
     Route::get('hubstaff/members', 'HubstaffController@index');
     Route::post('hubstaff/members/{id}/save-field', 'HubstaffController@saveMemberField');
+    Route::post('hubstaff/refresh_users', 'HubstaffController@refreshUsers');
     Route::post('hubstaff/linkuser', 'HubstaffController@linkUser');
     Route::get('hubstaff/projects', 'HubstaffController@getProjects');
     Route::post('hubstaff/projects/create', 'HubstaffController@createProject');
@@ -2363,11 +2366,27 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('postman/add/json/version', 'PostmanRequestCreateController@jsonVersion');
     Route::post('postman/removeuser/permission', 'PostmanRequestCreateController@removeUserPermission');
     Route::post('postman/remark/history', 'PostmanRequestCreateController@postmanRemarkHistoryLog');
-    Route::post('postman/user/permission', 'PostmanRequestCreateController@userPermission');
+    Route::post('postman/user/permission', 'PostmanRequestCreateController@userPermission')->name('postman.permission');
 
     Route::post('postman/get/mul/request', 'PostmanRequestCreateController@getMulRequest');
     Route::post('postman/get/error/history', 'PostmanRequestCreateController@postmanErrorHistoryLog');
     Route::post('postman/edit/history/', 'PostmanRequestCreateController@postmanEditHistoryLog');
+
+
+    Route::get('bug-tracking', 'BugTrackingController@index')->name('bug-tracking.index');
+    Route::get('bug-tracking/create', 'BugTrackingController@create')->name('bug-tracking.create');
+    Route::post('bug-tracking/store', 'BugTrackingController@store')->name('bug-tracking.store');
+    Route::get('bug-tracking/edit/{id}', 'BugTrackingController@edit')->name('bug-tracking.edit');
+    Route::post('bug-tracking/update/{id}', 'BugTrackingController@update')->name('bug-tracking.update');
+
+    Route::post('bug-tracking/status', 'BugTrackingController@status')->name('bug-tracking.status');
+    Route::post('bug-tracking/environment', 'BugTrackingController@environment')->name('bug-tracking.environment');
+    Route::post('bug-tracking/type', 'BugTrackingController@type')->name('bug-tracking.type');
+    Route::post('bug-tracking/severity', 'BugTrackingController@severity')->name('bug-tracking.severity');
+    Route::delete('bug-tracking/delete', 'BugTrackingController@destroy');
+
+
+
 });
 /*
  * @date 1/13/2019
@@ -2725,6 +2744,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('old', 'OldController');
     Route::post('old/block', 'OldController@block')->name('old.block');
     Route::post('old/category/create', 'OldController@createCategory')->name('old.category.create');
+    Route::post('old/status/create', 'OldController@createStatus')->name('old.status.create');
     Route::post('old/update/status', 'OldController@updateOld')->name('old.update.status');
 
     //Simple Duty
