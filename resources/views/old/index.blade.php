@@ -28,6 +28,14 @@
                                 @endforeach
                             </select>
                         </div>
+                        <div class="form-group"style="    margin-left: 5px;">
+                            <select class="form-control" name="category">
+                                <option value="">Select Category</option>
+                                @foreach($old_categories as $category)
+                                <option value="{{ $category->category }}">{{ $category->category }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
                         <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                     </form>
@@ -35,6 +43,7 @@
                 <div class="pull-right">
                     <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
                     <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createOldCategorytModal">Create Category</button>
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createOldStatustModal">Create Status</button>
                     <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#oldCreateModal">+</button>
                 </div>
             </div>
@@ -108,13 +117,12 @@
                     <td>{{ $old->serial_no }}</td>
                     <td class="expand-row table-hover-cell">
                         <span class="td-full-container">
-                            kshdkjhk
                          @if(isset($old->category->category)) {{ $old->category->category }} @endif
                         </span>
                     </td>
-                    <td style="word-break: break-all;display:flex;">{{ $old->name }}
+                    <td style="word-break: break-all">{{ $old->name }}
                     @if($old->phone)
-                        <div>
+                        <div class="float-right">
                             <button type="button" class="btn btn-image call-twilio" data-context="old" data-id="{{ $old->id }}" data-phone="{{ $old->phone }}"><img src="/images/call.png"/></button>
 
                         @if ($old->is_blocked == 1)
@@ -132,8 +140,28 @@
                         </span>
                     </td>
                     <td  style="word-break: break-all;" class="Website-task">{{ $old->address }}</td>
-                    <td style="word-break: break-all;">{{ $old->amount }}</td>
-                    <td style="word-break: break-all;" class="Website-task">{{ $old->pending_payment }}</td>
+                    <td style="word-break: break-all;">
+                        @if ($old->currency === 'EUR')
+                            €
+                        @elseif ($old->currency === 'Rupees')
+                            ₹
+                        @else
+                            $
+                        @endif
+                            
+                        {{ $old->amount }}
+                    </td>
+                    <td style="word-break: break-all;" class="Website-task">
+                        @if ($old->currency === 'EUR')
+                            €
+                        @elseif ($old->currency === 'Rupees')
+                            ₹
+                        @else
+                            $
+                        @endif
+
+                        {{ $old->pending_payment }}
+                    </td>
 
                     <td>
                         <div class="d-flex">
@@ -144,7 +172,7 @@
                     <td class="table-hover-cell {{ $old->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
                         <span class="td-full-container">
                             {{ $old->message }}
-                            <button data-toggle="tooltip" type="button" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" class="btn btn-xs btn-image load-communication-modal" data-object='old' data-id="{{ $old->serial_no }}" title="Load More..."><img src="/images/chat.png" alt=""></button>
+                            <button data-toggle="tooltip" type="button" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" class="btn btn-xs btn-image load-communication-modal w-100" data-object='old' data-id="{{ $old->serial_no }}" title="Load More..."><img src="/images/chat.png" alt=""></button>
                         </span>
                     </td>
                     <td>
@@ -197,9 +225,10 @@
     </div>
   @include('partials.modals.remarks')  
   @include('old.partials.old-category-modals')
+  @include('old.partials.old-status-modals')
   @include('old.partials.modal-emailToAll')
   @include('old.partials.old-modals')
-  @include('customers.zoomMeeting');
+  @include('customers.zoomMeeting')
 
     <!-- <div id="reminderModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
