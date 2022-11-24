@@ -91,6 +91,8 @@ jobs:
         run: echo "${{secrets.GITHUB_TOKEN}}"
       - name: "github LUXDB"
         run: echo "${{secrets.LUXDB}}"
+      - name: "github LUDXB2"
+        run: echo "${{secrets.LUDXB2}}"
       - uses: php-actions/composer@v6
       - uses: php-actions/phpstan@v3
         with:
