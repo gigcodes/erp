@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\GoogleDoc;
+use App\Jobs\CreateGoogleDoc;
 use App\Jobs\CreateGoogleSpreadsheet;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class GoogleDocController extends Controller
@@ -20,7 +22,6 @@ class GoogleDocController extends Controller
 
         return view('googledocs.index', compact('data'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
-        ;
     }
 
 
@@ -36,21 +37,27 @@ class GoogleDocController extends Controller
             'doc_name' => ['required', 'max:800']
         ]);
 
-        $googleDoc = new GoogleDoc();
-        $googleDoc->type = $data['type'];
-        $googleDoc->name = $data['doc_name'];
-        $googleDoc->save();
+        DB::transaction(function () use ($data) {
+            $googleDoc = new GoogleDoc();
+            $googleDoc->type = $data['type'];
+            $googleDoc->name = $data['doc_name'];
+            $googleDoc->save();
 
-        CreateGoogleSpreadsheet::dispatch($googleDoc);
-        return back();
-//        return response()->json(['message' => "Doc created successfully."]);
+            if ($googleDoc->type === 'spreadsheet') {
+                CreateGoogleSpreadsheet::dispatchNow($googleDoc);
+            }
 
+            if ($googleDoc->type === 'doc') {
+                CreateGoogleDoc::dispatchNow($googleDoc);
+            }
+        });
+        return back()->with('success', "Google {$data['type']} is Created.");
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -61,7 +68,7 @@ class GoogleDocController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -72,7 +79,7 @@ class GoogleDocController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -83,8 +90,8 @@ class GoogleDocController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -95,7 +102,7 @@ class GoogleDocController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

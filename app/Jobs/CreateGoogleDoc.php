@@ -7,11 +7,10 @@ use Exception;
 use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Drive\DriveFile;
-use Google_Service_Sheets_Spreadsheet;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class CreateGoogleSpreadsheet
+class CreateGoogleDoc
 {
     use Dispatchable, SerializesModels;
 
@@ -29,8 +28,8 @@ class CreateGoogleSpreadsheet
 
     /**
      * Execute the job.
-     * Sample spread sheet link
-     * https://docs.google.com/spreadsheets/d/1jJAHaCJfTfqNuMQrbs9Uz-x39XxDd2PdFGZUIcJ2SKg/edit
+     * Sample doc link
+     * https://docs.google.com/document/d/1O2nIeK9SOjn6ZKujfHdTkHacHnscjRKOG9G2OOiGaPU/edit
      *
      * @return void
      */
@@ -46,7 +45,6 @@ class CreateGoogleSpreadsheet
             $this->googleDoc->docId = $spreadsheetId;
             $this->googleDoc->save();
         } catch (Exception $e) {
-            // TODO(developer) - handle error appropriately
             echo 'Message: ' . $e->getMessage();
             dd($e);
         }
@@ -86,7 +84,7 @@ class CreateGoogleSpreadsheet
             $fileMetadata = new Drive\DriveFile(array(
                 'name' => $this->googleDoc->name,
                 'parents' => array($folderId),
-                "mimeType" => "application/vnd.google-apps.spreadsheet",
+                "mimeType" => "application/vnd.google-apps.document",
             ));
 
             $file = $driveService->files->create($fileMetadata, array(
@@ -98,25 +96,5 @@ class CreateGoogleSpreadsheet
             echo "Error Message: " . $e;
             dd($e);
         }
-    }
-
-    public function createSpreadSheet()
-    {
-        $client = new Client();
-        $client->useApplicationDefaultCredentials();
-        $client->addScope(Drive::DRIVE);
-        $service = new \Google_Service_Sheets($client);
-
-        $spreadsheet = new Google_Service_Sheets_Spreadsheet([
-            'properties' => [
-                'title' => $this->googleDoc->name
-            ]
-        ]);
-
-        $spreadsheet = $service->spreadsheets->create($spreadsheet, [
-            'fields' => 'spreadsheetId,properties'
-        ]);
-
-        return $spreadsheet->spreadsheetId;
     }
 }
