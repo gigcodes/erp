@@ -56,26 +56,38 @@ jobs:
 #
 #    # - name: Run test suite
 #    #   run: composer run-script test
-  phplint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
 
-      - name: "laravel-pint"
-        uses: aglipanci/laravel-pint-action@1.0.0
-        with:
-          preset: laravel
-#          verboseMode: false
-#          testMode: false
-#          configPath: "vendor/my-company/coding-style/pint.json"..
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v4
-        with:
-          commit-message: Styling fixes by Github Action
-          title: Styling fixes by Github Action
-          body: Styling fixes by Github Action
-          branch: styling-fixes-by-pint
+
+
+
+
+  ## Comment pint for faster debugging.
+#  phplint:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#
+#      - name: "laravel-pint"
+#        uses: aglipanci/laravel-pint-action@1.0.0
+#        with:
+#          preset: laravel
+##          verboseMode: false
+##          testMode: false
+##          configPath: "vendor/my-company/coding-style/pint.json"..
+#
+#      - name: Create Pull Request
+#        uses: peter-evans/create-pull-request@v4
+#        with:
+#          commit-message: Styling fixes by Github Action
+#          title: Styling fixes by Github Action
+#          body: Styling fixes by Github Action
+#          branch: styling-fixes-by-pint
+
+
+
+
+
 
   phpstan:
     runs-on: ubuntu-latest
