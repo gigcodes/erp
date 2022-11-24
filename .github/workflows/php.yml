@@ -85,7 +85,7 @@ jobs:
 
       - name: "setup private repo"
         env:
-          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{secrets.LUDXB}}"} }'
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{secrets.LUDXB2}}"} }'
         run: echo "${{secrets.LUDXB}}"
       - name: "github token"
         run: echo "${{secrets.GITHUB_TOKEN}}"
