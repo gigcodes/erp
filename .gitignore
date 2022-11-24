@@ -54,7 +54,7 @@ temp.txt
 logs
 .git.zip
 _MACOSX
-
+composer.lock
 /js
 /css
 
