@@ -85,15 +85,12 @@ jobs:
 
       - name: "setup private repo"
         uses: php-actions/composer@v6
+        with:
+          php_version: "7.2"
+          php_extensions: pdo pdo_mysql sockets mbstring zip exif pcntl soap mysqli bcmath gd imap
+          version: 1.10.22
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{secrets.LUDXB2}}"} }'
-#        run: echo "${{secrets.LUDXB}}"
-#      - name: "github token"
-#        run: echo "${{secrets.GITHUB_TOKEN}}"
-#      - name: "github LUXDB"
-#        run: echo "${{secrets.LUXDB}}"
-#      - name: "github LUDXB2"
-#        run: echo "${{secrets.LUDXB2}}"
       - uses: php-actions/phpstan@v3
         with:
           path: .
