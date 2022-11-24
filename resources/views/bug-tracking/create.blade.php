@@ -101,6 +101,15 @@
                         <textarea class="form-control" name="remark"></textarea>
                         <span class="text-danger">{{ $errors->first('remark') }}</span>
                     </div>
+                    <div class="form-group" {{ $errors->has('website') ? 'has-error' : '' }}>
+                        <label> Website </label>
+                        <select class="form-control" name="website">
+                            <option value="">Select Module/Feature</option>
+                            @foreach($filterWebsites as  $filterWebsite)
+                                <option value="{{$filterWebsite}}">{{$filterWebsite}} </option>
+                            @endforeach
+                        </select>
+                    </div>
 
                     <div class="form-group">
                         <button type="submit" class="btn btn-secondary">Store</button>

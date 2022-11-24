@@ -2,23 +2,69 @@
 
 namespace App\Http\Controllers;
 
+use App\AssetsManager;
 use App\BugEnvironment;
 use App\BugSeverity;
 use App\BugStatus;
 use App\BugTracker;
 use App\BugTrackerHistory;
 use App\BugType;
-use App\PostmanRequestCreate;
 use App\SiteDevelopmentCategory;
+use App\StoreWebsite;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class BugTrackingController extends Controller
 {
-    public function index(){
-        $bugTrackings = BugTracker::paginate(20);
-        return view('bug-tracking.index',compact('bugTrackings'));
+    public function index(Request $request){
+        $title = "Bug Tracking";
+
+        $bugStatuses = BugStatus::get();
+        $bugEnvironments = BugEnvironment::get();
+        $bugSeveritys = BugSeverity::get();
+        $bugTypes = BugType::get();
+        $users = User::get();
+        $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
+        $filterWebsites = StoreWebsite::orderBy('website')->pluck('website')->toArray();
+        return view('bug-tracking.index',[
+            'title'=>$title,
+            'bugTypes' => $bugTypes,
+            'bugEnvironments' => $bugEnvironments,
+            'bugSeveritys' => $bugSeveritys,
+            'bugStatuses' => $bugStatuses,
+            'filterCategories' => $filterCategories,
+            'users'=>$users,
+            'filterWebsites' =>$filterWebsites
+        ]);
+
     }
+
+    public function records(Request $request)
+    {
+        $records = BugTracker::orderBy('id','desc');
+
+        $keyword = request("keyword");
+//        if (!empty($keyword)) {
+//            $records = $records->where(function ($q) use ($keyword) {
+//                $q->where("website", "LIKE", "%$keyword%")
+//                    ->orWhere("title", "LIKE", "%$keyword%")
+//                    ->orWhere("description", "LIKE", "%$keyword%");
+//            });
+//        }
+        $records = $records->get();
+        $records = $records->map(function ($bug){
+            $bug->bug_type_id= BugType::where('id',$bug->bug_type_id)->value('name');
+            $bug->bug_environment_id= BugEnvironment::where('id',$bug->bug_environment_id)->value('name');
+            $bug->assign_to= User::where('id',$bug->assign_to)->value('name');
+            $bug->bug_severity_id= BugSeverity::where('id',$bug->bug_severity_id)->value('name');
+            $bug->bug_status_id= BugStatus::where('id',$bug->bug_status_id)->value('name');
+            return $bug;
+        });
+
+        return response()->json(["code" => 200, "data" => $records, "total" => count($records)]);
+    }
+
     public function create(){
         $bugStatuses = BugStatus::get();
         $bugEnvironments = BugEnvironment::get();
@@ -26,8 +72,10 @@ class BugTrackingController extends Controller
         $bugTypes = BugType::get();
         $users = User::get();
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
-        return view('bug-tracking.create',compact('bugStatuses','bugTypes','bugEnvironments','bugSeveritys','users','filterCategories'));
+        $filterWebsites = StoreWebsite::orderBy('website')->pluck('website')->toArray();
+        return view('bug-tracking.create',compact('bugStatuses','bugTypes','bugEnvironments','bugSeveritys','users','filterCategories','filterWebsites'));
     }
+
     public function edit($id){
         $bugTracker = BugTracker::findorFail($id);
         $bugStatuses = BugStatus::get();
@@ -36,50 +84,83 @@ class BugTrackingController extends Controller
         $bugTypes = BugType::get();
         $users = User::get();
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
-        return view('bug-tracking.edit',compact('bugStatuses','bugTypes','bugEnvironments','bugSeveritys','users','filterCategories','bugTracker'));
+        $filterWebsites = StoreWebsite::orderBy('website')->pluck('website')->toArray();
+        if ($bugTracker) {
+            return response()->json([
+                    "code" => 200,
+                    "data" => $bugTracker,
+                'bugTypes' => $bugTypes,
+                'bugEnvironments' => $bugEnvironments,
+                'bugSeveritys' => $bugSeveritys,
+                'bugStatuses' => $bugStatuses,
+                'filterCategories' => $filterCategories,
+                'users'=> $users,
+                'filterWebsites' => $filterWebsites]
+            );
+        }
+
+        return response()->json(["code" => 500, "error" => "Wrong bug tracking id!"]);
     }
 
     public function status(Request $request){
-        $this->validate($request, [
-            'name' => 'required|string'
+        $status = $request->all();
+        $validator = Validator::make($status, [
+            'name' => 'required|string',
         ]);
+        if ($validator->fails()) {
+            return response()->json(["code" => 500, "error" => 'Name is required']);
+        }
         $data = $request->except('_token');
-        BugStatus::create($data);
-        return redirect()->back()->with('success', 'You have successfully created a status!');
+        $records = BugStatus::create($data);
+        return response()->json(["code" => 200, "data" => $records]);
     }
 
    public function environment(Request $request){
-        $this->validate($request, [
-            'name' => 'required|string'
-        ]);
+
+       $environment = $request->all();
+       $validator = Validator::make($environment, [
+           'name' => 'required|string',
+       ]);
+       if ($validator->fails()) {
+           return response()->json(["code" => 500, "error" => 'Name is required']);
+       }
         $data = $request->except('_token');
-        BugEnvironment::create($data);
-        return redirect()->back()->with('success', 'You have successfully created a environment!');
+       $records = BugEnvironment::create($data);
+       return response()->json(["code" => 200, "data" => $records]);
     }
 
     public function type(Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required|string'
+        $type = $request->all();
+        $validator = Validator::make($type, [
+            'name' => 'required|string',
         ]);
+        if ($validator->fails()) {
+            return response()->json(["code" => 500, "error" => 'Name is required']);
+        }
         $data = $request->except('_token');
-        BugType::create($data);
-        return redirect()->back()->with('success', 'You have successfully created a type!');
+        $records = BugType::create($data);
+        return response()->json(["code" => 200, "data" => $records]);
 
     }
     public function severity(Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required|string'
+        $severity = $request->all();
+        $validator = Validator::make($severity, [
+            'name' => 'required|string',
         ]);
+        if ($validator->fails()) {
+            return response()->json(["code" => 500, "error" => 'Name is required']);
+        }
         $data = $request->except('_token');
-        BugSeverity::create($data);
-        return redirect()->back()->with('success', 'You have successfully created a severity!');
+        $records = BugSeverity::create($data);
+        return response()->json(["code" => 200, "data" => $records]);
 
     }
 
     public function store(Request $request){
-        $this->validate($request, [
+        $bug = $request->all();
+        $validator = Validator::make($bug, [
             'summary' => 'required|string',
             'step_to_reproduce' => 'required|string',
             'url' => 'required|string',
@@ -90,13 +171,37 @@ class BugTrackingController extends Controller
             'bug_status_id' => 'required|string',
             'module_id' => 'required|string',
             'remark' => 'required|string',
+            'website' => 'required|string',
 
         ]);
-        $data = $request->except('_token');
-        $bugTracker = BugTracker::create($data);
-        $data['bug_id']= $bugTracker->id;
-        BugTrackerHistory::create($data);
-        return redirect()->back()->with('success', 'You have successfully created a Bug Tracker!');
+
+        if ($validator->fails()) {
+            $outputString = "";
+            $messages     = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . "<br>";
+                }
+            }
+            return response()->json(["code" => 500, "error" => $outputString]);
+        }
+
+        $id = $request->get("id", 0);
+
+        $records = BugTracker::find($id);
+
+        if (!$records) {
+            $records = new BugTracker();
+        }
+
+
+
+        $records->fill($bug);
+
+        $records->save();
+
+        return response()->json(["code" => 200, "data" => $records]);
+
 
     }
     public function destroy(BugTracker $bugTracker, Request $request) {
@@ -125,13 +230,14 @@ class BugTrackingController extends Controller
             'bug_status_id' => 'required|string',
             'module_id' => 'required|string',
             'remark' => 'required|string',
+            'website' => 'required|string',
 
         ]);
         $data = $request->except('_token');
         BugTracker::where('id',$id)->update($data);
         $data['bug_id']= $id;
         BugTrackerHistory::create($data);
-        return redirect()->back()->with('success', 'You have successfully updated a Bug Tracker!');
+        return redirect()->route('bug-tracking.index')->with('success', 'You have successfully updated a Bug Tracker!');
     }
 
 }
