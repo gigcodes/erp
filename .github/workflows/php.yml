@@ -87,6 +87,10 @@ jobs:
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{secrets.LUDXB}}"} }'
         run: echo "${{secrets.LUDXB}}"
+      - name: "github token"
+        run: echo "${{secrets.GITHUB_TOKEN}}"
+      - name: "github LUXDB"
+        run: echo "${{secrets.LUXDB}}"
       - uses: php-actions/composer@v6
       - uses: php-actions/phpstan@v3
         with:
