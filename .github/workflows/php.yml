@@ -77,14 +77,21 @@ jobs:
           body: Styling fixes by Github Action
           branch: styling-fixes-by-pint
 
-#  phpstan:
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - uses: actions/checkout@v3
-#      - uses: php-actions/phpstan@v3
-#        with:
-#          path: .
+  phpstan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: "setup private repo"
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{secrets.LUDXB}}"} }'
+        run: echo "${{secrets.LUDXB}}"
+      - uses: php-actions/composer@v6
+      - uses: php-actions/phpstan@v3
+        with:
+          path: .
+
 ## THIS IS WORKING FINE - FOR TESTING PURPOSE ONLY
 #  updateAuthors:
 #    runs-on: ubuntu-latest
