@@ -44,21 +44,69 @@ class BugTrackingController extends Controller
     {
         $records = BugTracker::orderBy('id','desc');
 
-        $keyword = request("keyword");
-//        if (!empty($keyword)) {
-//            $records = $records->where(function ($q) use ($keyword) {
-//                $q->where("website", "LIKE", "%$keyword%")
-//                    ->orWhere("title", "LIKE", "%$keyword%")
-//                    ->orWhere("description", "LIKE", "%$keyword%");
-//            });
-//        }
+
+        if ($keyword = request("summary")) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where("summary", "LIKE", "%$keyword%");
+
+            });
+        }
+        if ($keyword = request("bug_type")) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where("bug_type_id", $keyword);
+
+            });
+        }
+        if ($keyword = request("bug_enviornment")) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where("bug_environment_id", $keyword);
+
+            });
+        }
+        if ($keyword = request("bug_severity")) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where("bug_severity_id", $keyword);
+
+            });
+        }
+        if ($keyword = request("bug_status")) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where("bug_status_id", $keyword);
+
+            });
+        }
+        if ($keyword = request("module_id")) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where("module_id", "LIKE", "%$keyword%");
+
+            });
+        }
+        if ($keyword = request("step_to_reproduce")) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where("step_to_reproduce", "LIKE", "%$keyword%");
+
+            });
+        }
+        if ($keyword = request("url")) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where("url", "LIKE", "%$keyword%");
+
+            });
+        }
+        if ($keyword = request("website")) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where("website", "LIKE", "%$keyword%");
+
+            });
+        }
         $records = $records->get();
         $records = $records->map(function ($bug){
-            $bug->bug_type_id= BugType::where('id',$bug->bug_type_id)->value('name');
-            $bug->bug_environment_id= BugEnvironment::where('id',$bug->bug_environment_id)->value('name');
-            $bug->assign_to= User::where('id',$bug->assign_to)->value('name');
-            $bug->bug_severity_id= BugSeverity::where('id',$bug->bug_severity_id)->value('name');
-            $bug->bug_status_id= BugStatus::where('id',$bug->bug_status_id)->value('name');
+            $bug->bug_type_id = BugType::where('id',$bug->bug_type_id)->value('name');
+            $bug->bug_environment_id = BugEnvironment::where('id',$bug->bug_environment_id)->value('name');
+            $bug->assign_to = User::where('id',$bug->assign_to)->value('name');
+            $bug->bug_severity_id = BugSeverity::where('id',$bug->bug_severity_id)->value('name');
+            $bug->bug_status_id = BugStatus::where('id',$bug->bug_status_id)->value('name');
+            $bug->bug_history = BugTrackerHistory::where('bug_id',$bug->id)->get();
             return $bug;
         });
 
@@ -193,16 +241,14 @@ class BugTrackingController extends Controller
         if (!$records) {
             $records = new BugTracker();
         }
-
-
-
         $records->fill($bug);
 
         $records->save();
 
+        $bug['bug_id'] = $records->id;
+        $bugTrackerHistory = BugTrackerHistory::create($bug);
+
         return response()->json(["code" => 200, "data" => $records]);
-
-
     }
     public function destroy(BugTracker $bugTracker, Request $request) {
         try {
@@ -240,4 +286,19 @@ class BugTrackingController extends Controller
         return redirect()->route('bug-tracking.index')->with('success', 'You have successfully updated a Bug Tracker!');
     }
 
+    public  function  bugHistory($id){
+        $bugHistory = BugTrackerHistory::where('bug_id',$id)->get();
+        $bugHistory = $bugHistory->map(function ($bug){
+            $bug->bug_type_id = BugType::where('id',$bug->bug_type_id)->value('name');
+            $bug->bug_environment_id = BugEnvironment::where('id',$bug->bug_environment_id)->value('name');
+            $bug->assign_to = User::where('id',$bug->assign_to)->value('name');
+            $bug->bug_severity_id = BugSeverity::where('id',$bug->bug_severity_id)->value('name');
+            $bug->bug_status_id = BugStatus::where('id',$bug->bug_status_id)->value('name');
+            $bug->bug_history = BugTrackerHistory::where('bug_id',$bug->id)->get();
+
+            return $bug;
+        });
+
+        return response()->json(["code" => 200, "data" => $bugHistory]);
+    }
 }

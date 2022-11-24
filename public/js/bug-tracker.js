@@ -77,13 +77,7 @@ var page = {
         page.config.bodyView.on("click",".btn-push",function(e) {
             page.push($(this));
         });
-        $(document).on("click",".btn-delete-group",function(e) {
-            page.deleteMuliples($(this));
-        });
 
-        $(document).on("click",".check-all",function(e) {
-            $(".groups").trigger("click");
-        });
 
     },
     validationRule : function(response) {
@@ -141,7 +135,7 @@ var page = {
     deleteResults : function(response) {
         if(response.code == 200){
             this.getResults();
-            toastr['success']('Message deleted successfully', 'success');
+            toastr['success']('Bug Tracking deleted successfully', 'success');
         }else{
             toastr['error']('Oops.something went wrong', 'error');
         }
@@ -276,6 +270,8 @@ var page = {
         if(response.code  == 200) {
             page.loadFirst();
             $(".common-modal").modal("hide");
+            toastr["success"](response.message,"Bug Tracking Saved Successfully");
+
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
@@ -285,6 +281,8 @@ var page = {
         if(response.code  == 200) {
             page.loadFirst();
             $(".common-modal").modal("hide");
+            toastr["success"](response.message,"Environment Saved Successfully");
+
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
@@ -294,6 +292,8 @@ var page = {
         if(response.code  == 200) {
             page.loadFirst();
             $(".common-modal").modal("hide");
+            toastr["success"](response.message,"Severity Saved Successfully");
+
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
@@ -303,6 +303,8 @@ var page = {
         if(response.code  == 200) {
             page.loadFirst();
             $(".common-modal").modal("hide");
+            toastr["success"](response.message,"Type Saved Successfully");
+
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
@@ -312,6 +314,7 @@ var page = {
         if(response.code  == 200) {
             page.loadFirst();
             $(".common-modal").modal("hide");
+            toastr["success"](response.message,"Status Saved Successfully");
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
@@ -319,47 +322,43 @@ var page = {
     },
     push : function(ele) {
         var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/website-stores/"+ele.data("id")+"/push",
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/bug-history/"+ele.data("id"),
             method: "get",
         }
         this.sendAjax(_z, 'afterPush');
     },
     afterPush : function(response) {
         if(response.code  == 200) {
-            toastr["success"](response.message,"");
-        }else {
-            $("#loading-image").hide();
-            toastr["error"](response.error,"");
-        }
-    },
-    deleteMuliples : function(ele) {
+            console.log(response)
+            $('#newHistoryModal').modal('show');
 
-        var groups = [];
-        var checkedGroups = $(".groups:checked");
+            $('.tbh').html("")
+            if(response.data.length >0){
 
-        $.each(checkedGroups,function(k,v) {
-            groups.push($(v).val());
-        });
+                var html ="";
 
-        var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/website-stores/multiple-delete",
-            method: "post",
-            data : {
-                ids : groups,
+                $.each(response.data, function (i,item){
+                    console.log(item)
+                    html+="<tr>"
+                    html+=" <th>"+ item.bug_type_id +"</th>"
+                    html+=" <th>"+ item.summary +"</th>"
+                    html+=" <th>"+ item.bug_environment_id +"</th>"
+                    html+=" <th>"+ item.bug_status_id +"</th>"
+                    html+=" <th>"+ item.bug_severity_id +"</th>"
+                    html+=" <th>"+ item.module_id +"</th>"
+                    html+=" <th>"+ item.remark +"</th>"
+                    html+="</tr>"
+                })
+
+                $('.tbh').html(html)
             }
-        }
-
-        this.sendAjax(_z, 'afterdeleteMuliples');
-    },
-    afterdeleteMuliples : function(response) {
-        if(response.code  == 200) {
-            toastr["success"](response.message,"");
-            location.reload();
+            toastr["success"](response.message,"Bug Tracking History Listed Successfully");
         }else {
             $("#loading-image").hide();
-            toastr["error"](response.error,"");
+            toastr["error"](response.error,"Something went wrong");
         }
     },
+
 }
 
 $.extend(page, common);

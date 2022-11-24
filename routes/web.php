@@ -2381,6 +2381,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('bug-tracking/environment', 'BugTrackingController@environment')->name('bug-tracking.environment');
     Route::post('bug-tracking/type', 'BugTrackingController@type')->name('bug-tracking.type');
     Route::post('bug-tracking/severity', 'BugTrackingController@severity')->name('bug-tracking.severity');
+    Route::get('bug-tracking/bug-history/{id}', 'BugTrackingController@bugHistory')->name('bug-tracking.bug-history');
     Route::get('bug-tracking/{id}/delete', 'BugTrackingController@destroy');
 
 
