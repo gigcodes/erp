@@ -65,9 +65,11 @@ class WhatsappConfigProvider extends ServiceProvider
             }
 
             // get the all zoom key
-            $settings = \App\Setting::where(function($q){
-                $q->orWhere("name","like","ZOOM_%")->orWhere("name","like","PLESK_%");
-            })->get();
+            if(!env('CI')) {
+                $settings = \App\Setting::where(function ($q) {
+                    $q->orWhere("name", "like", "ZOOM_%")->orWhere("name", "like", "PLESK_%");
+                })->get();
+            }
             
             if(!$settings->isEmpty()) {
                 foreach($settings as $setting) {
