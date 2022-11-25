@@ -702,6 +702,7 @@ else
                             </tr>
                         </thead>
                         <tbody class="pending-row-render-view infinite-scroll-pending-inner">
+                            
                             @if(count($data['task']['pending']) >0)
                             @foreach($data['task']['pending'] as $task)
 
@@ -898,6 +899,9 @@ else
                                         <option value="">Select...</option>
                                         <?php $masterUser = isset($task->master_user_id) ? $task->master_user_id : 0; ?>
                                         @foreach($task_statuses as $index => $status)
+                                        @if(!auth()->user()->isAdmin() AND $status->name == 'Done')
+                                            @continue
+                                        @endif
                                         @if( $status->id == $task->status )
                                         <option value="{{$status->id}}" selected>{{ $status->name }}</option>
                                         @else
@@ -991,11 +995,12 @@ else
                                                 <i class="fa fa-bell @if(!empty($task->reminder_message) && $task->frequency > 0) {{ 'green-notification'  }} @else {{ 'red-notification' }} @endif" aria-hidden="true"></i>
                                             </button>
                                             @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id() || $task->master_user_id == Auth::id() || $task->second_master_user_id == Auth::id())
-                                            <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png" /></button>
-                                            @if ($task->assign_from == Auth::id())
+                                            {{-- <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png" /></button> --}}
+                                            {{-- @if ($task->assign_from == Auth::id()) --}}
+                                            @if(auth()->user()->isAdmin())
                                             <button type="button" title="Verify the task by admin" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/completed-green.png" /></button>
-                                            @else
-                                            <button type="button" class="btn btn-image pd-5"><img src="/images/completed-green.png" /></button>
+                                            {{-- @else
+                                            <button type="button" class="btn btn-image pd-5"><img src="/images/completed-green.png" /></button> --}}
                                             @endif
                                             <button type="button" class='btn btn-image ml-1 reminder-message pd-5' data-id="{{ $task->message_id }}" data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></button>
                                             <button type="button" data-id="{{ $task->id }}" class="btn btn-file-upload pd-5">
@@ -1006,11 +1011,11 @@ else
                                                 <i class="fa fa-list" aria-hidden="true"></i>
                                             </button>
                                             @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
-                                            @if ($task->is_private == 1)
-                                            <button disabled type="button" class="btn btn-image pd-5"><img src="{{asset('images/private.png')}}" /></button>
-                                            @else
-                                            {{-- <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="{{asset('images/view.png')}}" /></a> --}}
-                                            @endif
+                                                @if ($task->is_private == 1)
+                                                <button disabled type="button" class="btn btn-image pd-5"><img src="{{asset('images/private.png')}}" /></button>
+                                                @else
+                                                {{-- <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="{{asset('images/view.png')}}" /></a> --}}
+                                                @endif
                                             @endif
 
                                             @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0) || Auth::id() == 6)
@@ -1024,7 +1029,6 @@ else
                                             @endif
                                             <button class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
                                             <button class="btn btn-image set-remark" data-task_id="{{ $task->id }}" data-task_type="TASK"><i class="fa fa-comment" aria-hidden="true"></i></button>
-
 
                                         </div>
                                     </div>

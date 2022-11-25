@@ -676,7 +676,8 @@ class BrandController extends Controller
                 $brand_data= $brand_data->where('brands.name', 'like', $search);
             }
             $brand_data = $brand_data->paginate(Setting::get('pagination'));
-            return view('brand.brand_logo', compact('brand_data'))->with('i', (request()->input('page', 1) - 1) * 10);
+            $data= Brand::all();
+            return view('brand.brand_logo', compact('brand_data','data'))->with('i', (request()->input('page', 1) - 1) * 10);
         } catch (\Exception $e) {
         }
     }

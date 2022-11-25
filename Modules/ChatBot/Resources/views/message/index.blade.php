@@ -650,6 +650,13 @@
         $('document').on('click', '.create-customer-ticket-modal', function () {
             $('#ticket_customer_id').val($(this).attr('data-customer_id'));
         });
-
+        
+        $(document).on('click', '.create_short_cut',function () {
+            $('.sop_description').val("");
+            let message = '';
+            message = $(this).attr('data-msg');
+            $('.sop_description').val(message);
+        });
+        
     </script>
 @endsection

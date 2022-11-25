@@ -53,7 +53,12 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                             $brand_name = '';
                     @endphp
 
-                    <input name="brand_name" type="text" class="form-control" value="{{$brand_name}}"  placeholder="Brand Name" id="brand_name">
+                    <input name="brand_name" type="text" class="form-control" value="{{$brand_name}}"  placeholder="Brand Name" id="brand_name" list="brand_name-lists">
+                    <datalist id="brand_name-lists">
+                        @foreach ($data as $key => $val)
+                            <option value="{{ $val->name }}">
+                        @endforeach
+                    </datalist>
                 </div>
                 
                 <div class="col-md-1">
@@ -207,6 +212,9 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                         else
                             html_content += '<input type="radio" name="brand_logo_radio_'+logo_id+'" class="brand_logo_radio_'+logo_id+'" value="'+value.brand_logos_id+'" />';
                         // html_content += '<label class="custom-control-label" for="defaultUnchecked_'+value.id+'" ></label>';
+                        html_content += '</div>';
+                        html_content += '<div class="mt-2">';
+                        html_content += '<a title="Download" download="'+origin+'/brand_logo/'+value.brand_logo_image_name+'"  href="'+origin+'/brand_logo/'+value.brand_logo_image_name+'" class="btn"><i class="fa fa-download"></i></a>';
                         html_content += '</div>';
                         html_content += '</div>';
                         html_content += '</div>';

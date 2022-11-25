@@ -20,7 +20,7 @@
                         <label for="with_archived">Setting Name</label>
                        <input type="text" list="name-lists" name="name" class="form-control-sm cls_commu_his form-control" value="{{request()->get('name')}}">
 						<datalist id="name-lists">
-							@foreach ($data as $key => $val )
+							@foreach ($settings as $key => $val )
 							<option value="{{$val->name}}">
 							@endforeach
 						</datalist>

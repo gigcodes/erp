@@ -1861,6 +1861,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('vendors/cv/get-address', 'VendorResumeController@getAddress')->name('vendors.cv.address');
 
     Route::get('vendor/status/history', 'VendorController@vendorStatusHistory')->name('vendor.status.history.get');
+    Route::get('vendor/status/history/detail', 'VendorController@vendorDetailStatusHistory')->name('vendor.status.history.detail');
+    Route::post('vendor/addStatusDetail', 'VendorController@addStatus')->name('vendors.addStatus');
 
     Route::get('vendor-search', 'VendorController@vendorSearch')->name('vendor-search');
     Route::get('vendor-search-phone', 'VendorController@vendorSearchPhone')->name('vendor-search-phone');
@@ -2313,6 +2315,7 @@ Route::delete('google/bigData/delete', 'GoogleBigQueryDataController@destroy')->
 Route::group(['middleware' => ['auth']], function () {
     Route::get('hubstaff/members', 'HubstaffController@index');
     Route::post('hubstaff/members/{id}/save-field', 'HubstaffController@saveMemberField');
+    Route::post('hubstaff/refresh_users', 'HubstaffController@refreshUsers');
     Route::post('hubstaff/linkuser', 'HubstaffController@linkUser');
     Route::get('hubstaff/projects', 'HubstaffController@getProjects');
     Route::post('hubstaff/projects/create', 'HubstaffController@createProject');
@@ -2741,6 +2744,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('old', 'OldController');
     Route::post('old/block', 'OldController@block')->name('old.block');
     Route::post('old/category/create', 'OldController@createCategory')->name('old.category.create');
+    Route::post('old/status/create', 'OldController@createStatus')->name('old.status.create');
     Route::post('old/update/status', 'OldController@updateOld')->name('old.update.status');
 
     //Simple Duty

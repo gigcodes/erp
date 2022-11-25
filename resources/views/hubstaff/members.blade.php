@@ -18,7 +18,10 @@
 @endif
 
 <h2 class="text-center">Users List from Hubstaff </h2>
-
+  <form class="form-inline  float-right" method="POST" action="/hubstaff/refresh_users">
+    @csrf
+    <button type="submit" class="btn-danger" id="refresh_users">Refresh Users From Hubstaff</button>
+  </form>
   @if(!empty($members))
   <div class="row">
     <div class="col-md-12 pr-5 pl-5">
