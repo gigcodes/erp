@@ -2315,6 +2315,7 @@ Route::delete('google/bigData/delete', 'GoogleBigQueryDataController@destroy')->
 Route::group(['middleware' => ['auth']], function () {
     Route::get('hubstaff/members', 'HubstaffController@index');
     Route::post('hubstaff/members/{id}/save-field', 'HubstaffController@saveMemberField');
+    Route::post('hubstaff/refresh_users', 'HubstaffController@refreshUsers');
     Route::post('hubstaff/linkuser', 'HubstaffController@linkUser');
     Route::get('hubstaff/projects', 'HubstaffController@getProjects');
     Route::post('hubstaff/projects/create', 'HubstaffController@createProject');
