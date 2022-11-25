@@ -13,7 +13,7 @@
         <div class="modal-body">
           <div class="form-group">
             <strong>Category:</strong>
-            <select class="form-control" name="category_id" required>
+            <select class="form-control" name="category_id">
               <option value="">Select a Category</option>
 
               @foreach ($old_categories as $category)
@@ -28,7 +28,7 @@
 
           <div class="form-group">
             <strong>Name:</strong>
-            <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
+            <input type="text" name="name" class="form-control" value="{{ old('name') }}">
 
             @if ($errors->has('name'))
               <div class="alert alert-danger">{{$errors->first('name')}}</div>
@@ -111,7 +111,7 @@
           </div>
           <div class="form-group">
             <strong>Total Payment:</strong>
-            <input type="integer" name="amount" class="form-control" value="{{ old('amount') }}" required>
+            <input type="integer" name="amount" class="form-control" value="{{ old('amount') }}">
 
             @if ($errors->has('amount'))
               <div class="alert alert-danger">{{$errors->first('amount')}}</div>
@@ -119,7 +119,7 @@
           </div>
           <div class="form-group">
             <strong>Pending Payment:</strong>
-            <input type="integer" name="pending_payment" class="form-control" value="{{ old('pending_payment') }}" required>
+            <input type="integer" name="pending_payment" class="form-control" value="{{ old('pending_payment') }}">
 
             @if ($errors->has('pending_payment'))
               <div class="alert alert-danger">{{$errors->first('pending_payment')}}</div>
@@ -135,7 +135,7 @@
           </div>
           <div class="form-group">
             <strong>Description:</strong>
-            <input type="text" name="description" class="form-control" value="{{ old('description') }}" required>
+            <input type="text" name="description" class="form-control" value="{{ old('description') }}">
 
             @if ($errors->has('description'))
               <div class="alert alert-danger">{{$errors->first('description')}}</div>
@@ -162,7 +162,7 @@
 
              <div class="form-group">
          <strong>Select Status:</strong>   
-        {!! Form::select('status', $status, null, ['class' => 'form-control'.($errors->has('status') ? ' is-invalid' : ''), 'placeholder' => 'Select Status','required' => '']) !!}
+        {!! Form::select('status', $status, null, ['class' => 'form-control'.($errors->has('status') ? ' is-invalid' : ''), 'placeholder' => 'Select Status']) !!}
         @if ($errors->has('status'))
                     <span class="invalid-feedback" role="alert">
                         <strong>{{ $errors->first('status') }}</strong>
@@ -197,7 +197,7 @@
         <div class="modal-body">
           <div class="form-group">
             <strong>Category:</strong>
-            <select class="form-control" name="category_id" id="old_category" required>
+            <select class="form-control" name="category_id" id="old_category">
               <option value="">Select a Category</option>
 
               @foreach ($old_categories as $category)
@@ -212,7 +212,7 @@
 
           <div class="form-group">
             <strong>Name:</strong>
-            <input type="text" name="name" class="form-control" value="{{ old('name') }}" required id="old_name">
+            <input type="text" name="name" class="form-control" value="{{ old('name') }}" id="old_name">
 
             @if ($errors->has('name'))
               <div class="alert alert-danger">{{$errors->first('name')}}</div>
@@ -230,7 +230,7 @@
 
           <div class="form-group">
             <strong>Phone:</strong>
-            <input type="number" name="phone" class="form-control" value="{{ old('phone') }}" id="old_phone" required>
+            <input type="number" name="phone" class="form-control" value="{{ old('phone') }}" id="old_phone">
 
             @if ($errors->has('phone'))
               <div class="alert alert-danger">{{$errors->first('phone')}}</div>
@@ -239,7 +239,7 @@
 
           <div class="form-group">
             <strong>Email:</strong>
-            <input type="email" name="email" class="form-control" value="{{ old('email') }}" id="old_email" required>
+            <input type="email" name="email" class="form-control" value="{{ old('email') }}" id="old_email">
 
             @if ($errors->has('email'))
               <div class="alert alert-danger">{{$errors->first('email')}}</div>
@@ -293,7 +293,7 @@
 
           <div class="form-group">
             <strong>Total Amount:</strong>
-            <input type="integer" name="amount" class="form-control" value="{{ old('amount') }}" required id="old_amount">
+            <input type="integer" name="amount" class="form-control" value="{{ old('amount') }}" id="old_amount">
 
             @if ($errors->has('amount'))
               <div class="alert alert-danger">{{$errors->first('amount')}}</div>

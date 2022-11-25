@@ -504,5 +504,17 @@
 		$("#sendToWhatsapp"+ password_id +"" ).modal('show');
 	}
    
+    $(document).on("click",".btn-copy-password",function() {
+             
+             var password = $(".user-password").text();
+             
+              var $temp = $("<input>");
+              $("body").append($temp);
+              $temp.val(password).select();
+              document.execCommand("copy");
+              $temp.remove();
+
+              alert("Copied!");
+        });
 </script>
 @endsection
