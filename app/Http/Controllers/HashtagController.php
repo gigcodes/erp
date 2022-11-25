@@ -4,27 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Account;
 use App\CommentsStats;
-use App\FlaggedInstagramPosts;
+//use App\FlaggedInstagramPosts;
 use App\HashTag;
 use App\InfluencerKeyword;
 use App\InfluencersHistory;
-use App\InstagramPosts;
-use App\InstagramPostsComments;
-use App\InstagramUsersList;
+//use App\InstagramPosts;
+//use App\InstagramPostsComments;
+//use App\InstagramUsersList;
 use App\ScrapInfluencer;
-use App\Services\Instagram\Hashtags;
+//use App\Services\Instagram\Hashtags;
 use App\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use InstagramAPI\Instagram;
-use InstagramAPI\Signatures;
+//use InstagramAPI\Instagram;
+//use InstagramAPI\Signatures;
 use Plank\Mediable\Media;
 use App\Customer;
 use App\MailinglistTemplate;
 use Illuminate\Support\Facades\Http;
 
 
-Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
+//Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class HashtagController extends Controller
 {
@@ -188,191 +188,191 @@ class HashtagController extends Controller
         return redirect()->back()->with('message', 'Hashtag has been deleted successfuly!');
     }
 
-    public function showGrid($id, Request $request)
-    {
+//    public function showGrid($id, Request $request)
+//    {
+//
+//        $maxId = '';
+//
+//        if ($request->has('maxId')) {
+//            $maxId = $request->get('maxId');
+//        }
+//
+//        $txt = $id;
+//        $ht  = null;
+//        if (is_numeric($id)) {
+//            $hashtag = HashTag::findOrFail($id);
+//            $medias  = $hashtag->instagramPost()->orderBy('id', 'desc')->paginate(20);
+//        } else {
+//            $hashtag = HashTag::where('hashtag', 'LIKE', $id)->first();
+//            $medias  = $hashtag->instagramPost()->orderBy('id', 'desc')->paginate(20);
+//        }
+//
+//        if ($request->term || $request->date || $request->username || $request->caption || $request->location || $request->comment) {
+//            $query = InstagramPosts::query();
+//            if (request('term') != null) {
+//                $query->where('username', 'LIKE', "%{$request->term}%")
+//                    ->orWhere('caption', 'LIKE', "%{$request->term}%")
+//                    ->orWhere('location', 'LIKE', "%{$request->term}%")
+//                    ->orWhereHas('comments', function ($qu) use ($request) {
+//                        $qu->where('comment', 'LIKE', "%{$request->term}%");
+//                    });
+//            }
+//
+//            if (request('username') != null) {
+//                $query->where('username', 'LIKE', '%' . request('username') . '%');
+//            }
+//            if (request('caption') != null) {
+//                $query->where('caption', 'LIKE', '%' . request('caption') . '%');
+//            }
+//            if (request('location') != null) {
+//                $query->where('location', 'LIKE', '%' . request('location') . '%');
+//            }
+//
+//            if (request('comments') != null) {
+//                $query->whereHas('comments', function ($qu) use ($request) {
+//                    $qu->where('comment', 'LIKE', '%' . request('comments') . '%');
+//                });
+//            }
+//
+//            $medias = $query->where('hashtag_id', $hashtag->id)->orderBy('id', 'desc')->paginate(20);
+//
+//        }
+//
+//        $media_count = 1;
+//
+//        $hashtagList = HashTag::all();
+//
+//        $accs = Account::where('platform', 'instagram')->where('status', 1)->whereNotNull('proxy')->get();
+//
+//        $stats = CommentsStats::selectRaw('COUNT(*) as total, narrative')->where('target', $hashtag->hashtag)->groupBy(['narrative'])->get();
+//
+//        if ($request->ajax()) {
+//            return response()->json([
+//                'tbody' => view('instagram.hashtags.data', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats', 'accs', 'hashtagList'))->render(),
+//                'links' => (string) $medias->render(),
+//            ], 200);
+//        }
+//
+//        return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats', 'accs', 'hashtagList'));
+//    }
 
-        $maxId = '';
+//    public function showUserGrid($id, Request $request)
+//    {
+//
+//        $maxId = '';
+//
+//        if ($request->has('maxId')) {
+//            $maxId = $request->get('maxId');
+//        }
+//
+//        $hashtag = InstagramUsersList::where('user_id', $id)->first();
+//
+//        $txt = $id;
+//        $ht  = null;
+//
+//        $query = InstagramPosts::query();
+//
+//        if ($request->term || $request->date || $request->username || $request->caption || $request->location || $request->comment) {
+//
+//            if (request('term') != null) {
+//                $query->where('username', 'LIKE', "%{$request->term}%")
+//                    ->orWhere('caption', 'LIKE', "%{$request->term}%")
+//                    ->orWhere('location', 'LIKE', "%{$request->term}%")
+//                    ->orWhereHas('comments', function ($qu) use ($request) {
+//                        $qu->where('comment', 'LIKE', "%{$request->term}%");
+//                    });
+//            }
+//
+//            if (request('username') != null) {
+//                $query->where('username', 'LIKE', '%' . request('username') . '%');
+//            }
+//            if (request('caption') != null) {
+//                $query->where('caption', 'LIKE', '%' . request('caption') . '%');
+//            }
+//            if (request('location') != null) {
+//                $query->where('location', 'LIKE', '%' . request('location') . '%');
+//            }
+//
+//            if (request('comments') != null) {
+//                $query->whereHas('comments', function ($qu) use ($request) {
+//                    $qu->where('comment', 'LIKE', '%' . request('comments') . '%');
+//                });
+//            }
+//
+//            $medias = $query->where('user_id', $hashtag->id)->orderBy('id', 'desc')->paginate(20);
+//
+//        } else {
+//            $medias = $query->where('user_id', $id)->orderBy('id', 'desc')->paginate(20);
+//        }
+//
+//        $media_count = 1;
+//
+//        $hashtagList = HashTag::all();
+//
+//        $accs = Account::where('platform', 'instagram')->where('status', 1)->get();
+//
+//        $stats = [];
+//
+//        if ($request->ajax()) {
+//            return response()->json([
+//                'tbody' => view('instagram.hashtags.data', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats', 'accs', 'hashtagList'))->render(),
+//                'links' => (string) $medias->render(),
+//            ], 200);
+//        }
+//
+//        return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats', 'accs', 'hashtagList'));
+//    }
 
-        if ($request->has('maxId')) {
-            $maxId = $request->get('maxId');
-        }
+//    public function showGridComments($id = null, Request $request)
+//    {
+//        $hashtag = HashTag::find($id);
+//
+//        $query = InstagramPostsComments::query();
+//
+//        if ($request->term) {
+//            $query = $query->where('comment', 'LIKE', '%' . $request->term . '%');
+//        }
+//
+//        if (!empty($hashtag)) {
+//            $query = $query->where('comment', 'LIKE', '%' . $hashtag->hashtag . '%');
+//        }
+//
+//        $comments = $query->orderBy('id', 'desc')->paginate(25);
+//
+//        $accs = Account::where('platform', 'instagram')->where('manual_comment', 1)->get();
+//
+//        if ($request->ajax()) {
+//            return response()->json([
+//                'tbody' => view('instagram.hashtags.comments.partials.data', compact('hashtag', 'comments', 'accs'))->render(),
+//                'links' => (string) $comments->render(),
+//                'total' => $comments->total(),
+//            ], 200);
+//        }
+//
+//        return view('instagram.hashtags.comments.grid', compact('hashtag', 'comments', 'accs', 'id'));
+//    }
 
-        $txt = $id;
-        $ht  = null;
-        if (is_numeric($id)) {
-            $hashtag = HashTag::findOrFail($id);
-            $medias  = $hashtag->instagramPost()->orderBy('id', 'desc')->paginate(20);
-        } else {
-            $hashtag = HashTag::where('hashtag', 'LIKE', $id)->first();
-            $medias  = $hashtag->instagramPost()->orderBy('id', 'desc')->paginate(20);
-        }
-
-        if ($request->term || $request->date || $request->username || $request->caption || $request->location || $request->comment) {
-            $query = InstagramPosts::query();
-            if (request('term') != null) {
-                $query->where('username', 'LIKE', "%{$request->term}%")
-                    ->orWhere('caption', 'LIKE', "%{$request->term}%")
-                    ->orWhere('location', 'LIKE', "%{$request->term}%")
-                    ->orWhereHas('comments', function ($qu) use ($request) {
-                        $qu->where('comment', 'LIKE', "%{$request->term}%");
-                    });
-            }
-
-            if (request('username') != null) {
-                $query->where('username', 'LIKE', '%' . request('username') . '%');
-            }
-            if (request('caption') != null) {
-                $query->where('caption', 'LIKE', '%' . request('caption') . '%');
-            }
-            if (request('location') != null) {
-                $query->where('location', 'LIKE', '%' . request('location') . '%');
-            }
-
-            if (request('comments') != null) {
-                $query->whereHas('comments', function ($qu) use ($request) {
-                    $qu->where('comment', 'LIKE', '%' . request('comments') . '%');
-                });
-            }
-
-            $medias = $query->where('hashtag_id', $hashtag->id)->orderBy('id', 'desc')->paginate(20);
-
-        }
-
-        $media_count = 1;
-
-        $hashtagList = HashTag::all();
-
-        $accs = Account::where('platform', 'instagram')->where('status', 1)->whereNotNull('proxy')->get();
-
-        $stats = CommentsStats::selectRaw('COUNT(*) as total, narrative')->where('target', $hashtag->hashtag)->groupBy(['narrative'])->get();
-
-        if ($request->ajax()) {
-            return response()->json([
-                'tbody' => view('instagram.hashtags.data', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats', 'accs', 'hashtagList'))->render(),
-                'links' => (string) $medias->render(),
-            ], 200);
-        }
-
-        return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats', 'accs', 'hashtagList'));
-    }
-
-    public function showUserGrid($id, Request $request)
-    {
-
-        $maxId = '';
-
-        if ($request->has('maxId')) {
-            $maxId = $request->get('maxId');
-        }
-
-        $hashtag = InstagramUsersList::where('user_id', $id)->first();
-
-        $txt = $id;
-        $ht  = null;
-
-        $query = InstagramPosts::query();
-
-        if ($request->term || $request->date || $request->username || $request->caption || $request->location || $request->comment) {
-
-            if (request('term') != null) {
-                $query->where('username', 'LIKE', "%{$request->term}%")
-                    ->orWhere('caption', 'LIKE', "%{$request->term}%")
-                    ->orWhere('location', 'LIKE', "%{$request->term}%")
-                    ->orWhereHas('comments', function ($qu) use ($request) {
-                        $qu->where('comment', 'LIKE', "%{$request->term}%");
-                    });
-            }
-
-            if (request('username') != null) {
-                $query->where('username', 'LIKE', '%' . request('username') . '%');
-            }
-            if (request('caption') != null) {
-                $query->where('caption', 'LIKE', '%' . request('caption') . '%');
-            }
-            if (request('location') != null) {
-                $query->where('location', 'LIKE', '%' . request('location') . '%');
-            }
-
-            if (request('comments') != null) {
-                $query->whereHas('comments', function ($qu) use ($request) {
-                    $qu->where('comment', 'LIKE', '%' . request('comments') . '%');
-                });
-            }
-
-            $medias = $query->where('user_id', $hashtag->id)->orderBy('id', 'desc')->paginate(20);
-
-        } else {
-            $medias = $query->where('user_id', $id)->orderBy('id', 'desc')->paginate(20);
-        }
-
-        $media_count = 1;
-
-        $hashtagList = HashTag::all();
-
-        $accs = Account::where('platform', 'instagram')->where('status', 1)->get();
-
-        $stats = [];
-
-        if ($request->ajax()) {
-            return response()->json([
-                'tbody' => view('instagram.hashtags.data', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats', 'accs', 'hashtagList'))->render(),
-                'links' => (string) $medias->render(),
-            ], 200);
-        }
-
-        return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats', 'accs', 'hashtagList'));
-    }
-
-    public function showGridComments($id = null, Request $request)
-    {
-        $hashtag = HashTag::find($id);
-
-        $query = InstagramPostsComments::query();
-
-        if ($request->term) {
-            $query = $query->where('comment', 'LIKE', '%' . $request->term . '%');
-        }
-
-        if (!empty($hashtag)) {
-            $query = $query->where('comment', 'LIKE', '%' . $hashtag->hashtag . '%');
-        }
-
-        $comments = $query->orderBy('id', 'desc')->paginate(25);
-
-        $accs = Account::where('platform', 'instagram')->where('manual_comment', 1)->get();
-
-        if ($request->ajax()) {
-            return response()->json([
-                'tbody' => view('instagram.hashtags.comments.partials.data', compact('hashtag', 'comments', 'accs'))->render(),
-                'links' => (string) $comments->render(),
-                'total' => $comments->total(),
-            ], 200);
-        }
-
-        return view('instagram.hashtags.comments.grid', compact('hashtag', 'comments', 'accs', 'id'));
-    }
-
-    public function loadComments($mediaId)
-    {
-        $instagram = new Instagram();
-        $instagram->login('sololuxury.official', "NcG}4u'z;Fm7");
-        $token = Signatures::generateUUID();
-
-        $comments = $instagram->media->getComments($mediaId)->asArray();
-
-        $comments['comments'] = array_map(function ($comment) {
-            $c                          = $comment['created_at'];
-            $comment['created_at']      = Carbon::createFromTimestamp($comment['created_at'])->diffForHumans();
-            $comment['created_at_time'] = Carbon::createFromTimestamp($c)->toDateTimeString();
-            return $comment;
-        }, $comments['comments']);
-
-        return response()->json([
-            'comments'          => $comments['comments'] ?? [],
-            'has_more_comments' => $comments['has_more_comments'] ?? false,
-            'caption'           => $comments['caption'],
-        ]);
-    }
+//    public function loadComments($mediaId)
+//    {
+//        $instagram = new Instagram();
+//        $instagram->login('sololuxury.official', "NcG}4u'z;Fm7");
+//        $token = Signatures::generateUUID();
+//
+//        $comments = $instagram->media->getComments($mediaId)->asArray();
+//
+//        $comments['comments'] = array_map(function ($comment) {
+//            $c                          = $comment['created_at'];
+//            $comment['created_at']      = Carbon::createFromTimestamp($comment['created_at'])->diffForHumans();
+//            $comment['created_at_time'] = Carbon::createFromTimestamp($c)->toDateTimeString();
+//            return $comment;
+//        }, $comments['comments']);
+//
+//        return response()->json([
+//            'comments'          => $comments['comments'] ?? [],
+//            'has_more_comments' => $comments['has_more_comments'] ?? false,
+//            'caption'           => $comments['caption'],
+//        ]);
+//    }
 
     /**
      * @SWG\Get(
@@ -437,12 +437,12 @@ class HashtagController extends Controller
 
     }
 
-    public function showProcessedComments(Request $request)
-    {
-        $posts = InstagramPosts::all();
-
-        return view('instagram.comments', compact('posts'));
-    }
+//    public function showProcessedComments(Request $request)
+//    {
+//        $posts = InstagramPosts::all();
+//
+//        return view('instagram.comments', compact('posts'));
+//    }
 
     public function commentOnHashtag(Request $request)
     {
@@ -776,38 +776,38 @@ class HashtagController extends Controller
         }
     }
 
-    public function showGridUsers($id = null, Request $request)
-    {
-
-        if ($request->term != null) {
-
-            $users = InstagramUsersList::query()
-                ->where('username', 'LIKE', "%{$request->term}%")
-                ->orWhere('bio', 'LIKE', "%{$request->term}%")
-                ->orWhere('location', 'LIKE', "%{$request->term}%")
-                ->orWhere('because_of', 'LIKE', "%{$request->term}%")
-                ->orderBy('id', 'desc')
-                ->paginate(25);
-
-        } else {
-            if ($id) {
-                $users = InstagramUsersList::where('because_of', $id)->orderBy('id', 'desc')->paginate(25);
-            } else {
-                $users = InstagramUsersList::orderBy('id', 'desc')->paginate(25);
-            }
-
-        }
-
-        if ($request->ajax()) {
-            return response()->json([
-                'tbody' => view('instagram.hashtags.partials.users-data', compact('users', 'id'))->render(),
-                'links' => (string) $users->render(),
-                'total' => $users->total(),
-            ], 200);
-        }
-
-        return view('instagram.hashtags.users', compact('users', 'id'));
-    }
+//    public function showGridUsers($id = null, Request $request)
+//    {
+//
+//        if ($request->term != null) {
+//
+//            $users = InstagramUsersList::query()
+//                ->where('username', 'LIKE', "%{$request->term}%")
+//                ->orWhere('bio', 'LIKE', "%{$request->term}%")
+//                ->orWhere('location', 'LIKE', "%{$request->term}%")
+//                ->orWhere('because_of', 'LIKE', "%{$request->term}%")
+//                ->orderBy('id', 'desc')
+//                ->paginate(25);
+//
+//        } else {
+//            if ($id) {
+//                $users = InstagramUsersList::where('because_of', $id)->orderBy('id', 'desc')->paginate(25);
+//            } else {
+//                $users = InstagramUsersList::orderBy('id', 'desc')->paginate(25);
+//            }
+//
+//        }
+//
+//        if ($request->ajax()) {
+//            return response()->json([
+//                'tbody' => view('instagram.hashtags.partials.users-data', compact('users', 'id'))->render(),
+//                'links' => (string) $users->render(),
+//                'total' => $users->total(),
+//            ], 200);
+//        }
+//
+//        return view('instagram.hashtags.users', compact('users', 'id'));
+//    }
 
     public function addmailinglist(Request $request)
     {
