@@ -101,7 +101,7 @@ jobs:
           path: vendor
           key: ${{ runner.os }}-php-${{ hashFiles('**/composer.json') }}
           restore-keys: |
-            ${{ runner.os }}-php-
+            ${{ runner.os }}-php-${{ hashFiles('**/composer.json') }}
 
       - name: "setup private repo"
         uses: php-actions/composer@v6
