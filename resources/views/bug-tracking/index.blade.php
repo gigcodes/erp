@@ -202,9 +202,9 @@
 	</div>
 
 
-	<script type="text/javascript" src="/js/jsrender.min.js"></script>
-	<script type="text/javascript" src="/js/jquery.validate.min.js"></script>
-	<script src="/js/jquery-ui.js"></script>
+	<script type="text/javascript" src="{{ asset('/js/jsrender.min.js')}}"></script>
+	<script type="text/javascript" src="{{ asset('/js/jquery.validate.min.js')}}"></script>
+	<script src="{{ asset('/js/jquery-ui.js')}}"></script>
 	<script type="text/javascript" src="{{ asset('/js/common-helper.js') }}"></script>
 	<script type="text/javascript" src="{{ asset('/js/bug-tracker.js') }}"></script>
 
