@@ -113,6 +113,8 @@ jobs:
           COMPOSER_PROCESS_TIMEOUT: 0
           COMPOSER_MEMORY_LIMIT: -1
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{secrets.LUDXB2}}"} }'
+          DB_CONNECTION: sqlite
+          DB_DATABASE : database/database.sqlite
       - uses: php-actions/phpstan@v3
         with:
           path: .
