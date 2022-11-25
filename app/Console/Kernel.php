@@ -522,25 +522,23 @@ class Kernel extends ConsoleKernel
         // $schedule->command('cold-leads:move-to-customers')->daily();
 
         // send only cron run time
-        $queueStartTime = \App\ChatMessage::getStartTime();
-        $queueEndTime = \App\ChatMessage::getEndTime();
-        $queueTime = \App\ChatMessage::getQueueTime();
-        // check if time both is not empty then run the cron
-        if (!empty($queueStartTime) && !empty($queueEndTime)) {
-            if (!empty($queueTime)) {
-                foreach ($queueTime as $no => $time) {
-                    if ($time > 0) {
-
-                        $allowCounter = true;
-                        $counterNo[] = $no;
-                        $schedule->command('send:queue-pending-chat-messages ' . $no)->cron('*/' . $time . ' * * * *')->between($queueStartTime, $queueEndTime);
-                        $schedule->command('send:queue-pending-chat-group-messages ' . $no)->cron('*/' . $time . ' * * * *')->between($queueStartTime, $queueEndTime);
-
+        if(!env('CI')) {
+            $queueStartTime = \App\ChatMessage::getStartTime();
+            $queueEndTime = \App\ChatMessage::getEndTime();
+            $queueTime = \App\ChatMessage::getQueueTime();
+            // check if time both is not empty then run the cron
+            if (!empty($queueStartTime) && !empty($queueEndTime)) {
+                if (!empty($queueTime)) {
+                    foreach ($queueTime as $no => $time) {
+                        if ($time > 0) {
+                            $allowCounter = true;
+                            $counterNo[] = $no;
+                            $schedule->command('send:queue-pending-chat-messages ' . $no)->cron('*/' . $time . ' * * * *')->between($queueStartTime, $queueEndTime);
+                            $schedule->command('send:queue-pending-chat-group-messages ' . $no)->cron('*/' . $time . ' * * * *')->between($queueStartTime, $queueEndTime);
+                        }
                     }
                 }
-
             }
-
             /*if(!empty($allowCounter) and $allowCounter==true and !empty($counterNo))
         {
         $tempSettingData = DB::table('settings')->where('name','is_queue_sending_limit')->get();
