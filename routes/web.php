@@ -2374,16 +2374,19 @@ Route::group(['middleware' => ['auth']], function () {
 
 
     Route::get('bug-tracking', 'BugTrackingController@index')->name('bug-tracking.index');
+    Route::get('bug-tracking/records', 'BugTrackingController@records')->name("bug-tracking.records");
     Route::get('bug-tracking/create', 'BugTrackingController@create')->name('bug-tracking.create');
     Route::post('bug-tracking/store', 'BugTrackingController@store')->name('bug-tracking.store');
     Route::get('bug-tracking/edit/{id}', 'BugTrackingController@edit')->name('bug-tracking.edit');
-    Route::post('bug-tracking/update/{id}', 'BugTrackingController@update')->name('bug-tracking.update');
+    Route::post('bug-tracking/update', 'BugTrackingController@update')->name('bug-tracking.update');
+    Route::post('bug-tracking/assign_user', 'BugTrackingController@assignUser')->name('bug-tracking.assign_user');
 
     Route::post('bug-tracking/status', 'BugTrackingController@status')->name('bug-tracking.status');
     Route::post('bug-tracking/environment', 'BugTrackingController@environment')->name('bug-tracking.environment');
     Route::post('bug-tracking/type', 'BugTrackingController@type')->name('bug-tracking.type');
     Route::post('bug-tracking/severity', 'BugTrackingController@severity')->name('bug-tracking.severity');
-    Route::delete('bug-tracking/delete', 'BugTrackingController@destroy');
+    Route::get('bug-tracking/bug-history/{id}', 'BugTrackingController@bugHistory')->name('bug-tracking.bug-history');
+    Route::get('bug-tracking/{id}/delete', 'BugTrackingController@destroy');
 
 
 
