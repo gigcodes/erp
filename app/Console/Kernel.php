@@ -50,13 +50,13 @@ use App\Console\Commands\getLiveChatIncTickets;
 use App\Console\Commands\GetMostUsedWordsInCustomerMessages;
 use App\Console\Commands\GetOrdersFromnMagento;
 use App\Console\Commands\GoogleWebMasterFetchAllRecords;
-use App\Console\Commands\GrowInstagramAccounts;
+//use App\Console\Commands\GrowInstagramAccounts;
 use App\Console\Commands\ImageBarcodeGenerator;
 use App\Console\Commands\ImportCustomersEmail;
 use App\Console\Commands\IncrementFrequencyWhatsappConfig;
 use App\Console\Commands\InfluencerDescription;
 use App\Console\Commands\InsertPleskEmail;
-use App\Console\Commands\InstagramHandler;
+//use App\Console\Commands\InstagramHandler;
 use App\Console\Commands\LogScraperDelete;
 use App\Console\Commands\MailingListSendMail;
 use App\Console\Commands\MakeApprovedImagesSchedule;
@@ -99,7 +99,7 @@ use App\Console\Commands\SendEmailNewsletter;
 use App\Console\Commands\SendEventNotificationBefore2hr;
 use App\Console\Commands\SendEventNotificationBefore24hr;
 use App\Console\Commands\SendHourlyReports;
-use App\Console\Commands\SendInstagramMessageInQueue;
+//use App\Console\Commands\SendInstagramMessageInQueue;
 use App\Console\Commands\SendMessageToUserIfTheirTaskIsNotComplete;
 use App\Console\Commands\SendPendingTasksReminders;
 use App\Console\Commands\SendProductSuggestion;
@@ -213,7 +213,7 @@ class Kernel extends ConsoleKernel
         SendDailyPlannerReport::class,
         ResetDailyPlanner::class,
         //        SaveProductsImages::class,
-        GrowInstagramAccounts::class,
+//        GrowInstagramAccounts::class,
         SendMessageToUserIfTheirTaskIsNotComplete::class,
         SendReminderToCustomerIfTheyHaventReplied::class,
         UploadProductsToMagento::class,
@@ -291,7 +291,7 @@ class Kernel extends ConsoleKernel
         scrappersImagesDelete::class,
         productActivityStore::class,
         errorAlertMessage::class,
-        InstagramHandler::class,
+//        InstagramHandler::class,
         SendDailyReports::class,
         SendDailyLearningReports::class,
         SendDailyPlannerNotification::class,
@@ -301,7 +301,7 @@ class Kernel extends ConsoleKernel
         ChangeTesterBasedOnTeamLead::class,
         AddGroupTheme::class,
         UpdateProductInformationFromCsv::class,
-        SendInstagramMessageInQueue::class,
+//        SendInstagramMessageInQueue::class,
         ProjectFileManagerDateAndSize::class,
         AddRoutesToGroups::class,
         ConnectGoogleClientAccounts::class,
@@ -668,7 +668,7 @@ class Kernel extends ConsoleKernel
         $schedule->command("scrappersImages")->daily();
         $schedule->command("scrappersImagesDelete")->daily();
         //cron for instagram handler daily basis
-        $schedule->command("instagram:handler")->everyMinute()->withoutOverlapping();
+//        $schedule->command("instagram:handler")->everyMinute()->withoutOverlapping();
 
         //Cron for activity
         $schedule->command("productActivityStore")->dailyAt("0:00");
@@ -678,10 +678,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('horizon:snapshot')->everyFiveMinutes();
 
         //Instagram automation command
-        $schedule->command('InstaAutoFeedDaily')->daily();
+//        $schedule->command('InstaAutoFeedDaily')->daily();
         //cron for updating data from csv
         $schedule->command('update-product:from-csv')->daily();
-        $schedule->command('send-instagram-message:in-queue')->everyMinute();
+//        $schedule->command('send-instagram-message:in-queue')->everyMinute();
         //$schedule->command('ConnectGoogleClientAccounts')->hourly();
 
         // get python site log

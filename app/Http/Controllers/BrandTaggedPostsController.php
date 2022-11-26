@@ -36,18 +36,18 @@ class BrandTaggedPostsController extends Controller
 
         foreach ($usernames as $username) {
 
-            $id = $instagram->people->getUserIdForName($username);
+//            $id = $instagram->people->getUserIdForName($username);
 
-            $rec = ['users' => [$id]];
-
-            $instagram->direct->sendText($rec, $message);
+//            $rec = ['users' => [$id]];
+//
+//            $instagram->direct->sendText($rec, $message);
 
             if ($request->hasFile('image'))
             {
 //                dd('here');
                 $file = $request->file('image');
                 $photo = new InstagramPhoto($file);
-                $instagram->direct->sendPhoto($rec, $photo->getFile());
+//                $instagram->direct->sendPhoto($rec, $photo->getFile());
             }
         }
 
