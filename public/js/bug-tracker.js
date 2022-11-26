@@ -24,10 +24,10 @@ var page = {
             page.getResults();
         });
 
-        page.config.bodyView.on("click",".btn-add-action",function(e) {
-            e.preventDefault();
-            page.createRecord();
-        });
+        // page.config.bodyView.on("click",".btn-add-action",function(e) {
+        //     e.preventDefault();
+        //     page.createRecord();
+        // });
         page.config.bodyView.on("click",".btn-add-environment",function(e) {
             e.preventDefault();
             page.createEnvironment();
@@ -54,9 +54,9 @@ var page = {
             }
         });
 
-        page.config.bodyView.on("click",".btn-edit-template",function(e) {
-            page.editRecord($(this));
-        });
+        // page.config.bodyView.on("click",".btn-edit-template",function(e) {
+        //     page.editRecord($(this));
+        // });
 
         $(".common-modal").on("click",".submit-store-site",function() {
             page.submitFormSite($(this));

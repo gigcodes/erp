@@ -4,11 +4,14 @@
 @section('title', $title)
 
 @section('content')
-	<style type="text/css">
-		.preview-category input.form-control {
-			width: auto;
-		}
-	</style>
+    <style type="text/css">
+        .preview-category input.form-control {
+            width: auto;
+        }
+        .break{
+            word-break: break-all !important;
+        }
+    </style>
 
 	<div class="row" id="common-page-layout">
 		<div class="col-lg-12 margin-tb">
@@ -123,7 +126,7 @@
 					<div class="row">
 
 						<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action"
-								data-toggle="modal" data-target="#colorCreateModal">
+								data-toggle="modal" data-target="#bugtrackingCreateModal">
 							<img src="/images/add.png" style="cursor: default;">
 						</button>
 						<div class="pull-left">
@@ -168,6 +171,8 @@
 
 
 	@include("bug-tracking.templates.list-template")
+    @include("bug-tracking.create")
+    @include("bug-tracking.edit")
 	@include("bug-tracking.templates.create-bug-tracking-template")
 	@include("bug-tracking.templates.bug-environment")
 	@include("bug-tracking.templates.bug-severity")
@@ -213,5 +218,69 @@
 			bodyView: $("#common-page-layout"),
 			baseUrl: "<?php echo url("/"); ?>"
 		});
+        $(document).ready(function () {
+            $(".btn-edit-template").click(function (event) {
+                var id = $(this).data('id');
+                $.ajax({
+                    url: "/bug-tracking/edit/"+id,
+                    type: "GET",
+                    data: {
+                        id: id,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    cache: false,
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#bugtrackingEditModal').modal('show');
+
+                        $('.id').val('')
+                        $('.summary').val('')
+                        $('.step_to_reproduce').val('')
+                        $('.url').val('')
+                        $('.bug_type_id').val('')
+                        $('.bug_environment_id').val('')
+                        $('.assign_to').val('')
+                        $('.bug_severity_id').val('')
+                        $('.bug_status_id').val('')
+                        $('.module_id').val('')
+                        $('.remark').val('')
+                        $('.website').val('')
+
+                        $('.id').val(data.data.id)
+                        $('.summary').val(data.data.summary)
+                        $('.step_to_reproduce').val(data.data.step_to_reproduce)
+                        $('.url').val(data.data.url)
+                        $('.bug_type_id').val(data.data.bug_type_id)
+                        $('.bug_environment_id').val(data.data.bug_environment_id)
+                        $('.assign_to').val(data.data.assign_to)
+                        $('.bug_severity_id').val(data.data.bug_severity_id)
+                        $('.bug_status_id').val(data.data.bug_status_id)
+                        $('.module_id').val(data.data.module_id)
+                        $('.remark').val(data.data.remark)
+                        $('.website').val(data.data.website)
+
+                    }
+                });
+            });
+            $(".assign_to").change(function (event) {
+                var id = $(this).data('id');
+                var user_id = $(this).val();
+                $.ajax({
+                    url: "/bug-tracking/assign_user/",
+                    type: "POST",
+                    data: {
+                        id: id,
+                        user_id: user_id,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    cache: false,
+                    dataType: 'json',
+                    success: function (data) {
+                        location.reload()
+                        toastr["success"]("Bug Tracking Saved Successfully");
+                    }
+                });
+            });
+        })
 	</script>
 @endsection

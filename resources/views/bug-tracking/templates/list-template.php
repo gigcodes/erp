@@ -22,17 +22,25 @@
 		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
-			        <td>{{:prop.summary}}</td>
-			        <td>{{:prop.bug_type_id}}</td>
-			        <td>{{:prop.step_to_reproduce}}</td>
-			        <td>{{:prop.bug_environment_id}}</td>
-			        <td>{{:prop.url}}</td>
-			        <td>{{:prop.assign_to}}</td>
-			        <td>{{:prop.bug_severity_id}}</td>
-			        <td>{{:prop.bug_status_id}}</td>
-			        <td>{{:prop.module_id}}</td>
-			        <td>{{:prop.remark}}</td>
-			        <td>{{:prop.website}}</td>
+			        <td class='break'>{{:prop.summary}}</td>
+			        <td class='break'>{{:prop.bug_type_id}}</td>
+			        <td class='break'>{{:prop.step_to_reproduce}}</td>
+			        <td class='break'>{{:prop.bug_environment_id}}</td>
+			        <td class='break'>{{:prop.url}}</td>
+			        <td class='break'>
+			        <select class='form-control assign_to'  data-id="{{>prop.id}}">
+			        <?php
+                         foreach($users as $user){
+                             echo "<option {{if prop.assign_to == '".$user->id."'}} selected {{/if}} value='".$user->id."'>".$user->name."</option>";
+                         }
+                         ?>
+			        </select>
+			        </td>
+			        <td class='break'>{{:prop.bug_severity_id}}</td>
+			        <td class='break'>{{:prop.bug_status_id}}</td>
+			        <td class='break'>{{:prop.module_id}}</td>
+			        <td class='break'>{{:prop.remark}}</td>
+			        <td class='break'>{{:prop.website}}</td>
 
 			        <td>
 			        	<button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template">

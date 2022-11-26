@@ -103,7 +103,7 @@ class BugTrackingController extends Controller
         $records = $records->map(function ($bug){
             $bug->bug_type_id = BugType::where('id',$bug->bug_type_id)->value('name');
             $bug->bug_environment_id = BugEnvironment::where('id',$bug->bug_environment_id)->value('name');
-            $bug->assign_to = User::where('id',$bug->assign_to)->value('name');
+//            $bug->assign_to = User::where('id',$bug->assign_to)->value('name');
             $bug->bug_severity_id = BugSeverity::where('id',$bug->bug_severity_id)->value('name');
             $bug->bug_status_id = BugStatus::where('id',$bug->bug_status_id)->value('name');
             $bug->bug_history = BugTrackerHistory::where('bug_id',$bug->id)->get();
@@ -231,7 +231,7 @@ class BugTrackingController extends Controller
                     $outputString .= "$k : " . $er . "<br>";
                 }
             }
-            return response()->json(["code" => 500, "error" => $outputString]);
+            return redirect()->back()->with('error',  $outputString);
         }
 
         $id = $request->get("id", 0);
@@ -248,7 +248,7 @@ class BugTrackingController extends Controller
         $bug['bug_id'] = $records->id;
         $bugTrackerHistory = BugTrackerHistory::create($bug);
 
-        return response()->json(["code" => 200, "data" => $records]);
+        return redirect()->back();
     }
     public function destroy(BugTracker $bugTracker, Request $request) {
         try {
@@ -263,7 +263,7 @@ class BugTrackingController extends Controller
         }
     }
 
-    public function update(Request $request,$id){
+    public function update(Request $request){
 
         $this->validate($request, [
             'summary' => 'required|string',
@@ -279,9 +279,9 @@ class BugTrackingController extends Controller
             'website' => 'required|string',
 
         ]);
-        $data = $request->except('_token');
-        BugTracker::where('id',$id)->update($data);
-        $data['bug_id']= $id;
+        $data = $request->except('_token','id');
+        BugTracker::where('id',$request->id)->update($data);
+        $data['bug_id']= $request->id;
         BugTrackerHistory::create($data);
         return redirect()->route('bug-tracking.index')->with('success', 'You have successfully updated a Bug Tracker!');
     }
@@ -300,5 +300,27 @@ class BugTrackingController extends Controller
         });
 
         return response()->json(["code" => 200, "data" => $bugHistory]);
+    }
+
+    public function assignUser(Request $request){
+        $bugTracker = BugTracker::where('id',$request->id)->first();
+        $bugTracker->assign_to = $request->user_id;
+        $bugTracker->save();
+        $data = $bugTracker;
+        $data = [
+            "bug_type_id" => $bugTracker->bug_type_id,
+            "step_to_reproduce" => $bugTracker->step_to_reproduce,
+            "url" => $bugTracker->url,
+            "bug_environment_id" => $bugTracker->bug_environment_id,
+            "assign_to" => $bugTracker->assign_to,
+            "bug_severity_id" => $bugTracker->bug_severity_id,
+            "bug_status_id" => $bugTracker->bug_status_id,
+            "module_id" => $bugTracker->module_id,
+            "remark" => $bugTracker->remark,
+            "website" => $bugTracker->website,
+            "bug_id" => $bugTracker->id,
+        ];
+        BugTrackerHistory::create($data);
+        return response()->json(["code" => 200, "data" => $data]);
     }
 }

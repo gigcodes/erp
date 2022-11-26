@@ -2378,7 +2378,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('bug-tracking/create', 'BugTrackingController@create')->name('bug-tracking.create');
     Route::post('bug-tracking/store', 'BugTrackingController@store')->name('bug-tracking.store');
     Route::get('bug-tracking/edit/{id}', 'BugTrackingController@edit')->name('bug-tracking.edit');
-    Route::post('bug-tracking/update/{id}', 'BugTrackingController@update')->name('bug-tracking.update');
+    Route::post('bug-tracking/update', 'BugTrackingController@update')->name('bug-tracking.update');
+    Route::post('bug-tracking/assign_user', 'BugTrackingController@assignUser')->name('bug-tracking.assign_user');
 
     Route::post('bug-tracking/status', 'BugTrackingController@status')->name('bug-tracking.status');
     Route::post('bug-tracking/environment', 'BugTrackingController@environment')->name('bug-tracking.environment');
