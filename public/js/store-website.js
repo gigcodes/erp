@@ -857,6 +857,7 @@ var page = {
             page.loadFirst();
             $("#loading-image").hide();
             $(".common-modal").modal("hide");
+            toastr["success"]("Store website(s) created successfully!", "Success");
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");

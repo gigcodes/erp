@@ -5,6 +5,25 @@ namespace Modules\StoreWebsite\Http\Controllers;
 use App\ChatMessage;
 use App\Http\Controllers\WhatsAppController;
 use App\StoreWebsite;
+use App\StoreWebsiteAnalytic;
+use App\StoreWebsiteAttributes;
+use App\StoreWebsiteBrand;
+use App\StoreWebsiteCategory;
+use App\StoreWebsiteCategorySeo;
+use App\StoreWebsiteColor;
+use App\StoreWebsiteGoal;
+use App\StoreWebsiteGoalRemark;
+use App\StoreWebsiteImage;
+use App\StoreWebsitePage;
+use App\StoreWebsiteProduct;
+use App\StoreWebsiteProductAttribute;
+use App\StoreWebsiteProductPrice;
+use App\StoreWebsiteProductScreenshot;
+use App\StoreWebsiteSalesPrice;
+use App\StoreWebsitesCountryShipping;
+use App\StoreWebsiteSeoFormat;
+use App\StoreWebsiteSize;
+use App\StoreWebsiteTwilioNumber;
 use Auth;
 use Crypt;
 use App\Service;
@@ -205,8 +224,6 @@ class StoreWebsiteController extends Controller
             $chat_message = ChatMessage::create($params);
         }
 
-        
-
 		if($id == 0) {
 			$siteDevelopmentCategories  =  SiteDevelopmentCategory::all();
 			foreach ($siteDevelopmentCategories as $develop) {
@@ -218,6 +235,432 @@ class StoreWebsiteController extends Controller
             }
 		}
         return response()->json(["code" => 200, 'message' => "Data successfully saved", "data" => $records]);
+    }
+
+    /**
+     * Creates store website from an existing store website and insert necessary data to the corresponding tables
+     * @param Request $request [description]
+     * @return \Illuminate\Http\JsonResponse|void
+     */
+    public function saveDuplicateStore(Request $request)
+    {
+        $numberOfDuplicates = $request->get('number');
+        if($numberOfDuplicates <= 0)
+            return response()->json(["code" => 500, "error" => 'Number of duplicates must be 1 or more!']);
+
+        $storeWebsiteId = $request->get('id');
+        for ($i = 1; $i <= $numberOfDuplicates; $i++) {
+            $storeWebsite = StoreWebsite::find($storeWebsiteId);
+            if(!$storeWebsite)
+                return response()->json(["code" => 500, "error" => 'No website found!']);
+
+            $copyStoreWebsite = $storeWebsite->replicate();
+            unset($copyStoreWebsite->id);
+            $copyStoreWebsite->save();
+
+            $copyStoreWebsiteId = $copyStoreWebsite->id;
+
+            if($copyStoreWebsite->server_ip){
+                $this->enableDBLog($copyStoreWebsite);
+            }
+
+            $siteDevelopmentCategories  =  SiteDevelopmentCategory::all();
+            foreach ($siteDevelopmentCategories as $develop) {
+                $site = new SiteDevelopment;
+                $site->site_development_category_id = $develop->id;
+                $site->site_development_master_category_id = $develop->master_category_id;
+                $site->website_id = $copyStoreWebsiteId;
+                $site->save();
+            }
+
+            // Inserts Store Websites Country Shipping
+            $swCountryShipping = StoreWebsitesCountryShipping::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copySwCountryShippingResult = array();
+            if($swCountryShipping->count() > 0) {
+                foreach ($swCountryShipping as $row) {
+                    $copySwCountryShippingRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'country_code' => $row->country_code,
+                        'country_name' => $row->country_name,
+                        'price' => $row->price,
+                        'currency' => $row->currency,
+                        'ship_id' => $row->ship_id
+                    );
+                    $copySwCountryShippingResult[] = $copySwCountryShippingRow;
+                }
+
+            }
+            $response = StoreWebsitesCountryShipping::insert($copySwCountryShippingResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website country shipping creation failed!']);
+
+            // Inserts Store Websites Analytics
+            $swAnalytics = StoreWebsiteAnalytic::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copySwAnalyticsResult = array();
+            if($swAnalytics->count() > 0) {
+                foreach ($swAnalytics as $row) {
+                    $copySwAnalyticsRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'website' => $row->website,
+                        'email' => $row->email,
+                        'last_error' => $row->last_error,
+                        'last_error_at' => $row->last_error_at,
+                        'account_id' => $row->account_id,
+                        'view_id' => $row->view_id,
+                        'google_service_account_json' => $row->google_service_account_json
+                    );
+                    $copySwAnalyticsResult[] = $copySwAnalyticsRow;
+                }
+            }
+            $response = StoreWebsiteAnalytic::insert($copySwAnalyticsResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website Analytics creation failed!']);
+
+            // Inserts Store Websites Attributes
+            $swAttributes = StoreWebsiteAttributes::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copySwAttributesResult = array();
+            if($swAttributes->count() > 0) {
+                foreach ($swAttributes as $row) {
+                    $copySwAttributesRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'attribute_key' => $row->attribute_key,
+                        'attribute_val' => $row->attribute_val,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    $copySwAttributesResult[] = $copySwAttributesRow;
+                }
+            }
+            $response = StoreWebsiteAttributes::insert($copySwAttributesResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website attributes creation failed!']);
+
+            // Inserts Store Websites brands
+            $swBrands = StoreWebsiteBrand::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copySwBrandsResult = array();
+            if($swBrands->count() > 0) {
+                foreach ($swBrands as $row) {
+                    $copySwBrandsRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'brand_id' => $row->brand_id,
+                        'markup' => $row->markup,
+                        'magento_value' => $row->magento_value,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    $copySwBrandsResult[] = $copySwBrandsRow;
+                }
+            }
+            $response = StoreWebsiteBrand::insert($copySwBrandsResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website brands creation failed!']);
+
+
+            // Inserts Store Websites categories
+            $swCategories = StoreWebsiteCategory::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copySwCategoriesResult = array();
+            if($swCategories->count() > 0) {
+                foreach ($swCategories as $row) {
+                    $copySwCategoriesRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'category_id' => $row->category_id,
+                        'remote_id' => $row->remote_id,
+                        'category_name' => $row->category_name,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    $copySwCategoriesResult[] = $copySwCategoriesRow;
+                }
+            }
+            $response = StoreWebsiteCategory::insert($copySwCategoriesResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website categories creation failed!']);
+
+            // Inserts Store Websites categories seo
+            $swCategoriesSeo = StoreWebsiteCategorySeo::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copySwCategoriesSeoResult = array();
+            if($swCategoriesSeo->count() > 0) {
+                foreach ($swCategoriesSeo as $row) {
+                    $copySwCategoriesSeoRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'category_id' => $row->category_id,
+                        'meta_title' => $row->meta_title,
+                        'meta_description' => $row->meta_description,
+                        'meta_keyword' => $row->meta_keyword,
+                        'language_id' => $row->language_id,
+                        'meta_keyword_avg_monthly' => $row->meta_keyword_avg_monthly,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    $copySwCategoriesSeoResult[] = $copySwCategoriesSeoRow;
+                }
+            }
+            $response = StoreWebsiteCategorySeo::insert($copySwCategoriesSeoResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website categories seo creation failed!']);
+
+            // Inserts Store Websites colors
+            $swColor = StoreWebsiteColor::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copySwColorResult = array();
+            if($swColor->count() > 0) {
+                foreach ($swColor as $row) {
+                    $copySwColorRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'erp_color' => $row->erp_color,
+                        'store_color' => $row->store_color,
+                        'platform_id' => $row->platform_id,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    $copySwColorResult[] = $copySwColorRow;
+                }
+            }
+            $response = StoreWebsiteColor::insert($copySwColorResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website colors creation failed!']);
+
+            // Inserts Store Websites goal
+            $swGoal = StoreWebsiteGoal::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copySwGoalResult = array();
+            if($swGoal->count() > 0) {
+                foreach ($swGoal as $row) {
+                    $copySwGoalRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'erp_color' => $row->erp_color,
+                        'store_color' => $row->store_color,
+                        'platform_id' => $row->platform_id,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    $copySwGoalResult[] = $copySwGoalRow;
+                }
+            }
+            $response = StoreWebsiteColor::insert($copySwGoalResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website goal creation failed!']);
+
+            // Inserts Store Websites images
+            $swImage = StoreWebsiteImage::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copySwImageResult = array();
+            if($swImage->count() > 0) {
+                foreach ($swImage as $row) {
+                    $copySwImageRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'category_id' => $row->category_id,
+                        'media_id' => $row->media_id,
+                        'media_type' => $row->media_type,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    $copySwImageResult[] = $copySwImageRow;
+                }
+            }
+            $response = StoreWebsiteImage::insert($copySwImageResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website images creation failed!']);
+
+            // Inserts Store Websites pages
+            $swPage = StoreWebsitePage::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copySwPageResult = array();
+            if($swPage->count() > 0) {
+                foreach ($swPage as $row) {
+                    $copySwPageRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'title' => $row->title,
+                        'meta_title' => $row->meta_title,
+                        'meta_keywords' => $row->meta_keywords,
+                        'meta_description' => $row->meta_description,
+                        'content_heading' => $row->content_heading,
+                        'content' => $row->content,
+                        'layout' => $row->layout,
+                        'url_key' => $row->url_key,
+                        'active' => $row->active,
+                        'stores' => $row->stores,
+                        'platform_id' => $row->platform_id,
+                        'language' => $row->language,
+                        'copy_page_id' => $row->copy_page_id,
+                        'meta_keyword_avg_monthly' => $row->meta_keyword_avg_monthly,
+                        'is_latest_version_translated' => $row->is_latest_version_translated,
+                        'is_pushed' => $row->is_pushed,
+                        'is_latest_version_pushed' => $row->is_latest_version_pushed,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    $copySwPageResult[] = $copySwPageRow;
+                }
+            }
+            $response = StoreWebsitePage::insert($copySwPageResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website page creation failed!']);
+
+            // Inserts Store Websites products
+            $swProduct = StoreWebsiteProduct::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copySwProductResult = array();
+            if($swProduct->count() > 0) {
+                foreach ($swProduct as $row) {
+                    $copySwProductRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'product_id' => $row->product_id,
+                        'platform_id' => $row->platform_id,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    $copySwProductResult[] = $copySwProductRow;
+                }
+            }
+            $response = StoreWebsiteProduct::insert($copySwProductResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website product creation failed!']);
+
+
+            // Inserts Store Websites products attributes
+            $swProductAttributes = StoreWebsiteProductAttribute::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copySwProductAttributesResult = array();
+            if($swProductAttributes->count() > 0) {
+                foreach ($swProductAttributes as $row) {
+                    $copySwProductAttributesRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'product_id' => $row->product_id,
+                        'description' => $row->description,
+                        'price' => $row->price,
+                        'discount' => $row->discount,
+                        'discount_type' => $row->discount_type,
+                        'stock' => $row->stock,
+                        'uploaded_date' => $row->uploaded_date,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    $copySwProductAttributesResult[] = $copySwProductAttributesRow;
+                }
+            }
+            $response = StoreWebsiteProductAttribute::insert($copySwProductAttributesResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website product creation failed!']);
+
+            // Inserts Store Websites products prices
+            $swProductPrices = StoreWebsiteProductPrice::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copySwProductPricesResult = array();
+            if($swProductPrices->count() > 0) {
+                foreach ($swProductPrices as $row) {
+                    $copySwProductPricesRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'product_id' => $row->product_id,
+                        'default_price' => $row->default_price,
+                        'segment_discount' => $row->segment_discount,
+                        'duty_price' => $row->duty_price,
+                        'override_price' => $row->override_price,
+                        'status' => $row->status,
+                        'web_store_id' => $row->web_store_id,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    $copySwProductPricesResult[] = $copySwProductPricesRow;
+                }
+            }
+            $response = StoreWebsiteProductPrice::insert($copySwProductPricesResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website product creation failed!']);
+
+            // Inserts Store Websites products screenshots
+            $swProductScreenshots = StoreWebsiteProductScreenshot::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copySwProductScreenshotsResult = array();
+            if($swProductScreenshots->count() > 0) {
+                foreach ($swProductScreenshots as $row) {
+                    $copySwProductScreenshotsRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'product_id' => $row->product_id,
+                        'sku' => $row->sku,
+                        'store_website_name' => $row->store_website_name,
+                        'image_path' => $row->image_path,
+                        'status' => $row->status,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    $copySwProductScreenshotsResult[] = $copySwProductScreenshotsRow;
+                }
+            }
+            $response = StoreWebsiteProductScreenshot::insert($copySwProductScreenshotsResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website product screenshots failed!']);
+
+            // Inserts Store Websites seo format
+            $swSeoFormat = StoreWebsiteSeoFormat::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copySwSeoFormatResult = array();
+            if($swSeoFormat->count() > 0) {
+                foreach ($swSeoFormat as $row) {
+                    $swSeoFormatRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'meta_title' => $row->meta_title,
+                        'meta_description' => $row->meta_description,
+                        'meta_keyword' => $row->meta_keyword,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    $copySwSeoFormatResult[] = $swSeoFormatRow;
+                }
+            }
+            $response = StoreWebsiteSeoFormat::insert($copySwSeoFormatResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website seo format failed!']);
+
+            // Inserts Store Websites size
+            $swSizes = StoreWebsiteSize::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copySizesResult = array();
+            if($swSizes->count() > 0) {
+                foreach ($swSizes as $row) {
+                    $swSizesRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'size_id' => $row->size_id,
+                        'platform_id' => $row->platform_id,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    $copySizesResult[] = $swSizesRow;
+                }
+            }
+            $response = StoreWebsiteSize::insert($copySizesResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website size failed!']);
+
+            // Inserts Store Websites twilio numbers
+            $swTwilioNumbers = StoreWebsiteTwilioNumber::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copyTwilioNumbersResult = array();
+            if($swTwilioNumbers->count() > 0) {
+                foreach ($swTwilioNumbers as $row) {
+                    $swTwilioNumbersRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'sub_category_menu_message' => $row->sub_category_menu_message,
+                        'speech_response_not_available_message' => $row->speech_response_not_available_message,
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'twilio_active_number_id' => $row->twilio_active_number_id,
+                        'twilio_credentials_id' => $row->twilio_credentials_id,
+                        'message_available' => $row->message_available,
+                        'message_not_available' => $row->message_not_available,
+                        'message_busy' => $row->message_busy,
+                        'end_work_message' => $row->end_work_message,
+                        'greeting_message' => $row->greeting_message,
+                        'category_menu_message' => $row->category_menu_message,
+                    );
+                    $copyTwilioNumbersResult[] = $swTwilioNumbersRow;
+                }
+            }
+            $response = StoreWebsiteTwilioNumber::insert($copyTwilioNumbersResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website twilio numbers failed!']);
+
+            // Inserts Store Websites users
+            $swUsers = StoreWebsiteUsers::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copyUsersResult = array();
+            if($swUsers->count() > 0) {
+                foreach ($swUsers as $row) {
+                    $swUsersRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'website_mode' => $row->website_mode,
+                        'username' => $row->username,
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'first_name' => $row->first_name,
+                        'last_name' => $row->last_name,
+                        'email' => $row->email,
+                        'password' => $row->password,
+                        'is_deleted' => $row->is_deleted,
+                    );
+                    $copyUsersResult[] = $swUsersRow;
+                }
+            }
+            $response = StoreWebsiteUsers::insert($copyUsersResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website users failed!']);
+
+            if($i == $numberOfDuplicates)
+                return response()->json(["code" => 200, "error" => 'Store website created successfully']);
+        }
+
     }
 
     public function saveUserInMagento(Request $request) {

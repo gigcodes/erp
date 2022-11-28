@@ -20,8 +20,6 @@
                        <button type="button" class="btn btn-primary submit-duplicate">Save changes</button>
                     </div>
                 </div>
-
-
             </form>
 
 </script>

@@ -90,7 +90,7 @@
 										<button title="Response History" data-id="{{>prop.id}}" type="button"  class="btn response_history"style="padding:1px 0px;">
                                             <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-history"></i></a>
                                         </button>
-                                       <button type="button" class="btn btn-xs btn-image  load-duplicate-modal" data-target="#newDuplicate"  data-id="{{>prop.id}}"  style="margin-top: 2%;" title="Load messages"><i class="fa fa-eye"></i> </button>
+                                       <button type="button" class="btn btn-xs btn-image  load-duplicate-modal" data-target="#newDuplicate"  data-id="{{>prop.id}}"  style="margin-top: 1%;" title="Duplicate store website"><i class="fa fa-copy"></i> </button>
 
 										{{if prop.is_dev_website == 1 }} 	
 											<a style="padding:1px;" class="btn d-inline btn-image execute-bash-command-select-folder"  data-folder_name="{{>prop.site_folder}}" href="#" data-id="{{>prop.id}}" title="Execute Bash Command">
