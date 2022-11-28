@@ -14,13 +14,13 @@ class AlterHubstaffTaskIdsIntToBigInt extends Migration
      */
     public function up()
     {
-        DB::statement('ALTER TABLE `developer_tasks` MODIFY `hubstaff_task_id` BIGINT(20) unsigned NOT NULL AUTO_INCREMENT;');
-        DB::statement('ALTER TABLE `developer_tasks` MODIFY `lead_hubstaff_task_id` BIGINT(20) unsigned NOT NULL AUTO_INCREMENT;');
-        DB::statement('ALTER TABLE `developer_tasks` MODIFY `team_lead_hubstaff_task_id` BIGINT(20) unsigned NOT NULL AUTO_INCREMENT;');
-        DB::statement('ALTER TABLE `developer_tasks` MODIFY `tester_hubstaff_task_id` BIGINT(20) unsigned NOT NULL AUTO_INCREMENT;');
-        DB::statement('ALTER TABLE `hubstaff_task_notes` MODIFY `task_id` BIGINT(20) unsigned NOT NULL AUTO_INCREMENT;');
-        DB::statement('ALTER TABLE `tasks` MODIFY `hubstaff_task_id` BIGINT(20) unsigned NOT NULL AUTO_INCREMENT;');
-        DB::statement('ALTER TABLE `tasks` MODIFY `lead_hubstaff_task_id` BIGINT(20) unsigned NOT NULL AUTO_INCREMENT;');
+//         DB::statement('ALTER TABLE `developer_tasks` MODIFY `hubstaff_task_id` BIGINT(20) unsigned NOT NULL AUTO_INCREMENT;');
+//         DB::statement('ALTER TABLE `developer_tasks` MODIFY `lead_hubstaff_task_id` BIGINT(20) unsigned NOT NULL AUTO_INCREMENT;');
+//         DB::statement('ALTER TABLE `developer_tasks` MODIFY `team_lead_hubstaff_task_id` BIGINT(20) unsigned NOT NULL AUTO_INCREMENT;');
+//         DB::statement('ALTER TABLE `developer_tasks` MODIFY `tester_hubstaff_task_id` BIGINT(20) unsigned NOT NULL AUTO_INCREMENT;');
+//         DB::statement('ALTER TABLE `hubstaff_task_notes` MODIFY `task_id` BIGINT(20) unsigned NOT NULL AUTO_INCREMENT;');
+//         DB::statement('ALTER TABLE `tasks` MODIFY `hubstaff_task_id` BIGINT(20) unsigned NOT NULL AUTO_INCREMENT;');
+//         DB::statement('ALTER TABLE `tasks` MODIFY `lead_hubstaff_task_id` BIGINT(20) unsigned NOT NULL AUTO_INCREMENT;');
     }
 
     /**
@@ -30,12 +30,12 @@ class AlterHubstaffTaskIdsIntToBigInt extends Migration
      */
     public function down()
     {
-        DB::statement('ALTER TABLE `developer_tasks` MODIFY `hubstaff_task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;');
-        DB::statement('ALTER TABLE `developer_tasks` MODIFY `lead_hubstaff_task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;');
-        DB::statement('ALTER TABLE `developer_tasks` MODIFY `team_lead_hubstaff_task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;');
-        DB::statement('ALTER TABLE `developer_tasks` MODIFY `tester_hubstaff_task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;');
-        DB::statement('ALTER TABLE `hubstaff_task_notes` MODIFY `task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;');
-        DB::statement('ALTER TABLE `tasks` MODIFY `hubstaff_task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;');
-        DB::statement('ALTER TABLE `tasks` MODIFY `lead_hubstaff_task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;'); 
+//         DB::statement('ALTER TABLE `developer_tasks` MODIFY `hubstaff_task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;');
+//         DB::statement('ALTER TABLE `developer_tasks` MODIFY `lead_hubstaff_task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;');
+//         DB::statement('ALTER TABLE `developer_tasks` MODIFY `team_lead_hubstaff_task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;');
+//         DB::statement('ALTER TABLE `developer_tasks` MODIFY `tester_hubstaff_task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;');
+//         DB::statement('ALTER TABLE `hubstaff_task_notes` MODIFY `task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;');
+//         DB::statement('ALTER TABLE `tasks` MODIFY `hubstaff_task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;');
+//         DB::statement('ALTER TABLE `tasks` MODIFY `lead_hubstaff_task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;'); 
     }
 }

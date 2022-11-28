@@ -23,7 +23,12 @@
                     </div>
                     <div class="col-2 pd-2">
                       <div class="form-group username mb-0">
-                          <input type="text" name="username" placeholder="Search User Name" class="form-control" value="{{ request('username') }}">
+                          <input type="text" name="username" placeholder="Search User Name" class="form-control" value="{{ request('username') }}" list="username-lists">
+                        <datalist id="username-lists">
+                          @foreach($emailAddress as $emailAdd)
+                            <option value="{{$emailAdd->username}}">
+                          @endforeach
+                        </datalist>
                       </div>
                     </div>
                     <div class="col-2 pd-2">
@@ -114,10 +119,16 @@
               <td class="expand-row-msg" data-name="username" data-id="{{$server->id}}">
                   <span class="show-short-username-{{$server->id}}">{{ str_limit($server->username, 12, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-username-{{$server->id}} hidden">{{$server->username}}</span>
+                <button type="button"  class="btn btn-copy-username btn-sm" data-id="{{$server->username}}" style="border:1px solid">
+                  <i class="fa fa-clone" aria-hidden="true"></i>
+                </button>
               </td>
               <td class="expand-row-msg" data-name="password" data-id="{{$server->id}}">
                   <span class="show-short-password-{{$server->id}}">{{ str_limit($server->password, 10, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-password-{{$server->id}} hidden">{{$server->password}}</span>
+                <button type="button"  class="btn btn-copy-password btn-sm" data-id="{{$server->password}}" style="border:1px solid">
+                  <i class="fa fa-clone" aria-hidden="true"></i>
+                </button>
               </td>
               <td>
                   {{ $server->recovery_phone }}
@@ -137,6 +148,9 @@
               </td>
               <td>
                   {{ $server->send_grid_token??'N/A' }}
+                <button type="button"  class="btn btn-copy-token btn-sm" data-id="{{$server->send_grid_token}}" style="border:1px solid">
+                  <i class="fa fa-clone" aria-hidden="true"></i>
+                </button>
               </td>
               <td>
                   {{ $server->encryption }}
@@ -1005,6 +1019,35 @@ function sendtoWhatsapp(password_id) {
             }
         });
 
+        $(document).on("click",".btn-copy-password",function() {
+          var password = $(this).data('id');
+          var $temp = $("<input>");
+          $("body").append($temp);
+          $temp.val(password).select();
+          document.execCommand("copy");
+          $temp.remove();
+          alert("Copied!");
+        });
+
+        $(document).on("click",".btn-copy-username",function() {
+          var password = $(this).data('id');
+          var $temp = $("<input>");
+          $("body").append($temp);
+          $temp.val(password).select();
+          document.execCommand("copy");
+          $temp.remove();
+          alert("Copied!");
+        });
+
+        $(document).on("click",".btn-copy-token",function() {
+          var password = $(this).data('id');
+          var $temp = $("<input>");
+          $("body").append($temp);
+          $temp.val(password).select();
+          document.execCommand("copy");
+          $temp.remove();
+          alert("Copied!");
+        });
 
   </script>
 @endsection
