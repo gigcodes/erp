@@ -99,9 +99,9 @@
                 <div class="form-group" {{ $errors->has('website') ? 'has-error' : '' }}>
                     <label> Website </label>
                     <select class="form-control website" name="website">
-                        <option value="">Select Module/Feature</option>
+                        <option value="">Select Website</option>
                         @foreach($filterWebsites as  $filterWebsite)
-                            <option value="{{$filterWebsite}}">{{$filterWebsite}} </option>
+                            <option value="{{$filterWebsite->id}}">{{$filterWebsite->title}} </option>
                         @endforeach
                     </select>
                 </div>
