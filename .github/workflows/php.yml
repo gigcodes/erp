@@ -94,15 +94,25 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v3
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.json') }}
-          restore-keys: |
-            ${{ runner.os }}-php-${{ hashFiles('**/composer.json') }}
+#      - name: Cache Composer packages
+#        id: composer-cache
+#        uses: actions/cache@v3
+#        with:
+#          path: vendor
+#          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.json') }}
+#          restore-keys: |
+#            ${{ runner.os }}-php-${{ hashFiles('**/composer.json') }}
 
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
       - name: "setup private repo"
         uses: php-actions/composer@v6
         with:
