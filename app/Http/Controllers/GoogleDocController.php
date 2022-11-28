@@ -34,7 +34,8 @@ class GoogleDocController extends Controller
     {
         $data = $this->validate($request, [
             'type' => ['required', Rule::in('spreadsheet', 'doc')],
-            'doc_name' => ['required', 'max:800']
+            'doc_name' => ['required', 'max:800'],
+            'existing_doc_id' => ['sometimes','nullable', 'string', 'max:800']
         ]);
 
         DB::transaction(function () use ($data) {
@@ -43,12 +44,18 @@ class GoogleDocController extends Controller
             $googleDoc->name = $data['doc_name'];
             $googleDoc->save();
 
-            if ($googleDoc->type === 'spreadsheet') {
-                CreateGoogleSpreadsheet::dispatchNow($googleDoc);
-            }
+            if (!empty($data['existing_doc_id'])) {
+                $googleDoc->docId = $data['existing_doc_id'];
+                $googleDoc->save();    
+            } else {
+                if ($googleDoc->type === 'spreadsheet') {
+                    CreateGoogleSpreadsheet::dispatchNow($googleDoc);
+                }
 
-            if ($googleDoc->type === 'doc') {
-                CreateGoogleDoc::dispatchNow($googleDoc);
+                if ($googleDoc->type === 'doc') {
+                    CreateGoogleDoc::dispatchNow($googleDoc);
+                }
+
             }
         });
         return back()->with('success', "Google {$data['type']} is Created.");

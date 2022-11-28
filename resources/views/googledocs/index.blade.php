@@ -45,6 +45,7 @@
                 <th>No</th>
                 <th>File Name</th>
                 <th>Created At</th>
+                <th>URL</th>
                 <th>Action</th>
             </tr>
             </thead>
