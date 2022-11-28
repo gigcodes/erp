@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\HashTag;
 use App\Setting;
-use App\InstagramPosts;
+//use App\InstagramPosts;
 
 class GoogleSearchController extends Controller
 {
@@ -219,56 +219,56 @@ class GoogleSearchController extends Controller
     * @param  \Illuminate\Http\Request  $request
     * @return json response status
     */
-    public function apiPost(Request $request)
-    {
-        // Get raw body
-        $payLoad = $request->all();
-
-        $payLoad = json_decode(json_encode($payLoad), true);
-
-        // Process input
-        if (count($payLoad) == 0) {
-            return response()->json([
-                'error' => 'Invalid json'
-            ], 400);
-        }
-        else {
-            $postedData = $payLoad['json'];
-            // Loop over posts
-            foreach ($postedData as $postJson) {
-                // Set tag
-                $tag = $postJson[ 'searchKeyword' ];
-
-                // Get hashtag ID
-                //$hashtag = HashTag::firstOrCreate(['hashtag' => $tag]);
-
-                $keywords = HashTag::query()
-                                ->where('hashtag', 'LIKE', $tag)
-                                ->where('platforms_id', $this->platformsId)->first();
-
-                if (is_null($keywords)){
-                    //keyword not in DB. For now skip this...
-                }
-                else {
-                    // Retrieve instagram post or initiate new
-                    $instagramPost = InstagramPosts::firstOrNew(['location' => $postJson[ 'URL' ]]);
-
-                    $instagramPost->hashtag_id = $keywords->id;
-                    $instagramPost->caption = $postJson[ 'description' ];
-                    $instagramPost->posted_at = ($postJson[ 'crawledAt' ]) ? date('Y-m-d H:i:s', strtotime($postJson[ 'crawledAt' ])) : date('Y-m-d H:i:s');
-                    $instagramPost->media_type = 'other';
-                    $instagramPost->media_url = $postJson[ 'URL' ];
-                    $instagramPost->source = 'google';
-                    $instagramPost->save();
-                }
-            }
-        }
-
-        // Return
-        return response()->json([
-            'ok'
-        ], 200);
-    }
+//    public function apiPost(Request $request)
+//    {
+//        // Get raw body
+//        $payLoad = $request->all();
+//
+//        $payLoad = json_decode(json_encode($payLoad), true);
+//
+//        // Process input
+//        if (count($payLoad) == 0) {
+//            return response()->json([
+//                'error' => 'Invalid json'
+//            ], 400);
+//        }
+//        else {
+//            $postedData = $payLoad['json'];
+//            // Loop over posts
+//            foreach ($postedData as $postJson) {
+//                // Set tag
+//                $tag = $postJson[ 'searchKeyword' ];
+//
+//                // Get hashtag ID
+//                //$hashtag = HashTag::firstOrCreate(['hashtag' => $tag]);
+//
+//                $keywords = HashTag::query()
+//                                ->where('hashtag', 'LIKE', $tag)
+//                                ->where('platforms_id', $this->platformsId)->first();
+//
+//                if (is_null($keywords)){
+//                    //keyword not in DB. For now skip this...
+//                }
+//                else {
+//                    // Retrieve instagram post or initiate new
+//                    $instagramPost = InstagramPosts::firstOrNew(['location' => $postJson[ 'URL' ]]);
+//
+//                    $instagramPost->hashtag_id = $keywords->id;
+//                    $instagramPost->caption = $postJson[ 'description' ];
+//                    $instagramPost->posted_at = ($postJson[ 'crawledAt' ]) ? date('Y-m-d H:i:s', strtotime($postJson[ 'crawledAt' ])) : date('Y-m-d H:i:s');
+//                    $instagramPost->media_type = 'other';
+//                    $instagramPost->media_url = $postJson[ 'URL' ];
+//                    $instagramPost->source = 'google';
+//                    $instagramPost->save();
+//                }
+//            }
+//        }
+//
+//        // Return
+//        return response()->json([
+//            'ok'
+//        ], 200);
+//    }
 
     /**
     * function to get google search results
@@ -320,41 +320,41 @@ class GoogleSearchController extends Controller
     * @param  \Illuminate\Http\Request  $request
     * @return array of search results
     */
-    private function getFilteredGoogleSearchResults(Request $request) {
-        $sortBy = ($request->input('sortby') == '') ? 'posted_at' : $request->input('sortby');
-        $orderBy = ($request->input('orderby') == '') ? 'DESC' : $request->input('orderby');
-
-        // Base query
-        $instagramPosts = InstagramPosts::orderBy($sortBy, $orderBy)
-            ->join('hash_tags', 'instagram_posts.hashtag_id', '=', 'hash_tags.id')
-            ->select(['instagram_posts.*','hash_tags.hashtag']);
-
-        //Pick google search result from DB
-        $instagramPosts->where('source', '=', 'google');
-
-        // Apply hashtag filter
-        if (!empty($request->hashtag)) {
-            $instagramPosts->where('hash_tags.hashtag', $request->hashtag);
-        }
-
-        // Apply location filter
-        if (!empty($request->location)) {
-            $instagramPosts->where('location', 'LIKE', '%' . $request->location . '%');
-        }
-
-        // Apply post filter
-        if (!empty($request->post)) {
-            $instagramPosts->where('caption', 'LIKE', '%' . $request->post . '%');
-        }
-
-        // Apply posted at filter
-        if (!empty($request->date)) {
-            $instagramPosts->where('posted_at', date('Y-m-d H:i:s', strtotime($request->date)));
-        }
-
-        // Return google search results
-        return $instagramPosts;
-    }
+//    private function getFilteredGoogleSearchResults(Request $request) {
+//        $sortBy = ($request->input('sortby') == '') ? 'posted_at' : $request->input('sortby');
+//        $orderBy = ($request->input('orderby') == '') ? 'DESC' : $request->input('orderby');
+//
+//        // Base query
+//        $instagramPosts = InstagramPosts::orderBy($sortBy, $orderBy)
+//            ->join('hash_tags', 'instagram_posts.hashtag_id', '=', 'hash_tags.id')
+//            ->select(['instagram_posts.*','hash_tags.hashtag']);
+//
+//        //Pick google search result from DB
+//        $instagramPosts->where('source', '=', 'google');
+//
+//        // Apply hashtag filter
+//        if (!empty($request->hashtag)) {
+//            $instagramPosts->where('hash_tags.hashtag', $request->hashtag);
+//        }
+//
+//        // Apply location filter
+//        if (!empty($request->location)) {
+//            $instagramPosts->where('location', 'LIKE', '%' . $request->location . '%');
+//        }
+//
+//        // Apply post filter
+//        if (!empty($request->post)) {
+//            $instagramPosts->where('caption', 'LIKE', '%' . $request->post . '%');
+//        }
+//
+//        // Apply posted at filter
+//        if (!empty($request->date)) {
+//            $instagramPosts->where('posted_at', date('Y-m-d H:i:s', strtotime($request->date)));
+//        }
+//
+//        // Return google search results
+//        return $instagramPosts;
+//    }
 
     /**
     * function to call google scraper
@@ -403,15 +403,15 @@ class GoogleSearchController extends Controller
         }
     }
 
-    public function deleteSearch($id)
-    {
-      $instaPost = InstagramPosts::find($id);
-
-      if($instaPost){
-        $instaPost->delete();
-      }
-
-      return response()->json(['message' => "delete successfully"]);
-
-    }
+//    public function deleteSearch($id)
+//    {
+//      $instaPost = InstagramPosts::find($id);
+//
+//      if($instaPost){
+//        $instaPost->delete();
+//      }
+//
+//      return response()->json(['message' => "delete successfully"]);
+//
+//    }
 }

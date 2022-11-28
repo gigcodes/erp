@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\CronJobReport;
 use App\HashTag;
-use App\Services\Instagram\Hashtags;
+//use App\Services\Instagram\Hashtags;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
