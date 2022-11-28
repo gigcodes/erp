@@ -13,8 +13,9 @@ class CompositionChecker implements CheckerInterface
 
     public function __construct()
     {
-        $this->setCompositionReplacementData();
-
+        if(!env('CI')) {
+            $this->setCompositionReplacementData();
+        }
     }
 
     public function check($product): bool {
