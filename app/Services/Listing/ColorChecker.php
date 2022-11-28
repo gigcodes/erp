@@ -15,8 +15,11 @@ class ColorChecker implements CheckerInterface
 
     public function __construct()
     {
-        $this->setAvailableColors();
-        $this->setColorTracks();
+        if(!env('CI')) {
+            $this->setAvailableColors();
+            $this->setColorTracks();
+        }
+
     }
 
     public function check($product): bool {
