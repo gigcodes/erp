@@ -35,7 +35,7 @@ class GoogleDocController extends Controller
         $data = $this->validate($request, [
             'type' => ['required', Rule::in('spreadsheet', 'doc')],
             'doc_name' => ['required', 'max:800'],
-            'existing_doc_id' => ['sometimes', 'string', 'max:800']
+            'existing_doc_id' => ['sometimes','nullable', 'string', 'max:800']
         ]);
 
         DB::transaction(function () use ($data) {
