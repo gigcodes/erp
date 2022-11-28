@@ -103,6 +103,13 @@ class HubstaffController extends Controller
         }
     }
 
+    public function refreshUsers()
+    {
+        \Artisan::call('hubstaff:refresh_users');
+        
+        return redirect()->back();
+    }
+
     public function getProjects()
     {
 

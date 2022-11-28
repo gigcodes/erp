@@ -22,9 +22,17 @@ class EmailAddressesController extends Controller
     public function index(Request $request)
     {
         $query = EmailAddress::query();
-
-        $query->select('email_addresses.*', DB::raw('(SELECT is_success FROM email_run_histories WHERE email_address_id = email_addresses.id Order by id DESC LIMIT 1) as is_success'))->with('email_assignes');
-
+        //$queryNew = new EmailAddress;
+        //dd($query);
+        $query->select('email_addresses.*')->with(['email_assignes',
+        'history_last_message' => function($q) use($request){
+            //dd($request->website_id);
+            if($request->status){
+                $q->where('is_success', $request->status)->orderBy('id', 'DESC')->limit(1);
+            }
+        }
+        ]);
+       
         $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption', 'send_grid_token'];
 
         if ($request->keyword) {
@@ -32,16 +40,32 @@ class EmailAddressesController extends Controller
                 $query->orWhere($column, 'LIKE', '%' . $request->keyword . '%');
             }
         }
+        
+        if($request->username !=''){
+            $query->where('username', 'LIKE', '%' . $request->username . '%');
+        }
 
+        if($request->website_id !=''){
+            $query->where('store_website_id', $request->website_id);
+        }
+        
+        //$query->where('id', 1);
+        
+       // dd($query);
         $emailAddress = $query->paginate();
+        //dd($emailAddress->website);
         $allStores = StoreWebsite::all();
         $allDriver = EmailAddress::pluck('driver')->unique();
         $allPort = EmailAddress::pluck('port')->unique();
         $allEncryption = EmailAddress::pluck('encryption')->unique();
 
-        //dd($allDriver);
-        $users = User::orderBy('name', 'asc')->get();
-
+        $users = User::orderBy('name', 'asc')->get()->toArray();
+        // dd($users);
+        $ops = "";
+        foreach($users as $key => $user){
+            $ops .= '<option class="form-control" value="'.$user['id'].'">'. $user['name'] .'</option>';
+        }
+        //dd($ops);
         if ($request->ajax()) {
 
             return view('email-addresses.index_ajax', [
@@ -51,6 +75,7 @@ class EmailAddressesController extends Controller
                 'allPort' => $allPort,
                 'allEncryption' => $allEncryption,
                 'users' => $users,
+                'uops' => $ops,
             ]);
         } else {
 
@@ -61,6 +86,7 @@ class EmailAddressesController extends Controller
                 'allPort' => $allPort,
                 'allEncryption' => $allEncryption,
                 'users' => $users,
+                'uops' => $ops,
             ]);
         }
     }

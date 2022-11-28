@@ -9,9 +9,9 @@ use App\InstagramThread;
 use App\Review;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use InstagramAPI\Instagram;
+//use InstagramAPI\Instagram;
 
-Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
+//Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class SyncDMForDummyAccounts extends Command
 {
@@ -37,11 +37,11 @@ class SyncDMForDummyAccounts extends Command
 
     private $messages;
 
-    public function __construct(Instagram $messages)
-    {
-        parent::__construct();
-        $this->messages = $messages;
-    }
+//    public function __construct(Instagram $messages)
+//    {
+//        parent::__construct();
+//        $this->messages = $messages;
+//    }
 
     /**
      * Execute the console command.

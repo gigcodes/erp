@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 use App\CronJobReport;
 use App\Customer;
-use App\InstagramThread;
-use App\Services\Instagram\DirectMessage;
+//use App\InstagramThread;
+//use App\Services\Instagram\DirectMessage;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -33,11 +33,11 @@ class SyncInstagramMessage extends Command
 
     private $messages;
 
-    public function __construct(DirectMessage $messages)
-    {
-        parent::__construct();
-        $this->messages = $messages;
-    }
+//    public function __construct(DirectMessage $messages)
+//    {
+//        parent::__construct();
+//        $this->messages = $messages;
+//    }
 
     /**
      * Execute the console command.
@@ -103,10 +103,10 @@ class SyncInstagramMessage extends Command
     private function createThread($customer, $t)
     {
 
-        $thread               = new InstagramThread();
-        $thread->customer_id  = $customer->id;
-        $thread->thread_id    = $t['thread_id'];
-        $thread->thread_v2_id = $t['thread_v2_id'];
-        $thread->save();
+//        $thread               = new InstagramThread();
+//        $thread->customer_id  = $customer->id;
+//        $thread->thread_id    = $t['thread_id'];
+//        $thread->thread_v2_id = $t['thread_v2_id'];
+//        $thread->save();
     }
 }

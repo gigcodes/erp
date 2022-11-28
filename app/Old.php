@@ -6,6 +6,7 @@ namespace App;
  */
 use Illuminate\Database\Eloquent\Model;
 use App\OldCategory;
+use App\OldStatus;
 use App\OldPayment;
 use App\Email;
 
@@ -64,14 +65,17 @@ class Old extends Model
      */
     public static function getStatus()
     {
-        $types = array(
-            'pending'  => 'pending',
-            'disputed' => 'disputed',
-            'settled'  => 'settled',
-            'paid'     => 'paid',
-            'closed'  => 'closed',
-        );
-        return $types;
+        
+        return OldStatus::all()->pluck('status');
+
+        // $types = array(
+        //     'pending'  => 'pending',
+        //     'disputed' => 'disputed',
+        //     'settled'  => 'settled',
+        //     'paid'     => 'paid',
+        //     'closed'  => 'closed',
+        // );
+        // return $types;
     }
 
      public function emails()

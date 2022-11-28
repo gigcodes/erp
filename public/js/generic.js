@@ -270,7 +270,7 @@ var getHtml = function(response) {
         if (message.inout == 'out' || message.inout == 'in') {
             button += '<a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>';
         }
-        button += '<a title="Add Sop" href="javascript:;" data-toggle="modal" data-target="#Create-Sop-Shortcut" class="btn btn-xs btn-secondary ml-1 create_short_cut" data-category="'+message.sop_category+'" data-name="'+message.sop_name+'" data-message="'+message.sop_content+'" data-id="' + message.id + '"><i class="fa fa-asterisk" aria-hidden="true"></i></a>';
+        button += '<a title="Add Sop" href="javascript:;" data-toggle="modal" data-target="#Create-Sop-Shortcut" class="btn btn-xs btn-secondary ml-1 create_short_cut" data-category="'+message.sop_category+'" data-name="'+message.sop_name+'" data-message="'+message.sop_content+'" data-id="' + message.id + '" data-msg="'+message.message+'"><i class="fa fa-asterisk" data-message="'+message.message+'" aria-hidden="true"></i></a>';
         button += '<a title="White list IP" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-whitelist-ip" data-message="'+message.message+'" data-id="' + message.id + '"><i class="fa fa-server" aria-hidden="true"></i></a>';
         // button+='<a href=""  class="add-sop-knowledge-modal">open modal</a>'
 
