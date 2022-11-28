@@ -6,7 +6,7 @@ use App\CompetitorFollowers;
 use App\CronJobReport;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use InstagramAPI\Instagram;
+//use InstagramAPI\Instagram;
 
 class SendDmToCompetitorsFollowers extends Command
 {
@@ -41,28 +41,28 @@ class SendDmToCompetitorsFollowers extends Command
      */
     public function handle()
     {
-        try {
-            $report = CronJobReport::create([
-                'signature'  => $this->signature,
-                'start_time' => Carbon::now(),
-            ]);
-
-            $competitorFollowes = CompetitorFollowers::where('status', 2)->get();
-
-            if ($competitorFollowes->count() === 0) {
-                return;
-            }
-
-            $ig = new Instagram();
-
-            foreach ($competitorFollowes as $competitorFollower) {
-//            $
-            }
-
-            $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {
-            \App\CronJob::insertLastError($this->signature, $e->getMessage());
-        }
+//        try {
+//            $report = CronJobReport::create([
+//                'signature'  => $this->signature,
+//                'start_time' => Carbon::now(),
+//            ]);
+//
+//            $competitorFollowes = CompetitorFollowers::where('status', 2)->get();
+//
+//            if ($competitorFollowes->count() === 0) {
+//                return;
+//            }
+//
+//            $ig = new Instagram();
+//
+//            foreach ($competitorFollowes as $competitorFollower) {
+////            $
+//            }
+//
+//            $report->update(['end_time' => Carbon::now()]);
+//        } catch (\Exception $e) {
+//            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+//        }
 
     }
 }

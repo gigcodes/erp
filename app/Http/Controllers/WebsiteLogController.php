@@ -6,7 +6,7 @@ use App\WebsiteLog;
 use Illuminate\Http\Request;
 use File;
 use \Carbon\Carbon;
-use InstagramAPI\Instagram;
+//use InstagramAPI\Instagram;
 use App\StoreWebsite;
 
 class WebsiteLogController extends Controller {
