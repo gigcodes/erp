@@ -6,19 +6,19 @@ namespace App\Http\Controllers;
 use App\Account;
 use App\ChatMessage;
 use App\HashTag;
-use App\InstagramPosts;
+//use App\InstagramPosts;
 use App\Post;
-use App\InstagramPostsComments;
+//use App\InstagramPostsComments;
 use App\Setting;
 use Illuminate\Http\Request;
 //use InstagramAPI\Instagram;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use File;
 use App\CommentsStats;
-use App\InstagramCommentQueue;
+//use App\InstagramCommentQueue;
 use App\ScrapInfluencer;
 use Carbon\Carbon;
-use App\InstagramUsersList;
+//use App\InstagramUsersList;
 //use App\Library\Instagram\PublishPost;
 use Plank\Mediable\Media;
 use App\StoreSocialContent;
@@ -1047,66 +1047,66 @@ class InstagramPostsController extends Controller
 
     public function getHashTashSuggestions($token, $word)
     {
-
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-        CURLOPT_URL => "https://api.hashtagify.me/1.0/tag/".$word,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => "",
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => "GET",
-        CURLOPT_HTTPHEADER => array(
-            "authorization: Bearer ".$token,
-            "cache-control: no-cache"
-          ),
-        ));
-
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-
-        curl_close($curl);
-
-        if ($err) {
-          //echo "cURL Error #:" . $err;
-        } else {
-          return  $response;
-        }
+//
+//        $curl = curl_init();
+//
+//        curl_setopt_array($curl, array(
+//        CURLOPT_URL => "https://api.hashtagify.me/1.0/tag/".$word,
+//        CURLOPT_RETURNTRANSFER => true,
+//        CURLOPT_ENCODING => "",
+//        CURLOPT_MAXREDIRS => 10,
+//        CURLOPT_TIMEOUT => 30,
+//        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+//        CURLOPT_CUSTOMREQUEST => "GET",
+//        CURLOPT_HTTPHEADER => array(
+//            "authorization: Bearer ".$token,
+//            "cache-control: no-cache"
+//          ),
+//        ));
+//
+//        $response = curl_exec($curl);
+//        $err = curl_error($curl);
+//
+//        curl_close($curl);
+//
+//        if ($err) {
+//          //echo "cURL Error #:" . $err;
+//        } else {
+//          return  $response;
+//        }
     }
 
     public function updateHashtagPost(Request $request)
     {
-        try {
-            $post_id = $request->get('post_id');
-            $updateArr = [];
-
-
-            if($request->get('account_id'))
-            {
-                $updateArr['account_id'] = $request->get('account_id');
-            }
-            if($request->get('comment'))
-            {
-                $updateArr['comment'] = $request->get('comment');
-            }
-            if($request->get('post_hashtags'))
-            {
-                $updateArr['hashtags'] = $request->get('post_hashtags');
-            }
-            if($request->get('type'))
-            {
-                $updateArr['type'] = $request->get('type');
-            }
-            Post::where('id', $post_id)->update($updateArr);
-            $this->createPostLog($post_id,"success","Data Updated Succesfully");
-            echo json_encode(array("message"=>"Data Updated Succesfully"));
-        } catch (\Exception $e) {
-            //throw $th;
-            $this->createPostLog($post_id,"error",$e->getMessage());
-            return response()->json(["message"=>"error while saving data"],500);
-        }
+//        try {
+//            $post_id = $request->get('post_id');
+//            $updateArr = [];
+//
+//
+//            if($request->get('account_id'))
+//            {
+//                $updateArr['account_id'] = $request->get('account_id');
+//            }
+//            if($request->get('comment'))
+//            {
+//                $updateArr['comment'] = $request->get('comment');
+//            }
+//            if($request->get('post_hashtags'))
+//            {
+//                $updateArr['hashtags'] = $request->get('post_hashtags');
+//            }
+//            if($request->get('type'))
+//            {
+//                $updateArr['type'] = $request->get('type');
+//            }
+//            Post::where('id', $post_id)->update($updateArr);
+//            $this->createPostLog($post_id,"success","Data Updated Succesfully");
+//            echo json_encode(array("message"=>"Data Updated Succesfully"));
+//        } catch (\Exception $e) {
+//            //throw $th;
+//            $this->createPostLog($post_id,"error",$e->getMessage());
+//            return response()->json(["message"=>"error while saving data"],500);
+//        }
        
     }
 

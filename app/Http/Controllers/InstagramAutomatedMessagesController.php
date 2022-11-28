@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\AutomatedMessages;
 use App\HashtagPostHistory;
-use App\InstagramAutomatedMessages;
+//use App\InstagramAutomatedMessages;
 use Illuminate\Http\Request;
 //use InstagramAPI\Instagram;
 
@@ -71,7 +71,7 @@ class InstagramAutomatedMessagesController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\InstagramAutomatedMessages  $instagramAutomatedMessages
+//     * @param  \App\InstagramAutomatedMessages  $instagramAutomatedMessages
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -84,7 +84,7 @@ class InstagramAutomatedMessagesController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\InstagramAutomatedMessages  $instagramAutomatedMessages
+//     * @param  \App\InstagramAutomatedMessages  $instagramAutomatedMessages
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -98,7 +98,7 @@ class InstagramAutomatedMessagesController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\InstagramAutomatedMessages  $instagramAutomatedMessages
+//     * @param  \App\InstagramAutomatedMessages  $instagramAutomatedMessages
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)

@@ -45,33 +45,33 @@ class HashtagController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->term || $request->priority) {
-
-            if ($request->term != null && $request->priority == 'on') {
-
-                $hashtags = HashTag::query()
-                    ->where('priority', 1)
-                    ->where('platforms_id', $this->platformsId)
-                    ->where('hashtag', 'LIKE', "%{$request->term}%")
-                    ->paginate(Setting::get('pagination'));
-                return view('instagram.hashtags.index', compact('hashtags'));
-            }
-            if ($request->priority == 'on') {
-                $hashtags = HashTag::where('priority', 1)->where('platforms_id', $this->platformsId)->paginate(Setting::get('pagination'));
-                return view('instagram.hashtags.index', compact('hashtags'));
-            }
-            if ($request->term != null) {
-                $hashtags = HashTag::query()
-                    ->where('hashtag', 'LIKE', "%{$request->term}%")
-                    ->where('platforms_id', $this->platformsId)
-                    ->paginate(Setting::get('pagination'));
-                return view('instagram.hashtags.index', compact('hashtags'));
-            }
-
-        } else {
-            $hashtags = HashTag::where('platforms_id', $this->platformsId)->paginate(Setting::get('pagination'));
-            return view('instagram.hashtags.index', compact('hashtags'));
-        }
+//        if ($request->term || $request->priority) {
+//
+//            if ($request->term != null && $request->priority == 'on') {
+//
+//                $hashtags = HashTag::query()
+//                    ->where('priority', 1)
+//                    ->where('platforms_id', $this->platformsId)
+//                    ->where('hashtag', 'LIKE', "%{$request->term}%")
+//                    ->paginate(Setting::get('pagination'));
+//                return view('instagram.hashtags.index', compact('hashtags'));
+//            }
+//            if ($request->priority == 'on') {
+//                $hashtags = HashTag::where('priority', 1)->where('platforms_id', $this->platformsId)->paginate(Setting::get('pagination'));
+//                return view('instagram.hashtags.index', compact('hashtags'));
+//            }
+//            if ($request->term != null) {
+//                $hashtags = HashTag::query()
+//                    ->where('hashtag', 'LIKE', "%{$request->term}%")
+//                    ->where('platforms_id', $this->platformsId)
+//                    ->paginate(Setting::get('pagination'));
+//                return view('instagram.hashtags.index', compact('hashtags'));
+//            }
+//
+//        } else {
+//            $hashtags = HashTag::where('platforms_id', $this->platformsId)->paginate(Setting::get('pagination'));
+//            return view('instagram.hashtags.index', compact('hashtags'));
+//        }
 
     }
 
@@ -95,17 +95,17 @@ class HashtagController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required',
-        ]);
-
-        $hashtag               = new HashTag();
-        $hashtag->hashtag      = $request->get('name');
-        $hashtag->rating       = $request->get('rating') ?? 8;
-        $hashtag->platforms_id = $this->platformsId;
-        $hashtag->save();
-
-        return redirect()->back()->with('message', 'Hashtag created successfully!');
+//        $this->validate($request, [
+//            'name' => 'required',
+//        ]);
+//
+//        $hashtag               = new HashTag();
+//        $hashtag->hashtag      = $request->get('name');
+//        $hashtag->rating       = $request->get('rating') ?? 8;
+//        $hashtag->platforms_id = $this->platformsId;
+//        $hashtag->save();
+//
+//        return redirect()->back()->with('message', 'Hashtag created successfully!');
 
     }
 
@@ -130,30 +130,30 @@ class HashtagController extends Controller
     public function edit($hashtag, Request $request)
     {
 
-        $h = HashTag::where('hashtag', $hashtag)->first();
-
-        $maxId = '';
-        if ($request->has('maxId')) {
-            $maxId = $request->get('maxId');
-        }
-
-        $hashtags = new Hashtags();
-        $hashtags->login();
-
-        //get media for this instance + maxId (for next pagination)
-        [$medias, $maxId] = $hashtags->getFeed($hashtag, $maxId);
-        $media_count      = $hashtags->getMediaCount($hashtag);
-        if ($h) {
-            $h->post_count = $media_count;
-            $h->save();
-        }
-
-        // Also get related hashtag..
-        $relatedHashtags = $hashtags->getRelatedHashtags($hashtag);
-
-        $accounts = Account::where('platform', 'instagram')->where('manual_comment', 1)->get();
-
-        return view('instagram.hashtags.grid2', compact('medias', 'media_count', 'relatedHashtags', 'hashtag', 'accounts', 'maxId'));
+//        $h = HashTag::where('hashtag', $hashtag)->first();
+//
+//        $maxId = '';
+//        if ($request->has('maxId')) {
+//            $maxId = $request->get('maxId');
+//        }
+//
+//        $hashtags = new Hashtags();
+//        $hashtags->login();
+//
+//        //get media for this instance + maxId (for next pagination)
+//        [$medias, $maxId] = $hashtags->getFeed($hashtag, $maxId);
+//        $media_count      = $hashtags->getMediaCount($hashtag);
+//        if ($h) {
+//            $h->post_count = $media_count;
+//            $h->save();
+//        }
+//
+//        // Also get related hashtag..
+//        $relatedHashtags = $hashtags->getRelatedHashtags($hashtag);
+//
+//        $accounts = Account::where('platform', 'instagram')->where('manual_comment', 1)->get();
+//
+//        return view('instagram.hashtags.grid2', compact('medias', 'media_count', 'relatedHashtags', 'hashtag', 'accounts', 'maxId'));
 
     }
 
@@ -178,14 +178,14 @@ class HashtagController extends Controller
     public function destroy($id)
     {
 
-        if (is_numeric($id)) {
-            $hash = HashTag::findOrFail($id);
-            $hash->delete();
-        } else {
-            HashTag::where('hashtag', $id)->delete();
-        }
-
-        return redirect()->back()->with('message', 'Hashtag has been deleted successfuly!');
+//        if (is_numeric($id)) {
+//            $hash = HashTag::findOrFail($id);
+//            $hash->delete();
+//        } else {
+//            HashTag::where('hashtag', $id)->delete();
+//        }
+//
+//        return redirect()->back()->with('message', 'Hashtag has been deleted successfuly!');
     }
 
 //    public function showGrid($id, Request $request)
@@ -394,46 +394,46 @@ class HashtagController extends Controller
      */
     public function sendHashtagsApi()
     {
-        $hashtags = HashTag::where('platforms_id', $this->platformsId)->get(['hashtag', 'id']);
-
-        return response()->json($hashtags);
+//        $hashtags = HashTag::where('platforms_id', $this->platformsId)->get(['hashtag', 'id']);
+//
+//        return response()->json($hashtags);
     }
 
     public function showNotification()
     {
-        $hashtags = new Hashtags();
-        $hashtags->login();
-        $maxId         = '';
-        $commentsFinal = [];
-
-        do {
-            $hashtagPostsAll        = $hashtags->getFeed('sololuxury', $maxId);
-            [$hashtagPosts, $maxId] = $hashtagPostsAll;
-
-            foreach ($hashtagPosts as $hashtagPost) {
-                $comments = $hashtagPost['comments'] ?? [];
-
-                if ($comments === []) {
-                    continue;
-                }
-
-                $postId                         = $hashtagPost['media_id'];
-                $commentsFinal[$postId]['text'] = $hashtagPost['caption'];
-                $commentsFinal[$postId]['code'] = $hashtagPost['code'];
-                foreach ($comments as $comment) {
-                    $createdAt                            = Carbon::createFromTimestamp($comment['created_at'])->diffForHumans();
-                    $commentsFinal[$postId]['comments'][] = [
-                        'username'   => $comment['user']['username'],
-                        'text'       => $comment['text'],
-                        'created_at' => $createdAt,
-                    ];
-                }
-
-            }
-
-        } while ($maxId != 'END');
-
-        return view('instagram.notifications', compact('commentsFinal'));
+//        $hashtags = new Hashtags();
+//        $hashtags->login();
+//        $maxId         = '';
+//        $commentsFinal = [];
+//
+//        do {
+//            $hashtagPostsAll        = $hashtags->getFeed('sololuxury', $maxId);
+//            [$hashtagPosts, $maxId] = $hashtagPostsAll;
+//
+//            foreach ($hashtagPosts as $hashtagPost) {
+//                $comments = $hashtagPost['comments'] ?? [];
+//
+//                if ($comments === []) {
+//                    continue;
+//                }
+//
+//                $postId                         = $hashtagPost['media_id'];
+//                $commentsFinal[$postId]['text'] = $hashtagPost['caption'];
+//                $commentsFinal[$postId]['code'] = $hashtagPost['code'];
+//                foreach ($comments as $comment) {
+//                    $createdAt                            = Carbon::createFromTimestamp($comment['created_at'])->diffForHumans();
+//                    $commentsFinal[$postId]['comments'][] = [
+//                        'username'   => $comment['user']['username'],
+//                        'text'       => $comment['text'],
+//                        'created_at' => $createdAt,
+//                    ];
+//                }
+//
+//            }
+//
+//        } while ($maxId != 'END');
+//
+//        return view('instagram.notifications', compact('commentsFinal'));
 
     }
 
@@ -447,55 +447,55 @@ class HashtagController extends Controller
     public function commentOnHashtag(Request $request)
     {
 
-        $this->validate($request, [
-            'message'    => 'required',
-            'account_id' => 'required',
-            'id'         => 'required',
-            'hashtag'    => 'required',
-            'narrative'  => 'required',
-        ]);
-
-        $acc = Account::findOrFail($request->get('account_id'));
-
-        $instagram = new Instagram();
-
-        try {
-
-            $senderUsername = $acc->last_name;
-            $password       = $acc->password;
-
-            if ($senderUsername != '' && $password != '') {
-                $instagram->setProxy($acc->proxy);
-                $instagram->login($senderUsername, $password);
-
-            } else {
-
-                return response()->json([
-                    'status' => 'Username Or PassWord empty',
-                ]);
-
-            }
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => $e,
-            ]);
-        }
-
-        $instagram->media->comment($request->get('post_id'), $request->get('message'));
-
-        $stat              = new CommentsStats();
-        $stat->target      = $request->get('hashtag');
-        $stat->sender      = $acc->last_name;
-        $stat->comment     = $request->get('message');
-        $stat->post_author = '';
-        $stat->code        = '';
-        $stat->narrative   = $request->get('narrative');
-        $stat->save();
-
-        return response()->json([
-            'status' => 'Message send success',
-        ]);
+//        $this->validate($request, [
+//            'message'    => 'required',
+//            'account_id' => 'required',
+//            'id'         => 'required',
+//            'hashtag'    => 'required',
+//            'narrative'  => 'required',
+//        ]);
+//
+//        $acc = Account::findOrFail($request->get('account_id'));
+//
+//        $instagram = new Instagram();
+//
+//        try {
+//
+//            $senderUsername = $acc->last_name;
+//            $password       = $acc->password;
+//
+//            if ($senderUsername != '' && $password != '') {
+//                $instagram->setProxy($acc->proxy);
+//                $instagram->login($senderUsername, $password);
+//
+//            } else {
+//
+//                return response()->json([
+//                    'status' => 'Username Or PassWord empty',
+//                ]);
+//
+//            }
+//
+//        } catch (\Exception $e) {
+//            return response()->json([
+//                'status' => $e,
+//            ]);
+//        }
+//
+//        $instagram->media->comment($request->get('post_id'), $request->get('message'));
+//
+//        $stat              = new CommentsStats();
+//        $stat->target      = $request->get('hashtag');
+//        $stat->sender      = $acc->last_name;
+//        $stat->comment     = $request->get('message');
+//        $stat->post_author = '';
+//        $stat->code        = '';
+//        $stat->narrative   = $request->get('narrative');
+//        $stat->save();
+//
+//        return response()->json([
+//            'status' => 'Message send success',
+//        ]);
 
         //InstagramComment::dispatchNow($request);
 
@@ -503,34 +503,34 @@ class HashtagController extends Controller
 
     public function flagMedia($id)
     {
-        $m           = new FlaggedInstagramPosts();
-        $m->media_id = $id;
-        $m->save();
-
-        return response()->json([
-            'status' => 'success',
-        ]);
+//        $m           = new FlaggedInstagramPosts();
+//        $m->media_id = $id;
+//        $m->save();
+//
+//        return response()->json([
+//            'status' => 'success',
+//        ]);
     }
 
     public function markPriority(Request $request)
     {
-        // dd($request);
-        $id = $request->id;
-        //check if 30 limit is exceded
-        $hashtags = HashTag::where('priority', 1)->where('platforms_id', $this->platformsId)->get();
-
-        if (count($hashtags) > 30 && $request->type == 1) {
-            return response()->json([
-                'status' => 'error',
-            ]);
-        }
-
-        $hashtag           = HashTag::findOrFail($id);
-        $hashtag->priority = $request->type;
-        $hashtag->update();
-        return response()->json([
-            'status' => 'success',
-        ]);
+//        // dd($request);
+//        $id = $request->id;
+//        //check if 30 limit is exceded
+//        $hashtags = HashTag::where('priority', 1)->where('platforms_id', $this->platformsId)->get();
+//
+//        if (count($hashtags) > 30 && $request->type == 1) {
+//            return response()->json([
+//                'status' => 'error',
+//            ]);
+//        }
+//
+//        $hashtag           = HashTag::findOrFail($id);
+//        $hashtag->priority = $request->type;
+//        $hashtag->update();
+//        return response()->json([
+//            'status' => 'success',
+//        ]);
     }
 
     public function rumCommand(Request $request)

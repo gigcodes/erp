@@ -43,7 +43,7 @@ class AutoReplyHashtagsController extends Controller
     {
         $h = new AutoReplyHashtags();
         $h->text = $request->get('hashtag');
-        $h->type = 'hashtag';
+//        $h->type = 'hashtag';
         $h->status = 1;
         $h->save();
 

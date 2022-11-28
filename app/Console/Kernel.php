@@ -15,7 +15,7 @@ use App\Console\Commands\AutoMessenger;
 use App\Console\Commands\AutoReminder;
 use App\Console\Commands\BuildStatus;
 use App\Console\Commands\CacheMasterControl;
-use App\Console\Commands\ChangeTesterBasedOnTeamLead;
+//use App\Console\Commands\ChangeTesterBasedOnTeamLead;
 use App\Console\Commands\CheckEmailsErrors;
 use App\Console\Commands\CheckLogins;
 use App\Console\Commands\CheckMessagesErrors;
@@ -66,8 +66,8 @@ use App\Console\Commands\MonitorCronJobs;
 use App\Console\Commands\MovePlannedTasks;
 use App\Console\Commands\NumberOfImageCroppedCheck;
 use App\Console\Commands\ParseLog;
-use App\Console\Commands\PostScheduledMedia;
-use App\Console\Commands\ProcessCommentsFromCompetitors;
+//use App\Console\Commands\PostScheduledMedia;
+//use App\Console\Commands\ProcessCommentsFromCompetitors;
 use App\Console\Commands\productActivityStore;
 use App\Console\Commands\ProjectDirectory;
 use App\Console\Commands\ProjectFileManagerDateAndSize;
@@ -90,7 +90,7 @@ use App\Console\Commands\scrappersImages;
 use App\Console\Commands\scrappersImagesDelete;
 use App\Console\Commands\SendActivitiesListing;
 use App\Console\Commands\SendAutoReplyToCustomers;
-use App\Console\Commands\SendBroadcastMessageToColdLeads;
+//use App\Console\Commands\SendBroadcastMessageToColdLeads;
 use App\Console\Commands\SendDailyLearningReports;
 use App\Console\Commands\SendDailyPlannerNotification;
 use App\Console\Commands\SendDailyPlannerReport;
@@ -168,7 +168,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         FetchMagentoCronData::class,
         GoogleWebMasterFetchAllRecords::class,
-        PostScheduledMedia::class,
+//        PostScheduledMedia::class,
         CheckLogins::class,
         //        SyncInstagramMessage::class,
         GetGebnegozionlineProductDetails::class,
@@ -208,7 +208,7 @@ class Kernel extends ConsoleKernel
         GetGebnegozionlineProductDetailsWithEmulator::class,
         UpdateInventory::class,
         UpdateMagentoProductStatus::class,
-        SendBroadcastMessageToColdLeads::class,
+//        SendBroadcastMessageToColdLeads::class,
         MovePlannedTasks::class,
         SendDailyPlannerReport::class,
         ResetDailyPlanner::class,
@@ -261,7 +261,7 @@ class Kernel extends ConsoleKernel
         RunPriorityKeywordSearch::class,
         CacheMasterControl::class,
         InfluencerDescription::class,
-        ProcessCommentsFromCompetitors::class,
+//        ProcessCommentsFromCompetitors::class,
         SendEventNotificationBefore24hr::class,
         SendEventNotificationBefore2hr::class,
         //SendEventNotificationBefore30min::class,
@@ -298,7 +298,7 @@ class Kernel extends ConsoleKernel
         InsertPleskEmail::class,
         StoreChatMessagesToAutoCompleteMessages::class,
         RemoveScrapperImages::class,
-        ChangeTesterBasedOnTeamLead::class,
+//        ChangeTesterBasedOnTeamLead::class,
         AddGroupTheme::class,
         UpdateProductInformationFromCsv::class,
 //        SendInstagramMessageInQueue::class,
@@ -681,8 +681,8 @@ class Kernel extends ConsoleKernel
 //        $schedule->command('InstaAutoFeedDaily')->daily();
         //cron for updating data from csv
         $schedule->command('update-product:from-csv')->daily();
-//        $schedule->command('send-instagram-message:in-queue')->everyMinute();
-        //$schedule->command('ConnectGoogleClientAccounts')->hourly();
+        $schedule->command('send-instagram-message:in-queue')->everyMinute();
+        $schedule->command('ConnectGoogleClientAccounts')->hourly();
 
         // get python site log
         $schedule->command('get:pythonLogs')->daily();

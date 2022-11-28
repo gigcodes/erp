@@ -16,36 +16,36 @@ use App\InfluencersDM;
 use App\InstagramAutomatedMessages;
 use App\Product;
 use App\ScheduleGroup;
-use App\Services\Instagram\DirectMessage;
-use App\Services\Instagram\Instagram;
+//use App\Services\Instagram\DirectMessage;
+//use App\Services\Instagram\Instagram;
 use App\TargetLocation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\Facebook\Facebook;
 use App\Priority;
-use App\Library\Instagram\Helper;
-use App\InstagramUsersList;
+//use App\Library\Instagram\Helper;
+//use App\InstagramUsersList;
 use App\Social\SocialConfig;
 use App\SocialContact;
 use App\SocialContactThread;
 
 class InstagramController extends Controller
 {
-    private $instagram;
+//    private $instagram;
     private $facebook;
     private $messages;
 
     /**
      * InstagramController constructor.
-     * @param Instagram $instagram
+//     * @param Instagram $instagram
      * @param Facebook $facebook
-     * @param DirectMessage $messages
+//     * @param DirectMessage $messages
      */
-    public function __construct(Instagram $instagram, Facebook $facebook, DirectMessage $messages)
+    public function __construct( Facebook $facebook)
     {
-        $this->instagram = $instagram;
-        $this->facebook = $facebook;
-        $this->messages = $messages;
+//        $this->instagram = $instagram;
+//        $this->facebook = $facebook;
+//        $this->messages = $messages;
     }
 
     /**
@@ -53,15 +53,15 @@ class InstagramController extends Controller
      *  Simply returns the count of automated messages, accounts, total influencers and other details as given in below variables
      */
     public function index() {
-        $accounts = Account::where('platform', 'instagram')->get()->count();
-        $automatedMessages = InstagramAutomatedMessages::get()->count();
-        $commentsToday = HashtagPostHistory::where('type', 'comment')->where('post_date', date('Y-m-d'))->count();
-        $commentsTotal = HashtagPostHistory::where('type', 'comment')->count();
-        $influencersTotal = Influencers::get()->count();
-        $date = date('Y-m-d');
-        $infDmToday = InfluencersDM::where('created_at', 'LIKE', "%$date%")->get()->count();
-        $infDm = InfluencersDM::get()->count();
-        return view('instagram.dashboard', compact('accounts', 'automatedMessages', 'commentsToday', 'commentsTotal', 'influencersTotal', 'infDmToday', 'infDm'));
+//        $accounts = Account::where('platform', 'instagram')->get()->count();
+//        $automatedMessages = InstagramAutomatedMessages::get()->count();
+//        $commentsToday = HashtagPostHistory::where('type', 'comment')->where('post_date', date('Y-m-d'))->count();
+//        $commentsTotal = HashtagPostHistory::where('type', 'comment')->count();
+//        $influencersTotal = Influencers::get()->count();
+//        $date = date('Y-m-d');
+//        $infDmToday = InfluencersDM::where('created_at', 'LIKE', "%$date%")->get()->count();
+//        $infDm = InfluencersDM::get()->count();
+//        return view('instagram.dashboard', compact('accounts', 'automatedMessages', 'commentsToday', 'commentsTotal', 'influencersTotal', 'infDmToday', 'infDm'));
     }
 
 
@@ -72,20 +72,20 @@ class InstagramController extends Controller
      * that is in Instagram account
      */
     public function showPosts(Request $request) {
-        $url = null;
-
-        if ($request->has('next') && !empty($request->get('next'))) {
-            $url = substr($request->get('next'), 32);
-        } else if ($request->has('previous') && !empty($request->get('previous'))) {
-            $url = substr($request->get('previous'), 32);
-        }
-
-        [$posts, $paging] = $this->instagram->getMedia($url);
-
-        return view('instagram.index', compact(
-            'posts',
-            'paging'
-        ));
+//        $url = null;
+//
+//        if ($request->has('next') && !empty($request->get('next'))) {
+//            $url = substr($request->get('next'), 32);
+//        } else if ($request->has('previous') && !empty($request->get('previous'))) {
+//            $url = substr($request->get('previous'), 32);
+//        }
+//
+//        [$posts, $paging] = $this->instagram->getMedia($url);
+//
+//        return view('instagram.index', compact(
+//            'posts',
+//            'paging'
+//        ));
     }
 
     /**
@@ -110,7 +110,7 @@ class InstagramController extends Controller
         $account->manual_comment = $request->get('manual_comments') == 'on' ? 1 : 0;
         $account->bulk_comment = $request->get('bulk_comments') == 'on' ? 1 : 0;
         $account->dob = '1996-02-02';
-        $account->platform = 'instagram';
+//        $account->platform = 'instagram';
         $account->gender = $request->get('gender');
         $account->country = $request->get('country');
         $account->save();
@@ -180,13 +180,13 @@ class InstagramController extends Controller
      * get Instagram acomments for the post ID...
      */
     public function getComments(Request $request) {
-        $this->validate($request, [
-            'post_id' => 'required'
-        ]);
-
-        $comments = $this->instagram->getComments($request->get('post_id'));
-
-        return response()->json($comments);
+//        $this->validate($request, [
+//            'post_id' => 'required'
+//        ]);
+//
+//        $comments = $this->instagram->getComments($request->get('post_id'));
+//
+//        return response()->json($comments);
     }
 
     /**
@@ -201,14 +201,14 @@ class InstagramController extends Controller
             'post_id' => 'required'
         ]);
 
-        if ($request->has('comment_id') && !empty($request->get('comment_id'))) {
-            $commentId = $request->get('comment_id');
-            $comment = $this->instagram->postReply($commentId, $request->get('message'));
-            return response()->json($comment);
-        }
+//        if ($request->has('comment_id') && !empty($request->get('comment_id'))) {
+//            $commentId = $request->get('comment_id');
+//            $comment = $this->instagram->postReply($commentId, $request->get('message'));
+//            return response()->json($comment);
+//        }
 
-        $comment = $this->instagram->postComment($request->get('post_id'), $request->get('message'));
-        return response()->json($comment);
+//        $comment = $this->instagram->postComment($request->get('post_id'), $request->get('message'));
+//        return response()->json($comment);
     }
 
     /**
@@ -281,7 +281,7 @@ class InstagramController extends Controller
             $schedule = new ImageSchedule();
             $schedule->image_id = $request->get('image_id');
             $schedule->facebook = ($request->get('facebook') === 'on') ? 1 : 0;
-            $schedule->instagram = ($request->get('instagram') === 'on') ? 1 : 0;
+//            $schedule->instagram = ($request->get('instagram') === 'on') ? 1 : 0;
             $schedule->description = $request->get('description');
             $schedule->scheduled_for = $date;
             $schedule->status = 0;
@@ -300,7 +300,7 @@ class InstagramController extends Controller
                 'time' => $schedule->scheduled_for->diffForHumans(),
                 'posted_to' => [
                     'facebook' => $schedule->facebook,
-                    'instagram' => $schedule->instagram
+//                    'instagram' => $schedule->instagram
                 ],
                 'message' => 'This post has been scheduled for post.'
             ]);
@@ -314,7 +314,7 @@ class InstagramController extends Controller
         $schedule = new ImageSchedule();
         $schedule->image_id = $request->get('image_id');
         $schedule->facebook = ($request->get('facebook') === 'on') ? 1 : 0;
-        $schedule->instagram = ($request->get('instagram') === 'on') ? 1 : 0;
+//        $schedule->instagram = ($request->get('instagram') === 'on') ? 1 : 0;
         $schedule->description = $request->get('description');
         $schedule->scheduled_for = date('Y-m-d');
         $schedule->status = 0;
@@ -328,7 +328,7 @@ class InstagramController extends Controller
         }
 
         if ($request->get('instagram') === 'on') {
-            $this->instagram->postMedia($image, $request->get('description'));
+//            $this->instagram->postMedia($image, $request->get('description'));
             ImageSchedule::whereIn('image_id', $this->instagram->getImageIds())->update([
                 'status' => 1
             ]);
@@ -362,11 +362,11 @@ class InstagramController extends Controller
             ]);
         }
         if ($images[0]->schedule->instagram) {
-            $this->instagram->postMedia($images);
-            ImageSchedule::whereIn('image_id', $this->instagram->getImageIds())->update([
-                'status' => 1,
-                'scheduled_for' => date('Y-m-d h:i:00')
-            ]);
+//            $this->instagram->postMedia($images);
+//            ImageSchedule::whereIn('image_id', $this->instagram->getImageIds())->update([
+//                'status' => 1,
+//                'scheduled_for' => date('Y-m-d h:i:00')
+//            ]);
         }
 
         $schedule->status = 2;
@@ -445,7 +445,7 @@ class InstagramController extends Controller
             $schedule = new ImageSchedule();
             $schedule->image_id = $image;
             $schedule->facebook = ($request->get('facebook') === 'on') ? 1 : 0;
-            $schedule->instagram = ($request->get('instagram') === 'on') ? 1 : 0;
+//            $schedule->instagram = ($request->get('instagram') === 'on') ? 1 : 0;
             $schedule->description = $descriptions[$image] ?? '';
             $schedule->scheduled_for = $date;
             $schedule->status = 0;
@@ -814,13 +814,13 @@ class InstagramController extends Controller
             $username = str_replace(['https://www.instagram.com/','/'], '', $request->userlink);
 
             $reAccount =  $request->get("account", 0);
-            $account  = \App\Marketing\InstagramConfig::find($reAccount);
+//            $account  = \App\Marketing\InstagramConfig::find($reAccount);
             $usernameI = false;
             $passwordI = false;
-            if($account) {
-                $usernameI = $account->username;
-                $passwordI = $account->password;
-            }
+//            if($account) {
+//                $usernameI = $account->username;
+//                $passwordI = $account->password;
+//            }
 
             $username = Helper::getUserIdFromUsername($username,$usernameI,$passwordI);
             if($username['status'] == 'ok'){

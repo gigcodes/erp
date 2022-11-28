@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\ChatMessage;
-use App\InstagramThread;
+//use App\InstagramThread;
 use App\Setting;
 use Illuminate\Console\Command;
 //use InstagramAPI\Instagram;
