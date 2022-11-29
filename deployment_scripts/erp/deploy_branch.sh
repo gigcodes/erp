@@ -8,8 +8,9 @@ then
 else
 	cd $scriptPath;
 	cd ../..
+	git reset --hard
+	git clean -fd
 	git checkout $BRANCH_NAME;
-	git reset --hard origin/$BRANCH_NAME
 	git pull origin $BRANCH_NAME
 	./artisan migrate
 	echo $BRANCH_NAME;

@@ -2,8 +2,8 @@
 
 namespace App\Library\Instagram;
 
-use InstagramAPI\Request\People;
-use InstagramAPI\Instagram;
+//use InstagramAPI\Request\People;
+//use InstagramAPI\Instagram;
 
 class Helper
 {
@@ -78,24 +78,24 @@ class Helper
         return true;
     }
 
-    public static function getUserIdFromUsername($username, $loginUser = false, $loginPassword = false)
-    {
-        // Create instance
-        $instagram = new Instagram();
-        if(empty($loginUser)) {
-            $loginUser = "satyam_t";
-        }
-        if(empty($loginPassword)) {
-            $loginPassword = "Schoolrocks93";
-        }
-        // Login to Instagram
-        try {
-            $instagram->login($loginUser, $loginPassword);
-        }catch(Exception $e){
-            dd('Could Login to Account : '.$e->getMessage());
-        }
-        $profile = $instagram->people->getInfoByName($username)->asArray();
-        return $profile;
-    }
+//    public static function getUserIdFromUsername($username, $loginUser = false, $loginPassword = false)
+//    {
+//        // Create instance
+//        $instagram = new Instagram();
+//        if(empty($loginUser)) {
+//            $loginUser = "satyam_t";
+//        }
+//        if(empty($loginPassword)) {
+//            $loginPassword = "Schoolrocks93";
+//        }
+//        // Login to Instagram
+//        try {
+//            $instagram->login($loginUser, $loginPassword);
+//        }catch(Exception $e){
+//            dd('Could Login to Account : '.$e->getMessage());
+//        }
+//        $profile = $instagram->people->getInfoByName($username)->asArray();
+//        return $profile;
+//    }
 
 }

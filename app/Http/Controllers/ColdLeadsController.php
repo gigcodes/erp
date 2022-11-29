@@ -6,15 +6,15 @@ use App\Account;
 use App\Brand;
 use App\ColdLeads;
 use App\Customer;
-use App\InstagramDirectMessages;
-use App\InstagramThread;
+//use App\InstagramDirectMessages;
+//use App\InstagramThread;
 use App\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use InstagramAPI\Instagram;
-use InstagramAPI\Media\Photo\InstagramPhoto;
+//use InstagramAPI\Instagram;
+//use InstagramAPI\Media\Photo\InstagramPhoto;
 
-Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
+//Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class ColdLeadsController extends Controller
 {
@@ -168,133 +168,133 @@ class ColdLeadsController extends Controller
         }
 
         $messageType = 1;
-        if ($request->has('image')) {
-            $status = $this->sendFileToInstagramUser($senderUsername, $password, $receiverId, $request->file('image'), $lead);
-            $messageType = 2;
-        } else {
-            $status = $this->sendMessageToInstagramUser($senderUsername, $password, $receiverId, $message, $lead);
-        }
+//        if ($request->has('image')) {
+//            $status = $this->sendFileToInstagramUser($senderUsername, $password, $receiverId, $request->file('image'), $lead);
+//            $messageType = 2;
+//        } else {
+//            $status = $this->sendMessageToInstagramUser($senderUsername, $password, $receiverId, $message, $lead);
+//        }
 
-        if ($status === false) {
-            return response()->json([
-                'error'
-            ], 413);
-        }
+//        if ($status === false) {
+//            return response()->json([
+//                'error'
+//            ], 413);
+//        }
         $accountId = 1;
-        $thread = InstagramThread::where('account_id', $accountId)->where('cold_lead_id', $leadId)->first();
-        if (!$thread) {
-            $thread = new InstagramThread();
-            $thread->account_id = $accountId;
-            $thread->cold_lead_id = $leadId;
-        }
-        $thread->last_message = $message;
-        $thread->save();
+//        $thread = InstagramThread::where('account_id', $accountId)->where('cold_lead_id', $leadId)->first();
+//        if (!$thread) {
+//            $thread = new InstagramThread();
+//            $thread->account_id = $accountId;
+//            $thread->cold_lead_id = $leadId;
+//        }
+//        $thread->last_message = $message;
+//        $thread->save();
 
-        $dm = new InstagramDirectMessages();
-        $dm->instagram_thread_id = $thread->id;
-        $dm->message_type = $messageType;
-        $dm->sender_id = $status[1];
-        $dm->message = $status[2];
-        $dm->receiver_id = $receiverId;
-        $dm->status = 1;
-        $dm->save();
+//        $dm = new InstagramDirectMessages();
+//        $dm->instagram_thread_id = $thread->id;
+//        $dm->message_type = $messageType;
+//        $dm->sender_id = $status[1];
+//        $dm->message = $status[2];
+//        $dm->receiver_id = $receiverId;
+//        $dm->status = 1;
+//        $dm->save();
 
-        return response()->json([
-            'status' => 'success',
-            'receiver_id' => $receiverId,
-            'sender_id' => $status[1],
-            'message' => $status[2]
-        ]);
-
-    }
-
-    private function sendFileToInstagramUser($sender, $password, $receiver, $file, $lead) {
-        $i = new Instagram();
-
-        try {
-            $i->login($sender, $password);
-        } catch (\Exception $exception) {
-            return false;
-        }
-
-        if (!is_scalar($receiver)) {
-            $receiver = $i->people->getUserIdForName($receiver);
-            $lead->platform_id = $receiver;
-            $lead->save();
-        }
-
-
-        $fileName = Storage::disk('uploads')->putFile('', $file);
-
-        $photo = new InstagramPhoto($file);
-        $i->direct->sendPhoto([
-            'users' => [
-                $receiver
-            ]
-        ], $photo->getFile());
-
-        return [true, $i->account_id, $fileName];
-
+//        return response()->json([
+//            'status' => 'success',
+//            'receiver_id' => $receiverId,
+//            'sender_id' => $status[1],
+//            'message' => $status[2]
+//        ]);
 
     }
 
-    private function sendMessageToInstagramUser($sender, $password,  $receiver, $message, $lead) {
+//    private function sendFileToInstagramUser($sender, $password, $receiver, $file, $lead) {
+//        $i = new Instagram();
+//
+//        try {
+//            $i->login($sender, $password);
+//        } catch (\Exception $exception) {
+//            return false;
+//        }
+//
+//        if (!is_scalar($receiver)) {
+//            $receiver = $i->people->getUserIdForName($receiver);
+//            $lead->platform_id = $receiver;
+//            $lead->save();
+//        }
+//
+//
+//        $fileName = Storage::disk('uploads')->putFile('', $file);
+//
+//        $photo = new InstagramPhoto($file);
+//        $i->direct->sendPhoto([
+//            'users' => [
+//                $receiver
+//            ]
+//        ], $photo->getFile());
+//
+//        return [true, $i->account_id, $fileName];
+//
+//
+//    }
 
-        $i = new Instagram();
+//    private function sendMessageToInstagramUser($sender, $password,  $receiver, $message, $lead) {
+//
+//        $i = new Instagram();
+//
+//        try {
+//            $i->login($sender, $password);
+//        } catch (\Exception $exception) {
+//            return false;
+//        }
+//
+//        if (!is_numeric($receiver)) {
+//            $receiver = $i->people->getUserIdForName($receiver);
+//            $lead->platform_id = $receiver;
+//            $lead->save();
+//        }
+//
+//        try {
+//            $i->direct->sendText([
+//                'users' => [
+//                    $receiver
+//                ]
+//            ], $message);
+//        } catch (\Exception $exception) {
+//            dd($exception);
+//        }
+//        return [true, $i->account_id, $message];
+//
+//    }
 
-        try {
-            $i->login($sender, $password);
-        } catch (\Exception $exception) {
-            return false;
-        }
-
-        if (!is_numeric($receiver)) {
-            $receiver = $i->people->getUserIdForName($receiver);
-            $lead->platform_id = $receiver;
-            $lead->save();
-        }
-
-        try {
-            $i->direct->sendText([
-                'users' => [
-                    $receiver
-                ]
-            ], $message);
-        } catch (\Exception $exception) {
-            dd($exception);
-        }
-        return [true, $i->account_id, $message];
-
-    }
-
-    public function getMessageThread($id) {
-        $instagramThread = InstagramThread::where('cold_lead_id', $id)->get();
-        $processedThread = [];
-
-        foreach ($instagramThread as $item) {
-            $messages = $item->conversation;
-            $coldLeadPlatformId = $item->lead->platform_id;
-
-            $processedMessages = [];
-            foreach ($messages as $message) {
-                $processedMessages[] = [
-                    'message' => $message->message,
-                    'type' => $message->message_type,
-                    'sender_id' => $message->sender_id,
-                    'receiver_id' => $message->receiver_id,
-                    'created_at' => $message->created_at->format('Y-m-d')
-                ];
-            }
-
-            $processedThread[] = [
-                'messages' => $processedMessages,
-                'lead_instagram_id' => $coldLeadPlatformId,
-                'account_id' => $item->account_id
-            ];
-        }
-
-        return response()->json($processedThread);
-    }
+//    public function getMessageThread($id) {
+//        $instagramThread = InstagramThread::where('cold_lead_id', $id)->get();
+//        $processedThread = [];
+//
+//        foreach ($instagramThread as $item) {
+//            $messages = $item->conversation;
+//            $coldLeadPlatformId = $item->lead->platform_id;
+//
+//            $processedMessages = [];
+//            foreach ($messages as $message) {
+//                $processedMessages[] = [
+//                    'message' => $message->message,
+//                    'type' => $message->message_type,
+//                    'sender_id' => $message->sender_id,
+//                    'receiver_id' => $message->receiver_id,
+//                    'created_at' => $message->created_at->format('Y-m-d')
+//                ];
+//            }
+//
+//            $processedThread[] = [
+//                'messages' => $processedMessages,
+//                'lead_instagram_id' => $coldLeadPlatformId,
+//                'account_id' => $item->account_id
+//            ];
+//        }
+//
+//        return response()->json($processedThread);
+//    }
 
     public function addToCustomer($leadId) {
 
