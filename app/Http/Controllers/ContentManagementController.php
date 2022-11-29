@@ -59,7 +59,7 @@ class ContentManagementController extends Controller
             //     $password = $w->facebookAccount->password;
             //     $decryptedPassword = decrypt($password);
             // }
-            $w->instagramAccount = StoreSocialAccount::where('platform','instagram')->where('store_website_id',$w->id)->first();
+//            $w->instagramAccount = StoreSocialAccount::where('platform','instagram')->where('store_website_id',$w->id)->first();
 
         }
         return view('content-management.index', compact('title','websites','gmail_data','content_management_email'));

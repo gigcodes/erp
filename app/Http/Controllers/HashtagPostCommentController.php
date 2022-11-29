@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\HashtagPostComment;
 use Illuminate\Http\Request;
-use InstagramAPI\Instagram;
+//use InstagramAPI\Instagram;
 
 class HashtagPostCommentController extends Controller
 {

@@ -7,7 +7,7 @@
 
 namespace App\Library;
 
-use InstagramAPI\Instagram;
+//use InstagramAPI\Instagram;
 
 class Pilot extends Instagram
 {
