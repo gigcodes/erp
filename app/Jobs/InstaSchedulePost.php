@@ -8,7 +8,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-use App\Library\Instagram\PublishPost;
+//use App\Library\Instagram\PublishPost;
 
 class InstaSchedulePost implements ShouldQueue
 {
