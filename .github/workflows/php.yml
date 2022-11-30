@@ -138,6 +138,10 @@ jobs:
       - uses: php-actions/phpstan@v3
         with:
           path: .
+          memory_limit: 512M
+#          php_version: "7.2"
+#          php_extensions: pdo pdo_mysql sockets mbstring zip exif pcntl soap mysqli bcmath gd imap
+
 
 ## THIS IS WORKING FINE - FOR TESTING PURPOSE ONLY
 #  updateAuthors:
