@@ -8,9 +8,11 @@ then
 else
 	cd $scriptPath;
 	cd ../..
-	git checkout $BRANCH_NAME;
-	git reset --hard origin/$BRANCH_NAME
-	git pull origin $BRANCH_NAME
+	git reset --hard
+	git clean -fd
+	git pull origin
+	git checkout $BRANCH_NAME
+	git pull --rebase
 	./artisan migrate
 	echo $BRANCH_NAME;
 	if [ ! -z $COMPOSER_UPDATE ] && [ $COMPOSER_UPDATE  == "true" ]

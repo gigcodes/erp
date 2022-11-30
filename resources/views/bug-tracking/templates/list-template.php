@@ -5,15 +5,16 @@
 		      <tr>
 		      	<th>ID</th>
                 <th>Summary</th>
-                <th>Type of Bug</th>
+                <th>Type</th>
                 <th>Steps to reproduce</th>
                 <th>Environment</th>
-                <th> Screenshot/Video url</th>
+                <th class='break'>Screenshot/Video url</th>
+                <th>Created By</th>
                 <th>Assign to</th>
                 <th>Severity</th>
                 <th>Status</th>
-                <th>Module/Feature</th>
-                <th>Remarks </th>
+                <th>Module</th>
+                <th>Communicaton</th>
                 <th>Website</th>
                 <th width="200px">Action</th>
 		      </tr>
@@ -21,27 +22,66 @@
 		    <tbody>
 		    	{{props data}}
 			      <tr>
-			      	<td>{{:prop.id}}</td>
-			        <td class='break'>{{:prop.summary}}</td>
+			      	<td class='break'>{{:prop.id}} <br/>
+			      	<h6 class='break'>{{:prop.created_at_date}}</h6>
+			      	</td>
+			        <td class='break expand-row-msg' data-name="summary" id="copy" data-id="{{:prop.id}}"><span class="show-short-summary-{{:prop.id}}" onclick="copySumText()">{{:prop.summary_short}}</span>
+                        <span class="show-full-summary-{{:prop.id}} hidden" >{{:prop.summary}}</span>
+                    </td>
 			        <td class='break'>{{:prop.bug_type_id}}</td>
-			        <td class='break'>{{:prop.step_to_reproduce}}</td>
+			        <td class='break expand-row-msg' data-name="step_to_reproduce" data-id="{{:prop.id}}"><span class="show-short-Steps to reproduce-{{:prop.id}}">{{:prop.step_to_reproduce_short}}</span>
+                        <span class="show-full-step_to_reproduce-{{:prop.id}} hidden" >{{:prop.step_to_reproduce}}</span>
+                    </td>
 			        <td class='break'>{{:prop.bug_environment_id}}</td>
-			        <td class='break'>{{:prop.url}}</td>
-			        <td class='break'>
-			        <select class='form-control assign_to'  data-id="{{>prop.id}}">
-			        <?php
-                         foreach ($users as $user) {
-                             echo "<option {{if prop.assign_to == '".$user->id."'}} selected {{/if}} value='".$user->id."'>".$user->name.'</option>';
-                         }
-			        ?>
-			        </select>
-			        </td>
-			        <td class='break'>{{:prop.bug_severity_id}}</td>
-			        <td class='break'>{{:prop.bug_status_id}}</td>
-			        <td class='break'>{{:prop.module_id}}</td>
-			        <td class='break'>{{:prop.remark}}</td>
-			        <td class='break'>{{:prop.website}}</td>
+			        <td class='break expand-row-msg' data-name="url" data-id="{{:prop.id}}">
+			            <a href="{{:prop.url}}" target="_blank">
+			                <span href="" class="show-short-url-{{:prop.id}}">{{:prop.url_short}}</span>
+                            <span href="" class="show-full-url-{{:prop.id}} hidden" >{{:prop.url}}</span>
+                        </a>
 
+                        <button type="button"  class="btn btn-copy-url btn-sm" data-id="{{:prop.url}}" style="border:1px solid">
+                            <i class="fa fa-clone" aria-hidden="true"></i></button>
+                     </td>
+                     <td class='break'>{{:prop.created_by}}</td>
+
+			        <td class='break'>
+			            <select class='form-control assign_to'  data-id="{{>prop.id}}">
+			                <?php
+                                foreach ($users as $user) {
+                                echo "<option {{if prop.assign_to == '" . $user->id . "'}} selected {{/if}} value='" . $user->id . "'>" . $user->name . "</option>";
+                                }
+                            ?>
+			            </select>
+			        </td>
+			        <td class='break'>
+			           <select class='form-control bug_severity_id'  data-id="{{>prop.id}}">
+			            <?php
+                            foreach ($bugSeveritys as $bugSeverity) {
+                                echo "<option {{if prop.bug_severity_id == '" . $bugSeverity->id . "'}} selected {{/if}} value='" . $bugSeverity->id . "'>" . $bugSeverity->name . "</option>";
+                            }
+                        ?>
+			            </select>
+			        </td>
+			        <td class='break'>
+			            <select class='form-control bug_status_id'  data-id="{{>prop.id}}">
+			                <?php
+                            foreach ($bugStatuses as $bugStatus) {
+                                echo "<option {{if prop.bug_status_id == '" . $bugStatus->id . "'}} selected {{/if}} value='" . $bugStatus->id . "'>" . $bugStatus->name . "</option>";
+                            }
+                            ?>
+			            </select>
+			        </td>
+			        <td class='break'>{{:prop.module_id}}</td>
+			        <td class='break'>
+                    <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{>prop.id}}" name="message" placeholder="Message" value="">
+                    <div style="max-width: 30px;">
+                    <button class="btn btn-sm btn-image send-message" title="Send message" data-id="{{>prop.id}}"><img src="images/filled-sent.png" /></button>
+                    </div>
+                    <div style="max-width: 30px;">
+                       <button type="button" class="btn btn-xs btn-image btn-load-communication-modal" data-object='bug' data-id="{{>prop.id}}" title="Load messages"><img src="images/chat.png" alt=""></button>
+                    </div>
+			        </td>
+			        <td class='break'>{{:prop.website}}</td>
 			        <td>
 			        	<button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template">
 			        		<i class="fa fa-edit" aria-hidden="true"></i>
@@ -60,4 +100,23 @@
 		</table>
 		{{:pagination}}
 	</div>
+	<div id="bugtrackingShowFullTextModel" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div id="add-mail-content">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title">Full text view</h3>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body bugtrackingmanShowFullTextBody">
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </script>

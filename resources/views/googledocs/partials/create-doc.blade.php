@@ -25,8 +25,17 @@
                         <strong>Name:</strong>
                         <input type="text" name="doc_name" value="{{ old('doc_name') }}" class="form-control input-sm" placeholder="Document Name" required>
 
-                        @if ($errors->has('name'))
-                            <div class="alert alert-danger">{{$errors->first('name')}}</div>
+                        @if ($errors->has('doc_name'))
+                            <div class="alert alert-danger">{{$errors->first('doc_name')}}</div>
+                        @endif
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Existing Doc Id:</strong>
+                        <input type="text" name="existing_doc_id" value="{{ old('existing_doc_id') }}" class="form-control input-sm" placeholder="Existing Document ID">
+
+                        @if ($errors->has('existing_doc_id'))
+                            <div class="alert alert-danger">{{$errors->first('existing_doc_id')}}</div>
                         @endif
                     </div>
                 </div>
