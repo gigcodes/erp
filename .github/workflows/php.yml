@@ -103,16 +103,19 @@ jobs:
 #          restore-keys: |
 #            ${{ runner.os }}-php-${{ hashFiles('**/composer.json') }}
 
-      - name: Get Composer Cache Directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
+#      - name: Get Composer Cache Directory
+#        id: composer-cache
+#        run: |
+#          echo "::set-output name=dir::$(composer config cache-files-dir)"
       - uses: actions/cache@v3
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: |
             ${{ runner.os }}-composer-
+      - name: 'Create env file'
+          run: |
+            echo "${{ secrets.ENV_FILE }}" > .env
       - name: "setup private repo"
         uses: php-actions/composer@v6
         with:
