@@ -113,8 +113,10 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: |
             ${{ runner.os }}-composer-
+
       - name: 'Create env file'
           run: 'echo "${{ secrets.ENV_FILE }}" > .env'
+
       - name: "setup private repo"
         uses: php-actions/composer@v6
         with:
