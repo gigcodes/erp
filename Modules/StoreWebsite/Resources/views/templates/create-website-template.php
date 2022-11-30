@@ -330,7 +330,15 @@
          <div class="MainMagentoUser">
             {{if totaluser != 0}}
             {{props userdata}}
-            <div class="subMagentoUser" style="border:1px solid #ccc;padding: 15px;margin-bottom:5px">
+               {{if prop.is_deleted}}
+                  <div class="subMagentoUser " style="border:1px solid #ccc;padding: 15px;margin-bottom:5px;height: 76px;overflow: hidden; ">  
+                  <button type="button" data-id="" class="btn btn_expand_inactive btn-sm" style="border:1px solid">
+                     <i class="fa fa-ban" aria-hidden="true"></i>
+                  </button>
+               {{else}}
+                  <div class="subMagentoUser" style="border:1px solid #ccc;padding: 15px;margin-bottom:5px">            
+               {{/if}}
+            
                <div class="form-group">
                   <div class="row">
                      <div class="col-sm-6">

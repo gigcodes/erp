@@ -107,6 +107,10 @@ class Vendor extends Model
     {
         return $this->belongsTo('App\VendorCategory');
     }
+    public function vendorStatusDetail()
+    {
+        return $this->belongsTo('App\VendorStatusDetail','vendor_id','id');
+    }
 
     public function payments()
     {

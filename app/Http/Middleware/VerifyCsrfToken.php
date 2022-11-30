@@ -17,7 +17,7 @@ class VerifyCsrfToken extends Middleware
 		'run-webhook/*',
         'whatsapp/*',
         'livechat/*',
-        'api/instagram/post',
+//        'api/instagram/post',
         'duty/v1/calculate',
         'hubstaff/linkuser',
         'calendar',

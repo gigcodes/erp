@@ -11,9 +11,9 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use InstagramAPI\Instagram;
+//use InstagramAPI\Instagram;
 
-\InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
+//\InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class UsersAutoCommentHistoriesController extends Controller
 {
@@ -94,87 +94,87 @@ class UsersAutoCommentHistoriesController extends Controller
 
     }
 
-    public function verifyComment(Request $request) {
-        $autoCommentHistory = AutoCommentHistory::find($request->get('id'));
-        $autoCommentHistory->account_id = $request->get('account_id');
-        $autoCommentHistory->status = 1;
-        $autoCommentHistory->save();
-        $commentPosted = $autoCommentHistory->comment;
-
-        $instagram = new Instagram();
-        $instagram->login('sololuxury.official', 'Solo123!@#');
-
-        try {
-            $comments = $instagram->media->getComments($autoCommentHistory->post_id)->asArray();
-        } catch (\Exception $exception) {
-            $comments = ['comments' => []];
-        }
-
-        $comments = $comments['comments'];
-        $posted = false;
-
-
-        foreach ($comments as $comment) {
-            $text = $comment['text'];
-            similar_text($text, $commentPosted, $percentage);
-
-            if ($percentage > 95) {
-                $posted = true;
-                $autoCommentHistory->status = 1;
-                $autoCommentHistory->is_verified = 1;
-                $autoCommentHistory->save();
-
-                $history = DB::table('users_auto_comment_histories')
-                    ->where('user_id', Auth::user()->id)
-                    ->where('auto_comment_history_id', $autoCommentHistory->id)
-                    ->first();
-
-                if ($history) {
-                    DB::table('users_auto_comment_histories')
-                        ->where('user_id', Auth::user()->id)
-                        ->where('auto_comment_history_id', $autoCommentHistory->id)
-                        ->update([
-                        'status' => 1,
-                        'is_confirmed' => 1
-                    ]);
-
-                    //Save cost amount...
-
-                    $erpAccount = new ErpAccounts();
-                    $erpAccount->table = 'users_auto_comment_histories';
-                    $erpAccount->row_id = $history->id;
-                    $erpAccount->transacted_by = 109;
-                    $erpAccount->debit = 0;
-                    $erpAccount->credit = 0.1;
-                    $erpAccount->user_id = Auth::user()->id;
-                    $erpAccount->remark = json_encode([
-                        'table' => 'users_auto_comment_histories',
-                        'row_id' => $history->id,
-                        'message' => 'Instagram Post Comment confirmed',
-                        'tables_involved' => [
-                            ['accounts', $autoCommentHistory->account_id],
-                            ['users'. Auth::user()->id]
-                        ]
-                    ]);
-                    $erpAccount->save();
-
-                    return response()->json([
-                        'status' => 'verified'
-                    ]);
-                }
-            }
-        }
-
-        if ($posted) {
-            return response()->json([
-                'status' => 'posted'
-            ]);
-        }
-
-        return response()->json([
-            'status' => 'not_found'
-        ]);
-    }
+//    public function verifyComment(Request $request) {
+//        $autoCommentHistory = AutoCommentHistory::find($request->get('id'));
+//        $autoCommentHistory->account_id = $request->get('account_id');
+//        $autoCommentHistory->status = 1;
+//        $autoCommentHistory->save();
+//        $commentPosted = $autoCommentHistory->comment;
+//
+//        $instagram = new Instagram();
+//        $instagram->login('sololuxury.official', 'Solo123!@#');
+//
+//        try {
+//            $comments = $instagram->media->getComments($autoCommentHistory->post_id)->asArray();
+//        } catch (\Exception $exception) {
+//            $comments = ['comments' => []];
+//        }
+//
+//        $comments = $comments['comments'];
+//        $posted = false;
+//
+//
+//        foreach ($comments as $comment) {
+//            $text = $comment['text'];
+//            similar_text($text, $commentPosted, $percentage);
+//
+//            if ($percentage > 95) {
+//                $posted = true;
+//                $autoCommentHistory->status = 1;
+//                $autoCommentHistory->is_verified = 1;
+//                $autoCommentHistory->save();
+//
+//                $history = DB::table('users_auto_comment_histories')
+//                    ->where('user_id', Auth::user()->id)
+//                    ->where('auto_comment_history_id', $autoCommentHistory->id)
+//                    ->first();
+//
+//                if ($history) {
+//                    DB::table('users_auto_comment_histories')
+//                        ->where('user_id', Auth::user()->id)
+//                        ->where('auto_comment_history_id', $autoCommentHistory->id)
+//                        ->update([
+//                        'status' => 1,
+//                        'is_confirmed' => 1
+//                    ]);
+//
+//                    //Save cost amount...
+//
+//                    $erpAccount = new ErpAccounts();
+//                    $erpAccount->table = 'users_auto_comment_histories';
+//                    $erpAccount->row_id = $history->id;
+//                    $erpAccount->transacted_by = 109;
+//                    $erpAccount->debit = 0;
+//                    $erpAccount->credit = 0.1;
+//                    $erpAccount->user_id = Auth::user()->id;
+//                    $erpAccount->remark = json_encode([
+//                        'table' => 'users_auto_comment_histories',
+//                        'row_id' => $history->id,
+//                        'message' => 'Instagram Post Comment confirmed',
+//                        'tables_involved' => [
+//                            ['accounts', $autoCommentHistory->account_id],
+//                            ['users'. Auth::user()->id]
+//                        ]
+//                    ]);
+//                    $erpAccount->save();
+//
+//                    return response()->json([
+//                        'status' => 'verified'
+//                    ]);
+//                }
+//            }
+//        }
+//
+//        if ($posted) {
+//            return response()->json([
+//                'status' => 'posted'
+//            ]);
+//        }
+//
+//        return response()->json([
+//            'status' => 'not_found'
+//        ]);
+//    }
 
     /**
      * Show the form for creating a new resource.
