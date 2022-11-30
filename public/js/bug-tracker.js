@@ -45,6 +45,13 @@ var page = {
             page.createStatus();
         });
 
+        page.config.bodyView.on("click",".send-message",function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            var message = $('#getMsg'+id).val();
+            page.sendMessage(id,message);
+        });
+
         // delete product templates
         page.config.bodyView.on("click",".btn-delete-template",function(e) {
             if(!confirm("Are you sure you want to delete record?")) {
@@ -77,7 +84,9 @@ var page = {
         page.config.bodyView.on("click",".btn-push",function(e) {
             page.push($(this));
         });
-
+        page.config.bodyView.on("click",".btn-load-communication-modal",function(e) {
+            page.communicationModel($(this));
+        });
 
     },
     validationRule : function(response) {
@@ -209,7 +218,17 @@ var page = {
         }
         this.sendAjax(_z, "saveSite");
     },
-
+    sendMessage : function(id,message) {
+        var _z = {
+            url:  this.config.baseUrl + "/sendmessage",
+            method: "post",
+            data :{"id":id,message:message},
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveMessage");
+    },
     submitEnvironment : function(ele) {
         var _z = {
             url:  this.config.baseUrl + "/environment",
@@ -277,6 +296,19 @@ var page = {
             toastr["error"](response.error,"");
         }
     },
+    saveMessage : function(response) {
+        if(response.code  == 200) {
+            $("#loading-image").hide();
+
+            page.loadFirst();
+            // $(".common-modal").modal("hide");
+            toastr["success"](response.message,"Bug Tracking Saved Successfully");
+
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
     saveEnvironment : function(response) {
         if(response.code  == 200) {
             page.loadFirst();
@@ -327,6 +359,14 @@ var page = {
         }
         this.sendAjax(_z, 'afterPush');
     },
+
+    communicationModel : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/communicationData/"+ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'afterCommunication');
+    },
     afterPush : function(response) {
         if(response.code  == 200) {
             console.log(response)
@@ -346,13 +386,41 @@ var page = {
                     html+=" <th>"+ item.bug_status_id +"</th>"
                     html+=" <th>"+ item.bug_severity_id +"</th>"
                     html+=" <th>"+ item.module_id +"</th>"
-                    html+=" <th>"+ item.remark +"</th>"
+                    html+=" <th>"+ item.updated_by +"</th>"
                     html+="</tr>"
                 })
 
                 $('.tbh').html(html)
             }
             toastr["success"](response.message,"Bug Tracking History Listed Successfully");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"Something went wrong");
+        }
+    },
+
+    afterCommunication : function(response) {
+        if(response.code  == 200) {
+            console.log(response)
+            $('#newCommunictionModal').modal('show');
+
+            $('.tbh').html("")
+            if(response.data.length >0){
+
+                var html ="";
+
+                $.each(response.data, function (i,item){
+                    console.log(item)
+                    html+="<tr class='in-background filter-message reviewed_msg'>"
+                    html+=" <th>"+ item.message +"</th>"
+
+                    html+=" <th>"+ item.user_name +"</th>"
+                    html+="</tr>"
+                })
+
+                $('.tbhc').html(html)
+            }
+            // toastr["success"](response.message,"Bug Tracking History Listed Successfully");
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"Something went wrong");

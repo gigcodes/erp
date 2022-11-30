@@ -23,6 +23,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::post('/save', 'StoreWebsiteController@save')->name("store-website.save");
     Route::get('/log-website-users/{id}', 'StoreWebsiteController@logWebsiteUsers')->name("store-website.logwebsiteusers");
     Route::post('/save-cancellation', 'StoreWebsiteController@saveCancellation')->name("store-website.save-cancellation");
+    Route::post('/save-duplicate', 'StoreWebsiteController@saveDuplicateStore')->name("store-website.save-duplicate");
     Route::post('/generate-file-store', 'StoreWebsiteController@generateStorefile')->name("store-website.generate-file-store");
 
     Route::post('/save-user-in-magento', 'StoreWebsiteController@saveUserInMagento')->name("store-website.save-user-in-magento");
@@ -207,6 +208,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/edit', 'WebsiteStoreViewController@edit')->name("store-website.website-store-views.edit");
         Route::get('/{id}/delete', 'WebsiteStoreViewController@delete')->name("store-website.website-store-views.delete");
         Route::get('/{id}/push', 'WebsiteStoreViewController@push')->name("store-website.website-store-views.push");
+        Route::post('update-store-website', 'WebsiteStoreViewController@updateStoreWebsite')->name("store-website.website-store-views.update-store-website");
         Route::get('/group/{id}/edit/{store_group_id}', 'WebsiteStoreViewController@editGroup')->name("store-website.website-store-views.group.edit");
         Route::post('/group/save', 'WebsiteStoreViewController@storeGroup')->name("store-website.website-store-views.group.save");
         Route::get('/group/{id}/delete/{store_group_id}', 'WebsiteStoreViewController@deleteGroup')->name("store-website.website-store-views.group.delete");
