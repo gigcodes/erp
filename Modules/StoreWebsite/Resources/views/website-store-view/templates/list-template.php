@@ -20,9 +20,15 @@
 			      <tr>
 			      	<td>{{:prop.id}}</td>
 			        <td class="name_div">
-								{{if prop.website_store !== null && prop.website_store.website !== null && prop.website_store.website.store_website !== null}}
-									{{:prop.website_store.website.store_website.title}}	
-								{{/if}}	
+			        <select class="form-control update-store-website" data-id="{{:prop.id}}" id="storeWebsiteID">
+                        {{for #parent.parent.data.websites}}
+                            <option value="{{:id}}">{{:title}}</option>
+                        {{/for}}
+			        </select>
+			        {{:prop.website_store.website.store_website.id}} - {{:prop.website_store.website.store_website.title}}
+<!--								{{if prop.website_store !== null && prop.website_store.website !== null && prop.website_store.website.store_website !== null}}-->
+<!--									{{:prop.website_store.website.store_website.id}}-->
+<!--								{{/if}}-->
 							</td>
 			        <td>{{:prop.name}}</td>
 			        <td class="code_div">{{:prop.code}}</td>

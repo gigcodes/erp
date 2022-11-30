@@ -4,6 +4,7 @@ namespace Modules\StoreWebsite\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\StoreWebsite;
+use App\Website;
 use App\WebsiteStore;
 use App\WebsiteStoreView;
 use Illuminate\Http\Request;
@@ -57,11 +58,9 @@ class WebsiteStoreViewController extends Controller {
             ->orderBy('website_store_views.id', "desc")
             ->paginate();
 
-        // echo '<pre>';
-        // print_r($websiteStoreViews->toArray());
-        // exit;
+        $websites = StoreWebsite::select('id', 'title')->orderBy('title', 'ASC')->get();
 
-        return response()->json(["code" => 200, "data" => $websiteStoreViews->items(), "total" => $websiteStoreViews->total(), "pagination" => (string) $websiteStoreViews->render()]);
+        return response()->json(["code" => 200, "data" => $websiteStoreViews->items(), "total" => $websiteStoreViews->total(), "pagination" => (string) $websiteStoreViews->render(), 'websites' => $websites]);
     }
 
     public function store(Request $request) {
@@ -373,7 +372,6 @@ class WebsiteStoreViewController extends Controller {
         }
     }
 
-
     public function groups(Request $request) {
         $postURL  = 'https://api.livechatinc.com/v3.2/configuration/action/list_groups';
 
@@ -401,5 +399,27 @@ class WebsiteStoreViewController extends Controller {
                 return response()->json(['status' => 'success', 'responseData' => $groups], 200);
             }
         }
+    }
+
+    /**
+     * Update store website of a website store view
+     * @param $id
+     * @param $storeWebsiteId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateStoreWebsite($id, $storeWebsiteId)
+    {
+        $websiteStoreView = WebsiteStoreView::find($id);
+        if(!$storeWebsiteId || !$websiteStoreView->websiteStore || !$websiteStoreView->websiteStore->website)
+            return response()->json(["code" => 500, 'message' => 'Record not found!']);
+
+        $websiteId = $websiteStoreView->websiteStore->website->id;
+        $website = Website::find($websiteId);
+        $website->store_website_id = $storeWebsiteId;
+        $response = $website->save();
+        if($response)
+            return response()->json(["code" => 200, 'message' => 'Website updated successfully!']);
+        else
+            return response()->json(["code" => 500, 'message' => 'Something went wrong!']);
     }
 }

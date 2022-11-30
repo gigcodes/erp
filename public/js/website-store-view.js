@@ -36,6 +36,15 @@ var page = {
                 page.deleteRecord($(this));
             }
         });
+
+        // Update store website
+        page.config.bodyView.on("change",".update-store-website",function(e) {
+            if(!confirm("Are you sure you change the website?")) {
+                return false;
+            }else {
+                page.updateStoreWebsite($(this), $(this).data('id'));
+            }
+        });
         
         page.config.bodyView.on("click",".btn-edit-template",function(e) {
             page.editRecord($(this));
@@ -102,6 +111,7 @@ var page = {
         }
         this.sendAjax(_z, "showResults");
     },
+
     showResults : function(response) {
         $("#loading-image").hide();
     	var addProductTpl = $.templates("#template-result-block");
@@ -111,8 +121,27 @@ var page = {
 
     	page.config.bodyView.find("#page-view-result").html(tplHtml);
 
-    }
-    ,
+    },
+    updateStoreWebsite : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/website-store-views/update-store-website/"+ele.data("id")+"/"+ele.val(),
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, 'updateStoreWebsiteResults');
+    },
+    updateStoreWebsiteResults : function(response) {
+        if(response.code == 200){
+            this.getResults();
+            toastr['success'](response.message, 'success');
+        }else{
+            toastr['error'](response.message, 'error');
+            $("#loading-image").hide();
+        }
+
+    },
     deleteRecord : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/website-store-views/"+ele.data("id")+"/delete",
