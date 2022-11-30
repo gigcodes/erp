@@ -304,6 +304,5 @@ class AnalyticsController extends Controller
                 \Log::error('google-analytics :: '.$e->getMessage());
             }
         }
-
     }
 }

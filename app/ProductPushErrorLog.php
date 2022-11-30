@@ -47,7 +47,6 @@ class ProductPushErrorLog extends Model
             $logListMagento->log_list_magento_id = $logId;
         }
         $logListMagento->save();
-
     }
 
     public function product()

@@ -321,7 +321,7 @@ class SocialController extends Controller
                 'comments' => [
                     'summary' => $post['comments']->getMetaData()['summary'],
                     'items' => implode(',', array_map(function ($item) {
-                    return $item['id'];
+                        return $item['id'];
                     }, $post['comments']->asArray())),
                     'url' => $post['comments']->getParentGraphEdge(),
                 ],
