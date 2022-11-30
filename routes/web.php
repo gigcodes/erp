@@ -11,6 +11,8 @@
 |
  */
 
+use App\Http\Controllers\GoogleDocController;
+
 Auth::routes();
 //Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
 Route::post('customer/add_customer_address', 'CustomerController@add_customer_address');
@@ -4081,6 +4083,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::post('ads/history', 'SocialAdsController@history')->name('social.ad.history');
     Route::get('ads/getconfigPost', 'SocialAdsController@getpost')->name('social.ad.getpost');
 });
+
 Route::middleware('auth')->group(function () {
     Route::resource('taskcategories', 'TaskCategoriesController');
     Route::delete('tasklist/{id}', 'TaskCategoriesController@delete');
@@ -4144,4 +4147,9 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
     Route::post('/remark/history', 'TodoListController@getRemarkHistory')->name('todolist.remark.history');
     Route::post('/status/store', 'TodoListController@storeStatus')->name('todolist.status.store');
     Route::post('/status/update', 'TodoListController@statusUpdate')->name('todolist.status.update');
+});
+
+Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function(){
+    Route::get('/', [GoogleDocController::class, 'index'])->name('.index');
+    Route::post('/', [GoogleDocController::class, 'create'])->name('.create');
 });

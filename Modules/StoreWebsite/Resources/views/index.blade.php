@@ -65,6 +65,7 @@
 </div>
 
 @include("storewebsite::templates.list-template")
+@include("storewebsite::templates.duplicate-data")
 @include("storewebsite::templates.create-website-template")
 
 <div id="userPasswordHistory" class="modal fade" role="dialog">
