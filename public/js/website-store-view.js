@@ -36,7 +36,27 @@ var page = {
                 page.deleteRecord($(this));
             }
         });
-        
+
+        // Update store website
+        page.config.bodyView.on("change","#updateStoreWebsite",function(e) {
+            if(!confirm("Are you sure you change the website?")) {
+                $('#updateStoreWebsite').val('');
+                return false;
+            }else {
+                if ($(".selected-website-views:checked").length === 0) {
+                    alert('Please select at least one store view!')
+                    $('#updateStoreWebsite').val('');
+                    return false;
+                }
+                page.updateStoreWebsite($(this));
+            }
+        });
+
+        // Select all store views
+        page.config.bodyView.on("click","#selectAllStoreViews",function(e) {
+            $('.selected-website-views:checkbox').not(this).prop('checked', this.checked);
+        });
+
         page.config.bodyView.on("click",".btn-edit-template",function(e) {
             page.editRecord($(this));
         });
@@ -102,6 +122,7 @@ var page = {
         }
         this.sendAjax(_z, "showResults");
     },
+
     showResults : function(response) {
         $("#loading-image").hide();
     	var addProductTpl = $.templates("#template-result-block");
@@ -111,8 +132,36 @@ var page = {
 
     	page.config.bodyView.find("#page-view-result").html(tplHtml);
 
-    }
-    ,
+    },
+    updateStoreWebsite : function(ele) {
+        let selectedStoreViews = new Array();
+        $(".selected-website-views:checked").each(function() {
+            selectedStoreViews.push($(this).val());
+        });
+
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/website-store-views/update-store-website",
+            method: "post",
+            data: {
+                store_website_id: ele.val(),
+                selected_store_views: selectedStoreViews
+            },
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, 'updateStoreWebsiteResults');
+    },
+    updateStoreWebsiteResults : function(response) {
+        if(response.code == 200){
+            this.getResults();
+            toastr['success'](response.message, 'success');
+        }else{
+            toastr['error'](response.message, 'error');
+            $("#loading-image").hide();
+        }
+
+    },
     deleteRecord : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/website-store-views/"+ele.data("id")+"/delete",

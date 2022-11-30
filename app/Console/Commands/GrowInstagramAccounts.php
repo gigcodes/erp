@@ -6,7 +6,7 @@ use App\Account;
 use App\CronJobReport;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
-use InstagramAPI\Instagram;
+//use InstagramAPI\Instagram;
 
 class GrowInstagramAccounts extends Command
 {
@@ -53,10 +53,10 @@ class GrowInstagramAccounts extends Command
                 $username = $account->last_name;
                 $password = $account->password;
 
-                $instagram = new Instagram();
+//                $instagram = new Instagram();
 
                 try {
-                    $instagram->login($username, $password);
+//                    $instagram->login($username, $password);
                 } catch (\Exception $exception) {
                     $this->warn($account->last_name);
                     $this->info($exception->getMessage());
@@ -100,14 +100,14 @@ class GrowInstagramAccounts extends Command
 
                 $imagesToPost = $imageSet[$stage];
                 try {
-                    $id1 = $instagram->people->getUserIdForName($followSet[$stage][0]);
-                    $id2 = $instagram->people->getUserIdForName($followSet[$stage][1]);
+//                    $id1 = $instagram->people->getUserIdForName($followSet[$stage][0]);
+//                    $id2 = $instagram->people->getUserIdForName($followSet[$stage][1]);
                 } catch (\Exception $exception) {
                     $this->info($exception->getMessage());
                 }
 
-                $instagram->people->follow($id1);
-                $instagram->people->follow($id2);
+//                $instagram->people->follow($id1);
+//                $instagram->people->follow($id2);
 
                 foreach ($imagesToPost as $i) {
                     $filename             = __DIR__ . '/images/' . $i . '.jpeg';
@@ -122,7 +122,7 @@ class GrowInstagramAccounts extends Command
                     imagejpeg($destination, __DIR__ . '/images/' . $i . '.jpeg', 100);
 
                     try {
-                        $instagram->timeline->uploadPhoto($filename);
+//                        $instagram->timeline->uploadPhoto($filename);
                     } catch (\Exception $exception) {
                         $this->info($exception->getMessage());
                     }
