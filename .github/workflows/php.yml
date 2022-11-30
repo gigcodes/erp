@@ -107,7 +107,8 @@ jobs:
         id: composer-cache
         run: |
 #          echo "::set-output name=dir::$(composer config cache-files-dir)"
-          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+#          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+          echo "$(composer config cache-files-dir)"
       - uses: actions/cache@v3
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
@@ -115,10 +116,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
-      - name: Composer cache path
-        id: composer-cache-path
-        run: |
-          echo "${{ steps.composer-cache.outputs.dir }}"
+#      - name: Composer cache path
+#        id: composer-cache-path
+#        run: |
+#          echo "${{ steps.composer-cache.outputs.dir }}"
 
       - name: "setup private repo"
         uses: php-actions/composer@v6
