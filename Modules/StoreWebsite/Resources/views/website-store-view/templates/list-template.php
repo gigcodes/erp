@@ -3,6 +3,7 @@
 		<table class="table table-bordered">
 			<thead>
 				<tr>
+				    <th><input class="form-check-input" id="selectAllStoreViews" type="checkbox" style="height: 15px;">&nbsp;</th>
 					<th>Id</th>
 					<th>Website Name</th>
 					<th>Name</th>
@@ -18,18 +19,14 @@
 		    <tbody>
 		    	{{props data}}
 			      <tr>
+			        <td><input class="form-check-input selected-website-views" type="checkbox" value="{{:prop.id}}"
+			        name="selected_website_views[]"></td>
 			      	<td>{{:prop.id}}</td>
 			        <td class="name_div">
-			        <select class="form-control update-store-website" data-id="{{:prop.id}}" id="storeWebsiteID">
-                        {{for #parent.parent.data.websites}}
-                            <option value="{{:id}}">{{:title}}</option>
-                        {{/for}}
-			        </select>
-			        {{:prop.website_store.website.store_website.id}} - {{:prop.website_store.website.store_website.title}}
-<!--								{{if prop.website_store !== null && prop.website_store.website !== null && prop.website_store.website.store_website !== null}}-->
-<!--									{{:prop.website_store.website.store_website.id}}-->
-<!--								{{/if}}-->
-							</td>
+                        {{if prop.website_store !== null && prop.website_store.website !== null && prop.website_store.website.store_website !== null}}
+                            {{:prop.website_store.website.store_website.id}} - {{:prop.website_store.website.store_website.title}}
+                        {{/if}}
+                    </td>
 			        <td>{{:prop.name}}</td>
 			        <td class="code_div">{{:prop.code}}</td>
 			        {{if prop.status == 1}} 

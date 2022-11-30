@@ -58,9 +58,7 @@ class WebsiteStoreViewController extends Controller {
             ->orderBy('website_store_views.id', "desc")
             ->paginate();
 
-        $websites = StoreWebsite::select('id', 'title')->orderBy('title', 'ASC')->get();
-
-        return response()->json(["code" => 200, "data" => $websiteStoreViews->items(), "total" => $websiteStoreViews->total(), "pagination" => (string) $websiteStoreViews->render(), 'websites' => $websites]);
+        return response()->json(["code" => 200, "data" => $websiteStoreViews->items(), "total" => $websiteStoreViews->total(), "pagination" => (string) $websiteStoreViews->render()]);
     }
 
     public function store(Request $request) {
@@ -407,17 +405,26 @@ class WebsiteStoreViewController extends Controller {
      * @param $storeWebsiteId
      * @return \Illuminate\Http\JsonResponse
      */
-    public function updateStoreWebsite($id, $storeWebsiteId)
+    public function updateStoreWebsite(Request $request)
     {
-        $websiteStoreView = WebsiteStoreView::find($id);
-        if(!$storeWebsiteId || !$websiteStoreView->websiteStore || !$websiteStoreView->websiteStore->website)
-            return response()->json(["code" => 500, 'message' => 'Record not found!']);
+        $storeWebsiteId = $request->input('store_website_id');
+        $selectedStoreViews = $request->input('selected_store_views');
+        if(count($selectedStoreViews) == 0)
+            return response()->json(["code" => 500, 'message' => 'Select at least on store view to update the website!']);
 
-        $websiteId = $websiteStoreView->websiteStore->website->id;
-        $website = Website::find($websiteId);
-        $website->store_website_id = $storeWebsiteId;
-        $response = $website->save();
-        if($response)
+        $count = 0;
+        foreach ($selectedStoreViews as $key => $views) {
+            $websiteStoreView = WebsiteStoreView::find($views);
+            if(!$storeWebsiteId || !$websiteStoreView->websiteStore || !$websiteStoreView->websiteStore->website)
+                return response()->json(["code" => 500, 'message' => 'Record not found!']);
+
+            $websiteId = $websiteStoreView->websiteStore->website->id;
+            $website = Website::find($websiteId);
+            $website->store_website_id = $storeWebsiteId;
+            $response = $website->save();
+            $count++;
+        }
+        if($response && $count == $key+1)
             return response()->json(["code" => 200, 'message' => 'Website updated successfully!']);
         else
             return response()->json(["code" => 500, 'message' => 'Something went wrong!']);

@@ -38,14 +38,25 @@ var page = {
         });
 
         // Update store website
-        page.config.bodyView.on("change",".update-store-website",function(e) {
+        page.config.bodyView.on("change","#updateStoreWebsite",function(e) {
             if(!confirm("Are you sure you change the website?")) {
+                $('#updateStoreWebsite').val('');
                 return false;
             }else {
-                page.updateStoreWebsite($(this), $(this).data('id'));
+                if ($(".selected-website-views:checked").length === 0) {
+                    alert('Please select at least one store view!')
+                    $('#updateStoreWebsite').val('');
+                    return false;
+                }
+                page.updateStoreWebsite($(this));
             }
         });
-        
+
+        // Select all store views
+        page.config.bodyView.on("click","#selectAllStoreViews",function(e) {
+            $('.selected-website-views:checkbox').not(this).prop('checked', this.checked);
+        });
+
         page.config.bodyView.on("click",".btn-edit-template",function(e) {
             page.editRecord($(this));
         });
@@ -123,9 +134,18 @@ var page = {
 
     },
     updateStoreWebsite : function(ele) {
+        let selectedStoreViews = new Array();
+        $(".selected-website-views:checked").each(function() {
+            selectedStoreViews.push($(this).val());
+        });
+
         var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/website-store-views/update-store-website/"+ele.data("id")+"/"+ele.val(),
-            method: "get",
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/website-store-views/update-store-website",
+            method: "post",
+            data: {
+                store_website_id: ele.val(),
+                selected_store_views: selectedStoreViews
+            },
             beforeSend : function() {
                 $("#loading-image").show();
             }

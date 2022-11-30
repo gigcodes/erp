@@ -17,7 +17,7 @@
 	<br>
 	<div class="col-lg-12 margin-tb">
 		<div class="row">
-			<div class="col col-md-6">
+			<div class="col col-md-5">
 				<div class="row">
 
 					<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action" data-toggle="modal" data-target="#colorCreateModal">
@@ -30,6 +30,15 @@
 					<div class="row">
 						<form class="form-inline message-search-handler" method="get">
 							<div class="col">
+								<div class="form-group">
+									<label for="keyword">Update Websites:</label>
+									<select class="form-control" id="updateStoreWebsite">
+										<option value="">-- Select a website to update--</option>
+										@foreach($storeWebsites as $key => $storeWebsite)
+											<option value="{{ $key }}">{{ $storeWebsite }}</option>
+										@endforeach
+									</select>
+								</div>
 								<div class="form-group">
 									<label for="keyword">Websites:</label>
 									<?php

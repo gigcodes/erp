@@ -205,7 +205,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/edit', 'WebsiteStoreViewController@edit')->name("store-website.website-store-views.edit");
         Route::get('/{id}/delete', 'WebsiteStoreViewController@delete')->name("store-website.website-store-views.delete");
         Route::get('/{id}/push', 'WebsiteStoreViewController@push')->name("store-website.website-store-views.push");
-        Route::get('update-store-website/{id}/{store_id}', 'WebsiteStoreViewController@updateStoreWebsite')->name("store-website.website-store-views.update-store-website");
+        Route::post('update-store-website', 'WebsiteStoreViewController@updateStoreWebsite')->name("store-website.website-store-views.update-store-website");
         Route::get('/group/{id}/edit/{store_group_id}', 'WebsiteStoreViewController@editGroup')->name("store-website.website-store-views.group.edit");
         Route::post('/group/save', 'WebsiteStoreViewController@storeGroup')->name("store-website.website-store-views.group.save");
         Route::get('/group/{id}/delete/{store_group_id}', 'WebsiteStoreViewController@deleteGroup')->name("store-website.website-store-views.group.delete");
