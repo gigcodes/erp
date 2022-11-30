@@ -54,6 +54,7 @@ class WebsiteStoreViewController extends Controller {
         if ($request->website_store_id != null) {
             $websiteStoreViews = $websiteStoreViews->where('website_store_id', $request->website_store_id);
         }
+
         $websiteStoreViews = $websiteStoreViews->select(["website_store_views.*", "ws.name as website_store_name"])
             ->orderBy('website_store_views.id', "desc")
             ->paginate();
@@ -151,7 +152,7 @@ class WebsiteStoreViewController extends Controller {
                     $website->platform_id = $id;
                     $website->save();
                 } else {
-                    return response()->json(["code" => 200, "data" => $website, "error" => "Website-Store-View push failed"]);
+                    return response()->json(["code" => 500, "data" => $website, "error" => "Website-Store-View push failed"]);
                 }
 
                 return response()->json(["code" => 200, 'message' => "Website-Store-View pushed successfully"]);

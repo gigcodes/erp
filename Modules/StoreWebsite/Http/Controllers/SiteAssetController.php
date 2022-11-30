@@ -94,7 +94,7 @@ class SiteAssetController extends Controller
         $data['all_store_websites'] = StoreWebsite::all()->pluck('title', 'id');
         $data['categories'] = SiteDevelopmentCategory::all()->pluck('title', 'id');
         $data['search_website'] = isset($request->store_webs)? $request->store_webs : [ '1','2','3', '5','9'];
-        $data['search_category'] = isset($request->categories)? $request->categories : '';
+        $data['search_category'] = isset($request->categories)? $request->categories : [];
         $data['site_development_status_id'] = isset($request->site_development_status_id)? $request->site_development_status_id : [];
         $store_websites = StoreWebsite::select('store_websites.*')->join('site_developments','store_websites.id','=','site_developments.website_id');
         if(is_array($data['search_website'])){
@@ -124,7 +124,7 @@ class SiteAssetController extends Controller
             })
             ->where('is_site_list', 1);
 
-        if($data['search_category'] != ''){
+        if(isset($request->categories) && !empty($request->categories)){
             //$site_development_categories =  $site_development_categories->where('site_development_categories.id',  $data['search_category']);
             $site_development_categories =  $site_development_categories->whereIn('site_development_categories.id', $data['search_category']);
         }

@@ -163,17 +163,21 @@ class ProductController extends Controller
                     $productRef = $productCanDays->days_refund;
                 }
 
-                $order = Order::select('created_at')->withTrashed()->where('id', $request->order_id)->first();
+                $order = Order::select('created_at', 'order_return_request')->withTrashed()->where('id', $request->order_id)->first();
                 if($order){
                     $orderDays = strtotime($order->created_at);
                     $ordercurrent = strtotime(date('Y-m-d H:i:s'));
                     $timeleft = $ordercurrent - $orderDays;
                     $daysPanding = round((($timeleft/24)/60)/60); 
+                    if($order->order_return_request == 1){
+                        $result_input = ["has_return_request" => true];
+                    }
                 }              
                 
                 if ($returnExchange || (isset($daysPanding) && isset($productRef) && isset($categoriesRef) && $productRef >= $daysPanding && $categoriesRef >= $daysPanding)) {
                     $result_input = ["has_return_request" => true];
                 }
+                
                 $message = $this->generate_erp_response("order.return-check.success", 0, $default = "Success", request('lang_code'));
                 return response()->json(["code" => 200, "message" => $message, "data" => $result_input]);
 

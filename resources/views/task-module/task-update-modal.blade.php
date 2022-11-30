@@ -169,11 +169,11 @@
         }).done(function(res) {
             siteLoader(0);
             if (res.data) {
-                mdl.find('input[name="start_date"]').val(res.data.start_date);
-                mdl.find('input[name="due_date"]').val(res.data.due_date);
+                mdl.find('input[name="start_date"]').val(res.data.task_start_date); //start_date
+                mdl.find('input[name="due_date"]').val(res.data.task_new_due_date); //due_date
                 mdl.find('input[name="cost"]').val(res.data.cost);
                 mdl.find('input[name="approximate"]').val(res.data.approximate);
-                mdl.find('input[name="remark"]').val('');
+                mdl.find('textarea[name="remark"]').val(res.data.task_remark);
 
                 mdl.find('.cls-actual_start_date').html(res.data.actual_start_date ? res.data.actual_start_date : '-');
                 mdl.find('.cls-actual_end_date').html(res.data.actual_end_date ? res.data.actual_end_date : '-');
@@ -270,7 +270,7 @@
                     data: {
                         task_id: currTaskInformationTaskId,
                         approximate: mdl.find('input[name="approximate"]').val(),
-                        remark: mdl.find('input[name="remark"]').val(),
+                        remark: mdl.find('textarea[name="remark"]').val(),
                     }
                 }).done(function(res) {
                     siteLoader(0);

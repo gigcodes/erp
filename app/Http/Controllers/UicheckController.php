@@ -74,6 +74,8 @@ class UicheckController extends Controller {
                         "uichecks.admin_status_id",
                         "uichecks.lock_developer",
                         "uichecks.lock_admin",
+                        "uichecks.language_flag",
+                        "uichecks.translation_flag",
                         "uua.user_id as accessuser"
                     );
                 if ($s = request('srch_lock_type')) {
@@ -112,6 +114,8 @@ class UicheckController extends Controller {
                         "uichecks.admin_status_id",
                         "uichecks.lock_developer",
                         "uichecks.lock_admin",
+                        "uichecks.language_flag",
+                        "uichecks.translation_flag",
                         "uua.user_id as accessuser"
                     );
             }
@@ -166,6 +170,20 @@ class UicheckController extends Controller {
             if ($s = request('id')) {
                 $q = $q->where('uichecks.id', $s);
             }
+            
+            if ($s = request('srch_flags')) {
+                if ($s == 'Both') {
+                    $q = $q->where('uichecks.language_flag', 1);
+                    $q = $q->orWhere('uichecks.translation_flag', 1);
+                } else if ($s == "Language flag") {
+                    $q = $q->where('uichecks.language_flag', 1);
+                    
+                } else if ($s == "Translation flag") {
+                    $q = $q->where('uichecks.translation_flag', 1);
+                }
+                
+            }
+
             $q->groupBy('uichecks.id');
 
             if ($s = request('order_by')) {
@@ -175,8 +193,10 @@ class UicheckController extends Controller {
             } else {
                 $q->orderBy('uichecks.updated_at', "desc");
             }
+
             $counter = $q->get();
             //dd(count($q->get()));
+            //dd($q->toSql());
             //dd($q->count());
 
             // select 
@@ -233,7 +253,9 @@ class UicheckController extends Controller {
                     'site_development_categories.*',
                     'site_developments.id AS site_id',
                     'site_developments.website_id',
-                    "uichecks.id AS uicheck_id"
+                    "uichecks.id AS uicheck_id",
+                    "uichecks.language_flag",
+                    "uichecks.translation_flag"
                 )
                 //->where('site_developments.is_ui', 1);
                 ->where('uichecks.id', '>', 0);
@@ -287,8 +309,6 @@ class UicheckController extends Controller {
         Uicheck::create([
             "site_development_id" => $uiCheck->site_development_id ?? '',
             "site_development_category_id" => $uiCheck->site_development_category_id ?? '',
-            "website_id" => $uiCheck->website_id ?? '',
-            "issue" => $uiCheck->issue ?? '',
             "created_at" => \Carbon\Carbon::now(),
         ]);
         return response()->json(['code' => 200, 'message' => 'Category Duplicate Created successfully!!!']);
@@ -860,15 +880,20 @@ class UicheckController extends Controller {
                         '<tr>',
                         '<td>' . ($value->id ?: '-') . '</td>',
                         '<td>' . ($value->userName ?: '-') . '</td>',
-                        '<td class="expand-row-msg" data-name="lan_message" data-id="'.$value->id.'" >
-                            <span class="show-short-lan_message-'.$value->id.'">'.str_limit($value->message, 5, "...").'</span>
-                            <span style="word-break:break-all;" class="show-full-lan_message-'.$value->id.' hidden">'.$value->message.'</span>
+                        '<td>
+                            <div style="width: 86%;float: left;" class="expand-row-msg" data-name="lan_message" data-id="'.$value->id.'">
+                                <span class="show-short-lan_message-'.$value->id.'">'.str_limit($value->message, 30, "...").' </span>
+                                <span style="word-break:break-all;" id="show-full-lan_message-'.$value->id.'" class="show-full-lan_message-'.$value->id.' hidden">'.$value->message.' </span>
+                            </div>
+                            <i class="fa fa-copy" data-text="'.$value->message.'"></i>
+                            
                         </td>',
                         '<td>' . ($value->status_name ?: '-') . '</td>',
                         '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
                         '</tr>',
                     ]);
                 }
+                $html[] = '';
             } else {
                 $html[] = implode('', [
                     '<tr>',
@@ -993,13 +1018,14 @@ class UicheckController extends Controller {
         try{
             \DB::enableQueryLog();
             $uiDevDatas = new UiDevice();
-            $uiDevDatas = $uiDevDatas->leftJoin("uichecks as uic", "uic.id", "ui_devices.uicheck_id")
+            $uiDevDatas = $uiDevDatas->join("uichecks as uic", "uic.id", "ui_devices.uicheck_id")
                                     ->leftJoin("store_websites as sw", "sw.id", "uic.website_id")
-                                    ->leftJoin("uicheck_user_accesses as uua", "uua.uicheck_id", "uic.id")
+                                    ->leftJoin("uicheck_user_accesses as uua", "ui_devices.uicheck_id", "uua.uicheck_id")
                                     ->leftJoin("users as u", "u.id", "uua.user_id")
                                     ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
-                                    ->leftJoin("site_development_statuses as sds", "sds.id", "ui_devices.status");
-                                    
+                                    ->leftJoin("site_development_statuses as sds", "sds.id", "ui_devices.status")
+                                    ->leftJoin("ui_device_histories as udh", "ui_devices.id", "udh.status");
+            
             if($request->status != ''){
                 $uiDevDatas = $uiDevDatas->where('ui_devices.status', $request->status);    
             }
@@ -1009,15 +1035,26 @@ class UicheckController extends Controller {
             if($request->id != ''){
                 $uiDevDatas = $uiDevDatas->where('ui_devices.uicheck_id', $request->id);    
             }
+
+            if ($request->user_name != null and $request->user_name != "undefined") {
+            //if($request->user_name != ''){
+                $uiDevDatas = $uiDevDatas->whereIn('u.id', $request->user_name);    
+            }
+            
+            if(!Auth::user()->hasRole('Admin'))
+                $uiDevDatas = $uiDevDatas->where(['uua.user_id' => \Auth::user()->id]);    
             
             
-            $uiDevDatas = $uiDevDatas->select("ui_devices.*", 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname')->orderBy('id', 'DESC')->groupBy("ui_devices.uicheck_id")->paginate(8);
+            $uiDevDatas = $uiDevDatas->select("ui_devices.*", 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname', 
+            DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail')  
+            )->orderBy('id', 'DESC')->groupBy("ui_devices.uicheck_id")->paginate(8);
             $allStatus = SiteDevelopmentStatus::pluck("name", "id")->toArray();
             $status = '';
             $devid = '';
             $uicheck_id = '';
             $site_development_categories = SiteDevelopmentCategory::pluck("title", "id")->toArray();
-            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'uicheck_id', 'site_development_categories'));
+            $allUsers = User::where('is_active', '1')->get();
+            return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'uicheck_id', 'site_development_categories', 'allUsers'));
         }catch(\Exception $e){
             //dd($e->getMessage());
             return \Redirect::back()->withErrors(['msg' => $e]);
@@ -1084,9 +1121,9 @@ class UicheckController extends Controller {
         
         try{
             $uiLanguages = new UiLanguage();
-            $uiLanguages = $uiLanguages->leftJoin("uichecks as uic", "uic.id", "ui_languages.uicheck_id")
+            $uiLanguages = $uiLanguages->join("uichecks as uic", "uic.id", "ui_languages.uicheck_id")
                                     ->leftJoin("store_websites as sw", "sw.id", "uic.website_id")
-                                    ->leftJoin("uicheck_user_accesses as uua", "uua.uicheck_id", "uic.id")
+                                    ->leftJoin("uicheck_user_accesses as uua", "ui_languages.uicheck_id", "uua.uicheck_id")
                                     ->leftJoin("users as u", "u.id", "uua.user_id")
                                     ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
                                     ->leftJoin("site_development_statuses as sds", "sds.id", "ui_languages.status");
@@ -1101,17 +1138,27 @@ class UicheckController extends Controller {
             if($request->id != ''){
                 $uiLanguages = $uiLanguages->where('ui_languages.uicheck_id', $request->id);    
             }
-
+            
+            if ($request->user_name != null and $request->user_name != "undefined") {
+            //if($request->user_name != ''){
+                $uiLanguages = $uiLanguages->whereIn('u.id', $request->user_name);    
+            }
+            
+            if(!Auth::user()->hasRole('Admin'))
+                $uiLanguages = $uiLanguages->where(['uua.user_id' => \Auth::user()->id]);    
+            
             $uiLanguages = $uiLanguages->select("ui_languages.*", 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname')
                                     ->groupBy("ui_languages.uicheck_id")
                                     ->orderBy('id', 'DESC')
                                     ->paginate(8);
+           // dd($uiLanguages);
             $allStatus = SiteDevelopmentStatus::pluck("name", "id")->toArray();
             $status = '';
             $lanid = '';
             $languages = Language::all();
+            $allUsers = User::where('is_active', '1')->get();
             $site_development_categories = SiteDevelopmentCategory::pluck("title", "id")->toArray();
-            return view('uicheck.language', compact('uiLanguages', 'status', 'languages', 'allStatus', 'lanid', 'site_development_categories'));
+            return view('uicheck.language', compact('uiLanguages', 'status', 'languages', 'allStatus', 'lanid', 'site_development_categories', 'allUsers'));
         }catch(\Exception $e){
             return \Redirect::back()->withErrors(['msg' => $e]);
         }
@@ -1284,9 +1331,12 @@ class UicheckController extends Controller {
                         '<tr>',
                         '<td>' . ($value->id ?: '-') . '</td>',
                         '<td>' . ($value->userName ?: '-') . '</td>',
-                        '<td class="expand-row-msg" data-name="dev_message" data-id="'.$value->id.'" >
-                            <span class="show-short-dev_message-'.$value->id.'">'.str_limit($value->message, 5, "...").'</span>
-                            <span style="word-break:break-all;" class="show-full-dev_message-'.$value->id.' hidden">'.$value->message.'</span>
+                        '<td >
+                            <div style="width: 86%;float: left;" class="expand-row-msg" data-name="dev_message" data-id="'.$value->id.'" >
+                                <span class="show-short-dev_message-'.$value->id.'">'.str_limit($value->message, 30, "...").'<i class="fa-solid fa-copy"></i></span>
+                                <span style="word-break:break-all;" class="show-full-dev_message-'.$value->id.' hidden">'.$value->message.'<i class="fa-solid fa-copy "></i></span>
+                            </div>
+                            <i class="fa fa-copy" data-text="'.$value->message.'"></i>
                         </td>',
                         '<td>' . ($value->status_name ?: '-') . '</td>',
                         '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
@@ -1305,6 +1355,70 @@ class UicheckController extends Controller {
             ]);   
         }catch(\Exception $e){
             return respException($e);
+        }
+    }
+
+
+    public function languageFlag(Request $request) {
+        try{
+           
+            $data = Uicheck::where("id", $request->id);
+            $retunData = $data->get();
+            
+            if($retunData[0]->language_flag == 1){
+                $array["language_flag"] =  0;
+            }else{
+                $array["language_flag"] =  1;
+                $langs = Language::get();
+                
+                foreach($langs AS $lang){
+                    $uiDevDatas = UiLanguage::where(['uicheck_id' => $request->id, "languages_id" => $lang->id])->first();
+                    if(!$uiDevDatas){
+                        UiLanguage::create([
+                            'user_id' => \Auth::user()->id,
+                            'uicheck_id' => $request->id,
+                            'languages_id' => $lang->id
+                        ]);
+                       
+                    }
+                }
+            }
+            $data->update($array);
+            $retunData1 = Uicheck::where("id", $request->id)->get();
+            return response()->json(['code' => 200, 'data' => $retunData1,  'message' => 'Type Updated!!!']);
+        }catch(\Exception $e){
+            return response()->json(['code' => 500, 'error' => $e->getMessage()]);
+        }
+    }
+
+    public function translationFlag(Request $request) {
+        try{
+           
+            $data = Uicheck::where("id", $request->id);
+            $retunData = $data->get();
+            
+            if($retunData[0]->translation_flag == 1){
+                $array["translation_flag"] =  0;
+            }else{
+                $array["translation_flag"] =  1;
+                
+                for($i=1; $i<=5; $i++){
+                    $uiDevDatas = UiDevice::where(['uicheck_id' => $request->id, "device_no" => $i])->first();
+                    if(!$uiDevDatas){
+                        UiDevice::create([
+                            'user_id' => \Auth::user()->id,
+                            'device_no' => $i,
+                            'uicheck_id' => $request->id,
+                        ]);
+                    }
+                }
+            }
+            $data->update($array);
+            $retunData1 = Uicheck::where("id", $request->id)->get();
+            
+            return response()->json(['code' => 200, 'data' => $retunData1,  'message' => 'Type Updated!!!']);
+        }catch(\Exception $e){
+            return response()->json(['code' => 500, 'error' => $e->getMessage()]);
         }
     }
 }

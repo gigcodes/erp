@@ -127,7 +127,7 @@
                             @empty
                             @endforelse
                         </select> --}}
-                        {{ Form::select('categories[]', $categories, $search_category, ['class' => 'form-control  globalSelect2','placeholder' => '-- All categories --',  "multiple" => "multiple"]) }}
+                        {{ Form::select('categories[]', $categories, $search_category, ['class' => 'form-control  globalSelect2', "multiple" => "multiple"]) }}
                     </div>
 
                     <div class="col-md-3">
@@ -139,6 +139,8 @@
                         <a href="{{ route('site-check-list') }}" class="btn btn-secondary">Reset</a>
                         <button type="button" class="btn btn-secondary download_check_list_data">Download</button>
                     </div>
+
+                   
 
                 </div>
             </form>
@@ -328,7 +330,7 @@
 
             $("#hidden-task-subject").val(title);
             $('#site_id').val(site);
-            $('#category_id').val(category_id);
+            $('#category_id').val(49);
         });
 
         function saveRemarks(rowId) {
@@ -688,6 +690,60 @@
                     $("#loading-image").hide();
                 }
             });
+        });
+
+        $(document).on('click', '.send-message', function() {
+            var thiss = $(this);
+            var data = new FormData();
+            var task_id = $(this).data('taskid');
+            var message = $(this).closest('tr').find('.quick-message-field').val();
+            var mesArr = $(this).closest('tr').find('.quick-message-field');
+            $.each(mesArr, function(index, value) {
+                if ($(value).val()) {
+                    message = $(value).val();
+                }
+            });
+
+            data.append("task_id", task_id);
+            data.append("message", message);
+            data.append("status", 1);
+
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: '/whatsapp/sendMessage/task',
+                        type: 'POST',
+                        "dataType": 'json', // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function() {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function(response) {
+                        thiss.closest('tr').find('.quick-message-field').val('');
+
+                        toastr["success"]("Message successfully send!", "Message")
+                        // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+                        //   .done(function( data ) {
+                        //
+                        //   }).fail(function(response) {
+                        //     console.log(response);
+                        //     alert(response.responseJSON.message);
+                        //   });
+
+                        $(thiss).attr('disabled', false);
+                    }).fail(function(errObj) {
+                        $(thiss).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
         });
     </script>
 

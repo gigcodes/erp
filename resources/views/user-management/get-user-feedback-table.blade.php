@@ -136,10 +136,27 @@
                     <td>{{ $cat->category }}</td>
                     <td class="communication-td">
                         @if(\Auth::user()->isAdmin() == true)
-                            <input type="text" class="form-control" data-id="{{$cat->id}}" id="sop_{{$cat->id}}" name="sop_{{$cat->id}}" placeholder="Enter SOP name...."  style="margin-bottom:5px;width:77%;display:inline;"/>
-                            <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-save" data-sop="sop_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" ><img src="/images/filled-sent.png"/></button>
-                            <div class="sop-text-{{$cat->id}}">
-                                <div style='width:50%;'>{{$cat->sop}}...</div> <img class='sop-history' src='/images/chat.png' data-cat_id="{{$cat->id}}" data-sop_id="{{$cat->sop_id}}" alt='history' style='width:17px;cursor: nwse-resize;'>
+                            {{-- <input type="text" class="form-control" data-id="{{$cat->id}}" id="sop_{{$cat->id}}" name="sop_{{$cat->id}}" placeholder="Enter SOP name...."  style="margin-bottom:5px;width:77%;display:inline;"/> --}}
+                            <select class="form-control" data-id="{{$cat->id}}" id="sop_{{$cat->id}}" name="sop_{{$cat->id}}" style="margin-bottom:5px;width:77%;display:inline;">
+                                <option value="">-Select sop-</option>
+                                @foreach ($sops as $sop)
+                                    <?php echo '<option value="'.$sop->id.'">'.$sop->name.'</option>'; ?>
+                                @endforeach
+                            </select>
+                            <div class="row">
+                                <div class="col-4">
+                                    <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-save" data-sop="sop_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" ><img src="/images/filled-sent.png"/></button>
+                                    <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal" title="Add Sop Name and category" data-target="#exampleModal"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                </div>
+                                <div class="sop-text-{{$cat->id}}" style="float: left;">
+                                    <div class="expand-row-msg" data-name="name" data-id="{{$cat->id}}"  style="float: left;">
+                                        <span class="show-short-name-{{$cat->id}}">{{ str_limit($cat->sop, 5, '..')}}</span>
+                                        <span style="word-break:break-all;" class="show-full-name-{{$cat->id}} hidden">{{$cat->sop}}</span>
+                                    </div> 
+                                    <div  style="float: left;">&nbsp;
+                                        <img class='sop-history' src='/images/chat.png' data-cat_id="{{$cat->id}}" data-sop_id="{{$cat->sop_id}}" alt='history' style='width:17px;cursor: nwse-resize;'>
+                                    </div>
+                                </div>
                             </div>
                         @else
                             <div id="comment_div_{{$cat->id}}">
@@ -183,11 +200,176 @@
                             @endforeach
                         </select>
                     </td>
-                    <td><button type="button" class="btn btn-xs btn-image load-communication-modal" data-feedback_cat_id="{{$cat->id}}" data-object='user-feedback' data-id="{{$cat->user_id}}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="/images/chat.png" alt=""></button></td>
+                    <td>
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-feedback_cat_id="{{$cat->id}}" data-object='user-feedback' data-id="{{$cat->user_id}}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
+                        <button type="button" class="btn btn-secondary1 mr-2 hrTicket" data-toggle="modal"  data-feedback_cat_id="{{$cat->id}}" data-id="{{$cat->user_id}}" data-cat_name="{{$cat->category}}" title="Add Ticket" data-target="#hrTicketModal" id="hrTicket"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                        <button style="padding-left: 0;padding-right:0px;" type="button" class="btn pt-1 btn-image d-inline count-dev-customer-tasks"  title="Show task history" data-id="{{$cat->id}}" data-user_id="{{$cat->user_id}}"><i class="fa fa-info-circle"></i></button>
+                        <button style="padding-left: 0;padding-right:0px;" type="button" class="btn pt-1 btn-image d-inline delete-category"  title="Delete Category with all data" data-id="{{$cat->id}}" ><i class="fa fa-trash"></i></button>
+                    </td>
                 </tr>
             @endforeach
     </table>
     {{ $category->links() }}
+</div>
+
+<!--------------------------------------------------- Add Data Modal ------------------------------------------------------->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+aria-hidden="true">
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Add Sop Name and Category</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="FormModal">
+                @csrf
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="name">Category</label>
+                    <input type="text" class="form-control" id="category" name="category" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="content">Content</label>
+                    <input type="text" class="form-control" id="content" required />
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary btnsave" id="btnsave">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+</div>
+
+
+<div class="modal fade" id="hrTicketModal" tabindex="-1" role="dialog" aria-labelledby="hrTicketModalLabel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            {{-- users.feedback.task.create --}}
+            <form action="<?php echo route('task.create.task.shortcut'); ?>" method="post">
+                <?php echo csrf_field(); ?>
+                <div class="modal-header">
+                    <h4 class="modal-title">Create Task</h4>
+                </div>
+                <div class="modal-body">
+                    <input class="form-control" value="{{\Auth::user()->id}}" type="hidden" name="user_id">
+                    <input class="form-control" value="4" type="hidden" name="category_id">
+                    <input class="form-control" type="hidden" name="user_feedback_cat_id" id="user_feedback_cat_id" value="">
+                    <div class="form-group">
+                        <label for="">Subject</label>
+                        <input class="form-control" type="text" id="hidden-task-subject" name="task_subject"  />
+                    </div>
+                    <div class="form-group">
+                        <select class="form-control" style="width:100%;" name="task_type" tabindex="-1"
+                            aria-hidden="true">
+                            <option value="0">Other Task</option>
+                            <option value="4">Developer Task</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="repository_id">Repository:</label>
+                        <br>
+                        <select style="width:100%" class="form-control 	" id="repository_id" name="repository_id">
+                            <option value="">-- select repository --</option>
+                            @foreach (\App\Github\GithubRepository::all() as $repository)
+                                <option value="{{ $repository->id }}">{{ $repository->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="">Details</label>
+                        <input class="form-control text-task-development" type="text" name="task_detail" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="">Cost</label>
+                        <input class="form-control" type="text" name="cost" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="">Assign to</label>
+                        <select name="task_asssigned_to" id="task_asssigned_to" class="form-control assign-to select2">
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-default create-task">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="hr_task_statistics" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>HR Task </h2>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body" id="hr_task_statistics_content">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <th>Task type</th>
+                                <th>Task Id</th>
+                                <th>Assigned to</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dev_task_statistics" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Dev Task statistics</h2>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body" id="dev_task_statistics_content">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <th>Task type</th>
+                                <th>Task Id</th>
+                                <th>Assigned to</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <div id="chat-list-history" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -270,8 +452,255 @@
 </div>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+<script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
 <script>
+    CKEDITOR.replace('content');
+    $('#FormModal').submit(function(e) {
+            e.preventDefault();
+            let name = $("#name").val();
+            let category = $("#category").val();
+            let content = CKEDITOR.instances['content'].getData(); //$('#cke_content').html();//$("#content").val();
+
+            let _token = $("input[name=_token]").val();
+
+            $.ajax({
+                url: "{{ route('sop.store') }}",
+                type: "POST",
+                data: {
+                    name: name,
+                    category: category,
+                    content: content,
+
+                    _token: _token
+                },
+                success: function(response) {
+                    if (response) {
+                        if(response.success==false){
+                            toastr["error"](response.message, "Message");
+                            return false;
+                        }
+                        var content_class = response.sop.content.length < 270 ? '' : 'expand-row';
+                        var content = response.sop.content.length < 270 ? response.sop.content : response.sop.content.substr(0, 270) + '.....';
+                        $("#FormModal")[0].reset();
+                        $('.cke_editable p').text(' ');
+                        CKEDITOR.instances['content'].setData('');
+                        $("#exampleModal").modal('hide');
+                        toastr["success"]("Data Inserted Successfully!", "Message");
+                        location.reload();
+                        
+                    }
+                }
+
+            });
+        });
     $('.select-multiple').select2();
+    $("#user_id").select2({
+        ajax: {
+            url: '{{ route('user-search') }}',
+            dataType: 'json',
+            data: function(params) {
+                return {
+                    q: params.term, // search term
+                };
+            },
+            processResults: function(data, params) {
+                params.page = params.page || 1;
+                return {
+                    results: data,
+                    pagination: {
+                        more: (params.page * 30) < data.total_count
+                    }
+                };
+            },
+        },
+        placeholder: "Select User",
+        allowClear: true,
+        minimumInputLength: 2,
+        width: '100%',
+    });
+
+    $(document).on("click", ".create-task", function(e) {
+        e.preventDefault();
+        var form = $(this).closest("form");
+        $.ajax({
+            url: form.attr("action"),
+            type: 'POST',
+            data: form.serialize(),
+            beforeSend: function() {
+                $(this).text('Loading...');
+            },
+            success: function(response) {
+                if (response.code == 200) {
+                    form[0].reset();
+                    toastr['success'](response.message);
+                    $("#exampleModal").modal('hide');
+                    location.reload();
+                } else {
+                    toastr['error'](response.message);
+                }
+            }
+        }).fail(function(response) {
+            toastr['error'](response.responseJSON.message);
+        });
+    });
+
+    $(".hrTicket").bind("click", function() { 
+        debugger;
+        var feedback_cat_id = $(this).data("feedback_cat_id");
+        var cat_name = $(this).data("cat_name");
+        $("#user_feedback_cat_id").val(feedback_cat_id);
+        let selecUserVal = $('.select-multiple').val();
+        $("#task_asssigned_to").val(selecUserVal);
+        $("#hidden-task-subject").val(cat_name);
+        
+    });
+
+    $(document).on("click", ".tasks-list", function() {
+
+        var $this = $(this);
+        var user_id = $(this).data("user_id");
+        var feedback_cat_id = $(this).data("id");
+        $.ajax({
+            type: 'get',
+            url: "/instagram/users/feedback/get/hr_ticket?id="+feedback_cat_id,
+            dataType: "json",
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(data) {
+                $("#hr_task_statistics").modal("show");
+                var table = `<div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th width="4%">Tsk Typ</th>
+                        <th width="4%">Tsk Id</th>
+                        <th width="7%">Asg to</th>
+                        <th width="12%">Desc</th>
+                        <th width="12%">Sts</th>
+                        <th width="33%">Communicate</th>
+                        <th width="10%">Action</th>
+                    </tr>`;
+                for (var i = 0; i < data.data.length; i++) {
+                    var str = data.data[i].subject;
+                    var res = str.substr(0, 100);
+                    var status = data.data[i].status;
+                    if (typeof status == 'undefined' || typeof status == '' || typeof status =='In progress') {
+                        status = 'In progress'
+                    };
+                    if(data.data[i].task_type == 0){
+                        task_type = 'Other Task';
+                    }else if(data.data[i].task_type == 4){
+                        task_type = 'Developer Task';
+                    }
+                    table = table + '<tr><td>' + task_type + '</td><td>#' +
+                        data.data[i].id +
+                        '</td><td class="expand-row-msg" data-name="asgTo" data-id="' + data
+                        .data[i].id + '"><span class="show-short-asgTo-' + data
+                        .data[i].id + '">' + data.data[i].assigned_to_name
+                        .replace(/(.{6})..+/, "$1..") +
+                        '</span><span style="word-break:break-all;" class="show-full-asgTo-' + data
+                        .data[i].id + ' hidden">' + data.data[i]
+                        .assigned_to_name +
+                        '</span></td><td class="expand-row-msg" data-name="res" data-id="' + data
+                        .data[i].id + '"><span class="show-short-res-' + data
+                        .data[i].id + '">' + res.replace(/(.{7})..+/, "$1..") +
+                        '</span><span style="word-break:break-all;" class="show-full-res-' + data
+                        .data[i].id + ' hidden">' + res + '</span></td><td>' + status +
+                        '</td><td class="communication-hr-ticket-td"><div class="col-md-10 pl-0 pr-1"><textarea rows="1" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" data-user_id="'+user_id+'"  data-feedback_cat_id="'+feedback_cat_id+'" data-id="'+data.data[i].id+'"></textarea></div><div class="p-0"><button class="btn btn-sm btn-xs send-message-open-hr_ticket" title="Send message" data-taskid="' +
+                        data.data[i].id +
+                        '"><i class="fa fa-paper-plane"></i></button></div></td><td><button type="button" class="btn btn-xs load-communication-modal load-body-class" data-object="user-feedback-hrTicket" data-id="'+user_id+'" data-feedback_cat_id="' + data.data[i]
+                        .id +
+                        '" title="Load messages" data-dismiss="modal"><i class="fa fa-comments"></i></button>';
+                    table = table + '<a href="javascript:void(0);" data-task-type="' + data
+                        .data[i].task_type + '" data-id="' + data.data[i].id +
+                        '" class="delete-dev-task-btn btn btn-xs"><i class="fa fa-trash"></i></a>';
+                    table = table+'</td>';
+                    table = table + '</tr>';
+                }
+                table = table + '</table></div>';
+                $("#loading-image").hide();
+                $(".modal").css("overflow-x", "hidden");
+                $(".modal").css("overflow-y", "auto");
+                $("#hr_task_statistics_content").html(table);
+            },
+            error: function(error) {
+                console.log(error);
+                $("#loading-image").hide();
+            }
+        });
+
+
+    });
+    var getUrlParameter = function getUrlParameter(sParam) {
+        var sPageURL = window.location.search.substring(1),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+        return false;
+    };
+
+    $(document).on("click", ".count-dev-customer-tasks", function() {
+    
+    var $this = $(this);
+	var user_feedback = $(this).data("id");
+    var isAvaible = getUrlParameter('user_id');
+    var is_set = "";
+    if(isAvaible)
+        is_set = $(this).data("user_id");
+    else
+        is_set = "";
+    var user_id = $(this).data("user_id");
+	$.ajax({
+		type: 'get',
+		url: '/hr-ticket/countdevtask/' + user_feedback+ "/"+user_id,
+		dataType: "json",
+		beforeSend: function() {
+			$("#loading-image").show();
+		},
+		success: function(data) {
+			$("#dev_task_statistics").modal("show");
+			var table = `<div class="table-responsive">
+				<table class="table table-bordered table-striped">
+					<tr>
+						<th width="4%">Tsk Typ</th>
+						<th width="4%">Tsk Id</th>
+						<th width="7%">Asg to</th>
+						<th width="12%">Desc</th>
+						<th width="12%">Sts</th>
+						<th width="33%">Communicate</th>
+						<th width="10%">Action</th>
+					</tr>`;
+                for (var i = 0; i < data.taskStatistics.length; i++) {
+                    var str = data.taskStatistics[i].subject;
+                    var res = str.substr(0, 100);
+                    var status = data.taskStatistics[i].status;
+                    if(typeof status=='undefined' || typeof status=='' || typeof status=='0' ){ status = 'In progress'};
+                    table = table + '<tr><td>' + data.taskStatistics[i].task_type + '</td><td>#' + data.taskStatistics[i].id + '</td><td class="expand-row-msg" data-name="asgTo" data-id="'+data.taskStatistics[i].id+'"><span class="show-short-asgTo-'+data.taskStatistics[i].id+'">'+data.taskStatistics[i].assigned_to_name.replace(/(.{6})..+/, "$1..")+'</span><span style="word-break:break-all;" class="show-full-asgTo-'+data.taskStatistics[i].id+' hidden">'+data.taskStatistics[i].assigned_to_name+'</span></td><td class="expand-row-msg" data-name="res" data-id="'+data.taskStatistics[i].id+'"><span class="show-short-res-'+data.taskStatistics[i].id+'">'+res.replace(/(.{7})..+/, "$1..")+'</span><span style="word-break:break-all;" class="show-full-res-'+data.taskStatistics[i].id+' hidden">'+res+'</span></td><td>' + status + '</td><td><div class="col-md-10 pl-0 pr-1"><textarea rows="1" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message"></textarea></div><div class="p-0"><button class="btn btn-sm btn-xs send-message" title="Send message" data-taskid="'+ data.taskStatistics[i].id +'"><i class="fa fa-paper-plane"></i></button></div></td><td><button type="button" class="btn btn-xs load-communication-modal load-body-class" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" title="Load messages" data-dismiss="modal"><i class="fa fa-comments"></i></button>';
+                    table = table + '<a href="javascript:void(0);" data-task-type="'+data.taskStatistics[i].task_type +'" data-id="' + data.taskStatistics[i].id + '" class="delete-dev-task-btn btn btn-xs"><i class="fa fa-trash"></i></a>';
+                    table = table + '<button type="button" class="btn btn-xs  preview-img pd-5" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" data-dismiss="modal"><i class="fa fa-list"></i></button></td>';
+                    table = table + '</tr>';
+                }
+                table = table + '</table></div>';
+                $("#loading-image").hide();
+                $(".modal").css("overflow-x", "hidden");
+                $(".modal").css("overflow-y", "auto");
+                $("#dev_task_statistics_content").html(table);
+            },
+            error: function(error) {
+                console.log(error);
+                $("#loading-image").hide();
+            }
+        });
+    });
+
     $(document).on("click", "#btn-save",function(e){
             // $('#btn-save').attr("disabled", "disabled");
             e.preventDefault();
@@ -391,7 +820,9 @@
         $(document).on('click','.user-sop-save',function(){
             var id = $(this).data('id');
             var sop_id = $(this).data('sop');
-            var sop = $("#"+sop_id).val();
+            var sop = $("#"+sop_id+ " option:selected").text();
+            //debugger;
+            var sops_id = $("#"+sop_id).val();
             var cat = $(this).data("feedback_cat_id");
             
             $("#send_message_"+$(this).data('id')).val('');
@@ -401,15 +832,17 @@
                 url: '{{ route("user.save.sop") }}',
                 data: {
                         'cat_id': cat,
+                        'sops_id': sops_id,
                         'sop_text': sop
                         },
                 success:function(response){
                     if (response.code == 200) {
                         $("#"+sop_id).val('');
                         var resSop = response.data.sop;
+                        var resSopshort = '<span style="float:left;width: 41px;overflow: hidden;height: 23px;">'+response.data.sop+'</span>';
                         var resSopId = response.data.id;
                         toastr["success"](response.message);
-                        $(".sop-text-"+id).html("<div style='width:50%;'>"+resSop+"...</div> <img class='sop-history' data-cat_id='"+id+"' data-sop_id='"+resSopId+"' src='/images/chat.png' alt='history' style='width:17px;cursor: nwse-resize;'>");
+                        $(".sop-text-"+id).html("<div class='expand-row-msg' data-name='name' data-id='"+id+"' style='float: left;'><span class='show-short-name-"+id+"'>"+resSopshort+"</span><span style='word-break:break-all;' class='show-full-name-"+id+" hidden'>"+resSop+"</span>...</div><div  style='float: left;'>&nbsp; <img class='sop-history' data-cat_id='"+id+"' data-sop_id='"+resSopId+"' src='/images/chat.png' alt='history' style='width:17px;cursor: nwse-resize;'></div>");
                     } else {
                         toastr["error"](response.message);
                     }
@@ -492,5 +925,88 @@
                 }
             });
         });
+
+        $(document).on('click', '.send-message-open-hr_ticket', function (event) {
+            var feedback_status_id = '1';
+            var textBox = $(this).closest(".communication-hr-ticket-td").find(".quick-message-field");
+            let user_id = textBox.attr('data-user_id');
+            let message = textBox.val();
+            var feedback_cat_id = textBox.attr('data-id');
+            var $this = $(this);
+            if (message == '') {
+                return;
+            }
+
+            let self = textBox;
+
+            $.ajax({
+                url: "{{action('WhatsAppController@sendMessage', 'user-feedback-hrTicket')}}",
+                type: 'POST',
+                data: {
+                    "feedback_status_id": feedback_status_id,
+                    "feedback_cat_id": feedback_cat_id,
+                    "task_id" : feedback_cat_id,
+                    "user_id": user_id,
+                    "message": message,
+                    "_token": "{{csrf_token()}}",
+                   "status": 2
+                },
+                dataType: "json",
+                success: function (response) {
+                    $(self).val('');
+                    $(self).attr('disabled', false);
+                    toastr["success"]("Message sent successfully!", "Message");
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+        });
+
+    $(document).on('click', '.expand-row-msg', function () {
+        var name = $(this).data('name');
+        var id = $(this).data('id');
+        var full = '.expand-row-msg .show-short-'+name+'-'+id;
+        var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+        $(full).toggleClass('hidden');
+        $(mini).toggleClass('hidden');
+    });
+
+    $(document).on("click", ".delete-category",function(e){
+            // $('#btn-save').attr("disabled", "disabled");
+            e.preventDefault();
+            let _token = $("input[name=_token]").val();
+            let category_id =  $(this).data('id');
+            if(category_id!=""){
+                if(confirm("Are you sure you want to delete record?")) {
+                    debugger;
+                    $.ajax({
+                        url:"{{ route('delete.user.feedback-category') }}",
+                        type:"post",
+                        data:{
+                            id:category_id,
+                            _token: _token
+                        },
+                        cashe:false,
+                        success:function(response){
+                            if (response.message) {
+                                toastr["success"](response.message, "Message");
+                                location.reload();
+                            }else{
+                                toastr.error(response.message);
+                            }
+                        }
+                    });
+                } else {
+
+                }
+            }else{
+                toastr.error("Please realod and try again");
+            }
+         });
 </script>
-@endsection
+@endsection 

@@ -9,9 +9,9 @@ use App\Comment;
 use App\CronJobReport;
 use App\DeveloperTask;
 use App\InstagramAutoComments;
-use App\Services\Instagram\Hashtags;
+//use App\Services\Instagram\Hashtags;
 use Illuminate\Console\Command;
-use InstagramAPI\Instagram;
+//use InstagramAPI\Instagram;
 use Carbon\Carbon;
 
 class ChangeTesterBasedOnTeamLead extends Command

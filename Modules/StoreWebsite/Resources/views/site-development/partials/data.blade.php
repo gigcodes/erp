@@ -5,11 +5,24 @@
     $userId = auth()->user()->id;
     $pagrank = $categories->perPage() * ($categories->currentPage() - 1) + 1;
     @endphp
+   
     @foreach ($categories as $key => $category)
+        <?php 
+            if (request('assignto') != null and request('assignto') != "undefined") {
+                $userSearch = "true"; 
+                foreach ($category->assignedTo as $assignedToUser){
+                    if (in_array($assignedToUser['userID'], request('assignto')) ){
+                        $userSearch = "true";
+                    }
+                }
+            } else {
+                $userSearch = "true";
+            }
+        ?>
     <?php
     //$site = $category->getDevelopment($category->id, isset($website) ? $website->id : $category->website_id, $category->site_development_id);//
     $site = $category->getDevelopment($category->id,  $category->website_id, $category->site_development_id); //
-    if ($isAdmin || $hasSiteDevelopment || ($site && $site->developer_id == $userId)) {
+    if (($isAdmin || $hasSiteDevelopment || ($site && $site->developer_id == $userId)) && $userSearch == 'true') {
     ?>
 
         <tr>
@@ -168,59 +181,59 @@
                 < ?php $tableTrCounter='0' ; ?>
                     @foreach ($category->assignedTo as $assignedTo)
                     < ?php $tableTrCounter++; if($tableTrCounter !=1) $tTrClass='comm-' .$pagrank.' hidden'; else $tTrClass='' ; ?>
-        <tr class="{{$tTrClass}}">
-            <td width="32%">
+                        <tr class="{{$tTrClass}}">
+                            <td width="32%">
 
-                @if (auth()->user()->isAdmin())
-                <select class="form-control assign-user" data-id="{{ $assignedTo['id'] }}" name="master_user_id">
-                    <option value="">Select...</option>
-                    @foreach ($users_all as $value)
-                    @if ($assignedTo['assigned_to_name'] == $value->name)
-                    <option value="{{ $value->id }}" selected>{{ $value->name }}
-                    </option>
-                    @else
-                    <option value="{{ $value->id }}">{{ $value->name }}</option>
-                    @endif
-                    @endforeach
-                </select>
-                @else
-                {{ $assignedTo['assigned_to_name'] }}
-                @endif
-            </td>
-            <td class="pt-2" width="32%">
-                <div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1 msg">
-                    < ?php $MsgPreview='# ' ; if ($website) { $MsgPreview=$website->website;
-                        }
-                        if ($site) {
-                        $MsgPreview = $MsgPreview . ' ' . $site->title;
-                        }
-                        ?>
-                        <input type="text" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
-                        <div class="d-flex p-0">
-                            <button style="float: left;padding: 0 0 0 5px" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $assignedTo['id'] }}"><img src="/images/filled-sent.png" style="cursor: default;"></button>
-                        </div>
-                        <button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="{{ $assignedTo['message_type'] }}" data-id="{{ $assignedTo['id'] }}" title="Load messages" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>
-                </div>
+                                @if (auth()->user()->isAdmin())
+                                <select class="form-control assign-user" data-id="{{ $assignedTo['id'] }}" name="master_user_id">
+                                    <option value="">Select...</option>
+                                    @foreach ($users_all as $value)
+                                    @if ($assignedTo['assigned_to_name'] == $value->name)
+                                    <option value="{{ $value->id }}" selected>{{ $value->name }}
+                                    </option>
+                                    @else
+                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                    @endif
+                                    @endforeach
+                                </select>
+                                @else
+                                {{ $assignedTo['assigned_to_name'] }}
+                                @endif
+                            </td>
+                            <td class="pt-2" width="32%">
+                                <div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1 msg">
+                                    < ?php $MsgPreview='# ' ; if ($website) { $MsgPreview=$website->website;
+                                        }
+                                        if ($site) {
+                                        $MsgPreview = $MsgPreview . ' ' . $site->title;
+                                        }
+                                        ?>
+                                        <input type="text" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
+                                        <div class="d-flex p-0">
+                                            <button style="float: left;padding: 0 0 0 5px" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $assignedTo['id'] }}"><img src="/images/filled-sent.png" style="cursor: default;"></button>
+                                        </div>
+                                        <button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="{{ $assignedTo['message_type'] }}" data-id="{{ $assignedTo['id'] }}" title="Load messages" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>
+                                </div>
 
-                <div class="col-md-12 p-0 pl-1 text">
-                    <!-- START - Purpose : Show / Hide Chat & Remarks , Add Last Remarks - #DEVTASK-19918 -->
-                    <div class="d-flex">
-                        <div class="justify-content-between expand-row-msg-chat" data-id="{{ $assignedTo['id'] }}">
-                            <span class="td-full-chat-container-{{ $assignedTo['id'] }} pl-1">
-                                {{ str_limit($assignedTo['message'], 20, '...') }} </span>
-                        </div>
-                    </div>
-                    <div class="expand-row-msg-chat" data-id="{{ $assignedTo['id'] }}">
-                        <span class="td-full-chat-container-{{ $assignedTo['id'] }} hidden">
-                            {{ $assignedTo['message'] }} </span>
-                    </div>
-                    <!-- END - #DEVTASK-19918 -->
-                </div>
-            </td>
+                                <div class="col-md-12 p-0 pl-1 text">
+                                    <!-- START - Purpose : Show / Hide Chat & Remarks , Add Last Remarks - #DEVTASK-19918 -->
+                                    <div class="d-flex">
+                                        <div class="justify-content-between expand-row-msg-chat" data-id="{{ $assignedTo['id'] }}">
+                                            <span class="td-full-chat-container-{{ $assignedTo['id'] }} pl-1">
+                                                {{ str_limit($assignedTo['message'], 20, '...') }} </span>
+                                        </div>
+                                    </div>
+                                    <div class="expand-row-msg-chat" data-id="{{ $assignedTo['id'] }}">
+                                        <span class="td-full-chat-container-{{ $assignedTo['id'] }} hidden">
+                                            {{ $assignedTo['message'] }} </span>
+                                    </div>
+                                    <!-- END - #DEVTASK-19918 -->
+                                </div>
+                            </td>
 
-        </tr>
-        @endforeach
-        </table> --}}
+                        </tr>
+                        @endforeach
+                </table> --}}
         </td>
 
         <td style="display:none;">
@@ -310,7 +323,7 @@
                 @php
                 $websitenamestr = $website ? $website->title : '';
                 @endphp
-                <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="@if ($site) {{ $site->id }} @endif" data-title="@if ($site) {{$category->website . ' - ' . $category->title /*$websitenamestr . ' ' . $site->title*/ }} @endif"><img style="width:12px !important;" src="/images/add.png" /></button>
+                <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="@if ($site) {{ $site->id }} @endif"  data-category_title="{{$category->title}}" data-title="@if ($site) {{$category->website . ' - ' . $category->title /*$websitenamestr . ' ' . $site->title*/ }} @endif"><img style="width:12px !important;" src="/images/add.png" /></button>
                 <button style="padding-left: 0;padding-right:0px;" type="button" class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="@if ($site) {{ $site->id }} @endif" data-category="{{ $category->id }}"><i class="fa fa-info-circle"></i></button>
                 <button style="padding-left: 0;padding-right:0px;" type="button" class="btn  btn-image d-inline tasks-relation" title="Show task relation" data-id="@if ($site) {{ $site->id }} @endif"><i class="fa fa-dashboard"></i></button>
 

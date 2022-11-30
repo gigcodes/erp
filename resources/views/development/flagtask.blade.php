@@ -181,8 +181,8 @@
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
-                            <select class="form-control select2" name="module_id[]" id="module_id" multiple>
-                                <option value="">- Select a Module -</option>
+                            <select class="form-control select2" name="module_id[]" id="module_id" multiple  aria-placeholder="Select Assigned To">
+                                <option value=""  @if(request('assigned_to') == '') selected @endif>- Select a Module -</option>
                                 @foreach ($modules as $module)
                                 <option {{ in_array($module->id, request('module_id', [])) ? 'selected' : '' }} value="{{ $module->id }}">{{ $module->name }}</option>
                                 @endforeach
@@ -192,8 +192,8 @@
                     @if (auth()->user()->isReviwerLikeAdmin())
                     <div class="col-md-2">
                         <div class="form-group">
-                            <select class="form-control select2" name="assigned_to[]" id="assigned_to" multiple>
-                                <option value="">- Select Assigned To -</option>
+                            <select class="form-control select2" name="assigned_to[]" id="assigned_to" multiple aria-placeholder="Select Assigned To">
+                                <option value="" @if(request('assigned_to') == '') selected @endif>- Select Assigned To -</option>
                                 {!! makeDropdown($users, request('assigned_to', [])) !!}
                             </select>
                         </div>
@@ -529,6 +529,7 @@
             }
         });
     });
+    $(".select2").select2();
     $(document).on('click', '.task-time-submit-reminder', function() {
         var task_time_message_form = $("#task_time_message_form").serialize();
         $.ajax({
@@ -2200,6 +2201,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/js/bootstrap-datetimepicker.min.js"></script>
 
+
 <script type="text/javascript">
     $(document).ready(function() {
         $('#datetimepicker').datetimepicker({
@@ -2210,6 +2212,7 @@
         });
 
         applySelect2(jQuery('.select2'));
+        $(".select2").select2();
 
     });
 </script>
