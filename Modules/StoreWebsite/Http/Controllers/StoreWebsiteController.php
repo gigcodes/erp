@@ -244,7 +244,7 @@ class StoreWebsiteController extends Controller
      */
     public function saveDuplicateStore(Request $request)
     {
-        $numberOfDuplicates = $request->get('number');
+        $numberOfDuplicates = $request->get('number') - 1;
         if($numberOfDuplicates <= 0)
             return response()->json(["code" => 500, "error" => 'Number of duplicates must be 1 or more!']);
 
@@ -255,7 +255,11 @@ class StoreWebsiteController extends Controller
                 return response()->json(["code" => 500, "error" => 'No website found!']);
 
             $copyStoreWebsite = $storeWebsite->replicate();
+            $title = $copyStoreWebsite->title;
             unset($copyStoreWebsite->id);
+            unset($copyStoreWebsite->title);
+            $copyStoreWebsite->title = $title . ' ' . $i;
+//            dd($copyStoreWebsite);
             $copyStoreWebsite->save();
 
             $copyStoreWebsiteId = $copyStoreWebsite->id;
