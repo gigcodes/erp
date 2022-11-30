@@ -114,10 +114,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
-      - name: Create env file
-        id: create-env-file
-        run: |
-          echo "${{ secrets.ENV_FILE }}" > .env
+#      - name: Create env file
+#        id: create-env-file
+#        run: |
+#          echo "${{ secrets.ENV_FILE }}" > .env
 
       - name: "setup private repo"
         uses: php-actions/composer@v6
@@ -127,6 +127,9 @@ jobs:
           version: 1.x
 #          args: -v
         env:
+          FACEBOOK_APP_ID: 276312109600799
+          FACEBOOK_APP_SECRET: 05024d41d47c8a70c1fa2941f52c12c3
+          FACEBOOK_DEFAULT_GRAPH_VERSION: v3.2
           COMPOSER_PROCESS_TIMEOUT: 0
           COMPOSER_MEMORY_LIMIT: -1
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{secrets.LUDXB2}}"} }'
