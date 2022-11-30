@@ -424,15 +424,31 @@ class StoreWebsiteController extends Controller
                 foreach ($swGoal as $row) {
                     $copySwGoalRow = array(
                         'store_website_id' => $copyStoreWebsiteId,
-                        'erp_color' => $row->erp_color,
-                        'store_color' => $row->store_color,
-                        'platform_id' => $row->platform_id,
+                        'goal' => $row->goal,
+                        'solution' => $row->solution,
                         'created_at' => date('Y-m-d H:i:s')
                     );
                     $copySwGoalResult[] = $copySwGoalRow;
                 }
             }
-            $response = StoreWebsiteColor::insert($copySwGoalResult);
+            $response = StoreWebsiteGoal::insert($copySwGoalResult);
+            if(!$response)
+                return response()->json(["code" => 500, "error" => 'Store website goal creation failed!']);
+
+            // Inserts Store Websites goal
+            $swGoalRemark = StoreWebsiteGoalRemark::where('store_website_id', '=', $storeWebsiteId)->get();
+            $copySwGoalRemarkResult = array();
+            if($swGoal->count() > 0) {
+                foreach ($swGoalRemark as $row) {
+                    $copySwGoalRemarkRow = array(
+                        'store_website_id' => $copyStoreWebsiteId,
+                        'remark' => $row->remark,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    $copySwGoalRemarkResult[] = $copySwGoalRemarkRow;
+                }
+            }
+            $response = StoreWebsiteGoalRemark::insert($copySwGoalRemarkResult);
             if(!$response)
                 return response()->json(["code" => 500, "error" => 'Store website goal creation failed!']);
 
