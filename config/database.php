@@ -65,10 +65,10 @@ return [
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
             'strict' => false,
-            'engine' => 'InnoDB'
-            // 'options' => [
-            //     \PDO::ATTR_PERSISTENT => true
-            // ]
+            'engine' => 'InnoDB',
+            'options' => [
+                \PDO::ATTR_PERSISTENT => true
+            ]
         ],
         'brandsandlabel' => [
             'driver'   => 'mysql',
