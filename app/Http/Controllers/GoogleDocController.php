@@ -18,8 +18,20 @@ class GoogleDocController extends Controller
      */
     public function index(Request $request)
     {
-        $data = GoogleDoc::orderBy('created_at', 'desc')->get();
+        $data = GoogleDoc::orderBy('created_at', 'desc');
 
+        if ($keyword = request("name")) {
+            $data = $data->where(function ($q) use ($keyword) {
+                $q->where("name", "LIKE", "%$keyword%");
+            });
+        }
+        if ($keyword = request("docid")) {
+            $data = $data->where(function ($q) use ($keyword) {
+                $q->where("docid", "LIKE", "%$keyword%");
+
+            });
+        }
+            $data = $data->get();
         return view('googledocs.index', compact('data'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
