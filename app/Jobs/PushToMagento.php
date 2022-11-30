@@ -28,7 +28,9 @@ class PushToMagento implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param Product $product
+     * @param StoreWebsite $website
+     * @param null $log
      */
     public function __construct(Product $product, StoreWebsite $website, $log = null)
     {
@@ -162,6 +164,7 @@ class PushToMagento implements ShouldQueue
 						ProductPushErrorLog::log('', $product->id, 'Image(s) is needed for push product', 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_images_exists']);
 					}
 
+//					MagentoServiceJob::dispatch($product, $website, $this->log)->onQueue($this->log->queue);
 					$magentoService = new MagentoService($product, $website, $this->log);
 					$magentoService->pushProduct();
 
