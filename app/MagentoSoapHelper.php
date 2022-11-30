@@ -417,7 +417,6 @@ class MagentoSoapHelper
         }
 
         // Return
-
     }
 
     public function catalogCategoryInfo($magentoId = 0)

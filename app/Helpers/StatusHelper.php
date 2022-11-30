@@ -184,7 +184,6 @@ class StatusHelper extends Model
         $product->save();
 
         // Return
-
     }
 
     public static function getStatusCount($inStockOnly = 1)
@@ -277,8 +276,8 @@ class StatusHelper extends Model
         switch ($statusId) {
             case self::$pushToMagento:
             case self::$inMagento:
-            return true;
-            break; // just to be sure
+                return true;
+                break; // just to be sure
             default:
                 return false;
         }

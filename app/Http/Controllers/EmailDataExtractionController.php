@@ -146,7 +146,7 @@ class EmailDataExtractionController extends Controller
         // If it isn't trash query remove email with status trashed
         if (! $trash_query) {
             $query = $query->where(function ($query) {
-            return $query->where('status', '<>', 'bin')->orWhereNull('status');
+                return $query->where('status', '<>', 'bin')->orWhereNull('status');
             });
         }
 

@@ -242,7 +242,6 @@ class ProductHelper extends Model
         }
 
         // Still here?
-
     }
 
     public static function getBrandSegment($name, $select, $attr = [])

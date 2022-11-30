@@ -84,7 +84,7 @@ if ($tc || ini_get('filter.default_flags')) {
         $eh = $zd;
     }
 
-return version_compare($Gf, $eh) >= 0;
+    return version_compare($Gf, $eh) >= 0;
 }function charset($e)
 {
     return min_version('5.5.3', 0, $e) ? 'utf8mb4' : 'utf8';
@@ -133,7 +133,7 @@ return version_compare($Gf, $eh) >= 0;
         }
     }
 
-return$K;
+    return$K;
 }function html_select($E, $me, $Y = '', $he = true, $kd = '')
 {
     if ($he) {
@@ -144,7 +144,7 @@ return$K;
         $K .= "<label><input type='radio' name='".h($E)."' value='".h($z)."'".($z == $Y ? ' checked' : '').'>'.h($X).'</label>';
     }
 
-return$K;
+    return$K;
 }function select_input($wa, $me, $Y = '', $he = '', $Le = '')
 {
     $mg = ($me ? 'select' : 'input');
@@ -167,7 +167,7 @@ return$K;
         $t = -1;
     }
 
-return $t++ % 2 ? $K : '';
+    return $t++ % 2 ? $K : '';
 }function js_escape($Xf)
 {
     return
@@ -196,7 +196,7 @@ return $t++ % 2 ? $K : '';
         $K = (SID && ! ($_COOKIE && ini_bool('session.use_cookies')));
     }
 
-return$K;
+    return$K;
 }function set_password($dh, $O, $V, $G)
 {
     $_SESSION['pwds'][$dh][$O][$V] = ($_COOKIE['adminer_key'] && is_string($G) ? [encrypt_string($G, $_COOKIE['adminer_key'])] : $G);
@@ -207,7 +207,7 @@ return$K;
         $K = ($_COOKIE['adminer_key'] ? decrypt_string($K[0], $_COOKIE['adminer_key']) : false);
     }
 
-return$K;
+    return$K;
 }function q($Xf)
 {
     global$e;
@@ -224,7 +224,7 @@ return$K;
         }
     }
 
-return$K;
+    return$K;
 }function get_key_vals($I, $f = null, $ug = 0, $Jf = true)
 {
     global$e;
@@ -244,7 +244,7 @@ return$K;
         }
     }
 
-return$K;
+    return$K;
 }function get_rows($I, $f = null, $k = "<p class='error'>")
 {
     global$e;
@@ -259,7 +259,7 @@ return$K;
         echo$k.error()."\n";
     }
 
-return$K;
+    return$K;
 }function unique_array($L, $w)
 {
     foreach ($w
@@ -273,7 +273,7 @@ return$K;
                 }$K[$z] = $L[$z];
             }
 
-return$K;
+            return$K;
         }
     }
 }function escape_key($z)
@@ -282,8 +282,8 @@ return$K;
         return$C[1].idf_escape(idf_unescape($C[2])).$C[3];
     }
 
-return
-    idf_escape($z);
+    return
+        idf_escape($z);
 }function where($Z, $m = [])
 {
     global$e,$y;
@@ -299,8 +299,8 @@ return
         $K[] = escape_key($z).' IS NULL';
     }
 
-return
-    implode(' AND ', $K);
+    return
+        implode(' AND ', $K);
 }function where_check($X, $m = [])
 {
     parse_str($X, $Ma);
@@ -324,7 +324,7 @@ return
         }
     }
 
-return$K;
+    return$K;
 }function cookie($E, $Y, $ud = 2592000)
 {
     global$ba;
@@ -386,8 +386,8 @@ return$K;
         redirect($B, $D.$Pf);
     }
 
-return
-    true;
+    return
+        true;
 }function queries($I)
 {
     global$e;
@@ -411,8 +411,8 @@ return
         }
     }
 
-return
-    true;
+    return
+        true;
 }function queries_redirect($B, $D, $gf)
 {
     [$bf, $tg] = queries(null);
@@ -458,7 +458,7 @@ return
         }
     }
 
-return$K;
+    return$K;
 }function upload_error($k)
 {
     $Ed = ($k == UPLOAD_ERR_INI_SIZE ? ini_get('upload_max_filesize') : 0);
@@ -477,8 +477,8 @@ return$K;
         preg_match('(^('.repeat_pattern("[\t\r\n -~]", $sd).')($)?)', $Xf, $C);
     }
 
-return
-    h($C[1]).$bg.(isset($C[2]) ? '' : '<i>...</i>');
+    return
+        h($C[1]).$bg.(isset($C[2]) ? '' : '<i>...</i>');
 }function format_number($X)
 {
     return
@@ -504,7 +504,7 @@ return
         }
     }
 
-return$K;
+    return$K;
 }function hidden_fields_get()
 {
     echo(sid() ? '<input type="hidden" name="'.session_name().'" value="'.h(session_id()).'">' : ''),(SERVER !== null ? '<input type="hidden" name="'.DRIVER.'" value="'.h(SERVER).'">' : ''),'<input type="hidden" name="username" value="'.h($_GET['username']).'">';
@@ -523,7 +523,7 @@ return$K;
         }
     }
 
-return$K;
+    return$K;
 }function enum_input($U, $wa, $l, $Y, $Wb = null)
 {
     global$b;
@@ -535,7 +535,7 @@ return$K;
         $K .= " <label><input type='$U'$wa value='".($t + 1)."'".($Na ? ' checked' : '').'>'.h($b->editVal($X, $l)).'</label>';
     }
 
-return$K;
+    return$K;
 }function input($l, $Y, $q)
 {
     global$Lg,$b,$y;
@@ -612,7 +612,7 @@ return$K;
             return'NULL';
         }
 
-return+$Y;
+        return+$Y;
     }if ($l['auto_increment'] && $Y == '') {
         return
         null;
@@ -631,7 +631,7 @@ return+$Y;
             false;
         }
 
-return$Y;
+        return$Y;
     }if (preg_match('~blob|bytea|raw|file~', $l['type']) && ini_bool('file_uploads')) {
         $rc = get_file("fields-$Qc");
         if (! is_string($rc)) {
@@ -639,10 +639,10 @@ return$Y;
             false;
         }
 
-return$j->quoteBinary($rc);
+        return$j->quoteBinary($rc);
     }
 
-return$b->processInput($l, $Y, $q);
+    return$b->processInput($l, $Y, $q);
 }function fields_from_edit()
 {
     global$j;
@@ -658,7 +658,7 @@ return$b->processInput($l, $Y, $q);
         $K[$E] = ['field' => $E, 'privileges' => ['insert' => 1, 'update' => 1], 'null' => 1, 'auto_increment' => ($z == $j->primary)];
     }
 
-return$K;
+    return$K;
 }function search_tables()
 {
     global$b,$e;
@@ -715,7 +715,7 @@ return$K;
         }
     }
 
-return$K;
+    return$K;
 }function file_open_lock($sc)
 {
     $p = @fopen($sc, 'r+');
@@ -748,7 +748,7 @@ return$K;
         fclose($p);
     }
 
-return$K;
+    return$K;
 }function rand_string()
 {
     return
@@ -763,7 +763,7 @@ return$K;
             $K .= '<tr>'.($X != array_values($X) ? '<th>'.h($fd) : '').'<td>'.select_value($W, $A, $l, $sg);
         }
 
-return"<table cellspacing='0'>$K</table>";
+        return"<table cellspacing='0'>$K</table>";
     }if (! $A) {
         $A = $b->selectLink($X, $l);
     }if ($A === null) {
@@ -785,7 +785,7 @@ return"<table cellspacing='0'>$K</table>";
         }
     }
 
-return$b->selectVal($K, $A, $l, $X);
+    return$b->selectVal($K, $A, $l, $X);
 }function is_mail($Tb)
 {
     $va = '[-a-z0-9!#$%&\'*+/=?^_`{|}~]';
@@ -836,7 +836,7 @@ var timeout = setTimeout(function () {
         flush();
     }
 
-return$K;
+    return$K;
 }function get_token()
 {
     $ef = rand(1, 1e6);
@@ -879,7 +879,7 @@ return$K;
         }$nh = $Sb;
     }
 
-return$K;
+    return$K;
 }function on_help($Za, $Kf = 0)
 {
     return
@@ -959,15 +959,15 @@ return$K;
         header('Content-Type: image/gif');
         switch($_GET['file']) {
             case'plus.gif':echo"GIF89a\0\0\0001îîî\0\0€™™™\0\0\0!ù\0\0\0,\0\0\0\0\0\0!„©ËíMñÌ*)¾oú¯) q•¡eˆµî#ÄòLË\0;";
-            break;
+                break;
             case'cross.gif':echo"GIF89a\0\0\0001îîî\0\0€™™™\0\0\0!ù\0\0\0,\0\0\0\0\0\0#„©Ëí#\naÖFo~yÃ._wa”á1ç±JîGÂL×6]\0\0;";
-            break;
+                break;
             case'up.gif':echo"GIF89a\0\0\0001îîî\0\0€™™™\0\0\0!ù\0\0\0,\0\0\0\0\0\0 „©ËíMQN\nï}ôža8ŠyšaÅ¶®\0Çò\0;";
-            break;
+                break;
             case'down.gif':echo"GIF89a\0\0\0001îîî\0\0€™™™\0\0\0!ù\0\0\0,\0\0\0\0\0\0 „©ËíMñÌ*)¾[Wþ\\¢ÇL&ÙœÆ¶•\0Çò\0;";
-            break;
+                break;
             case'arrow.gif':echo"GIF89a\0\n\0€\0\0€€€ÿÿÿ!ù\0\0\0,\0\0\0\0\0\n\0\0‚i–±‹ž”ªÓ²Þ»\0\0;";
-            break;
+                break;
         }
     }exit;
 }if ($_GET['script'] == 'version') {
@@ -1149,7 +1149,7 @@ class Min_SQL
             echo$b->selectQuery($I, $Tf, ! $K);
         }
 
-return$K;
+        return$K;
     }
 
     public function delete($Q, $cf, $_ = 0)
@@ -1305,7 +1305,7 @@ if (! defined('DRIVER')) {
                     $this->error = mysql_error();
                 }
 
-return(bool) $this->_link;
+                return(bool) $this->_link;
             }
 
             public function set_charset($La)
@@ -1317,7 +1317,7 @@ return(bool) $this->_link;
                     }mysql_set_charset('utf8', $this->_link);
                 }
 
-return$this->query("SET NAMES $La");
+                return$this->query("SET NAMES $La");
             }
 
             public function quote($Xf)
@@ -1349,9 +1349,9 @@ return$this->query("SET NAMES $La");
                     true;
                 }
 
-return
-                new
-                Min_Result($J);
+                return
+                                new
+                                Min_Result($J);
             }
 
             public function multi_query($I)
@@ -1378,8 +1378,8 @@ return
                     false;
                 }
 
-return
-                mysql_result($J->_result, 0, $l);
+                return
+                                mysql_result($J->_result, 0, $l);
             }
         }class Min_Result
         {
@@ -1489,8 +1489,8 @@ return
                 $sd += strlen($Y) + 2;
             }
 
-return
-            queries($Re.implode(",\n", $bh).$bg);
+            return
+                        queries($Re.implode(",\n", $bh).$bg);
         }
 
         public function convertSearch($Qc, $X, $l)
@@ -1541,13 +1541,13 @@ return
                 $Lg['json'] = 4294967295;
             }
 
-return$e;
+            return$e;
         }$K = $e->error;
         if (function_exists('iconv') && ! is_utf8($K) && strlen($xf = iconv('windows-1250', 'utf-8', $K)) > strlen($K)) {
             $K = $xf;
         }
 
-return$K;
+        return$K;
     }function get_databases($vc)
     {
         $K = get_session('dbs');
@@ -1559,7 +1559,7 @@ return$K;
             stop_session();
         }
 
-return$K;
+        return$K;
     }function limit($I, $Z, $_, $Zd = 0, $Ff = ' ')
     {
         return" $I$Z".($_ !== null ? $Ff."LIMIT $_".($Zd ? " OFFSET $Zd" : '') : '');
@@ -1578,7 +1578,7 @@ return$K;
             $K = $Xa[$C[1]][-1];
         }
 
-return$K;
+        return$K;
     }function engines()
     {
         $K = [];
@@ -1588,7 +1588,7 @@ return$K;
             }
         }
 
-return$K;
+        return$K;
     }function logged_user()
     {
         global$e;
@@ -1606,7 +1606,7 @@ return$K;
             $K[$i] = count(get_vals('SHOW TABLES IN '.idf_escape($i)));
         }
 
-return$K;
+        return$K;
     }function table_status($E = '', $oc = false)
     {
         $K = [];
@@ -1620,7 +1620,7 @@ return$K;
             }$K[$L['Name']] = $L;
         }
 
-return$K;
+        return$K;
     }function is_view($R)
     {
         return$R['Engine'] === null;
@@ -1636,7 +1636,7 @@ return$K;
             $K[$L['Field']] = ['field' => $L['Field'], 'full_type' => $L['Type'], 'type' => $C[1], 'length' => $C[2], 'unsigned' => ltrim($C[3].$C[4]), 'default' => ($L['Default'] != '' || preg_match('~char|set~', $C[1]) ? $L['Default'] : null), 'null' => ($L['Null'] == 'YES'), 'auto_increment' => ($L['Extra'] == 'auto_increment'), 'on_update' => (preg_match('~^on update (.+)~i', $L['Extra'], $C) ? $C[1] : ''), 'collation' => $L['Collation'], 'privileges' => array_flip(preg_split('~, *~', $L['Privileges'])), 'comment' => $L['Comment'], 'primary' => ($L['Key'] == 'PRI')];
         }
 
-return$K;
+        return$K;
     }function indexes($Q, $f = null)
     {
         $K = [];
@@ -1648,7 +1648,7 @@ return$K;
             $K[$E]['descs'][] = null;
         }
 
-return$K;
+        return$K;
     }function foreign_keys($Q)
     {
         global$e,$ge;
@@ -1665,7 +1665,7 @@ return$K;
             }
         }
 
-return$K;
+        return$K;
     }function view($E)
     {
         global$e;
@@ -1687,7 +1687,7 @@ return$K;
             asort($K[$z]);
         }
 
-return$K;
+        return$K;
     }function information_schema($i)
     {
         return(min_version(5) && $i == 'information_schema') || (min_version(5.5) && $i == 'performance_schema');
@@ -1722,7 +1722,7 @@ return$K;
             set_session('dbs', null);
         }
 
-return$K;
+        return$K;
     }function auto_increment()
     {
         $za = ' PRIMARY KEY';
@@ -1737,7 +1737,7 @@ return$K;
             }
         }
 
-return" AUTO_INCREMENT$za";
+        return" AUTO_INCREMENT$za";
     }function alter_table($Q, $E, $m, $wc, $bb, $Xb, $Wa, $ya, $Fe)
     {
         $sa = [];
@@ -1755,7 +1755,7 @@ return" AUTO_INCREMENT$za";
             $sa[] = ltrim($Uf);
         }
 
-return $sa || $Fe ? queries('ALTER TABLE '.table($Q)."\n".implode(",\n", $sa).$Fe) : true;
+        return $sa || $Fe ? queries('ALTER TABLE '.table($Q)."\n".implode(",\n", $sa).$Fe) : true;
     }function alter_indexes($Q, $sa)
     {
         foreach ($sa
@@ -1763,8 +1763,8 @@ return $sa || $Fe ? queries('ALTER TABLE '.table($Q)."\n".implode(",\n", $sa).$F
             $sa[$z] = ($X[2] == 'DROP' ? "\nDROP INDEX ".idf_escape($X[1]) : "\nADD $X[0] ".($X[0] == 'PRIMARY' ? 'KEY ' : '').($X[1] != '' ? idf_escape($X[1]).' ' : '').'('.implode(', ', $X[2]).')');
         }
 
-return
-        queries('ALTER TABLE '.table($Q).implode(',', $sa));
+        return
+                queries('ALTER TABLE '.table($Q).implode(',', $sa));
     }function truncate_tables($S)
     {
         return
@@ -1784,8 +1784,8 @@ return
             $nf[] = table($Q).' TO '.idf_escape($ng).'.'.table($Q);
         }
 
-return
-        queries('RENAME TABLE '.implode(', ', $nf));
+        return
+                queries('RENAME TABLE '.implode(', ', $nf));
     }function copy_tables($S, $gh, $ng)
     {
         queries("SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO'");
@@ -1806,8 +1806,8 @@ return
             }
         }
 
-return
-        true;
+        return
+                true;
     }function trigger($E)
     {
         if ($E == '') {
@@ -1824,7 +1824,7 @@ return
             $K[$L['Trigger']] = [$L['Timing'], $L['Event']];
         }
 
-return$K;
+        return$K;
     }function trigger_options()
     {
         return
@@ -1849,8 +1849,8 @@ return$K;
             ['fields' => $m, 'definition' => $C[11]];
         }
 
-return
-        ['fields' => $m, 'returns' => ['type' => $C[12], 'length' => $C[13], 'unsigned' => $C[15], 'collation' => $C[16]], 'definition' => $C[17], 'language' => 'SQL'];
+        return
+                ['fields' => $m, 'returns' => ['type' => $C[12], 'length' => $C[13], 'unsigned' => $C[15], 'collation' => $C[16]], 'definition' => $C[17], 'language' => 'SQL'];
     }function routines()
     {
         return
@@ -1897,7 +1897,7 @@ return
             $K = preg_replace('~ AUTO_INCREMENT=\\d+~', '', $K);
         }
 
-return$K;
+        return$K;
     }function truncate_sql($Q)
     {
         return'TRUNCATE '.table($Q);
@@ -1911,7 +1911,7 @@ return$K;
             $K .= "\nCREATE TRIGGER ".idf_escape($L['Trigger'])." $L[Timing] $L[Event] ON ".table($L['Table'])." FOR EACH ROW\n$L[Statement];;\n";
         }
 
-return$K;
+        return$K;
     }function show_variables()
     {
         return
@@ -1943,7 +1943,7 @@ return$K;
             $K = (min_version(8) ? 'ST_' : '')."GeomFromText($K)";
         }
 
-return$K;
+        return$K;
     }function support($pc)
     {
         return! preg_match('~scheme|sequence|type|view_trigger|materializedview'.(min_version(5.1) ? '' : '|event|partitioning'.(min_version(5) ? '' : '|routine|trigger|view')).'~', $pc);
@@ -2058,7 +2058,7 @@ class Adminer
             $K[] = $sc;
         }
 
-return$K;
+        return$K;
     }
 
     public function loginForm()
@@ -2083,8 +2083,8 @@ return$K;
             sprintf('<a href="https://www.adminer.org/en/extension/"%s>Implement</a> %s method to use SQLite.', target_blank(), '<code>login()</code>');
         }
 
-return
-        true;
+        return
+                true;
     }
 
     public function tableName($fg)
@@ -2146,7 +2146,7 @@ return
             $K = ", <a href='#$u'>".'Warnings'.'</a>'.script("qsl('a').onclick = partial(toggle, '$u');", '')."$K<div id='$u' class='hidden'>\n$jh</div>\n";
         }
 
-return"<p><code class='jush-$y'>".h(str_replace("\n", ' ', $I))."</code> <span class='time'>(".format_time($Tf).')</span>'.(support('sql') ? " <a href='".h(ME).'sql='.urlencode($I)."'>".'Edit'.'</a>' : '').$K;
+        return"<p><code class='jush-$y'>".h(str_replace("\n", ' ', $I))."</code> <span class='time'>(".format_time($Tf).')</span>'.(support('sql') ? " <a href='".h(ME).'sql='.urlencode($I)."'>".'Edit'.'</a>' : '').$K;
     }
 
     public function sqlCommandQuery($I)
@@ -2178,7 +2178,7 @@ return"<p><code class='jush-$y'>".h(str_replace("\n", ' ', $I))."</code> <span c
             $K = "<code class='jush-js'>$K</code>";
         }
 
-return $A ? "<a href='".h($A)."'".(is_url($A) ? target_blank() : '').">$K</a>" : $K;
+        return $A ? "<a href='".h($A)."'".(is_url($A) ? target_blank() : '').">$K</a>" : $K;
     }
 
     public function editVal($X, $l)
@@ -2309,8 +2309,8 @@ return $A ? "<a href='".h($A)."'".(is_url($A) ? target_blank() : '').">$K</a>" :
             }
         }
 
-return
-        [$N, $s];
+        return
+                [$N, $s];
     }
 
     public function selectSearchProcess($m, $w)
@@ -2354,7 +2354,7 @@ return
             }
         }
 
-return$K;
+        return$K;
     }
 
     public function selectOrderProcess($m, $w)
@@ -2366,7 +2366,7 @@ return$K;
             }
         }
 
-return$K;
+        return$K;
     }
 
     public function selectLimitProcess()
@@ -2407,7 +2407,7 @@ return$K;
             $K = "<a href='#$u' class='toggle'>".'Warnings'."</a>, $K<div id='$u' class='hidden'>\n$jh</div>\n";
         }
 
-return" <span class='time'>".@date('H:i:s').'</span>'." $K<div id='$Rf' class='hidden'><pre><code class='jush-$y'>".shorten_utf8($I, 1000).'</code></pre>'.($tg ? " <span class='time'>($tg)</span>" : '').(support('sql') ? '<p><a href="'.h(str_replace('db='.urlencode(DB), 'db='.urlencode($_GET['db']), ME).'sql=&history='.(count($Lc[$_GET['db']]) - 1)).'">'.'Edit'.'</a>' : '').'</div>';
+        return" <span class='time'>".@date('H:i:s').'</span>'." $K<div id='$Rf' class='hidden'><pre><code class='jush-$y'>".shorten_utf8($I, 1000).'</code></pre>'.($tg ? " <span class='time'>($tg)</span>" : '').(support('sql') ? '<p><a href="'.h(str_replace('db='.urlencode(DB), 'db='.urlencode($_GET['db']), ME).'sql=&history='.(count($Lc[$_GET['db']]) - 1)).'">'.'Edit'.'</a>' : '').'</div>';
     }
 
     public function editFunctions($l)
@@ -2430,8 +2430,8 @@ return" <span class='time'>".@date('H:i:s').'</span>'." $K<div id='$Rf' class='h
             $K = 'Auto Increment';
         }
 
-return
-        explode('/', $K);
+        return
+                explode('/', $K);
     }
 
     public function editInput($Q, $l, $wa, $Y)
@@ -2440,7 +2440,7 @@ return
             return(isset($_GET['select']) ? "<label><input type='radio'$wa value='-1' checked><i>".'original'.'</i></label> ' : '').($l['null'] ? "<label><input type='radio'$wa value=''".($Y !== null || isset($_GET['select']) ? '' : ' checked').'><i>NULL</i></label> ' : '').enum_input('radio', $wa, $l, $Y, 0);
         }
 
-return'';
+        return'';
     }
 
     public function editHint($Q, $l, $Y)
@@ -2468,8 +2468,8 @@ return'';
             $K = "$q($K)";
         }
 
-return
-        unconvert_field($l, $K);
+        return
+                unconvert_field($l, $K);
     }
 
     public function dumpOutput()
@@ -2479,7 +2479,7 @@ return
             $K['gz'] = 'gzip';
         }
 
-return$K;
+        return$K;
     }
 
     public function dumpFormat()
@@ -2591,7 +2591,7 @@ return$K;
             ob_start('ob_gzencode', 1e6);
         }
 
-return$kc;
+        return$kc;
     }
 
     public function importServerPath()
@@ -2816,7 +2816,7 @@ var thousandsSeparator = \'',js_escape(','),'\';
         $Vd = base64_encode(rand_string());
     }
 
-return$Vd;
+    return$Vd;
 }function page_messages($k)
 {
     $Ug = preg_replace('~^[^?]*~', '', $_SERVER['REQUEST_URI']);
@@ -2854,7 +2854,7 @@ return$Vd;
         $Pd += 4294967296;
     }
 
-return(int) $Pd;
+    return(int) $Pd;
 }function long2str($W, $ih)
 {
     $xf = '';
@@ -2866,7 +2866,7 @@ return(int) $Pd;
         substr($xf, 0, end($W));
     }
 
-return$xf;
+    return$xf;
 }function str2long($xf, $ih)
 {
     $W = array_values(unpack('V*', str_pad($xf, 4 * ceil(strlen($xf) / 4), "\0")));
@@ -2874,7 +2874,7 @@ return$xf;
         $W[] = strlen($xf);
     }
 
-return$W;
+    return$W;
 }function xxtea_mx($ph, $oh, $cg, $fd)
 {
     return
@@ -2904,8 +2904,8 @@ return$W;
         $W[$Pd] = $ph;
     }
 
-return
-    long2str($W, false);
+    return
+        long2str($W, false);
 }function decrypt_string($Wf, $z)
 {
     if ($Wf == '') {
@@ -2934,8 +2934,8 @@ return
         $cg = int32($cg - 0x9E3779B9);
     }
 
-return
-    long2str($W, true);
+    return
+        long2str($W, true);
 }$e = '';
 $Jc = $_SESSION['token'];
 if (! $Jc) {
@@ -3181,7 +3181,7 @@ if ($_POST) {
         }
     }
 
-return$K;
+    return$K;
 }function textarea($E, $Y, $M = 10, $Ya = 80)
 {
     global$y;
@@ -3306,8 +3306,8 @@ return$K;
         false;
     }
 
-return
-    true;
+    return
+        true;
 }function normalize_enum($C)
 {
     return"'".str_replace("'", "''", addcslashes(stripcslashes(str_replace($C[0][0].$C[0][0], $C[0][0], substr($C[0], 1, -1))), '\\'))."'";
@@ -3320,8 +3320,8 @@ return
         return $r == 'GRANT' ? queries("$r ALL PRIVILEGES$fe WITH GRANT OPTION") : queries("$r ALL PRIVILEGES$fe") && queries("$r GRANT OPTION$fe");
     }
 
-return
-    queries("$r ".preg_replace('~(GRANT OPTION)\\([^)]*\\)~', '\\1', implode("$d, ", $Xe).$d).$fe);
+    return
+        queries("$r ".preg_replace('~(GRANT OPTION)\\([^)]*\\)~', '\\1', implode("$d, ", $Xe).$d).$fe);
 }function drop_create($Jb, $g, $Kb, $qg, $Lb, $B, $Jd, $Hd, $Id, $ce, $Sd)
 {
     if ($_POST['drop']) {
@@ -3386,7 +3386,7 @@ return
         case'k':$X *= 1024;
     }
 
-return$X;
+    return$X;
 }function doc_link($Ie, $rg = '<sup>?</sup>')
 {
     global$y,$e;
@@ -3398,7 +3398,7 @@ return$X;
         $Ie['sql'] = (isset($Ie['mariadb']) ? $Ie['mariadb'] : str_replace('.html', '/', $Ie['sql']));
     }
 
-return $Ie[$y] ? "<a href='$Wg[$y]$Ie[$y]'".target_blank().">$rg</a>" : '';
+    return $Ie[$y] ? "<a href='$Wg[$y]$Ie[$y]'".target_blank().">$rg</a>" : '';
 }function ob_gzencode($Xf)
 {
     return
@@ -3413,8 +3413,8 @@ return $Ie[$y] ? "<a href='$Wg[$y]$Ie[$y]'".target_blank().">$rg</a>" : '';
         $K += $R['Data_length'] + $R['Index_length'];
     }
 
-return
-    format_number($K);
+    return
+        format_number($K);
 }function set_utf8mb4($g)
 {
     global$e;
@@ -4347,17 +4347,17 @@ if ($Te) {
         select_input(' disabled', $m, $c),"<label><input disabled type='checkbox'>".'descending'.'</label> ';
     }echo"<td><td>\n";
 }$x = 1;
-foreach ($L['indexes']as$v) {
-    if (! $_POST['drop_col'] || $x != key($_POST['drop_col'])) {
-        echo'<tr><td>'.html_select("indexes[$x][type]", [-1 => ''] + $Tc, $v['type'], ($x == count($L['indexes']) ? 'indexesAddRow.call(this);' : 1), 'label-type'),'<td>';
-        ksort($v['columns']);
-        $t = 1;
-        foreach ($v['columns']as$z => $c) {
-            echo'<span>'.select_input(" name='indexes[$x][columns][$t]' title='".'Column'."'", ($m ? array_combine($m, $m) : $m), $c, 'partial('.($t == count($v['columns']) ? 'indexesAddColumn' : 'indexesChangeColumn').", '".js_escape($y == 'sql' ? '' : $_GET['indexes'].'_')."')"),($y == 'sql' || $y == 'mssql' ? "<input type='number' name='indexes[$x][lengths][$t]' class='size' value='".h($v['lengths'][$z])."' title='".'Length'."'>" : ''),($y != 'sql' ? checkbox("indexes[$x][descs][$t]", 1, $v['descs'][$z], 'descending') : ''),' </span>';
-            $t++;
-        }echo"<td><input name='indexes[$x][name]' value='".h($v['name'])."' autocapitalize='off' aria-labelledby='label-name'>\n","<td><input type='image' class='icon' name='drop_col[$x]' src='".h(preg_replace('~\\?.*~', '', ME).'?file=cross.gif&version=4.6.2&driver=mysql')."' alt='x' title='".'Remove'."'>".script("qsl('input').onclick = partial(editingRemoveRow, 'indexes\$1[type]');");
-    }$x++;
-}echo'</table>
+    foreach ($L['indexes']as$v) {
+        if (! $_POST['drop_col'] || $x != key($_POST['drop_col'])) {
+            echo'<tr><td>'.html_select("indexes[$x][type]", [-1 => ''] + $Tc, $v['type'], ($x == count($L['indexes']) ? 'indexesAddRow.call(this);' : 1), 'label-type'),'<td>';
+            ksort($v['columns']);
+            $t = 1;
+            foreach ($v['columns']as$z => $c) {
+                echo'<span>'.select_input(" name='indexes[$x][columns][$t]' title='".'Column'."'", ($m ? array_combine($m, $m) : $m), $c, 'partial('.($t == count($v['columns']) ? 'indexesAddColumn' : 'indexesChangeColumn').", '".js_escape($y == 'sql' ? '' : $_GET['indexes'].'_')."')"),($y == 'sql' || $y == 'mssql' ? "<input type='number' name='indexes[$x][lengths][$t]' class='size' value='".h($v['lengths'][$z])."' title='".'Length'."'>" : ''),($y != 'sql' ? checkbox("indexes[$x][descs][$t]", 1, $v['descs'][$z], 'descending') : ''),' </span>';
+                $t++;
+            }echo"<td><input name='indexes[$x][name]' value='".h($v['name'])."' autocapitalize='off' aria-labelledby='label-name'>\n","<td><input type='image' class='icon' name='drop_col[$x]' src='".h(preg_replace('~\\?.*~', '', ME).'?file=cross.gif&version=4.6.2&driver=mysql')."' alt='x' title='".'Remove'."'>".script("qsl('input').onclick = partial(editingRemoveRow, 'indexes\$1[type]');");
+        }$x++;
+    }echo'</table>
 <p>
 <input type="submit" value="Save">
 <input type="hidden" name="token" value="',$T,'">

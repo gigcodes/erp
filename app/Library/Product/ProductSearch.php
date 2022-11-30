@@ -219,8 +219,8 @@ class ProductSearch
                         }
                         break;
                     case 'is_on_sale':
-                    $products = $products->where('is_on_sale', 1);
-                    break;
+                        $products = $products->where('is_on_sale', 1);
+                        break;
                     default:
                         // code...
                         break;

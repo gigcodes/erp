@@ -22,7 +22,6 @@ class FlowLogMessages extends Model
         $flowLogMessages->save();
 
         // Return
-
     }
 
     public function flowlog()
