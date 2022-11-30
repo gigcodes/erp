@@ -15,6 +15,9 @@
   .multiselect-container li a {
     line-height: 3;
   }
+  .select2{
+    width:200px !important;
+  }
 </style>
 
 @endsection
@@ -23,7 +26,7 @@
 
 <div class="row">
   <div class="col-12">
-    <h2 class="page-heading">Postman Request</h2>
+    <h2 class="page-heading">Postman Request ({{$counter}})</h2>
   </div>
 
   <div class="col-12 mb-3">
@@ -34,18 +37,24 @@
     </div>
   </div>
 </div>
-<div class=" row ">
+<div class=" row " style="margin-left:20px;">
   <form class="form-inline" action="/postman/search" method="GET">
     <div class="col">
       <div class="form-group">
         <div class="input-group">
-          <select name="folder_name" class="form-control" id="folder_name">
-            <option value="">-- Select Folder --</option>
+          <?php 
+            //dd(request('folder_name'));
+            if(request('folder_name')){   $folder_nameArr = request('folder_name'); }
+            else{ $folder_nameArr = array(); }
+          ?>
+          <select name="folder_name[]" class="form-control select2" multiple id="folder_name">
+            <option value="" @if(count($folder_nameArr)==0) selected @endif>-- Select Folder --</option>
             <?php
             $ops = 'id';
+            
             foreach ($folders as $folder) {
               $selected  = '';
-              if ($folder->id == request('folder_name'))
+              if (in_array($folder->id, $folder_nameArr))
                 $selected  = 'selected';
               echo '<option value="' . $folder->id . '" ' . $selected . '>' . $folder->name . '</option>';
             }
@@ -57,12 +66,17 @@
     <div class="col">
       <div class="form-group">
         <div class="input-group">
-          <select name="request_name" class="form-control" id="request_name">
-            <option value="">-- Select Request Name --</option>
+          <?php 
+            //dd(request('folder_name'));
+            if(request('request_name')){   $request_nameArr = request('request_name'); }
+            else{ $request_nameArr = array(); }
+          ?>
+          <select name="request_name[]" class="form-control select2" multiple id="request_name">
+            <option value="" @if(count($request_nameArr)==0) selected @endif>-- Select Request Name --</option>
             @foreach ($listRequestNames as $key => $reqName)
             <?php
             $selected  = '';
-            if ($reqName == request('request_name')) {
+            if (in_array($reqName, $request_nameArr)) {
               $selected  = 'selected = "selected"';
             }
             ?>
@@ -75,22 +89,27 @@
     <div class="col">
       <div class="form-group">
         <div class="input-group">
-          <select name="request_type" value="" class="form-control" id="request_types">
+          <?php 
+            //dd(request('folder_name'));
+            if(request('request_type')){   $request_typeArr = request('request_type'); }
+            else{ $request_typeArr = array(); }
+          ?>
+          <select name="request_type[]" value="" class="form-control select2" multiple id="request_types">
 
-            <option value="">-- Select Method --</option>
-            <option value="GET" <?php if (request('request_type') == 'GET') {
+            <option value="" @if(count($request_typeArr)==0) selected @endif>-- Select Method --</option>
+            <option value="GET" <?php if (in_array('GET', $request_typeArr)) {
                                   echo 'selected';
                                 } ?>>GET</option>
-            <option value="POST" <?php if (request('request_type') == 'POST') {
+            <option value="POST" <?php if (in_array('POST', $request_typeArr)) {
                                     echo 'selected';
                                   } ?>>POST</option>
-            <option value="PUT" <?php if (request('request_type') == 'PUT') {
+            <option value="PUT" <?php  if (in_array('PUT', $request_typeArr)) {
                                   echo 'selected';
                                 } ?>>PUT</option>
-            <option value="PATCH" <?php if (request('request_type') == 'PATCH') {
+            <option value="PATCH" <?php if (in_array('PATCH', $request_typeArr)) {
                                     echo 'selected';
                                   } ?>>PATCH</option>
-            <option value="DELETE" <?php if (request('request_type') == 'DELETE') {
+            <option value="DELETE" <?php if (in_array("DELETE", $request_typeArr)) {
                                       echo 'selected';
                                     } ?>>DELETE</option>
           </select>
@@ -101,6 +120,13 @@
       <div class="form-group">
         <div class="input-group">
           <input type="text" placeholder="Search By ID" class="form-control" name="search_id" value="{{request('search_id')}}">
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="form-group">
+        <div class="input-group">
+          <input type="text" placeholder="Search By Keyword" class="form-control" name="keyword" value="{{request('keyword')}}">
         </div>
       </div>
     </div>
@@ -161,7 +187,6 @@
         <thead>
           <tr>
             <th style="width: 3%;">ID</th>
-            <th style="width: 5%;overflow-wrap: anywhere;">User Permission</th>
             <th style="width: 4%;overflow-wrap: anywhere;">Folder Name</th>
             <th style="width: 5%;overflow-wrap: anywhere;">Controller Name</th>
             <th style="width: 4%;overflow-wrap: anywhere;">Method Name</th>
@@ -187,20 +212,6 @@
           @if (in_array($userID, $userAccessArr))
           <tr>
             <td>{{$postman->id}}</td>
-            <td>
-              <?php
-              $useNames = '';
-              foreach ($users as $user) {
-                if (in_array($user->id, $userAccessArr)) {
-                  //$selected = 'selected';
-                  //echo '<option value="'.$user->id.'" '.$selected.' data-folder_name="'.$user->name.'">'.$user->name.'</option>';
-                  $useNames .= '<span id="' . $postman->id . $user->id . '"><i style="font-size:24px;color:red; cursor: pointer;" class="fa removeuser" data-user_permision_id="' . $user->id . '" data-id="' . $postman->id . '">&#xf00d;</i><b>' . $user->id . '</b>-' . $user->name . ' <b>Email => </b>' . $user->email . ',<br/></span> ';
-                }
-              }
-              ?>
-
-              <a href="#" id="see_users" data-user_details="{{$useNames}}" data-toggle="modal" data-target="#postmanUserDetailsModel">See</a>
-            </td>
             <td class="expand-row-msg" data-name="name" data-id="{{$postman->id}}">
               <span class="show-short-name-{{$postman->id}}">{{ str_limit($postman->name, 5, '..')}}</span>
               <span style="word-break:break-all;" class="show-full-name-{{$postman->id}} hidden">{{$postman->name}}</span>
@@ -259,6 +270,7 @@
               <a title="Preview Response" data-id="{{ $postman->id }}" class="btn btn-image preview_response pd-5 btn-ht" href="javascript:;"><i class="fa fa-product-hunt" aria-hidden="true"></i></a>
               <a title="Preview Requested" data-id="{{ $postman->id }}" class="btn btn-image preview_requested pd-5 btn-ht" href="javascript:;"><i class="fa fa-eye" aria-hidden="true"></i></a>
               <a title="Preview Remark History" data-id="{{ $postman->id }}" class="btn btn-image preview_remark_history pd-5 btn-ht" href="javascript:;"><i class="fa fa-history" aria-hidden="true"></i></a>
+                  <a title="Preview Error" data-id="{{ $postman->id }}" class="btn btn-image preview_postman_error pd-5 btn-ht" href="javascript:;"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
             </td>
           </tr>
           @endif
@@ -480,6 +492,39 @@
             </table>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="postmanErrorModel" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div id="add-mail-content">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 class="modal-title">Postman Error History</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>User Name</th>
+                    <th>Error Type</th>
+                    <th>Error</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody class="tbodayPostmanErrorHistory">
+                </tbody>
+              </table>  
+            </div>
+          </div>
       </div>
     </div>
   </div>
@@ -1124,55 +1169,102 @@
     });
   });
 
-  $(document).on("click", ".preview_response", function(e) {
-    e.preventDefault();
-    var $this = $(this);
-    var id = $this.data('id');
-    $.ajax({
-      url: "/postman/response/history/",
-      type: "post",
-      headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-      },
-      data: {
-        id: id
-      }
-    }).done(function(response) {
-      if (response.code = '200') {
-        var t = '';
-        $.each(response.data, function(key, v) {
-          var responseString = '';
-          if (v.response)
-            responseString = v.response.substring(0, 10);
-          var request_data_val = '';
-          if (v.request_data)
-            request_data_val = v.request_data.substring(0, 10);
-          var request_url_val = '';
-          if (v.request_data)
-            request_url_val = v.request_url.substring(0, 10)
+    $(document).on("click",".preview_response",function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+        $.ajax({
+          url: "/postman/response/history/",
+          type: "post",
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+          data:{
+            id:id
+          }
+        }).done(function(response) {
+          if(response.code = '200') {
+            var t = '';
+            $.each(response.data, function(key, v) {
+              var responseString  = '';
+              if(v.response)
+                responseString = v.response.substring(0,10);
+              var request_data_val  = '';
+              if(v.request_data)
+                request_data_val = v.request_data.substring(0,10);
+              var request_url_val  = '';
+              if(v.request_data)
+              request_url_val = v.request_url.substring(0,10)
 
 
-          t += '<tr><td>' + v.id + '</td>';
-          t += '<td>' + v.userName + '</td>';
-          t += '<td  class="expand-row-msg" data-name="response" data-id="' + v.id + '" ><span class="show-short-response-' + v.id + '">' + responseString + '...</span>    <span style="word-break:break-all;" class="show-full-response-' + v.id + ' hidden">' + v.response + '</span></td>';
-          t += '<td>' + v.response_code + '</td>';
-          t += '<td  class="expand-row-msg" data-name="request_url" data-id="' + v.id + '" ><span class="show-short-request_url-' + v.id + '">' + request_url_val + '...</span>    <span style="word-break:break-all;" class="show-full-request_url-' + v.id + ' hidden">' + v.request_url + '</span></td>';
-          t += '<td  class="expand-row-msg" data-name="request_data" data-id="' + v.id + '" ><span class="show-short-request_data-' + v.id + '">' + request_data_val + '...</span>    <span style="word-break:break-all;" class="show-full-request_data-' + v.id + ' hidden">' + v.request_data + '</span></td>';
-          t += '<td>' + v.created_at + '</td></tr>';
+              t += '<tr><td>'+v.id+'</td>';
+              t += '<td>'+v.userName+'</td>';
+              t += '<td  class="expand-row-msg" data-name="response" data-id="'+v.id+'" ><span class="show-short-response-'+v.id+'">'+responseString+'...</span>    <span style="word-break:break-all;" class="show-full-response-'+v.id+' hidden">'+v.response+'</span></td>';
+              t += '<td>'+v.response_code+'</td>';
+              t += '<td  class="expand-row-msg" data-name="request_url" data-id="'+v.id+'" ><span class="show-short-request_url-'+v.id+'">'+request_url_val+'...</span>    <span style="word-break:break-all;" class="show-full-request_url-'+v.id+' hidden">'+v.request_url+'</span></td>';
+              t += '<td  class="expand-row-msg" data-name="request_data" data-id="'+v.id+'" ><span class="show-short-request_data-'+v.id+'">'+request_data_val+'...</span>    <span style="word-break:break-all;" class="show-full-request_data-'+v.id+' hidden">'+v.request_data+'</span></td>';
+              t += '<td>'+v.created_at+'</td></tr>';
+            });
+            $(".tbodayPostmanResponseHistory").html(t);
+            $('#postmanResponseHistoryModel').modal('show');
+            toastr['success']('Postman response listed successfully!!!', 'success'); 
+            
+          } else {
+            toastr['error'](response.message, 'error'); 
+          }
+        }).fail(function(errObj) {
+          $('#loading-image').hide();
+           $("#postmanResponseHistory").hide();
+           toastr['error'](errObj.message, 'error');
         });
-        $(".tbodayPostmanResponseHistory").html(t);
-        $('#postmanResponseHistoryModel').modal('show');
-        toastr['success']('Postman response listed successfully!!!', 'success');
-
-      } else {
-        toastr['error'](response.message, 'error');
-      }
-    }).fail(function(errObj) {
-      $('#loading-image').hide();
-      $("#postmanResponseHistory").hide();
-      toastr['error'](errObj.message, 'error');
     });
-  });
+
+    
+    $(document).on("click",".preview_postman_error",function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+        $.ajax({
+          url: "/postman/get/error/history",
+          type: "post",
+          headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+          data:{
+            id:id
+          }
+        }).done(function(response) {
+          if(response.code = '200') {
+            var t = '';
+            $.each(response.data, function(key, v) {
+              var parent_id_type  = '';
+              if(v.parent_id_type)
+                parent_id_type = v.parent_id_type.substring(0,10);
+              var error  = '';
+              if(v.error)
+              error = v.error.substring(0,10)
+
+
+              t += '<tr><td>'+v.id+'</td>';
+              t += '<td>'+v.userName+'</td>';
+              t += '<td  class="expand-row-msg" data-name="type" data-id="'+v.id+'" ><span class="show-short-type-'+v.id+'">'+parent_id_type+'...</span>    <span style="word-break:break-all;" class="show-full-type-'+v.id+' hidden">'+v.parent_id_type+'</span></td>';
+              t += '<td  class="expand-row-msg" data-name="error" data-id="'+v.id+'" ><span class="show-short-error-'+v.id+'">'+error+'...</span>    <span style="word-break:break-all;" class="show-full-error-'+v.id+' hidden">'+v.error+'</span></td>';
+              t += '<td>'+v.created_at+'</td></tr>';
+            });
+            $(".tbodayPostmanErrorHistory").html(t);
+            $('#postmanErrorModel').modal('show');
+            toastr['success']('Postman Error history listed successfully!!!', 'success'); 
+            
+          } else {
+            toastr['error'](response.message, 'error'); 
+          }
+        }).fail(function(errObj) {
+          $('#loading-image').hide();
+           $("#postmanErrorModel").hide();
+           toastr['error'](errObj.message, 'error');
+        });
+    });
+    
 
   $(document).on("click", ".preview_edit_history", function(e) {
     e.preventDefault();
@@ -1363,7 +1455,7 @@
     var per_user_name = $('#per_user_name').val();
     if (per_folder_name && per_user_name) {
       $.ajax({
-        url: "postman/user/permission",
+        url: "{{route('postman.permission')}}",
         type: "post",
         headers: {
           'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -1417,7 +1509,9 @@
     $(mini).toggleClass('hidden');
   }); */
   $(document).ready(function() {
+    $(".select2").select2();
     $('#per_user_name').select2();
+    $('#per_folder_name ').select2();
   });
 </script>
 @endsection

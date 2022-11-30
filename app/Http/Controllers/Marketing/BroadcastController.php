@@ -596,19 +596,19 @@ class BroadcastController extends Controller
     }
 
 
-    public function instagram(Request $request)
-    {
-        if ($request->get('date')) {
-            $leads = ColdLeadBroadcasts::whereDate('created_at',$request->get('date'));
-        } else {
-            $leads = new ColdLeadBroadcasts;
-        }
-
-        $leads = $leads->orderBy('updated_at', 'DESC')->paginate($request->get('pagination'));
-        $competitors = CompetitorPage::select('id','name')->where('platform', 'instagram')->get();
-
-        return view('marketing.broadcasts.instagram.index',compact('leads','competitors'));
-    }
+//    public function instagram(Request $request)
+//    {
+//        if ($request->get('date')) {
+//            $leads = ColdLeadBroadcasts::whereDate('created_at',$request->get('date'));
+//        } else {
+//            $leads = new ColdLeadBroadcasts;
+//        }
+//
+//        $leads = $leads->orderBy('updated_at', 'DESC')->paginate($request->get('pagination'));
+//        $competitors = CompetitorPage::select('id','name')->where('platform', 'instagram')->get();
+//
+//        return view('marketing.broadcasts.instagram.index',compact('leads','competitors'));
+//    }
 
     
     

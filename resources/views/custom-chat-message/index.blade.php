@@ -37,7 +37,11 @@
                 <div class="form-inline">
                     <form class="form-inline message-search-handler form-search-data" method="get">
                         <div class="row">
-
+                            <div class="form-group mr-2">
+                                <div class="col pr-0">
+                                    <?php echo Form::text("created_at",request("date"),["class"=> "form-control datepicker","placeholder" => "Select Date", "id"=> "created_at"]) ?>
+                                </div>
+                            </div>
 
                             <div class="form-group mr-2">
                                 <div class="col pr-0">
@@ -239,7 +243,11 @@ $(document).ready(function () {
     });            
 });
 
-
+$( function() {
+    $( ".datepicker" ).datepicker({
+        dateFormat: 'dd-M-yy'
+    });
+} );
 </script>
 
 

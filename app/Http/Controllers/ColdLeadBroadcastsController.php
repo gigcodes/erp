@@ -6,12 +6,12 @@ use App\ColdLeadBroadcasts;
 use App\ColdLeads;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use InstagramAPI\Instagram;
+//use InstagramAPI\Instagram;
 use Carbon\Carbon;
 use App\Account;
 use App\ImQueue;
 use App\CompetitorPage;
-use App\Marketing\InstagramConfig;
+//use App\Marketing\InstagramConfig;
 
 class ColdLeadBroadcastsController extends Controller
 {
@@ -179,47 +179,48 @@ class ColdLeadBroadcastsController extends Controller
             //Giving BroadCast to Least Count
             $count = [];
 
-            if($request->account_id){
-                $instagramAccount = InstagramConfig::find($request->account_id);
-                    
-                if($instagramAccount){
-                    $queue = new ImQueue();
-                    $queue->im_client = 'instagram';
-                    $queue->number_to = $coldlead->platform_id;
-                    $queue->number_from = $instagramAccount->username;
-                    $queue->text = $request->message;
-                    $queue->priority = null;
-                    $queue->marketing_message_type_id = 1;
-                    $queue->broadcast_id = $broadcast->id;
-                    $queue->send_after = $sendAfter;
-                    $queue->save();
-                }
-                
-
-            }else{
-
-                $instagramAccounts = InstagramConfig::where('status','1')->get();
-                foreach ($instagramAccounts  as $instagramAccount) {
-                    $count[] = array($instagramAccount->imQueueBroadcast->count() => $instagramAccount->username);
-                }
-            
-                ksort($count);
-                
-                if(isset($count[0][key($count[0])])){
-                    $username = $count[0][key($count[0])];
-                    $queue = new ImQueue();
-                    $queue->im_client = 'instagram';
-                    $queue->number_to = $coldlead->platform_id;
-                    $queue->number_from = $username;
-                    $queue->text = $request->message;
-                    $queue->priority = null;
-                    $queue->marketing_message_type_id = 1;
-                    $queue->broadcast_id = $broadcast->id;
-                    $queue->send_after = $sendAfter;
-                    $queue->save();
-                }
-
-            }
+//            if($request->account_id){
+//                $instagramAccount = InstagramConfig::find($request->account_id);
+//
+//                if($instagramAccount){
+//                    $queue = new ImQueue();
+//                    $queue->im_client = 'instagram';
+//                    $queue->number_to = $coldlead->platform_id;
+//                    $queue->number_from = $instagramAccount->username;
+//                    $queue->text = $request->message;
+//                    $queue->priority = null;
+//                    $queue->marketing_message_type_id = 1;
+//                    $queue->broadcast_id = $broadcast->id;
+//                    $queue->send_after = $sendAfter;
+//                    $queue->save();
+//                }
+//
+//
+//            }
+//            else{
+//
+//                $instagramAccounts = InstagramConfig::where('status','1')->get();
+//                foreach ($instagramAccounts  as $instagramAccount) {
+//                    $count[] = array($instagramAccount->imQueueBroadcast->count() => $instagramAccount->username);
+//                }
+//
+//                ksort($count);
+//
+//                if(isset($count[0][key($count[0])])){
+//                    $username = $count[0][key($count[0])];
+//                    $queue = new ImQueue();
+//                    $queue->im_client = 'instagram';
+//                    $queue->number_to = $coldlead->platform_id;
+//                    $queue->number_from = $username;
+//                    $queue->text = $request->message;
+//                    $queue->priority = null;
+//                    $queue->marketing_message_type_id = 1;
+//                    $queue->broadcast_id = $broadcast->id;
+//                    $queue->send_after = $sendAfter;
+//                    $queue->save();
+//                }
+//
+//            }
             
             
             $coldlead->status = 2;
