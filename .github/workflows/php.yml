@@ -89,21 +89,12 @@ jobs:
 
 
 
+# @todo need to add larastan instead of phpstan when laravel is upgraded to latest version. This action is working fine.
   phpstan:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
-#      - name: Cache Composer packages
-#        id: composer-cache
-#        uses: actions/cache@v3
-#        with:
-#          path: vendor
-#          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.json') }}
-#          restore-keys: |
-#            ${{ runner.os }}-php-${{ hashFiles('**/composer.json') }}
-
-
 
       - name: Get Composer Cache Directory
         id: composer-cache
@@ -118,11 +109,6 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: |
             ${{ runner.os }}-composer-
-
-#      - name: Composer cache path
-#        id: composer-cache-path
-#        run: |
-#          echo "${{ steps.composer-cache.outputs.dir }}"
 
       - name: "setup private repo"
         uses: php-actions/composer@v6
@@ -140,12 +126,13 @@ jobs:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{secrets.LUDXB2}}"} }'
           DB_CONNECTION: sqlite
           DB_DATABASE : database/database.sqlite
-      - uses: php-actions/phpstan@v3
-        with:
-          path: .
-          memory_limit: 512M
-#          php_version: "7.2"
-#          php_extensions: pdo pdo_mysql sockets mbstring zip exif pcntl soap mysqli bcmath gd imap
+#      - uses: php-actions/phpstan@v3
+#        with:
+#          path: .
+#          memory_limit: 512M
+
+
+
 
 
 ## THIS IS WORKING FINE - FOR TESTING PURPOSE ONLY
