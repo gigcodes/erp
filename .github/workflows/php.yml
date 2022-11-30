@@ -115,7 +115,9 @@ jobs:
             ${{ runner.os }}-composer-
 
       - name: Create env file
-          run: 'echo "${{ secrets.ENV_FILE }}" > .env'
+        id: create-env-file
+          run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
 
       - name: "setup private repo"
         uses: php-actions/composer@v6
