@@ -1,4 +1,5 @@
 <?php
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -42,7 +43,6 @@ return [
     'registration_email_domain_invalid' => 'Adresy e-mail z tej domeny nie mają dostępu do tej aplikacji',
     'register_success' => 'Dziękujemy za rejestrację! Zostałeś zalogowany automatycznie.',
 
-
     /**
      * Password Reset
      */
@@ -55,7 +55,6 @@ return [
     'email_reset_subject' => 'Resetowanie hasła do :appName',
     'email_reset_text' => 'Otrzymujesz tę wiadomość ponieważ ktoś zażądał zresetowania hasła do Twojego konta.',
     'email_reset_not_requested' => 'Jeśli to nie Ty złożyłeś żądanie zresetowania hasła, zignoruj tę wiadomość.',
-
 
     /**
      * Email Confirmation

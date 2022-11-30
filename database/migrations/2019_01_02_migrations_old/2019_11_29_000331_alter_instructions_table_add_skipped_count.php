@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterInstructionsTableAddSkippedCount extends Migration
 {
@@ -14,7 +14,7 @@ class AlterInstructionsTableAddSkippedCount extends Migration
     public function up()
     {
         Schema::table('instructions', function (Blueprint $table) {
-             $table->integer('skipped_count')->default('0');
+            $table->integer('skipped_count')->default('0');
         });
     }
 

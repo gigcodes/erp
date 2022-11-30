@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\googleTraslationSettings;
 use Illuminate\Http\Request;
-use App\GoogleTranslate;
 
 class GoogleTraslationSettingsController extends Controller
 {
@@ -16,7 +15,8 @@ class GoogleTraslationSettingsController extends Controller
     public function index()
     {
         $settings = googleTraslationSettings::all();
-        return view('googleTraslationSettings.index',compact('settings'));
+
+        return view('googleTraslationSettings.index', compact('settings'));
     }
 
     /**
@@ -52,9 +52,10 @@ class GoogleTraslationSettingsController extends Controller
             $googleTraslationSettings->save();
 
             $msg = 'Setting Add Successfully';
-            return redirect()->route('google-traslation-settings.index')->with( 'success', $msg );
+
+            return redirect()->route('google-traslation-settings.index')->with('success', $msg);
         } catch (Exception $e) {
-            return redirect()->route('google-traslation-settings.index')->with( 'error', $e->getMessage() );
+            return redirect()->route('google-traslation-settings.index')->with('error', $e->getMessage());
         }
     }
 
@@ -75,10 +76,11 @@ class GoogleTraslationSettingsController extends Controller
      * @param  \App\googleTraslationSettings  $googleTraslationSettings
      * @return \Illuminate\Http\Response
      */
-    public function edit($id,googleTraslationSettings $googleTraslationSettings)
+    public function edit($id, googleTraslationSettings $googleTraslationSettings)
     {
-        $data = googleTraslationSettings::where('id',$id)->first();
-        return view('googleTraslationSettings.edit',compact('data'));
+        $data = googleTraslationSettings::where('id', $id)->first();
+
+        return view('googleTraslationSettings.edit', compact('data'));
     }
 
     /**
@@ -104,11 +106,12 @@ class GoogleTraslationSettingsController extends Controller
                 'email' => $email,
                 'account_json' => $account_json,
                 'status' => $status,
-                'last_note' => $last_note
+                'last_note' => $last_note,
             ]);
-            return redirect()->route('google-traslation-settings.index')->with( 'success', "Setting Update Successfully" );
+
+            return redirect()->route('google-traslation-settings.index')->with('success', 'Setting Update Successfully');
         } catch (Exception $e) {
-            return redirect()->route('google-traslation-settings.index')->with( 'error', $e->getMessage() );
+            return redirect()->route('google-traslation-settings.index')->with('error', $e->getMessage());
         }
     }
 
@@ -120,9 +123,10 @@ class GoogleTraslationSettingsController extends Controller
      */
     public function destroy(Request $googleTraslationSettings)
     {
-        googleTraslationSettings::where('id',$googleTraslationSettings->setting)->delete();
+        googleTraslationSettings::where('id', $googleTraslationSettings->setting)->delete();
 
-        $msg = "Setting Delete Successfully";
-        return redirect()->route('google-traslation-settings.index')->with( 'success', $msg );
+        $msg = 'Setting Delete Successfully';
+
+        return redirect()->route('google-traslation-settings.index')->with('success', $msg);
     }
 }

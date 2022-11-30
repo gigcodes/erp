@@ -34,17 +34,15 @@ class RunGoogleAnalytics extends Command
      */
     public function handle()
     {
-        try
-        {
+        try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             app('App\Http\Controllers\AnalyticsController')->cronGetUserShowData();
 
             $report->update(['end_time' => Carbon::now()]);
-
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }

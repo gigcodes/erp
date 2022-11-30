@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddStockStatusInProductTable extends Migration
 {
@@ -13,8 +12,8 @@ class AddStockStatusInProductTable extends Migration
      */
     public function up()
     {
-        Schema::table('products',function($table){
-            $table->integer('stock_status')->nullable()->after("purchase_status");
+        Schema::table('products', function ($table) {
+            $table->integer('stock_status')->nullable()->after('purchase_status');
         });
     }
 
@@ -25,7 +24,7 @@ class AddStockStatusInProductTable extends Migration
      */
     public function down()
     {
-        Schema::table('products',function($table){
+        Schema::table('products', function ($table) {
             $table->dropColumn('purchase_status');
         });
     }

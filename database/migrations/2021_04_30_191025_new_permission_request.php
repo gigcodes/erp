@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class NewPermissionRequest extends Migration
 {
@@ -13,7 +13,7 @@ class NewPermissionRequest extends Migration
      */
     public function up()
     {
-        if(!Schema::hasTable('permission_request')) {
+        if (! Schema::hasTable('permission_request')) {
             Schema::create('permission_request', function (Blueprint $table) {
                 $table->increments('id');
                 $table->integer('user_id')->nullable();

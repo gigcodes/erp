@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateBroadcastDetailsTable extends Migration
 {
@@ -16,7 +16,7 @@ class CreateBroadcastDetailsTable extends Migration
         Schema::create('broadcast_details', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('broadcast_message_id');
-			$table->string('name')->nullable();
+            $table->string('name')->nullable();
             $table->text('message')->nullable();
             $table->timestamps();
         });

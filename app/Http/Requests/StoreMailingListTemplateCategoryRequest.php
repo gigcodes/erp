@@ -24,7 +24,7 @@ class StoreMailingListTemplateCategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|unique:mailinglist_template_categories,title'
+            'name' => 'required|string|unique:mailinglist_template_categories,title',
         ];
     }
 
@@ -32,7 +32,7 @@ class StoreMailingListTemplateCategoryRequest extends FormRequest
     {
         return [
             'name.required' => 'Category name required.',
-            'name.unique' => 'Category name already exists.'
+            'name.unique' => 'Category name already exists.',
         ];
     }
 }

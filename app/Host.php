@@ -6,12 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Host extends Model
 {
-    protected $table = 'hosts'; 
+    protected $table = 'hosts';
+
     protected $fillable = [
         'hostid', 'host', 'name',
     ];
 
-    public function items(){
+    public function items()
+    {
         return $this->hasOne(HostItem::class);
     }
 }

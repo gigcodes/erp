@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddColumnSopsTable extends Migration
 {
@@ -13,7 +12,7 @@ class AddColumnSopsTable extends Migration
      */
     public function up()
     {
-        Schema::table('sops',function($table) {
+        Schema::table('sops', function ($table) {
             $table->integer('user_id')->nullable();
         });
     }

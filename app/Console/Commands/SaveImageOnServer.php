@@ -25,13 +25,14 @@ class SaveImageOnServer extends Command
     protected $description = 'Command description';
 
     protected $country;
+
     protected $IP;
 
     public function handle(): void
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -60,12 +61,11 @@ class SaveImageOnServer extends Command
 
     private function setCountry(): void
     {
-
         $this->country = 'IT';
     }
 
     private function setIP(): void
     {
-        $this->IP = '5.61.4.70  ' . ':' . '8080';
+        $this->IP = '5.61.4.70  '.':'.'8080';
     }
 }

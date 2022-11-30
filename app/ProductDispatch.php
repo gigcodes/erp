@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -9,7 +10,7 @@ use Plank\Mediable\Mediable;
 
 class ProductDispatch extends Model
 {
-     /**
+    /**
      * @var string
      * @SWG\Property(property="modeof_shipment",type="string")
      * @SWG\Property(property="awb",type="string")
@@ -20,17 +21,18 @@ class ProductDispatch extends Model
      * @SWG\Property(property="product_id",type="interger")
      */
     use Mediable;
-    
-	public $table  = "product_dispatch";
-    protected $fillable = ['modeof_shipment','awb','eta','delivery_person','date_time','product_id','created_by'];
+
+    public $table = 'product_dispatch';
+
+    protected $fillable = ['modeof_shipment', 'awb', 'eta', 'delivery_person', 'date_time', 'product_id', 'created_by'];
 
     public function product()
     {
-    	return $this->hasOne("\App\Products","id","product_id");
+        return $this->hasOne("\App\Products", 'id', 'product_id');
     }
 
     public function user()
     {
-    	return $this->hasOne("\App\User","id","created_by");
+        return $this->hasOne("\App\User", 'id', 'created_by');
     }
 }

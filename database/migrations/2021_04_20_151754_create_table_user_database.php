@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTableUserDatabase extends Migration
 {
@@ -14,7 +14,7 @@ class CreateTableUserDatabase extends Migration
     public function up()
     {
         //
-        Schema::create('user_databases',function(Blueprint $table) {
+        Schema::create('user_databases', function (Blueprint $table) {
             $table->increments('id');
             $table->string('database');
             $table->string('username');

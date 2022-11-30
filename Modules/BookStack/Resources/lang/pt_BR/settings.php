@@ -57,7 +57,7 @@ return [
     // Maintenance settings
     'maint' => 'Manutenção',
     'maint_image_cleanup' => 'Limpeza de Imagens',
-    'maint_image_cleanup_desc' => "Examina páginas & revisa o conteúdo para verificar quais imagens e desenhos estão atualmente em uso e quais imagens são redundantes. Certifique-se de criar um backup completo do banco de dados e imagens antes de executar isso.",
+    'maint_image_cleanup_desc' => 'Examina páginas & revisa o conteúdo para verificar quais imagens e desenhos estão atualmente em uso e quais imagens são redundantes. Certifique-se de criar um backup completo do banco de dados e imagens antes de executar isso.',
     'maint_image_cleanup_ignore_revisions' => 'Ignorar imagens em revisões',
     'maint_image_cleanup_run' => 'Executar Limpeza',
     'maint_image_cleanup_warning' => ':count imagens potencialmente não utilizadas foram encontradas. Tem certeza de que deseja excluir estas imagens?',
@@ -72,7 +72,7 @@ return [
     'role_delete' => 'Excluir Perfil',
     'role_delete_confirm' => 'A ação vai excluír o Perfil de nome \':roleName\'.',
     'role_delete_users_assigned' => 'Esse Perfil tem :userCount usuários assinalados a ele. Se quiser migrar usuários desse Perfil para outro, selecione um novo Perfil.',
-    'role_delete_no_migration' => "Não migre os usuários",
+    'role_delete_no_migration' => 'Não migre os usuários',
     'role_delete_sure' => 'Tem certeza que deseja excluir esse Perfil?',
     'role_delete_success' => 'Perfil excluído com sucesso',
     'role_edit' => 'Editar Perfil',
@@ -133,33 +133,3 @@ return [
     'users_social_disconnected' => 'Conta :socialAccount foi desconectada com sucesso de seu perfil.',
 
 ];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,11 +1,11 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 use Illuminate\Database\Eloquent\Model;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
 use seo2websites\ErpExcelImporter\ExcelImporter;
 
@@ -22,16 +22,16 @@ class LogExcelImport extends Model
      * @SWG\Property(property="md5",type="string")
      */
     use Mediable;
-    protected $fillable =  array('filename','supplier','number_of_products','status','website','supplier_email','md5','message');
+
+    protected $fillable = ['filename', 'supplier', 'number_of_products', 'status', 'website', 'supplier_email', 'md5', 'message'];
 
     public function checkIfExcelImporterExist($md5)
     {
-    	$excelImport = ExcelImporter::where('md5',$md5)->first();
-    	if($excelImport){
-    		return true;
-    	}else{
-    		return false;
-    	}
+        $excelImport = ExcelImporter::where('md5', $md5)->first();
+        if ($excelImport) {
+            return true;
+        } else {
+            return false;
+        }
     }
-    
 }

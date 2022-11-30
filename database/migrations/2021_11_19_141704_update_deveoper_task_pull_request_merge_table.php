@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateDeveoperTaskPullRequestMergeTable extends Migration
 {
@@ -14,10 +13,9 @@ class UpdateDeveoperTaskPullRequestMergeTable extends Migration
     public function up()
     {
         //
-        Schema::table('deveoper_task_pull_request_merges',function($table){
+        Schema::table('deveoper_task_pull_request_merges', function ($table) {
             $table->integer('user_id')->after('id')->nullable();
         });
-
     }
 
     /**

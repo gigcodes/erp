@@ -1,4 +1,6 @@
-<?php namespace Modules\BookStack\Entities;
+<?php
+
+namespace Modules\BookStack\Entities;
 
 use Modules\BookStack\Uploads\Image;
 
@@ -12,6 +14,7 @@ class Bookshelf extends Entity
 
     /**
      * Get the morph class for this model.
+     *
      * @return string
      */
     public function getMorphClass()
@@ -22,6 +25,7 @@ class Bookshelf extends Entity
     /**
      * Get the books in this shelf.
      * Should not be used directly since does not take into account permissions.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function books()
@@ -33,28 +37,31 @@ class Bookshelf extends Entity
 
     /**
      * Get the url for this bookshelf.
-     * @param string|bool $path
+     *
+     * @param  string|bool  $path
      * @return string
      */
     public function getUrl($path = false)
     {
         if ($path !== false) {
-            return url('/kb/shelves/' . urlencode($this->slug) . '/' . trim($path, '/'));
+            return url('/kb/shelves/'.urlencode($this->slug).'/'.trim($path, '/'));
         }
-        return url('/kb/shelves/' . urlencode($this->slug));
+
+        return url('/kb/shelves/'.urlencode($this->slug));
     }
 
     /**
      * Returns BookShelf cover image, if cover does not exists return default cover image.
-     * @param int $width - Width of the image
-     * @param int $height - Height of the image
+     *
+     * @param  int  $width - Width of the image
+     * @param  int  $height - Height of the image
      * @return string
      */
     public function getBookCover($width = 440, $height = 250)
     {
         // TODO - Make generic, focused on books right now, Perhaps set-up a better image
         $default = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
-        if (!$this->image_id) {
+        if (! $this->image_id) {
             return $default;
         }
 
@@ -63,11 +70,13 @@ class Bookshelf extends Entity
         } catch (\Exception $err) {
             $cover = $default;
         }
+
         return $cover;
     }
 
     /**
      * Get the cover image of the shelf
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function cover()
@@ -77,17 +86,20 @@ class Bookshelf extends Entity
 
     /**
      * Get an excerpt of this book's description to the specified length or less.
-     * @param int $length
+     *
+     * @param  int  $length
      * @return string
      */
     public function getExcerpt(int $length = 100)
     {
         $description = $this->description;
-        return mb_strlen($description) > $length ? mb_substr($description, 0, $length-3) . '...' : $description;
+
+        return mb_strlen($description) > $length ? mb_substr($description, 0, $length - 3).'...' : $description;
     }
 
     /**
      * Return a generalised, common raw query that can be 'unioned' across entities.
+     *
      * @return string
      */
     public function entityRawQuery()
@@ -97,7 +109,8 @@ class Bookshelf extends Entity
 
     /**
      * Check if this shelf contains the given book.
-     * @param Book $book
+     *
+     * @param  Book  $book
      * @return bool
      */
     public function contains(Book $book)

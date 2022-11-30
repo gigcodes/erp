@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddPlatformToReviews extends Migration
 {
@@ -14,8 +14,8 @@ class AddPlatformToReviews extends Migration
     public function up()
     {
         Schema::table('reviews', function (Blueprint $table) {
-          $table->string('platform')->nullable()->after('posted_date');
-          $table->string('serial_number')->nullable()->after('platform');
+            $table->string('platform')->nullable()->after('posted_date');
+            $table->string('serial_number')->nullable()->after('platform');
         });
     }
 
@@ -27,8 +27,8 @@ class AddPlatformToReviews extends Migration
     public function down()
     {
         Schema::table('reviews', function (Blueprint $table) {
-          $table->dropColumn('platform');
-          $table->dropColumn('serial_number');
+            $table->dropColumn('platform');
+            $table->dropColumn('serial_number');
         });
     }
 }

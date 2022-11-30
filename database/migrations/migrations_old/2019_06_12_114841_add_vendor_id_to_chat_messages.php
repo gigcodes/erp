@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddVendorIdToChatMessages extends Migration
 {
@@ -14,9 +14,9 @@ class AddVendorIdToChatMessages extends Migration
     public function up()
     {
         Schema::table('chat_messages', function (Blueprint $table) {
-          $table->integer('vendor_id')->unsigned()->nullable()->after('supplier_id');
+            $table->integer('vendor_id')->unsigned()->nullable()->after('supplier_id');
 
-          $table->foreign('vendor_id')->references('id')->on('vendors');
+            $table->foreign('vendor_id')->references('id')->on('vendors');
         });
     }
 
@@ -28,8 +28,8 @@ class AddVendorIdToChatMessages extends Migration
     public function down()
     {
         Schema::table('chat_messages', function (Blueprint $table) {
-          $table->dropForeign(['vendor_id']);
-          $table->dropColumn('vendor_id');
+            $table->dropForeign(['vendor_id']);
+            $table->dropColumn('vendor_id');
         });
     }
 }

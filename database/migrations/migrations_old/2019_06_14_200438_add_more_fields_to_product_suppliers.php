@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddMoreFieldsToProductSuppliers extends Migration
 {
@@ -14,11 +14,11 @@ class AddMoreFieldsToProductSuppliers extends Migration
     public function up()
     {
         Schema::table('product_suppliers', function (Blueprint $table) {
-          $table->string('title')->nullable()->after('supplier_id');
-          $table->longtext('description')->nullable()->after('title');
-          $table->string('supplier_link')->nullable()->after('description');
-          $table->string('color')->nullable()->after('size');
-          $table->string('composition')->nullable()->after('color');
+            $table->string('title')->nullable()->after('supplier_id');
+            $table->longtext('description')->nullable()->after('title');
+            $table->string('supplier_link')->nullable()->after('description');
+            $table->string('color')->nullable()->after('size');
+            $table->string('composition')->nullable()->after('color');
         });
     }
 
@@ -30,11 +30,11 @@ class AddMoreFieldsToProductSuppliers extends Migration
     public function down()
     {
         Schema::table('product_suppliers', function (Blueprint $table) {
-          $table->dropColumn('title');
-          $table->dropColumn('description');
-          $table->dropColumn('supplier_link');
-          $table->dropColumn('color');
-          $table->dropColumn('composition');
+            $table->dropColumn('title');
+            $table->dropColumn('description');
+            $table->dropColumn('supplier_link');
+            $table->dropColumn('color');
+            $table->dropColumn('composition');
         });
     }
 }

@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AlterChatbotMessageLogIndex extends Migration
@@ -14,9 +12,9 @@ class AlterChatbotMessageLogIndex extends Migration
     public function up()
     {
         //
-        \DB::statement("ALTER TABLE `chatbot_message_log_responses` ADD INDEX(`chatbot_message_log_id`);");
-        \DB::statement("ALTER TABLE `chatbot_message_logs` ADD INDEX(`model_id`);");
-        \DB::statement("ALTER TABLE `chatbot_message_logs` ADD INDEX(`chat_message_id`);");
+        \DB::statement('ALTER TABLE `chatbot_message_log_responses` ADD INDEX(`chatbot_message_log_id`);');
+        \DB::statement('ALTER TABLE `chatbot_message_logs` ADD INDEX(`model_id`);');
+        \DB::statement('ALTER TABLE `chatbot_message_logs` ADD INDEX(`chat_message_id`);');
     }
 
     /**

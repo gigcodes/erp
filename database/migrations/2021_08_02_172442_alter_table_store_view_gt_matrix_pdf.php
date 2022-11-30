@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableStoreViewGtMatrixPdf extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableStoreViewGtMatrixPdf extends Migration
     public function up()
     {
         //
-        Schema::table("store_views_gt_metrix",function(Blueprint $table) {
-            $table->string("pdf_file")->nullable()->after("resources");
+        Schema::table('store_views_gt_metrix', function (Blueprint $table) {
+            $table->string('pdf_file')->nullable()->after('resources');
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableStoreViewGtMatrixPdf extends Migration
     public function down()
     {
         //
-        Schema::table("store_views_gt_metrix",function(Blueprint $table) {
-            $table->dropField("pdf_file");
+        Schema::table('store_views_gt_metrix', function (Blueprint $table) {
+            $table->dropField('pdf_file');
         });
     }
 }

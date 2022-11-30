@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIsReminderToMessages extends Migration
 {
@@ -14,7 +14,7 @@ class AddIsReminderToMessages extends Migration
     public function up()
     {
         Schema::table('chat_messages', function (Blueprint $table) {
-          $table->boolean('is_reminder')->default(0)->after('resent');
+            $table->boolean('is_reminder')->default(0)->after('resent');
         });
     }
 
@@ -26,7 +26,7 @@ class AddIsReminderToMessages extends Migration
     public function down()
     {
         Schema::table('chat_messages', function (Blueprint $table) {
-          $table->dropColumn('is_reminder');
+            $table->dropColumn('is_reminder');
         });
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateAddBrandIdDeveloperTasksTable extends Migration
 {
@@ -13,7 +13,7 @@ class CreateAddBrandIdDeveloperTasksTable extends Migration
      */
     public function up()
     {
-        Schema::table('developer_tasks',function(Blueprint $table) {
+        Schema::table('developer_tasks', function (Blueprint $table) {
             $table->integer('brand_id')->nullable()->after('scraper_id')->index();
         });
     }
@@ -25,7 +25,7 @@ class CreateAddBrandIdDeveloperTasksTable extends Migration
      */
     public function down()
     {
-        Schema::table('developer_tasks',function(Blueprint $table) {
+        Schema::table('developer_tasks', function (Blueprint $table) {
             $table->dropField('brand_id');
         });
     }

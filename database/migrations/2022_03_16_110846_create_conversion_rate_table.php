@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateConversionRateTable extends Migration
 {
@@ -15,9 +15,9 @@ class CreateConversionRateTable extends Migration
     {
         Schema::create('conversion_rates', function (Blueprint $table) {
             $table->increments('id');
-			$table->string('currency');
-			$table->string('to_currency');
-			$table->double('price',8,2);
+            $table->string('currency');
+            $table->string('to_currency');
+            $table->double('price', 8, 2);
             $table->timestamps();
         });
     }

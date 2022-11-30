@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableNameOnLanguage extends Migration
 {
@@ -14,7 +14,7 @@ class AlterTableNameOnLanguage extends Migration
     public function up()
     {
         //
-        Schema::table('languages',function(Blueprint $table) {
+        Schema::table('languages', function (Blueprint $table) {
             $table->string('name')->nullable()->after('code');
         });
     }
@@ -27,7 +27,7 @@ class AlterTableNameOnLanguage extends Migration
     public function down()
     {
         //
-        Schema::table('languages',function(Blueprint $table) {
+        Schema::table('languages', function (Blueprint $table) {
             $table->dropField('name');
         });
     }

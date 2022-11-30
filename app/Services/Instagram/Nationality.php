@@ -2,12 +2,12 @@
 
 namespace App\Services\Instagram;
 
-
 use App\PeopleNames;
 
-class Nationality {
-
-    public function isIndian($name, $username) {
+class Nationality
+{
+    public function isIndian($name, $username)
+    {
         $nameParts = explode(' ', $name);
 
         $name = PeopleNames::whereIn('name', $nameParts)

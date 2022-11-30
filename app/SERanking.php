@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -20,12 +21,11 @@ class SERanking extends Model
     /**
      * Fillables for the database
      *
-     * @access protected
      *
-     * @var array $fillable
+     * @var array
      */
-    protected $fillable = array(
+    protected $fillable = [
         'id', 'name', 'group_id', 'link',
-        'first_check_date'
-    );
+        'first_check_date',
+    ];
 }

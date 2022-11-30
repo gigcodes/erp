@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Language;
 use App\Models\UicheckHistory;
-use App\Uicheck;
-use App\UicheckType;
-
+use App\SiteDevelopmentCategory;
 /*use Illuminate\Http\Request;
 use App\SiteDevelopment;
 use App\SiteDevelopmentArtowrkHistory;
@@ -14,47 +13,43 @@ use App\SiteDevelopmentMasterCategory;
 use App\StoreWebsite;
 use DB;
 */
-use Auth;
-use DB;
-use App\User;
-use App\UicheckUserAccess;
-use App\UicheckAttachement;
+use App\SiteDevelopmentStatus;
 use App\StoreWebsite;
 use App\UiAdminStatusHistoryLog;
-use App\UiDeveloperStatusHistoryLog;
-use App\SiteDevelopmentStatus;
-use App\SiteDevelopmentCategory;
-use App\UiCheckIssueHistoryLog;
-use App\UiCheckCommunication;
+use App\Uicheck;
 use App\UiCheckAssignToHistory;
-use App\Language;
-use App\UiLanguage;
-use App\UiDevice;
-use App\UicheckLanguageMessageHistory;
-use App\UicheckLangAttchment;
-use App\UiDeviceHistory;
+use App\UicheckAttachement;
+use App\UiCheckCommunication;
 use App\UicheckDeviceAttachment;
+use App\UiCheckIssueHistoryLog;
+use App\UicheckLangAttchment;
+use App\UicheckLanguageMessageHistory;
+use App\UicheckType;
+use App\UicheckUserAccess;
+use App\UiDeveloperStatusHistoryLog;
+use App\UiDevice;
+use App\UiDeviceHistory;
+use App\UiLanguage;
 use App\UiResponsivestatusHistory;
-use App\Setting;
 use App\UiTranslatorStatusHistory;
-
+use App\User;
+use Auth;
+use DB;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Storage;
-use PDF;
-use User as GlobalUser;
 
-class UicheckController extends Controller {
+class UicheckController extends Controller
+{
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
         if ($request->ajax() || request('draw')) {
-
             if (Auth::user()->hasRole('Admin')) {
                 $q = SiteDevelopmentCategory::query()
                     ->join('site_developments', 'site_development_categories.id', '=', 'site_developments.site_development_category_id')
@@ -66,29 +61,29 @@ class UicheckController extends Controller {
                         'site_development_categories.*',
                         'site_developments.id AS site_id',
                         'site_developments.website_id',
-                        "uichecks.id AS uicheck_id",
-                        "uichecks.issue",
-                        "uichecks.website_id AS websiteid",
-                        "uichecks.uicheck_type_id",
-                        "uichecks.dev_status_id",
-                        "uichecks.admin_status_id",
-                        "uichecks.lock_developer",
-                        "uichecks.lock_admin",
-                        "uichecks.language_flag",
-                        "uichecks.translation_flag",
-                        "uua.user_id as accessuser"
+                        'uichecks.id AS uicheck_id',
+                        'uichecks.issue',
+                        'uichecks.website_id AS websiteid',
+                        'uichecks.uicheck_type_id',
+                        'uichecks.dev_status_id',
+                        'uichecks.admin_status_id',
+                        'uichecks.lock_developer',
+                        'uichecks.lock_admin',
+                        'uichecks.language_flag',
+                        'uichecks.translation_flag',
+                        'uua.user_id as accessuser'
                     );
                 if ($s = request('srch_lock_type')) {
                     if ($s == 1) {
                         $q->where('uichecks.lock_developer', 0);
                         $q->where('uichecks.lock_admin', 0);
-                    } else if ($s == 2) {
+                    } elseif ($s == 2) {
                         $q->where('uichecks.lock_developer', 1);
                         $q->where('uichecks.lock_admin', 1);
-                    } else if ($s == 3) {
+                    } elseif ($s == 3) {
                         $q->where('uichecks.lock_developer', 0);
                         $q->where('uichecks.lock_admin', 1);
-                    } else if ($s == 4) {
+                    } elseif ($s == 4) {
                         $q->where('uichecks.lock_developer', 1);
                         $q->where('uichecks.lock_admin', 0);
                     }
@@ -98,7 +93,7 @@ class UicheckController extends Controller {
                     ->join('site_developments', 'site_development_categories.id', '=', 'site_developments.site_development_category_id')
                     ->join('uichecks', 'uichecks.site_development_category_id', '=', 'site_development_categories.id')
                     ->leftjoin('uicheck_user_accesses as uua', 'uua.uicheck_id', '=', 'uichecks.id')
-                    ->where('uua.user_id', "=", \Auth::user()->id)
+                    ->where('uua.user_id', '=', \Auth::user()->id)
                     ->where('site_developments.is_ui', 1)
                     ->where('uichecks.id', '>', 0)
                     ->where('uichecks.lock_developer', '=', 0)
@@ -106,82 +101,84 @@ class UicheckController extends Controller {
                         'site_development_categories.*',
                         'site_developments.id AS site_id',
                         'site_developments.website_id',
-                        "uichecks.id AS uicheck_id",
-                        "uichecks.issue",
-                        "uichecks.website_id AS websiteid",
-                        "uichecks.uicheck_type_id",
-                        "uichecks.dev_status_id",
-                        "uichecks.admin_status_id",
-                        "uichecks.lock_developer",
-                        "uichecks.lock_admin",
-                        "uichecks.language_flag",
-                        "uichecks.translation_flag",
-                        "uua.user_id as accessuser"
+                        'uichecks.id AS uicheck_id',
+                        'uichecks.issue',
+                        'uichecks.website_id AS websiteid',
+                        'uichecks.uicheck_type_id',
+                        'uichecks.dev_status_id',
+                        'uichecks.admin_status_id',
+                        'uichecks.lock_developer',
+                        'uichecks.lock_admin',
+                        'uichecks.language_flag',
+                        'uichecks.translation_flag',
+                        'uua.user_id as accessuser'
                     );
             }
-
 
             //->where('site_development_categories.id','site_developments.site_development_category_id');
             if ($s = request('category_name')) {
                 //$q = $q->where('uichecks.website_id', $s);
-                $q->where(function($query) use ($s){
-                    for($i=0; $i<count($s); $i++){
-                        if($s[$i])
-                            $query->orWhere("uichecks.website_id",  $s[$i]);
+                $q->where(function ($query) use ($s) {
+                    for ($i = 0; $i < count($s); $i++) {
+                        if ($s[$i]) {
+                            $query->orWhere('uichecks.website_id', $s[$i]);
+                        }
                     }
                 });
             }
             if ($s = request('sub_category_name')) {
                 //$q = $q->where('site_development_categories.id', $s);
-                $q->where(function($query) use ($s){
-                    for($i=0; $i<count($s); $i++){
-                        if($s[$i])
-                            $query->orWhere("site_development_categories.id",  $s[$i]);
+                $q->where(function ($query) use ($s) {
+                    for ($i = 0; $i < count($s); $i++) {
+                        if ($s[$i]) {
+                            $query->orWhere('site_development_categories.id', $s[$i]);
+                        }
                     }
                 });
             }
             if ($s = request('dev_status')) {
                 //$q = $q->where('uichecks.dev_status_id', $s);
-                $q->where(function($query) use ($s){
-                    for($i=0; $i<count($s); $i++){
-                        if($s[$i])
-                            $query->orWhere("uichecks.dev_status_id",  $s[$i]);
+                $q->where(function ($query) use ($s) {
+                    for ($i = 0; $i < count($s); $i++) {
+                        if ($s[$i]) {
+                            $query->orWhere('uichecks.dev_status_id', $s[$i]);
+                        }
                     }
                 });
             }
             if ($s = request('admin_status')) {
                 //$q = $q->where('uichecks.admin_status_id', $s);
-                $q->where(function($query) use ($s){
-                    for($i=0; $i<count($s); $i++){
-                        if($s[$i])
-                            $query->orWhere("uichecks.admin_status_id",  $s[$i]);
+                $q->where(function ($query) use ($s) {
+                    for ($i = 0; $i < count($s); $i++) {
+                        if ($s[$i]) {
+                            $query->orWhere('uichecks.admin_status_id', $s[$i]);
+                        }
                     }
                 });
             }
             if ($s = request('assign_to')) {
                 //$q = $q->where('uua.user_id', $s);
-                    $q->where(function($query) use ($s){
-                        for($i=0; $i<count($s); $i++){
-                            if($s[$i])
-                                $query->orWhere("uua.user_id",  $s[$i]);
+                $q->where(function ($query) use ($s) {
+                    for ($i = 0; $i < count($s); $i++) {
+                        if ($s[$i]) {
+                            $query->orWhere('uua.user_id', $s[$i]);
                         }
-                    });
+                    }
+                });
             }
             if ($s = request('id')) {
                 $q = $q->where('uichecks.id', $s);
             }
-            
+
             if ($s = request('srch_flags')) {
                 if ($s == 'Both') {
                     $q = $q->where('uichecks.language_flag', 1);
                     $q = $q->orWhere('uichecks.translation_flag', 1);
-                } else if ($s == "Language flag") {
+                } elseif ($s == 'Language flag') {
                     $q = $q->where('uichecks.language_flag', 1);
-                    
-                } else if ($s == "Translation flag") {
+                } elseif ($s == 'Translation flag') {
                     $q = $q->where('uichecks.translation_flag', 1);
                 }
-                
             }
 
             $q->groupBy('uichecks.id');
@@ -189,9 +186,9 @@ class UicheckController extends Controller {
             if ($s = request('order_by')) {
                 //$q->orderBy('uichecks.'.request('order_by'), "desc");
                 //$q->orderBy('uichecks.updated_at', "desc");
-                $q->orderByRaw("uichecks." . request('order_by') . " DESC, uichecks.updated_at DESC");
+                $q->orderByRaw('uichecks.'.request('order_by').' DESC, uichecks.updated_at DESC');
             } else {
-                $q->orderBy('uichecks.updated_at', "desc");
+                $q->orderBy('uichecks.updated_at', 'desc');
             }
 
             $counter = $q->get();
@@ -199,31 +196,31 @@ class UicheckController extends Controller {
             //dd($q->toSql());
             //dd($q->count());
 
-            // select 
-            //     `site_development_categories`.*, 
-            //     `site_developments`.`id` as `site_id`, 
-            //     `site_developments`.`website_id`, 
-            //     `uichecks`.`id` as `uicheck_id`, 
-            //     `uichecks`.`issue`, 
-            //     `uichecks`.`website_id` as `websiteid`, 
-            //     `uichecks`.`uicheck_type_id`, 
-            //     `uua`.`user_id` as `accessuser`, 
-            //     `uichecks`.`dev_status_id`, 
-            //     `uichecks`.`admin_status_id` 
-            // from `site_development_categories` 
-            // inner join `site_developments` on `site_development_categories`.`id` = `site_developments`.`site_development_category_id` 
-            // left join `uichecks` on `uichecks`.`site_development_category_id` = `site_development_categories`.`id` 
-            // left join `uicheck_user_accesses` as `uua` on `uua`.`uicheck_id` = `uichecks`.`id` 
-            // where 
+            // select
+            //     `site_development_categories`.*,
+            //     `site_developments`.`id` as `site_id`,
+            //     `site_developments`.`website_id`,
+            //     `uichecks`.`id` as `uicheck_id`,
+            //     `uichecks`.`issue`,
+            //     `uichecks`.`website_id` as `websiteid`,
+            //     `uichecks`.`uicheck_type_id`,
+            //     `uua`.`user_id` as `accessuser`,
+            //     `uichecks`.`dev_status_id`,
+            //     `uichecks`.`admin_status_id`
+            // from `site_development_categories`
+            // inner join `site_developments` on `site_development_categories`.`id` = `site_developments`.`site_development_category_id`
+            // left join `uichecks` on `uichecks`.`site_development_category_id` = `site_development_categories`.`id`
+            // left join `uicheck_user_accesses` as `uua` on `uua`.`uicheck_id` = `uichecks`.`id`
+            // where
             //     `site_developments`.`is_ui` = ? group by `site_development_categories`.`id`
 
             return datatables()->eloquent($q)->toJson();
         } else {
-            $data = array();
+            $data = [];
             $data['all_store_websites'] = StoreWebsite::all();
             $data['users'] = User::select('id', 'name')->get();
             // $data['allTypes'] = UicheckType::all();
-            $data['allTypes'] = UicheckType::orderBy('name')->pluck("name", "id")->toArray();
+            $data['allTypes'] = UicheckType::orderBy('name')->pluck('name', 'id')->toArray();
             $data['categories'] = SiteDevelopmentCategory::paginate(20); //all();
             $data['search_website'] = isset($request->store_webs) ? $request->store_webs : '';
             $data['search_category'] = isset($request->categories) ? $request->categories : '';
@@ -232,12 +229,12 @@ class UicheckController extends Controller {
             $data['dev_status'] = isset($request->dev_status) ? $request->dev_status : '';
             $data['admin_status'] = isset($request->admin_status) ? $request->admin_status : '';
             $data['site_development_status_id'] = isset($request->site_development_status_id) ? $request->site_development_status_id : [];
-            $data['allStatus'] = SiteDevelopmentStatus::pluck("name", "id")->toArray();
+            $data['allStatus'] = SiteDevelopmentStatus::pluck('name', 'id')->toArray();
             $store_websites = StoreWebsite::select('store_websites.*')->join('site_developments', 'store_websites.id', '=', 'site_developments.website_id');
             if ($data['search_website'] != '') {
-                $store_websites =  $store_websites->where('store_websites.id', $data['search_website']);
+                $store_websites = $store_websites->where('store_websites.id', $data['search_website']);
             }
-            $data['store_websites'] =  $store_websites->where('is_ui', 1)->groupBy('store_websites.id')->get();
+            $data['store_websites'] = $store_websites->where('is_ui', 1)->groupBy('store_websites.id')->get();
             $data['allUsers'] = User::query()
                 ->join('role_user', 'role_user.user_id', 'users.id')
                 ->join('roles', 'roles.id', 'role_user.role_id')
@@ -253,120 +250,131 @@ class UicheckController extends Controller {
                     'site_development_categories.*',
                     'site_developments.id AS site_id',
                     'site_developments.website_id',
-                    "uichecks.id AS uicheck_id",
-                    "uichecks.language_flag",
-                    "uichecks.translation_flag"
+                    'uichecks.id AS uicheck_id',
+                    'uichecks.language_flag',
+                    'uichecks.translation_flag'
                 )
                 //->where('site_developments.is_ui', 1);
                 ->where('uichecks.id', '>', 0);
-
 
             //->where('site_development_categories.id','site_developments.site_development_category_id');
             if ($data['search_website'] != '') {
                 $q = $q->where('uichecks.website_id', $data['store_websites'][0]->id);
             }
             if ($data['search_category'] != '') {
-                $q = $q->where('site_development_categories.id',  $data['search_category']);
+                $q = $q->where('site_development_categories.id', $data['search_category']);
             }
             $q->groupBy('uichecks.id');
             //$q->orderBy('site_development_categories.title');
-            $q->orderBy('uichecks.updated_at', "desc");
+            $q->orderBy('uichecks.updated_at', 'desc');
             $data['site_development_categories'] = $q->pluck('site_development_categories.title', 'site_development_categories.id')->toArray();
             $data['record_count'] = count($q->get());
             //echo '<pre>';
             //print_r($data['site_development_categories']);
             // exit;
             $data['languages'] = Language::all();
+
             return view('uicheck.index', $data);
         }
     }
 
-    public function access(Request $request) {
-        $check = UicheckUserAccess::where("uicheck_id", $request->uicheck_id)->first();
-        if (!is_null($check)) {
+    public function access(Request $request)
+    {
+        $check = UicheckUserAccess::where('uicheck_id', $request->uicheck_id)->first();
+        if (! is_null($check)) {
             $access = UicheckUserAccess::find($check->id);
             $access->delete();
         }
         $this->CreateUiAssignToHistoryLog($request, $check);
-        $array = array(
-            "user_id" => $request->id,
-            "uicheck_id" => $request->uicheck_id
-        );
+        $array = [
+            'user_id' => $request->id,
+            'uicheck_id' => $request->uicheck_id,
+        ];
         UicheckUserAccess::create($array);
+
         return response()->json(['code' => 200, 'message' => 'Permission Given!!!']);
     }
 
-    public function typeSave(Request $request) {
-        $array = array(
-            "uicheck_type_id" => $request->type
-        );
-        Uicheck::where("id", $request->uicheck_id)->update($array);
+    public function typeSave(Request $request)
+    {
+        $array = [
+            'uicheck_type_id' => $request->type,
+        ];
+        Uicheck::where('id', $request->uicheck_id)->update($array);
+
         return response()->json(['code' => 200, 'message' => 'Type Updated!!!']);
     }
 
-    public function createDuplicateCategory(Request $request) {
-        $uiCheck = Uicheck::where("id", $request->id)->first();
+    public function createDuplicateCategory(Request $request)
+    {
+        $uiCheck = Uicheck::where('id', $request->id)->first();
         Uicheck::create([
-            "site_development_id" => $uiCheck->site_development_id ?? '',
-            "site_development_category_id" => $uiCheck->site_development_category_id ?? '',
-            "created_at" => \Carbon\Carbon::now(),
+            'site_development_id' => $uiCheck->site_development_id ?? '',
+            'site_development_category_id' => $uiCheck->site_development_category_id ?? '',
+            'created_at' => \Carbon\Carbon::now(),
         ]);
+
         return response()->json(['code' => 200, 'message' => 'Category Duplicate Created successfully!!!']);
     }
 
-
-    public function upload_document(Request $request) {
+    public function upload_document(Request $request)
+    {
         $uicheck_id = $request->uicheck_id;
         $subject = $request->subject;
         $description = $request->description;
 
-        if ($uicheck_id > 0 && !empty($subject)) {
+        if ($uicheck_id > 0 && ! empty($subject)) {
             if ($request->hasfile('files')) {
                 $path = public_path('uicheckdocs');
-                if (!file_exists($path)) {
+                if (! file_exists($path)) {
                     mkdir($path, 0777, true);
                 }
                 $uicheckDocName = '';
                 if ($request->file('files')) {
                     $file = $request->file('files')[0];
-                    $uicheckDocName = uniqid() . '_' . trim($file->getClientOriginalName());
+                    $uicheckDocName = uniqid().'_'.trim($file->getClientOriginalName());
                     $file->move($path, $uicheckDocName);
                 }
-                $docArray = array(
-                    "user_id" => \Auth::id(),
-                    "filename" => $uicheckDocName,
-                    "uicheck_id" => $uicheck_id,
-                    "subject" => $subject,
-                    "description" => $description
-                );
+                $docArray = [
+                    'user_id' => \Auth::id(),
+                    'filename' => $uicheckDocName,
+                    'uicheck_id' => $uicheck_id,
+                    'subject' => $subject,
+                    'description' => $description,
+                ];
                 UicheckAttachement::create($docArray);
-                return response()->json(["code" => 200, "success" => "Done!"]);
+
+                return response()->json(['code' => 200, 'success' => 'Done!']);
             } else {
-                return response()->json(["code" => 500, "error" => "Oops, Please fillup required fields"]);
+                return response()->json(['code' => 500, 'error' => 'Oops, Please fillup required fields']);
             }
         } else {
-            return response()->json(["code" => 500, "error" => "Oops, Please fillup required fields"]);
+            return response()->json(['code' => 500, 'error' => 'Oops, Please fillup required fields']);
         }
     }
 
-    public function getDocument(Request $request) {
-        $id = $request->get("id", 0);
+    public function getDocument(Request $request)
+    {
+        $id = $request->get('id', 0);
 
         if ($id > 0) {
-            $devDocuments = UicheckAttachement::with("user", "uicheck")->where("uicheck_id", $id)->latest()->get();
-            $html = view('uicheck.ajax.document-list', compact("devDocuments"))->render();
-            return response()->json(["code" => 200, "data" => $html]);
+            $devDocuments = UicheckAttachement::with('user', 'uicheck')->where('uicheck_id', $id)->latest()->get();
+            $html = view('uicheck.ajax.document-list', compact('devDocuments'))->render();
+
+            return response()->json(['code' => 200, 'data' => $html]);
         } else {
-            return response()->json(["code" => 500, "error" => "Oops, id is required field"]);
+            return response()->json(['code' => 500, 'error' => 'Oops, id is required field']);
         }
     }
 
-    public function typeStore(Request $request) {
+    public function typeStore(Request $request)
+    {
         // $request->validate($request, [
         //     'name' => 'required|string'
         // ]);
         $data = $request->except('_token');
         UicheckType::create($data);
+
         return redirect()->back()->with('success', 'You have successfully created a status!');
     }
 
@@ -375,7 +383,8 @@ class UicheckController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function create() {
+    public function create()
+    {
         //
     }
 
@@ -385,17 +394,20 @@ class UicheckController extends Controller {
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         try {
             $uicheck = Uicheck::find($request->id);
-            if (empty($uicheck))
+            if (empty($uicheck)) {
                 $uicheck = new Uicheck();
+            }
 
             $uicheck->site_development_id = $request->site_development_id;
             $uicheck->site_development_category_id = $request->category;
 
-            if ($request->website_id)
+            if ($request->website_id) {
                 $uicheck->website_id = $request->website_id;
+            }
             if ($request->issue) {
                 if ($request->issue != $uicheck->issue) {
                     $this->CreateUiissueHistoryLog($request, $uicheck);
@@ -415,11 +427,12 @@ class UicheckController extends Controller {
                 $uicheck->admin_status_id = $request->admin_status;
             }
 
-
             $uicheck->save();
+
             return response()->json(['code' => 200, 'data' => $uicheck, 'message' => 'Updated successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -430,7 +443,8 @@ class UicheckController extends Controller {
      * @param  \App\CreateUiAdminStatusHistoryLog  $createUiAdminStatusHistoryLog
      * @return \Illuminate\Http\Response
      */
-    public function CreateUiAdminStatusHistoryLog(Request $request, $uicheck) {
+    public function CreateUiAdminStatusHistoryLog(Request $request, $uicheck)
+    {
         $adminStatusLog = new UiAdminStatusHistoryLog();
         $adminStatusLog->user_id = \Auth::user()->id;
         $adminStatusLog->uichecks_id = $request->id;
@@ -439,28 +453,29 @@ class UicheckController extends Controller {
         $adminStatusLog->save();
     }
 
-    public function getUiAdminStatusHistoryLog(Request $request) {
-        $adminStatusLog = UiAdminStatusHistoryLog::select("ui_admin_status_history_logs.*", "users.name as userName", "site_development_statuses.name AS dev_status", "old_stat.name AS old_name")
-            ->leftJoin("users", "users.id", "ui_admin_status_history_logs.user_id")
-            ->leftJoin("site_development_statuses", "site_development_statuses.id", "ui_admin_status_history_logs.status_id")
-            ->leftJoin("site_development_statuses as old_stat", "old_stat.id", "ui_admin_status_history_logs.old_status_id")
+    public function getUiAdminStatusHistoryLog(Request $request)
+    {
+        $adminStatusLog = UiAdminStatusHistoryLog::select('ui_admin_status_history_logs.*', 'users.name as userName', 'site_development_statuses.name AS dev_status', 'old_stat.name AS old_name')
+            ->leftJoin('users', 'users.id', 'ui_admin_status_history_logs.user_id')
+            ->leftJoin('site_development_statuses', 'site_development_statuses.id', 'ui_admin_status_history_logs.status_id')
+            ->leftJoin('site_development_statuses as old_stat', 'old_stat.id', 'ui_admin_status_history_logs.old_status_id')
             ->where('ui_admin_status_history_logs.uichecks_id', $request->id)
-            ->orderBy('ui_admin_status_history_logs.id', "DESC")
+            ->orderBy('ui_admin_status_history_logs.id', 'DESC')
             ->get();
-        $html = "";
+        $html = '';
         foreach ($adminStatusLog as $adminStatus) {
-            $html .=  '<tr>';
-            $html .=  '<td>' . $adminStatus->id . '</td>';
-            $html .=  '<td>' . $adminStatus->userName . '</td>';
-            $html .=  '<td>' . $adminStatus->old_name . '</td>';
-            $html .=  '<td>' . $adminStatus->dev_status . '</td>';
-            $html .=  '<td>' . $adminStatus->created_at . '</td>';
+            $html .= '<tr>';
+            $html .= '<td>'.$adminStatus->id.'</td>';
+            $html .= '<td>'.$adminStatus->userName.'</td>';
+            $html .= '<td>'.$adminStatus->old_name.'</td>';
+            $html .= '<td>'.$adminStatus->dev_status.'</td>';
+            $html .= '<td>'.$adminStatus->created_at.'</td>';
 
-            $html .=  '</tr>';
+            $html .= '</tr>';
         }
+
         return response()->json(['code' => 200, 'html' => $html, 'message' => 'Listed successfully!!!']);
     }
-
 
     /**
      * Display the specified resource.
@@ -468,7 +483,8 @@ class UicheckController extends Controller {
      * @param  \App\CreateUiDeveloperStatusHistoryLog  $createUiDeveloperStatusHistoryLog
      * @return \Illuminate\Http\Response
      */
-    public function CreateUiDeveloperStatusHistoryLog(Request $request, $uicheck) {
+    public function CreateUiDeveloperStatusHistoryLog(Request $request, $uicheck)
+    {
         $devStatusLog = new UiDeveloperStatusHistoryLog();
         $devStatusLog->user_id = \Auth::user()->id;
         $devStatusLog->uichecks_id = $request->id;
@@ -477,29 +493,32 @@ class UicheckController extends Controller {
         $devStatusLog->save();
     }
 
-    public function getUiDeveloperStatusHistoryLog(Request $request) {
-        $adminStatusLog = UiDeveloperStatusHistoryLog::select("ui_developer_status_history_logs.*", "users.name as userName", "site_development_statuses.name AS dev_status", "old_stat.name AS old_name")
-            ->leftJoin("users", "users.id", "ui_developer_status_history_logs.user_id")
-            ->leftJoin("site_development_statuses", "site_development_statuses.id", "ui_developer_status_history_logs.status_id")
-            ->leftJoin("site_development_statuses as old_stat", "old_stat.id", "ui_developer_status_history_logs.old_status_id")
+    public function getUiDeveloperStatusHistoryLog(Request $request)
+    {
+        $adminStatusLog = UiDeveloperStatusHistoryLog::select('ui_developer_status_history_logs.*', 'users.name as userName', 'site_development_statuses.name AS dev_status', 'old_stat.name AS old_name')
+            ->leftJoin('users', 'users.id', 'ui_developer_status_history_logs.user_id')
+            ->leftJoin('site_development_statuses', 'site_development_statuses.id', 'ui_developer_status_history_logs.status_id')
+            ->leftJoin('site_development_statuses as old_stat', 'old_stat.id', 'ui_developer_status_history_logs.old_status_id')
             ->where('ui_developer_status_history_logs.uichecks_id', $request->id)
-            ->orderBy('ui_developer_status_history_logs.id', "DESC")
+            ->orderBy('ui_developer_status_history_logs.id', 'DESC')
             ->get();
 
-        $html = "";
+        $html = '';
         foreach ($adminStatusLog as $adminStatus) {
-            $html .=  '<tr>';
-            $html .=  '<td>' . $adminStatus->id . '</td>';
-            $html .=  '<td>' . $adminStatus->userName . '</td>';
-            $html .=  '<td>' . $adminStatus->old_name . '</td>';
-            $html .=  '<td>' . $adminStatus->dev_status . '</td>';
-            $html .=  '<td>' . $adminStatus->created_at . '</td>';
-            $html .=  '</tr>';
+            $html .= '<tr>';
+            $html .= '<td>'.$adminStatus->id.'</td>';
+            $html .= '<td>'.$adminStatus->userName.'</td>';
+            $html .= '<td>'.$adminStatus->old_name.'</td>';
+            $html .= '<td>'.$adminStatus->dev_status.'</td>';
+            $html .= '<td>'.$adminStatus->created_at.'</td>';
+            $html .= '</tr>';
         }
+
         return response()->json(['code' => 200, 'html' => $html, 'message' => 'Listed successfully!!!']);
     }
 
-    public function CreateUiissueHistoryLog(Request $request, $uicheck) {
+    public function CreateUiissueHistoryLog(Request $request, $uicheck)
+    {
         $devStatusLog = new UiCheckIssueHistoryLog();
         $devStatusLog->user_id = \Auth::user()->id;
         $devStatusLog->uichecks_id = $request->id;
@@ -508,55 +527,60 @@ class UicheckController extends Controller {
         $devStatusLog->save();
     }
 
-    public function getUiIssueHistoryLog(Request $request) {
+    public function getUiIssueHistoryLog(Request $request)
+    {
         try {
-            $getIssueLog = UiCheckIssueHistoryLog::select("ui_check_issue_history_logs.*", "users.name as userName")
-                ->leftJoin("users", "users.id", "ui_check_issue_history_logs.user_id")
+            $getIssueLog = UiCheckIssueHistoryLog::select('ui_check_issue_history_logs.*', 'users.name as userName')
+                ->leftJoin('users', 'users.id', 'ui_check_issue_history_logs.user_id')
                 ->where('ui_check_issue_history_logs.uichecks_id', $request->id)
-                ->orderBy('ui_check_issue_history_logs.id', "DESC")
+                ->orderBy('ui_check_issue_history_logs.id', 'DESC')
                 ->get();
 
-            $html = "";
+            $html = '';
             foreach ($getIssueLog as $issueLog) {
-                $html .=  '<tr>';
-                $html .=  '<td>' . $issueLog->id . '</td>';
-                $html .=  '<td>' . $issueLog->userName . '</td>';
-                $html .=  '<td>' . $issueLog->old_issue . '</td>';
-                $html .=  '<td>' . $issueLog->issue . '</td>';
-                $html .=  '<td>' . $issueLog->created_at . '</td>';
+                $html .= '<tr>';
+                $html .= '<td>'.$issueLog->id.'</td>';
+                $html .= '<td>'.$issueLog->userName.'</td>';
+                $html .= '<td>'.$issueLog->old_issue.'</td>';
+                $html .= '<td>'.$issueLog->issue.'</td>';
+                $html .= '<td>'.$issueLog->created_at.'</td>';
 
-                $html .=  '</tr>';
+                $html .= '</tr>';
             }
+
             return response()->json(['code' => 200, 'html' => $html, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
 
-    public function getUiCheckMessageHistoryLog(Request $request) {
+    public function getUiCheckMessageHistoryLog(Request $request)
+    {
         try {
-            $getMessageLog = UiCheckCommunication::select("ui_check_communications.*", "users.name as userName")
-                ->leftJoin("users", "users.id", "ui_check_communications.user_id")
+            $getMessageLog = UiCheckCommunication::select('ui_check_communications.*', 'users.name as userName')
+                ->leftJoin('users', 'users.id', 'ui_check_communications.user_id')
                 ->where('ui_check_communications.uichecks_id', $request->id)
-                ->orderBy('ui_check_communications.id', "DESC")
+                ->orderBy('ui_check_communications.id', 'DESC')
                 ->get();
 
-            $html = "";
+            $html = '';
             foreach ($getMessageLog as $messageLog) {
-                $html .=  '<tr>';
-                $html .=  '<td>' . $messageLog->id . '</td>';
-                $html .=  '<td>' . $messageLog->userName . '</td>';
-                $html .=  '<td>' . $messageLog->message . '</td>';
-                $html .=  '<td>' . $messageLog->created_at . '</td>';
-                $html .=  '</tr>';
+                $html .= '<tr>';
+                $html .= '<td>'.$messageLog->id.'</td>';
+                $html .= '<td>'.$messageLog->userName.'</td>';
+                $html .= '<td>'.$messageLog->message.'</td>';
+                $html .= '<td>'.$messageLog->created_at.'</td>';
+                $html .= '</tr>';
             }
+
             return response()->json(['code' => 200, 'html' => $html, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
 
-    public function CreateUiMessageHistoryLog(Request $request) {
+    public function CreateUiMessageHistoryLog(Request $request)
+    {
         $messageLog = new UiCheckCommunication();
         $messageLog->user_id = \Auth::user()->id;
         $messageLog->uichecks_id = $request->id;
@@ -565,55 +589,61 @@ class UicheckController extends Controller {
         $uicheck = Uicheck::find($request->id);
         $uicheck->updated_at = \Carbon\Carbon::now();
         $uicheck->save();
+
         return response()->json(['code' => 200, 'message' => 'Message saved successfully!!!']);
     }
 
-    public function CreateUiAssignToHistoryLog(Request $request, $uicheck) {
+    public function CreateUiAssignToHistoryLog(Request $request, $uicheck)
+    {
         $messageLog = new UiCheckAssignToHistory();
         $messageLog->user_id = \Auth::user()->id;
         $messageLog->uichecks_id = $request->uicheck_id;
         $messageLog->assign_to = $request->id;
         $messageLog->old_assign_to = $uicheck->user_id ?? '';
         $messageLog->save();
+
         return response()->json(['code' => 200, 'message' => 'Message saved successfully!!!']);
     }
 
-    public function getUiCheckAssignToHistoryLog(Request $request) {
+    public function getUiCheckAssignToHistoryLog(Request $request)
+    {
         try {
-            $getMessageLog = UiCheckAssignToHistory::select("ui_check_assign_to_histories.*", "users.name as userName", "assignTo.name AS assignToName")
-                ->leftJoin("users", "users.id", "ui_check_assign_to_histories.user_id")
-                ->leftJoin("users AS assignTo", "assignTo.id", "ui_check_assign_to_histories.assign_to")
+            $getMessageLog = UiCheckAssignToHistory::select('ui_check_assign_to_histories.*', 'users.name as userName', 'assignTo.name AS assignToName')
+                ->leftJoin('users', 'users.id', 'ui_check_assign_to_histories.user_id')
+                ->leftJoin('users AS assignTo', 'assignTo.id', 'ui_check_assign_to_histories.assign_to')
                 ->where('ui_check_assign_to_histories.uichecks_id', $request->id)
-                ->orderBy('ui_check_assign_to_histories.id', "DESC")
+                ->orderBy('ui_check_assign_to_histories.id', 'DESC')
                 ->get();
 
-            $html = "";
+            $html = '';
             foreach ($getMessageLog as $messageLog) {
-                $html .=  '<tr>';
-                $html .=  '<td>' . $messageLog->id . '</td>';
-                $html .=  '<td>' . $messageLog->userName . '</td>';
-                $html .=  '<td>' . $messageLog->assignToName . '</td>';
-                $html .=  '<td>' . $messageLog->created_at . '</td>';
-                $html .=  '</tr>';
+                $html .= '<tr>';
+                $html .= '<td>'.$messageLog->id.'</td>';
+                $html .= '<td>'.$messageLog->userName.'</td>';
+                $html .= '<td>'.$messageLog->assignToName.'</td>';
+                $html .= '<td>'.$messageLog->created_at.'</td>';
+                $html .= '</tr>';
             }
+
             return response()->json(['code' => 200, 'html' => $html, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
 
-    public function historyAll(Request $request) {
+    public function historyAll(Request $request)
+    {
         try {
             $lastDate = request('lastDate') ?: date('Y-m-d H:i:s');
 
-            $whQ = "";
+            $whQ = '';
             $whArr = [$lastDate];
-            if (!Auth::user()->hasRole('Admin')) {
-                $whQ .= " AND listdata.uichecks_id IN ( SELECT uicheck_id FROM uicheck_user_accesses WHERE user_id = ? ) ";
+            if (! Auth::user()->hasRole('Admin')) {
+                $whQ .= ' AND listdata.uichecks_id IN ( SELECT uicheck_id FROM uicheck_user_accesses WHERE user_id = ? ) ';
                 $whArr[] = \Auth::user()->id;
             }
             if (request('user_id')) {
-                $whQ .= " AND listdata.user_id = ?";
+                $whQ .= ' AND listdata.user_id = ?';
                 $whArr[] = request('user_id');
             }
 
@@ -712,9 +742,9 @@ class UicheckController extends Controller {
                 LEFT JOIN site_development_categories AS sdc ON sdc.id = uic.site_development_category_id
                 LEFT JOIN store_websites AS sw ON sw.id = uic.website_id
                 WHERE listdata.created_at < ? 
-                " . $whQ . " 
+                ".$whQ.' 
                 ORDER BY listdata.created_at DESC
-                LIMIT 10";
+                LIMIT 10';
             $data = \DB::select($sql, $whArr);
 
             $html = [];
@@ -722,39 +752,44 @@ class UicheckController extends Controller {
                 foreach ($data as $value) {
                     $html[] = implode('', [
                         '<tr>',
-                        '<td>' . ($value->uichecks_id ?: '-') . '</td>',
-                        '<td>' . ($value->site_development_category_name ?: '-') . '</td>',
-                        '<td>' . ($value->store_website_name ?: '-') . '</td>',
-                        '<td>' . ($value->type ?: '-') . '</td>',
-                        '<td>' . ($value->old_disp_val ?: '-') . '</td>',
-                        '<td>' . ($value->new_disp_val ?: '-') . '</td>',
-                        '<td>' . ($value->addedBy ?: '-') . '</td>',
-                        '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
+                        '<td>'.($value->uichecks_id ?: '-').'</td>',
+                        '<td>'.($value->site_development_category_name ?: '-').'</td>',
+                        '<td>'.($value->store_website_name ?: '-').'</td>',
+                        '<td>'.($value->type ?: '-').'</td>',
+                        '<td>'.($value->old_disp_val ?: '-').'</td>',
+                        '<td>'.($value->new_disp_val ?: '-').'</td>',
+                        '<td>'.($value->addedBy ?: '-').'</td>',
+                        '<td class="cls-created-date">'.($value->created_at ?: '').'</td>',
                         '</tr>',
                     ]);
                 }
             }
+
             return respJson(200, '', [
-                'html' => implode('', $html)
+                'html' => implode('', $html),
             ]);
         } catch (\Throwable $th) {
             return respException($th);
         }
     }
-    public function get() {
+
+    public function get()
+    {
         try {
             if ($single = Uicheck::find(request('id'))) {
                 return respJson(200, '', [
-                    'data' => $single
+                    'data' => $single,
                 ]);
             }
+
             return respJson(404, 'Invalid record.', []);
         } catch (\Throwable $th) {
             return respException($th);
         }
     }
 
-    public function updateDates() {
+    public function updateDates()
+    {
         try {
             if ($single = Uicheck::find(request('id'))) {
                 $single->updateElement('start_time', request('start_time'));
@@ -762,14 +797,18 @@ class UicheckController extends Controller {
                 if (\Auth::user()->hasRole('Admin')) {
                     $single->updateElement('actual_completion_time', request('actual_completion_time'));
                 }
+
                 return respJson(200, 'Dates updated successfully.', []);
             }
+
             return respJson(404, 'Invalid record.', []);
         } catch (\Throwable $th) {
             return respException($th);
         }
     }
-    public function historyDates() {
+
+    public function historyDates()
+    {
         try {
             $data = UicheckHistory::with('updatedBy')->orderBy('id', 'DESC')->get();
 
@@ -778,12 +817,12 @@ class UicheckController extends Controller {
                 foreach ($data as $value) {
                     $html[] = implode('', [
                         '<tr>',
-                        '<td>' . ($value->id ?: '-') . '</td>',
-                        '<td>' . ($value->type ?: '-') . '</td>',
-                        '<td>' . ($value->old_val ?: '-') . '</td>',
-                        '<td>' . ($value->new_val ?: '-') . '</td>',
-                        '<td>' . ($value->updatedByName() ?: '-') . '</td>',
-                        '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
+                        '<td>'.($value->id ?: '-').'</td>',
+                        '<td>'.($value->type ?: '-').'</td>',
+                        '<td>'.($value->old_val ?: '-').'</td>',
+                        '<td>'.($value->new_val ?: '-').'</td>',
+                        '<td>'.($value->updatedByName() ?: '-').'</td>',
+                        '<td class="cls-created-date">'.($value->created_at ?: '').'</td>',
                         '</tr>',
                     ]);
                 }
@@ -794,57 +833,62 @@ class UicheckController extends Controller {
                     '</tr>',
                 ]);
             }
+
             return respJson(200, '', [
-                'html' => implode('', $html)
+                'html' => implode('', $html),
             ]);
         } catch (\Throwable $th) {
             return respException($th);
         }
     }
 
-    public function updateLock() {
+    public function updateLock()
+    {
         try {
             if ($single = Uicheck::find(request('id'))) {
                 $key = request('type') == 'developer' ? 'lock_developer' : 'lock_admin';
                 $single->updateElement($key, $single->$key ? 0 : 1);
+
                 return respJson(200, 'Record updated successfully.', []);
             }
+
             return respJson(404, 'Invalid record.', []);
         } catch (\Throwable $th) {
             return respException($th);
         }
     }
-    // 
+    //
 
-    public function updateLanguage(Request $request) {
+    public function updateLanguage(Request $request)
+    {
         try {
-            $uiLanData = UiLanguage::where("languages_id", "=", $request->id)->get();
-            
-            $uiLan["user_id"] = \Auth::user()->id;
-            $uiLan["languages_id"] = $request->id;
-            $uiLan["uicheck_id"] = $request->uicheck_id;
-            if($request->message){
-                $uiLan["message"] = $request->message;
+            $uiLanData = UiLanguage::where('languages_id', '=', $request->id)->get();
+
+            $uiLan['user_id'] = \Auth::user()->id;
+            $uiLan['languages_id'] = $request->id;
+            $uiLan['uicheck_id'] = $request->uicheck_id;
+            if ($request->message) {
+                $uiLan['message'] = $request->message;
             }
-            if($request->uilanstatus){
-                $uiLan["status"] = $request->uilanstatus;
+            if ($request->uilanstatus) {
+                $uiLan['status'] = $request->uilanstatus;
             }
-            
-            if (count($uiLanData) == 0){ 
+
+            if (count($uiLanData) == 0) {
                 $uiLans = UiLanguage::create($uiLan);
-                $uiData = UiLanguage::where("languages_id",$uiLans->id)->first();
+                $uiData = UiLanguage::where('languages_id', $uiLans->id)->first();
             } else {
-                $uiData = UiLanguage::where("languages_id",$request->id)->first();
-                $uiLans = UiLanguage::where("languages_id",$request->id)->update($uiLan);
+                $uiData = UiLanguage::where('languages_id', $request->id)->first();
+                $uiLans = UiLanguage::where('languages_id', $request->id)->update($uiLan);
             }
-            
-            $uiMess = $uiLanData[0]->message ?? "";
-            $uiLan["ui_languages_id"] = $uiData->id ?? $request->id;
-            if($request->message != $uiMess){
+
+            $uiMess = $uiLanData[0]->message ?? '';
+            $uiLan['ui_languages_id'] = $uiData->id ?? $request->id;
+            if ($request->message != $uiMess) {
                 $reData = $this->uicheckLanUpdateHistory($uiLan);
             }
-            $uistatus = $uiData->status ?? "";
-            if($request->uilanstatus != $uistatus){
+            $uistatus = $uiData->status ?? '';
+            if ($request->uilanstatus != $uistatus) {
                 //$this->uicheckLanUpdateHistory($uiLan);
             }
 
@@ -854,42 +898,44 @@ class UicheckController extends Controller {
         }
     }
 
-    public function uicheckLanUpdateHistory($data) {
-        try{
+    public function uicheckLanUpdateHistory($data)
+    {
+        try {
             $createdHistory = UicheckLanguageMessageHistory::create(
                 $data
-            );            
-        }catch(\Exception $e){
+            );
+        } catch(\Exception $e) {
             return respException($e);
         }
     }
 
-    public function getuicheckLanUpdateHistory(Request $request) {
-        try{
-            $getHistory = UicheckLanguageMessageHistory::leftJoin("users", "users.id", "uicheck_language_message_histories.user_id")
-            ->leftJoin("site_development_statuses AS sds", "sds.id", "uicheck_language_message_histories.status")
-            ->select("uicheck_language_message_histories.*", "users.name As userName", "sds.name as status_name")
-            ->where("languages_id", $request->id)
-            ->where("uicheck_id", $request->uicheck_id)
-            ->orderBy("id", "desc")->get();         
+    public function getuicheckLanUpdateHistory(Request $request)
+    {
+        try {
+            $getHistory = UicheckLanguageMessageHistory::leftJoin('users', 'users.id', 'uicheck_language_message_histories.user_id')
+            ->leftJoin('site_development_statuses AS sds', 'sds.id', 'uicheck_language_message_histories.status')
+            ->select('uicheck_language_message_histories.*', 'users.name As userName', 'sds.name as status_name')
+            ->where('languages_id', $request->id)
+            ->where('uicheck_id', $request->uicheck_id)
+            ->orderBy('id', 'desc')->get();
             //dd($getHistory);
             $html = [];
             if ($getHistory->count()) {
                 foreach ($getHistory as $value) {
                     $html[] = implode('', [
                         '<tr>',
-                        '<td>' . ($value->id ?: '-') . '</td>',
-                        '<td>' . ($value->userName ?: '-') . '</td>',
+                        '<td>'.($value->id ?: '-').'</td>',
+                        '<td>'.($value->userName ?: '-').'</td>',
                         '<td>
                             <div style="width: 86%;float: left;" class="expand-row-msg" data-name="lan_message" data-id="'.$value->id.'">
-                                <span class="show-short-lan_message-'.$value->id.'">'.str_limit($value->message, 30, "...").' </span>
+                                <span class="show-short-lan_message-'.$value->id.'">'.str_limit($value->message, 30, '...').' </span>
                                 <span style="word-break:break-all;" id="show-full-lan_message-'.$value->id.'" class="show-full-lan_message-'.$value->id.' hidden">'.$value->message.' </span>
                             </div>
                             <i class="fa fa-copy" data-text="'.$value->message.'"></i>
                             
                         </td>',
-                        '<td>' . ($value->status_name ?: '-') . '</td>',
-                        '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
+                        '<td>'.($value->status_name ?: '-').'</td>',
+                        '<td class="cls-created-date">'.($value->created_at ?: '').'</td>',
                         '</tr>',
                     ]);
                 }
@@ -901,48 +947,47 @@ class UicheckController extends Controller {
                     '</tr>',
                 ]);
             }
+
             return respJson(200, '', [
-                'html' => implode('', $html)
-            ]);   
-        }catch(\Exception $e){
+                'html' => implode('', $html),
+            ]);
+        } catch(\Exception $e) {
             return respException($e);
         }
     }
-   
+
     public function saveDocuments(Request $request)
     {
-
         $documents = $request->input('document', []);
-        if (!empty($documents)) {
-            $uiDevData = UiLanguage::where("languages_id", "=", $request->id)->where('uicheck_id', "=", $request->uicheck_id)->first();
-            
+        if (! empty($documents)) {
+            $uiDevData = UiLanguage::where('languages_id', '=', $request->id)->where('uicheck_id', '=', $request->uicheck_id)->first();
+
             foreach ($request->input('document', []) as $file) {
-                $path  = storage_path('tmp/uploads/' . $file);
+                $path = storage_path('tmp/uploads/'.$file);
                 $media = MediaUploader::fromSource($path)
-                    ->toDirectory('uicheckAttach/' . floor($request->id / config('constants.image_per_folder')))
+                    ->toDirectory('uicheckAttach/'.floor($request->id / config('constants.image_per_folder')))
                     ->upload();
                 //$receipt->attachMedia($media, config('constants.media_tags'));
                 $attachment = UicheckLangAttchment::create([
-                    "languages_id" => $request->id,
-                    "user_id" => \Auth::user()->id,
+                    'languages_id' => $request->id,
+                    'user_id' => \Auth::user()->id,
                     'uicheck_id' => $request->uicheck_id ?? '',
-                    "attachment" => $media
+                    'attachment' => $media,
                 ]);
             }
 
-            return response()->json(["code" => 200, "data" => [], "message" => "Done!"]);
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'Done!']);
         } else {
-            return response()->json(["code" => 500, "data" => [], "message" => "No documents for upload"]);
+            return response()->json(['code' => 500, 'data' => [], 'message' => 'No documents for upload']);
         }
-
     }
 
     public function listDocuments(Request $request)
     {
-        $uicheckAttch = UicheckLangAttchment::where("languages_id", $request->id)
-        ->where("uicheck_id", $request->uicheck_id)
+        $uicheckAttch = UicheckLangAttchment::where('languages_id', $request->id)
+        ->where('uicheck_id', $request->uicheck_id)
         ->get();
-        
+
         $userList = [];
 
         $records = [];
@@ -951,59 +996,57 @@ class UicheckController extends Controller {
                 // Convert JSON string to Object
                 $imagepath = json_decode($media->attachment);
                 $records[] = [
-                    "id"            => $media->id,
-                    'url'           => "uploads/".$imagepath->directory."/".$imagepath->filename.".".$imagepath->extension,
-                    'ui_attach_id'  => $media->id,
+                    'id' => $media->id,
+                    'url' => 'uploads/'.$imagepath->directory.'/'.$imagepath->filename.'.'.$imagepath->extension,
+                    'ui_attach_id' => $media->id,
                 ];
             }
         }
 
-        return response()->json(["code" => 200, "data" => $records]);
+        return response()->json(['code' => 200, 'data' => $records]);
     }
 
     public function deleteDocument(Request $request)
     {
         if ($request->id != null) {
-            $uicheckAttch = UicheckLangAttchment::where("id", $request->id)->delete();
-            return response()->json(["code" => 200, "message" => "Document delete succesfully"]);
+            $uicheckAttch = UicheckLangAttchment::where('id', $request->id)->delete();
+
+            return response()->json(['code' => 200, 'message' => 'Document delete succesfully']);
         }
-        return response()->json(["code" => 500, "message" => "No document found"]);
+
+        return response()->json(['code' => 500, 'message' => 'No document found']);
     }
 
-
-
-    public function updateDevice(Request $request) {
+    public function updateDevice(Request $request)
+    {
         try {
-            
-            $uiDevData = UiDevice::where("uicheck_id", "=", $request->uicheck_id)->where('device_no', "=", $request->device_no)->first();
+            $uiDevData = UiDevice::where('uicheck_id', '=', $request->uicheck_id)->where('device_no', '=', $request->device_no)->first();
             //dd($uiDevData);
-            $uiDev["user_id"] = \Auth::user()->id;
-            $uiDev["device_no"] = $request->device_no;
-            $uiDev["uicheck_id"] = $request->uicheck_id;
-            if($request->message){
-                $uiDev["message"] = $request->message;
+            $uiDev['user_id'] = \Auth::user()->id;
+            $uiDev['device_no'] = $request->device_no;
+            $uiDev['uicheck_id'] = $request->uicheck_id;
+            if ($request->message) {
+                $uiDev['message'] = $request->message;
             }
-            if($request->uidevstatus){
-                $uiDev["status"] = $request->uidevstatus;
+            if ($request->uidevstatus) {
+                $uiDev['status'] = $request->uidevstatus;
             }
             $uiDevid = $uiDevData->id ?? '';
-            if ($uiDevid == ''){ 
+            if ($uiDevid == '') {
                 $uiDevs = UiDevice::create($uiDev);
-                $uiData = UiDevice::where("id",$uiDevs->id)->first();
-
+                $uiData = UiDevice::where('id', $uiDevs->id)->first();
             } else {
                 $uiData = $uiDevData;
-                $uiLans = UiDevice::where("id",$uiDevData->id)->update($uiDev);
+                $uiLans = UiDevice::where('id', $uiDevData->id)->update($uiDev);
             }
-            
-            $uiMess = $uiDevData->message ?? "";
-            $uiDev["ui_devices_id"] = $uiData->id;
-            if($request->message != $uiMess){
+
+            $uiMess = $uiDevData->message ?? '';
+            $uiDev['ui_devices_id'] = $uiData->id;
+            if ($request->message != $uiMess) {
                 $reData = $this->uicheckDevUpdateHistory($uiDev);
-               
             }
-            $uistatus = $uiData->status ?? "";
-            if($request->uidevstatus != $uistatus){
+            $uistatus = $uiData->status ?? '';
+            if ($request->uidevstatus != $uistatus) {
                 //$this->uicheckLanUpdateHistory($uiDev);
             }
 
@@ -1013,60 +1056,63 @@ class UicheckController extends Controller {
         }
     }
 
-    public function responseDevicePage(Request $request) {
-        
-        try{
+    public function responseDevicePage(Request $request)
+    {
+        try {
             \DB::enableQueryLog();
             $uiDevDatas = new UiDevice();
-            $uiDevDatas = $uiDevDatas->join("uichecks as uic", "uic.id", "ui_devices.uicheck_id")
-                                    ->leftJoin("store_websites as sw", "sw.id", "uic.website_id")
-                                    ->leftJoin("uicheck_user_accesses as uua", "ui_devices.uicheck_id", "uua.uicheck_id")
-                                    ->leftJoin("users as u", "u.id", "uua.user_id")
+            $uiDevDatas = $uiDevDatas->join('uichecks as uic', 'uic.id', 'ui_devices.uicheck_id')
+                                    ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
+                                    ->leftJoin('uicheck_user_accesses as uua', 'ui_devices.uicheck_id', 'uua.uicheck_id')
+                                    ->leftJoin('users as u', 'u.id', 'uua.user_id')
                                     ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
-                                    ->leftJoin("site_development_statuses as sds", "sds.id", "ui_devices.status")
-                                    ->leftJoin("ui_device_histories as udh", "ui_devices.id", "udh.status");
-            
-            if($request->status != ''){
-                $uiDevDatas = $uiDevDatas->where('ui_devices.status', $request->status);    
+                                    ->leftJoin('site_development_statuses as sds', 'sds.id', 'ui_devices.status')
+                                    ->leftJoin('ui_device_histories as udh', 'ui_devices.id', 'udh.status');
+
+            if ($request->status != '') {
+                $uiDevDatas = $uiDevDatas->where('ui_devices.status', $request->status);
             }
-            if($request->categories != ''){
-                $uiDevDatas = $uiDevDatas->where('uic.site_development_category_id', $request->categories)->where('ui_devices.device_no', '1');    
+            if ($request->categories != '') {
+                $uiDevDatas = $uiDevDatas->where('uic.site_development_category_id', $request->categories)->where('ui_devices.device_no', '1');
             }
-            if($request->id != ''){
-                $uiDevDatas = $uiDevDatas->where('ui_devices.uicheck_id', $request->id);    
+            if ($request->id != '') {
+                $uiDevDatas = $uiDevDatas->where('ui_devices.uicheck_id', $request->id);
             }
 
-            if ($request->user_name != null and $request->user_name != "undefined") {
-            //if($request->user_name != ''){
-                $uiDevDatas = $uiDevDatas->whereIn('u.id', $request->user_name);    
+            if ($request->user_name != null and $request->user_name != 'undefined') {
+                //if($request->user_name != ''){
+                $uiDevDatas = $uiDevDatas->whereIn('u.id', $request->user_name);
             }
-            
-            if(!Auth::user()->hasRole('Admin'))
-                $uiDevDatas = $uiDevDatas->where(['uua.user_id' => \Auth::user()->id]);    
-            
-            
-            $uiDevDatas = $uiDevDatas->select("ui_devices.*", 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname', 
-            DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail')  
-            )->orderBy('id', 'DESC')->groupBy("ui_devices.uicheck_id")->paginate(8);
-            $allStatus = SiteDevelopmentStatus::pluck("name", "id")->toArray();
+
+            if (! Auth::user()->hasRole('Admin')) {
+                $uiDevDatas = $uiDevDatas->where(['uua.user_id' => \Auth::user()->id]);
+            }
+
+            $uiDevDatas = $uiDevDatas->select('ui_devices.*', 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname',
+                DB::raw('(select message from ui_device_histories where uicheck_id  =   ui_devices.id  order by id DESC limit 1) as messageDetail')
+            )->orderBy('id', 'DESC')->groupBy('ui_devices.uicheck_id')->paginate(8);
+            $allStatus = SiteDevelopmentStatus::pluck('name', 'id')->toArray();
             $status = '';
             $devid = '';
             $uicheck_id = '';
-            $site_development_categories = SiteDevelopmentCategory::pluck("title", "id")->toArray();
+            $site_development_categories = SiteDevelopmentCategory::pluck('title', 'id')->toArray();
             $allUsers = User::where('is_active', '1')->get();
+
             return view('uicheck.responsive', compact('uiDevDatas', 'status', 'allStatus', 'devid', 'uicheck_id', 'site_development_categories', 'allUsers'));
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             //dd($e->getMessage());
             return \Redirect::back()->withErrors(['msg' => $e]);
         }
     }
-    public function responseDeviceStatusChange(Request $request) {
-        try{
+
+    public function responseDeviceStatusChange(Request $request)
+    {
+        try {
             $uiDevDatas = UiDevice::where('id', $request->id)
                     ->where('device_no', $request->device_no)
                     ->where('uicheck_id', $request->uicheck_id)
-                    ->update(["status" => $request->status]);
-            if($uiDevDatas == 0){
+                    ->update(['status' => $request->status]);
+            if ($uiDevDatas == 0) {
                 UiDevice::create([
                     'user_id' => \Auth::user()->id,
                     'device_no' => $request->device_no,
@@ -1077,16 +1123,18 @@ class UicheckController extends Controller {
             }
 
             $this->uicheckResponsiveUpdateHistory($request);
-            return response()->json(["code" => 200, "message" => "Status updated succesfully"]);
-        }catch(\Exception $e){
-            return response()->json(["code" => 500, "message" => $e->getMessage()]);
+
+            return response()->json(['code' => 200, 'message' => 'Status updated succesfully']);
+        } catch(\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
 
-    public function uicheckResponsiveUpdateHistory($data) {
-        try{
+    public function uicheckResponsiveUpdateHistory($data)
+    {
+        try {
             $data['user_id'] = \Auth::user()->id ?? '';
-           
+
             $createdHistory = UiResponsivestatusHistory::create(
                 [
                     'user_id' => \Auth::user()->id ?? '',
@@ -1094,82 +1142,87 @@ class UicheckController extends Controller {
                     'uicheck_id' => $data->uicheck_id ?? '',
                     'device_no' => $data->device_no ?? '',
                     'status' => $data->status ?? '',
-                    'old_status' => $data->old_status ?? ''
+                    'old_status' => $data->old_status ?? '',
                 ]
-            );            
-        }catch(\Exception $e){
+            );
+        } catch(\Exception $e) {
             return respException($e);
         }
     }
-    
-    public function responseDeviceStatusHistory(Request $request){
-        try{
-            $createdHistory = UiResponsivestatusHistory::leftJoin("site_development_statuses as sds", "sds.id", "ui_responsivestatus_histories.status")
-            ->leftJoin("site_development_statuses as sds1", "sds1.id", "ui_responsivestatus_histories.old_status")
-            ->leftJoin("users as u", "u.id", "ui_responsivestatus_histories.user_id")
+
+    public function responseDeviceStatusHistory(Request $request)
+    {
+        try {
+            $createdHistory = UiResponsivestatusHistory::leftJoin('site_development_statuses as sds', 'sds.id', 'ui_responsivestatus_histories.status')
+            ->leftJoin('site_development_statuses as sds1', 'sds1.id', 'ui_responsivestatus_histories.old_status')
+            ->leftJoin('users as u', 'u.id', 'ui_responsivestatus_histories.user_id')
             ->where('ui_device_id', '=', $request->id)
             ->where('device_no', '=', $request->device_no)
-            ->select("ui_responsivestatus_histories.*", 'u.name as username', 'sds.name as statusname', 'sds1.name as oldstatusname')->orderBy('ui_responsivestatus_histories.id', 'DESC')
+            ->select('ui_responsivestatus_histories.*', 'u.name as username', 'sds.name as statusname', 'sds1.name as oldstatusname')->orderBy('ui_responsivestatus_histories.id', 'DESC')
             ->get();
-            return response()->json(["code" => 200, "message" => "Listed succesfully", "data" => $createdHistory]);
-        }catch(\Exception $e){
-            return response()->json(["code" => 500, "message" => $e->getMessage()], 500);
+
+            return response()->json(['code' => 200, 'message' => 'Listed succesfully', 'data' => $createdHistory]);
+        } catch(\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()], 500);
         }
     }
-    
-    public function responseTranslatorPage(Request $request) {
-        
-        try{
+
+    public function responseTranslatorPage(Request $request)
+    {
+        try {
             $uiLanguages = new UiLanguage();
-            $uiLanguages = $uiLanguages->join("uichecks as uic", "uic.id", "ui_languages.uicheck_id")
-                                    ->leftJoin("store_websites as sw", "sw.id", "uic.website_id")
-                                    ->leftJoin("uicheck_user_accesses as uua", "ui_languages.uicheck_id", "uua.uicheck_id")
-                                    ->leftJoin("users as u", "u.id", "uua.user_id")
+            $uiLanguages = $uiLanguages->join('uichecks as uic', 'uic.id', 'ui_languages.uicheck_id')
+                                    ->leftJoin('store_websites as sw', 'sw.id', 'uic.website_id')
+                                    ->leftJoin('uicheck_user_accesses as uua', 'ui_languages.uicheck_id', 'uua.uicheck_id')
+                                    ->leftJoin('users as u', 'u.id', 'uua.user_id')
                                     ->leftjoin('site_development_categories as sdc', 'uic.site_development_category_id', '=', 'sdc.id')
-                                    ->leftJoin("site_development_statuses as sds", "sds.id", "ui_languages.status");
-                                    
-                                    //->get();
-            if($request->status != ''){
-                $uiLanguages = $uiLanguages->where('ui_languages.status', $request->status);    
+                                    ->leftJoin('site_development_statuses as sds', 'sds.id', 'ui_languages.status');
+
+            //->get();
+            if ($request->status != '') {
+                $uiLanguages = $uiLanguages->where('ui_languages.status', $request->status);
             }
-            if($request->categories != ''){
-                $uiLanguages = $uiLanguages->where('uic.site_development_category_id', $request->categories)->where('ui_languages.languages_id', '2');    
+            if ($request->categories != '') {
+                $uiLanguages = $uiLanguages->where('uic.site_development_category_id', $request->categories)->where('ui_languages.languages_id', '2');
             }
-            if($request->id != ''){
-                $uiLanguages = $uiLanguages->where('ui_languages.uicheck_id', $request->id);    
+            if ($request->id != '') {
+                $uiLanguages = $uiLanguages->where('ui_languages.uicheck_id', $request->id);
             }
-            
-            if ($request->user_name != null and $request->user_name != "undefined") {
-            //if($request->user_name != ''){
-                $uiLanguages = $uiLanguages->whereIn('u.id', $request->user_name);    
+
+            if ($request->user_name != null and $request->user_name != 'undefined') {
+                //if($request->user_name != ''){
+                $uiLanguages = $uiLanguages->whereIn('u.id', $request->user_name);
             }
-            
-            if(!Auth::user()->hasRole('Admin'))
-                $uiLanguages = $uiLanguages->where(['uua.user_id' => \Auth::user()->id]);    
-            
-            $uiLanguages = $uiLanguages->select("ui_languages.*", 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname')
-                                    ->groupBy("ui_languages.uicheck_id")
+
+            if (! Auth::user()->hasRole('Admin')) {
+                $uiLanguages = $uiLanguages->where(['uua.user_id' => \Auth::user()->id]);
+            }
+
+            $uiLanguages = $uiLanguages->select('ui_languages.*', 'u.name as username', 'sw.website', 'sdc.title', 'sds.name as statusname')
+                                    ->groupBy('ui_languages.uicheck_id')
                                     ->orderBy('id', 'DESC')
                                     ->paginate(8);
-           // dd($uiLanguages);
-            $allStatus = SiteDevelopmentStatus::pluck("name", "id")->toArray();
+            // dd($uiLanguages);
+            $allStatus = SiteDevelopmentStatus::pluck('name', 'id')->toArray();
             $status = '';
             $lanid = '';
             $languages = Language::all();
             $allUsers = User::where('is_active', '1')->get();
-            $site_development_categories = SiteDevelopmentCategory::pluck("title", "id")->toArray();
+            $site_development_categories = SiteDevelopmentCategory::pluck('title', 'id')->toArray();
+
             return view('uicheck.language', compact('uiLanguages', 'status', 'languages', 'allStatus', 'lanid', 'site_development_categories', 'allUsers'));
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             return \Redirect::back()->withErrors(['msg' => $e]);
         }
     }
 
-    public function translatorStatusChange(Request $request) {
-        try{
+    public function translatorStatusChange(Request $request)
+    {
+        try {
             $uiDevDatas = UiLanguage::where('uicheck_id', $request->uicheck_id)
                     ->where('languages_id', $request->language_id)
-                    ->update(["status" => $request->status]);
-            if($uiDevDatas == 0){
+                    ->update(['status' => $request->status]);
+            if ($uiDevDatas == 0) {
                 UiLanguage::create([
                     'user_id' => \Auth::user()->id,
                     'uicheck_id' => $request->uicheck_id,
@@ -1178,16 +1231,18 @@ class UicheckController extends Controller {
                 ]);
             }
             $this->uicheckTranslatorUpdateHistory($request);
-            return response()->json(["code" => 200, "message" => "Status updated succesfully"]);
-        }catch(\Exception $e){
-            return response()->json(["code" => 500, "message" => $e->getMessage()]);
+
+            return response()->json(['code' => 200, 'message' => 'Status updated succesfully']);
+        } catch(\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
 
-    public function uicheckTranslatorUpdateHistory($data) {
-        try{
+    public function uicheckTranslatorUpdateHistory($data)
+    {
+        try {
             $data['user_id'] = \Auth::user()->id ?? '';
-           
+
             $createdHistory = UiTranslatorStatusHistory::create(
                 [
                     'user_id' => \Auth::user()->id ?? '',
@@ -1195,36 +1250,38 @@ class UicheckController extends Controller {
                     'language_id' => $data->language_id ?? '',
                     'uicheck_id' => $data->uicheck_id ?? '',
                     'status' => $data->status ?? '',
-                    'old_status' => $data->old_status ?? ''
-                ]);            
-        }catch(\Exception $e){
+                    'old_status' => $data->old_status ?? '',
+                ]);
+        } catch(\Exception $e) {
             return respException($e);
         }
     }
 
-    public function translatorStatusHistory(Request $request){
-        try{
-            $createdHistory = UiTranslatorStatusHistory::leftJoin("site_development_statuses as sds", "sds.id", "ui_translator_status_histories.status")
-            ->leftJoin("site_development_statuses as sds1", "sds1.id", "ui_translator_status_histories.old_status")
-            ->leftJoin("users as u", "u.id", "ui_translator_status_histories.user_id")
+    public function translatorStatusHistory(Request $request)
+    {
+        try {
+            $createdHistory = UiTranslatorStatusHistory::leftJoin('site_development_statuses as sds', 'sds.id', 'ui_translator_status_histories.status')
+            ->leftJoin('site_development_statuses as sds1', 'sds1.id', 'ui_translator_status_histories.old_status')
+            ->leftJoin('users as u', 'u.id', 'ui_translator_status_histories.user_id')
             ->where('ui_language_id', '=', $request->id)
             ->where('language_id', '=', $request->language_id)
             ->where('uicheck_id', '=', $request->uicheck_id)
-            ->select("ui_translator_status_histories.*", 'u.name as username', 'sds.name as statusname', 'sds1.name as oldstatusname')->orderBy('ui_translator_status_histories.id', 'DESC')
+            ->select('ui_translator_status_histories.*', 'u.name as username', 'sds.name as statusname', 'sds1.name as oldstatusname')->orderBy('ui_translator_status_histories.id', 'DESC')
             ->get();
-            return response()->json(["code" => 200, "message" => "Listed succesfully", "data" => $createdHistory]);
-        }catch(\Exception $e){
-            return response()->json(["code" => 500, "message" => $e->getMessage()], 500);
+
+            return response()->json(['code' => 200, 'message' => 'Listed succesfully', 'data' => $createdHistory]);
+        } catch(\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()], 500);
         }
     }
-    
-    public function uicheckDevUpdateHistory($data) {
-        
-        try{
+
+    public function uicheckDevUpdateHistory($data)
+    {
+        try {
             $createdHistory = UiDeviceHistory::create(
                 $data
-            );            
-        }catch(\Exception $e){
+            );
+        } catch(\Exception $e) {
             return respException($e);
         }
     }
@@ -1233,60 +1290,57 @@ class UicheckController extends Controller {
     {
         $path = storage_path('tmp/uploads');
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             mkdir($path, 0777, true);
         }
 
         $file = $request->file('file');
 
-        $name = uniqid() . '_' . trim($file->getClientOriginalName());
+        $name = uniqid().'_'.trim($file->getClientOriginalName());
 
         $file->move($path, $name);
 
         return response()->json([
-            'name'          => $name,
+            'name' => $name,
             'original_name' => $file->getClientOriginalName(),
         ]);
     }
 
     public function saveDevDocuments(Request $request)
     {
-
         $documents = $request->input('document', []);
-        if (!empty($documents)) {
-            $uiDevData = UiDevice::where("uicheck_id", "=", $request->uicheck_id)->where('device_no', "=", $request->device_no)->first();
-            
+        if (! empty($documents)) {
+            $uiDevData = UiDevice::where('uicheck_id', '=', $request->uicheck_id)->where('device_no', '=', $request->device_no)->first();
 
             foreach ($request->input('document', []) as $file) {
-                $path  = storage_path('tmp/uploads/' . $file);
+                $path = storage_path('tmp/uploads/'.$file);
                 $media = MediaUploader::fromSource($path)
-                    ->toDirectory('uicheckAttach/dev/' . floor($request->id / config('constants.image_per_folder')))
+                    ->toDirectory('uicheckAttach/dev/'.floor($request->id / config('constants.image_per_folder')))
                     ->upload();
                 //$receipt->attachMedia($media, config('constants.media_tags'));
                 $attachment = UicheckDeviceAttachment::create([
-                    "device_no" => $request->device_no ?? '',
-                    "uicheck_id" => $request->uicheck_id,
-                    "ui_devices_id" => $uiDevData->id ?? '',
-                    "user_id" => \Auth::user()->id,
-                    "attachment" => $media
+                    'device_no' => $request->device_no ?? '',
+                    'uicheck_id' => $request->uicheck_id,
+                    'ui_devices_id' => $uiDevData->id ?? '',
+                    'user_id' => \Auth::user()->id,
+                    'attachment' => $media,
                 ]);
             }
 
-            return response()->json(["code" => 200, "data" => [], "message" => "Done!"]);
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'Done!']);
         } else {
-            return response()->json(["code" => 500, "data" => [], "message" => "No documents for upload"]);
+            return response()->json(['code' => 500, 'data' => [], 'message' => 'No documents for upload']);
         }
-
     }
 
     public function devListDocuments(Request $request)
     {
-        $uicheckAttch = UicheckDeviceAttachment::leftJoin("users", "users.id", "uicheck_device_attachments.user_id")
-        ->select("uicheck_device_attachments.*", "users.name as userName")
-        ->where("device_no", $request->device_no)->where("device_no", $request->device_no)
-        ->where("uicheck_id", $request->ui_check_id)
+        $uicheckAttch = UicheckDeviceAttachment::leftJoin('users', 'users.id', 'uicheck_device_attachments.user_id')
+        ->select('uicheck_device_attachments.*', 'users.name as userName')
+        ->where('device_no', $request->device_no)->where('device_no', $request->device_no)
+        ->where('uicheck_id', $request->ui_check_id)
         ->get();
-        
+
         $userList = [];
 
         $records = [];
@@ -1295,51 +1349,54 @@ class UicheckController extends Controller {
                 // Convert JSON string to Object
                 $imagepath = json_decode($media->attachment);
                 $records[] = [
-                    "id"            => $media->id,
-                    'url'           => "uploads/".$imagepath->directory."/".$imagepath->filename.".".$imagepath->extension,
-                    "userName"      => $media->userName,
-                    'ui_attach_id'  => $media->id,
+                    'id' => $media->id,
+                    'url' => 'uploads/'.$imagepath->directory.'/'.$imagepath->filename.'.'.$imagepath->extension,
+                    'userName' => $media->userName,
+                    'ui_attach_id' => $media->id,
                 ];
             }
         }
 
-        return response()->json(["code" => 200, "data" => $records]);
+        return response()->json(['code' => 200, 'data' => $records]);
     }
 
     public function deleteDevDocument(Request $request)
     {
         if ($request->id != null) {
-            $uicheckAttch = UicheckDeviceAttachment::where("id", $request->id)->delete();
-            return response()->json(["code" => 200, "message" => "Document delete succesfully"]);
+            $uicheckAttch = UicheckDeviceAttachment::where('id', $request->id)->delete();
+
+            return response()->json(['code' => 200, 'message' => 'Document delete succesfully']);
         }
-        return response()->json(["code" => 500, "message" => "No document found"]);
+
+        return response()->json(['code' => 500, 'message' => 'No document found']);
     }
 
-    public function getuicheckDevUpdateHistory(Request $request) {
-        try{
-            $getHistory = UiDeviceHistory::leftJoin("users", "users.id", "ui_device_histories.user_id")
-            ->leftJoin("site_development_statuses AS sds", "sds.id", "ui_device_histories.status")
-            ->select("ui_device_histories.*", "users.name As userName", "sds.name AS status_name")
-            ->where("ui_device_histories.device_no", $request->device_no)
-            ->where("ui_device_histories.uicheck_id", $request->uicheck_id)
-            ->orderBy("id", "desc")->get();         
+    public function getuicheckDevUpdateHistory(Request $request)
+    {
+        try {
+            $getHistory = UiDeviceHistory::leftJoin('users', 'users.id', 'ui_device_histories.user_id')
+            ->leftJoin('site_development_statuses AS sds', 'sds.id', 'ui_device_histories.status')
+            ->select('ui_device_histories.*', 'users.name As userName', 'sds.name AS status_name')
+            ->where('ui_device_histories.device_no', $request->device_no)
+            ->where('ui_device_histories.uicheck_id', $request->uicheck_id)
+            ->orderBy('id', 'desc')->get();
             //dd($getHistory);
             $html = [];
             if ($getHistory->count()) {
                 foreach ($getHistory as $value) {
                     $html[] = implode('', [
                         '<tr>',
-                        '<td>' . ($value->id ?: '-') . '</td>',
-                        '<td>' . ($value->userName ?: '-') . '</td>',
+                        '<td>'.($value->id ?: '-').'</td>',
+                        '<td>'.($value->userName ?: '-').'</td>',
                         '<td >
                             <div style="width: 86%;float: left;" class="expand-row-msg" data-name="dev_message" data-id="'.$value->id.'" >
-                                <span class="show-short-dev_message-'.$value->id.'">'.str_limit($value->message, 30, "...").'<i class="fa-solid fa-copy"></i></span>
+                                <span class="show-short-dev_message-'.$value->id.'">'.str_limit($value->message, 30, '...').'<i class="fa-solid fa-copy"></i></span>
                                 <span style="word-break:break-all;" class="show-full-dev_message-'.$value->id.' hidden">'.$value->message.'<i class="fa-solid fa-copy "></i></span>
                             </div>
                             <i class="fa fa-copy" data-text="'.$value->message.'"></i>
                         </td>',
-                        '<td>' . ($value->status_name ?: '-') . '</td>',
-                        '<td class="cls-created-date">' . ($value->created_at ?: '') . '</td>',
+                        '<td>'.($value->status_name ?: '-').'</td>',
+                        '<td class="cls-created-date">'.($value->created_at ?: '').'</td>',
                         '</tr>',
                     ]);
                 }
@@ -1350,61 +1407,61 @@ class UicheckController extends Controller {
                     '</tr>',
                 ]);
             }
+
             return respJson(200, '', [
-                'html' => implode('', $html)
-            ]);   
-        }catch(\Exception $e){
+                'html' => implode('', $html),
+            ]);
+        } catch(\Exception $e) {
             return respException($e);
         }
     }
 
-
-    public function languageFlag(Request $request) {
-        try{
-           
-            $data = Uicheck::where("id", $request->id);
+    public function languageFlag(Request $request)
+    {
+        try {
+            $data = Uicheck::where('id', $request->id);
             $retunData = $data->get();
-            
-            if($retunData[0]->language_flag == 1){
-                $array["language_flag"] =  0;
-            }else{
-                $array["language_flag"] =  1;
+
+            if ($retunData[0]->language_flag == 1) {
+                $array['language_flag'] = 0;
+            } else {
+                $array['language_flag'] = 1;
                 $langs = Language::get();
-                
-                foreach($langs AS $lang){
-                    $uiDevDatas = UiLanguage::where(['uicheck_id' => $request->id, "languages_id" => $lang->id])->first();
-                    if(!$uiDevDatas){
+
+                foreach ($langs as $lang) {
+                    $uiDevDatas = UiLanguage::where(['uicheck_id' => $request->id, 'languages_id' => $lang->id])->first();
+                    if (! $uiDevDatas) {
                         UiLanguage::create([
                             'user_id' => \Auth::user()->id,
                             'uicheck_id' => $request->id,
-                            'languages_id' => $lang->id
+                            'languages_id' => $lang->id,
                         ]);
-                       
                     }
                 }
             }
             $data->update($array);
-            $retunData1 = Uicheck::where("id", $request->id)->get();
+            $retunData1 = Uicheck::where('id', $request->id)->get();
+
             return response()->json(['code' => 200, 'data' => $retunData1,  'message' => 'Type Updated!!!']);
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             return response()->json(['code' => 500, 'error' => $e->getMessage()]);
         }
     }
 
-    public function translationFlag(Request $request) {
-        try{
-           
-            $data = Uicheck::where("id", $request->id);
+    public function translationFlag(Request $request)
+    {
+        try {
+            $data = Uicheck::where('id', $request->id);
             $retunData = $data->get();
-            
-            if($retunData[0]->translation_flag == 1){
-                $array["translation_flag"] =  0;
-            }else{
-                $array["translation_flag"] =  1;
-                
-                for($i=1; $i<=5; $i++){
-                    $uiDevDatas = UiDevice::where(['uicheck_id' => $request->id, "device_no" => $i])->first();
-                    if(!$uiDevDatas){
+
+            if ($retunData[0]->translation_flag == 1) {
+                $array['translation_flag'] = 0;
+            } else {
+                $array['translation_flag'] = 1;
+
+                for ($i = 1; $i <= 5; $i++) {
+                    $uiDevDatas = UiDevice::where(['uicheck_id' => $request->id, 'device_no' => $i])->first();
+                    if (! $uiDevDatas) {
                         UiDevice::create([
                             'user_id' => \Auth::user()->id,
                             'device_no' => $i,
@@ -1414,12 +1471,11 @@ class UicheckController extends Controller {
                 }
             }
             $data->update($array);
-            $retunData1 = Uicheck::where("id", $request->id)->get();
-            
+            $retunData1 = Uicheck::where('id', $request->id)->get();
+
             return response()->json(['code' => 200, 'data' => $retunData1,  'message' => 'Type Updated!!!']);
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             return response()->json(['code' => 500, 'error' => $e->getMessage()]);
         }
     }
 }
-

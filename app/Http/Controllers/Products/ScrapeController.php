@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Products;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 
 class ScrapeController extends Controller
 {
@@ -19,20 +18,19 @@ class ScrapeController extends Controller
      *      @SWG\Parameter(
      *          name="email",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
             @SWG\Parameter(
      *          name="website",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
-     *
      */
-   /**
     /**
+     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -47,8 +45,8 @@ class ScrapeController extends Controller
             'name' => 'matchesfashion',
             'scope' => [
                 'title',
-                'description'
-            ]
+                'description',
+            ],
         ];
 
         $arData[] = [
@@ -56,8 +54,8 @@ class ScrapeController extends Controller
             'url' => 'https://www.matchesfashion.com/intl/products/Saint-Laurent-West-harness-suede-boots-1251075',
             'name' => 'matchesfashion',
             'scope' => [
-                '*'
-            ]
+                '*',
+            ],
         ];
 
         $arData[] = [
@@ -66,8 +64,8 @@ class ScrapeController extends Controller
             'name' => 'matchesfashion',
             'scope' => [
                 'color',
-                'composition'
-            ]
+                'composition',
+            ],
         ];
 
         $arData[] = [
@@ -76,8 +74,8 @@ class ScrapeController extends Controller
             'name' => 'matchesfashion',
             'scope' => [
                 'description',
-                'color'
-            ]
+                'color',
+            ],
         ];
 
         $arData[] = [
@@ -87,8 +85,8 @@ class ScrapeController extends Controller
             'scope' => [
                 'category',
                 'color',
-                'composition'
-            ]
+                'composition',
+            ],
         ];
 
         $arData[] = [
@@ -96,8 +94,8 @@ class ScrapeController extends Controller
             'url' => 'https://shop.nordstrom.com/s/bardot-arabella-body-con-dress/4754475',
             'name' => 'nordstrom',
             'scope' => [
-                '*'
-            ]
+                '*',
+            ],
         ];
 
         $arData[] = [
@@ -107,18 +105,17 @@ class ScrapeController extends Controller
             'scope' => [
                 'description',
                 'category',
-                'composition'
-            ]
+                'composition',
+            ],
         ];
 
         $arData[] = [
-            'url' => false
+            'url' => false,
         ];
 
         // Set json to return
-        return response()->json($arData[ rand(0, count($arData) - 1) ]);
+        return response()->json($arData[rand(0, count($arData) - 1)]);
     }
-
 
     /**
      * @SWG\Get(
@@ -132,17 +129,16 @@ class ScrapeController extends Controller
      *      @SWG\Parameter(
      *          name="email",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
             @SWG\Parameter(
      *          name="website",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
-     *
      */
     public function processDataFromScraper()
     {

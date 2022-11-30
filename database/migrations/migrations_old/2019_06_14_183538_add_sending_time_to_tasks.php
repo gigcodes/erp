@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddSendingTimeToTasks extends Migration
 {
@@ -14,7 +14,7 @@ class AddSendingTimeToTasks extends Migration
     public function up()
     {
         Schema::table('tasks', function (Blueprint $table) {
-          $table->datetime('sending_time')->nullable()->after('is_verified');
+            $table->datetime('sending_time')->nullable()->after('is_verified');
         });
     }
 
@@ -26,7 +26,7 @@ class AddSendingTimeToTasks extends Migration
     public function down()
     {
         Schema::table('tasks', function (Blueprint $table) {
-          $table->dropColumn('sending_time');
+            $table->dropColumn('sending_time');
         });
     }
 }

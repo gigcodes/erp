@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddDefaultDutyToSimplyDutyCountriesTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddDefaultDutyToSimplyDutyCountriesTable extends Migration
     public function up()
     {
         Schema::table('simply_duty_countries', function (Blueprint $table) {
-            $table->double('default_duty',10,2)->default(0);
+            $table->double('default_duty', 10, 2)->default(0);
         });
     }
 
@@ -26,7 +26,7 @@ class AddDefaultDutyToSimplyDutyCountriesTable extends Migration
     public function down()
     {
         Schema::table('simply_duty_countries', function (Blueprint $table) {
-            $table->double('default_duty',10,2)->default(0);
+            $table->double('default_duty', 10, 2)->default(0);
         });
     }
 }

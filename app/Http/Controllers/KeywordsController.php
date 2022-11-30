@@ -7,15 +7,17 @@ use Illuminate\Http\Request;
 
 class KeywordsController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         $keywords = Keywords::all();
 
         return view('instagram.keywords.index', compact('keywords'));
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $this->validate($request, [
-            'name' => 'required'
+            'name' => 'required',
         ]);
 
         $k = new Keywords();
@@ -25,11 +27,11 @@ class KeywordsController extends Controller
         return redirect()->back()->with('message', 'Keyword added successfully!');
     }
 
-    public function destroy($id) {
+    public function destroy($id)
+    {
         $k = Keywords::findOrFail($id);
         $k->delete();
 
         return redirect()->back()->with('message', 'Keyword deleted successfully!');
-
     }
 }

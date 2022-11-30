@@ -2,30 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\WebsiteLog;
-use Illuminate\Http\Request;
-use File;
-use \Carbon\Carbon;
-//use InstagramAPI\Instagram;
 use App\StoreWebsite;
+use App\WebsiteLog;
+use File;
+//use InstagramAPI\Instagram;
+use Illuminate\Http\Request;
 
-class WebsiteLogController extends Controller {
-
-
-    public function logsPath() {
+class WebsiteLogController extends Controller
+{
+    public function logsPath()
+    {
         return env('WEBSITES_LOGS_FOLDER') ?: '../storage/';
     }
 
-    public function prepareWebsite($filePath) {
+    public function prepareWebsite($filePath)
+    {
         $path = $this->logsPath();
         $filePath = trim(str_replace($path, '', $filePath), '/');
         $filePath = explode('/', $filePath);
         if (count($filePath) > 1) {
             return $filePath[0];
         }
-        return NULL;
+
+        return null;
     }
-    public function prepareWebsites($data) {
+
+    public function prepareWebsites($data)
+    {
         $return = [];
         foreach ($data as $key => $filePath) {
             $website = $this->prepareWebsite($filePath);
@@ -35,10 +38,12 @@ class WebsiteLogController extends Controller {
         }
         $return = array_unique($return);
         ksort($return);
+
         return $return;
     }
 
-    public function index() {
+    public function index()
+    {
         $path = $this->logsPath();
 
         $srchWebsite = request('website', '');
@@ -50,7 +55,6 @@ class WebsiteLogController extends Controller {
         foreach ($logFiles as $key => $filePath) {
             $fileName = basename($filePath);
             if ($website = $this->prepareWebsite($filePath)) {
-
                 if ($srchWebsite && $website == $srchWebsite) {
                     $listSrchFiles[$fileName] = $fileName;
                 } else {
@@ -58,27 +62,25 @@ class WebsiteLogController extends Controller {
                 }
 
                 if ($srchWebsite && $srchFilename) {
-                    if (!($website == $srchWebsite && $fileName == $srchFilename)) {
+                    if (! ($website == $srchWebsite && $fileName == $srchFilename)) {
                         continue;
                     }
-                } else if ($srchWebsite) {
-                    if (!($website == $srchWebsite)) {
+                } elseif ($srchWebsite) {
+                    if (! ($website == $srchWebsite)) {
                         continue;
                     }
-                } else if ($srchFilename) {
-                    if (!($fileName == $srchFilename)) {
+                } elseif ($srchFilename) {
+                    if (! ($fileName == $srchFilename)) {
                         continue;
                     }
                 }
 
-
-
                 $dataArr[] = [
-                    "S_No" => $key + 1,
-                    "File_name" => $fileName,
-                    "Website" => "",
-                    "Website" => $website,
-                    "File_Path" => $filePath,
+                    'S_No' => $key + 1,
+                    'File_name' => $fileName,
+                    'Website' => '',
+                    'Website' => $website,
+                    'File_Path' => $filePath,
                 ];
             }
         }
@@ -95,7 +97,7 @@ class WebsiteLogController extends Controller {
         // $filesDirectories = scandir(env('WEBSITES_LOGS_FOLDER'));
         // //$filesDirectories = scandir('storage');
         // $dataArr = [];
-        // //dd($filesDirectories);   
+        // //dd($filesDirectories);
         // foreach ($filesDirectories as $filesDirectory) {
         //     if ($filesDirectory != '.' && $filesDirectory != '..') {
         //         $fullPath = \File::allFiles(env('WEBSITES_LOGS_FOLDER') . $filesDirectory);
@@ -118,7 +120,8 @@ class WebsiteLogController extends Controller {
         ]);
     }
 
-    public function searchWebsiteLog(Request $request) {
+    public function searchWebsiteLog(Request $request)
+    {
         return $this->index();
 
         // $filesDirectories = scandir(env('WEBSITES_LOGS_FOLDER'));
@@ -145,13 +148,17 @@ class WebsiteLogController extends Controller {
         // return view('website-logs.index', compact('dataArr', 'fileName', 'website'));
     }
 
-    public function runWebsiteLogCommand(Request $request) {
+    public function runWebsiteLogCommand(Request $request)
+    {
         // dd('sdfdsds');
-        return \Artisan::call("command:websitelog");
+        return \Artisan::call('command:websitelog');
     }
-    public function websiteLogFileView(Request $request) {
+
+    public function websiteLogFileView(Request $request)
+    {
         if (file_exists($request->path)) {
             $path = $request->path;
+
             return response()->file($path);
         } else {
             return 'File not found';
@@ -166,12 +173,16 @@ class WebsiteLogController extends Controller {
      * @param [string] $end
      * @return string
      */
-    public function get_string_between($string, $start, $end) {
-        $string = ' ' . $string;
+    public function get_string_between($string, $start, $end)
+    {
+        $string = ' '.$string;
         $ini = strpos($string, $start);
-        if ($ini == 0) return '';
+        if ($ini == 0) {
+            return '';
+        }
         $ini += strlen($start);
         $len = strpos($string, $end, $ini) - $ini;
+
         return substr($string, $ini, $len);
     }
 
@@ -183,22 +194,26 @@ class WebsiteLogController extends Controller {
      * @param [string] $ending_word
      * @return string
      */
-    public function string_between_two_string($str, $starting_word, $ending_word) {
+    public function string_between_two_string($str, $starting_word, $ending_word)
+    {
         $arr = explode($starting_word, $str);
         if (isset($arr[1])) {
             $arr = explode($ending_word, $arr[1]);
+
             return $arr[0];
         }
+
         return '';
     }
+
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-
-    public function store() {
+    public function store()
+    {
     }
     /* public function store()
     {
@@ -220,7 +235,7 @@ class WebsiteLogController extends Controller {
                     {
                         if($val->getFilename() == 'db.log')
                             $fileTypeName = 'db';
-                        else   
+                        else
                             $fileTypeName = $val->getFilename();
                         $content = File::get($mainPath.'/'.$val->getFilename());
                         //dd($content);
@@ -244,7 +259,7 @@ class WebsiteLogController extends Controller {
                                     $module = $entry;
                                     //dd($module);l
                                 }
-                                
+
                                 if(!is_null($sql) && !is_null($time) && !is_null($module)){
                                     $totalLogs[] = ['sql_query' => $sql,'time'=>$time,'module' => $module ];
                                     $find = WebsiteLog::where([['sql_query', '=', $sql],['time','=',$time],['module', '=', $module]])->first();
@@ -267,26 +282,31 @@ class WebsiteLogController extends Controller {
     }
     */
 
-    public function websiteLogStoreView() {
+    public function websiteLogStoreView()
+    {
         try {
             $dataArr = WebsiteLog::all();
+
             return view('website-logs.website-log-view', compact('dataArr'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
-    public function searchWebsiteLogStoreView(Request $request) {
+    public function searchWebsiteLogStoreView(Request $request)
+    {
         try {
-
             $dataArr = new WebsiteLog();
-            if ($request->sql_query)
-                $dataArr =  $dataArr->where('sql_query', 'LIKE', '%' . $request->sql_query . '%');
-            if ($request->time)
-                $dataArr =  $dataArr->where('time', 'LIKE', '%' . $request->time . '%');
-            $dataArr =  $dataArr->get();
+            if ($request->sql_query) {
+                $dataArr = $dataArr->where('sql_query', 'LIKE', '%'.$request->sql_query.'%');
+            }
+            if ($request->time) {
+                $dataArr = $dataArr->where('time', 'LIKE', '%'.$request->time.'%');
+            }
+            $dataArr = $dataArr->get();
             $sqlQuery = $request->sql_query;
             $time = $request->time;
+
             return view('website-logs.website-log-view', compact('dataArr', 'sqlQuery', 'time'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());

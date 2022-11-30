@@ -5,7 +5,6 @@ use Illuminate\Database\Schema\Blueprint;
 
 class AlterStoreWebsiteUserPassword extends Migration
 {
-
     /**
      * Run the migrations.
      *
@@ -14,9 +13,9 @@ class AlterStoreWebsiteUserPassword extends Migration
     public function up()
     {
         Schema::table('store_websites', function (Blueprint $table) {
-            $table->string('magento_url')->nullable()->after("remote_software");
-            $table->string('magento_username')->nullable()->after("magento_url");
-            $table->string('magento_password')->nullable()->after("magento_username");
+            $table->string('magento_url')->nullable()->after('remote_software');
+            $table->string('magento_username')->nullable()->after('magento_url');
+            $table->string('magento_password')->nullable()->after('magento_username');
         });
     }
 
@@ -33,5 +32,4 @@ class AlterStoreWebsiteUserPassword extends Migration
             $table->dropColumn('magento_password');
         });
     }
-
 }

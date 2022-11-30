@@ -1,4 +1,6 @@
-<?php namespace Modules\BookStack\Auth\Permissions;
+<?php
+
+namespace Modules\BookStack\Auth\Permissions;
 
 use Modules\BookStack\Auth\Role;
 use Modules\BookStack\Entities\Entity;
@@ -10,6 +12,7 @@ class JointPermission extends Model
 
     /**
      * Get the role that this points to.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function role()
@@ -19,6 +22,7 @@ class JointPermission extends Model
 
     /**
      * Get the entity this points to.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\MorphOne
      */
     public function entity()

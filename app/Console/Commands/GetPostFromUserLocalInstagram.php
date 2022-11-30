@@ -2,13 +2,12 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\InstagramPosts;
 use App\InstagramPostsComments;
-use App\Keywords;
+use Carbon\Carbon;
 //use InstagramAPI\Instagram;
 //use App\InstagramUsersList;
-use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class GetPostFromUserLocalInstagram extends Command
 {
@@ -202,7 +201,5 @@ class GetPostFromUserLocalInstagram extends Command
 //                }
 //
 //            }
-
-
     }
 }

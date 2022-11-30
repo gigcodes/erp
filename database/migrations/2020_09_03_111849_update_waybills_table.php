@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateWaybillsTable extends Migration
 {
@@ -16,7 +16,7 @@ class UpdateWaybillsTable extends Migration
         /*Schema::table('waybills', function (Blueprint $table) {
             $table->integer('order_id')->nullable()->change();
         });*/
-        \DB::statement("ALTER TABLE `waybills` CHANGE `order_id` `order_id` INT(11) NULL;");
+        \DB::statement('ALTER TABLE `waybills` CHANGE `order_id` `order_id` INT(11) NULL;');
     }
 
     /**

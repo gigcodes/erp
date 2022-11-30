@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateImQueueTableAddMarketingMessageTypeIdColumn extends Migration
 {
@@ -13,7 +12,7 @@ class UpdateImQueueTableAddMarketingMessageTypeIdColumn extends Migration
      */
     public function up()
     {
-        Schema::table('im_queues',function($table){
+        Schema::table('im_queues', function ($table) {
             $table->integer('marketing_message_type_id')->nullable()->after('priority');
         });
     }
@@ -25,7 +24,7 @@ class UpdateImQueueTableAddMarketingMessageTypeIdColumn extends Migration
      */
     public function down()
     {
-        Schema::table('im_queues',function($table){
+        Schema::table('im_queues', function ($table) {
             $table->dropColumn('marketing_message_type_id');
         });
     }

@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 use App\CronJobReport;
 use App\ScrapedProducts;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class CreateLidiaProducts extends Command
 {
@@ -42,7 +42,7 @@ class CreateLidiaProducts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 

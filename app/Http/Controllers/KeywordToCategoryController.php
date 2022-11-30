@@ -31,7 +31,7 @@ class KeywordToCategoryController extends Controller
             'Refund Dispatched' => 'Refund Dispatched',
             'Refund Credited' => 'Refund Credited',
             'VIP' => 'VIP',
-            'HIGH PRIORITY' => 'HIGH PRIORITY'
+            'HIGH PRIORITY' => 'HIGH PRIORITY',
         ];
 
         $leadStatuses = [
@@ -40,7 +40,7 @@ class KeywordToCategoryController extends Controller
             '3' => 'Hot',
             '4' => 'Very Hot',
             '5' => 'Advance Follow Up',
-            '6' => 'High Priority'
+            '6' => 'High Priority',
         ];
 
         $categories = CustomerCategory::all();
@@ -68,7 +68,7 @@ class KeywordToCategoryController extends Controller
     {
         $this->validate($request, [
             'keyword' => 'required',
-            'category' => 'required'
+            'category' => 'required',
         ]);
 
         $catAndCatType = $this->getCategoryWIthData($request->get('category'));
@@ -80,7 +80,6 @@ class KeywordToCategoryController extends Controller
         $keyword->save();
 
         return redirect()->back()->with('message', 'Keyword added successfully!');
-
     }
 
     /**

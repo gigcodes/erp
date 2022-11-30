@@ -10,6 +10,6 @@ class HubstaffTask extends Model
         'hubstaff_task_id',
         'project_id',
         'hubstaff_project_id',
-        'summary'
+        'summary',
     ];
 }

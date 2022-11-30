@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateOldTableAddColumnAccountName extends Migration
 {
@@ -13,7 +12,7 @@ class UpdateOldTableAddColumnAccountName extends Migration
      */
     public function up()
     {
-        Schema::table('old',function($table){
+        Schema::table('old', function ($table) {
             $table->string('account_name')->nullable()->after('gst');
         });
     }
@@ -25,7 +24,7 @@ class UpdateOldTableAddColumnAccountName extends Migration
      */
     public function down()
     {
-        Schema::table('old',function($table){
+        Schema::table('old', function ($table) {
             $table->dropIfExists('account_name');
         });
     }

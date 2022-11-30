@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\Products;
 
-use App\Product;
-use App\Helpers\StatusHelper;
 use App\Helpers\QueryHelper;
+use App\Helpers\StatusHelper;
+use App\Http\Controllers\Controller;
+use App\Product;
 use File;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class ProductEnhancementController extends Controller
@@ -23,7 +22,6 @@ class ProductEnhancementController extends Controller
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
      * )
-     *
      */
     public function index()
     {
@@ -41,7 +39,7 @@ class ProductEnhancementController extends Controller
         // Do we have a result
         if ($product == null) {
             return response()->json([
-                'error' => 'No images to enhance'
+                'error' => 'No images to enhance',
             ], 400);
         }
 
@@ -62,7 +60,7 @@ class ProductEnhancementController extends Controller
 
         return response()->json([
             'id' => $product->id,
-            'images' => $productImageUrls
+            'images' => $productImageUrls,
         ]);
     }
 
@@ -78,24 +76,23 @@ class ProductEnhancementController extends Controller
      *      @SWG\Parameter(
      *          name="images[]",
      *          in="formData",
-     *          required=true, 
-     *          type="file" 
+     *          required=true,
+     *          type="file"
      *      ),
      *      @SWG\Parameter(
      *          name="id",
      *          in="formData",
-     *          required=true, 
-     *          type="integer" 
+     *          required=true,
+     *          type="integer"
      *      ),
      * )
-     *
      */
     public function store(Request $request)
     {
         // Vaidate the request
         $this->validate($request, [
             'images' => 'required',
-            'id' => 'required'
+            'id' => 'required',
         ]);
 
         // Find product
@@ -103,17 +100,19 @@ class ProductEnhancementController extends Controller
 
         // No product found
         if ($product == null) {
-            \Log::channel('productUpdates')->debug("Product " . $product->id . " not found");
+            \Log::channel('productUpdates')->debug('Product '.$product->id.' not found');
+
             return response()->json([
-                'error' => 'Product is not found'
+                'error' => 'Product is not found',
             ], 400);
         }
 
         // Check if product is being enhanced
         if ($product->status_id != StatusHelper::$isBeingEnhanced) {
-            \Log::channel('productUpdates')->debug("Received enhanced files for " . $product->id . " but the status is not " . StatusHelper::$isBeingEnhanced . " but " . $product->status_id);
+            \Log::channel('productUpdates')->debug('Received enhanced files for '.$product->id.' but the status is not '.StatusHelper::$isBeingEnhanced.' but '.$product->status_id);
+
             return response()->json([
-                'error' => 'Product is not being enhanced'
+                'error' => 'Product is not being enhanced',
             ], 400);
         }
 
@@ -126,7 +125,7 @@ class ProductEnhancementController extends Controller
             $this->deleteCroppedImages($product);
 
             // Loop over files
-            foreach ($files[ 'images' ] as $file) {
+            foreach ($files['images'] as $file) {
                 // Upload media
                 $media = MediaUploader::fromSource($file)
                                         ->useFilename(uniqid('cropped_', true))
@@ -140,18 +139,18 @@ class ProductEnhancementController extends Controller
 
         // Update status
         //check final approval
-        if($product->checkPriceRange()){
+        if ($product->checkPriceRange()) {
             $product->status_id = StatusHelper::$finalApproval;
-        }else{
+        } else {
             $product->status_id = StatusHelper::$priceCheck;
         }
-       // $product->status_id = StatusHelper::$finalApproval;
+        // $product->status_id = StatusHelper::$finalApproval;
         $product->is_enhanced = 1;
         $product->save();
 
         // Return success
         return response()->json([
-            'status' => 'success'
+            'status' => 'success',
         ]);
     }
 
@@ -165,7 +164,6 @@ class ProductEnhancementController extends Controller
                     try {
                         File::delete($image_path);
                     } catch (\Exception $exception) {
-
                     }
                 }
                 try {

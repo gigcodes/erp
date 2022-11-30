@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateSubjectsTable extends Migration
 {
@@ -17,7 +17,7 @@ class CreateSubjectsTable extends Migration
             $table->increments('id');
             $table->string('title')->nullable();
             $table->unsignedInteger('checklist_id');
-            // $table->foreign('checklist_id')->references('id')->on('checklist')->onDelete('cascade');	
+            // $table->foreign('checklist_id')->references('id')->on('checklist')->onDelete('cascade');
             $table->timestamps();
         });
     }

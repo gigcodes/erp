@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateScrapInde132156xTable extends Migration
 {
@@ -13,8 +13,7 @@ class CreateScrapInde132156xTable extends Migration
      */
     public function up()
     {
-        Schema::table('scrapers', function(Blueprint $table)
-        {
+        Schema::table('scrapers', function (Blueprint $table) {
             //$table->index('supplier_id');
             //$table->index('scraper_name');
             //$table->index('scraper_priority');
@@ -29,8 +28,7 @@ class CreateScrapInde132156xTable extends Migration
      */
     public function down()
     {
-        Schema::table('scrapers', function (Blueprint $table)
-        {
+        Schema::table('scrapers', function (Blueprint $table) {
             //$table->dropIndex(['supplier_id','scraper_name','scraper_priority','scraper_name']);
         });
     }

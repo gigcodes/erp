@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTableScrapedProductMissingLog extends Migration
 {
@@ -15,9 +15,9 @@ class CreateTableScrapedProductMissingLog extends Migration
     {
         Schema::create('scraped_product_missing_log', function (Blueprint $table) {
             $table->increments('id');
-	    $table->string('website')->nullable();
-	    $table->string('supplier')->nullable();
-	    $table->integer('total_product')->default(0);
+            $table->string('website')->nullable();
+            $table->string('supplier')->nullable();
+            $table->integer('total_product')->default(0);
             $table->integer('missing_category')->default(0);
             $table->integer('missing_color')->default(0);
             $table->integer('missing_composition')->default(0);

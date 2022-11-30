@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Scraper;
 use App\ScrapRemark;
 use Carbon\Carbon;
@@ -43,14 +42,14 @@ class ScraperNotCompletedAlert extends Command
     {
         try {
             $scrapers = Scraper::whereNull('last_completed_at')
-                            ->orWhere('last_completed_at', '<', 
+                            ->orWhere('last_completed_at', '<',
                                 Carbon::now()->subHours(30)->toDateTimeString()
                             )->get();
-            if(count($scrapers)) {
-                foreach($scrapers as $key => $item) {
+            if (count($scrapers)) {
+                foreach ($scrapers as $key => $item) {
                     $remark_entry = ScrapRemark::create([
                         'scraper_name' => $item->scraper_name,
-                        'remark' => "Scraper not completed",
+                        'remark' => 'Scraper not completed',
                     ]);
                 }
             }

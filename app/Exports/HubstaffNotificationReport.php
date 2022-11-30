@@ -2,49 +2,39 @@
 
 namespace App\Exports;
 
-use App\Customer;
-use App\DeveloperTask;
-use App\User;
-use App\Task;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Events\AfterSheet;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
-use App\DeveloperTaskHistory;
 
 class HubstaffNotificationReport implements FromArray, ShouldAutoSize, WithHeadings
 {
-  protected $lists;
+    protected $lists;
 
-  public function __construct(array $lists)
-  {
-    $this->lists = $lists;
-
-  }
-
-    /**
-    * @return \Illuminate\Support\Collection
-    */
-    public function array(): array
+    public function __construct(array $lists)
     {
-
-      return $this->lists;
+        $this->lists = $lists;
     }
 
-    public function headings() : array
-    {
-        return [
-            'User Name',
-            'Start Date',
-            'Daily Working_hour',
-            'Total Working_hour',
-            'Different',
-            'Min Percentage',
-            'Actual Percentage',
-            'Reason',
-            'Status',
-        ];
-    }
+      /**
+       * @return \Illuminate\Support\Collection
+       */
+      public function array(): array
+      {
+          return $this->lists;
+      }
+
+      public function headings(): array
+      {
+          return [
+              'User Name',
+              'Start Date',
+              'Daily Working_hour',
+              'Total Working_hour',
+              'Different',
+              'Min Percentage',
+              'Actual Percentage',
+              'Reason',
+              'Status',
+          ];
+      }
 }

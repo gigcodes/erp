@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     /**
@@ -36,7 +37,6 @@ return [
     'reset' => 'リセット',
     'remove' => '削除',
     'add' => '追加',
-
 
     /**
      * Misc

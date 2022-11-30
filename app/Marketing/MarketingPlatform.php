@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class MarketingPlatform extends Model
 {
-     protected $fillable = ['name'];
+    protected $fillable = ['name'];
 }

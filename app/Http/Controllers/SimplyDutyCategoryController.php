@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Setting;
 use App\SimplyDutyCategory;
 use Illuminate\Http\Request;
-use App\Setting;
 use Response;
 
 class SimplyDutyCategoryController extends Controller
@@ -16,28 +16,28 @@ class SimplyDutyCategoryController extends Controller
      */
     public function index(Request $request)
     {
-        if($request->code || $request->description){
-           $query = SimplyDutyCategory::query();
+        if ($request->code || $request->description) {
+            $query = SimplyDutyCategory::query();
 
-            if(request('code') != null){
+            if (request('code') != null) {
                 $query->where('code', request('code'));
             }
-            if(request('description') != null){
-                $query->where('description','LIKE', "%{$request->description}%");
+            if (request('description') != null) {
+                $query->where('description', 'LIKE', "%{$request->description}%");
             }
             $categories = $query->paginate(Setting::get('pagination'));
-        }else{
+        } else {
             $categories = SimplyDutyCategory::paginate(Setting::get('pagination'));
         }
-        
-         if ($request->ajax()) {
+
+        if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('simplyduty.category.partials.data', compact('categories'))->render(),
-                'links' => (string)$categories->render()
+                'links' => (string) $categories->render(),
             ], 200);
-            }
+        }
 
-        return view('simplyduty.category.index',compact('categories'));
+        return view('simplyduty.category.index', compact('categories'));
     }
 
     /**
@@ -106,13 +106,12 @@ class SimplyDutyCategoryController extends Controller
         //
     }
 
-    public function getCategoryFromApi(){
-        
-
+    public function getCategoryFromApi()
+    {
         $ch = curl_init();
 
         // set url
-        curl_setopt($ch, CURLOPT_URL, "https://www.api.simplyduty.com/api/Supporting/categories");
+        curl_setopt($ch, CURLOPT_URL, 'https://www.api.simplyduty.com/api/Supporting/categories');
 
         //return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -121,26 +120,23 @@ class SimplyDutyCategoryController extends Controller
         $output = curl_exec($ch);
 
         // close curl resource to free up system resources
-        curl_close($ch); 
+        curl_close($ch);
 
         $categories = json_decode($output);
-        foreach($categories as $category){
+        foreach ($categories as $category) {
             $code = $category->Code;
             $description = $category->Description;
-            $cat =  SimplyDutyCategory::where('code',$code)->where('description',$description)->first();
-            if($cat != '' && $cat != null){
+            $cat = SimplyDutyCategory::where('code', $code)->where('description', $description)->first();
+            if ($cat != '' && $cat != null) {
                 $cat->touch();
-            }else{
+            } else {
                 $category = new SimplyDutyCategory;
                 $category->code = $code;
                 $category->description = $description;
                 $category->save();
-                
             }
         }
 
-        return Response::json(array('success' => true)); 
-        
-        
+        return Response::json(['success' => true]);
     }
 }

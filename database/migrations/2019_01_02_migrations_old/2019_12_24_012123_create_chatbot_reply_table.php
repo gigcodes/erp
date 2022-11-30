@@ -5,7 +5,6 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateChatbotReplyTable extends Migration
 {
-
     /**
      * Run the migrations.
      *
@@ -31,5 +30,4 @@ class CreateChatbotReplyTable extends Migration
     {
         Schema::drop('chatbot_replies');
     }
-
 }

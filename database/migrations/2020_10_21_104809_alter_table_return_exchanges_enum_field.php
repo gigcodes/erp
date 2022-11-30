@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AlterTableReturnExchangesEnumField extends Migration
@@ -14,7 +12,6 @@ class AlterTableReturnExchangesEnumField extends Migration
     public function up()
     {
         \DB::statement("ALTER TABLE return_exchanges MODIFY type ENUM('refund','exchange','buyback','return')");
-
     }
 
     /**

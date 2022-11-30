@@ -1,9 +1,9 @@
 <?php
 
+use App\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-use App\User;
 
 class UserTableSeeder extends Seeder
 {
@@ -93,7 +93,7 @@ class UserTableSeeder extends Seeder
             'old-incoming',
             'blogger-all',
             'mailchimp',
-            'hubstaff'
+            'hubstaff',
         ];
 
         foreach ($permissions as $perms) {
@@ -109,7 +109,7 @@ class UserTableSeeder extends Seeder
             if ($role->name == 'Admin') {
                 // assign all permissions
                 //$role->syncPermissions(Permission::all());
-                $role->syncPermissions(Permission::where('guard_name','!=','')->get());
+                $role->syncPermissions(Permission::where('guard_name', '!=', '')->get());
                 $this->command->info('Admin granted all the permissions');
             } else {
                 // for others by default only read access
@@ -120,7 +120,7 @@ class UserTableSeeder extends Seeder
             $this->createUser($role);
         }
 
-        $this->command->info('Roles ' . $input_roles . ' added successfully');
+        $this->command->info('Roles '.$input_roles.' added successfully');
         $this->createUser('Admin');
     }
 
@@ -134,10 +134,10 @@ class UserTableSeeder extends Seeder
         $user = factory(User::class)->create();
         $user->assignRole('Admin');
 
-// if( $role->name == 'Admin' ) {
+        // if( $role->name == 'Admin' ) {
         $this->command->info('Here is your admin details to login:');
         $this->command->warn($user->email);
         $this->command->warn('Password is "secret"');
-// }
+        // }
     }
 }

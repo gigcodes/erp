@@ -2,10 +2,10 @@
 
 namespace Modules\BookStack\Http\Controllers\Images;
 
-use Modules\BookStack\Exceptions\ImageUploadException;
-use Modules\BookStack\Uploads\ImageRepo;
 use Illuminate\Http\Request;
+use Modules\BookStack\Exceptions\ImageUploadException;
 use Modules\BookStack\Http\Controllers\Controller;
+use Modules\BookStack\Uploads\ImageRepo;
 
 class GalleryImageController extends Controller
 {
@@ -13,7 +13,8 @@ class GalleryImageController extends Controller
 
     /**
      * GalleryImageController constructor.
-     * @param ImageRepo $imageRepo
+     *
+     * @param  ImageRepo  $imageRepo
      */
     public function __construct(ImageRepo $imageRepo)
     {
@@ -24,7 +25,8 @@ class GalleryImageController extends Controller
     /**
      * Get a list of gallery images, in a list.
      * Can be paged and filtered by entity.
-     * @param Request $request
+     *
+     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function list(Request $request)
@@ -35,20 +37,23 @@ class GalleryImageController extends Controller
         $parentTypeFilter = $request->get('filter_type', null);
 
         $imgData = $this->imageRepo->getEntityFiltered('gallery', $parentTypeFilter, $page, 24, $uploadedToFilter, $searchTerm);
+
         return response()->json($imgData);
     }
 
     /**
      * Store a new gallery image in the system.
-     * @param Request $request
+     *
+     * @param  Request  $request
      * @return Illuminate\Http\JsonResponse
+     *
      * @throws \Exception
      */
     public function create(Request $request)
     {
         $this->checkPermission('image-create-all');
         $this->validate($request, [
-            'file' => $this->imageRepo->getImageValidationRules()
+            'file' => $this->imageRepo->getImageValidationRules(),
         ]);
 
         try {

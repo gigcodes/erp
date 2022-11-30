@@ -37,7 +37,7 @@ class DeveloperMessagesAlertSchedulesController extends Controller
     {
         $schedile = DeveloperMessagesAlertSchedules::first();
 
-        if (!$schedile) {
+        if (! $schedile) {
             $schedile = new DeveloperMessagesAlertSchedules();
         }
 

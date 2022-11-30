@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use \Plank\Mediable\Media;
 use App\Helpers\CompareImagesHelper;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Plank\Mediable\Media;
 
 class AddBitsToMediaTable extends Command
 {
@@ -40,42 +40,39 @@ class AddBitsToMediaTable extends Command
      */
     public function handle()
     {
-        DB::table('media')->whereNull('bits')->where('directory', 'like', '%product/%')->orderBy('id')->chunk(100, function($medias)
-        {
-            foreach ($medias as $m)
-            {
-
-                if(! DB::table('mediables')->where('media_id', $m->id)->first()){
-                    dump('skip => mediable not exist' . $m->id);
+        DB::table('media')->whereNull('bits')->where('directory', 'like', '%product/%')->orderBy('id')->chunk(100, function ($medias) {
+            foreach ($medias as $m) {
+                if (! DB::table('mediables')->where('media_id', $m->id)->first()) {
+                    dump('skip => mediable not exist'.$m->id);
                     Media::where('id', $m->id)->update([
-                        'bits' => 1
+                        'bits' => 1,
                     ]);
+
                     continue;
                 }
-                $a = 'https://erp.theluxuryunlimited.com/' . $m->disk . '/' . $m->directory . '/' . $m->filename . '.' . $m->extension;
-                if (!@file_get_contents($a)) {
-                    dump('skip => ' . $a);
+                $a = 'https://erp.theluxuryunlimited.com/'.$m->disk.'/'.$m->directory.'/'.$m->filename.'.'.$m->extension;
+                if (! @file_get_contents($a)) {
+                    dump('skip => '.$a);
                     Media::where('id', $m->id)->update([
-                        'bits' => 0
+                        'bits' => 0,
                     ]);
+
                     continue;
                 }
                 $i1 = CompareImagesHelper::createImage($a);
-                
-                $i1 = CompareImagesHelper::resizeImage($i1,$a);
-                
+
+                $i1 = CompareImagesHelper::resizeImage($i1, $a);
+
                 imagefilter($i1, IMG_FILTER_GRAYSCALE);
-                
+
                 $colorMean1 = CompareImagesHelper::colorMeanValue($i1);
-                
+
                 $bits1 = CompareImagesHelper::bits($colorMean1);
-    
+
                 Media::where('id', $m->id)->update([
-                    'bits' => implode($bits1) 
+                    'bits' => implode($bits1),
                 ]);
             }
         });
- 
-
     }
 }

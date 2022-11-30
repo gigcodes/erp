@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AlterLogScraperAddOriginalSku extends Migration
 {
@@ -13,9 +12,9 @@ class AlterLogScraperAddOriginalSku extends Migration
      */
     public function up()
     {
-        Schema::table( 'log_scraper', function ( $table ) {
-            $table->text( 'original_sku' )->nullable()->after( 'sku' );
-        } );
+        Schema::table('log_scraper', function ($table) {
+            $table->text('original_sku')->nullable()->after('sku');
+        });
     }
 
     /**
@@ -25,8 +24,8 @@ class AlterLogScraperAddOriginalSku extends Migration
      */
     public function down()
     {
-        Schema::table( 'log_scraper', function ( $table ) {
-            $table->dropColumn( 'original_sku' );
-        } );
+        Schema::table('log_scraper', function ($table) {
+            $table->dropColumn('original_sku');
+        });
     }
 }

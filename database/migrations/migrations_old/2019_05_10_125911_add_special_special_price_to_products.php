@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddSpecialSpecialPriceToProducts extends Migration
 {
@@ -14,7 +14,7 @@ class AddSpecialSpecialPriceToProducts extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-          $table->string('price_special_offer')->nullable()->after('price_special');
+            $table->string('price_special_offer')->nullable()->after('price_special');
         });
     }
 
@@ -26,7 +26,7 @@ class AddSpecialSpecialPriceToProducts extends Migration
     public function down()
     {
         Schema::table('products', function (Blueprint $table) {
-          $table->dropColumn('price_special_offer');
+            $table->dropColumn('price_special_offer');
         });
     }
 }

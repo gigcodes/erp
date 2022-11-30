@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\ProductLocation;
 use Illuminate\Http\Request;
-use \App\ProductLocation;
 
 class ProductLocationController extends Controller
 {
@@ -41,12 +41,11 @@ class ProductLocationController extends Controller
             'name' => 'required',
         ]);
 
-        $productLocation       = new ProductLocation();
+        $productLocation = new ProductLocation();
         $productLocation->name = $request->get('name');
         $productLocation->save();
 
         return redirect()->back()->with('message', 'Location added successfully!');
-
     }
 
     /**
@@ -64,5 +63,4 @@ class ProductLocationController extends Controller
 
         return redirect()->back()->with('message', 'Location deleted successfully!');
     }
-
 }

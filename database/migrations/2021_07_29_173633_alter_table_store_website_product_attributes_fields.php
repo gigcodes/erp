@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableStoreWebsiteProductAttributesFields extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableStoreWebsiteProductAttributesFields extends Migration
     public function up()
     {
         //
-        Schema::table("store_website_product_attributes",function(Blueprint $table) {
-            $table->timestamp("uploaded_date")->default("0000-00-00 00:00:00")->after("store_website_id");
+        Schema::table('store_website_product_attributes', function (Blueprint $table) {
+            $table->timestamp('uploaded_date')->default('0000-00-00 00:00:00')->after('store_website_id');
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableStoreWebsiteProductAttributesFields extends Migration
     public function down()
     {
         //
-        Schema::table("store_website_product_attributes",function(Blueprint $table) {
-            $table->dropField("uploaded_date");
+        Schema::table('store_website_product_attributes', function (Blueprint $table) {
+            $table->dropField('uploaded_date');
         });
     }
 }

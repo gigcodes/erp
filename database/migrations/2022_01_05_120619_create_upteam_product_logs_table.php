@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateUpteamProductLogsTable extends Migration
 {
@@ -15,7 +15,7 @@ class CreateUpteamProductLogsTable extends Migration
     {
         Schema::create('upteam_product_logs', function (Blueprint $table) {
             $table->increments('id');
-			$table->longText('log_description');
+            $table->longText('log_description');
             $table->timestamps();
         });
     }

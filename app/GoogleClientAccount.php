@@ -8,8 +8,8 @@ class GoogleClientAccount extends Model
 {
     protected $guarded = [];
 
-    public function mails(){
+    public function mails()
+    {
         return $this->hasMany(GoogleClientAccountMail::class, 'google_client_account_id', 'id');
     }
- 
 }

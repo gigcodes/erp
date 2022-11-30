@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTwilioMessageToneTable extends Migration
 {
@@ -15,9 +15,9 @@ class CreateTwilioMessageToneTable extends Migration
     {
         Schema::create('twilio_message_tones', function (Blueprint $table) {
             $table->increments('id');
-			$table->integer('store_website_id')->nullable();
-			$table->string('end_work_ring')->nullable();
-			$table->string('intro_ring')->nullable();
+            $table->integer('store_website_id')->nullable();
+            $table->string('end_work_ring')->nullable();
+            $table->string('intro_ring')->nullable();
             $table->string('busy_ring')->nullable();
             $table->timestamps();
         });

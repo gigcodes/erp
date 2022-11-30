@@ -14,8 +14,8 @@ class AlterTableProductsSuggestedColorField extends Migration
     public function up()
     {
         //
-        Schema::table("products", function (Blueprint $table) {
-            $table->string("suggested_color")->nullable()->after("color");
+        Schema::table('products', function (Blueprint $table) {
+            $table->string('suggested_color')->nullable()->after('color');
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableProductsSuggestedColorField extends Migration
     public function down()
     {
         //
-        Schema::table("products", function (Blueprint $a) {
-            $table->dropField("suggested_color");
+        Schema::table('products', function (Blueprint $a) {
+            $table->dropField('suggested_color');
         });
     }
 }

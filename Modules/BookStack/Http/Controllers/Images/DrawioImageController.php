@@ -2,10 +2,10 @@
 
 namespace Modules\BookStack\Http\Controllers\Images;
 
-use Modules\BookStack\Exceptions\ImageUploadException;
-use Modules\BookStack\Uploads\ImageRepo;
 use Illuminate\Http\Request;
+use Modules\BookStack\Exceptions\ImageUploadException;
 use Modules\BookStack\Http\Controllers\Controller;
+use Modules\BookStack\Uploads\ImageRepo;
 
 class DrawioImageController extends Controller
 {
@@ -13,7 +13,8 @@ class DrawioImageController extends Controller
 
     /**
      * DrawioImageController constructor.
-     * @param ImageRepo $imageRepo
+     *
+     * @param  ImageRepo  $imageRepo
      */
     public function __construct(ImageRepo $imageRepo)
     {
@@ -24,7 +25,8 @@ class DrawioImageController extends Controller
     /**
      * Get a list of gallery images, in a list.
      * Can be paged and filtered by entity.
-     * @param Request $request
+     *
+     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function list(Request $request)
@@ -35,20 +37,23 @@ class DrawioImageController extends Controller
         $parentTypeFilter = $request->get('filter_type', null);
 
         $imgData = $this->imageRepo->getEntityFiltered('drawio', $parentTypeFilter, $page, 24, $uploadedToFilter, $searchTerm);
+
         return response()->json($imgData);
     }
 
     /**
      * Store a new gallery image in the system.
-     * @param Request $request
+     *
+     * @param  Request  $request
      * @return Illuminate\Http\JsonResponse
+     *
      * @throws \Exception
      */
     public function create(Request $request)
     {
         $this->validate($request, [
             'image' => 'required|string',
-            'uploaded_to' => 'required|integer'
+            'uploaded_to' => 'required|integer',
         ]);
 
         $this->checkPermission('image-create-all');
@@ -66,6 +71,7 @@ class DrawioImageController extends Controller
 
     /**
      * Get the content of an image based64 encoded.
+     *
      * @param $id
      * @return \Illuminate\Http\JsonResponse|mixed
      */
@@ -73,16 +79,17 @@ class DrawioImageController extends Controller
     {
         $image = $this->imageRepo->getById($id);
         $page = $image->getPage();
-        if ($image === null || $image->type !== 'drawio' || !userCan('page-view', $page)) {
-            return $this->jsonError("Image data could not be found");
+        if ($image === null || $image->type !== 'drawio' || ! userCan('page-view', $page)) {
+            return $this->jsonError('Image data could not be found');
         }
 
         $imageData = $this->imageRepo->getImageData($image);
         if ($imageData === null) {
-            return $this->jsonError("Image data could not be found");
+            return $this->jsonError('Image data could not be found');
         }
+
         return response()->json([
-            'content' => base64_encode($imageData)
+            'content' => base64_encode($imageData),
         ]);
     }
 }

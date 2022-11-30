@@ -39,31 +39,31 @@ class RefreshCurrencies extends Command
      */
     public function handle()
     {
-
         $fixerApiKey = env('FIXER_API_KEY');
 
-        if (!isset($fixerApiKey)) {
+        if (! isset($fixerApiKey)) {
             echo 'FIXER_API_KEY not set in env';
+
             return;
         }
 
         //
         $client = new Client;
-        $url = 'http://data.fixer.io/api/latest?base=EUR&access_key=' . $fixerApiKey;
+        $url = 'http://data.fixer.io/api/latest?base=EUR&access_key='.$fixerApiKey;
 
         $response = $client->get($url);
 
         $responseJson = json_decode($response->getBody()->getContents());
 
-        $currencies = json_decode(json_encode($responseJson->rates), TRUE);
+        $currencies = json_decode(json_encode($responseJson->rates), true);
 
         foreach ($currencies as $symbol => $rate) {
             Currency::updateOrCreate(
                 [
-                    'code' => $symbol
+                    'code' => $symbol,
                 ],
                 [
-                    'rate' => $rate
+                    'rate' => $rate,
                 ]
             );
         }

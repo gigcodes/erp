@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddProformaDetailsToPurchase extends Migration
 {
@@ -14,8 +14,8 @@ class AddProformaDetailsToPurchase extends Migration
     public function up()
     {
         Schema::table('purchases', function (Blueprint $table) {
-          $table->string('proforma_id')->nullable()->after('proforma_confirmed');
-          $table->datetime('proforma_date')->nullable()->after('proforma_id');
+            $table->string('proforma_id')->nullable()->after('proforma_confirmed');
+            $table->datetime('proforma_date')->nullable()->after('proforma_id');
         });
     }
 
@@ -27,8 +27,8 @@ class AddProformaDetailsToPurchase extends Migration
     public function down()
     {
         Schema::table('purchases', function (Blueprint $table) {
-          $table->dropColumn('proforma_id');
-          $table->dropColumn('proforma_date');
+            $table->dropColumn('proforma_id');
+            $table->dropColumn('proforma_date');
         });
     }
 }

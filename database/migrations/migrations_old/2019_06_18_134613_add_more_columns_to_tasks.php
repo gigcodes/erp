@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddMoreColumnsToTasks extends Migration
 {
@@ -14,9 +14,9 @@ class AddMoreColumnsToTasks extends Migration
     public function up()
     {
         Schema::table('tasks', function (Blueprint $table) {
-          $table->string('time_slot')->nullable()->after('sending_time');
-          $table->date('planned_at')->nullable()->after('time_slot');
-          $table->integer('pending_for')->default(0)->after('planned_at');
+            $table->string('time_slot')->nullable()->after('sending_time');
+            $table->date('planned_at')->nullable()->after('time_slot');
+            $table->integer('pending_for')->default(0)->after('planned_at');
         });
     }
 
@@ -28,9 +28,9 @@ class AddMoreColumnsToTasks extends Migration
     public function down()
     {
         Schema::table('tasks', function (Blueprint $table) {
-          $table->dropColumn('time_slot');
-          $table->dropColumn('planned_at');
-          $table->dropColumn('pending_for');
+            $table->dropColumn('time_slot');
+            $table->dropColumn('planned_at');
+            $table->dropColumn('pending_for');
         });
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\ErpEvents;
 use Cron\CronExpression;
 use Illuminate\Console\Command;
 
@@ -41,12 +40,12 @@ class UpdateCronSchedule extends Command
     {
         // disable all events which is past if still active
         try {
-            $dateToday = date("Y-m-d H:i:s");
-            \DB::table('erp_events')->where('end_date', '<=', $dateToday)->where("is_closed", 0)->update(array('is_closed' => 1));
+            $dateToday = date('Y-m-d H:i:s');
+            \DB::table('erp_events')->where('end_date', '<=', $dateToday)->where('is_closed', 0)->update(['is_closed' => 1]);
 
-            $events = \App\ErpEvents::where("is_closed", 0)->get();
+            $events = \App\ErpEvents::where('is_closed', 0)->get();
 
-            if (!$events->isEmpty()) {
+            if (! $events->isEmpty()) {
                 foreach ($events as $event) {
                     try {
                         $cron = CronExpression::factory("$event->minute $event->hour $event->day_of_month $event->month $event->day_of_week");

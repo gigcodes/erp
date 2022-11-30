@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateDatabaseTableHistoricalRecords extends Migration
 {
@@ -13,8 +13,7 @@ class CreateDatabaseTableHistoricalRecords extends Migration
      */
     public function up()
     {
-        
-        if(!Schema::hasTable('database_table_historical_records')){
+        if (! Schema::hasTable('database_table_historical_records')) {
             Schema::create('database_table_historical_records', function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('database_name');
@@ -24,7 +23,6 @@ class CreateDatabaseTableHistoricalRecords extends Migration
                 $table->timestamps();
             });
         }
-
     }
 
     /**

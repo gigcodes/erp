@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddColumnScraperImagesTable extends Migration
 {
@@ -13,7 +13,7 @@ class AddColumnScraperImagesTable extends Migration
      */
     public function up()
     {
-        Schema::table('scraper_imags',function($table){
+        Schema::table('scraper_imags', function ($table) {
             $table->longText('coordinates')->nullable();
             $table->integer('height')->nullable();
             $table->integer('width')->nullable();
@@ -28,7 +28,7 @@ class AddColumnScraperImagesTable extends Migration
     public function down()
     {
         //
-        Schema::table('scraper_imags',function(Blueprint $table) {
+        Schema::table('scraper_imags', function (Blueprint $table) {
             $table->dropField('coordinates');
             $table->dropField('height');
             $table->dropField('width');

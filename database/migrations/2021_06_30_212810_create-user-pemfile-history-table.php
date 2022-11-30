@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateUserPemfileHistoryTable extends Migration
 {
@@ -20,7 +20,7 @@ class CreateUserPemfileHistoryTable extends Migration
             $table->string('username')->nullable();
             $table->string('action')->nullable()->comment('add,delete');
             $table->string('created_by');
-             $table->text('extra')->nullable();
+            $table->text('extra')->nullable();
             $table->timestamps();
         });
     }

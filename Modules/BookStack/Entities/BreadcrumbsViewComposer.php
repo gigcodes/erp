@@ -1,15 +1,17 @@
-<?php namespace Modules\BookStack\Entities;
+<?php
+
+namespace Modules\BookStack\Entities;
 
 use Illuminate\View\View;
 
 class BreadcrumbsViewComposer
 {
-
     protected $entityContextManager;
 
     /**
      * BreadcrumbsViewComposer constructor.
-     * @param EntityContextManager $entityContextManager
+     *
+     * @param  EntityContextManager  $entityContextManager
      */
     public function __construct(EntityContextManager $entityContextManager)
     {
@@ -18,7 +20,8 @@ class BreadcrumbsViewComposer
 
     /**
      * Modify data when the view is composed.
-     * @param View $view
+     *
+     * @param  View  $view
      */
     public function compose(View $view)
     {

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIsAutoFixToScrappedCategoryMappings extends Migration
 {
@@ -25,10 +25,8 @@ class AddIsAutoFixToScrappedCategoryMappings extends Migration
      */
     public function down()
     {
-
         Schema::table('scrapped_category_mappings', function (Blueprint $table) {
             $table->dropColumn('is_auto_fix');
         });
-
     }
 }

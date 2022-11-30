@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddStatusColumnToPrivateViewing extends Migration
 {
@@ -14,7 +14,7 @@ class AddStatusColumnToPrivateViewing extends Migration
     public function up()
     {
         Schema::table('private_views', function (Blueprint $table) {
-          $table->string('status')->nullable()->after('date');
+            $table->string('status')->nullable()->after('date');
         });
     }
 
@@ -26,7 +26,7 @@ class AddStatusColumnToPrivateViewing extends Migration
     public function down()
     {
         Schema::table('private_views', function (Blueprint $table) {
-          $table->dropColumn('status');
+            $table->dropColumn('status');
         });
     }
 }

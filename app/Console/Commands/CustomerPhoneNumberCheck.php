@@ -42,7 +42,7 @@ class CustomerPhoneNumberCheck extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             $type = $this->argument('type');
@@ -60,12 +60,11 @@ class CustomerPhoneNumberCheck extends Command
                     }
                     $result = InstantMessagingHelper::customerPhoneCheck($customer->phone, 0);
                     if ($result == false) {
-                        dump('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
+                        dump('Customer Name :'.$customer->name."\n Customer ID: ".$customer->id."\nPhone Number Not Valid:".$customer->phone."\n");
                     }
                 }
             } elseif ($type == 'run') {
                 foreach ($customers as $customer) {
-
                     if ($customer->phone == null) {
                         continue;
                     }
@@ -76,7 +75,7 @@ class CustomerPhoneNumberCheck extends Command
                     }
                     $result = InstantMessagingHelper::customerPhoneCheck($customer->phone, 1);
                     if ($result == false) {
-                        dump('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
+                        dump('Customer Name :'.$customer->name."\n Customer ID: ".$customer->id."\nPhone Number Not Valid:".$customer->phone."\n");
                     }
                 }
             } else {
@@ -86,6 +85,5 @@ class CustomerPhoneNumberCheck extends Command
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 }

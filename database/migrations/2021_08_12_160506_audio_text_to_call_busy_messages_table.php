@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AudioTextToCallBusyMessagesTable extends Migration
 {
@@ -14,7 +14,7 @@ class AudioTextToCallBusyMessagesTable extends Migration
     public function up()
     {
         Schema::table('call_busy_messages', function (Blueprint $table) {
-          $table->text('audio_text');
+            $table->text('audio_text');
         });
     }
 

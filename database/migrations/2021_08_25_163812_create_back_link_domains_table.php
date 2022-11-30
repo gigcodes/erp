@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateBackLinkDomainsTable extends Migration
 {
@@ -18,7 +18,7 @@ class CreateBackLinkDomainsTable extends Migration
             $table->text('store_website_id');
             $table->text('tool_id');
             $table->text('database');
-            $table->text('domain'); 
+            $table->text('domain');
             $table->text('domain_ascore');
             $table->text('backlinks_num');
             $table->timestamps();

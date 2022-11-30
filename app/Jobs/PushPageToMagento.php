@@ -8,14 +8,15 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use seo2websites\MagentoHelper\MagentoHelper;
-use App\StoreWebsitePage;
 
 class PushPageToMagento implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $page;
+
     public $tries = 5;
+
     public $backoff = 5;
 
     /**
@@ -36,55 +37,54 @@ class PushPageToMagento implements ShouldQueue
      */
     public function handle()
     {
-        try{
+        try {
             // Set time limit
             set_time_limit(0);
 
             // Load product and website
-            $page    = $this->page;
+            $page = $this->page;
             $website = $page->storeWebsite;
 
             if ($website) {
                 if ($website->website_source) {
-
                     // assign the stores  column
                     $fetchStores = \App\WebsiteStoreView::where('website_store_views.name', $page->name)
-                        ->join("website_stores as ws", "ws.id", "website_store_views.website_store_id")
-                        ->join("websites as w", "w.id", "ws.website_id")
-                        ->where("w.store_website_id", $page->store_website_id)
-                        ->select("website_store_views.*")
+                        ->join('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')
+                        ->join('websites as w', 'w.id', 'ws.website_id')
+                        ->where('w.store_website_id', $page->store_website_id)
+                        ->select('website_store_views.*')
                         ->get();
 
-                    $stores = array_filter(explode(",", $page->stores));
+                    $stores = array_filter(explode(',', $page->stores));
 
-                    if (!$fetchStores->isEmpty()) {
+                    if (! $fetchStores->isEmpty()) {
                         foreach ($fetchStores as $fetchStore) {
                             $stores[] = $fetchStore->code;
                         }
                     }
 
-                    $page->stores = implode(",", $stores);
+                    $page->stores = implode(',', $stores);
                     $page->save();
 
-                    $params         = [];
+                    $params = [];
                     $params['page'] = [
-                        "identifier"       => $page->url_key,
-                        "title"            => $page->title,
-                        "meta_title"       => $page->meta_title,
-                        "meta_keywords"    => $page->meta_keywords,
-                        "meta_description" => $page->meta_description,
-                        "content_heading"  => $page->content_heading,
-                        "content"          => $page->content,
-                        "active"           => $page->active,
-                        "platform_id"      => $page->platform_id,
-                        "page_id"          => $page->id,
+                        'identifier' => $page->url_key,
+                        'title' => $page->title,
+                        'meta_title' => $page->meta_title,
+                        'meta_keywords' => $page->meta_keywords,
+                        'meta_description' => $page->meta_description,
+                        'content_heading' => $page->content_heading,
+                        'content' => $page->content,
+                        'active' => $page->active,
+                        'platform_id' => $page->platform_id,
+                        'page_id' => $page->id,
                     ];
-                    
-                    if (!empty($stores)) {
+
+                    if (! empty($stores)) {
                         foreach ($stores as $s) {
                             $params['page']['store'] = $s;
                             $id = MagentoHelper::pushWebsitePage($params, $website);
-                            if(!empty($id) && is_numeric($id)) {
+                            if (! empty($id) && is_numeric($id)) {
                                 $page->platform_id = $id;
                                 $page->save();
                             }
@@ -97,8 +97,8 @@ class PushPageToMagento implements ShouldQueue
         }
     }
 
-    public function tags() 
+    public function tags()
     {
-        return [ 'PushCategorySeoToMagento', $this->category->id];
+        return ['PushCategorySeoToMagento', $this->category->id];
     }
 }

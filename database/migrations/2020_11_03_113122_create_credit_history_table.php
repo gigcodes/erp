@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateCreditHistoryTable extends Migration
 {
@@ -19,12 +19,11 @@ class CreateCreditHistoryTable extends Migration
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->integer('model_id')->nullable();
             $table->string('model_type')->nullable();
-            $table->decimal('used_credit',15,2)->nullable();
+            $table->decimal('used_credit', 15, 2)->nullable();
             $table->string('used_in')->comment('e.g. for order so value will be like ORDER');
             $table->string('type')->nullable()->comment('value added or minus so value will be ADD, MINUS');
             $table->timestamps();
         });
-        
     }
 
     /**

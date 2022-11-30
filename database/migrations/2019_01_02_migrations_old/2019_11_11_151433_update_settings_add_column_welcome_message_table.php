@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateSettingsAddColumnWelcomeMessageTable extends Migration
 {
@@ -13,7 +12,7 @@ class UpdateSettingsAddColumnWelcomeMessageTable extends Migration
      */
     public function up()
     {
-        Schema::table('settings', function($table){
+        Schema::table('settings', function ($table) {
             $table->text('welcome_message')->nullable();
         });
     }
@@ -25,7 +24,7 @@ class UpdateSettingsAddColumnWelcomeMessageTable extends Migration
      */
     public function down()
     {
-        Schema::table('settings', function($table){
+        Schema::table('settings', function ($table) {
             $table->dropColumn('welcome_message');
         });
     }

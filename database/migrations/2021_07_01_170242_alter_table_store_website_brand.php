@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableStoreWebsiteBrand extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableStoreWebsiteBrand extends Migration
     public function up()
     {
         //
-        Schema::table('store_website_brand_histories',function(Blueprint $table) {
-            $table->integer("created_by")->after('message')->nullable();
+        Schema::table('store_website_brand_histories', function (Blueprint $table) {
+            $table->integer('created_by')->after('message')->nullable();
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableStoreWebsiteBrand extends Migration
     public function down()
     {
         //
-        Schema::table('store_website_brand_histories',function(Blueprint $table) {
-            $table->dropField("created_by");
+        Schema::table('store_website_brand_histories', function (Blueprint $table) {
+            $table->dropField('created_by');
         });
     }
 }

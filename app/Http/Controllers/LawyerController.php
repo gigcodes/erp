@@ -16,15 +16,16 @@ class LawyerController extends Controller
 
     public function __construct()
     {
-       // $this->middleware('permission:lawyer-all');
+        // $this->middleware('permission:lawyer-all');
     }
 
     public function index(Lawyer $lawyer, Request $request)
     {
         $this->data['lawyers'] = $lawyer;
         $order_by = 'DESC';
-        if ($request->orderby == '')
+        if ($request->orderby == '') {
             $order_by = 'ASC';
+        }
 
         //TODO refactor search functionality...
         //use some searchable package..
@@ -33,10 +34,10 @@ class LawyerController extends Controller
             $term = $request->get('term');
             $this->data['term'] = $term;
             $this->data['lawyers'] = $this->data['lawyers']->where(function ($query) use ($term) {
-                $query->where('name', 'like', '%' . $term . '%')
-                    ->orWhere('email', 'like', '%' . $term . '%')
+                $query->where('name', 'like', '%'.$term.'%')
+                    ->orWhere('email', 'like', '%'.$term.'%')
                     ->orWhereHas('lawyerSpeciality', function ($speciality) use ($term) {
-                        $speciality->where('title', 'like', '%' . $term . '%');
+                        $speciality->where('title', 'like', '%'.$term.'%');
                     });
             });
         }
@@ -56,6 +57,7 @@ class LawyerController extends Controller
             $chat_message->select('id', 'message', 'lawyer_id', 'status')->orderBy('id', 'desc');
         }, 'lawyerSpeciality']);
         $this->data['lawyers'] = $this->data['lawyers']->paginate(50);
+
         return view('lawyer.index', $this->data);
     }
 
@@ -64,12 +66,14 @@ class LawyerController extends Controller
         $lawyer = new Lawyer($request->all());
         $lawyer->default_phone = $request->get('phone');
         $lawyer->save();
+
         return redirect()->route('lawyer.index')->withSuccess('You have successfully saved a lawyer!');
     }
 
     public function update(CreateLawyerRequest $request, Lawyer $lawyer)
     {
         $lawyer->fill($request->all())->save();
+
         return redirect()->route('lawyer.index')->withSuccess('You have successfully saved a lawyer!');
     }
 
@@ -86,6 +90,7 @@ class LawyerController extends Controller
     public function destroy(Lawyer $lawyer)
     {
         $lawyer->delete();
+
         return redirect()->route('lawyer.index')->withSuccess('You have successfully deleted a lawyer');
     }
 
@@ -93,6 +98,7 @@ class LawyerController extends Controller
     {
         $this->validate($request, ['title' => 'required']);
         LawyerSpeciality::create(['title' => $request->get('title')]);
+
         return redirect()->route('lawyer.index')->withSuccess('You have successfully created a lawyer speciality!');
     }
 }

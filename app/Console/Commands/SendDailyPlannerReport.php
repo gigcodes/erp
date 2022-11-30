@@ -46,11 +46,11 @@ class SendDailyPlannerReport extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $users_array   = [6, 7, 56];
+            $users_array = [6, 7, 56];
             $planned_tasks = Task::whereNotNull('time_slot')->where('planned_at', Carbon::now()->format('Y-m-d'))->whereNull('is_completed')->whereIn('assign_to', $users_array)->orderBy('time_slot', 'ASC')->get()->groupBy(['assign_to', 'time_slot']);
 
             $statutory = Task::where('is_statutory', 1)->whereNull('is_verified')->whereIn('assign_to', $users_array)->get()->groupBy('assign_to');
@@ -74,10 +74,10 @@ class SendDailyPlannerReport extends Command
             foreach ($statutory as $user_id => $tasks) {
                 foreach ($tasks as $task) {
                     $time_slots[$user_id]['08:00am - 10:00am'][] = [
-                        'activity'     => '',
+                        'activity' => '',
                         'task_subject' => $task->task_subject,
                         'task_details' => $task->task_details,
-                        'pending_for'  => $task->pending_for,
+                        'pending_for' => $task->pending_for,
                         'is_completed' => $task->is_completed,
                     ];
                 }
@@ -87,10 +87,10 @@ class SendDailyPlannerReport extends Command
                 foreach ($data as $time_slot => $items) {
                     foreach ($items as $task) {
                         $time_slots[$user_id][$time_slot][] = [
-                            'activity'     => '',
+                            'activity' => '',
                             'task_subject' => $task->task_subject,
                             'task_details' => $task->task_details,
-                            'pending_for'  => $task->pending_for,
+                            'pending_for' => $task->pending_for,
                             'is_completed' => $task->is_completed,
                         ];
                     }
@@ -101,10 +101,10 @@ class SendDailyPlannerReport extends Command
                 foreach ($data as $time_slot => $items) {
                     foreach ($items as $task) {
                         $time_slots[$user_id][$time_slot][] = [
-                            'activity'     => $task->activity,
+                            'activity' => $task->activity,
                             'task_subject' => '',
                             'task_details' => '',
-                            'pending_for'  => $task->pending_for,
+                            'pending_for' => $task->pending_for,
                             'is_completed' => $task->is_completed,
                         ];
                     }

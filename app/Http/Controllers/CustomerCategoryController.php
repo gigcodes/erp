@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Customer;
 use App\CustomerCategory;
 use Illuminate\Http\Request;
 
@@ -39,7 +38,7 @@ class CustomerCategoryController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|unique:customer_categories,name'
+            'name' => 'required|unique:customer_categories,name',
         ]);
 
         $category = new CustomerCategory();
@@ -71,7 +70,7 @@ class CustomerCategoryController extends Controller
     {
         $customerCategory = CustomerCategory::find($id);
 
-        if (!$customerCategory) {
+        if (! $customerCategory) {
             return redirect()->back()->with('message', 'The requested category is not available!');
         }
 
@@ -87,15 +86,14 @@ class CustomerCategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-
         $category = CustomerCategory::find($id);
 
-        if (!$category) {
+        if (! $category) {
             return redirect()->back()->with('message', 'The requested category is not available!');
         }
 
         $this->validate($request, [
-            'name' => 'required|unique:customer_categories,id,'.$id
+            'name' => 'required|unique:customer_categories,id,'.$id,
         ]);
 
         $category->name = $request->get('name');
@@ -103,8 +101,6 @@ class CustomerCategoryController extends Controller
         $category->save();
 
         return redirect()->back()->with('message', 'Category updated successfully!');
-
-
     }
 
     /**
@@ -117,7 +113,7 @@ class CustomerCategoryController extends Controller
     {
         $category = CustomerCategory::find($id);
 
-        if (!$category) {
+        if (! $category) {
             return redirect()->back()->with('message', 'The requested category is not available!');
         }
 

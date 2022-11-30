@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateChatbotQuestionsReplyTable extends Migration
 {
@@ -13,7 +13,7 @@ class CreateChatbotQuestionsReplyTable extends Migration
      */
     public function up()
     {
-        if(!Schema::hasTable('chatbot_questions_reply')){
+        if (! Schema::hasTable('chatbot_questions_reply')) {
             Schema::create('chatbot_questions_reply', function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('suggested_reply');

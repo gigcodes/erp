@@ -46,7 +46,7 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -66,30 +66,30 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
 
             foreach ($messagesIds as $messagesId) {
                 $customer = Customer::find($messagesId->customer_id);
-                if (!$customer) {
+                if (! $customer) {
                     continue;
                 }
 
                 $frequency = $customer->frequency;
-                if (!($frequency >= 5)) {
+                if (! ($frequency >= 5)) {
                     continue;
                 }
 
-                if($customer->reminder_from == "0000-00-00 00:00" || strtotime($customer->reminder_from) >= strtotime("now")) {
-                    dump('here' . $customer->name);
+                if ($customer->reminder_from == '0000-00-00 00:00' || strtotime($customer->reminder_from) >= strtotime('now')) {
+                    dump('here'.$customer->name);
                     $templateMessage = $customer->reminder_message;
-                    if($customer->reminder_last_reply == 0) {
+                    if ($customer->reminder_last_reply == 0) {
                         //sends messahe
                         $this->sendMessage($customer->id, $templateMessage);
-                    }else{
+                    } else {
                         // get the message if the interval is greater or equal to time which is set for this customer
-                        $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "' . $now . '") >= ' . $frequency)
+                        $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "'.$now.'") >= '.$frequency)
                             ->where('id', $messagesId->id)
                             ->where('user_id', '>', '0')
                             ->where('approved', '1')
                             ->first();
 
-                        if (!$message) {
+                        if (! $message) {
                             continue;
                         }
                         $this->sendMessage($customer->id, $templateMessage);
@@ -102,7 +102,6 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 
     /**
@@ -112,14 +111,13 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
      */
     private function sendMessage($customer, $message): void
     {
-
         $params = [
-            'number'      => null,
-            'user_id'     => 6,
-            'approved'    => 1,
-            'status'      => 1,
+            'number' => null,
+            'user_id' => 6,
+            'approved' => 1,
+            'status' => 1,
             'customer_id' => $customer,
-            'message'     => $message,
+            'message' => $message,
         ];
 
         $chat_message = ChatMessage::create($params);

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateOldTable extends Migration
 {
@@ -13,7 +13,6 @@ class UpdateOldTable extends Migration
      */
     public function up()
     {
-
         Schema::table('old', function (Blueprint $table) {
             DB::statement('ALTER TABLE `old` CHANGE `status` `status` VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;');
             DB::statement('ALTER TABLE `old` CHANGE `category_id` `category_id` INT(11) NULL;');

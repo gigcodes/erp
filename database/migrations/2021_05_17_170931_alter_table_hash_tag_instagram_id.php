@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableHashTagInstagramId extends Migration
 {
@@ -14,7 +14,7 @@ class AlterTableHashTagInstagramId extends Migration
     public function up()
     {
         //
-        Schema::table('hash_tags',function(Blueprint $table) {
+        Schema::table('hash_tags', function (Blueprint $table) {
             $table->integer('instagram_account_id')->nullable();
         });
     }
@@ -27,7 +27,7 @@ class AlterTableHashTagInstagramId extends Migration
     public function down()
     {
         //
-        Schema::table('hash_tags',function(Blueprint $table) {
+        Schema::table('hash_tags', function (Blueprint $table) {
             $table->dropField('instagram_account_id');
         });
     }

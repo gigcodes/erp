@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class RemoveIndexFromUniqueWaybill extends Migration
@@ -16,7 +14,6 @@ class RemoveIndexFromUniqueWaybill extends Migration
         //
         \DB::statement('ALTER TABLE waybills DROP INDEX order_id;');
         \DB::statement('ALTER TABLE `waybills` ADD INDEX(`order_id`);');
-
     }
 
     /**

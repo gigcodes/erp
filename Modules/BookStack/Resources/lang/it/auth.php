@@ -1,4 +1,5 @@
 <?php
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -42,7 +43,6 @@ return [
     'registration_email_domain_invalid' => 'Questo dominio della mail non ha accesso a questa applicazione',
     'register_success' => 'Grazie per la registrazione! Sei registrato e loggato.',
 
-
     /**
      * Password Reset
      */
@@ -55,7 +55,6 @@ return [
     'email_reset_subject' => 'Reimposta la password di :appName',
     'email_reset_text' => 'Stai ricevendo questa mail perché abbiamo ricevuto una richiesta di reset della password per il tuo account.',
     'email_reset_not_requested' => 'Se non hai richiesto un reset della password, ignora questa mail.',
-
 
     /**
      * Email Confirmation

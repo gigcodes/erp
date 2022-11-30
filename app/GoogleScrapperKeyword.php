@@ -13,9 +13,6 @@ class GoogleScrapperKeyword extends Model
     protected $fillable = [
         'keyword',
         'start',
-        'end'
+        'end',
     ];
-
-    
-
 }

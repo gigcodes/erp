@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class TwilioCondition extends Model
 {
-	protected $table = "twilio_conditions";
+    protected $table = 'twilio_conditions';
+
     protected $fillable = [
-        'condition', 
-        'description', 
-        'status'
-	];
+        'condition',
+        'description',
+        'status',
+    ];
 }

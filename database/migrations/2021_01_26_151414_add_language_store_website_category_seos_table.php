@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddLanguageStoreWebsiteCategorySeosTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddLanguageStoreWebsiteCategorySeosTable extends Migration
     public function up()
     {
         Schema::table('store_website_category_seos', function (Blueprint $table) {
-            $table->integer("language_id")->default(1);
+            $table->integer('language_id')->default(1);
         });
     }
 
@@ -26,7 +26,7 @@ class AddLanguageStoreWebsiteCategorySeosTable extends Migration
     public function down()
     {
         Schema::table('store_website_category_seos', function (Blueprint $table) {
-            $table->dropField("language_id"); 
+            $table->dropField('language_id');
         });
     }
 }

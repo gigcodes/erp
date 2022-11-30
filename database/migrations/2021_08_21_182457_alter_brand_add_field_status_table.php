@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterBrandAddFieldStatusTable extends Migration
 {
@@ -14,8 +14,8 @@ class AlterBrandAddFieldStatusTable extends Migration
     public function up()
     {
         //
-        Schema::table("brands",function(Blueprint $table) {
-            $table->integer("status")->nullable()->after("brand_image");
+        Schema::table('brands', function (Blueprint $table) {
+            $table->integer('status')->nullable()->after('brand_image');
         });
     }
 

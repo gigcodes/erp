@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class DropForeignChatMessagesTable extends Migration
@@ -15,8 +13,6 @@ class DropForeignChatMessagesTable extends Migration
     {
         //
         // \DB::statement("ALTER TABLE `chat_messages` DROP FOREIGN KEY `chat_messages_sop_user_id_foreign`");
-
-        
     }
 
     /**

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIndexingToScrapRequestHistories extends Migration
 {
@@ -14,7 +14,7 @@ class AddIndexingToScrapRequestHistories extends Migration
     public function up()
     {
         Schema::table('scrap_request_histories', function (Blueprint $table) {
-           $table->index('scraper_id');
+            $table->index('scraper_id');
         });
     }
 

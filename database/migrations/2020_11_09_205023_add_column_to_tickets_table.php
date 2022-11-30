@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddColumnToTicketsTable extends Migration
 {
@@ -15,7 +15,7 @@ class AddColumnToTicketsTable extends Migration
     {
         Schema::table('tickets', function (Blueprint $table) {
             $table->enum('notify_on', ['email', 'phone'])->nullable();
-            $table->double('amount',8,2)->nullable();
+            $table->double('amount', 8, 2)->nullable();
             $table->string('sku')->nullable();
         });
     }
@@ -28,7 +28,7 @@ class AddColumnToTicketsTable extends Migration
     public function down()
     {
         Schema::table('tickets', function (Blueprint $table) {
-            $table->dropColumn(['notify_on','amount','sku']);
+            $table->dropColumn(['notify_on', 'amount', 'sku']);
         });
     }
 }

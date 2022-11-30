@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddSupplierInWetransfersTables extends Migration
 {
@@ -14,7 +14,7 @@ class AddSupplierInWetransfersTables extends Migration
     public function up()
     {
         Schema::table('wetransfers', function (Blueprint $table) {
-            $table->string('supplier')->nullable()->after("url");
+            $table->string('supplier')->nullable()->after('url');
         });
     }
 

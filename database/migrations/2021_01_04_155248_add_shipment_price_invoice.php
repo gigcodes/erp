@@ -14,7 +14,7 @@ class AddShipmentPriceInvoice extends Migration
     public function up()
     {
         //
-        Schema::table("waybill_invoices", function (Blueprint $table) {
+        Schema::table('waybill_invoices', function (Blueprint $table) {
             $table->decimal('invoice_amount', 10, 0)->default(0)->nullable()->after('invoice_date');
             $table->string('invoice_currency')->nullable()->after('invoice_amount');
         });
@@ -28,7 +28,7 @@ class AddShipmentPriceInvoice extends Migration
     public function down()
     {
         //
-        Schema::table("waybill_invoices", function (Blueprint $table) {
+        Schema::table('waybill_invoices', function (Blueprint $table) {
             $table->dropField('invoice_amount');
             $table->dropField('invoice_currency');
         });

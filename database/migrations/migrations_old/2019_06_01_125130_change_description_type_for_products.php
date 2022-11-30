@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class ChangeDescriptionTypeForProducts extends Migration
 {
@@ -14,7 +14,7 @@ class ChangeDescriptionTypeForProducts extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-          $table->longText('short_description')->nullable()->change();
+            $table->longText('short_description')->nullable()->change();
         });
     }
 
@@ -26,7 +26,7 @@ class ChangeDescriptionTypeForProducts extends Migration
     public function down()
     {
         Schema::table('products', function (Blueprint $table) {
-          $table->mediumText('short_description')->nullable()->change();
+            $table->mediumText('short_description')->nullable()->change();
         });
     }
 }

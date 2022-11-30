@@ -14,7 +14,7 @@ class AddDesignerInSiteDevelopmentTable extends Migration
     public function up()
     {
         Schema::table('site_developments', function (Blueprint $table) {
-            $table->integer('designer_id')->nullable()->after("developer_id");
+            $table->integer('designer_id')->nullable()->after('developer_id');
         });
     }
 

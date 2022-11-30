@@ -10,10 +10,7 @@ use Illuminate\Console\Command;
 //use App\InstagramDirectMessagesHistory;
 use Illuminate\Support\Facades\Log;
 
-
-
 //Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
-
 
 class SendInstagramMessageInQueue extends Command
 {
@@ -67,7 +64,7 @@ class SendInstagramMessageInQueue extends Command
 //        }
 //
 //        foreach ($newAllMessages as $mes) {
-////            $thread = InstagramThread::where('scrap_influencer_id', $mes->getRecieverUsername->id)->first();
+        ////            $thread = InstagramThread::where('scrap_influencer_id', $mes->getRecieverUsername->id)->first();
 //            $sender = $mes->getSenderUsername->last_name;
 //
 //            $password = $mes->getSenderUsername->password;
@@ -76,17 +73,17 @@ class SendInstagramMessageInQueue extends Command
 //            $message = $mes->message;
 //            $sender_id = $mes->getSenderUsername->id;
 //                Log::channel('insta_message_queue_by_rate_limit')->info('sender message limit:' . $accountSettingInformation[$sender_id] . 'sender name:' . $sender);
-////                $i = new Instagram();
+        ////                $i = new Instagram();
 //                try {
-////                    $i->setProxy($proxy);
-////                    $i->login($sender, $password);
+        ////                    $i->setProxy($proxy);
+        ////                    $i->login($sender, $password);
 //                } catch (\Exception $exception) {
 //                    \Log::error($sender . '::' . $exception->getMessage());
 //                    // return false;
 //                }
 //
 //                try {
-////                    $receiver = $i->people->getUserIdForName($receiver);
+        ////                    $receiver = $i->people->getUserIdForName($receiver);
 //                } catch (\Exception $e) {
 //                    // return false;
 //                }
@@ -122,7 +119,7 @@ class SendInstagramMessageInQueue extends Command
 //                    ];
 //                }
 //                InstagramDirectMessagesHistory::insert($history);
-            
+
 //        }
     }
 }

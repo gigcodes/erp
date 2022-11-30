@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\HashTag;
 use App\Setting;
+use Illuminate\Http\Request;
+
 //use App\InstagramPosts;
 
 class GoogleSearchController extends Controller
 {
-	public $platformsId;
+    public $platformsId;
 
-	public function __construct(Request $request){
+    public function __construct(Request $request)
+    {
         $this->platformsId = 2;
-	}
+    }
 
     /**
      * Display a listing of the resource.
@@ -25,7 +26,7 @@ class GoogleSearchController extends Controller
      */
     public function index(Request $request)
     {
-    	$platformsId = 2;
+        $platformsId = 2;
         $queryString = '';
         $sortBy = 'hashtag';
         if ($request->input('orderby') == '') {
@@ -40,39 +41,34 @@ class GoogleSearchController extends Controller
             $sortBy = '';
         }*/
 
-		if($request->term || $request->priority ){
-
-			if($request->term != null && $request->priority == 'on'){
-
-				$keywords  = HashTag::query()
+        if ($request->term || $request->priority) {
+            if ($request->term != null && $request->priority == 'on') {
+                $keywords = HashTag::query()
                                 ->where('priority', '1')
-								->where('platforms_id', $this->platformsId)
-								->where('hashtag', 'LIKE', "%{$request->term}%")
+                                ->where('platforms_id', $this->platformsId)
+                                ->where('hashtag', 'LIKE', "%{$request->term}%")
                                 ->orderBy($sortBy, $orderBy)
-								->paginate(Setting::get('pagination'));
+                                ->paginate(Setting::get('pagination'));
 
-                $queryString = 'term=' . $request->term . '&priority=' . $request->priority . '&';
-			}
-			else if($request->priority == 'on'){
-				$keywords = HashTag::where('priority',1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
+                $queryString = 'term='.$request->term.'&priority='.$request->priority.'&';
+            } elseif ($request->priority == 'on') {
+                $keywords = HashTag::where('priority', 1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
 
-                $queryString = 'priority=' . $request->priority . '&';
-			}
-			else if($request->term != null){
-				$keywords  = HashTag::query()
-								->where('hashtag', 'LIKE', "%{$request->term}%")
-								->where('platforms_id', $this->platformsId)
+                $queryString = 'priority='.$request->priority.'&';
+            } elseif ($request->term != null) {
+                $keywords = HashTag::query()
+                                ->where('hashtag', 'LIKE', "%{$request->term}%")
+                                ->where('platforms_id', $this->platformsId)
                                 ->orderBy($sortBy, $orderBy)
-								->paginate(Setting::get('pagination'));
+                                ->paginate(Setting::get('pagination'));
 
-                $queryString = 'term=' . $request->term . '&';
-			}
+                $queryString = 'term='.$request->term.'&';
+            }
+        } else {
+            $keywords = HashTag::where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
+        }
 
-		} else {
-			$keywords = HashTag::where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
-		}
-
-		return view('google.search.index', compact('keywords', 'queryString', 'orderBy'));
+        return view('google.search.index', compact('keywords', 'queryString', 'orderBy'));
     }
 
     /**
@@ -101,7 +97,7 @@ class GoogleSearchController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -124,33 +120,33 @@ class GoogleSearchController extends Controller
             HashTag::where('hashtag', $id)->delete();
         }
 
-
         return redirect()->back()->with('message', 'Keyword has been deleted successfuly!');
     }
 
     /**
-    * function to set priority for keywords
-    *
-    * @param  \Illuminate\Http\Request  $request
-    * @return json response with status
-    */
+     * function to set priority for keywords
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return json response with status
+     */
     public function markPriority(Request $request)
     {
-       $id = $request->id;
-       //check if 30 limit is exceded
-       $hashtags = HashTag::where('priority',1)->where('platforms_id', $this->platformsId)->get();
+        $id = $request->id;
+        //check if 30 limit is exceded
+        $hashtags = HashTag::where('priority', 1)->where('platforms_id', $this->platformsId)->get();
 
-       if(count($hashtags) >= 30 && $request->type == 1){
-             return response()->json([
-            'status' => 'error'
+        if (count($hashtags) >= 30 && $request->type == 1) {
+            return response()->json([
+                'status' => 'error',
             ]);
-       }
+        }
 
-       $hashtag = HashTag::findOrFail($id);
-       $hashtag->priority = $request->type;
-       $hashtag->update();
-       return response()->json([
-            'status' => 'success'
+        $hashtag = HashTag::findOrFail($id);
+        $hashtag->priority = $request->type;
+        $hashtag->update();
+
+        return response()->json([
+            'status' => 'success',
         ]);
     }
 
@@ -166,20 +162,20 @@ class GoogleSearchController extends Controller
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
-     *
      */
 
     /**
-    * function to get keywords to api
-    *
-    * @return json response with keywords
-    */
-    public function getKeywordsApi() {
-        $keywords = HashTag::where('priority',1)->where('platforms_id', $this->platformsId)->get(['hashtag', 'id']);
+     * function to get keywords to api
+     *
+     * @return json response with keywords
+     */
+    public function getKeywordsApi()
+    {
+        $keywords = HashTag::where('priority', 1)->where('platforms_id', $this->platformsId)->get(['hashtag', 'id']);
 
         return response()->json($keywords);
     }
@@ -196,29 +192,28 @@ class GoogleSearchController extends Controller
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
-     *
      */
     /**
-    * function to store google search results sent from scrapper
-    * JSON data posted to this api will be array of objects in below format
-    * [
-    *    {  "searchKeyword": "GKy1",
-    *    "description": "This is description about web page in search result",
-    *    "crawledAt": "2019-01-10",
-    *    "URL": "http://www.searchedweb1.com" },
-    *    { "searchKeyword": "GKy2",
-    *    "description": "This is description about web page in search result",
-    *    "crawledAt": "2019-01-10",
-    *    "URL": "http://www.searchedweb2.com" }
-    * ]
-    *
-    * @param  \Illuminate\Http\Request  $request
-    * @return json response status
-    */
+     * function to store google search results sent from scrapper
+     * JSON data posted to this api will be array of objects in below format
+     * [
+     *    {  "searchKeyword": "GKy1",
+     *    "description": "This is description about web page in search result",
+     *    "crawledAt": "2019-01-10",
+     *    "URL": "http://www.searchedweb1.com" },
+     *    { "searchKeyword": "GKy2",
+     *    "description": "This is description about web page in search result",
+     *    "crawledAt": "2019-01-10",
+     *    "URL": "http://www.searchedweb2.com" }
+     * ]
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return json response status
+     */
 //    public function apiPost(Request $request)
 //    {
 //        // Get raw body
@@ -271,28 +266,28 @@ class GoogleSearchController extends Controller
 //    }
 
     /**
-    * function to get google search results
-    *
-    * @param  \Illuminate\Http\Request  $request
-    * @return data to view
-    */
+     * function to get google search results
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return data to view
+     */
     public function searchResults(Request $request)
     {
         $queryString = '';
         $orderBy = 'DESC';
-        if (!empty($request->hashtag)) {
-            $queryString .= 'hashtag=' . $request->hashtag . '&';
+        if (! empty($request->hashtag)) {
+            $queryString .= 'hashtag='.$request->hashtag.'&';
         }
-        if (!empty($request->location)) {
-            $queryString .= 'location=' . $request->location . '&';
+        if (! empty($request->location)) {
+            $queryString .= 'location='.$request->location.'&';
         }
-        if (!empty($request->post)) {
-            $queryString .= 'post=' . $request->post . '&';
+        if (! empty($request->post)) {
+            $queryString .= 'post='.$request->post.'&';
         }
-        if (!empty($request->date)) {
-            $queryString .= 'date=' . $request->date . '&';
+        if (! empty($request->date)) {
+            $queryString .= 'date='.$request->date.'&';
         }
-        if (!empty($request->orderby)) {
+        if (! empty($request->orderby)) {
             $orderBy = $request->orderby;
         }
 
@@ -306,7 +301,7 @@ class GoogleSearchController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('google.search.row_results', compact('posts'))->render(),
-                'links' => (string)$posts->appends($request->all())->render()
+                'links' => (string) $posts->appends($request->all())->render(),
             ], 200);
         }
 
@@ -315,11 +310,11 @@ class GoogleSearchController extends Controller
     }
 
     /**
-    * function to get google search results
-    *
-    * @param  \Illuminate\Http\Request  $request
-    * @return array of search results
-    */
+     * function to get google search results
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array of search results
+     */
 //    private function getFilteredGoogleSearchResults(Request $request) {
 //        $sortBy = ($request->input('sortby') == '') ? 'posted_at' : $request->input('sortby');
 //        $orderBy = ($request->input('orderby') == '') ? 'DESC' : $request->input('orderby');
@@ -357,42 +352,42 @@ class GoogleSearchController extends Controller
 //    }
 
     /**
-    * function to call google scraper
-    *
-    * @param  \Illuminate\Http\Request $request, id of keyword to scrap
-    * @return success, failure
-    */
-    function callScraper(Request $request){
+     * function to call google scraper
+     *
+     * @param  \Illuminate\Http\Request  $request, id of keyword to scrap
+     * @return success, failure
+     */
+    public function callScraper(Request $request)
+    {
         $id = $request->input('id');
 
         $searchKeywords = HashTag::where('id', $id)->get(['hashtag', 'id']);
 
-        if (is_null($searchKeywords)){
+        if (is_null($searchKeywords)) {
             // Return
             return response()->json([
-                'error' => 'Keyword not found'
+                'error' => 'Keyword not found',
             ], 400);
-        }
-        else{
+        } else {
             $postData = [];
             $postData['data'] = $searchKeywords;
             $postData = json_encode($postData);
 
             // call this endpoint - /api/googleSearch
             $curl = curl_init();
-            curl_setopt_array($curl, array(
-            CURLOPT_URL => env('NODE_SCRAPER_SERVER') . "api/googleSearch",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_HTTPHEADER => array(
-                "Content-Type: application/json",
-            ),
-            CURLOPT_POSTFIELDS => "$postData"
-            ));
+            curl_setopt_array($curl, [
+                CURLOPT_URL => env('NODE_SCRAPER_SERVER').'api/googleSearch',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                ],
+                CURLOPT_POSTFIELDS => "$postData",
+            ]);
             $response = curl_exec($curl);
             $err = curl_error($curl);
             curl_close($curl);

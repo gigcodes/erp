@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AdGroup extends Migration
 {
@@ -13,7 +13,7 @@ class AdGroup extends Migration
      */
     public function up()
     {
-        Schema::create('ad_groups',function(Blueprint $table) {
+        Schema::create('ad_groups', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('campaign_id');
             $table->string('google_campaign_id');
@@ -21,7 +21,7 @@ class AdGroup extends Migration
             $table->string('group_name');
             $table->string('url');
             $table->text('keywords');
-            $table->string('budget',10,2);
+            $table->string('budget', 10, 2);
             $table->string('google_ad_group_id');
             $table->text('google_ad_group_response');
             $table->timestamps();

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableScraperScreenshotHistoryTable extends Migration
 {
@@ -14,13 +14,12 @@ class AlterTableScraperScreenshotHistoryTable extends Migration
     public function up()
     {
         //
-        Schema::create('scraper_screenshot_histories',function(Blueprint $table) {
-            $table->increments('id');   
-            $table->string('scraper_name')->nullable(); 
+        Schema::create('scraper_screenshot_histories', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('scraper_name')->nullable();
             $table->integer('scraper_id')->index()->nullable();
             $table->timestamps();
         });
-
     }
 
     /**
