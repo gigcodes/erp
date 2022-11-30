@@ -24,7 +24,7 @@
 			      	<td>{{:prop.id}}</td>
 			        <td class="name_div">
                         {{if prop.website_store !== null && prop.website_store.website !== null && prop.website_store.website.store_website !== null}}
-                            {{:prop.website_store.website.store_website.id}} - {{:prop.website_store.website.store_website.title}}
+                            {{:prop.website_store.website.store_website.title}}
                         {{/if}}
                     </td>
 			        <td>{{:prop.name}}</td>
