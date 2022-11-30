@@ -1,31 +1,33 @@
 <?php
 
-
 namespace App\Services\Listing;
-
 
 use App\Product;
 
 class Main
 {
-
     /**
      * @var NameChecker
      */
     private $nameChecker;
+
     private $descriptionChecker;
+
     /**
      * @var CompositionChecker
      */
     private $compositionChecker;
+
     /**
      * @var SizesChecker
      */
     private $sizeChecker;
+
     /**
      * @var ColorChecker
      */
     private $colorChecker;
+
     /**
      * @var
      */
@@ -33,11 +35,12 @@ class Main
 
     /**
      * Main constructor.
-     * @param NameChecker $nameChecker
-     * @param CompositionChecker $compositionChecker
-     * @param ColorChecker $colorChecker
-     * @param SizesChecker $sizesChecker
-     * @param ShortDescriptionChecker $shortDescriptionChecker
+     *
+     * @param  NameChecker  $nameChecker
+     * @param  CompositionChecker  $compositionChecker
+     * @param  ColorChecker  $colorChecker
+     * @param  SizesChecker  $sizesChecker
+     * @param  ShortDescriptionChecker  $shortDescriptionChecker
      */
     public function __construct(NameChecker $nameChecker, CompositionChecker $compositionChecker, ColorChecker $colorChecker, SizesChecker $sizesChecker, ShortDescriptionChecker $shortDescriptionChecker)
     {
@@ -48,9 +51,8 @@ class Main
         $this->compositionChecker = $compositionChecker;
     }
 
-
     /**
-     * @param Product $product
+     * @param  Product  $product
      * @return bool
      */
     public function validate(Product $product): bool
@@ -77,7 +79,7 @@ class Main
      */
     public function isSizeCorrect(): bool
     {
-        $size =  $this->sizeChecker->check($this->product);
+        $size = $this->sizeChecker->check($this->product);
 //        dump('SIZE: ' . $size);
         return $size;
     }
@@ -87,7 +89,7 @@ class Main
      */
     public function isColorCorrect(): bool
     {
-        $color =  $this->colorChecker->check($this->product);
+        $color = $this->colorChecker->check($this->product);
 //        dump('COLOR: ' . $color);
         return $color;
     }
@@ -97,7 +99,7 @@ class Main
      */
     public function isCompositionCorrect(): bool
     {
-        $composition =  $this->compositionChecker->check($this->product);
+        $composition = $this->compositionChecker->check($this->product);
 //        dump('COMPOSITION: ' . $composition);
         return $composition;
     }
@@ -107,7 +109,7 @@ class Main
      */
     public function isShortDescriptionCorrect(): bool
     {
-        $description =  $this->descriptionChecker->check($this->product);
+        $description = $this->descriptionChecker->check($this->product);
 //        dump('DESCRIPTION: ' . $description);
         return $description;
     }
@@ -117,7 +119,7 @@ class Main
      */
     public function isNameCorrect(): bool
     {
-        $name =  $this->nameChecker->check($this->product);
+        $name = $this->nameChecker->check($this->product);
 //        dump('NAME: ' . $name);
         return $name;
     }
@@ -127,7 +129,7 @@ class Main
      */
     public function areMeasurementsCorrect(): bool
     {
-        $meas =  $this->product->lmeasurement && $this->product->hmeasurement && $this->product->dmeasurement;
+        $meas = $this->product->lmeasurement && $this->product->hmeasurement && $this->product->dmeasurement;
 //        dump('MEAS: ' . $meas);
         return $meas;
     }

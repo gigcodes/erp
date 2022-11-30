@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\DeveloperModule;
-use App\DeveloperTask;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -16,27 +15,27 @@ class ManageModulesController extends Controller
      */
     public function index()
     {
-        $title = "Manage Modules";
+        $title = 'Manage Modules';
 
-        return view("manage-modules.index", compact('title'));
+        return view('manage-modules.index', compact('title'));
     }
 
     public function records()
     {
-        $records = \App\DeveloperModule::leftJoin("developer_tasks as dt", "dt.module_id", "developer_modules.id");
+        $records = \App\DeveloperModule::leftJoin('developer_tasks as dt', 'dt.module_id', 'developer_modules.id');
 
-        $keyword = request("keyword");
-        if (!empty($keyword)) {
+        $keyword = request('keyword');
+        if (! empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
-                $q->where("name", "LIKE", "%$keyword%");
+                $q->where('name', 'LIKE', "%$keyword%");
             });
         }
 
-        $records = $records->groupBy("developer_modules.id");
+        $records = $records->groupBy('developer_modules.id');
 
-        $records = $records->select(["developer_modules.*", \DB::raw("count(dt.id) as total_task")])->get();
+        $records = $records->select(['developer_modules.*', \DB::raw('count(dt.id) as total_task')])->get();
 
-        return response()->json(["code" => 200, "data" => $records, "total" => count($records)]);
+        return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
     }
 
     public function save(Request $request)
@@ -48,28 +47,29 @@ class ManageModulesController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $outputString = "";
-            $messages     = $validator->errors()->getMessages();
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : " . $er . "<br>";
+                    $outputString .= "$k : ".$er.'<br>';
                 }
             }
-            return response()->json(["code" => 500, "error" => $outputString]);
+
+            return response()->json(['code' => 500, 'error' => $outputString]);
         }
 
-        $id = $request->get("id", 0);
+        $id = $request->get('id', 0);
 
         $records = DeveloperModule::find($id);
 
-        if (!$records) {
+        if (! $records) {
             $records = new DeveloperModule;
         }
 
         $records->fill($post);
         $records->save();
 
-        return response()->json(["code" => 200, "data" => $records]);
+        return response()->json(['code' => 200, 'data' => $records]);
     }
 
     /**
@@ -114,19 +114,19 @@ class ManageModulesController extends Controller
 
     /**
      * Edit Page
-     * @param  Request $request [description]
+     *
+     * @param  Request  $request [description]
      * @return
      */
-
     public function edit(Request $request, $id)
     {
-        $modal = DeveloperModule::where("id", $id)->first();
+        $modal = DeveloperModule::where('id', $id)->first();
 
         if ($modal) {
-            return response()->json(["code" => 200, "data" => $modal]);
+            return response()->json(['code' => 200, 'data' => $modal]);
         }
 
-        return response()->json(["code" => 500, "error" => "Id is wrong!"]);
+        return response()->json(['code' => 500, 'error' => 'Id is wrong!']);
     }
 
     /**
@@ -154,59 +154,60 @@ class ManageModulesController extends Controller
 
     /**
      * delete Page
-     * @param  Request $request [description]
+     *
+     * @param  Request  $request [description]
      * @return
      */
-
     public function delete(Request $request, $id)
     {
-        $developerModule = DeveloperModule::where("id", $id)->first();
+        $developerModule = DeveloperModule::where('id', $id)->first();
 
-        $isExist = \App\DeveloperTask::where("module_id", $id)->first();
+        $isExist = \App\DeveloperTask::where('module_id', $id)->first();
         if ($isExist) {
-            return response()->json(["code" => 500, "error" => "Module is assigned to developer , Please update module before delete."]);
+            return response()->json(['code' => 500, 'error' => 'Module is assigned to developer , Please update module before delete.']);
         }
 
         if ($developerModule) {
             $developerModule->delete();
-            return response()->json(["code" => 200]);
+
+            return response()->json(['code' => 200]);
         }
 
-        return response()->json(["code" => 500, "error" => "Wrong id!"]);
+        return response()->json(['code' => 500, 'error' => 'Wrong id!']);
     }
 
     public function mergeModule(Request $request)
     {
-        $toModule   = $request->get("to_module");
-        $fromModule = $request->get("from_module");
+        $toModule = $request->get('to_module');
+        $fromModule = $request->get('from_module');
 
         if (empty($toModule)) {
-            return response()->json(["code" => 500, "error" => "Merge module is missing"]);
+            return response()->json(['code' => 500, 'error' => 'Merge module is missing']);
         }
 
         if (empty($fromModule)) {
-            return response()->json(["code" => 500, "error" => "Please select module before select merge module"]);
+            return response()->json(['code' => 500, 'error' => 'Please select module before select merge module']);
         }
 
         if (in_array($toModule, $fromModule)) {
-            return response()->json(["code" => 500, "error" => "Merge module can not be same"]);
+            return response()->json(['code' => 500, 'error' => 'Merge module can not be same']);
         }
 
-        $module         = \App\DeveloperModule::where("id", $toModule)->first();
-        $allMergeModule = \App\DeveloperTask::whereIn("module_id", $fromModule)->get();
+        $module = \App\DeveloperModule::where('id', $toModule)->first();
+        $allMergeModule = \App\DeveloperTask::whereIn('module_id', $fromModule)->get();
 
         if ($module) {
             // start to merge first
-            if (!$allMergeModule->isEmpty()) {
+            if (! $allMergeModule->isEmpty()) {
                 foreach ($allMergeModule as $amc) {
                     $amc->module_id = $module->id;
                     $amc->save();
                 }
             }
             // once all merged category store then delete that category from table
-            \App\DeveloperModule::whereIn("id", $fromModule)->delete();
+            \App\DeveloperModule::whereIn('id', $fromModule)->delete();
         }
 
-        return response()->json(["code" => 200, "data" => [], "messages" => "Module has been merged successfully"]);
+        return response()->json(['code' => 200, 'data' => [], 'messages' => 'Module has been merged successfully']);
     }
 }

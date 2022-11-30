@@ -7,7 +7,6 @@ return [
      * Contains all text strings used in the general settings sections of BookStack
      * including users and roles.
      */
-
     'settings' => '设置',
     'settings_save' => '保存设置',
     'settings_save_success' => '设置已保存',
@@ -15,7 +14,6 @@ return [
     /**
      * App settings
      */
-
     'app_settings' => 'App设置',
     'app_name' => 'App名',
     'app_name_desc' => '此名称将在网页头部和Email中显示。',
@@ -40,7 +38,6 @@ return [
     /**
      * Registration settings
      */
-
     'reg_settings' => '注册设置',
     'reg_allow' => '允许注册？',
     'reg_default_role' => '注册后的默认用户角色',
@@ -53,10 +50,9 @@ return [
     /**
      * Maintenance settings
      */
-
     'maint' => '维护',
     'maint_image_cleanup' => '清理图像',
-    'maint_image_cleanup_desc' => "扫描页面和修订内容以检查哪些图像是正在使用的以及哪些图像是多余的。确保在运行前创建完整的数据库和映像备份。",
+    'maint_image_cleanup_desc' => '扫描页面和修订内容以检查哪些图像是正在使用的以及哪些图像是多余的。确保在运行前创建完整的数据库和映像备份。',
     'maint_image_cleanup_ignore_revisions' => '忽略修订记录中的图像',
     'maint_image_cleanup_run' => '运行清理',
     'maint_image_cleanup_warning' => '发现了 :count 张可能未使用的图像。您确定要删除这些图像吗？',
@@ -66,7 +62,6 @@ return [
     /**
      * Role settings
      */
-
     'roles' => '角色',
     'role_user_roles' => '用户角色',
     'role_create' => '创建角色',
@@ -74,14 +69,14 @@ return [
     'role_delete' => '删除角色',
     'role_delete_confirm' => '这将会删除名为 \':roleName\' 的角色.',
     'role_delete_users_assigned' => '有:userCount位用户属于此角色。如果您想将此角色中的用户迁移，请在下面选择一个新角色。',
-    'role_delete_no_migration' => "不要迁移用户",
+    'role_delete_no_migration' => '不要迁移用户',
     'role_delete_sure' => '您确定要删除这个角色？',
     'role_delete_success' => '角色删除成功',
     'role_edit' => '编辑角色',
     'role_details' => '角色详细信息',
     'role_name' => '角色名',
     'role_desc' => '角色简述',
-	'role_external_auth_id' => '外部身份认证ID',
+    'role_external_auth_id' => '外部身份认证ID',
     'role_system' => '系统权限',
     'role_manage_users' => '管理用户',
     'role_manage_roles' => '管理角色与角色权限',
@@ -90,7 +85,7 @@ return [
     'role_manage_settings' => '管理App设置',
     'role_asset' => '资源许可',
     'role_asset_desc' => '对系统内资源的默认访问许可将由这些权限控制。单独设置在书籍，章节和页面上的权限将覆盖这里的权限设定。',
-	'role_asset_admins' => '管理员可自动获得对所有内容的访问权限，但这些选项可能会显示或隐藏UI选项。',
+    'role_asset_admins' => '管理员可自动获得对所有内容的访问权限，但这些选项可能会显示或隐藏UI选项。',
     'role_all' => '全部的',
     'role_own' => '拥有的',
     'role_controlled_by_asset' => '由其所在的资源来控制',
@@ -102,7 +97,6 @@ return [
     /**
      * Users
      */
-
     'users' => '用户',
     'user_profile' => '用户资料',
     'users_add_new' => '添加用户',

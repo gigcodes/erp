@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class MakePaymentRequestIdNullableInPaymentsTable extends Migration
 {
@@ -13,7 +13,7 @@ class MakePaymentRequestIdNullableInPaymentsTable extends Migration
      */
     public function up()
     {
-        \DB::statement("ALTER TABLE `payments` CHANGE `payment_receipt_id` `payment_receipt_id` INT(11) NULL;");
+        \DB::statement('ALTER TABLE `payments` CHANGE `payment_receipt_id` `payment_receipt_id` INT(11) NULL;');
     }
 
     /**

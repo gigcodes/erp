@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableScraperAddFlag extends Migration
 {
@@ -14,7 +14,7 @@ class AlterTableScraperAddFlag extends Migration
     public function up()
     {
         //
-        Schema::table('scrapers',function(Blueprint $table){
+        Schema::table('scrapers', function (Blueprint $table) {
             $table->integer('flag')->default(0)->nullable()->after('auto_restart');
         });
     }
@@ -27,7 +27,7 @@ class AlterTableScraperAddFlag extends Migration
     public function down()
     {
         //
-        Schema::table('scrapers',function(Blueprint $table){
+        Schema::table('scrapers', function (Blueprint $table) {
             $table->dropField('flag');
         });
     }

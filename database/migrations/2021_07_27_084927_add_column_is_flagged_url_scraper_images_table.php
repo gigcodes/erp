@@ -1,12 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddColumnIsFlaggedUrlScraperImagesTable extends Migration
 {
-   
     /**
      * Run the migrations.
      *
@@ -14,10 +13,8 @@ class AddColumnIsFlaggedUrlScraperImagesTable extends Migration
      */
     public function up()
     {
-        Schema::table('scraper_imags',function($table){
-        
+        Schema::table('scraper_imags', function ($table) {
             $table->integer('is_flaged_url')->index()->nullable();
-            
         });
     }
 
@@ -28,7 +25,7 @@ class AddColumnIsFlaggedUrlScraperImagesTable extends Migration
      */
     public function down()
     {
-        Schema::table('scraper_imags',function(Blueprint $table) {
+        Schema::table('scraper_imags', function (Blueprint $table) {
             $table->dropField('is_flaged_url');
         });
     }

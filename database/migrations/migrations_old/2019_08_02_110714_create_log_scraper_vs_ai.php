@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateLogScraperVsAi extends Migration
 {
@@ -13,15 +13,15 @@ class CreateLogScraperVsAi extends Migration
      */
     public function up()
     {
-        Schema::create( 'log_scraper_vs_ai', function ( Blueprint $table ) {
-            $table->bigIncrements( 'id' );
-            $table->bigInteger( 'product_id' );
-            $table->string( 'ai_name' );
-            $table->text( 'media_input' );
-            $table->text( 'result_scraper' );
-            $table->text( 'result_ai' );
+        Schema::create('log_scraper_vs_ai', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->bigInteger('product_id');
+            $table->string('ai_name');
+            $table->text('media_input');
+            $table->text('result_scraper');
+            $table->text('result_ai');
             $table->timestamps();
-        } );
+        });
     }
 
     /**
@@ -31,6 +31,6 @@ class CreateLogScraperVsAi extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists( 'log_scraper_vs_ai' );
+        Schema::dropIfExists('log_scraper_vs_ai');
     }
 }

@@ -4,7 +4,6 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-
 class UiLanguage extends Model
 {
     protected $table = 'ui_languages';

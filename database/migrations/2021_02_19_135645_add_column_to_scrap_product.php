@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddColumnToScrapProduct extends Migration
 {
@@ -19,7 +19,7 @@ class AddColumnToScrapProduct extends Migration
             $table->longText('material_used')->nullable();
             $table->longText('country')->nullable();
             $table->longText('supplier')->nullable();
-       });
+        });
     }
 
     /**

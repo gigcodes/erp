@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTableStoreWebsiteProductScreenshots extends Migration
 {
@@ -14,7 +14,7 @@ class CreateTableStoreWebsiteProductScreenshots extends Migration
     public function up()
     {
         //
-        Schema::create('store_website_product_screenshots',function(Blueprint $table) {
+        Schema::create('store_website_product_screenshots', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('product_id')->nullable();
             $table->string('sku')->nullable();

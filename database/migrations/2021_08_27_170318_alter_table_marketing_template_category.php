@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableMarketingTemplateCategory extends Migration
 {
@@ -14,7 +14,7 @@ class AlterTableMarketingTemplateCategory extends Migration
     public function up()
     {
         //
-        Schema::table('mailinglist_templates',function(Blueprint $table) {
+        Schema::table('mailinglist_templates', function (Blueprint $table) {
             $table->text('salutation')->nullable()->after('mail_tpl');
             $table->text('introduction')->nullable()->after('salutation');
             $table->string('logo')->nullable()->after('introduction');

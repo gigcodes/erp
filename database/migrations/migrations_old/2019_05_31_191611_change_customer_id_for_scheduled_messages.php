@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class ChangeCustomerIdForScheduledMessages extends Migration
 {
@@ -14,11 +14,11 @@ class ChangeCustomerIdForScheduledMessages extends Migration
     public function up()
     {
         Schema::table('scheduled_messages', function (Blueprint $table) {
-          $table->dropForeign('scheduled_messages_customer_id_foreign');
-          $table->dropColumn('customer_id');
-          // $table->integer('customer_id')->unsigned()->nullable()->change('user_id');
+            $table->dropForeign('scheduled_messages_customer_id_foreign');
+            $table->dropColumn('customer_id');
+            // $table->integer('customer_id')->unsigned()->nullable()->change('user_id');
           //
-          // $table->foreign('customer_id')->references('id')->on('customers');
+            // $table->foreign('customer_id')->references('id')->on('customers');
         });
     }
 
@@ -30,9 +30,9 @@ class ChangeCustomerIdForScheduledMessages extends Migration
     public function down()
     {
         Schema::table('scheduled_messages', function (Blueprint $table) {
-          $table->integer('customer_id')->unsigned()->after('user_id');
+            $table->integer('customer_id')->unsigned()->after('user_id');
 
-          $table->foreign('customer_id')->references('id')->on('customers');
+            $table->foreign('customer_id')->references('id')->on('customers');
         });
     }
 }

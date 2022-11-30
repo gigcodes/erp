@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     /**
@@ -34,7 +35,6 @@ return [
     'search_clear' => 'Vyčistiť hľadanie',
     'reset' => 'Reset',
     'remove' => 'Odstrániť',
-
 
     /**
      * Misc

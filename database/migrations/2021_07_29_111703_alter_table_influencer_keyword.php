@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableInfluencerKeyword extends Migration
 {
@@ -14,10 +14,10 @@ class AlterTableInfluencerKeyword extends Migration
     public function up()
     {
         //
-        Schema::table('influencer_keywords',function(Blueprint $table) {
-            $table->string("wait_time")->nullable()->after("instagram_account_id");
-            $table->string("no_of_requets")->nullable()->after("wait_time");
-        }); 
+        Schema::table('influencer_keywords', function (Blueprint $table) {
+            $table->string('wait_time')->nullable()->after('instagram_account_id');
+            $table->string('no_of_requets')->nullable()->after('wait_time');
+        });
     }
 
     /**
@@ -28,9 +28,9 @@ class AlterTableInfluencerKeyword extends Migration
     public function down()
     {
         //
-        Schema::table('influencer_keywords',function(Blueprint $table) {
-            $table->dropField("wait_time");
-            $table->dropField("no_of_requets");
-        }); 
+        Schema::table('influencer_keywords', function (Blueprint $table) {
+            $table->dropField('wait_time');
+            $table->dropField('no_of_requets');
+        });
     }
 }

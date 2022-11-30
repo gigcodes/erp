@@ -92,7 +92,7 @@
                         <div class="col-md-12 d-flex">
                             <form class="form-inline handle-search" style="display:inline-block;">
                                 <div class="form-group" style="display:inline-block;width:300px">
-                                    <?php //echo Form::select('websites[]', ['all' => 'All Website'] + $website, isset(request()->websites) ? request()->websites : $website->id, ['class' => 'form-control globalSelect2', 'multiple', 'id' => 'change_website1']); ?>
+                                    <?php //echo Form::select('websites[]', ['all' => 'All Website'] + $website, isset(request()->websites) ? request()->websites : $website->id, ['class' => 'form-control globalSelect2', 'multiple', 'id' => 'change_website1']);?>
                                 </div>
                                 <div class="form-group ">
                                     <select class="form-control globalSelect2" name="k[]" id="k" multiple>

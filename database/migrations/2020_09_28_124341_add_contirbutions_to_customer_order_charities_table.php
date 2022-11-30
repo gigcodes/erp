@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddContirbutionsToCustomerOrderCharitiesTable extends Migration
 {
@@ -14,9 +14,9 @@ class AddContirbutionsToCustomerOrderCharitiesTable extends Migration
     public function up()
     {
         Schema::table('customer_order_charities', function (Blueprint $table) {
-			$table->Integer('customer_contribution');
-			$table->Integer('our_contribution');
-			$table->String('status')->nullable();
+            $table->Integer('customer_contribution');
+            $table->Integer('our_contribution');
+            $table->String('status')->nullable();
         });
     }
 

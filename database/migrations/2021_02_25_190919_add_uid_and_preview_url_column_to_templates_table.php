@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddUidAndPreviewUrlColumnToTemplatesTable extends Migration
 {
@@ -15,8 +15,6 @@ class AddUidAndPreviewUrlColumnToTemplatesTable extends Migration
     {
         Schema::table('templates', function (Blueprint $table) {
             $table->string('uid')->nullable()->after('id');
-            
-            
         });
     }
 
@@ -28,10 +26,7 @@ class AddUidAndPreviewUrlColumnToTemplatesTable extends Migration
     public function down()
     {
         Schema::table('templates', function (Blueprint $table) {
-
             $table->dropColumn('uid');
-            
-            
         });
     }
 }

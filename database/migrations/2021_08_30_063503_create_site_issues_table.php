@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateSiteIssuesTable extends Migration
 {
@@ -16,7 +16,7 @@ class CreateSiteIssuesTable extends Migration
         Schema::create('site_issues', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('store_website_id');
-           $table->integer('project_id');
+            $table->integer('project_id');
             $table->integer('issue_id');
             $table->string('title');
             $table->text('desc');

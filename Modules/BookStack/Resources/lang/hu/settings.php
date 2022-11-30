@@ -56,7 +56,7 @@ return [
     // Maintenance settings
     'maint' => 'Karbantartás',
     'maint_image_cleanup' => 'Képek tisztítása',
-    'maint_image_cleanup_desc' => "Végigolvassa az oldalakat és a tartalmak változatait, hogy leellenőrizze jelenleg mely képek és rajzok vannak használatban, és mely képek szerepelnek többször. A futtatása előtt feltétlen készíteni kell egy teljes adatbázis és lemezkép mentést.",
+    'maint_image_cleanup_desc' => 'Végigolvassa az oldalakat és a tartalmak változatait, hogy leellenőrizze jelenleg mely képek és rajzok vannak használatban, és mely képek szerepelnek többször. A futtatása előtt feltétlen készíteni kell egy teljes adatbázis és lemezkép mentést.',
     'maint_image_cleanup_ignore_revisions' => 'Képek figyelmen kívül hagyása a változatokban',
     'maint_image_cleanup_run' => 'Tisztítás futtatása',
     'maint_image_cleanup_warning' => ':count potenciálisan nem használt képet találtam. Biztosan törölhetőek ezek a képek?',
@@ -71,7 +71,7 @@ return [
     'role_delete' => 'Szerepkör törlése',
     'role_delete_confirm' => 'Ez törölni fogja \':roleName\' szerepkört.',
     'role_delete_users_assigned' => 'Ehhez a szerepkörhöz :userCount felhasználó van hozzárendelve. Ha a felhasználókat át kell helyezni ebből a szerepkörből, akkor ki kell választani egy új szerepkört.',
-    'role_delete_no_migration' => "Nincs felhasználó áthelyezés",
+    'role_delete_no_migration' => 'Nincs felhasználó áthelyezés',
     'role_delete_sure' => 'Biztosan törölhető ez a szerepkör?',
     'role_delete_success' => 'Szerepkör sikeresen törölve',
     'role_edit' => 'Szerepkör szerkesztése',
@@ -155,7 +155,7 @@ return [
         'ru' => 'Русский',
         'uk' => 'Українська',
         'zh_CN' => '简体中文',
-        'zh_TW' => '繁體中文'
-    ]
+        'zh_TW' => '繁體中文',
+    ],
     //!////////////////////////////////
 ];

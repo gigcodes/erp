@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateCustomerPriorityRangePointsTable extends Migration
 {
@@ -15,7 +15,7 @@ class CreateCustomerPriorityRangePointsTable extends Migration
     {
         Schema::create('customer_priority_range_points', function (Blueprint $table) {
             $table->increments('id');
-			$table->integer('store_website_id')->index()->nullable();
+            $table->integer('store_website_id')->index()->nullable();
             $table->string('twilio_priority_id')->default(0);
             $table->string('min_point')->default(0);
             $table->string('max_point')->default(0);

@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateProductsTable extends Migration
 {
@@ -13,7 +12,7 @@ class UpdateProductsTable extends Migration
      */
     public function up()
     {
-        Schema::table('products',function ($table){
+        Schema::table('products', function ($table) {
             $table->integer('isPending')->default(0);
         });
     }

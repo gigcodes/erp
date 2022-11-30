@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateOrderProductsTable extends Migration
 {
@@ -17,7 +17,7 @@ class CreateOrderProductsTable extends Migration
             $table->increments('id');
             $table->string('order_id');
             $table->string('sku');
-	        $table->string( 'product_price' )->nullable();
+            $table->string('product_price')->nullable();
 //            $table->string('brand')->nullable();
             $table->string('size')->nullable();
             $table->string('color')->nullable();

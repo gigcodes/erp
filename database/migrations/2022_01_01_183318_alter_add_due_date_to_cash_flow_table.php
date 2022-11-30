@@ -1,13 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterAddDueDateToCashFlowTable extends Migration
 {
-
-  
     /**
      * Run the migrations.
      *
@@ -17,7 +15,6 @@ class AlterAddDueDateToCashFlowTable extends Migration
     {
         Schema::table('cash_flows', function (Blueprint $table) {
             $table->date('billing_due_date')->nullable();
-         
         });
     }
 
@@ -28,6 +25,5 @@ class AlterAddDueDateToCashFlowTable extends Migration
      */
     public function down()
     {
-       
     }
 }

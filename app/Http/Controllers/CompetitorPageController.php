@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\CompetitorFollowers;
 use App\CompetitorPage;
 use Illuminate\Http\Request;
+
 //use InstagramAPI\Instagram;
 //use InstagramAPI\Signatures;
 
@@ -20,6 +21,7 @@ class CompetitorPageController extends Controller
     public function index()
     {
         $pages = CompetitorPage::all();
+
         return view('instagram.comp.index', compact('pages'));
     }
 
@@ -44,7 +46,7 @@ class CompetitorPageController extends Controller
         $this->validate($request, [
             'name' => 'required',
             'username' => 'required',
-            'platform' => 'required'
+            'platform' => 'required',
         ]);
 
         $com = new CompetitorPage();
@@ -69,8 +71,6 @@ class CompetitorPageController extends Controller
         $item = $this->getInstagramUserData($username);
 
         return view('instagram.comp.grid', compact('item'));
-
-
     }
 
 //    private function getInstagramUserData($username) {
@@ -139,7 +139,6 @@ class CompetitorPageController extends Controller
         }
 
         return view('instagram.comp.followers', compact('processedFollowers', 'followers'));
-
     }
 
 //    private function getInstagramUserDataWithoutFollowers($user, $id) {
@@ -172,26 +171,27 @@ class CompetitorPageController extends Controller
 //
 //    }
 
-    public function hideLead($id) {
+    public function hideLead($id)
+    {
         $c = CompetitorFollowers::findOrFail($id);
         $c->status = 0;
         $c->save();
 
         return response()->json([
-            'status' => 'success'
+            'status' => 'success',
         ]);
     }
 
-    public function approveLead($id) {
+    public function approveLead($id)
+    {
         $c = CompetitorFollowers::findOrFail($id);
         $c->status = 2;
         $c->save();
 
         return response()->json([
-            'status' => 'success'
+            'status' => 'success',
         ]);
     }
-
 
     /**
      * Update the specified resource in storage.

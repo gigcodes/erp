@@ -26,16 +26,18 @@ class OrderStatusChangeMail extends Mailable
         $this->fromMailer = 'customercare@sololuxury.co.in';
     }
 
-    public function getDataFromHTML($order,$htmlData){
+    public function getDataFromHTML($order, $htmlData)
+    {
         preg_match_all('/{{(.*?)}}/i', $htmlData, $matches);
         if (count($matches) != 0) {
             $matches = $matches[0];
             foreach ($matches as $match) {
-                $matchString  = str_replace(["{{", "}}"], '', $match);
+                $matchString = str_replace(['{{', '}}'], '', $match);
                 $value = Arr::get($order, trim($matchString));
-                $htmlData  = str_replace($match, $value, $htmlData);
+                $htmlData = str_replace($match, $value, $htmlData);
             }
         }
+
         return $htmlData;
     }
 
@@ -46,14 +48,14 @@ class OrderStatusChangeMail extends Mailable
      */
     public function build()
     {
-        $subject = "Order # " . $this->order->order_id . " Status has been changed";
+        $subject = 'Order # '.$this->order->order_id.' Status has been changed';
         $order = $this->order;
 
         $customer = $order->customer;
         $order_products = $order->order_products;
 
         $this->subject = $subject;
-        $this->fromMailer = "customercare@sololuxury.co.in";
+        $this->fromMailer = 'customercare@sololuxury.co.in';
 
         //$email          = "customercare@sololuxury.co.in";
 
@@ -75,33 +77,33 @@ class OrderStatusChangeMail extends Mailable
         }
 
         if ($template) {
-            
             if ($template->from_email != '') {
                 $this->fromMailer = $template->from_email;
             }
 
             $this->subject = $template->subject;
-            if (!empty($template->mail_tpl)) {
-                if(!empty($template->html_text)){
+            if (! empty($template->mail_tpl)) {
+                if (! empty($template->html_text)) {
                     $htmlData = $template->html_text;
                     $re = '/<loop-orderProducts>((.|\n)*?)<\/loop-orderProducts>/m';
                     preg_match_all($re, $htmlData, $matches, PREG_SET_ORDER, 0);
                     if (count($matches) != 0) {
                         foreach ($matches as $index => $match) {
                             $data = null;
-                            foreach($order->orderProducts as $orderProduct){
-                                $data .= $this->getDataFromHTML($orderProduct,$match[1]);
+                            foreach ($order->orderProducts as $orderProduct) {
+                                $data .= $this->getDataFromHTML($orderProduct, $match[1]);
                             }
-                            if($data){
+                            if ($data) {
                                 $htmlData = str_replace($match[1], $data, $htmlData);
                             }
                         }
                     }
-                    $content =  $this->getDataFromHTML($order,$htmlData);
+                    $content = $this->getDataFromHTML($order, $htmlData);
+
                     return $this->from($this->fromMailer)
                         ->subject($this->subject)
                         ->view('email-templates.content', compact(
-                             'content'
+                            'content'
                         ));
                 } else {
                     // need to fix the all email address
@@ -112,23 +114,23 @@ class OrderStatusChangeMail extends Mailable
                         ));
                 }
             } else {
-
-                if(!empty($template->html_text)){
+                if (! empty($template->html_text)) {
                     $htmlData = $template->html_text;
                     $re = '/<loop-orderProducts>((.|\n)*?)<\/loop-orderProducts>/m';
                     preg_match_all($re, $htmlData, $matches, PREG_SET_ORDER, 0);
                     if (count($matches) != 0) {
                         foreach ($matches as $index => $match) {
                             $data = null;
-                            foreach($order->orderProducts as $orderProduct){
-                                $data .= $this->getDataFromHTML($orderProduct,$match[1]);
+                            foreach ($order->orderProducts as $orderProduct) {
+                                $data .= $this->getDataFromHTML($orderProduct, $match[1]);
                             }
-                            if($data){
+                            if ($data) {
                                 $htmlData = str_replace($match[1], $data, $htmlData);
                             }
                         }
                     }
-                    $content =  $this->getDataFromHTML($order,$htmlData);
+                    $content = $this->getDataFromHTML($order, $htmlData);
+
                     return $this->from($this->fromMailer)
                         ->subject($this->subject)
                         ->view('email-templates.content', compact('content'));
@@ -146,11 +148,10 @@ class OrderStatusChangeMail extends Mailable
             }
         }
 
-        if (!$storeWebsiteOrder) {
+        if (! $storeWebsiteOrder) {
             return $this->view('emails.orders.update-status', compact(
                 'order', 'customer', 'order_products'
             ));
         }
-
     }
 }

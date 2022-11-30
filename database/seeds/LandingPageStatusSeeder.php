@@ -12,11 +12,10 @@ class LandingPageStatusSeeder extends Seeder
     public function run()
     {
         $statuses = [
-            "De-active",
-            "Active",
-            "User Uploaded",
+            'De-active',
+            'Active',
+            'User Uploaded',
         ];
-
 
         foreach ($statuses as $status) {
             \App\LandingPageStatus::firstOrCreate(['name' => $status]);

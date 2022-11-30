@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddNewColumnEmailsTable extends Migration
 {
@@ -13,7 +12,7 @@ class AddNewColumnEmailsTable extends Migration
      */
     public function up()
     {
-        Schema::table('emails',function($table){
+        Schema::table('emails', function ($table) {
             $table->tinyInteger('is_draft')->default(0)->after('status');
         });
     }
@@ -25,7 +24,7 @@ class AddNewColumnEmailsTable extends Migration
      */
     public function down()
     {
-        Schema::table('emails',function($table){
+        Schema::table('emails', function ($table) {
             $table->dropColumn('is_draft');
         });
     }

@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     /**
@@ -21,7 +22,7 @@ return [
     'role' => 'Rôle',
     'cover_image' => 'Image de couverture',
     'cover_image_description' => 'Cette image doit être environ 440x250px.',
-    
+
     /**
      * Actions
      */

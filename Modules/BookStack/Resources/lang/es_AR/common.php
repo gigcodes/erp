@@ -1,7 +1,7 @@
 <?php
 /**
  * Common elements found throughout many areas of BookStack.
- * 
+ *
  * Elementos comunes encontrados en varias áreas de BookStack.
  */
 return [
@@ -15,7 +15,7 @@ return [
     'select' => 'Seleccionar',
     'toggle_all' => 'Alternar todo',
     'more' => 'Más',
-    
+
     // Form Labels - Etiquetas de Formularios
     'name' => 'Nombre',
     'description' => 'Descripción',
@@ -56,10 +56,10 @@ return [
     'no_items' => 'No hay items disponibles',
     'back_to_top' => 'Volver arriba',
     'toggle_details' => 'Alternar detalles',
-    "toggle_thumbnails" => "Alternar miniaturas",
+    'toggle_thumbnails' => 'Alternar miniaturas',
     'details' => 'Detalles',
-    "grid_view" => "Vista de grilla",
-    "list_view" => "Vista de lista",
+    'grid_view' => 'Vista de grilla',
+    'list_view' => 'Vista de lista',
     'default' => 'Por defecto',
     'breadcrumb' => 'Miga de Pan',
 

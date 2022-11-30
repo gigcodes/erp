@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddTimingToInstructions extends Migration
 {
@@ -14,8 +14,8 @@ class AddTimingToInstructions extends Migration
     public function up()
     {
         Schema::table('instructions', function (Blueprint $table) {
-          $table->datetime('start_time')->after('completed_at')->nullable();
-          $table->datetime('end_time')->after('start_time')->nullable();
+            $table->datetime('start_time')->after('completed_at')->nullable();
+            $table->datetime('end_time')->after('start_time')->nullable();
         });
     }
 
@@ -27,8 +27,8 @@ class AddTimingToInstructions extends Migration
     public function down()
     {
         Schema::table('instructions', function (Blueprint $table) {
-          $table->dropColumn('start_time');
-          $table->dropColumn('end_time');
+            $table->dropColumn('start_time');
+            $table->dropColumn('end_time');
         });
     }
 }

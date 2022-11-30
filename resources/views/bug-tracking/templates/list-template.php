@@ -30,10 +30,10 @@
 			        <td class='break'>
 			        <select class='form-control assign_to'  data-id="{{>prop.id}}">
 			        <?php
-                         foreach($users as $user){
-                             echo "<option {{if prop.assign_to == '".$user->id."'}} selected {{/if}} value='".$user->id."'>".$user->name."</option>";
+                         foreach ($users as $user) {
+                             echo "<option {{if prop.assign_to == '".$user->id."'}} selected {{/if}} value='".$user->id."'>".$user->name.'</option>';
                          }
-                         ?>
+			        ?>
 			        </select>
 			        </td>
 			        <td class='break'>{{:prop.bug_severity_id}}</td>

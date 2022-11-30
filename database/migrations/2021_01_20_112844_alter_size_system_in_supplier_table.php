@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterSizeSystemInSupplierTable extends Migration
 {
@@ -14,7 +14,7 @@ class AlterSizeSystemInSupplierTable extends Migration
     public function up()
     {
         Schema::table('suppliers', function (Blueprint $table) {
-            $table->integer("size_system_id")->nullable()->after("scrapper");
+            $table->integer('size_system_id')->nullable()->after('scrapper');
         });
     }
 
@@ -26,7 +26,7 @@ class AlterSizeSystemInSupplierTable extends Migration
     public function down()
     {
         Schema::table('suppliers', function (Blueprint $table) {
-            $table->dropField("size_system_id");
+            $table->dropField('size_system_id');
         });
     }
 }

@@ -1,52 +1,52 @@
 <?php
 
-
 namespace App\Services\Listing;
-
 
 use App\ColorReference;
 use App\Colors;
 
 class ColorChecker implements CheckerInterface
 {
-
     private $availableColors;
+
     private $colorTracks;
 
     public function __construct()
     {
-        if(!env('CI')) {
+        if (! env('CI')) {
             $this->setAvailableColors();
             $this->setColorTracks();
         }
-
     }
 
-    public function check($product): bool {
+    public function check($product): bool
+    {
         $color = title_case($product->color);
-        dump('COL...'. $color);
+        dump('COL...'.$color);
         if (in_array($color, $this->availableColors, false)) {
             $product->color = $color;
             $product->save();
+
             return true;
         }
 
         $color = $this->improvise($product->name);
-        dump('sec_'. $color);
+        dump('sec_'.$color);
 
         if (in_array($color, $this->availableColors, false)) {
             $product->color = title_case($color);
             $product->save();
+
             return true;
         }
 
         $color = $this->improvise($product->short_description);
-        dump('third_'. $color);
-
+        dump('third_'.$color);
 
         if (in_array($color, $this->availableColors, false)) {
             $product->color = title_case($color);
             $product->save();
+
             return true;
         }
 
@@ -70,7 +70,6 @@ class ColorChecker implements CheckerInterface
         return false;
     }
 
-
     public function setAvailableColors(): void
     {
         $this->availableColors = (new Colors)->all();
@@ -80,5 +79,4 @@ class ColorChecker implements CheckerInterface
     {
         $this->colorTracks = ColorReference::all();
     }
-
 }

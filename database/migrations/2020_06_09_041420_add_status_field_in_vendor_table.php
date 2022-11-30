@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddStatusFieldInVendorTable extends Migration
 {
@@ -13,8 +12,8 @@ class AddStatusFieldInVendorTable extends Migration
      */
     public function up()
     {
-        Schema::table('vendors',function($table){
-            $table->integer("status")->nullable()->default(1)->after('is_blocked');
+        Schema::table('vendors', function ($table) {
+            $table->integer('status')->nullable()->default(1)->after('is_blocked');
         });
     }
 
@@ -25,7 +24,7 @@ class AddStatusFieldInVendorTable extends Migration
      */
     public function down()
     {
-        Schema::table('vendors',function($table){
+        Schema::table('vendors', function ($table) {
             $table->dropColumn('status');
         });
     }

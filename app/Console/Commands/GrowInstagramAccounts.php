@@ -4,8 +4,9 @@ namespace App\Console\Commands;
 
 use App\Account;
 use App\CronJobReport;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
+
 //use InstagramAPI\Instagram;
 
 class GrowInstagramAccounts extends Command
@@ -43,7 +44,7 @@ class GrowInstagramAccounts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -60,6 +61,7 @@ class GrowInstagramAccounts extends Command
                 } catch (\Exception $exception) {
                     $this->warn($account->last_name);
                     $this->info($exception->getMessage());
+
                     continue;
                 }
 
@@ -71,10 +73,11 @@ class GrowInstagramAccounts extends Command
                 $account->save();
 
                 if ($stage >= 7) {
-                    $account->bulk_comment   = 1;
+                    $account->bulk_comment = 1;
                     $account->manual_comment = 0;
-                    $account->is_seeding     = 0;
+                    $account->is_seeding = 0;
                     $account->save();
+
                     continue;
                 }
 
@@ -110,34 +113,31 @@ class GrowInstagramAccounts extends Command
 //                $instagram->people->follow($id2);
 
                 foreach ($imagesToPost as $i) {
-                    $filename             = __DIR__ . '/images/' . $i . '.jpeg';
-                    $source               = imagecreatefromjpeg($filename);
-                    list($width, $height) = getimagesize($filename);
+                    $filename = __DIR__.'/images/'.$i.'.jpeg';
+                    $source = imagecreatefromjpeg($filename);
+                    [$width, $height] = getimagesize($filename);
 
-                    $newwidth  = 800;
+                    $newwidth = 800;
                     $newheight = 800;
 
                     $destination = imagecreatetruecolor($newwidth, $newheight);
                     imagecopyresampled($destination, $source, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
-                    imagejpeg($destination, __DIR__ . '/images/' . $i . '.jpeg', 100);
+                    imagejpeg($destination, __DIR__.'/images/'.$i.'.jpeg', 100);
 
                     try {
 //                        $instagram->timeline->uploadPhoto($filename);
                     } catch (\Exception $exception) {
                         $this->info($exception->getMessage());
                     }
-
                 }
 
-                ++$account->seeding_stage;
+                $account->seeding_stage++;
                 $account->save();
-
             }
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 }

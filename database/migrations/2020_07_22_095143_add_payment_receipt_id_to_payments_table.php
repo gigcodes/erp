@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddPaymentReceiptIdToPaymentsTable extends Migration
 {
@@ -18,7 +18,7 @@ class AddPaymentReceiptIdToPaymentsTable extends Migration
             $table->date('date');
             //$table->date('paid_upto')->nullable()->change();
         });
-        \DB::statement("ALTER TABLE `payments` CHANGE `paid_upto` `paid_upto` DATE NULL;");
+        \DB::statement('ALTER TABLE `payments` CHANGE `paid_upto` `paid_upto` DATE NULL;');
     }
 
     /**

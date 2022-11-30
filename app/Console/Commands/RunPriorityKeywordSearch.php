@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\HashTag;
+use Illuminate\Console\Command;
 
 class RunPriorityKeywordSearch extends Command
 {
@@ -44,7 +44,7 @@ class RunPriorityKeywordSearch extends Command
         $postData = json_encode($searchKeywords);
 
         // call this endpoint - /api/googleSearch
-        $this->callCurl(env('NODE_SCRAPER_SERVER') . "api/googleSearch", $postData);
+        $this->callCurl(env('NODE_SCRAPER_SERVER').'api/googleSearch', $postData);
 
         //call priority api call for google affiliate search
         $affiliateKeywords = HashTag::where('priority', 1)->where('platforms_id', 3)->get(['hashtag', 'id']);
@@ -53,25 +53,26 @@ class RunPriorityKeywordSearch extends Command
         $postData = json_encode($affiliateKeywords);
 
         // call this endpoint - /api/googleSearchDetails
-        $this->callCurl(env('NODE_SCRAPER_SERVER') . "api/googleSearchDetails", $postData);
+        $this->callCurl(env('NODE_SCRAPER_SERVER').'api/googleSearchDetails', $postData);
     }
 
-    function callCurl($url, $postData){
+    public function callCurl($url, $postData)
+    {
         // call this endpoint
         $curl = curl_init();
-        curl_setopt_array($curl, array(
-        CURLOPT_URL => $url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => "",
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => "POST",
-        CURLOPT_HTTPHEADER => array(
-            "Content-Type: application/json",
-        ),
-        CURLOPT_POSTFIELDS => "$postData"
-        ));
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+            ],
+            CURLOPT_POSTFIELDS => "$postData",
+        ]);
         $response = curl_exec($curl);
         $err = curl_error($curl);
         curl_close($curl);

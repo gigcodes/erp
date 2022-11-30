@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -8,7 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class KeywordToCategory extends Model
 {
-    public function orderStatus() {
+    public function orderStatus()
+    {
         if ($this->category_type != 'order') {
             return null;
         }
@@ -27,12 +29,12 @@ class KeywordToCategory extends Model
             'Refund Dispatched' => 'Refund Dispatched',
             'Refund Credited' => 'Refund Credited',
             'VIP' => 'VIP',
-            'HIGH PRIORITY' => 'HIGH PRIORITY'
+            'HIGH PRIORITY' => 'HIGH PRIORITY',
         ][$this->model_id] ?? null;
-
     }
 
-    public function leadStatus() {
+    public function leadStatus()
+    {
         if ($this->category_type != 'lead') {
             return null;
         }
@@ -43,16 +45,16 @@ class KeywordToCategory extends Model
             '3' => 'Hot',
             '4' => 'Very Hot',
             '5' => 'Advance Follow Up',
-            '6' => 'High Priority'
+            '6' => 'High Priority',
         ][$this->model_id] ?? 'N/A';
     }
 
-    public function category() {
+    public function category()
+    {
         if ($this->category_type != 'category') {
             return null;
         }
 
         return $this->belongsTo(CustomerCategory::class, 'model_id', 'id');
-
     }
 }

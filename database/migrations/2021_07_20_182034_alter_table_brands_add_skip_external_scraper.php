@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableBrandsAddSkipExternalScraper extends Migration
 {
@@ -14,7 +14,7 @@ class AlterTableBrandsAddSkipExternalScraper extends Migration
     public function up()
     {
         //
-        Schema::table("brands", function(Blueprint $table) {
+        Schema::table('brands', function (Blueprint $table) {
             $table->integer('next_step')->nullable()->after('priority');
         });
     }
@@ -27,7 +27,7 @@ class AlterTableBrandsAddSkipExternalScraper extends Migration
     public function down()
     {
         //
-        Schema::table("brands", function(Blueprint $table) {
+        Schema::table('brands', function (Blueprint $table) {
             $table->dropField('next_step');
         });
     }

@@ -9,6 +9,7 @@ use App\InfluencersDM;
 use App\InstagramAutomatedMessages;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+
 //use InstagramAPI\Instagram;
 
 class SendMessagesToBloggers extends Command
@@ -67,7 +68,7 @@ class SendMessagesToBloggers extends Command
 //
 //                try {
 //                    $ig->login($account->last_name, $account->password);
-////                $ig->login('rishabh_aryal', 'R1shabh@12345');
+        ////                $ig->login('rishabh_aryal', 'R1shabh@12345');
 //                    $userinfo = $ig->people->getInfoByName($targetUsername)->asArray();
 //                } catch (\Exception $exception) {
 //                    continue;

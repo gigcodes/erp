@@ -38,13 +38,12 @@ class ConvertToEuroCashflow extends Command
     public function handle()
     {
         //
-        $cashflow = \App\CashFlow::where("amount_eur","<=",0)->where("currency","!=", "")->get();
-        if(!$cashflow->isEmpty()) {
-            foreach($cashflow as $cas) {
-                $cas->amount_eur = \App\Currency::convert($cas->amount,'EUR',$cas->currency);
+        $cashflow = \App\CashFlow::where('amount_eur', '<=', 0)->where('currency', '!=', '')->get();
+        if (! $cashflow->isEmpty()) {
+            foreach ($cashflow as $cas) {
+                $cas->amount_eur = \App\Currency::convert($cas->amount, 'EUR', $cas->currency);
                 $cas->save();
             }
         }
-
     }
 }

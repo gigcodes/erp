@@ -1,21 +1,26 @@
-<?php namespace Modules\BookStack\Actions;
+<?php
 
+namespace Modules\BookStack\Actions;
+
+use Illuminate\Support\Collection;
 use Modules\BookStack\Auth\Permissions\PermissionService;
 use Modules\BookStack\Entities\Entity;
 use Modules\BookStack\Entities\EntityProvider;
-use Illuminate\Support\Collection;
 
 class ViewService
 {
     protected $view;
+
     protected $permissionService;
+
     protected $entityProvider;
 
     /**
      * ViewService constructor.
-     * @param \BookStack\Actions\View $view
-     * @param \BookStack\Auth\Permissions\PermissionService $permissionService
-     * @param EntityProvider $entityProvider
+     *
+     * @param  \BookStack\Actions\View  $view
+     * @param  \BookStack\Auth\Permissions\PermissionService  $permissionService
+     * @param  EntityProvider  $entityProvider
      */
     public function __construct(View $view, PermissionService $permissionService, EntityProvider $entityProvider)
     {
@@ -26,7 +31,8 @@ class ViewService
 
     /**
      * Add a view to the given entity.
-     * @param Entity $entity
+     *
+     * @param  Entity  $entity
      * @return int
      */
     public function add(Entity $entity)
@@ -39,13 +45,14 @@ class ViewService
         // Add view if model exists
         if ($view) {
             $view->increment('views');
+
             return $view->views;
         }
 
         // Otherwise create new view count
         $entity->views()->save($this->view->create([
             'user_id' => $user->id,
-            'views' => 1
+            'views' => 1,
         ]));
 
         return 1;
@@ -53,10 +60,11 @@ class ViewService
 
     /**
      * Get the entities with the most views.
-     * @param int $count
-     * @param int $page
-     * @param string|array $filterModels
-     * @param string $action - used for permission checking
+     *
+     * @param  int  $count
+     * @param  int  $page
+     * @param  string|array  $filterModels
+     * @param  string  $action - used for permission checking
      * @return Collection
      */
     public function getPopular(int $count = 10, int $page = 0, $filterModels = null, string $action = 'view')
@@ -77,9 +85,10 @@ class ViewService
 
     /**
      * Get all recently viewed entities for the current user.
-     * @param int $count
-     * @param int $page
-     * @param Entity|bool $filterModel
+     *
+     * @param  int  $count
+     * @param  int  $page
+     * @param  Entity|bool  $filterModel
      * @return mixed
      */
     public function getUserRecentlyViewed($count = 10, $page = 0, $filterModel = false)
@@ -99,6 +108,7 @@ class ViewService
 
         $viewables = $query->with('viewable')->orderBy('updated_at', 'desc')
             ->skip($count * $page)->take($count)->get()->pluck('viewable');
+
         return $viewables;
     }
 

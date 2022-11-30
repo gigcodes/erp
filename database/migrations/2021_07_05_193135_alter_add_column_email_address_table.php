@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterAddColumnEmailAddressTable extends Migration
 {
@@ -14,8 +14,8 @@ class AlterAddColumnEmailAddressTable extends Migration
     public function up()
     {
         Schema::table('email_addresses', function (Blueprint $table) {
-            $table->string("recovery_phone")->after('from_address')->nullable();
-            $table->string("recovery_email")->after('recovery_phone')->nullable();
+            $table->string('recovery_phone')->after('from_address')->nullable();
+            $table->string('recovery_email')->after('recovery_phone')->nullable();
         });
     }
 

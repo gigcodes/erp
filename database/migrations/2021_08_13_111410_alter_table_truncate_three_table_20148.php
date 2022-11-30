@@ -1,11 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use App\ProductDiscountExcelFile;
-use App\SupplierDiscountLogHistory;
 use App\SupplierBrandDiscount;
+use App\SupplierDiscountLogHistory;
+use Illuminate\Database\Migrations\Migration;
 
 class AlterTableTruncateThreeTable20148 extends Migration
 {

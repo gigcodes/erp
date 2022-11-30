@@ -42,7 +42,7 @@ class GetCompositionFromScrapedProducts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -51,17 +51,18 @@ class GetCompositionFromScrapedProducts extends Command
             })->chunk(1000, function ($products) {
                 foreach ($products as $product) {
                     $scrapedProducts = $product->many_scraped_products;
-                    if (!$scrapedProducts) {
+                    if (! $scrapedProducts) {
                         continue;
                     }
 
                     foreach ($scrapedProducts as $scrapedProduct) {
-                        $properties  = $scrapedProduct->properties;
+                        $properties = $scrapedProduct->properties;
                         $composition = $properties['material_used'] ?? null;
                         if ($composition !== 'null' && $composition !== null && $composition !== '') {
                             dump($composition);
                             $product->composition = title_case($composition);
                             $product->save();
+
                             continue;
                         }
                     }

@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AlterRemoveUniquePhoneCustomerTableTable extends Migration
@@ -15,9 +13,9 @@ class AlterRemoveUniquePhoneCustomerTableTable extends Migration
     {
         //
         try {
-            DB::select("ALTER TABLE `customers` DROP INDEX `phone`;");
-            DB::select("ALTER TABLE `customers` ADD INDEX(`phone`);");
-        }catch(\Exception $e) {
+            DB::select('ALTER TABLE `customers` DROP INDEX `phone`;');
+            DB::select('ALTER TABLE `customers` ADD INDEX(`phone`);');
+        } catch(\Exception $e) {
             \Log::info($e->getMessage());
         }
     }

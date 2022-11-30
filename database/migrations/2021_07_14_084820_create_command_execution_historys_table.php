@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateCommandExecutionHistorysTable extends Migration
 {
@@ -18,7 +18,7 @@ class CreateCommandExecutionHistorysTable extends Migration
             $table->string('command_name')->nullable();
             $table->longText('command_answer')->nullable();
             $table->integer('user_id')->nullable();
-            $table->integer("status")->default(0);
+            $table->integer('status')->default(0);
             $table->timestamps();
         });
     }

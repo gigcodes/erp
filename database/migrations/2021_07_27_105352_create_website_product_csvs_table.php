@@ -1,9 +1,8 @@
 <?php
 
-use App\WebsiteProductCsv;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateWebsiteProductCsvsTable extends Migration
 {
@@ -20,7 +19,6 @@ class CreateWebsiteProductCsvsTable extends Migration
             $table->string('path');
             $table->timestamps();
         });
-     
     }
 
     /**

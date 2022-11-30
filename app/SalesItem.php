@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -8,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SalesItem extends Model
 {
-	 /**
+    /**
      * @var string
      * @SWG\Property(property="sales_item",type="string")
      * @SWG\Property(property="images",type="string")
@@ -20,6 +21,6 @@ class SalesItem extends Model
     protected $casts = [
         'images' => 'array',
         'sizes' => 'array',
-        'category' => 'array'
+        'category' => 'array',
     ];
 }

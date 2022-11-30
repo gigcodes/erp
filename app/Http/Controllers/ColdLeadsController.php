@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Account;
-use App\Brand;
 use App\ColdLeads;
 use App\Customer;
 //use App\InstagramDirectMessages;
 //use App\InstagramThread;
-use App\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+
 //use InstagramAPI\Instagram;
 //use InstagramAPI\Media\Photo\InstagramPhoto;
 
@@ -25,14 +24,14 @@ class ColdLeadsController extends Controller
      */
     public function index(Request $request)
     {
-        
-        if (!$request->isXmlHttpRequest()) {
-            if(isset($request->via)){
+        if (! $request->isXmlHttpRequest()) {
+            if (isset($request->via)) {
                 $via = $request->via;
-            }else{
+            } else {
                 $via = '';
             }
-            return view('cold_leads.index',compact('via'));
+
+            return view('cold_leads.index', compact('via'));
         }
 
         $this->validate($request, [
@@ -42,7 +41,7 @@ class ColdLeadsController extends Controller
         if (strlen($request->get('query')) >= 4) {
             $query = $request->get('query');
             $leads = ColdLeads::where('status', '>', 0)
-                ->where(function($q) use ($query) {
+                ->where(function ($q) use ($query) {
                     $q->where('name', 'LIKE', "%$query%");
                     $q->where('username', 'LIKE', "%$query%");
                 });
@@ -64,9 +63,8 @@ class ColdLeadsController extends Controller
 
         return response()->json([
             'leads' => $leads,
-            'accounts' => $accounts
+            'accounts' => $accounts,
         ]);
-
     }
 
     /**
@@ -141,8 +139,8 @@ class ColdLeadsController extends Controller
         return redirect()->back()->with('message', 'Cold lead deleted successfully!');
     }
 
-    public function sendMessage($leadId, Request $request) {
-        
+    public function sendMessage($leadId, Request $request)
+    {
         // $this->validate($request, [
         //     'account_id' => 'required'
         // ]);
@@ -154,13 +152,12 @@ class ColdLeadsController extends Controller
         //Commenting to sending from other accounts now will only be sending from admin
         //$senderUsername = $account->last_name;
         //$password = $account->password;
-        
+
         $senderUsername = env('IG_USERNAME');
         $password = env('IG_PASSWORD');
 
-        
         $receiverId = $lead->platform_id;
-        
+
         $message = $request->get('message');
 
         if (strlen($receiverId) < 5) {
@@ -205,7 +202,6 @@ class ColdLeadsController extends Controller
 //            'sender_id' => $status[1],
 //            'message' => $status[2]
 //        ]);
-
     }
 
 //    private function sendFileToInstagramUser($sender, $password, $receiver, $file, $lead) {
@@ -296,11 +292,12 @@ class ColdLeadsController extends Controller
 //        return response()->json($processedThread);
 //    }
 
-    public function addToCustomer($leadId) {
-
+    public function addToCustomer($leadId)
+    {
     }
 
-    public function deleteColdLead(Request $request) {
+    public function deleteColdLead(Request $request)
+    {
         $leadId = $request->get('lead_id');
         $dl = ColdLeads::findOrFail($leadId);
 //        try {
@@ -315,15 +312,16 @@ class ColdLeadsController extends Controller
         $dl->forceDelete();
 
         return response()->json([
-            'status' => 'success'
+            'status' => 'success',
         ]);
     }
 
-    public function showImportedColdLeads(Request $request) {
+    public function showImportedColdLeads(Request $request)
+    {
         $leads = ColdLeads::where('is_imported', 1);
 
         if ($request->get('address') !== '') {
-            $leads = $leads->where(function($query) use($request) {
+            $leads = $leads->where(function ($query) use ($request) {
                 $query->where('address', 'LIKE', $request->get('address'))
                     ->orWhere('name', 'LIKE', $request->get('address'))
                     ->orWhere('username', 'LIKE', $request->get('address'))
@@ -338,9 +336,10 @@ class ColdLeadsController extends Controller
         return view('leads.imported_index', compact('leads', 'query'));
     }
 
-    public function addLeadToCustomer(Request $request) {
+    public function addLeadToCustomer(Request $request)
+    {
         $this->validate($request, [
-            'cold_lead_id' => 'required'
+            'cold_lead_id' => 'required',
         ]);
 
         $lead = ColdLeads::find($request->get('cold_lead_id'));
@@ -358,19 +357,17 @@ class ColdLeadsController extends Controller
             $lead->save();
         }
 
-
         return response()->json([
-            'status' => 'success'
+            'status' => 'success',
         ]);
-
     }
 
     public function home(Request $request)
     {
-            if (strlen($request->get('query')) >= 4) {
+        if (strlen($request->get('query')) >= 4) {
             $query = $request->get('query');
             $leads = ColdLeads::where('status', '>', 0)
-                ->where(function($q) use ($query) {
+                ->where(function ($q) use ($query) {
                     $q->where('name', 'LIKE', "%$query%");
                     $q->where('username', 'LIKE', "%$query%");
                 });
@@ -390,8 +387,6 @@ class ColdLeadsController extends Controller
 
         $accounts = Account::where('platform', 'instagram')->where('broadcast', 1)->get();
 
-        return view('instagram.direct-message.index',compact('leads','accounts'));
-    
+        return view('instagram.direct-message.index', compact('leads', 'accounts'));
     }
-
 }

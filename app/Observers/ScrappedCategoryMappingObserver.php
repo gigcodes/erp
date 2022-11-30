@@ -16,7 +16,7 @@ class ScrappedCategoryMappingObserver
     public function created(Category $category)
     {
         //
-       // $this->create($category);
+        // $this->create($category);
     }
 
     /**
@@ -28,7 +28,7 @@ class ScrappedCategoryMappingObserver
     public function updated(Category $category)
     {
         //
-       // $this->create($category);
+        // $this->create($category);
     }
 
     /**
@@ -66,23 +66,21 @@ class ScrappedCategoryMappingObserver
 
     protected function create($category)
     {
-        $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
+        $unKnownCategory = Category::where('title', 'LIKE', '%Unknown Category%')->first();
         $unKnownCategories = explode(',', $unKnownCategory->references);
         $unKnownCategories = array_unique($unKnownCategories);
 
-        $exist_data  = ScrappedCategoryMapping::whereIn('name',$unKnownCategories)->get()->toArray();
+        $exist_data = ScrappedCategoryMapping::whereIn('name', $unKnownCategories)->get()->toArray();
 
-        foreach ($unKnownCategories as $key => $val)
-        {
-            if (!in_array($val, $exist_data))
-            {
+        foreach ($unKnownCategories as $key => $val) {
+            if (! in_array($val, $exist_data)) {
                 // ScrappedCategoryMapping::create([
                 //     "name" => $val,
                 // ]);
                 ScrappedCategoryMapping::updateOrCreate([
-                    "name" => $val,
-                ],[
-                    "name" => $val
+                    'name' => $val,
+                ], [
+                    'name' => $val,
                 ]);
             }
         }

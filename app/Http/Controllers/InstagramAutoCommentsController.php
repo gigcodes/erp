@@ -19,7 +19,6 @@ class InstagramAutoCommentsController extends Controller
         $comments = InstagramAutoComments::orderBy('updated_at', 'DESC')->get();
         $countries = TargetLocation::all();
 
-
         return view('instagram.auto_comments.index', compact('comments', 'countries'));
     }
 
@@ -43,7 +42,7 @@ class InstagramAutoCommentsController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'text' => 'required'
+            'text' => 'required',
         ]);
 
         $comment = new InstagramAutoComments();
@@ -67,7 +66,7 @@ class InstagramAutoCommentsController extends Controller
     public function show($action, Request $request)
     {
         $this->validate($request, [
-            'comments' => 'required'
+            'comments' => 'required',
         ]);
 
         InstagramAutoComments::whereIn('id', $request->get('comments'))->delete();
@@ -99,7 +98,6 @@ class InstagramAutoCommentsController extends Controller
      */
     public function update(Request $request, $id)
     {
-
         $comment = InstagramAutoComments::findOrFail($id);
         $comment->comment = $request->get('text');
         $comment->source = $request->get('source');

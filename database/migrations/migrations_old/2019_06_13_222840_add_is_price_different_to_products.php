@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIsPriceDifferentToProducts extends Migration
 {
@@ -14,7 +14,7 @@ class AddIsPriceDifferentToProducts extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-          $table->boolean('is_price_different')->default(0);
+            $table->boolean('is_price_different')->default(0);
         });
     }
 
@@ -26,7 +26,7 @@ class AddIsPriceDifferentToProducts extends Migration
     public function down()
     {
         Schema::table('products', function (Blueprint $table) {
-          $table->dropColumn('is_price_different');
+            $table->dropColumn('is_price_different');
         });
     }
 }

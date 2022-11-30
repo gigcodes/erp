@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIsDeletedToStoreWebsiteUsers extends Migration
 {
@@ -13,7 +13,7 @@ class AddIsDeletedToStoreWebsiteUsers extends Migration
      */
     public function up()
     {
-        Schema::table('store_website_users',function(Blueprint $table) {
+        Schema::table('store_website_users', function (Blueprint $table) {
             $table->integer('is_deleted')->default('0')->after('password');
         });
     }
@@ -25,7 +25,7 @@ class AddIsDeletedToStoreWebsiteUsers extends Migration
      */
     public function down()
     {
-         Schema::table('store_website_users',function(Blueprint $table) {
+        Schema::table('store_website_users', function (Blueprint $table) {
             $table->dropField('is_deleted');
         });
     }

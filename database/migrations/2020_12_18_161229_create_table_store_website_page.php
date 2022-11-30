@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTableStoreWebsitePage extends Migration
 {
@@ -14,7 +14,7 @@ class CreateTableStoreWebsitePage extends Migration
     public function up()
     {
         //
-        Schema::create('store_website_pages',function(Blueprint $table) {
+        Schema::create('store_website_pages', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title')->nullable();
             $table->string('meta_title')->nullable();

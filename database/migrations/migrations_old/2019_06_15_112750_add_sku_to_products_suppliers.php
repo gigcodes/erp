@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddSkuToProductsSuppliers extends Migration
 {
@@ -14,7 +14,7 @@ class AddSkuToProductsSuppliers extends Migration
     public function up()
     {
         Schema::table('product_suppliers', function (Blueprint $table) {
-          $table->string('sku')->nullable()->after('supplier_id');
+            $table->string('sku')->nullable()->after('supplier_id');
         });
     }
 
@@ -26,7 +26,7 @@ class AddSkuToProductsSuppliers extends Migration
     public function down()
     {
         Schema::table('product_suppliers', function (Blueprint $table) {
-          $table->dropColumn('sku');
+            $table->dropColumn('sku');
         });
     }
 }

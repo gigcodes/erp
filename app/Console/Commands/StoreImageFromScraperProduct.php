@@ -38,32 +38,32 @@ class StoreImageFromScraperProduct extends Command
     public function handle()
     {
         //
-        $images = \App\Product::join("mediables as med",function($q) {
-            $q->on("med.mediable_id","products.id");
-            $q->where("med.mediable_type",\App\Product::class);
-            $q->where("med.tag","original");
+        $images = \App\Product::join('mediables as med', function ($q) {
+            $q->on('med.mediable_id', 'products.id');
+            $q->where('med.mediable_type', \App\Product::class);
+            $q->where('med.tag', 'original');
         })
-        ->leftJoin("media as m","m.id","med.media_id")
-        ->where("products.is_cron_check",0)
-        ->select(["products.*","m.id as media_id"])
-        ->havingRaw("media_id is null")
-        ->groupBy("products.id")
+        ->leftJoin('media as m', 'm.id', 'med.media_id')
+        ->where('products.is_cron_check', 0)
+        ->select(['products.*', 'm.id as media_id'])
+        ->havingRaw('media_id is null')
+        ->groupBy('products.id')
         ->get();
 
-        if(!$images->isEmpty()) {
-            foreach($images as $im) {
-                \Log::info("Product started => ".$im->id);
-                $this->info("Product started => ".$im->id);
-                $scrapedProducts = \App\ScrapedProducts::where("sku",$im->sku)->orWhere("product_id",$im->id)->first();
-                if($scrapedProducts) {
-                    // delete image which is original 
-                    \DB::table("mediables")->where("mediable_type",\App\Product::class)->where("mediable_id",$im->id)->where("tag","original")->delete();
+        if (! $images->isEmpty()) {
+            foreach ($images as $im) {
+                \Log::info('Product started => '.$im->id);
+                $this->info('Product started => '.$im->id);
+                $scrapedProducts = \App\ScrapedProducts::where('sku', $im->sku)->orWhere('product_id', $im->id)->first();
+                if ($scrapedProducts) {
+                    // delete image which is original
+                    \DB::table('mediables')->where('mediable_type', \App\Product::class)->where('mediable_id', $im->id)->where('tag', 'original')->delete();
                     $listOfImages = $scrapedProducts->images;
-                    if(!empty($listOfImages) && is_array($listOfImages)) {
-                        $this->info("Product images found => ".count($listOfImages));
+                    if (! empty($listOfImages) && is_array($listOfImages)) {
+                        $this->info('Product images found => '.count($listOfImages));
                         $im->attachImagesToProduct($listOfImages);
                     }
-                    if(in_array($im->status_id, [9,12])) {
+                    if (in_array($im->status_id, [9, 12])) {
                         $im->status_id = 4;
                         $im->save();
                     }
@@ -73,6 +73,5 @@ class StoreImageFromScraperProduct extends Command
                 $im->save();
             }
         }
-
     }
 }

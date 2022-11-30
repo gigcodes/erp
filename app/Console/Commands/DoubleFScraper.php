@@ -15,6 +15,7 @@ class DoubleFScraper extends Command
      * @var string
      */
     protected $signature = 'scrap:doublef-list';
+
     private $scraper;
 
     /**
@@ -26,7 +27,8 @@ class DoubleFScraper extends Command
 
     /**
      * Create a new command instance.
-     * @param DoubleF $scraper
+     *
+     * @param  DoubleF  $scraper
      */
     public function __construct(DoubleF $scraper)
     {
@@ -43,7 +45,7 @@ class DoubleFScraper extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 

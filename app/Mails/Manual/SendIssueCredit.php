@@ -18,7 +18,6 @@ class SendIssueCredit extends Mailable
      *
      * @return void
      */
-
     public $customer;
 
     public function __construct(Customer $customer)
@@ -34,14 +33,12 @@ class SendIssueCredit extends Mailable
      */
     public function build()
     {
-
-        $subject = "Customer Credit Issued";
+        $subject = 'Customer Credit Issued';
         $customer = $this->customer;
 
         $this->subject = $subject;
-        $this->fromMailer = "customercare@sololuxury.co.in";
+        $this->fromMailer = 'customercare@sololuxury.co.in';
         try {
-
             if ($customer) {
                 if ($customer->store_website_id > 0) {
                     $emailAddress = \App\EmailAddress::where('store_website_id', $customer->store_website_id)->first();
@@ -61,9 +58,10 @@ class SendIssueCredit extends Mailable
                         $this->fromMailer = $template->from_email;
                     }
 
-                    if (!empty($template->mail_tpl)) {
+                    if (! empty($template->mail_tpl)) {
                         // need to fix the all email address
                         $this->subject = $template->subject;
+
                         return $this->subject($template->subject)
                         ->view($template->mail_tpl, compact(
                             'customer'
@@ -72,17 +70,16 @@ class SendIssueCredit extends Mailable
 
                     return false;
                 }
+
                 return $this->subject($this->subject)->markdown('emails.customers.issue-credit');
             }
         } catch (\Exception $e) {
-            $post = array(
+            $post = [
                 'customer-id' => $customer->id,
                 'subject' => $subject,
                 'from' => $this->fromMailer,
-            );
+            ];
             \App\CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => $e->getMessage(), 'status' => 'failure']);
         }
-
     }
-    
 }

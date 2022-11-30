@@ -2,87 +2,81 @@
 
 namespace App\Exports;
 
-use App\Customer;
 use App\DeveloperTask;
-use App\User;
+use App\DeveloperTaskHistory;
 use App\Task;
+use App\User;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Events\AfterSheet;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
-use App\DeveloperTaskHistory;
 
 class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings, WithEvents
 {
-  protected $user;
+    protected $user;
 
-  public function __construct(array $user)
-  {
-    $this->user = $user;
-
-  }
-
-  	public function registerEvents() : array
+    public function __construct(array $user)
     {
-        return [
-            AfterSheet::class => function(AfterSheet $event) {
-                // $event->sheet->getDelegate()->setAutoSize(true);
-                $event->sheet->getDelegate()->getColumnDimension('A')->setAutoSize(true);
-                $event->sheet->getDelegate()->getColumnDimension('B')->setAutoSize(true);
-                $event->sheet->getDelegate()->getColumnDimension('C')->setAutoSize(true);           
-                $event->sheet->getDelegate()->getColumnDimension('D')->setAutoSize(true);
-                $event->sheet->getDelegate()->getColumnDimension('E')->setAutoSize(true);
-                $event->sheet->getDelegate()->getColumnDimension('F')->setAutoSize(true);
-                $event->sheet->getDelegate()->getColumnDimension('G')->setAutoSize(true);
-                $event->sheet->getDelegate()->getColumnDimension('H')->setAutoSize(true);
-            }
-        ];
+        $this->user = $user;
     }
 
-    /**
-    * @return \Illuminate\Support\Collection
-    */
-    public function array(): array
-    {
-      $new_customers = [];
-      // dd( $this->user );
-      $total_amount = 0;
-      $total_amount_paid = 0;
-      $total_balance = 0;
-      $index = 0;
-
-      foreach ($this->user as $key => $user) {
-         
-        foreach($user as $kk => $val){
-            $index = $index+1;
-
-            $total_amount += $val['amount'] ?? 0;
-            $total_amount_paid += $val['amount_paid'] ?? 0;
-            $total_balance += $val['balance'] ?? 0;
-            
-            $new_customers[$index]['date'] = $val['date'] ?? null;
-            $new_customers[$index]['details'] = $val['details'] ?? null;
-            $new_customers[$index]['category'] = $val['category'] ?? null;
-            $new_customers[$index]['time_spent'] = $val['time_spent'] ?? null;
-            $new_customers[$index]['amount'] = $val['amount'] ?? 0;
-            $new_customers[$index]['currency'] = $val['currency'] ?? null;
-            $new_customers[$index]['amount_paid'] = $val['amount_paid'] ?? 0;
-            $new_customers[$index]['balance'] = $val['balance'] ?? 0;
-        }
+      public function registerEvents(): array
+      {
+          return [
+              AfterSheet::class => function (AfterSheet $event) {
+                  // $event->sheet->getDelegate()->setAutoSize(true);
+                  $event->sheet->getDelegate()->getColumnDimension('A')->setAutoSize(true);
+                  $event->sheet->getDelegate()->getColumnDimension('B')->setAutoSize(true);
+                  $event->sheet->getDelegate()->getColumnDimension('C')->setAutoSize(true);
+                  $event->sheet->getDelegate()->getColumnDimension('D')->setAutoSize(true);
+                  $event->sheet->getDelegate()->getColumnDimension('E')->setAutoSize(true);
+                  $event->sheet->getDelegate()->getColumnDimension('F')->setAutoSize(true);
+                  $event->sheet->getDelegate()->getColumnDimension('G')->setAutoSize(true);
+                  $event->sheet->getDelegate()->getColumnDimension('H')->setAutoSize(true);
+              },
+          ];
       }
 
+      /**
+       * @return \Illuminate\Support\Collection
+       */
+      public function array(): array
+      {
+          $new_customers = [];
+          // dd( $this->user );
+          $total_amount = 0;
+          $total_amount_paid = 0;
+          $total_balance = 0;
+          $index = 0;
 
+          foreach ($this->user as $key => $user) {
+              foreach ($user as $kk => $val) {
+                  $index = $index + 1;
 
-    //START - Purpose : Comment Code - DEVTASK-4300
-    //   foreach ($this->user as $key => $user) {
-        
+                  $total_amount += $val['amount'] ?? 0;
+                  $total_amount_paid += $val['amount_paid'] ?? 0;
+                  $total_balance += $val['balance'] ?? 0;
+
+                  $new_customers[$index]['date'] = $val['date'] ?? null;
+                  $new_customers[$index]['details'] = $val['details'] ?? null;
+                  $new_customers[$index]['category'] = $val['category'] ?? null;
+                  $new_customers[$index]['time_spent'] = $val['time_spent'] ?? null;
+                  $new_customers[$index]['amount'] = $val['amount'] ?? 0;
+                  $new_customers[$index]['currency'] = $val['currency'] ?? null;
+                  $new_customers[$index]['amount_paid'] = $val['amount_paid'] ?? 0;
+                  $new_customers[$index]['balance'] = $val['balance'] ?? 0;
+              }
+          }
+
+          //START - Purpose : Comment Code - DEVTASK-4300
+          //   foreach ($this->user as $key => $user) {
+
     //     // foreach($user['tasks'] as $key =>  $ut) {
-	      	
+
     //         $userDev = User::find($user['user_id']);
     //         // dump($userDev->id);
-	//       	// @list($taskid,$devtask,$taskName,$estimation,$status,$devTaskId) = explode("||",$ut);
+    //       	// @list($taskid,$devtask,$taskName,$estimation,$status,$devTaskId) = explode("||",$ut);
     //         if ($user['is_manual']) {
     //             $task = DeveloperTask::where('id', $user['task_id'])->first();
     //             if ($task) {
@@ -121,19 +115,19 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
     //             $new_customers[$key]['TimeTracked'] =  ( isset($trackedTime)  && isset($devTask->subject)) ? number_format($trackedTime / 60,2,".",",") : 'N/A';
     //             $new_customers[$key]['estimated_time'] = !empty($est) ? $est->new_value ?? 'N/A' : 'N/A';
     //             $new_customers[$key]['status'] = $devTask->status ?? 'N/A';
-    
+
     //             // array_push($new_customers);
-    
+
     //         }
     //         if( empty( $devTask ) ){
     //             continue;
     //         }
     //         // $task = \App\Hubstaff\HubstaffActivity::where('task_id', $user['task_id'])->first();
     //         // dd( $devTask );
-	//       	$trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $user['task_id'])->sum('tracked');
-	//       	$time_history = \App\DeveloperTaskHistory::where('developer_task_id',$devTask->id)->where('attribute','estimation_minute')->where('is_approved',1)->first();
+    //       	$trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $user['task_id'])->sum('tracked');
+    //       	$time_history = \App\DeveloperTaskHistory::where('developer_task_id',$devTask->id)->where('attribute','estimation_minute')->where('is_approved',1)->first();
 
-	//       	if($time_history) {
+    //       	if($time_history) {
     //             $est_time = $time_history->new_value;
     //         }
     //         else {
@@ -148,62 +142,59 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
 
     //         if( $devTask ){
     //             $est = DeveloperTaskHistory::where('developer_task_id', $user['task_id'])->latest()->first();
-    // 	        $new_customers[$key]['User'] = $userDev->name ?? null;
+          // 	        $new_customers[$key]['User'] = $userDev->name ?? null;
     //             $new_customers[$key]['date'] = \Carbon\Carbon::parse($user['date'])->format('d-m');
-    // 	        $new_customers[$key]['TaskId'] = $taskSubject;
-    // 	        $new_customers[$key]['TimeAppr'] = $est_time;
-    // 	        $new_customers[$key]['TimeDiff'] = $diff;
-    // 	        $new_customers[$key]['TimeTracked'] =  ( $trackedTime && $devTask->subject) ? number_format($trackedTime / 60,2,".",",") : 'N/A';
+          // 	        $new_customers[$key]['TaskId'] = $taskSubject;
+          // 	        $new_customers[$key]['TimeAppr'] = $est_time;
+          // 	        $new_customers[$key]['TimeDiff'] = $diff;
+          // 	        $new_customers[$key]['TimeTracked'] =  ( $trackedTime && $devTask->subject) ? number_format($trackedTime / 60,2,".",",") : 'N/A';
     //             $new_customers[$key]['estimated_time'] = !empty($est) ? $est->new_value ?? 'N/A' : 'N/A';
-    // 	        $new_customers[$key]['estimated_time'] = $user['estimated_time'];
-    // 	        $new_customers[$key]['status'] = $devTask->status;
+          // 	        $new_customers[$key]['estimated_time'] = $user['estimated_time'];
+          // 	        $new_customers[$key]['status'] = $devTask->status;
 
-    // 	        if (is_numeric($est_time) && $devTask->subject) {
-    // 	        	$totalApproved += $est_time ?? 0;
-    // 	        }
+          // 	        if (is_numeric($est_time) && $devTask->subject) {
+          // 	        	$totalApproved += $est_time ?? 0;
+          // 	        }
 
-    // 	        if (is_numeric($diff) && $devTask->subject) {
-    // 	        	$totalDiff += $diff;
-    // 	        }
-    // 	        if ($trackedTime && $devTask->subject) {
-    // 	        	 $totalTrack += $trackedTime;
-    // 	        }
+          // 	        if (is_numeric($diff) && $devTask->subject) {
+          // 	        	$totalDiff += $diff;
+          // 	        }
+          // 	        if ($trackedTime && $devTask->subject) {
+          // 	        	 $totalTrack += $trackedTime;
+          // 	        }
     //             // array_push($new_customers);
     //             // dump([$key, $new_customers, 'out']);
 
-    //         } 
+    //         }
 
-            
     //         // if ($user['estimated_time'] !== null) {
     //         //     $estimatedTime += $user['estimated_time'];
     //         // }
 
-    //   	// }
-    //   }
+          //   	// }
+          //   }
 
-    //END - DEVTASK-4300
-    
-    //START - Purpose : Genrate Excel Sheet - DEVTASK-4300
-    // $index = 0;
-    // $total_time_tracked = 0;
-    // $total_time_approved = 0;
-    // $total_time_panding = 0;
-    // $total_user_requested = 0;
-    // $total_panding_payment_type = 0;
+          //END - DEVTASK-4300
 
-    // foreach ($this->user as $key => $user) {
+          //START - Purpose : Genrate Excel Sheet - DEVTASK-4300
+          // $index = 0;
+          // $total_time_tracked = 0;
+          // $total_time_approved = 0;
+          // $total_time_panding = 0;
+          // $total_user_requested = 0;
+          // $total_panding_payment_type = 0;
+
+          // foreach ($this->user as $key => $user) {
     //     foreach($user as $kkk => $vvv) {
 
     //         $index = $index+1;
-            
+
     //         $new_customers[$index]['Date'] = $vvv['date'];
     //         $new_customers[$index]['User'] = $vvv['userName'];
     //         $new_customers[$index]['Time_tracked_1'] = number_format($vvv['total_tracked'] / 60,2,".",",");
 
     //         $total_time_tracked += number_format($vvv['total_tracked'] / 60,2,".",",");
 
-            
-            
     //         foreach($vvv['tasks'] as $kk => $vv) {
     //                 @list($taskid,$devtask,$taskName,$estimation,$status,$devTaskId) = explode("||",$vv);
 
@@ -216,7 +207,6 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
     //                     $est_time = 0;
     //                 }
 
-                   
     //                 $old_key_index= $index;
     //                 if($taskid)
     //                 {
@@ -229,9 +219,8 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
     //                             $Time_tracked_2 = (isset($trackedTime) && $devtask ) ? number_format($trackedTime / 60,2,".",",") : 'N/A';
     //                         else
     //                             $Time_tracked_2 = 'N/A';
-                            
-    //                         $new_customers[$index]['Time_tracked_2'] = $Time_tracked_2;
 
+    //                         $new_customers[$index]['Time_tracked_2'] = $Time_tracked_2;
 
     //                         $new_customers[$index]['Time_estimation'] = (isset($taskName) ? $estimation : 'N/A');
 
@@ -247,8 +236,8 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
     //                                 $Time_diff = 'N/A';
     //                         }else{
     //                             $Time_diff = 'N/A';
-    //                         }   
-                            
+    //                         }
+
     //                         $new_customers[$index]['Time_diff'] = $Time_diff;
 
     //                         if ( $taskName )
@@ -272,9 +261,8 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
     //                             $Time_tracked_2 = (isset($trackedTime) && $devtask ) ? number_format($trackedTime / 60,2,".",",") : 'N/A';
     //                         else
     //                             $Time_tracked_2 = 'N/A';
-                            
-    //                         $new_customers[$index]['Time_tracked_2'] = $Time_tracked_2;
 
+    //                         $new_customers[$index]['Time_tracked_2'] = $Time_tracked_2;
 
     //                         $new_customers[$index]['Time_estimation'] = (isset($taskName) ? $estimation : 'N/A');
 
@@ -289,8 +277,8 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
     //                                 $Time_diff = 'N/A';
     //                         }else{
     //                             $Time_diff = 'N/A';
-    //                         }   
-                            
+    //                         }
+
     //                         $new_customers[$index]['Time_diff'] = $Time_diff;
 
     //                         if ( $taskName )
@@ -312,7 +300,7 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
     //                     $index++;
     //                 }
     //                 else{
-                        
+
     //                     if(!isset($old_key))
     //                     {
     //                         $old_key = $index;
@@ -325,8 +313,7 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
     //                     }
     //                 }
     //         }
-            
-           
+
     //         $new_customers[$old_key]['Time_approved'] = number_format($vvv['totalApproved'] / 60,2,".",",");
     //         $total_time_approved += number_format($vvv['totalApproved'] / 60,2,".",",");
 
@@ -359,22 +346,22 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
     //     $new_customers[$index+4]['Status_2'] = '';
     //     $new_customers[$index+4]['Note'] = '';
 
-    // }
-    // dd($new_customers);
-    // dd("stop");
-    //END - DEVTASK-4300
- 
-    //   dd($new_customers);
-   
-     array_push($new_customers, ['Total ',null,null,null,$total_amount,null,$total_amount_paid,$total_balance]);//Purpose : Comment code - DEVATSK-4300
-     
-      return $new_customers;
-    }
+          // }
+          // dd($new_customers);
+          // dd("stop");
+          //END - DEVTASK-4300
 
-    public function headings() : array
-    {
-        // return ["User", "Date", "Task", "Time approved", "Time Diff", "Time tracked", "Estimated Time", "Status"]; //Purpose : Comment code - DEVATSK-4300
-        // return ["Date", "User", "Time tracked (Minutes)", "Tasks", "Time tracked (Minutes)", "Time Estimation (Minutes)", "Time Diff. (Minutes)", "Status","Time app.","Time approved","Time Pending","User Requested","Pending payment time","Status","Note"];//Purpose : Add Header - DEVATSK-4300
-        return ["Date","Details","Category","Time Spent","Amount","Currency","Amount Paid","Balance"];
-    }
+          //   dd($new_customers);
+
+          array_push($new_customers, ['Total ', null, null, null, $total_amount, null, $total_amount_paid, $total_balance]); //Purpose : Comment code - DEVATSK-4300
+
+          return $new_customers;
+      }
+
+      public function headings(): array
+      {
+          // return ["User", "Date", "Task", "Time approved", "Time Diff", "Time tracked", "Estimated Time", "Status"]; //Purpose : Comment code - DEVATSK-4300
+          // return ["Date", "User", "Time tracked (Minutes)", "Tasks", "Time tracked (Minutes)", "Time Estimation (Minutes)", "Time Diff. (Minutes)", "Status","Time app.","Time approved","Time Pending","User Requested","Pending payment time","Status","Note"];//Purpose : Add Header - DEVATSK-4300
+          return ['Date', 'Details', 'Category', 'Time Spent', 'Amount', 'Currency', 'Amount Paid', 'Balance'];
+      }
 }

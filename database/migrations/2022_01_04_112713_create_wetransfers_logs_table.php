@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateWetransfersLogsTable extends Migration
 {
@@ -15,7 +15,7 @@ class CreateWetransfersLogsTable extends Migration
     {
         Schema::create('wetransfers_logs', function (Blueprint $table) {
             $table->increments('id');
-			$table->longText('link');
+            $table->longText('link');
             $table->longText('log_description');
             $table->timestamps();
         });

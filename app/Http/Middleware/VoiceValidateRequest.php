@@ -13,9 +13,10 @@ class VoiceValidateRequest
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure $next
+     * @param  Request  $request
+     * @param  Closure  $next
      * @return mixed
+     *
      * @throws Exception
      */
     public function handle(Request $request, Closure $next)
@@ -24,10 +25,11 @@ class VoiceValidateRequest
 
         $isBlock = TwilioCallBlock::where('customer_number', $number)->count();
 
-        if($isBlock) {
+        if ($isBlock) {
             $response = new VoiceResponse();
-            $response->say("The number you are dialing is currently busy. Please try again later");
+            $response->say('The number you are dialing is currently busy. Please try again later');
             $response->reject();
+
             return response($response)->header('Content-Type', 'text/xml');
         }
 

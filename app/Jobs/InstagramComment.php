@@ -2,21 +2,25 @@
 
 namespace App\Jobs;
 
+use App\InstagramCommentQueue;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\InstagramCommentQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class InstagramComment implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $_message;
+
     protected $_postId;
+
     protected $_account_id;
+
     public $tries = 5;
+
     public $backoff = 5;
 
     /**
@@ -44,14 +48,14 @@ class InstagramComment implements ShouldQueue
             $comment->post_id = $this->_postId;
             $comment->account_id = $this->_account_id;
             $comment->save();
-        }catch (\Exception $e) {
-            \Log::info("Issue fom InstagramComment". ' ' .$e->getMessage());
+        } catch (\Exception $e) {
+            \Log::info('Issue fom InstagramComment'.' '.$e->getMessage());
             throw new \Exception($e->getMessage());
         }
     }
 
-    public function tags() 
+    public function tags()
     {
-        return [ 'InstagramComment',$this->_postId];
+        return ['InstagramComment', $this->_postId];
     }
 }

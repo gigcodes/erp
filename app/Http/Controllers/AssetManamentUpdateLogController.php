@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\AssetManamentUpdateLog;
-use Illuminate\Http\Request;
-
 class AssetManamentUpdateLogController extends Controller
 {
     /**

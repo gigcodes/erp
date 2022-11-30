@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AddProductIdToCustomerCharitiesTable extends Migration
 {
@@ -14,8 +14,8 @@ class AddProductIdToCustomerCharitiesTable extends Migration
      */
     public function up()
     {
-        DB::select("ALTER TABLE `customer_charities` ADD `product_id` INT(11) NULL AFTER `category_id`;");
-        DB::select("ALTER TABLE `customer_charities` CHANGE `id` `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT;");
+        DB::select('ALTER TABLE `customer_charities` ADD `product_id` INT(11) NULL AFTER `category_id`;');
+        DB::select('ALTER TABLE `customer_charities` CHANGE `id` `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT;');
     }
 
     /**

@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateLiveChatTableAddSeenAddStatusColumn extends Migration
 {
@@ -13,7 +12,7 @@ class UpdateLiveChatTableAddSeenAddStatusColumn extends Migration
      */
     public function up()
     {
-        Schema::table('customer_live_chats', function($table){
+        Schema::table('customer_live_chats', function ($table) {
             $table->integer('status')->nullable();
             $table->integer('seen')->default(0);
         });
@@ -26,7 +25,7 @@ class UpdateLiveChatTableAddSeenAddStatusColumn extends Migration
      */
     public function down()
     {
-        Schema::table('customer_live_chats', function($table){
+        Schema::table('customer_live_chats', function ($table) {
             $table->dropColumn('status');
             $table->dropColumn('seen');
         });

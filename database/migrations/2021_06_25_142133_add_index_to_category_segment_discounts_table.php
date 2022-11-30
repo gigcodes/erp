@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIndexToCategorySegmentDiscountsTable extends Migration
 {
@@ -14,8 +14,7 @@ class AddIndexToCategorySegmentDiscountsTable extends Migration
     public function up()
     {
         Schema::table('category_segment_discounts', function (Blueprint $table) {
-            $table->index(['brand_id','category_segment_id' ]);
-
+            $table->index(['brand_id', 'category_segment_id']);
         });
     }
 
@@ -27,8 +26,7 @@ class AddIndexToCategorySegmentDiscountsTable extends Migration
     public function down()
     {
         Schema::table('category_segment_discounts', function (Blueprint $table) {
-            $table->dropIndex(['brand_id','category_segment_id' ]);
-
+            $table->dropIndex(['brand_id', 'category_segment_id']);
         });
     }
 }

@@ -3,12 +3,12 @@
 namespace Modules\BookStack\Http\Controllers;
 
 use App\User;
-use Modules\BookStack\Ownable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
+use Modules\BookStack\Ownable;
 
 abstract class Controller extends BaseController
 {
@@ -18,6 +18,7 @@ abstract class Controller extends BaseController
      * @var User static
      */
     protected $currentUser;
+
     /**
      * @var bool
      */
@@ -29,7 +30,6 @@ abstract class Controller extends BaseController
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-
             // Get a user instance for the current user
             $user = user();
 
@@ -58,6 +58,7 @@ abstract class Controller extends BaseController
 
     /**
      * Adds the page title into the view.
+     *
      * @param $title
      */
     public function setPageTitle($title)
@@ -83,21 +84,24 @@ abstract class Controller extends BaseController
 
     /**
      * Checks for a permission.
-     * @param string $permissionName
+     *
+     * @param  string  $permissionName
      * @return bool|\Illuminate\Http\RedirectResponse
      */
     protected function checkPermission($permissionName)
     {
-        if (!user() || !user()->can($permissionName)) {
+        if (! user() || ! user()->can($permissionName)) {
             $this->showPermissionError();
         }
+
         return true;
     }
 
     /**
      * Check the current user's permissions against an ownable item.
+     *
      * @param $permission
-     * @param Ownable $ownable
+     * @param  Ownable  $ownable
      * @return bool
      */
     protected function checkOwnablePermission($permission, Ownable $ownable)
@@ -105,11 +109,13 @@ abstract class Controller extends BaseController
         if (userCan($permission, $ownable)) {
             return true;
         }
+
         return $this->showPermissionError();
     }
 
     /**
      * Check if a user has a permission or bypass if the callback is true.
+     *
      * @param $permissionName
      * @param $callback
      * @return bool
@@ -120,14 +126,16 @@ abstract class Controller extends BaseController
         if ($callbackResult === false) {
             $this->checkPermission($permissionName);
         }
+
         return true;
     }
 
     /**
      * Check if the current user has a permission or bypass if the provided user
      * id matches the current user.
-     * @param string $permissionName
-     * @param int $userId
+     *
+     * @param  string  $permissionName
+     * @param  int  $userId
      * @return bool
      */
     protected function checkPermissionOrCurrentUser(string $permissionName, int $userId)
@@ -139,17 +147,19 @@ abstract class Controller extends BaseController
 
     /**
      * Send back a json error message.
-     * @param string $messageText
-     * @param int $statusCode
+     *
+     * @param  string  $messageText
+     * @param  int  $statusCode
      * @return mixed
      */
-    protected function jsonError($messageText = "", $statusCode = 500)
+    protected function jsonError($messageText = '', $statusCode = 500)
     {
         return response()->json(['message' => $messageText], $statusCode);
     }
 
     /**
      * Create the response for when a request fails validation.
+     *
      * @param  \Illuminate\Http\Request  $request
      * @param  array  $errors
      * @return \Symfony\Component\HttpFoundation\Response
@@ -167,15 +177,16 @@ abstract class Controller extends BaseController
 
     /**
      * Create a response that forces a download in the browser.
-     * @param string $content
-     * @param string $fileName
+     *
+     * @param  string  $content
+     * @param  string  $fileName
      * @return \Illuminate\Http\Response
      */
     protected function downloadResponse(string $content, string $fileName)
     {
         return response()->make($content, 200, [
-            'Content-Type'        => 'application/octet-stream',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"'
+            'Content-Type' => 'application/octet-stream',
+            'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
         ]);
     }
 }

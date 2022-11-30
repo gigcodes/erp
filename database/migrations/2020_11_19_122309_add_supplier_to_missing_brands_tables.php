@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddSupplierToMissingBrandsTables extends Migration
 {
@@ -13,7 +13,7 @@ class AddSupplierToMissingBrandsTables extends Migration
      */
     public function up()
     {
-        Schema::table('missing_brands',function($table){
+        Schema::table('missing_brands', function ($table) {
             $table->string('supplier')->after('name')->nullable();
         });
     }

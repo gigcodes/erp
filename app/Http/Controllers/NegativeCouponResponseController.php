@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Library\Hubstaff\Src\Repositories\User;
-use App\NegativeCouponResponse;
 use Illuminate\Http\Request;
 
 class NegativeCouponResponseController extends Controller
@@ -17,13 +16,13 @@ class NegativeCouponResponseController extends Controller
     {
         $negativeCoupons = \DB::table('nagative_coupon_responses');
         $negativeCoupons->select('nagative_coupon_responses.*', 'users.name as userName');
-        $negativeCoupons->leftJoin('users', function($join) {
+        $negativeCoupons->leftJoin('users', function ($join) {
             $join->on('users.id', '=', 'nagative_coupon_responses.user_id');
-          });
-          
+        });
+
         //$negativeCoupons->lefJoin('users', 'nagative_coupon_responses.user_id', 'users.id');
         //$users = \App\User::all();
-        $negativeCouponsData = $negativeCoupons->orderBy('id','DESC')->paginate(\App\Setting::get('pagination'));
+        $negativeCouponsData = $negativeCoupons->orderBy('id', 'DESC')->paginate(\App\Setting::get('pagination'));
         //dd($negativeCouponsData);
         return view('negative-coupon-response.index', compact('negativeCouponsData'));
     }
@@ -32,18 +31,22 @@ class NegativeCouponResponseController extends Controller
     {
         $negativeCoupons = \DB::table('nagative_coupon_responses');
         $negativeCoupons->select('nagative_coupon_responses.*', 'users.name as userName');
-        $negativeCoupons->leftJoin('users', function($join) {
+        $negativeCoupons->leftJoin('users', function ($join) {
             $join->on('users.id', '=', 'nagative_coupon_responses.user_id');
-          });
+        });
         //$negativeCoupons->lefJoin('users', 'nagative_coupon_responses.user_id', 'users.id');
-        if($request->website)
+        if ($request->website) {
             $negativeCoupons->where('website', $request->website);
-        if($request->response_text)
-            $negativeCoupons->where('response', 'like', '%' . $request->response_text .'%');
-        if($request->user)
+        }
+        if ($request->response_text) {
+            $negativeCoupons->where('response', 'like', '%'.$request->response_text.'%');
+        }
+        if ($request->user) {
             $negativeCoupons->where('user_id', $request->user);
+        }
         //$users = \App\User::where('id', '!=', '');
-        $negativeCouponsData = $negativeCoupons->orderBy('id','DESC')->paginate(\App\Setting::get('pagination'));
+        $negativeCouponsData = $negativeCoupons->orderBy('id', 'DESC')->paginate(\App\Setting::get('pagination'));
+
         return view('negative-coupon-response.index', compact('negativeCouponsData'));
     }
 

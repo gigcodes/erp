@@ -13,7 +13,9 @@ class OrderStatusMail extends Mailable
     const STORE_ERP_WEBSITE = 15;
 
     public $body;
+
     public $subject;
+
     public $sendFrom;
 
     /**
@@ -23,8 +25,8 @@ class OrderStatusMail extends Mailable
      */
     public function __construct($data)
     {
-        $this->subject = isset($data['subject']) ?: "";
-        $this->body = isset($data['static_template']) ?: "";
+        $this->subject = isset($data['subject']) ?: '';
+        $this->body = isset($data['static_template']) ?: '';
         if (isset($data['from'])) {
             $this->sendFrom = $data['from'];
         } else {
@@ -42,11 +44,9 @@ class OrderStatusMail extends Mailable
      */
     public function build()
     {
-
         return $this->from($this->sendFrom)
             ->bcc($this->sendFrom)
             ->subject($this->subject)
             ->html($this->body, 'text/html');
-
     }
 }

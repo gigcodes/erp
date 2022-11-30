@@ -44,7 +44,7 @@ class ImportFarfetchSupplier extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -53,13 +53,13 @@ class ImportFarfetchSupplier extends Command
             foreach ($suppliers as $supplier) {
                 $existingSupplier = Supplier::where('supplier', trim($supplier->title))->first();
 
-                $this->info($supplier->title . 'exists');
+                $this->info($supplier->title.'exists');
 
                 if ($existingSupplier) {
-                    $brands                = $supplier->designers;
-                    $brands                = str_replace('"[', '', $brands);
-                    $brands                = str_replace(']"', '', $brands);
-                    $brands                = explode(',', $brands);
+                    $brands = $supplier->designers;
+                    $brands = str_replace('"[', '', $brands);
+                    $brands = str_replace(']"', '', $brands);
+                    $brands = explode(',', $brands);
                     $existingSupplierBrand = $existingSupplier->brands;
                     $existingSupplierBrand = str_replace('"[', '', $existingSupplierBrand);
                     $existingSupplierBrand = str_replace(']"', '', $existingSupplierBrand);
@@ -71,29 +71,29 @@ class ImportFarfetchSupplier extends Command
                         }
                     }
                     $imploded = implode(',', $explodedExistingBrand);
-                    $imploded = '"[' . $imploded . ']"';
+                    $imploded = '"['.$imploded.']"';
 
                     if (trim($supplier->social_handle) !== trim($existingSupplier->social_handle)) {
-                        $existingSupplier->social_handle = $existingSupplier->social_handle . ', ' . trim($supplier->social_handle);
+                        $existingSupplier->social_handle = $existingSupplier->social_handle.', '.trim($supplier->social_handle);
                     }
 
                     if (trim($supplier->instagram_handle) !== trim($existingSupplier->instagram_handle)) {
-                        $existingSupplier->instagram_handle = $existingSupplier->instagram_handle . ', ' . trim($supplier->instagram_handle);
+                        $existingSupplier->instagram_handle = $existingSupplier->instagram_handle.', '.trim($supplier->instagram_handle);
                     }
 
-                    if (!$existingSupplier->address) {
+                    if (! $existingSupplier->address) {
                         $existingSupplier->address = $supplier->address;
                     }
 
-                    if (!$existingSupplier->email) {
+                    if (! $existingSupplier->email) {
                         $existingSupplier->email = $supplier->email;
                     }
 
-                    if (!$existingSupplier->phone) {
+                    if (! $existingSupplier->phone) {
                         $existingSupplier->phone = $supplier->phone;
                     }
 
-                    if (!$existingSupplier->website) {
+                    if (! $existingSupplier->website) {
                         $existingSupplier->website = $supplier->site_link;
                     }
 
@@ -101,44 +101,43 @@ class ImportFarfetchSupplier extends Command
                     $existingSupplier->save();
 
                     $agentPhone = $existingSupplier->agents()->where('phone', $supplier->phone)->first();
-                    if (!$agentPhone) {
-                        $agent             = new Agent();
-                        $agent->model_id   = $existingSupplier->id;
+                    if (! $agentPhone) {
+                        $agent = new Agent();
+                        $agent->model_id = $existingSupplier->id;
                         $agent->model_type = 'App\Supplier';
-                        $agent->name       = 'N/A';
-                        $agent->phone      = trim($supplier->phone);
-                        $agent->email      = trim($supplier->email);
+                        $agent->name = 'N/A';
+                        $agent->phone = trim($supplier->phone);
+                        $agent->email = trim($supplier->email);
                         $agent->save();
 
                         continue;
                     }
 
                     $email = $existingSupplier->agents()->where('email', $supplier->email)->first();
-                    if (!$email) {
-                        $agent             = new Agent();
-                        $agent->model_id   = $existingSupplier->id;
+                    if (! $email) {
+                        $agent = new Agent();
+                        $agent->model_id = $existingSupplier->id;
                         $agent->model_type = 'App\Supplier';
-                        $agent->name       = 'N/A';
-                        $agent->phone      = trim($supplier->phone);
-                        $agent->email      = trim($supplier->email);
+                        $agent->name = 'N/A';
+                        $agent->phone = trim($supplier->phone);
+                        $agent->email = trim($supplier->email);
                         $agent->save();
                     }
 
                     continue;
-
                 }
 
                 $this->info('CREATING NEW');
 
-                $existingSupplier                   = new Supplier();
-                $existingSupplier->source           = $supplier->website;
-                $existingSupplier->supplier         = $supplier->title;
-                $existingSupplier->brands           = $supplier->designers;
-                $existingSupplier->address          = $supplier->address;
-                $existingSupplier->email            = $supplier->email;
-                $existingSupplier->phone            = $supplier->phone;
-                $existingSupplier->website          = $supplier->site_link;
-                $existingSupplier->social_handle    = $supplier->social_handle;
+                $existingSupplier = new Supplier();
+                $existingSupplier->source = $supplier->website;
+                $existingSupplier->supplier = $supplier->title;
+                $existingSupplier->brands = $supplier->designers;
+                $existingSupplier->address = $supplier->address;
+                $existingSupplier->email = $supplier->email;
+                $existingSupplier->phone = $supplier->phone;
+                $existingSupplier->website = $supplier->site_link;
+                $existingSupplier->social_handle = $supplier->social_handle;
                 $existingSupplier->instagram_handle = $supplier->instagram_handle;
                 $existingSupplier->save();
             }

@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UicheckHistory extends Model {
+class UicheckHistory extends Model
+{
     public $table = 'uichecks_hisotry';
 
     public $fillable = [
@@ -15,10 +16,13 @@ class UicheckHistory extends Model {
         'user_id',
     ];
 
-    public function updatedBy() {
+    public function updatedBy()
+    {
         return $this->hasOne(\App\User::class, 'id', 'user_id');
     }
-    public function updatedByName() {
+
+    public function updatedByName()
+    {
         return $this->updatedBy ? $this->updatedBy->name : '';
     }
 }

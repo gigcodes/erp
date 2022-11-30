@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableSimpleDutyCoutryAddSegment extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableSimpleDutyCoutryAddSegment extends Migration
     public function up()
     {
         //
-        Schema::table("simply_duty_countries",function(Blueprint $table) {
-            $table->integer("segment_id")->default(0)->nullable()->after("default_duty");
+        Schema::table('simply_duty_countries', function (Blueprint $table) {
+            $table->integer('segment_id')->default(0)->nullable()->after('default_duty');
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableSimpleDutyCoutryAddSegment extends Migration
     public function down()
     {
         //
-        Schema::table("simply_duty_countries",function(Blueprint $table) {
-            $table->dropField("segment_id");
+        Schema::table('simply_duty_countries', function (Blueprint $table) {
+            $table->dropField('segment_id');
         });
     }
 }

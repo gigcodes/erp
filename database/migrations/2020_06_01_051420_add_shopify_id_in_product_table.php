@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddShopifyIdInProductTable extends Migration
 {
@@ -13,8 +12,8 @@ class AddShopifyIdInProductTable extends Migration
      */
     public function up()
     {
-        Schema::table('products',function($table){
-            $table->string('shopify_id')->nullable()->after("status");
+        Schema::table('products', function ($table) {
+            $table->string('shopify_id')->nullable()->after('status');
         });
     }
 
@@ -25,7 +24,7 @@ class AddShopifyIdInProductTable extends Migration
      */
     public function down()
     {
-        Schema::table('products',function($table){
+        Schema::table('products', function ($table) {
             $table->dropColumn('shopify_id');
         });
     }

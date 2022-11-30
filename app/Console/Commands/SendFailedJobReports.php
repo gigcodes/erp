@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -39,13 +38,13 @@ class SendFailedJobReports extends Command
      */
     public function handle()
     {
-        $reportSubject = $this->signature."-".date("Y-M-D");
-        
+        $reportSubject = $this->signature.'-'.date('Y-M-D');
+
         try {
             $beforeFiveMin = Carbon::now()->subMinutes(5)->toDateTimeString();
-            $failedReports = \DB::table("failed_jobs")->where("failed_at",">",$beforeFiveMin)->get();
-            if(!$failedReports->isEmpty()) {
-                throw new \Exception("Error Processing jobs, Total Failed Jobs in last five min : ".$failedReports->count(), 1);
+            $failedReports = \DB::table('failed_jobs')->where('failed_at', '>', $beforeFiveMin)->get();
+            if (! $failedReports->isEmpty()) {
+                throw new \Exception('Error Processing jobs, Total Failed Jobs in last five min : '.$failedReports->count(), 1);
             }
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($reportSubject, $e->getMessage());

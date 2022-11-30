@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateLogStoreWebsiteUsersTable extends Migration
 {
@@ -13,7 +13,7 @@ class CreateLogStoreWebsiteUsersTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('log_store_website_users')) {
+        if (! Schema::hasTable('log_store_website_users')) {
             Schema::create('log_store_website_users', function (Blueprint $table) {
                 $table->increments('id');
                 $table->String('log_case_id');
@@ -39,5 +39,4 @@ class CreateLogStoreWebsiteUsersTable extends Migration
     {
         Schema::dropIfExists('log_store_website_users');
     }
-
 }

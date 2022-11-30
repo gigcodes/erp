@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class CreateCustomerCharitiesTable extends Migration
 {
@@ -53,8 +52,7 @@ class CreateCustomerCharitiesTable extends Migration
             `chat_session_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
-            DB::select("ALTER TABLE `customer_charities` ADD PRIMARY KEY(`id`);");
-
+        DB::select('ALTER TABLE `customer_charities` ADD PRIMARY KEY(`id`);');
     }
 
     /**

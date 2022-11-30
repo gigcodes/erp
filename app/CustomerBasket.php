@@ -30,12 +30,11 @@ class CustomerBasket extends Model
 
     public function basketProducts()
     {
-        return $this->hasMany(\App\CustomerBasketProduct::class,'customer_basket_id','id');
+        return $this->hasMany(\App\CustomerBasketProduct::class, 'customer_basket_id', 'id');
     }
 
     public function storeWebsite()
     {
-        return $this->hasOne(\App\StoreWebsite::class, 'id','store_website_id');
+        return $this->hasOne(\App\StoreWebsite::class, 'id', 'store_website_id');
     }
-
 }

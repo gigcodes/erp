@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     /**
@@ -202,7 +203,7 @@ return [
      */
     'page_tags' => 'Tag Pagina',
     'tag' => 'Tag',
-    'tags' =>  '',
+    'tags' => '',
     'tag_value' => 'Valore (Opzionale)',
     'tags_explain' => "Aggiungi tag per categorizzare meglio il contenuto. \n Puoi assegnare un valore ai tag per una migliore organizzazione.",
     'tags_add' => 'Aggiungi un altro tag',
@@ -261,10 +262,10 @@ return [
     'comment_delete_confirm' => 'Sei sicuro di voler elminare questo commento?',
     'comment_in_reply_to' => 'In risposta a :commentId',
 
-     /**
+    /**
      * Revision
      */
     'revision_delete_confirm' => 'Sei sicuro di voler eliminare questa revisione?',
     'revision_delete_success' => 'Revisione cancellata',
-    'revision_cannot_delete_latest' => 'Impossibile eliminare l\'ultima revisione.'
+    'revision_cannot_delete_latest' => 'Impossibile eliminare l\'ultima revisione.',
 ];

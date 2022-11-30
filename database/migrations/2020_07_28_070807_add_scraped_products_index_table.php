@@ -11,8 +11,8 @@ class AddScrapedProductsIndexTable extends Migration
      */
     public function up()
     {
-        \DB::statement("ALTER TABLE `scraped_products` CHANGE `url` `url` VARCHAR(1025) NULL DEFAULT NULL;");
-        \DB::statement("ALTER TABLE `scraped_products` ADD INDEX(`url`);");
+        \DB::statement('ALTER TABLE `scraped_products` CHANGE `url` `url` VARCHAR(1025) NULL DEFAULT NULL;');
+        \DB::statement('ALTER TABLE `scraped_products` ADD INDEX(`url`);');
     }
 
     /**
@@ -22,6 +22,5 @@ class AddScrapedProductsIndexTable extends Migration
      */
     public function down()
     {
-
     }
 }

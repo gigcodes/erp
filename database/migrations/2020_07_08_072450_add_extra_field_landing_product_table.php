@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddExtraFieldLandingProductTable extends Migration
 {
@@ -14,10 +14,10 @@ class AddExtraFieldLandingProductTable extends Migration
     public function up()
     {
         Schema::table('landing_page_products', function (Blueprint $table) {
-            $table->string('name')->nullable()->after("product_id");
-            $table->text('description')->nullable()->after("name");
-            $table->text('price')->nullable()->after("description");
-            $table->string('shopify_id')->nullable()->after("price");
+            $table->string('name')->nullable()->after('product_id');
+            $table->text('description')->nullable()->after('name');
+            $table->text('price')->nullable()->after('description');
+            $table->string('shopify_id')->nullable()->after('price');
         });
     }
 

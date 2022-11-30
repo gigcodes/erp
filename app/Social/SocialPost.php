@@ -7,7 +7,6 @@ namespace App\Social;
  */
 
 use Illuminate\Database\Eloquent\Model;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
 
 class SocialPost extends Model
@@ -21,7 +20,6 @@ class SocialPost extends Model
      * @SWG\Property(property="posted_on",type="datetime")
      * @SWG\Property(property="status",type="string")
      */
-
     use Mediable;
 
     protected $fillable = [
@@ -30,8 +28,9 @@ class SocialPost extends Model
         'post_body',
         'post_by',
         'posted_on',
-        'status'
+        'status',
     ];
+
     public function account()
     {
         return $this->belongsTo('App\Social\SocialConfig');

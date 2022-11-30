@@ -37,7 +37,6 @@ class UpdateImageBarcodeGenerator extends Command
      */
     public function handle()
     {
-
         return true;
     }
 }

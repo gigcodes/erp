@@ -2,8 +2,8 @@
 
 namespace Modules\StoreWebsite\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factory;
+use Illuminate\Support\ServiceProvider;
 
 class StoreWebsiteServiceProvider extends ServiceProvider
 {
@@ -18,7 +18,7 @@ class StoreWebsiteServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->registerFactories();
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
     }
 
     /**
@@ -58,11 +58,11 @@ class StoreWebsiteServiceProvider extends ServiceProvider
         $sourcePath = __DIR__.'/../Resources/views';
 
         $this->publishes([
-            $sourcePath => $viewPath
-        ],'views');
+            $sourcePath => $viewPath,
+        ], 'views');
 
         $this->loadViewsFrom(array_merge(array_map(function ($path) {
-            return $path . '/modules/storewebsite';
+            return $path.'/modules/storewebsite';
         }, \Config::get('view.paths')), [$sourcePath]), 'storewebsite');
     }
 
@@ -78,7 +78,7 @@ class StoreWebsiteServiceProvider extends ServiceProvider
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, 'storewebsite');
         } else {
-            $this->loadTranslationsFrom(__DIR__ .'/../Resources/lang', 'storewebsite');
+            $this->loadTranslationsFrom(__DIR__.'/../Resources/lang', 'storewebsite');
         }
     }
 
@@ -90,7 +90,7 @@ class StoreWebsiteServiceProvider extends ServiceProvider
     public function registerFactories()
     {
         if (! app()->environment('production') && $this->app->runningInConsole()) {
-            app(Factory::class)->load(__DIR__ . '/../Database/factories');
+            app(Factory::class)->load(__DIR__.'/../Database/factories');
         }
     }
 

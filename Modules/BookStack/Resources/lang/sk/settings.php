@@ -7,7 +7,6 @@ return [
      * Contains all text strings used in the general settings sections of BookStack
      * including users and roles.
      */
-
     'settings' => 'Nastavenia',
     'settings_save' => 'Uložiť nastavenia',
     'settings_save_success' => 'Nastavenia uložené',
@@ -15,7 +14,6 @@ return [
     /**
      * App settings
      */
-
     'app_settings' => 'Nastavenia aplikácie',
     'app_name' => 'Názov aplikácia',
     'app_name_desc' => 'Tento názov sa zobrazuje v hlavičke a v emailoch.',
@@ -37,7 +35,6 @@ return [
     /**
      * Registration settings
      */
-
     'reg_settings' => 'Nastavenia registrácie',
     'reg_allow' => 'Povoliť registráciu?',
     'reg_default_role' => 'Prednastavená používateľská rola po registrácii',
@@ -50,7 +47,6 @@ return [
     /**
      * Role settings
      */
-
     'roles' => 'Roly',
     'role_user_roles' => 'Používateľské roly',
     'role_create' => 'Vytvoriť novú rolu',
@@ -58,7 +54,7 @@ return [
     'role_delete' => 'Zmazať rolu',
     'role_delete_confirm' => 'Toto zmaže rolu menom \':roleName\'.',
     'role_delete_users_assigned' => 'Túto rolu má priradenú :userCount používateľov. Ak chcete premigrovať používateľov z tejto roly, vyberte novú rolu nižšie.',
-    'role_delete_no_migration' => "Nemigrovať používateľov",
+    'role_delete_no_migration' => 'Nemigrovať používateľov',
     'role_delete_sure' => 'Ste si istý, že chcete zmazať túto rolu?',
     'role_delete_success' => 'Rola úspešne zmazaná',
     'role_edit' => 'Upraviť rolu',
@@ -84,7 +80,6 @@ return [
     /**
      * Users
      */
-
     'users' => 'Používatelia',
     'user_profile' => 'Profil používateľa',
     'users_add_new' => 'Pridať nového používateľa',

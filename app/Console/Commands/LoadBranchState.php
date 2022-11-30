@@ -5,17 +5,15 @@ namespace App\Console\Commands;
 use App\Github\GitHubBranchState;
 use App\Helpers\GithubTrait;
 use Carbon\Carbon;
-use Exception;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 use Illuminate\Console\Command;
 
 class LoadBranchState extends Command
 {
-
     use githubTrait;
 
     private $githubClient;
+
     /**
      * The name and signature of the console command.
      *
@@ -53,7 +51,7 @@ class LoadBranchState extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             //
@@ -62,7 +60,7 @@ class LoadBranchState extends Command
             $repoBranches = [];
             foreach ($repositoryIds as $repoId) {
                 $branchNames = $this->getBranchNamesOfRepository($repoId);
-                if (sizeof($branchNames) > 0) {
+                if (count($branchNames) > 0) {
                     $repoBranches[$repoId] = $branchNames;
                 }
             }
@@ -70,7 +68,7 @@ class LoadBranchState extends Command
             $comparisons = [];
             foreach ($repoBranches as $repoId => $branches) {
                 foreach ($branches as $branch) {
-                    $comparison                    = $this->compareRepoBranches($repoId, $branch);
+                    $comparison = $this->compareRepoBranches($repoId, $branch);
                     $comparisons[$repoId][$branch] = $comparison;
                 }
             }
@@ -81,21 +79,20 @@ class LoadBranchState extends Command
                     GithubBranchState::updateOrCreate(
                         [
                             'repository_id' => $repoId,
-                            'branch_name'   => $branchName,
+                            'branch_name' => $branchName,
                         ],
                         [
-                            'repository_id'               => $repoId,
-                            'branch_name'                 => $branchName,
-                            'ahead_by'                    => $comparison['ahead_by'],
-                            'behind_by'                   => $comparison['behind_by'],
+                            'repository_id' => $repoId,
+                            'branch_name' => $branchName,
+                            'ahead_by' => $comparison['ahead_by'],
+                            'behind_by' => $comparison['behind_by'],
                             'last_commit_author_username' => $comparison['last_commit_author_username'],
-                            'last_commit_time'            => $comparison['last_commit_time'],
+                            'last_commit_time' => $comparison['last_commit_time'],
                         ]
                     );
                     $branchNames[] = $branchName;
                 }
-                GithubBranchState
-                    ::where('repository_id', $repoId)
+                GithubBranchState::where('repository_id', $repoId)
                     ->whereNotIn('branch_name', $branchNames)
                     ->delete();
             }
@@ -111,7 +108,7 @@ class LoadBranchState extends Command
     {
         //https://api.github.com/orgs/ludxb/repos
         // $url      = 'https://api.github.com/orgs/' . getenv('GITHUB_ORG_ID') . '/repos';
-        $url      = 'https://api.github.com/orgs/' . config('env.GITHUB_ORG_ID') . '/repos';
+        $url = 'https://api.github.com/orgs/'.config('env.GITHUB_ORG_ID').'/repos';
         $response = $this->githubClient->get($url);
 
         $repositories = json_decode($response->getBody()->getContents());
@@ -128,21 +125,16 @@ class LoadBranchState extends Command
     {
         //https://api.github.com/repositories/:repoId/branches
 
-        $url = 'https://api.github.com/repositories/' . $repoId . '/branches';
+        $url = 'https://api.github.com/repositories/'.$repoId.'/branches';
 
         $headResponse = $this->githubClient->head($url);
 
-        $linkHeader = $headResponse->getHeader("Link");
+        $linkHeader = $headResponse->getHeader('Link');
         /**
          * <https://api.github.com/repositories/231925646/branches?page=4>; rel="prev", <https://api.github.com/repositories/231925646/branches?page=4>; rel="last", <https://api.github.com/repositories/231925646/branches?page=1>; rel="first"
          */
-
-
-
-
-
         $totalPages = 1;
-        if (sizeof($linkHeader) > 0) {
+        if (count($linkHeader) > 0) {
             $lastLink = null;
             $links = explode(',', $linkHeader[0]);
             foreach ($links as $link) {
@@ -153,7 +145,7 @@ class LoadBranchState extends Command
             }
 
             //<https://api.github.com/repositories/231925646/branches?page=4>; rel="last"
-            $linkWithAngularBrackets = explode(";", $lastLink)[0];
+            $linkWithAngularBrackets = explode(';', $lastLink)[0];
             //<https://api.github.com/repositories/231925646/branches?page=4>
             $linkWithAngularBrackets = str_replace('<', '', $linkWithAngularBrackets);
             //https://api.github.com/repositories/231925646/branches?page=4>
@@ -161,7 +153,7 @@ class LoadBranchState extends Command
             //https://api.github.com/repositories/231925646/branches?page=4
             $pageNumberString = explode('?', $linkWithPageNumber)[1];
             //page=4
-            $totalPages = explode('=',  $pageNumberString)[1];
+            $totalPages = explode('=', $pageNumberString)[1];
 
             $totalPages = intval($totalPages);
         }
@@ -169,12 +161,11 @@ class LoadBranchState extends Command
         $allBranchNames = [];
         $page = 1;
         while ($page <= $totalPages) {
-
-            $response = $this->githubClient->get($url . '?page=' . $page);
+            $response = $this->githubClient->get($url.'?page='.$page);
 
             $branches = json_decode($response->getBody()->getContents());
 
-            $branchNames =  array_map(
+            $branchNames = array_map(
                 function ($branch) {
                     return $branch->name;
                 },
@@ -190,8 +181,7 @@ class LoadBranchState extends Command
 
             $page++;
         }
+
         return $allBranchNames;
     }
-
-    
 }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddMultipleColumnsInScrapersTable extends Migration
 {
@@ -21,7 +21,6 @@ class AddMultipleColumnsInScrapersTable extends Migration
             $table->string('product_url_selector')->after('next_step_in_product_flow');
             $table->dateTime('start_time')->after('next_step_in_product_flow');
             $table->dateTime('end_time')->after('next_step_in_product_flow');
-
         });
     }
 

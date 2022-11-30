@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AlterTableSuggestedProductTableIndex extends Migration
@@ -14,8 +12,8 @@ class AlterTableSuggestedProductTableIndex extends Migration
     public function up()
     {
         //
-        \DB::statement("ALTER TABLE `suggested_products` ADD INDEX(`customer_id`);");
-        \DB::statement("ALTER TABLE `suggested_product_lists` ADD INDEX(`product_id`);");
+        \DB::statement('ALTER TABLE `suggested_products` ADD INDEX(`customer_id`);');
+        \DB::statement('ALTER TABLE `suggested_product_lists` ADD INDEX(`product_id`);');
     }
 
     /**

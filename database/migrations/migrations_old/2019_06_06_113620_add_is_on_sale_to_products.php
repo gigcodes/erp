@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIsOnSaleToProducts extends Migration
 {
@@ -14,7 +14,7 @@ class AddIsOnSaleToProducts extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-          $table->boolean('is_on_sale')->default(0)->after('stock');
+            $table->boolean('is_on_sale')->default(0)->after('stock');
         });
     }
 
@@ -26,7 +26,7 @@ class AddIsOnSaleToProducts extends Migration
     public function down()
     {
         Schema::table('products', function (Blueprint $table) {
-          $table->dropColumn('is_on_sale');
+            $table->dropColumn('is_on_sale');
         });
     }
 }

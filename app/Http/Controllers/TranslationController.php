@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Loggers\TranslateLog;
 use App\Translations;
 use Illuminate\Http\Request;
-use App\Loggers\TranslateLog;
+
 class TranslationController extends Controller
 {
     /**
@@ -15,25 +17,26 @@ class TranslationController extends Controller
     {
         $query = Translations::query();
 
-		if($request->id){
-			$query = $query->where('id', $request->id);
-		}
-		if($request->term){
-            $query = $query->where('text_original', 'LIKE','%'.$request->term.'%')
+        if ($request->id) {
+            $query = $query->where('id', $request->id);
+        }
+        if ($request->term) {
+            $query = $query->where('text_original', 'LIKE', '%'.$request->term.'%')
                     ->orWhere('created_at', 'LIKE', '%'.$request->term.'%')
                     ->orWhere('updated_at', 'LIKE', '%'.$request->term.'%');
-		}
+        }
 
-		$data = $query->orderBy('id', 'desc')->paginate(25)->appends(request()->except(['page']));
-		if ($request->ajax()) {
+        $data = $query->orderBy('id', 'desc')->paginate(25)->appends(request()->except(['page']));
+        if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('translation.partials.list-translation', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
-                'links' => (string)$data->render(),
+                'links' => (string) $data->render(),
                 'count' => $data->total(),
             ], 200);
         }
-		return view('translation.index', compact('data'))
-			->with('i', ($request->input('page', 1) - 1) * 5);
+
+        return view('translation.index', compact('data'))
+            ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     /**
@@ -46,7 +49,8 @@ class TranslationController extends Controller
         $translation = Translations::all();
         $from = Translations::groupBy('from')->get();
         $to = Translations::groupBy('to')->get();
-		return view('translation.create', compact('translation','from','to'));
+
+        return view('translation.create', compact('translation', 'from', 'to'));
     }
 
     /**
@@ -58,14 +62,14 @@ class TranslationController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-			'from' => 'required',
-			'to' => 'required',
-			'text_original' => 'required',
+            'from' => 'required',
+            'to' => 'required',
+            'text_original' => 'required',
             'text' => 'required',
         ]);
-		$insert = Translations::create($request->except('_token'));
+        $insert = Translations::create($request->except('_token'));
 
-		return redirect()->to('/translation/' . $insert->id . '/edit')->with('success', 'Translation created successfully');
+        return redirect()->to('/translation/'.$insert->id.'/edit')->with('success', 'Translation created successfully');
     }
 
     /**
@@ -87,10 +91,11 @@ class TranslationController extends Controller
      */
     public function edit($id)
     {
-        $translation = Translations::where('id',$id)->first();
+        $translation = Translations::where('id', $id)->first();
         $from = Translations::groupBy('from')->get();
         $to = Translations::groupBy('to')->get();
-		return view('translation.edit', compact('translation','from','to'));
+
+        return view('translation.edit', compact('translation', 'from', 'to'));
     }
 
     /**
@@ -103,15 +108,15 @@ class TranslationController extends Controller
     public function update(Request $request)
     {
         $this->validate($request, [
-			'from' => 'required',
-			'to' => 'required',
-			'text_original' => 'required',
+            'from' => 'required',
+            'to' => 'required',
+            'text_original' => 'required',
             'text' => 'required',
         ]);
         $id = $request->input('id');
-		$insert = Translations::where('id',$id)->update($request->except('_token'));
+        $insert = Translations::where('id', $id)->update($request->except('_token'));
 
-		return redirect()->back()->with('success', 'Translation updated successfully');
+        return redirect()->back()->with('success', 'Translation updated successfully');
     }
 
     /**
@@ -123,18 +128,20 @@ class TranslationController extends Controller
     public function destroy($id)
     {
         $Translations = Translations::find($id);
-		$Translations->delete();
+        $Translations->delete();
 
-		return redirect()->route('translation.list')
-			->with('success', 'Translation deleted successfully');
+        return redirect()->route('translation.list')
+            ->with('success', 'Translation deleted successfully');
     }
-    public function translateLog(Request $request){
+
+    public function translateLog(Request $request)
+    {
         $translateLog = new TranslateLog();
-        if(isset($request->id)){
+        if (isset($request->id)) {
             $translateLog = $translateLog->where('google_traslation_settings_id', $request->id);
         }
         $translateLog = $translateLog->get();
-        return view('translation.log', compact('translateLog'));
 
+        return view('translation.log', compact('translateLog'));
     }
 }

@@ -2,11 +2,11 @@
 
 namespace App;
 
+use App\Models\UicheckHistory;
 use Illuminate\Database\Eloquent\Model;
 
-use App\Models\UicheckHistory;
-
-class Uicheck extends Model {
+class Uicheck extends Model
+{
     protected $table = 'uichecks';
 
     protected $fillable = [
@@ -24,10 +24,11 @@ class Uicheck extends Model {
         'lock_developer',
         'lock_admin',
         'language_flag',
-        'translation_flag'
+        'translation_flag',
     ];
 
-    public function whatsappAll($needBroadCast = false) {
+    public function whatsappAll($needBroadCast = false)
+    {
         if ($needBroadCast) {
             return $this->hasMany('App\ChatMessage', 'document_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
         }
@@ -35,8 +36,8 @@ class Uicheck extends Model {
         return $this->hasMany('App\ChatMessage', 'document_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
-
-    public function updateElement($type, $newValue) {
+    public function updateElement($type, $newValue)
+    {
         $oldValue = $this->$type;
         if ($oldValue != $newValue) {
             $this->$type = $newValue;

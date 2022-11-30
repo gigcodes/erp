@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableCategories extends Migration
 {
@@ -13,8 +12,7 @@ class AlterTableCategories extends Migration
      */
     public function up()
     {
-        Schema::table('brands', function($table)
-        {
+        Schema::table('brands', function ($table) {
             $table->string('brand_segment', 2)->after('magento_id');
         });
     }
@@ -26,13 +24,11 @@ class AlterTableCategories extends Migration
      */
     public function down()
     {
-        Schema::table('brands', function($table)
-        {
+        Schema::table('brands', function ($table) {
             $table->dropColumn('brand_segment');
         });
     }
 }
-
 
 //UPDATE brands SET brand_segment='A' WHERE name IN ('Michael Kors','Tory Burch','Coach');
 //

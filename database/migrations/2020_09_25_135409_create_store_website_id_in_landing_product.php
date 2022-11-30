@@ -14,7 +14,6 @@ class CreateStoreWebsiteIdInLandingProduct extends Migration
     public function up()
     {
         Schema::table('landing_page_products', function (Blueprint $table) {
-           
             //$table->unsignedInteger('store_website_id')->nullable()->after('shopify_id');
         });
     }

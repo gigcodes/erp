@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Products;
 
+use App\Http\Controllers\Controller;
 use App\ListingHistory;
 use App\Product;
 use App\ScrapedProducts;
 use Carbon\Carbon;
 use File;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
@@ -32,7 +32,8 @@ class ManualCroppingController extends Controller
         return view('products.crop.manual.index', compact('products'));
     }
 
-    public function assignProductsToUser() {
+    public function assignProductsToUser()
+    {
         $currentUser = Auth::user();
 
         $reservedProductIds = DB::table('user_manual_crop')->pluck('product_id')->toArray();
@@ -49,8 +50,7 @@ class ManualCroppingController extends Controller
 
         $currentUser->manualCropProducts()->attach($products);
 
-        return redirect()->back()->with('message', $products->count() .' new products assigned successfully!');
-
+        return redirect()->back()->with('message', $products->count().' new products assigned successfully!');
     }
 
     /**
@@ -84,7 +84,7 @@ class ManualCroppingController extends Controller
     {
         $product = Product::find($id);
 
-        if (!$product) {
+        if (! $product) {
             return redirect()->action('Products\ManualCroppingController@index')->with('message', 'The product you were trying to open does not exist anymore.');
         }
 
@@ -99,8 +99,7 @@ class ManualCroppingController extends Controller
 
         $references = ScrapedProducts::where('sku', $product->sku)->pluck('url', 'website');
 
-        return view('products.crop.manual.show', compact('product','references', 'originalMediaCount'));
-
+        return view('products.crop.manual.show', compact('product', 'references', 'originalMediaCount'));
     }
 
     /**
@@ -124,13 +123,13 @@ class ManualCroppingController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'images' => 'required'
+            'images' => 'required',
         ]);
 
         $product = Product::find($id);
         $files = $request->allFiles();
 
-	    if ($files !== []) {
+        if ($files !== []) {
             $this->deleteCroppedImages($product);
             foreach ($files['images'] as $file) {
                 $media = MediaUploader::fromSource($file)
@@ -141,14 +140,14 @@ class ManualCroppingController extends Controller
             }
         }
 
-	    $product->is_crop_rejected = 0;
-	    $product->cropped_at = Carbon::now()->toDateTimeString();
-	    $product->manual_cropped_at = Carbon::now()->toDateTimeString();
-	    $product->is_image_processed = 1;
-	    $product->is_manual_cropped = 1;
-	    $product->manual_crop = 1;
-	    $product->manual_cropped_by = Auth::id();
-	    $product->save();
+        $product->is_crop_rejected = 0;
+        $product->cropped_at = Carbon::now()->toDateTimeString();
+        $product->manual_cropped_at = Carbon::now()->toDateTimeString();
+        $product->is_image_processed = 1;
+        $product->is_manual_cropped = 1;
+        $product->manual_crop = 1;
+        $product->manual_cropped_by = Auth::id();
+        $product->save();
 
         $e = new ListingHistory();
         $e->user_id = Auth::user()->id;
@@ -163,17 +162,17 @@ class ManualCroppingController extends Controller
             ->whereIn('id', DB::table('user_manual_crop')->where('user_id', Auth::id())->pluck('product_id')->toArray())
             ->first();
 
-        if (!$product) {
+        if (! $product) {
             return redirect()->action('Products\ManualCroppingController@index')->with('message', 'There are no assigned products available for cropping anymore.');
         }
 
         return redirect()->action('Products\ManualCroppingController@show', $product->id)->with('message', 'The previous product has been sent for approval!');
-
     }
 
-    private function deleteCroppedImages($product) {
+    private function deleteCroppedImages($product)
+    {
         if ($product->hasMedia(config('constants.media_tags'))) {
-            foreach ($product->getMedia(config('constants.media_tags')) as $key=>$image) {
+            foreach ($product->getMedia(config('constants.media_tags')) as $key => $image) {
                 if (stripos(strtoupper($image->filename), 'CROPPED') !== false) {
                     $image_path = $image->getAbsolutePath();
 
@@ -181,7 +180,6 @@ class ManualCroppingController extends Controller
                         try {
                             File::delete($image_path);
                         } catch (\Exception $exception) {
-
                         }
                     }
 
@@ -191,7 +189,6 @@ class ManualCroppingController extends Controller
 
             $product->is_image_processed = 1;
             $product->save();
-
         }
     }
 

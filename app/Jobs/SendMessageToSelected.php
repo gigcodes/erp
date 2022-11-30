@@ -4,26 +4,28 @@ namespace App\Jobs;
 
 use App\Http\Controllers\WhatsAppController;
 use App\MessageQueue;
-use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-use Illuminate\Http\Request;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class SendMessageToSelected implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $number;
+
     protected $whatsAppNumber;
+
     protected $content;
+
     protected $messageQueueId;
+
     protected $groupId;
 
     public $tries = 5;
+
     public $backoff = 5;
 
     /**
@@ -47,17 +49,16 @@ class SendMessageToSelected implements ShouldQueue
      */
     public function handle()
     {
-        try{
-            if ($this->content[ 'message' ]) {
-                $message = $this->content[ 'message' ];
+        try {
+            if ($this->content['message']) {
+                $message = $this->content['message'];
 
                 app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $this->whatsAppNumber, $message, false);
             }
 
-            if (isset($this->content[ 'image' ])) {
-                foreach ($this->content[ 'image' ] as $image) {
-                    app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $this->whatsAppNumber, null, str_replace(' ', '%20', $image[ 'url' ]));
-
+            if (isset($this->content['image'])) {
+                foreach ($this->content['image'] as $image) {
+                    app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $this->whatsAppNumber, null, str_replace(' ', '%20', $image['url']));
                 }
             }
 
@@ -69,8 +70,8 @@ class SendMessageToSelected implements ShouldQueue
         }
     }
 
-    public function tags() 
+    public function tags()
     {
-        return [ 'SendMessageToSelected', $this->whatsAppNumber];
+        return ['SendMessageToSelected', $this->whatsAppNumber];
     }
 }

@@ -6,8 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SupplierDiscountLogHistory extends Model
 {
-   
-    protected $table = "supplier_discount_log_history";
+    protected $table = 'supplier_discount_log_history';
 
     protected $fillable = [
         'id',
@@ -19,6 +18,7 @@ class SupplierDiscountLogHistory extends Model
         'created_at',
         'updated_at',
     ];
+
     public function user()
     {
         return $this->belongsTo('App\User');

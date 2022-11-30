@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTableWebsites extends Migration
 {
@@ -14,7 +14,7 @@ class CreateTableWebsites extends Migration
     public function up()
     {
         //
-        Schema::create('websites',function(Blueprint $table) {
+        Schema::create('websites', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->index();
             $table->string('code')->nullable();

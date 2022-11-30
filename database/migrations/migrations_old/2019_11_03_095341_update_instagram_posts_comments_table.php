@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateInstagramPostsCommentsTable extends Migration
 {
@@ -13,7 +13,7 @@ class UpdateInstagramPostsCommentsTable extends Migration
      */
     public function up()
     {
-        Schema::table('instagram_posts_comments', function($table){
+        Schema::table('instagram_posts_comments', function ($table) {
             $table->tinyInteger('priority')->default(0);
         });
     }

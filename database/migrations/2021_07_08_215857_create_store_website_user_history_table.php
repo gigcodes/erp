@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateStoreWebsiteUserHistoryTable extends Migration
 {
@@ -15,13 +15,13 @@ class CreateStoreWebsiteUserHistoryTable extends Migration
     {
         Schema::create('store_website_user_history', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer("store_website_id")->nullable();
-            $table->integer("store_website_user_id")->nullable();
-            $table->string("model")->nullable();
-            $table->string("attribute")->nullable();
-            $table->string("old_value")->nullable();
-            $table->string("new_value")->nullable();
-            $table->integer("user_id")->nullable();
+            $table->integer('store_website_id')->nullable();
+            $table->integer('store_website_user_id')->nullable();
+            $table->string('model')->nullable();
+            $table->string('attribute')->nullable();
+            $table->string('old_value')->nullable();
+            $table->string('new_value')->nullable();
+            $table->integer('user_id')->nullable();
             $table->timestamps();
         });
     }

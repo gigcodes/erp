@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableCroppedImageReferences extends Migration
 {
@@ -14,7 +14,7 @@ class AlterTableCroppedImageReferences extends Migration
     public function up()
     {
         //
-        Schema::table('cropped_image_references',function(Blueprint $table) {
+        Schema::table('cropped_image_references', function (Blueprint $table) {
             $table->string('instance_id')->nullable()->after('speed');
         });
     }
@@ -27,7 +27,7 @@ class AlterTableCroppedImageReferences extends Migration
     public function down()
     {
         //
-        Schema::table('cropped_image_references',function(Blueprint $table) {
+        Schema::table('cropped_image_references', function (Blueprint $table) {
             $table->dropField('instance_id');
         });
     }

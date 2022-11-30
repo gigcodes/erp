@@ -13,7 +13,7 @@ use App\Observers\ScrappedProductCategoryMappingObserver;
 use App\ScrapedProducts;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
-use \Plank\Mediable\Media;
+use Plank\Mediable\Media;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -23,91 +23,91 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        'App\Events\Event'                  => [
+        'App\Events\Event' => [
             'App\Listeners\EventListener',
         ],
 
-        'Illuminate\Auth\Events\Login'      => [
+        'Illuminate\Auth\Events\Login' => [
             'App\Listeners\LogSuccessfulLoginListener',
         ],
 
-        'Illuminate\Auth\Events\Logout'     => [
+        'Illuminate\Auth\Events\Logout' => [
             'App\Listeners\LogSuccessfulLogoutListener',
         ],
 
-        'App\Events\OrderCreated'           => [
+        'App\Events\OrderCreated' => [
             'App\Listeners\CreateOrderCashFlow',
         ],
 
-        'App\Events\OrderUpdated'           => [
+        'App\Events\OrderUpdated' => [
             'App\Listeners\UpdateOrderCashFlow',
         ],
 
-        'App\Events\RefundCreated'          => [
+        'App\Events\RefundCreated' => [
             'App\Listeners\CreateRefundCashFlow',
         ],
 
-        'App\Events\RefundDispatched'       => [
+        'App\Events\RefundDispatched' => [
             'App\Listeners\UpdateRefundCashFlow',
         ],
 
-        'App\Events\CaseBilled'             => [
+        'App\Events\CaseBilled' => [
             'App\Listeners\CreateCaseCashFlow',
         ],
 
-        'App\Events\CaseBillPaid'           => [
+        'App\Events\CaseBillPaid' => [
             'App\Listeners\UpdateCaseCashFlow',
         ],
 
-        'App\Events\ProformaConfirmed'      => [
+        'App\Events\ProformaConfirmed' => [
             'App\Listeners\CreatePurchaseCashFlow',
         ],
 
-        'App\Events\VendorPaymentCreated'   => [
+        'App\Events\VendorPaymentCreated' => [
             'App\Listeners\VendorPaymentCashFlow',
         ],
 
-        'App\Events\CaseReceivableCreated'  => [
+        'App\Events\CaseReceivableCreated' => [
             'App\Listeners\CreateCaseReceivableCashFlow',
         ],
 
-        'App\Events\BloggerPaymentCreated'  => [
+        'App\Events\BloggerPaymentCreated' => [
             'App\Listeners\CreateBloggerCashFlow',
         ],
 
-        'App\Events\VoucherApproved'        => [
+        'App\Events\VoucherApproved' => [
             'App\Listeners\CreateVoucherCashFlow',
         ],
 
-        'App\Events\PaymentReceiptCreated'  => [
+        'App\Events\PaymentReceiptCreated' => [
             'App\Listeners\CreatePaymentReceiptCashflow',
         ],
 
-        'App\Events\PaymentReceiptUpdated'  => [
+        'App\Events\PaymentReceiptUpdated' => [
             'App\Listeners\UpdatePaymentReceiptCashflow',
         ],
 
-        'App\Events\PaymentCreated'         => [
+        'App\Events\PaymentCreated' => [
             'App\Listeners\CreatePaymentCashflow',
         ],
 
-        'App\Events\PaymentUpdated'         => [
+        'App\Events\PaymentUpdated' => [
             'App\Listeners\UpdatePaymentCashflow',
         ],
 
-        'App\Events\PurchaseCreated'        => [
+        'App\Events\PurchaseCreated' => [
             'App\Listeners\CreatePurchaseCashflow',
         ],
 
-        'App\Events\PurchaseUpdated'        => [
+        'App\Events\PurchaseUpdated' => [
             'App\Listeners\UpdatePurchaseCashflow',
         ],
 
-        'App\Events\CashFlowCreated'        => [
+        'App\Events\CashFlowCreated' => [
             'App\Listeners\CreateCurrencyCashFlow',
         ],
 
-        'App\Events\CashFlowUpdated'        => [
+        'App\Events\CashFlowUpdated' => [
             'App\Listeners\UpdateCurrencyCashFlow',
         ],
         'App\Events\MonetaryAccountCreated' => [
@@ -125,7 +125,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         'Illuminate\Mail\Events\MessageSending' => [
             'App\Listeners\AddSignatureToMail',
-        ]
+        ],
 
     ];
 

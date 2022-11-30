@@ -3,8 +3,6 @@
 namespace App\Listeners;
 
 use App\Events\SendgridEventCreated;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class SendgridEventCreatedListner
 {
@@ -31,10 +29,8 @@ class SendgridEventCreatedListner
         /**
          * ...
          */
-        
         $sendgridEvent = $event->getSendgridEvent();
         $sendgridEvent->email;
         $sendgridEvent->timestamp;
-        
     }
 }

@@ -6,22 +6,18 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
+use App\Hubstaff\HubstaffMember;
+use App\Models\Tasks\TaskDueDateHistoryLog;
+use App\Models\Tasks\TaskHistoryForStartDate;
+use Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
-use App\WhatsAppGroup;
-use App\Hubstaff\HubstaffMember;
-use App\Task;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-use Plank\Mediable\Mediable;
-use Auth;
 use Illuminate\Http\Request;
-use App\Models\Tasks\TaskHistoryForStartDate;
-use App\Models\Tasks\TaskHistoryForCost;
-use App\Models\Tasks\TaskDueDateHistoryLog;
+use Illuminate\Support\Facades\DB;
+use Plank\Mediable\Mediable;
 
-
-class Task extends Model {
+class Task extends Model
+{
     /**
      * @var string
      * @SWG\Property(property="category",type="string")
@@ -37,7 +33,7 @@ class Task extends Model {
      * @SWG\Property(property="model_type",type="string")
      * @SWG\Property(property="model_id",type="integer")
      * @SWG\Property(property="general_category_id",type="integer")
-     
+
      * @SWG\Property(property="cost",type="string")
      * @SWG\Property(property="is_milestone",type="boolean")
      * @SWG\Property(property="no_of_milestone",type="string")
@@ -50,9 +46,10 @@ class Task extends Model {
      * @SWG\Property(property="site_developement_id",type="integer")
      * @SWG\Property(property="priority_no",type="integer")
      */
-
     use SoftDeletes;
+
     use Mediable;
+
     protected $fillable = [
         'category',
         'task_details',
@@ -89,107 +86,132 @@ class Task extends Model {
 
         'parent_task_id',
 
-		'last_date_time_reminder',
-		'is_flow_task',
+        'last_date_time_reminder',
+        'is_flow_task',
         'user_feedback_cat_id',
-        'parent_review_task_id'
-	];
+        'parent_review_task_id',
+    ];
 
-	const TASK_TYPES = [
-		"Other Task",
-		"Statutory Task",
-		"Calendar Task",
-		"Discussion Task",
-		"Developer Task",
-		"Developer Issue",
-	];
+    const TASK_TYPES = [
+        'Other Task',
+        'Statutory Task',
+        'Calendar Task',
+        'Discussion Task',
+        'Developer Task',
+        'Developer Issue',
+    ];
 
-    const TASK_STATUS_DONE                  = 1;
-    const TASK_STATUS_DISCUSSING            = 2;
-    const TASK_STATUS_IN_PROGRESS           = 3;
-    const TASK_STATUS_ISSUE                 = 4;
-    const TASK_STATUS_PLANNED               = 5;
-    const TASK_STATUS_DISCUSS_WITH_LEAD     = 6;
-    const TASK_STATUS_NOTE                  = 7;
-    const TASK_STATUS_LEAD_RESPONSE_NEEDED  = 8;
-    const TASK_STATUS_ERRORS_IN_TASK        = 9;
-    const TASK_STATUS_IN_REVIEW             = 10;
-    const TASK_STATUS_PRIORITY              = 11;
-    const TASK_STATUS_PRIORITY_2            = 12;
-    const TASK_STATUS_HIGH_PRIORITY         = 13;
+    const TASK_STATUS_DONE = 1;
+
+    const TASK_STATUS_DISCUSSING = 2;
+
+    const TASK_STATUS_IN_PROGRESS = 3;
+
+    const TASK_STATUS_ISSUE = 4;
+
+    const TASK_STATUS_PLANNED = 5;
+
+    const TASK_STATUS_DISCUSS_WITH_LEAD = 6;
+
+    const TASK_STATUS_NOTE = 7;
+
+    const TASK_STATUS_LEAD_RESPONSE_NEEDED = 8;
+
+    const TASK_STATUS_ERRORS_IN_TASK = 9;
+
+    const TASK_STATUS_IN_REVIEW = 10;
+
+    const TASK_STATUS_PRIORITY = 11;
+
+    const TASK_STATUS_PRIORITY_2 = 12;
+
+    const TASK_STATUS_HIGH_PRIORITY = 13;
+
     const TASK_STATUS_REVIEW_ESTIMATED_TIME = 14;
-    const TASK_STATUS_USER_COMPLETE         = 15;
-    const TASK_STATUS_USER_COMPLETE_2       = 16;
-    const TASK_STATUS_USER_ESTIMATED        = 17;
-    const TASK_STATUS_DECLINE               = 18;
-    const TASK_STATUS_REOPEN                = 19;
-    const TASK_STATUS_APPROVED              = 20;
 
-	protected $dates = ['deleted_at'];
+    const TASK_STATUS_USER_COMPLETE = 15;
 
-	public static function hasremark( $id ) {
-		$task = Task::find( $id );
-		if ( ! empty( $task->remark ) ) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+    const TASK_STATUS_USER_COMPLETE_2 = 16;
 
-	// getting remarks
-	public static function getremarks($taskid)
-	{
-			$results = DB::select('select * from remarks where taskid = :taskid order by created_at DESC', ['taskid' => $taskid]);
-			return json_decode(json_encode($results),true);
-	}
+    const TASK_STATUS_USER_ESTIMATED = 17;
 
-	public function remarks()
-	{
-		return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task')->latest();
-	}
+    const TASK_STATUS_DECLINE = 18;
 
-	public function notes()
-	{
-		return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-note')->latest();
-	}
-	
-	public function users()
-	{
-		return $this->belongsToMany('App\User', 'task_users', 'task_id', 'user_id')->where('type', 'App\User');
-	}
+    const TASK_STATUS_REOPEN = 19;
 
-	public function assignedTo()
-	{
-		return $this->belongsTo('App\User', 'assign_to', 'id');
-	}
+    const TASK_STATUS_APPROVED = 20;
 
-	public function contacts()
-	{
-		return $this->belongsToMany('App\Contact', 'task_users', 'task_id', 'user_id')->where('type', 'App\Contact');
-	}
+    protected $dates = ['deleted_at'];
 
-	public function whatsappgroup()
-	{
-		return $this->hasOne(WhatsAppGroup::class);
-	}
-
-	public function whatsappAll($needBroadCast = false)
+    public static function hasremark($id)
     {
-    	if($needBroadCast) {
-            return $this->hasMany('App\ChatMessage', 'task_id')->whereIn('status', ['7', '8', '9', '10'])->latest();    
+        $task = Task::find($id);
+        if (! empty($task->remark)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // getting remarks
+    public static function getremarks($taskid)
+    {
+        $results = DB::select('select * from remarks where taskid = :taskid order by created_at DESC', ['taskid' => $taskid]);
+
+        return json_decode(json_encode($results), true);
+    }
+
+    public function remarks()
+    {
+        return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task')->latest();
+    }
+
+    public function notes()
+    {
+        return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-note')->latest();
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany('App\User', 'task_users', 'task_id', 'user_id')->where('type', 'App\User');
+    }
+
+    public function assignedTo()
+    {
+        return $this->belongsTo('App\User', 'assign_to', 'id');
+    }
+
+    public function contacts()
+    {
+        return $this->belongsToMany('App\Contact', 'task_users', 'task_id', 'user_id')->where('type', 'App\Contact');
+    }
+
+    public function whatsappgroup()
+    {
+        return $this->hasOne(WhatsAppGroup::class);
+    }
+
+    public function whatsappAll($needBroadCast = false)
+    {
+        if ($needBroadCast) {
+            return $this->hasMany('App\ChatMessage', 'task_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
         }
 
         return $this->hasMany('App\ChatMessage', 'task_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
-    public function allMessages() {
+    public function allMessages()
+    {
         return $this->hasMany(ChatMessage::class, 'task_id', 'id')->orderBy('id', 'desc');
     }
-    public function customer() {
+
+    public function customer()
+    {
         return $this->belongsTo('App\Customer', 'customer_id', 'id');
     }
 
-    public function timeSpent() {
+    public function timeSpent()
+    {
         return $this->hasOne(
             'App\Hubstaff\HubstaffActivity',
             'task_id',
@@ -199,7 +221,8 @@ class Task extends Model {
             ->groupBy('task_id');
     }
 
-    public function taskStatus() {
+    public function taskStatus()
+    {
         return $this->hasOne(
             'App\taskStatus',
             'id',
@@ -207,13 +230,14 @@ class Task extends Model {
         );
     }
 
-    public function createTaskFromSortcuts($request) {
+    public function createTaskFromSortcuts($request)
+    {
         $created = 0;
         $message = '';
         $assignedUserId = 0;
 
         if (isset($request['task_asssigned_from'])) {
-            $data["assign_from"] = $request['task_asssigned_from'];
+            $data['assign_from'] = $request['task_asssigned_from'];
         } else {
             $data['assign_from'] = Auth::id();
         }
@@ -223,52 +247,52 @@ class Task extends Model {
         $taskType = $request['task_type'];
 
         if (isset($request['parent_task_id'])) {
-            $data["parent_task_id"] = $request['parent_task_id'];
+            $data['parent_task_id'] = $request['parent_task_id'];
         }
 
-        if ($taskType == "4" || $taskType == "5" || $taskType == "6") {
+        if ($taskType == '4' || $taskType == '5' || $taskType == '6') {
         } else {
-            if (isset($data["is_flow_task"])) {
-                $data["is_flow_task"] = $data["is_flow_task"];
+            if (isset($data['is_flow_task'])) {
+                $data['is_flow_task'] = $data['is_flow_task'];
             } else {
-                $data["is_flow_task"] = 1;
+                $data['is_flow_task'] = 1;
             }
             if ($request['task_asssigned_to']) {
                 if (is_array($request['task_asssigned_to'])) {
-                    $data["assign_to"] = $request['task_asssigned_to'];
+                    $data['assign_to'] = $request['task_asssigned_to'];
                 } else {
-                    $data["assign_to"] = $request['task_asssigned_to'];
+                    $data['assign_to'] = $request['task_asssigned_to'];
                 }
             } else {
                 $data['assign_to'] = $request['assign_to_contacts'];
             }
             //discussion task
 
-            $data['is_statutory'] = $request["task_type"];
-            $data['task_details'] = $request["task_detail"];
-            $data['task_subject'] = $request["task_subject"];
-            $data["customer_id"]    = $request["customer_id"];
-            $data["site_developement_id"]   = $request['site_id'];
-            $data["cost"]   = $request["cost"];
+            $data['is_statutory'] = $request['task_type'];
+            $data['task_details'] = $request['task_detail'];
+            $data['task_subject'] = $request['task_subject'];
+            $data['customer_id'] = $request['customer_id'];
+            $data['site_developement_id'] = $request['site_id'];
+            $data['cost'] = $request['cost'];
             if ($request['category_id'] != null) {
-                $data['category']     = $request['category_id'];
+                $data['category'] = $request['category_id'];
             }
             $task = Task::create($data);
             $created = 1;
             $assignedUserId = $task->assign_to;
             if ($task->is_statutory != 1) {
-                $message = "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details;
+                $message = '#'.$task->id.'. '.$task->task_subject.'. '.$task->task_details;
             } else {
-                $message = $task->task_subject . ". " . $task->task_details;
+                $message = $task->task_subject.'. '.$task->task_details;
             }
 
             $params = [
-                'number'       => null,
-                'user_id'      => $data['assign_from'],
-                'approved'     => 1,
-                'status'       => 2,
-                'task_id'      => $task->id,
-                'message'      => $message
+                'number' => null,
+                'user_id' => $data['assign_from'],
+                'approved' => 1,
+                'status' => 2,
+                'task_id' => $task->id,
+                'message' => $message,
             ];
 
             if (count($task->users) > 0) {
@@ -306,7 +330,7 @@ class Task extends Model {
             $chat_message = ChatMessage::create($params);
             ChatMessagesQuickData::updateOrCreate([
                 'model' => \App\Task::class,
-                'model_id' => $params['task_id']
+                'model_id' => $params['task_id'],
             ], [
                 'last_communicated_message' => @$params['message'],
                 'last_communicated_message_at' => $chat_message->created_at,
@@ -318,7 +342,6 @@ class Task extends Model {
             $myRequest->request->add(['messageId' => $chat_message->id]);
             app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
         }
-
 
         if ($created) {
             // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
@@ -353,15 +376,19 @@ class Task extends Model {
                 $hubtask->save();
             }
         }
+
         return $task;
-        return response()->json(["code" => 200, "data" => [], "message" => "Your quick task has been created!"]);
+
+        return response()->json(['code' => 200, 'data' => [], 'message' => 'Your quick task has been created!']);
     }
 
-    public function site_development() {
+    public function site_development()
+    {
         return $this->belongsTo('App\SiteDevelopment', 'site_developement_id', 'id');
     }
 
-    public function updateStartDate($new) {
+    public function updateStartDate($new)
+    {
         $old = $this->start_date;
 
         $count = TaskHistoryForStartDate::where('task_id', $this->id)->count();
@@ -374,7 +401,8 @@ class Task extends Model {
         }
     }
 
-    public function updateDueDate($new) {
+    public function updateDueDate($new)
+    {
         $old = $this->due_date;
 
         $count = TaskDueDateHistoryLog::where('task_id', $this->id)->count();
@@ -387,8 +415,8 @@ class Task extends Model {
         }
     }
 
-
-    public static function getMessagePrefix($obj) {
-        return '#TASK-' . $obj->id . '-' . $obj->task_subject . ' => ';
+    public static function getMessagePrefix($obj)
+    {
+        return '#TASK-'.$obj->id.'-'.$obj->task_subject.' => ';
     }
 }

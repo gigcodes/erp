@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterSuppliersTableAddScraperColumn extends Migration
 {
@@ -14,7 +14,7 @@ class AlterSuppliersTableAddScraperColumn extends Migration
     public function up()
     {
         Schema::table('suppliers', function (Blueprint $table) {
-             $table->integer('scraper_type')->nullable()->after('scraper_parent_id');
+            $table->integer('scraper_type')->nullable()->after('scraper_parent_id');
         });
     }
 

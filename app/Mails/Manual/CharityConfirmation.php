@@ -18,7 +18,6 @@ class CharityConfirmation extends Mailable
      *
      * @return void
      */
-
     public $order;
 
     public function __construct(Order $order)
@@ -34,13 +33,13 @@ class CharityConfirmation extends Mailable
      */
     public function build()
     {
-        $subject = "Charity Confirmation # " . $this->order->order_id;
+        $subject = 'Charity Confirmation # '.$this->order->order_id;
         $order = $this->order;
         $customer = $order->customer;
         $order_products = $order->order_products;
 
         $this->subject = $subject;
-        $this->fromMailer = "customercare@sololuxury.co.in";
+        $this->fromMailer = 'customercare@sololuxury.co.in';
 
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
@@ -66,7 +65,7 @@ class CharityConfirmation extends Mailable
                 $this->fromMailer = $template->from_email;
             }
 
-            if (!empty($template->mail_tpl)) {
+            if (! empty($template->mail_tpl)) {
                 // need to fix the all email address
                 return $this->from($this->fromMailer)
                     ->subject($template->subject)
@@ -75,6 +74,7 @@ class CharityConfirmation extends Mailable
                     ));
             } else {
                 $content = $template->static_template;
+
                 return $this->from($this->fromMailer)
                     ->subject($template->subject)
                     ->view('emails.blank_content', compact(
@@ -83,7 +83,7 @@ class CharityConfirmation extends Mailable
             }
         }
 
-        if (!$storeWebsiteOrder) {
+        if (! $storeWebsiteOrder) {
             return $this->view('emails.orders.confirmed-solo', compact(
                 'order', 'customer', 'order_products'
             ));

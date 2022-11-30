@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddStoreWebsiteIdToLogListMagentosTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddStoreWebsiteIdToLogListMagentosTable extends Migration
     public function up()
     {
         Schema::table('log_list_magentos', function (Blueprint $table) {
-          $table->integer('store_website_id')->nullable();
+            $table->integer('store_website_id')->nullable();
         });
     }
 
