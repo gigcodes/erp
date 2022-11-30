@@ -259,7 +259,6 @@ class StoreWebsiteController extends Controller
             unset($copyStoreWebsite->id);
             unset($copyStoreWebsite->title);
             $copyStoreWebsite->title = $title . ' ' . $i;
-//            dd($copyStoreWebsite);
             $copyStoreWebsite->save();
 
             $copyStoreWebsiteId = $copyStoreWebsite->id;
