@@ -114,7 +114,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
-      - name: 'Create env file'
+      - name: Create env file
           run: 'echo "${{ secrets.ENV_FILE }}" > .env'
 
       - name: "setup private repo"
