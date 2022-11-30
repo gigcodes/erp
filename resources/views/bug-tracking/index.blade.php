@@ -110,7 +110,9 @@
 											@endforeach
 										</select>
 									</div>
-
+									<div class="form-group">
+										<input name="date" type="date" class="form-control" placeholder="Search Date" id="bug-date" data-allow-clear="true" />
+									</div>
 									<div class="form-group">
 										<label for="button">&nbsp;</label>
 										<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
@@ -197,12 +199,35 @@
 						<th>Status</th>
 						<th>Severity</th>
 						<th>Module/Feature</th>
-						<th>Remarks </th>
+						<th>Updated By </th>
 					</tr>
 					<tbody class="tbh">
 
 					</tbody>
 				</table>
+			</div>
+		</div>
+	</div>
+
+	<div id="newCommunictionModal" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3>Communication</h3>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+				<table class="table">
+					<thead>
+					<th></th>
+					<th></th>
+					</thead>
+					<tbody class="tbhc">
+
+					</tbody>
+				</table>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -333,5 +358,16 @@
 			console.log(id,name,fullText,full)
 			$(".bugtrackingmanShowFullTextBody").html(fullText);
 		});
+		$(document).on("click",".btn-copy-url",function() {
+			var url = $(this).data('id');
+			var $temp = $("<input>");
+			$("body").append($temp);
+			$temp.val(url).select();
+			document.execCommand("copy");
+			$temp.remove();
+			alert("Copied!");
+		});
+
+
 	</script>
 @endsection
