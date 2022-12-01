@@ -45,7 +45,7 @@ class CreateGoogleDoc
             $this->googleDoc->docId = $spreadsheetId;
             $this->googleDoc->save();
         } catch (Exception $e) {
-            echo 'Message: ' . $e->getMessage();
+            echo 'Message: '.$e->getMessage();
             dd($e);
         }
     }
@@ -59,18 +59,19 @@ class CreateGoogleDoc
             $driveService = new Drive($client);
             $emptyFileMetadata = new DriveFile();
             // Retrieve the existing parents to remove
-            $file = $driveService->files->get($fileId, array('fields' => 'parents'));
+            $file = $driveService->files->get($fileId, ['fields' => 'parents']);
 
-            $previousParents = join(',', $file->parents);
+            $previousParents = implode(',', $file->parents);
 
             // Move the file to the new folder
-            $file = $driveService->files->update($fileId, $emptyFileMetadata, array(
+            $file = $driveService->files->update($fileId, $emptyFileMetadata, [
                 'addParents' => $folderId,
                 'removeParents' => $previousParents,
-                'fields' => 'id, parents'));
+                'fields' => 'id, parents', ]);
+
             return $file->parents;
         } catch (Exception $e) {
-            echo "Error Message: " . $e;
+            echo 'Error Message: '.$e;
         }
     }
 
@@ -81,19 +82,19 @@ class CreateGoogleDoc
             $client->useApplicationDefaultCredentials();
             $client->addScope(Drive::DRIVE);
             $driveService = new Drive($client);
-            $fileMetadata = new Drive\DriveFile(array(
+            $fileMetadata = new Drive\DriveFile([
                 'name' => $this->googleDoc->name,
-                'parents' => array($folderId),
-                "mimeType" => "application/vnd.google-apps.document",
-            ));
+                'parents' => [$folderId],
+                'mimeType' => 'application/vnd.google-apps.document',
+            ]);
 
-            $file = $driveService->files->create($fileMetadata, array(
-                'fields' => 'id,parents,mimeType'
-            ));
+            $file = $driveService->files->create($fileMetadata, [
+                'fields' => 'id,parents,mimeType',
+            ]);
 
             return $file;
         } catch (Exception $e) {
-            echo "Error Message: " . $e;
+            echo 'Error Message: '.$e;
             dd($e);
         }
     }

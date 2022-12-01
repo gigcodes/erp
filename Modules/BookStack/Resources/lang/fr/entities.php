@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     /**
@@ -252,9 +253,9 @@ return [
     'book_tags' => 'Mots-clés du livre',
     'shelf_tags' => 'Mots-clés de l\'étagère',
     'tag' => 'Mot-clé',
-    'tags' =>  'Mots-clés',
+    'tags' => 'Mots-clés',
     'tag_value' => 'Valeur du mot-clé (Optionnel)',
-    'tags_explain' => "Ajouter des mots-clés pour catégoriser votre contenu.",
+    'tags_explain' => 'Ajouter des mots-clés pour catégoriser votre contenu.',
     'tags_add' => 'Ajouter un autre mot-clé',
     'attachments' => 'Fichiers joints',
     'attachments_explain' => 'Ajouter des fichiers ou des liens pour les afficher sur votre page. Ils seront affichés dans la barre latérale',
@@ -312,10 +313,10 @@ return [
     'comment_delete_confirm' => 'Etes-vous sûr de vouloir supprimer ce commentaire ?',
     'comment_in_reply_to' => 'En réponse à :commentId',
 
-     /**
+    /**
      * Revision
      */
     'revision_delete_confirm' => 'Êtes-vous sûr de vouloir supprimer cette révision?',
     'revision_delete_success' => 'Révision supprimée',
-    'revision_cannot_delete_latest' => 'Impossible de supprimer la dernière révision.'
+    'revision_cannot_delete_latest' => 'Impossible de supprimer la dernière révision.',
 ];

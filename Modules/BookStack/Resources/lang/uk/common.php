@@ -20,7 +20,7 @@ return [
     'role' => 'Роль',
     'cover_image' => 'Обкладинка',
     'cover_image_description' => 'Це зображення має бути приблизно 440x250px.',
-    
+
     // Actions
     'actions' => 'Дії',
     'view' => 'Подивитись',
@@ -38,7 +38,7 @@ return [
     'reset' => 'Скинути',
     'remove' => 'Видалити',
     'add' => 'Додати',
-    
+
     // Sort Options
     'sort_name' => 'Ім\'я',
     'sort_created_at' => 'Дата створення',
@@ -59,7 +59,7 @@ return [
     // Header
     'view_profile' => 'Переглянути профіль',
     'edit_profile' => 'Редагувати профіль',
-    
+
     // Layout tabs
     'tab_info' => 'Інфо',
     'tab_content' => 'Вміст',

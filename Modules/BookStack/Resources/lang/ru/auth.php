@@ -5,7 +5,7 @@
  * messages that we need to display to the user.
  */
 return [
-    
+
     'failed' => 'Учетная запись не найдена.',
     'throttle' => 'Слишком много попыток входа. Пожалуйста, попробуйте позже через :seconds секунд.',
 
@@ -38,7 +38,6 @@ return [
     'registration_email_domain_invalid' => 'Данный домен электронной почты недоступен для регистрации',
     'register_success' => 'Спасибо за регистрацию! Регистрация и вход в систему выполнены.',
 
-
     //Password Reset
     'reset_password' => 'Сброс пароля',
     'reset_password_send_instructions' => 'Введите свой email ниже, и вам будет отправлено письмо со ссылкой для сброса пароля.',
@@ -48,7 +47,6 @@ return [
     'email_reset_subject' => 'Сбросить ваш :appName пароль',
     'email_reset_text' => 'Вы получили это письмо, потому что запросили сброс пароля для вашей учетной записи.',
     'email_reset_not_requested' => 'Если вы не запрашивали сброса пароля, то никаких дополнительных действий не требуется.',
-
 
     //Email Confirmation
     'email_confirm_subject' => 'Подтвердите ваш почтовый адрес на :appName',
@@ -64,7 +62,7 @@ return [
     'email_not_confirmed_click_link' => 'Пожалуйста, нажмите на ссылку в письме, которое было отправлено при регистрации.',
     'email_not_confirmed_resend' => 'Если вы не можете найти электронное письмо, вы можете снова отправить письмо с подтверждением по форме ниже.',
     'email_not_confirmed_resend_button' => 'Переотправить письмо с подтверждением',
-    
+
     // User Invite
     'user_invite_email_subject' => 'Вас приглашают присоединиться к :appName!',
     'user_invite_email_greeting' => 'Для вас создан аккаунт в :appName.',
@@ -73,5 +71,5 @@ return [
     'user_invite_page_welcome' => 'Добро пожаловать в :appName!',
     'user_invite_page_text' => 'Завершите настройку аккаунта, установите пароль для дальнейшего входа в :appName.',
     'user_invite_page_confirm_button' => 'Подтвердите пароль',
-    'user_invite_success' => 'Пароль установлен, теперь у вас есть доступ к :appName!'
+    'user_invite_success' => 'Пароль установлен, теперь у вас есть доступ к :appName!',
 ];

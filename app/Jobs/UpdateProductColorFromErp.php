@@ -14,11 +14,15 @@ class UpdateProductColorFromErp implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $params;
+
     public $from;
+
     public $to;
+
     public $user_id;
 
     public $tries = 3;
+
     public $backoff = 5;
 
     /**
@@ -28,15 +32,16 @@ class UpdateProductColorFromErp implements ShouldQueue
      */
     public function __construct($params)
     {
-        $this->from    = $params["from"];
-        $this->to      = $params["to"];
-        $this->user_id = isset($params["user_id"]) ? $params["user_id"] : 6;
-        $this->params  = $params;
+        $this->from = $params['from'];
+        $this->to = $params['to'];
+        $this->user_id = isset($params['user_id']) ? $params['user_id'] : 6;
+        $this->params = $params;
     }
 
     public static function putLog($message)
     {
         \Log::channel('update_color_job')->info($message);
+
         return true;
     }
 
@@ -47,36 +52,38 @@ class UpdateProductColorFromErp implements ShouldQueue
      */
     public function handle()
     {
-        try{
-            self::putLog("Job update product color from erp start time : " . date("Y-m-d H:i:s"));
+        try {
+            self::putLog('Job update product color from erp start time : '.date('Y-m-d H:i:s'));
 
             $affectedProducts = ScrapedProducts::matchedColors($this->from);
 
-            if (!empty($affectedProducts)) {
+            if (! empty($affectedProducts)) {
                 foreach ($affectedProducts as $affectedProduct) {
                     $affectedProduct->color = $this->to;
                     $affectedProduct->save();
                     // do entry for the history as well
-                    $productColHis             = new \App\ProductColorHistory;
-                    $productColHis->user_id    = ($this->user_id) ? $this->user_id : 6;
-                    $productColHis->color      = !empty($this->to) ? $this->to : "";
-                    $productColHis->old_color  = !empty($this->from) ? $this->from : "";
+                    $productColHis = new \App\ProductColorHistory;
+                    $productColHis->user_id = ($this->user_id) ? $this->user_id : 6;
+                    $productColHis->color = ! empty($this->to) ? $this->to : '';
+                    $productColHis->old_color = ! empty($this->from) ? $this->from : '';
                     $productColHis->product_id = $affectedProduct->id;
                     $productColHis->save();
                 }
             }
 
-            self::putLog("Job update product color from erp end time : " . date("Y-m-d H:i:s"));
+            self::putLog('Job update product color from erp end time : '.date('Y-m-d H:i:s'));
+
             return true;
         } catch (\Exception $e) {
-            self::putLog("Job update product color from erp end time : " . date("Y-m-d H:i:s"). ' => '.$e->getMessage());
+            self::putLog('Job update product color from erp end time : '.date('Y-m-d H:i:s').' => '.$e->getMessage());
             throw new \Exception($e->getMessage());
+
             return false;
-        }    
+        }
     }
 
-    public function tags() 
+    public function tags()
     {
-        return [ 'supplier_products', $this->user_id];
+        return ['supplier_products', $this->user_id];
     }
 }

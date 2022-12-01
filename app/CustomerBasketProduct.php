@@ -29,5 +29,4 @@ class CustomerBasketProduct extends Model
         'product_price',
         'product_currency',
     ];
-
 }

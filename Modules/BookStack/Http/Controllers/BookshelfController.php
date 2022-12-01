@@ -1,30 +1,34 @@
-<?php namespace Modules\BookStack\Http\Controllers;
+<?php
+
+namespace Modules\BookStack\Http\Controllers;
 
 use Activity;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Modules\BookStack\Auth\UserRepo;
 use Modules\BookStack\Entities\Bookshelf;
 use Modules\BookStack\Entities\EntityContextManager;
 use Modules\BookStack\Entities\Repos\EntityRepo;
 use Modules\BookStack\Uploads\ImageRepo;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Views;
-use DB;
 
 class BookshelfController extends Controller
 {
-
     protected $entityRepo;
+
     protected $userRepo;
+
     protected $entityContextManager;
+
     protected $imageRepo;
 
     /**
      * BookController constructor.
-     * @param EntityRepo $entityRepo
-     * @param UserRepo $userRepo
-     * @param EntityContextManager $entityContextManager
-     * @param ImageRepo $imageRepo
+     *
+     * @param  EntityRepo  $entityRepo
+     * @param  UserRepo  $userRepo
+     * @param  EntityContextManager  $entityContextManager
+     * @param  ImageRepo  $imageRepo
      */
     public function __construct(EntityRepo $entityRepo, UserRepo $userRepo, EntityContextManager $entityContextManager, ImageRepo $imageRepo)
     {
@@ -37,6 +41,7 @@ class BookshelfController extends Controller
 
     /**
      * Display a listing of the book.
+     *
      * @return Response
      */
     public function index()
@@ -62,6 +67,7 @@ class BookshelfController extends Controller
 
         $this->entityContextManager->clearShelfContext();
         $this->setPageTitle(trans('bookstack::entities.shelves'));
+
         return view('bookstack::shelves.index', [
             'shelves' => $shelves,
             'recents' => $recents,
@@ -76,6 +82,7 @@ class BookshelfController extends Controller
 
     /**
      * Show the form for creating a new bookshelf.
+     *
      * @return Response
      */
     public function create()
@@ -83,13 +90,16 @@ class BookshelfController extends Controller
         $this->checkPermission('bookshelf-create-all');
         $books = $this->entityRepo->getAll('book', false, 'update');
         $this->setPageTitle(trans('bookstack::entities.shelves_create'));
+
         return view('bookstack::shelves.create', ['books' => $books]);
     }
 
     /**
      * Store a newly created bookshelf in storage.
-     * @param Request $request
+     *
+     * @param  Request  $request
      * @return Response
+     *
      * @throws \BookStack\Exceptions\ImageUploadException
      */
     public function store(Request $request)
@@ -105,14 +115,16 @@ class BookshelfController extends Controller
         $this->shelfUpdateActions($shelf, $request);
 
         Activity::add($shelf, 'bookshelf_create');
+
         return redirect($shelf->getUrl());
     }
 
-
     /**
      * Display the specified bookshelf.
-     * @param String $slug
+     *
+     * @param  string  $slug
      * @return Response
+     *
      * @throws \BookStack\Exceptions\NotFoundException
      */
     public function show(string $slug)
@@ -130,9 +142,10 @@ class BookshelfController extends Controller
         return view('bookstack::shelves.show', [
             'shelf' => $shelf,
             'books' => $books,
-            'activity' => Activity::entityActivity($shelf, 20, 1)
+            'activity' => Activity::entityActivity($shelf, 20, 1),
         ]);
     }
+
     public function showShelf($sortByView, $sortByDate)
     {
         $view = setting()->getUser($this->currentUser, 'bookshelves_view_type', config('app.views.bookshelves', 'grid'));
@@ -154,7 +167,7 @@ class BookshelfController extends Controller
         $new = $this->entityRepo->getRecentlyCreated('bookshelf', 4, 0);
 
         $this->entityContextManager->clearShelfContext();
-        
+
         return response()->json([
             'shelves' => $shelves,
             'recents' => $recents,
@@ -169,8 +182,10 @@ class BookshelfController extends Controller
 
     /**
      * Show the form for editing the specified bookshelf.
+     *
      * @param $slug
      * @return Response
+     *
      * @throws \BookStack\Exceptions\NotFoundException
      */
     public function edit(string $slug)
@@ -182,22 +197,25 @@ class BookshelfController extends Controller
         $shelfBookIds = $shelfBooks->pluck('id');
         $books = $this->entityRepo->getAll('book', false, 'update');
         $books = $books->filter(function ($book) use ($shelfBookIds) {
-             return !$shelfBookIds->contains($book->id);
+            return ! $shelfBookIds->contains($book->id);
         });
 
         $this->setPageTitle(trans('bookstack::entities.shelves_edit_named', ['name' => $shelf->getShortName()]));
+
         return view('bookstack::shelves.edit', [
             'shelf' => $shelf,
             'books' => $books,
             'shelfBooks' => $shelfBooks,
         ]);
-    } 
+    }
 
     /**
      * Update the specified bookshelf in storage.
-     * @param Request $request
-     * @param string $slug
+     *
+     * @param  Request  $request
+     * @param  string  $slug
      * @return Response
+     *
      * @throws \BookStack\Exceptions\NotFoundException
      * @throws \BookStack\Exceptions\ImageUploadException
      */
@@ -211,18 +229,20 @@ class BookshelfController extends Controller
             'image' => $this->imageRepo->getImageValidationRules(),
         ]);
 
-         $shelf = $this->entityRepo->updateFromInput('bookshelf', $shelf, $request->all());
-         $this->shelfUpdateActions($shelf, $request);
+        $shelf = $this->entityRepo->updateFromInput('bookshelf', $shelf, $request->all());
+        $this->shelfUpdateActions($shelf, $request);
 
-         Activity::add($shelf, 'bookshelf_update');
+        Activity::add($shelf, 'bookshelf_update');
 
-         return redirect($shelf->getUrl());
+        return redirect($shelf->getUrl());
     }
 
     /**
      * Shows the page to confirm deletion
+     *
      * @param $slug
      * @return \Illuminate\View\View
+     *
      * @throws \BookStack\Exceptions\NotFoundException
      */
     public function showDelete(string $slug)
@@ -231,13 +251,16 @@ class BookshelfController extends Controller
         $this->checkOwnablePermission('bookshelf-delete', $shelf);
 
         $this->setPageTitle(trans('bookstack::entities.shelves_delete_named', ['name' => $shelf->getShortName()]));
+
         return view('bookstack::shelves.delete', ['shelf' => $shelf]);
     }
 
     /**
      * Remove the specified bookshelf from storage.
-     * @param string $slug
+     *
+     * @param  string  $slug
      * @return Response
+     *
      * @throws \BookStack\Exceptions\NotFoundException
      * @throws \Throwable
      */
@@ -257,8 +280,10 @@ class BookshelfController extends Controller
 
     /**
      * Show the permissions view.
-     * @param string $slug
+     *
+     * @param  string  $slug
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     *
      * @throws \BookStack\Exceptions\NotFoundException
      */
     public function showPermissions(string $slug)
@@ -267,17 +292,20 @@ class BookshelfController extends Controller
         $this->checkOwnablePermission('restrictions-manage', $shelf);
 
         $roles = $this->userRepo->getRestrictableRoles();
+
         return view('bookstack::shelves.permissions', [
             'shelf' => $shelf,
-            'roles' => $roles
+            'roles' => $roles,
         ]);
     }
 
     /**
      * Set the permissions for this bookshelf.
-     * @param string $slug
-     * @param Request $request
+     *
+     * @param  string  $slug
+     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     *
      * @throws \BookStack\Exceptions\NotFoundException
      * @throws \Throwable
      */
@@ -288,13 +316,16 @@ class BookshelfController extends Controller
 
         $this->entityRepo->updateEntityPermissionsFromRequest($request, $shelf);
         session()->flash('success', trans('bookstack::entities.shelves_permissions_updated'));
+
         return redirect($shelf->getUrl());
     }
 
     /**
      * Copy the permissions of a bookshelf to the child books.
-     * @param string $slug
+     *
+     * @param  string  $slug
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     *
      * @throws \BookStack\Exceptions\NotFoundException
      */
     public function copyPermissions(string $slug)
@@ -304,19 +335,22 @@ class BookshelfController extends Controller
 
         $updateCount = $this->entityRepo->copyBookshelfPermissions($shelf);
         session()->flash('success', trans('bookstack::entities.shelves_copy_permission_success', ['count' => $updateCount]));
+
         return redirect($shelf->getUrl());
     }
 
     /**
      * Common actions to run on bookshelf update.
-     * @param Bookshelf $shelf
-     * @param Request $request
+     *
+     * @param  Bookshelf  $shelf
+     * @param  Request  $request
+     *
      * @throws \BookStack\Exceptions\ImageUploadException
      */
     protected function shelfUpdateActions(Bookshelf $shelf, Request $request)
     {
         // Update the books that the shelf references
-        $this->entityRepo->updateShelfBooks($shelf, ($request->get('books', '')) ? $request->get('books', '') : "");
+        $this->entityRepo->updateShelfBooks($shelf, ($request->get('books', '')) ? $request->get('books', '') : '');
 
         // Update the cover image if in request
         if ($request->has('image')) {

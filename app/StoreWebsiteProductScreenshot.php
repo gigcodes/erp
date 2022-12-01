@@ -4,11 +4,9 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class StoreWebsiteProductScreenshot extends Model
 {
-
     use Mediable;
 
     protected $fillable = [
@@ -25,6 +23,6 @@ class StoreWebsiteProductScreenshot extends Model
 
     public function storeWebsite()
     {
-        return $this->hasOne(\App\StoreWebsite::class,'id','store_website_id');
+        return $this->hasOne(\App\StoreWebsite::class, 'id', 'store_website_id');
     }
 }

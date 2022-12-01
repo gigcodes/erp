@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddCategoryToContacts extends Migration
 {
@@ -14,7 +14,7 @@ class AddCategoryToContacts extends Migration
     public function up()
     {
         Schema::table('contacts', function (Blueprint $table) {
-          $table->string('category')->nullable()->after('phone');
+            $table->string('category')->nullable()->after('phone');
         });
     }
 
@@ -26,7 +26,7 @@ class AddCategoryToContacts extends Migration
     public function down()
     {
         Schema::table('contacts', function (Blueprint $table) {
-          $table->dropColumn('category');
+            $table->dropColumn('category');
         });
     }
 }

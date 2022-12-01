@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableWatsonAccountField extends Migration
 {
@@ -14,7 +14,7 @@ class AlterTableWatsonAccountField extends Migration
     public function up()
     {
         //
-        Schema::table('watson_accounts',function(Blueprint $table) {
+        Schema::table('watson_accounts', function (Blueprint $table) {
             $table->string('user_name')->nullable()->after('assistant_id');
             $table->string('password')->nullable()->after('user_name');
         });
@@ -28,7 +28,7 @@ class AlterTableWatsonAccountField extends Migration
     public function down()
     {
         //
-        Schema::table('watson_accounts',function(Blueprint $table) {
+        Schema::table('watson_accounts', function (Blueprint $table) {
             $table->dropField('user_name');
             $table->dropField('password');
         });

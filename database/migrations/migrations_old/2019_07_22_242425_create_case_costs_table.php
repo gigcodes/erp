@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateCaseCostsTable extends Migration
 {
@@ -18,9 +18,9 @@ class CreateCaseCostsTable extends Migration
             $table->integer('case_id')->unsigned()->nullable();
             $table->foreign('case_id')->references('id')->on('cases')->onDelete('cascade')->onUpdate('cascade');
             $table->date('billed_date')->nullable();
-            $table->decimal('amount',13,4)->nullable();
+            $table->decimal('amount', 13, 4)->nullable();
             $table->date('paid_date')->nullable();
-            $table->decimal('amount_paid',13,4)->nullable();
+            $table->decimal('amount_paid', 13, 4)->nullable();
             $table->text('other')->nullable();
             $table->timestamps();
         });

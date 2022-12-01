@@ -48,7 +48,7 @@
 					<div class="row">
 				  		<div class="col-md-12">
 				    		<div class="form-group">
-					         	<?php echo Form::select("merge_module",\App\DeveloperModule::pluck("name","id")->toArray(),null,["class" => "form-control select2-manage-module merge-module"]); ?>
+					         	<?php echo Form::select('merge_module', \App\DeveloperModule::pluck('name', 'id')->toArray(), null, ['class' => 'form-control select2-manage-module merge-module']); ?>
 					         </div>
 				        </div> 
 				        <div class="col-md-12">

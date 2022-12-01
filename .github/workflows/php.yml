@@ -1,0 +1,154 @@
+name: PHP Composer
+
+on:
+  push:
+    branches: [ "*" ]
+  pull_request:
+    branches: [ "*" ]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+#  build:
+#
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#    - uses: actions/checkout@v3
+#    - name: Build and push
+#      uses: docker/build-push-action@v3
+#      with:
+#        context: .
+#        push: true
+#        tags: erp-web
+#    - uses: php-actions/composer@v6
+#      with:
+#        php_version: "7.4"
+##        php_extensions: redis exif
+#        version: 1.10.22
+#    - name: Validate composer.json and composer.lock
+#      run: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=1.10.22
+#
+#    - name: composer version
+#      run: composer --version
+#
+#    - name: Validate composer.json and composer.lock
+#      run: composer validate
+#
+#    - name: Cache Composer packages
+#      id: composer-cache
+#      uses: actions/cache@v3
+#      with:
+#        path: vendor
+#        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+#        restore-keys: |
+#          ${{ runner.os }}-php-
+#
+#    - name: Install dependencies
+#      env:
+#        COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{secrets.GITHUB_TOKEN}}"} }' # [tl! **]
+#      run: composer install --prefer-dist --no-progress
+#
+#    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
+#    # Docs: https://getcomposer.org/doc/articles/scripts.md
+#
+#    # - name: Run test suite
+#    #   run: composer run-script test
+
+
+
+
+
+
+  ## Comment pint for faster debugging.
+  phplint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: "laravel-pint"
+        uses: aglipanci/laravel-pint-action@1.0.0
+        with:
+          preset: laravel
+#          verboseMode: false
+#          testMode: false
+#          configPath: "vendor/my-company/coding-style/pint.json"..
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          commit-message: Styling fixes by Github Action
+          title: Styling fixes by Github Action
+          body: Styling fixes by Github Action
+          branch: styling-fixes-by-pint
+
+
+
+
+
+
+# @todo need to add larastan instead of phpstan when laravel is upgraded to latest version. This action is working fine.
+#  phpstan:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - uses: actions/checkout@v3
+#
+#      - name: Get Composer Cache Directory
+#        id: composer-cache
+#        run: 'echo "$(composer config cache-files-dir)"'
+##          echo "::set-output name=dir::$(composer config cache-files-dir)"
+##          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+##          echo "$(composer config cache-files-dir)"
+#      - uses: actions/cache@v3
+#        with:
+##          path: ${{ steps.composer-cache.outputs.dir }}
+#          path: /home/runner/.cache/composer/files
+#          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+#          restore-keys: |
+#            ${{ runner.os }}-composer-
+#
+#      - name: "setup private repo"
+#        uses: php-actions/composer@v6
+#        with:
+#          php_version: "7.2"
+#          php_extensions: pdo pdo_mysql sockets mbstring zip exif pcntl soap mysqli bcmath gd imap
+#          version: 1.x
+##          args: -v
+#        env:
+#          FACEBOOK_APP_ID: 276312109600799
+#          FACEBOOK_APP_SECRET: 05024d41d47c8a70c1fa2941f52c12c3
+#          FACEBOOK_DEFAULT_GRAPH_VERSION: v3.2
+#          COMPOSER_PROCESS_TIMEOUT: 0
+#          COMPOSER_MEMORY_LIMIT: -1
+#          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{secrets.LUDXB2}}"} }'
+#          DB_CONNECTION: sqlite
+#          DB_DATABASE : database/database.sqlite
+#      - uses: php-actions/phpstan@v3
+#        with:
+#          path: .
+#          memory_limit: 512M
+
+
+
+
+
+## THIS IS WORKING FINE - FOR TESTING PURPOSE ONLY
+#  updateAuthors:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#        with:
+#          fetch-depth: 0
+#      - name: Update AUTHORS
+#        run: |
+#          git log --format='%aN <%aE>%n%cN <%cE>' | sort -u > AUTHORS
+#      - name: Create Pull Request
+#        uses: peter-evans/create-pull-request@v4
+#        with:
+#          commit-message: update authors
+#          title: Update AUTHORS
+#          body: Credit new contributors by updating AUTHORS
+#          branch: update-authors

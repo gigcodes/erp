@@ -7,7 +7,6 @@ return [
      * Contains all text strings used in the general settings sections of BookStack
      * including users and roles.
      */
-
     'settings' => 'Impostazioni',
     'settings_save' => 'Salva Impostazioni',
     'settings_save_success' => 'Impostazioni salvate',
@@ -15,7 +14,6 @@ return [
     /**
      * App settings
      */
-
     'app_settings' => 'Impostazioni App',
     'app_name' => 'Nome applicazione',
     'app_name_desc' => 'Questo nome è mostrato nell\'header e in tutte le mail.',
@@ -40,7 +38,6 @@ return [
     /**
      * Registration settings
      */
-
     'reg_settings' => 'Impostazioni Registrazione',
     'reg_allow' => 'Consentire Registrazione?',
     'reg_default_role' => 'Ruolo predefinito dopo la registrazione',
@@ -53,7 +50,6 @@ return [
     /**
      * Role settings
      */
-
     'roles' => 'Ruoli',
     'role_user_roles' => 'Ruoli Utente',
     'role_create' => 'Crea Nuovo Ruolo',
@@ -61,7 +57,7 @@ return [
     'role_delete' => 'Elimina Ruolo',
     'role_delete_confirm' => 'Questo eliminerà il ruolo con il nome \':roleName\'.',
     'role_delete_users_assigned' => 'Questo ruolo ha :userCount utenti assegnati. Se vuoi migrare gli utenti da questo ruolo selezionane uno nuovo sotto.',
-    'role_delete_no_migration' => "Non migrare gli utenti",
+    'role_delete_no_migration' => 'Non migrare gli utenti',
     'role_delete_sure' => 'Sei sicuro di voler eliminare questo ruolo?',
     'role_delete_success' => 'Ruolo eliminato correttamente',
     'role_edit' => 'Modifica Ruolo',
@@ -87,7 +83,6 @@ return [
     /**
      * Users
      */
-
     'users' => 'Utenti',
     'user_profile' => 'Profilo Utente',
     'users_add_new' => 'Aggiungi Nuovo Utente',

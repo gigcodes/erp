@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\AutomatedMessages;
 use App\HashtagPostHistory;
 //use App\InstagramAutomatedMessages;
 use Illuminate\Http\Request;
+
 //use InstagramAPI\Instagram;
 
 class InstagramAutomatedMessagesController extends Controller
@@ -20,7 +20,6 @@ class InstagramAutomatedMessagesController extends Controller
 //        $replies = InstagramAutomatedMessages::all();
 //
 //        return view('instagram.am.index', compact('replies'));
-
     }
 
     /**
@@ -65,7 +64,6 @@ class InstagramAutomatedMessagesController extends Controller
 //
 //
 //        return redirect()->back()->with('message', 'The automated reply added successfully!');
-
     }
 
     /**
@@ -117,7 +115,6 @@ class InstagramAutomatedMessagesController extends Controller
 //        $reply->save();
 //
 //        return redirect()->action('InstagramAutomatedMessagesController@index')->with('message', 'Update successful!');
-
     }
 
     /**

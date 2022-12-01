@@ -9,7 +9,7 @@ interface ResponseInterface
     /**
      * Parse an incoming PSR7 response
      *
-     * @param Response $response
+     * @param  Response  $response
      * @return mixed
      */
     public function parse(Response $response);

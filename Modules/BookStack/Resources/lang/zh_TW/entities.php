@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     /**
@@ -88,7 +89,7 @@ return [
     'shelves_edit' => '編輯書架',
     'shelves_delete' => '刪除書架',
     'shelves_delete_named' => '刪除書架「:name」',
-    'shelves_delete_explain' => "這將刪除名為「:name」的書架。包含在其中的書本不會被刪除。",
+    'shelves_delete_explain' => '這將刪除名為「:name」的書架。包含在其中的書本不會被刪除。',
     'shelves_delete_confirmation' => '您確定要刪除此書架嗎？',
     'shelves_permissions' => '書架權限',
     'shelves_permissions_updated' => '書架權限已更新',
@@ -243,7 +244,7 @@ return [
     'book_tags' => '書本標籤',
     'shelf_tags' => '書架標籤',
     'tag' => '標籤',
-    'tags' =>  '',
+    'tags' => '',
     'tag_value' => '標籤值 (非必要)',
     'tags_explain' => "加入一些標籤以更好地對您的內容進行分類。\n您可以為標籤分配一個值，以進行更深入的組織。",
     'tags_add' => '加入另一個標籤',
@@ -307,5 +308,5 @@ return [
      */
     'revision_delete_confirm' => '您確定要刪除此修訂版嗎？',
     'revision_delete_success' => '修訂刪除',
-    'revision_cannot_delete_latest' => '無法刪除最新版本。'
+    'revision_cannot_delete_latest' => '無法刪除最新版本。',
 ];

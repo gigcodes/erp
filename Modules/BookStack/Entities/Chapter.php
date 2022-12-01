@@ -1,4 +1,6 @@
-<?php namespace Modules\BookStack\Entities;
+<?php
+
+namespace Modules\BookStack\Entities;
 
 class Chapter extends Entity
 {
@@ -8,6 +10,7 @@ class Chapter extends Entity
 
     /**
      * Get the morph class for this model.
+     *
      * @return string
      */
     public function getMorphClass()
@@ -17,6 +20,7 @@ class Chapter extends Entity
 
     /**
      * Get the book this chapter is within.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function book()
@@ -26,7 +30,8 @@ class Chapter extends Entity
 
     /**
      * Get the pages that this chapter contains.
-     * @param string $dir
+     *
+     * @param  string  $dir
      * @return mixed
      */
     public function pages($dir = 'ASC')
@@ -36,16 +41,17 @@ class Chapter extends Entity
 
     /**
      * Get the url of this chapter.
-     * @param string|bool $path
+     *
+     * @param  string|bool  $path
      * @return string
      */
     public function getUrl($path = false)
     {
         $bookSlug = $this->getAttribute('bookSlug') ? $this->getAttribute('bookSlug') : $this->book->slug;
-        $fullPath = '/kb/books/' . urlencode($bookSlug) . '/chapter/' . urlencode($this->slug);
+        $fullPath = '/kb/books/'.urlencode($bookSlug).'/chapter/'.urlencode($this->slug);
 
         if ($path !== false) {
-            $fullPath .= '/' . trim($path, '/');
+            $fullPath .= '/'.trim($path, '/');
         }
 
         return url($fullPath);
@@ -53,17 +59,20 @@ class Chapter extends Entity
 
     /**
      * Get an excerpt of this chapter's description to the specified length or less.
-     * @param int $length
+     *
+     * @param  int  $length
      * @return string
      */
     public function getExcerpt(int $length = 100)
     {
         $description = $this->text ?? $this->description;
-        return mb_strlen($description) > $length ? mb_substr($description, 0, $length-3) . '...' : $description;
+
+        return mb_strlen($description) > $length ? mb_substr($description, 0, $length - 3).'...' : $description;
     }
 
     /**
      * Return a generalised, common raw query that can be 'unioned' across entities.
+     *
      * @return string
      */
     public function entityRawQuery()
@@ -73,6 +82,7 @@ class Chapter extends Entity
 
     /**
      * Check if this chapter has any child pages.
+     *
      * @return bool
      */
     public function hasChildren()

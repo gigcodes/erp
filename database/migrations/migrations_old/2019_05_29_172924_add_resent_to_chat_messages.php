@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddResentToChatMessages extends Migration
 {
@@ -14,7 +14,7 @@ class AddResentToChatMessages extends Migration
     public function up()
     {
         Schema::table('chat_messages', function (Blueprint $table) {
-          $table->integer('resent')->unsigned()->default(0)->after('error_status');
+            $table->integer('resent')->unsigned()->default(0)->after('error_status');
         });
     }
 
@@ -26,7 +26,7 @@ class AddResentToChatMessages extends Migration
     public function down()
     {
         Schema::table('chat_messages', function (Blueprint $table) {
-          $table->dropColumn('resent');
+            $table->dropColumn('resent');
         });
     }
 }

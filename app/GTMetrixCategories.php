@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class GTMetrixCategories extends Model
 {
-   /**
+    /**
      * The table associated with the model.
      *
      * @var string
@@ -14,11 +14,9 @@ class GTMetrixCategories extends Model
     protected $table = 'gt_metrix_categories';
 
     protected $fillable = [
-        'name', 
+        'name',
         'source',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
-
-
 }

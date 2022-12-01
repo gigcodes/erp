@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\ListingHistory;
 use App\ListingPayments;
 use App\User;
 use Illuminate\Http\Request;
@@ -18,7 +17,6 @@ class ListingPaymentsController extends Controller
      */
     public function index(Request $request)
     {
-
         // simply get stats for listing rejected or approved by user
         $histories = DB::table('listing_histories')
             ->selectRaw('
@@ -39,7 +37,6 @@ class ListingPaymentsController extends Controller
         $users = User::pluck('name', 'id')->toArray();
 
         return view('products.listing_payment', compact('histories', 'users', 'request'));
-
     }
 
     /**
@@ -64,7 +61,7 @@ class ListingPaymentsController extends Controller
         $this->validate($request, [
             'date' => 'required',
             'amount' => 'required',
-            'user_id' => 'required'
+            'user_id' => 'required',
         ]);
 
         $amt = new ListingPayments();
@@ -72,7 +69,7 @@ class ListingPaymentsController extends Controller
         $amt->amount = $request->get('amount');
         $amt->user_id = $request->get('user_id');
         $amt->product_ids = [];
-        $amt->remarks = 'Paid till ' . $request->get('date');
+        $amt->remarks = 'Paid till '.$request->get('date');
         $amt->save();
 
         return redirect()->back()->with('success', 'Amount paid successfully!');

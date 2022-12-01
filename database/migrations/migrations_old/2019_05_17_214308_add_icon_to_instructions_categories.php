@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIconToInstructionsCategories extends Migration
 {
@@ -14,7 +14,7 @@ class AddIconToInstructionsCategories extends Migration
     public function up()
     {
         Schema::table('instruction_categories', function (Blueprint $table) {
-          $table->string('icon')->nullable()->after('name');
+            $table->string('icon')->nullable()->after('name');
         });
     }
 
@@ -26,7 +26,7 @@ class AddIconToInstructionsCategories extends Migration
     public function down()
     {
         Schema::table('instruction_categories', function (Blueprint $table) {
-          $table->dropColumn('icon');
+            $table->dropColumn('icon');
         });
     }
 }

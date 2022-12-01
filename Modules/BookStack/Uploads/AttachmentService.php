@@ -1,14 +1,16 @@
-<?php namespace Modules\BookStack\Uploads;
+<?php
 
-use Modules\BookStack\Exceptions\FileUploadException;
+namespace Modules\BookStack\Uploads;
+
 use Exception;
+use Modules\BookStack\Exceptions\FileUploadException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AttachmentService extends UploadService
 {
-
     /**
      * Get the storage that will be used for storing files.
+     *
      * @return \Illuminate\Contracts\Filesystem\Filesystem
      */
     protected function getStorage()
@@ -25,8 +27,10 @@ class AttachmentService extends UploadService
 
     /**
      * Get an attachment from storage.
-     * @param Attachment $attachment
+     *
+     * @param  Attachment  $attachment
      * @return string
+     *
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     public function getAttachmentFromStorage(Attachment $attachment)
@@ -36,9 +40,11 @@ class AttachmentService extends UploadService
 
     /**
      * Store a new attachment upon user upload.
-     * @param UploadedFile $uploadedFile
-     * @param int $page_id
+     *
+     * @param  UploadedFile  $uploadedFile
+     * @param  int  $page_id
      * @return Attachment
+     *
      * @throws FileUploadException
      */
     public function saveNewUpload(UploadedFile $uploadedFile, $page_id)
@@ -54,7 +60,7 @@ class AttachmentService extends UploadService
             'uploaded_to' => $page_id,
             'created_by' => user()->id,
             'updated_by' => user()->id,
-            'order' => $largestExistingOrder + 1
+            'order' => $largestExistingOrder + 1,
         ]);
 
         return $attachment;
@@ -63,14 +69,16 @@ class AttachmentService extends UploadService
     /**
      * Store a upload, saving to a file and deleting any existing uploads
      * attached to that file.
-     * @param UploadedFile $uploadedFile
-     * @param Attachment $attachment
+     *
+     * @param  UploadedFile  $uploadedFile
+     * @param  Attachment  $attachment
      * @return Attachment
+     *
      * @throws FileUploadException
      */
     public function saveUpdatedUpload(UploadedFile $uploadedFile, Attachment $attachment)
     {
-        if (!$attachment->external) {
+        if (! $attachment->external) {
             $this->deleteFileInStorage($attachment);
         }
 
@@ -82,19 +90,22 @@ class AttachmentService extends UploadService
         $attachment->external = false;
         $attachment->extension = $uploadedFile->getClientOriginalExtension();
         $attachment->save();
+
         return $attachment;
     }
 
     /**
      * Save a new File attachment from a given link and name.
-     * @param string $name
-     * @param string $link
-     * @param int $page_id
+     *
+     * @param  string  $name
+     * @param  string  $link
+     * @param  int  $page_id
      * @return Attachment
      */
     public function saveNewFromLink($name, $link, $page_id)
     {
         $largestExistingOrder = Attachment::where('uploaded_to', '=', $page_id)->max('order');
+
         return Attachment::forceCreate([
             'name' => $name,
             'path' => $link,
@@ -103,13 +114,14 @@ class AttachmentService extends UploadService
             'uploaded_to' => $page_id,
             'created_by' => user()->id,
             'updated_by' => user()->id,
-            'order' => $largestExistingOrder + 1
+            'order' => $largestExistingOrder + 1,
         ]);
     }
 
     /**
      * Updates the file ordering for a listing of attached files.
-     * @param array $attachmentList
+     *
+     * @param  array  $attachmentList
      * @param $pageId
      */
     public function updateFileOrderWithinPage($attachmentList, $pageId)
@@ -119,10 +131,10 @@ class AttachmentService extends UploadService
         }
     }
 
-
     /**
      * Update the details of a file.
-     * @param Attachment $attachment
+     *
+     * @param  Attachment  $attachment
      * @param $requestData
      * @return Attachment
      */
@@ -131,27 +143,31 @@ class AttachmentService extends UploadService
         $attachment->name = $requestData['name'];
         if (isset($requestData['link']) && trim($requestData['link']) !== '') {
             $attachment->path = $requestData['link'];
-            if (!$attachment->external) {
+            if (! $attachment->external) {
                 $this->deleteFileInStorage($attachment);
                 $attachment->external = true;
             }
         }
         $attachment->save();
+
         return $attachment;
     }
 
     /**
      * Delete a File from the database and storage.
-     * @param Attachment $attachment
+     *
+     * @param  Attachment  $attachment
+     *
      * @throws Exception
      */
     public function deleteFile(Attachment $attachment)
     {
         if ($attachment->external) {
             $attachment->delete();
+
             return;
         }
-        
+
         $this->deleteFileInStorage($attachment);
         $attachment->delete();
     }
@@ -159,7 +175,8 @@ class AttachmentService extends UploadService
     /**
      * Delete a file from the filesystem it sits on.
      * Cleans any empty leftover folders.
-     * @param Attachment $attachment
+     *
+     * @param  Attachment  $attachment
      */
     protected function deleteFileInStorage(Attachment $attachment)
     {
@@ -174,8 +191,10 @@ class AttachmentService extends UploadService
 
     /**
      * Store a file in storage with the given filename
-     * @param UploadedFile $uploadedFile
+     *
+     * @param  UploadedFile  $uploadedFile
      * @return string
+     *
      * @throws FileUploadException
      */
     protected function putFileInStorage(UploadedFile $uploadedFile)
@@ -183,14 +202,14 @@ class AttachmentService extends UploadService
         $attachmentData = file_get_contents($uploadedFile->getRealPath());
 
         $storage = $this->getStorage();
-        $basePath = 'uploads/files/' . Date('Y-m-M') . '/';
+        $basePath = 'uploads/files/'.date('Y-m-M').'/';
 
-        $uploadFileName = str_random(16) . '.' . $uploadedFile->getClientOriginalExtension();
-        while ($storage->exists($basePath . $uploadFileName)) {
-            $uploadFileName = str_random(3) . $uploadFileName;
+        $uploadFileName = str_random(16).'.'.$uploadedFile->getClientOriginalExtension();
+        while ($storage->exists($basePath.$uploadFileName)) {
+            $uploadFileName = str_random(3).$uploadFileName;
         }
 
-        $attachmentPath = $basePath . $uploadFileName;
+        $attachmentPath = $basePath.$uploadFileName;
         try {
             $storage->put($attachmentPath, $attachmentData);
         } catch (Exception $e) {

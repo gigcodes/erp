@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -8,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class OldIncoming extends Model
 {
-         /**
+    /**
      * @var string
      * @SWG\Property(property="serial_no",type="integer")
      * @SWG\Property(property="name",type="string")
@@ -20,24 +21,23 @@ class OldIncoming extends Model
      * @SWG\Property(property="updated_at",type="datetime")
      */
     protected $primaryKey = 'serial_no';
-   /**
+
+    /**
      * Fillables for the database
      *
-     * @access protected
      *
-     * @var array $fillable
+     * @var array
      */
-    protected $fillable = array(
+    protected $fillable = [
         'name', 'description', 'amount',
         'commitment', 'communication',
-        'status'
-    );
+        'status',
+    ];
 
     /**
      * Protected Date
      *
-     * @access protected
-     * @var    array $dates
+     * @var    array
      */
     protected $dates = [
         'created_at',
@@ -47,13 +47,12 @@ class OldIncoming extends Model
     /**
      * Saving categories
      *
-     * @param string $request Request attributes
-     *
+     * @param  string  $request Request attributes
      * @return \Illuminate\Http\Response
      */
     public function saveRecord($request)
     {
-        if (!empty($request)) {
+        if (! empty($request)) {
             $this->name = filter_var($request['name'], FILTER_SANITIZE_STRING);
             $this->description = filter_var($request['description'], FILTER_SANITIZE_STRING);
             $this->amount = filter_var($request['amount'], FILTER_SANITIZE_STRING);
@@ -64,6 +63,7 @@ class OldIncoming extends Model
             $this->number = filter_var($request['number'], FILTER_SANITIZE_STRING);
             $this->address = filter_var($request['address'], FILTER_SANITIZE_STRING);
             $this->save();
+
             return 'sucess';
         }
     }
@@ -71,13 +71,12 @@ class OldIncoming extends Model
     /**
      * Saving categories
      *
-     * @param string $request Request attributes
-     *
+     * @param  string  $request Request attributes
      * @return \Illuminate\Http\Response
      */
     public function updateRecord($request, $serial_no)
     {
-        if (!empty($request) || !empty($serial_no)) {
+        if (! empty($request) || ! empty($serial_no)) {
             $incoming = self::findOrFail($serial_no);
             $incoming->name = filter_var($request['name'], FILTER_SANITIZE_STRING);
             $incoming->description = filter_var($request['description'], FILTER_SANITIZE_STRING);
@@ -89,6 +88,7 @@ class OldIncoming extends Model
             $incoming->number = filter_var($request['number'], FILTER_SANITIZE_STRING);
             $incoming->address = filter_var($request['address'], FILTER_SANITIZE_STRING);
             $incoming->save();
+
             return 'sucess';
         }
     }
@@ -100,14 +100,14 @@ class OldIncoming extends Model
      */
     public static function getStatus()
     {
-        $types = array(
-            'pending'  => 'pending',
+        $types = [
+            'pending' => 'pending',
             'disputed' => 'disputed',
-            'settled'  => 'settled',
-            'paid'     => 'paid',
-            'closed'  => 'closed',
-        );
+            'settled' => 'settled',
+            'paid' => 'paid',
+            'closed' => 'closed',
+        ];
+
         return $types;
     }
-
 }

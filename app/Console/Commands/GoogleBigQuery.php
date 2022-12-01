@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\StoreWebsite;
 use App\GoogleBigQueryData;
+use App\StoreWebsite;
 use Google\Cloud\BigQuery\BigQueryClient;
 use Illuminate\Console\Command;
 
@@ -40,10 +40,10 @@ class GoogleBigQuery extends Command
      */
     public function handle()
     {
-        $storewebsites = StoreWebsite::select('id', 'key_file_path', 'project_id')->get();  
+        $storewebsites = StoreWebsite::select('id', 'key_file_path', 'project_id')->get();
         //dd($storewebsites);
-        foreach($storewebsites as $storewebsite){ 
-            if($storewebsite->key_file_path && $storewebsite->project_id) {
+        foreach ($storewebsites as $storewebsite) {
+            if ($storewebsite->key_file_path && $storewebsite->project_id) {
                 $config = [
                     'keyFilePath' => public_path('bigData/'.$storewebsite->key_file_path),
                     'projectId' => $storewebsite->project_id,

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateSimpleDutySegmentTable extends Migration
 {
@@ -16,7 +16,7 @@ class CreateSimpleDutySegmentTable extends Migration
         Schema::create('simply_duty_segments', function (Blueprint $table) {
             $table->increments('id');
             $table->string('segment')->nullable();
-            $table->double('price',8,2);
+            $table->double('price', 8, 2);
             $table->timestamps();
         });
     }

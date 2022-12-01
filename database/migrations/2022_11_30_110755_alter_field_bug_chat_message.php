@@ -13,10 +13,10 @@ class AlterFieldBugChatMessage extends Migration
      */
     public function up()
     {
-        Schema::table('chat_messages', function (Blueprint $table) {
-            $table->bigInteger('bug_id')->nullable()->after('developer_task_id');
-
-        });
+//        Schema::table('chat_messages', function (Blueprint $table) {
+//            $table->bigInteger('bug_id')->nullable()->after('developer_task_id');
+//
+//        });
     }
 
     /**
@@ -26,8 +26,8 @@ class AlterFieldBugChatMessage extends Migration
      */
     public function down()
     {
-        Schema::table('chat_messages', function (Blueprint $table) {
-            $table->dropColumn('bug_id');
-        });
+//        Schema::table('chat_messages', function (Blueprint $table) {
+//            $table->dropColumn('bug_id');
+//        });
     }
 }

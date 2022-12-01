@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateLogScraperTable extends Migration
 {
@@ -13,7 +13,7 @@ class CreateLogScraperTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('log_scraper')) {
+        if (! Schema::hasTable('log_scraper')) {
             Schema::create('log_scraper', function (Blueprint $table) {
                 $table->increments('id');
                 $table->String('ip_address');

@@ -41,26 +41,26 @@ class GenerateProductPricingJson extends Command
     {
         //try {
         $report = \App\CronJobReport::create([
-            'signature'  => $this->signature,
+            'signature' => $this->signature,
             'start_time' => Carbon::now(),
         ]);
 
-        $storeWebsite  = \App\StoreWebsite::where("is_published", 1)->get();
+        $storeWebsite = \App\StoreWebsite::where('is_published', 1)->get();
         $countryGroups = \App\CountryGroup::all();
         $dutyCountries = \App\CountryDuty::groupBy('destination')->get()->pluck('destination');
 
         // start pricing
-        $products    = \App\Product::where("status_id", StatusHelper::$finalApproval)->get();
+        $products = \App\Product::where('status_id', StatusHelper::$finalApproval)->get();
         $priceReturn = [];
-        if (!$products->isEmpty()) {
+        if (! $products->isEmpty()) {
             foreach ($products as $product) {
                 foreach ($storeWebsite as $website) {
                     foreach ($countryGroups as $cg) {
                         $price = $product->getPrice($website->id, $cg->id);
                         foreach ($cg->groupItems as $item) {
-                            $priceReturn[$website->website][$product->sku][$item->country_code]['price']          = $price;
-                            $dutyPrice                                                                            = $product->getDuty($item->country_code);
-                            $priceReturn[$website->website][$product->sku][$item->country_code]['price']['duty']  = $dutyPrice;
+                            $priceReturn[$website->website][$product->sku][$item->country_code]['price'] = $price;
+                            $dutyPrice = $product->getDuty($item->country_code);
+                            $priceReturn[$website->website][$product->sku][$item->country_code]['price']['duty'] = $dutyPrice;
                             $priceReturn[$website->website][$product->sku][$item->country_code]['price']['total'] = (float) $price['total'] + $dutyPrice;
                         }
                     }
@@ -68,7 +68,7 @@ class GenerateProductPricingJson extends Command
             }
         }
 
-        if (!\Storage::disk('uploads')->put("pricing-" . date("Y-m-d") . ".json", json_encode($priceReturn))) {
+        if (! \Storage::disk('uploads')->put('pricing-'.date('Y-m-d').'.json', json_encode($priceReturn))) {
             return false;
         }
 

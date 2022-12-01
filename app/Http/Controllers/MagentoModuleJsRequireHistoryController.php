@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\MagentoModuleJsRequireHistory;
 use App\Http\Requests\MagentoModule\MagentoModuleJsRequireHistoryRequest;
+use App\MagentoModuleJsRequireHistory;
 
 class MagentoModuleJsRequireHistoryController extends Controller
 {
-
     public function __construct()
     {
     }
@@ -30,13 +29,13 @@ class MagentoModuleJsRequireHistoryController extends Controller
                 'status' => true,
                 'data' => $data,
                 'message' => 'Stored successfully',
-                'status_name' => 'success'
+                'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
                 'status' => false,
                 'message' => 'something error occurred',
-                'status_name' => 'error'
+                'status_name' => 'error',
             ], 500);
         }
     }
@@ -57,14 +56,14 @@ class MagentoModuleJsRequireHistoryController extends Controller
                 'data' => $magento_module_cron_job_histories,
                 'title' => $title,
                 'status' => true,
-                'code' => 200
+                'code' => 200,
             ], 200);
         } else {
             return response()->json([
                 'status' => false,
-                'data' => "",
+                'data' => '',
                 'title' => $title,
-                'code' => 500
+                'code' => 500,
             ], 500);
         }
 

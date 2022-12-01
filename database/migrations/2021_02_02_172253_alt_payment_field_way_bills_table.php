@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AltPaymentFieldWayBillsTable extends Migration
 {
@@ -14,7 +14,7 @@ class AltPaymentFieldWayBillsTable extends Migration
     public function up()
     {
         //
-        Schema::table('waybills',function(Blueprint $table) {
+        Schema::table('waybills', function (Blueprint $table) {
             $table->timestamp('paid_date')->nullable()->after('pickuprequest');
             $table->string('payment_mode')->nullable()->after('paid_date');
         });
@@ -27,7 +27,7 @@ class AltPaymentFieldWayBillsTable extends Migration
      */
     public function down()
     {
-        Schema::table('waybills',function(Blueprint $table) {
+        Schema::table('waybills', function (Blueprint $table) {
             $table->dropField('paid_date');
             $table->dropField('payment_mode');
         });

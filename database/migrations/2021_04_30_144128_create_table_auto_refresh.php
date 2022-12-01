@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTableAutoRefresh extends Migration
 {
@@ -14,11 +14,11 @@ class CreateTableAutoRefresh extends Migration
     public function up()
     {
         //
-        Schema::create("auto_refresh_pages",function(Blueprint $table) {
+        Schema::create('auto_refresh_pages', function (Blueprint $table) {
             $table->increments('id');
-            $table->string("page");    
-            $table->integer("time");    
-            $table->integer("user_id");    
+            $table->string('page');
+            $table->integer('time');
+            $table->integer('user_id');
             $table->timestamps();
         });
     }

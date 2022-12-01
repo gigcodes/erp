@@ -15,12 +15,10 @@
 
 // Authenticated routes...
 Route::group(['middleware' => 'auth'], function () {
-
     // Secure images routing
     Route::get('/uploads/images/{path}', 'Images\ImageController@showImage')->where('path', '.*$');
 
     Route::group(['prefix' => 'kb'], function () {
-
         // Shelves
         Route::get('/create-shelf', 'BookshelfController@create');
         Route::get('/', 'BookshelfController@index');
@@ -39,7 +37,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/{shelfSlug}/create-book', 'BookController@create');
             Route::post('/{shelfSlug}/create-book', 'BookController@store');
 
-            Route::get('/show/{sortByView}/{sortByDate}', 'BookshelfController@showShelf'); 
+            Route::get('/show/{sortByView}/{sortByDate}', 'BookshelfController@showShelf');
         });
 
         Route::get('/create-book', 'BookController@create');
@@ -61,7 +59,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/{bookSlug}/export/pdf', 'BookController@exportPdf');
             Route::get('/{bookSlug}/export/plaintext', 'BookController@exportPlainText');
 
-            Route::get('/show/{sortByView}/{sortByDate}', 'BookController@showBook'); 
+            Route::get('/show/{sortByView}/{sortByDate}', 'BookController@showBook');
 
             // Pages
             Route::get('/{bookSlug}/create-page', 'PageController@create');
@@ -142,8 +140,6 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/roles/{id}', 'PermissionController@editRole');
             Route::put('/roles/{id}', 'PermissionController@updateRole');
         });
-
-
     });
 
     // AJAX routes
@@ -178,10 +174,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/custom-head-content', 'HomeController@customHeadContent');
 
     // Search
-//    Route::get('/search', 'SearchController@search');                                                                                                                             
-   Route::get('/searchGrid', 'SearchController@searchGrid')->name('searchGrid');
+//    Route::get('/search', 'SearchController@search');
+    Route::get('/searchGrid', 'SearchController@searchGrid')->name('searchGrid');
 //    Route::get('/search/book/{bookId}', 'SearchController@searchBook');
 //    Route::get('/search/chapter/{bookId}', 'SearchController@searchChapter');
 //    Route::get('/search/entity/siblings', 'SearchController@searchSiblings');
-
 });

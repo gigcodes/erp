@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddPurchaseStatusToProducts extends Migration
 {
@@ -14,7 +14,7 @@ class AddPurchaseStatusToProducts extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-          $table->string('purchase_status')->nullable()->after('stock');
+            $table->string('purchase_status')->nullable()->after('stock');
         });
     }
 
@@ -26,7 +26,7 @@ class AddPurchaseStatusToProducts extends Migration
     public function down()
     {
         Schema::table('products', function (Blueprint $table) {
-          $table->dropColumn('purchase_status');
+            $table->dropColumn('purchase_status');
         });
     }
 }

@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AddAccountIdToStoreViewsGtMetrix extends Migration
@@ -13,7 +11,7 @@ class AddAccountIdToStoreViewsGtMetrix extends Migration
      */
     public function up()
     {
-        DB::select("ALTER TABLE `store_views_gt_metrix` ADD `account_id` VARCHAR(255) NOT NULL AFTER `test_id`;");
+        DB::select('ALTER TABLE `store_views_gt_metrix` ADD `account_id` VARCHAR(255) NOT NULL AFTER `test_id`;');
     }
 
     /**

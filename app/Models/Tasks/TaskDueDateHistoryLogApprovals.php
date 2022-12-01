@@ -4,7 +4,8 @@ namespace App\Models\Tasks;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TaskDueDateHistoryLogApprovals extends Model {
+class TaskDueDateHistoryLogApprovals extends Model
+{
     public $table = 'task_due_date_history_logs_approvals';
 
     public $fillable = [
@@ -12,10 +13,13 @@ class TaskDueDateHistoryLogApprovals extends Model {
         'approved_by',
     ];
 
-    public function approvedBy() {
+    public function approvedBy()
+    {
         return $this->hasOne(\App\User::class, 'id', 'approved_by');
     }
-    public function approvedByName() {
+
+    public function approvedByName()
+    {
         return optional($this->approvedBy)->name;
     }
 }

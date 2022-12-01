@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateDomainOrganicPageTable extends Migration
 {
@@ -15,7 +15,7 @@ class CreateDomainOrganicPageTable extends Migration
     {
         Schema::create('domain_organic_page', function (Blueprint $table) {
             $table->increments('id');
-			$table->text('store_website_id');
+            $table->text('store_website_id');
             $table->text('tool_id');
             $table->text('database');
             $table->text('Url');

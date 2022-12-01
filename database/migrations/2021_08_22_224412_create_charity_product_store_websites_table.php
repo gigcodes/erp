@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateCharityProductStoreWebsitesTable extends Migration
 {
@@ -17,7 +17,7 @@ class CreateCharityProductStoreWebsitesTable extends Migration
             $table->increments('id');
             $table->integer('website_id');
             $table->integer('charity_id');
-            $table->double('price',8,2);
+            $table->double('price', 8, 2);
             $table->timestamps();
         });
     }

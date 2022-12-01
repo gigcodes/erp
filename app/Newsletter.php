@@ -7,13 +7,12 @@ namespace App;
  */
 use Illuminate\Database\Eloquent\Model;
 
-
 class Newsletter extends Model
 {
-        /**
+    /**
      * @var string
-  
-   * @SWG\Property(property="subject",type="string")
+
+     * @SWG\Property(property="subject",type="string")
      * @SWG\Property(property="mail_list_id",type="integer")
      * @SWG\Property(property="sent_at",type="datetime")
      * @SWG\Property(property="sent_on",type="string")
@@ -21,12 +20,12 @@ class Newsletter extends Model
      * @SWG\Property(property="store_website_id",type="integer")
      */
     protected $fillable = [
-       'subject' , 'store_website_id' , 'sent_at' , 'sent_on' , 'updated_by','mail_list_id'
+        'subject', 'store_website_id', 'sent_at', 'sent_on', 'updated_by', 'mail_list_id',
     ];
 
     public function newsletterProduct()
     {
-        return $this->hasMany(\App\NewsletterProduct::class, 'newsletter_id' , 'id');
+        return $this->hasMany(\App\NewsletterProduct::class, 'newsletter_id', 'id');
     }
 
     public function storeWebsite()
@@ -36,13 +35,11 @@ class Newsletter extends Model
 
     public function products()
     {
-        return $this->belongsToMany(Product::class, 'newsletter_products', 'newsletter_id', 'product_id','id','id');
-
+        return $this->belongsToMany(Product::class, 'newsletter_products', 'newsletter_id', 'product_id', 'id', 'id');
     }
 
     public function mailinglist()
     {
         return $this->hasOne(\App\Mailinglist::class, 'id', 'mail_list_id');
     }
-
 }

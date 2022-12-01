@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddCompositionColumnHsCodeGroupsTable extends Migration
 {
@@ -13,7 +12,7 @@ class AddCompositionColumnHsCodeGroupsTable extends Migration
      */
     public function up()
     {
-        Schema::table('hs_code_groups', function($table){
+        Schema::table('hs_code_groups', function ($table) {
             $table->string('composition')->nullable()->after('name');
         });
     }
@@ -25,7 +24,7 @@ class AddCompositionColumnHsCodeGroupsTable extends Migration
      */
     public function down()
     {
-        Schema::table('hs_code_groups', function($table){
+        Schema::table('hs_code_groups', function ($table) {
             $table->dropColumn('composition');
         });
     }

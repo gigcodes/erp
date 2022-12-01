@@ -1,12 +1,12 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableUserDatabaseTables extends Migration
 {
-     /**
+    /**
      * Run the migrations.
      *
      * @return void
@@ -14,7 +14,7 @@ class AlterTableUserDatabaseTables extends Migration
     public function up()
     {
         //
-        Schema::create('user_database_tables',function(Blueprint $table) {
+        Schema::create('user_database_tables', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
             $table->integer('user_database_id')->index();

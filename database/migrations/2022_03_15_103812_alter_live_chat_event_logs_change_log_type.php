@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AlterLiveChatEventLogsChangeLogType extends Migration
@@ -13,7 +11,7 @@ class AlterLiveChatEventLogsChangeLogType extends Migration
      */
     public function up()
     {
-		\DB::statement('ALTER TABLE live_chat_event_logs MODIFY COLUMN log TEXT');
+        \DB::statement('ALTER TABLE live_chat_event_logs MODIFY COLUMN log TEXT');
     }
 
     /**

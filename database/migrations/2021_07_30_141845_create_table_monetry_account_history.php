@@ -14,14 +14,14 @@ class CreateTableMonetryAccountHistory extends Migration
     public function up()
     {
         //
-        Schema::create("monetary_account_histories", function (Blueprint $table) {
-            $table->increments("id");
-            $table->integer("model_id")->index();
-            $table->string("model_type");
-            $table->double("amount")->default(0.00);
-            $table->text("note")->nullable();
-            $table->integer("monetary_account_id");
-            $table->integer("user_id");
+        Schema::create('monetary_account_histories', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('model_id')->index();
+            $table->string('model_type');
+            $table->double('amount')->default(0.00);
+            $table->text('note')->nullable();
+            $table->integer('monetary_account_id');
+            $table->integer('user_id');
             $table->timestamps();
         });
     }
@@ -34,6 +34,6 @@ class CreateTableMonetryAccountHistory extends Migration
     public function down()
     {
         //
-        Schema::dropIfExists("monetary_account_histories");
+        Schema::dropIfExists('monetary_account_histories');
     }
 }

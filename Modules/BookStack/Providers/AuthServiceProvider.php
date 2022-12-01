@@ -3,8 +3,8 @@
 namespace Modules\BookStack\Providers;
 
 use Auth;
-use Modules\BookStack\Auth\Access\LdapService;
 use Illuminate\Support\ServiceProvider;
+use Modules\BookStack\Auth\Access\LdapService;
 
 class AuthServiceProvider extends ServiceProvider
 {

@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTablePriceOverrideCountryGroup extends Migration
 {
@@ -13,8 +12,8 @@ class AlterTablePriceOverrideCountryGroup extends Migration
      */
     public function up()
     {
-        Schema::table('price_overrides',function($table){
-            $table->integer('country_group_id')->nullable()->after("country_code");
+        Schema::table('price_overrides', function ($table) {
+            $table->integer('country_group_id')->nullable()->after('country_code');
         });
     }
 
@@ -25,7 +24,7 @@ class AlterTablePriceOverrideCountryGroup extends Migration
      */
     public function down()
     {
-        Schema::table('price_overrides',function($table){
+        Schema::table('price_overrides', function ($table) {
             $table->dropColumn('country_group_id');
         });
     }

@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableCategoriesAddColumnsForRange extends Migration
 {
@@ -13,10 +12,10 @@ class AlterTableCategoriesAddColumnsForRange extends Migration
      */
     public function up()
     {
-        Schema::table( 'categories', function ( $table ) {
-            $table->string( 'dimension_range' )->after( 'show_all_id' );
-            $table->string( 'size_range' )->after( 'dimension_range' );
-        } );
+        Schema::table('categories', function ($table) {
+            $table->string('dimension_range')->after('show_all_id');
+            $table->string('size_range')->after('dimension_range');
+        });
     }
 
     /**
@@ -26,9 +25,9 @@ class AlterTableCategoriesAddColumnsForRange extends Migration
      */
     public function down()
     {
-        Schema::table( 'categories', function ( $table ) {
-            $table->dropColumn( 'dimension_range' );
-            $table->dropColumn( 'size_range' );
-        } );
+        Schema::table('categories', function ($table) {
+            $table->dropColumn('dimension_range');
+            $table->dropColumn('size_range');
+        });
     }
 }

@@ -18,12 +18,23 @@ class GoogleDocController extends Controller
      */
     public function index(Request $request)
     {
-        $data = GoogleDoc::orderBy('created_at', 'desc')->get();
+        $data = GoogleDoc::orderBy('created_at', 'desc');
 
+        if ($keyword = request("name")) {
+            $data = $data->where(function ($q) use ($keyword) {
+                $q->where("name", "LIKE", "%$keyword%");
+            });
+        }
+        if ($keyword = request("docid")) {
+            $data = $data->where(function ($q) use ($keyword) {
+                $q->where("docid", "LIKE", "%$keyword%");
+
+            });
+        }
+            $data = $data->get();
         return view('googledocs.index', compact('data'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
-
 
     /**
      * Show the form for creating a new resource.
@@ -46,7 +57,7 @@ class GoogleDocController extends Controller
 
             if (!empty($data['existing_doc_id'])) {
                 $googleDoc->docId = $data['existing_doc_id'];
-                $googleDoc->save();    
+                $googleDoc->save();
             } else {
                 if ($googleDoc->type === 'spreadsheet') {
                     CreateGoogleSpreadsheet::dispatchNow($googleDoc);
@@ -75,7 +86,7 @@ class GoogleDocController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -86,7 +97,7 @@ class GoogleDocController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -97,8 +108,8 @@ class GoogleDocController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -109,7 +120,7 @@ class GoogleDocController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

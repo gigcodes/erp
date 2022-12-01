@@ -4,15 +4,17 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class LogRequest extends Model {
-    public static function log($startTime, $magentoURL, $method, $request, $response, $httpcode, $api_name, $api_method) {
-        $endTime    = date("Y-m-d H:i:s");
-        $timeTaken  = strtotime($endTime) - strtotime($startTime);
+class LogRequest extends Model
+{
+    public static function log($startTime, $magentoURL, $method, $request, $response, $httpcode, $api_name, $api_method)
+    {
+        $endTime = date('Y-m-d H:i:s');
+        $timeTaken = strtotime($endTime) - strtotime($startTime);
         $r = new LogRequest;
         $r->request = $request;
-        $r->response = !empty($response) ? json_encode($response) : json_encode([]);
+        $r->response = ! empty($response) ? json_encode($response) : json_encode([]);
         $r->url = $magentoURL;
-        $r->ip = request()->ip() ?: NULL;
+        $r->ip = request()->ip() ?: null;
         $r->method = $method;
         $r->status_code = $httpcode;
         $r->time_taken = $timeTaken;

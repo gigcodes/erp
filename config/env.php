@@ -1,6 +1,5 @@
 <?php
 
-
 return [
     // 'APP_NAME' => env('APP_NAME'),
     'APP_ENV' => env('APP_ENV'),
@@ -81,5 +80,5 @@ return [
     'NODE_SERVER_PORT' => env('NODE_SERVER_PORT'),
     'GOOGLE_TRANSLATE_API_KEY' => env('GOOGLE_TRANSLATE_API_KEY'),
     'DEFAULT_CUST_ID' => env('DEFAULT_CUST_ID'),
-	'SEMRUSH_API'=> env('SEMRUSH_API')
+    'SEMRUSH_API' => env('SEMRUSH_API'),
 ];

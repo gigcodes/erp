@@ -47,35 +47,34 @@ class AccountHubstaffActivities extends Command
         try {
             DB::beginTransaction();
             $firstUnaccountedActivity = HubstaffActivity::orderBy('starts_at')->first();
-            if (!$firstUnaccountedActivity) {
+            if (! $firstUnaccountedActivity) {
                 return;
             }
 
             // UTC midnight
             $today = strtotime('today+00:00');
 
-            $firstUnaccountActivityTime = strtotime($firstUnaccountedActivity->starts_at . " UTC") . PHP_EOL;
+            $firstUnaccountActivityTime = strtotime($firstUnaccountedActivity->starts_at.' UTC').PHP_EOL;
 
-            echo $today . PHP_EOL;
-            echo $firstUnaccountActivityTime . PHP_EOL;
+            echo $today.PHP_EOL;
+            echo $firstUnaccountActivityTime.PHP_EOL;
 
             // account only previous days activity
             if ($firstUnaccountActivityTime < $today) {
-
                 // accounting periods
-                $start   = $firstUnaccountedActivity->starts_at; // inclusive
+                $start = $firstUnaccountedActivity->starts_at; // inclusive
                 $endTime = strtotime($start) + (1 * 24 * 60 * 60);
-                $end     = date('Y-m-d', $endTime) . ' 23:59:59'; //exclusive
+                $end = date('Y-m-d', $endTime).' 23:59:59'; //exclusive
 
-                echo $start . PHP_EOL;
-                echo $end . PHP_EOL;
+                echo $start.PHP_EOL;
+                echo $end.PHP_EOL;
 
                 //get the rate for the start of yesterday
                 $userRatesForStartOfDayYesterday = UserRate::latestRatesBeforeTime($end);
-                $rateChangesForYesterday         = UserRate::rateChangesForDate($start, $end);
-                $activities                      = HubstaffActivity::getActivitiesBetween($start, $end);
-                $userId                          = [];
-                if (!empty($activities)) {
+                $rateChangesForYesterday = UserRate::rateChangesForDate($start, $end);
+                $activities = HubstaffActivity::getActivitiesBetween($start, $end);
+                $userId = [];
+                if (! empty($activities)) {
                     foreach ($activities as $acts) {
                         if ($acts->system_user_id > 0) {
                             $userId[] = $acts->system_user_id;
@@ -83,7 +82,7 @@ class AccountHubstaffActivities extends Command
                     }
                 }
 
-                $users = User::whereIn("id", array_unique($userId))->get();
+                $users = User::whereIn('id', array_unique($userId))->get();
 
                 // store accounting records for the calculation here
                 // user
@@ -91,15 +90,14 @@ class AccountHubstaffActivities extends Command
                 $accountingEntries = [];
 
                 foreach ($users as $user) {
-
-                    $accountingEntry = array(
-                        'user'          => $user->id,
+                    $accountingEntry = [
+                        'user' => $user->id,
                         'accountedTime' => $end,
-                        'activityIds'   => array(),
-                        'amount'        => 0,
-                        'hrs'           => 0,
-                        'tasks'         => []
-                    );
+                        'activityIds' => [],
+                        'amount' => 0,
+                        'hrs' => 0,
+                        'tasks' => [],
+                    ];
 
                     $user->total = 0;
 
@@ -112,11 +110,11 @@ class AccountHubstaffActivities extends Command
                     $rates = [];
 
                     if ($invidualRatesStartOfDayYesterday) {
-                        $rates[] = array(
+                        $rates[] = [
                             'start_date' => $start,
-                            'rate'       => $invidualRatesStartOfDayYesterday->hourly_rate,
-                            'currency'   => $invidualRatesStartOfDayYesterday->currency,
-                        );
+                            'rate' => $invidualRatesStartOfDayYesterday->hourly_rate,
+                            'currency' => $invidualRatesStartOfDayYesterday->currency,
+                        ];
                     }
 
                     $rateChangesYesterdayForUser = $rateChangesForYesterday->filter(function ($value, $key) use ($user) {
@@ -125,11 +123,11 @@ class AccountHubstaffActivities extends Command
 
                     if ($rateChangesYesterdayForUser) {
                         foreach ($rateChangesYesterdayForUser as $rate) {
-                            $rates[] = array(
+                            $rates[] = [
                                 'start_date' => $rate->start_date,
-                                'rate'       => $rate->hourly_rate,
-                                'currency'   => $rate->currency,
-                            );
+                                'rate' => $rate->hourly_rate,
+                                'currency' => $rate->currency,
+                            ];
                         }
                     }
 
@@ -137,14 +135,14 @@ class AccountHubstaffActivities extends Command
                         return strtotime($a['start_date']) - strtotime($b['start_date']);
                     });
 
-                    if (sizeof($rates) > 0) {
-                        $lastEntry = $rates[sizeof($rates) - 1];
+                    if (count($rates) > 0) {
+                        $lastEntry = $rates[count($rates) - 1];
 
-                        $rates[] = array(
+                        $rates[] = [
                             'start_date' => $end,
-                            'rate'       => $lastEntry['rate'],
-                            'currency'   => $lastEntry['currency'],
-                        );
+                            'rate' => $lastEntry['rate'],
+                            'currency' => $lastEntry['currency'],
+                        ];
 
                         $user->currency = $lastEntry['currency'];
                     }
@@ -153,7 +151,7 @@ class AccountHubstaffActivities extends Command
                         return $value->system_user_id === $user->id;
                     });
 
-                    if (sizeof($rates) == 0) {
+                    if (count($rates) == 0) {
                         // no rates have been set for the user and hence mark them as zero (0) telling accounted
                         $activityIds = $userActivities->map(function ($value) {
                             return $value->id;
@@ -162,7 +160,6 @@ class AccountHubstaffActivities extends Command
                         $accountingEntry['activityIds'] = $activityIds;
                     } else {
                         foreach ($userActivities as $activity) {
-
                             $accountingEntry['activityIds'][] = $activity->id;
 
                             if (empty($accountingEntry['tasks'][$activity->task_id])) {
@@ -172,10 +169,9 @@ class AccountHubstaffActivities extends Command
                             }
 
                             $i = 0;
-                            while ($i < sizeof($rates) - 1) {
-
+                            while ($i < count($rates) - 1) {
                                 $startRate = $rates[$i];
-                                $endRate   = $rates[$i + 1];
+                                $endRate = $rates[$i + 1];
 
                                 if ($activity->starts_at >= $startRate['start_date'] && $activity->start_time < $endRate['start_date']) {
                                     // the activity needs calculation for the start rate and hence do it
@@ -204,33 +200,34 @@ class AccountHubstaffActivities extends Command
                             break;
                         }
                     }
-                    return !$isAccounted;
+
+                    return ! $isAccounted;
                 });
 
                 $accountedActivityCount = array_reduce(
                     $accountingEntries,
                     function ($previous, $item) {
-                        return $previous + sizeof($item['activityIds']);
+                        return $previous + count($item['activityIds']);
                     },
                     0
                 );
 
-                echo 'Account activities: ' . $accountedActivityCount . PHP_EOL;
-                echo 'Unaccounted activities: ' . sizeof($unaccountedActivities) . PHP_EOL;
+                echo 'Account activities: '.$accountedActivityCount.PHP_EOL;
+                echo 'Unaccounted activities: '.count($unaccountedActivities).PHP_EOL;
 
                 //update the accounted activities with the account entry id
                 foreach ($accountingEntries as $entry) {
-                    $paymentAccount                   = new HubstaffPaymentAccount;
-                    $paymentAccount->user_id          = $entry['user'];
-                    $paymentAccount->accounted_at     = $entry['accountedTime'];
-                    $paymentAccount->amount           = $entry['amount'];
-                    $paymentAccount->hrs              = $entry['hrs'];
-                    $paymentAccount->billing_start    = $start;
-                    $paymentAccount->billing_end      = $end;
-                    $paymentAccount->rate             = (float) $entry['amount'] / $entry['hrs'];
-                    $paymentAccount->payment_currency = "INR";
-                    $paymentAccount->total_payout     = ($entry['amount']) * 68;
-                    $paymentAccount->ex_rate          = 68;
+                    $paymentAccount = new HubstaffPaymentAccount;
+                    $paymentAccount->user_id = $entry['user'];
+                    $paymentAccount->accounted_at = $entry['accountedTime'];
+                    $paymentAccount->amount = $entry['amount'];
+                    $paymentAccount->hrs = $entry['hrs'];
+                    $paymentAccount->billing_start = $start;
+                    $paymentAccount->billing_end = $end;
+                    $paymentAccount->rate = (float) $entry['amount'] / $entry['hrs'];
+                    $paymentAccount->payment_currency = 'INR';
+                    $paymentAccount->total_payout = ($entry['amount']) * 68;
+                    $paymentAccount->ex_rate = 68;
                     $paymentAccount->save();
                     foreach ($entry['activityIds'] as $activityId) {
                         HubstaffActivity::where('id', $activityId)
@@ -241,11 +238,11 @@ class AccountHubstaffActivities extends Command
                 }
 
                 // once account stored now update the time into db
-                if (!empty($accountingEntries)) {
+                if (! empty($accountingEntries)) {
                     foreach ($accountingEntries as $entires) {
-                        if (!empty($entires['tasks'])) {
+                        if (! empty($entires['tasks'])) {
                             foreach ($entires['tasks'] as $taskid => $task) {
-                                $developerTask = \App\DeveloperTask::where("hubstaff_task_id", $taskid)->first();
+                                $developerTask = \App\DeveloperTask::where('hubstaff_task_id', $taskid)->first();
                                 if ($developerTask) {
                                     $developerTask->estimate_minutes += $task;
                                     $developerTask->save();
@@ -262,11 +259,11 @@ class AccountHubstaffActivities extends Command
                 }
             }
             DB::commit();
-            echo PHP_EOL . "=====DONE====" . PHP_EOL;
+            echo PHP_EOL.'=====DONE===='.PHP_EOL;
         } catch (Exception $e) {
             echo $e->getMessage();
             DB::rollBack();
-            echo PHP_EOL . "=====FAILED====" . PHP_EOL;
+            echo PHP_EOL.'=====FAILED===='.PHP_EOL;
         }
     }
 }

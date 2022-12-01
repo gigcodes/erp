@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableWebsitesIsPriceOverride extends Migration
 {
@@ -14,7 +14,7 @@ class AlterTableWebsitesIsPriceOverride extends Migration
     public function up()
     {
         //
-        Schema::table("websites",function(Blueprint $table) {
+        Schema::table('websites', function (Blueprint $table) {
             $table->integer('is_price_ovveride')->default(0);
         });
     }
@@ -27,7 +27,7 @@ class AlterTableWebsitesIsPriceOverride extends Migration
     public function down()
     {
         //
-        Schema::table("websites",function(Blueprint $table) {
+        Schema::table('websites', function (Blueprint $table) {
             $table->dropField('is_price_ovveride');
         });
     }

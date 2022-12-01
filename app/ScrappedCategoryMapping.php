@@ -12,7 +12,6 @@ class ScrappedCategoryMapping extends Model
         'category_id',
         'is_skip',
         'is_auto_fix',
-        'is_auto_skip'
+        'is_auto_skip',
     ];
-
 }

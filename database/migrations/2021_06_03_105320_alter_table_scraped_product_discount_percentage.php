@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableScrapedProductDiscountPercentage extends Migration
 {
@@ -14,7 +14,7 @@ class AlterTableScrapedProductDiscountPercentage extends Migration
     public function up()
     {
         //
-        Schema::table('scraped_products',function(Blueprint $table) {
+        Schema::table('scraped_products', function (Blueprint $table) {
             $table->decimal('discounted_percentage', 8, 2)->default(0.00)->after('discounted_price');
         });
     }
@@ -27,7 +27,7 @@ class AlterTableScrapedProductDiscountPercentage extends Migration
     public function down()
     {
         //
-        Schema::table('scraped_products',function(Blueprint $table) {
+        Schema::table('scraped_products', function (Blueprint $table) {
             $table->dropField('discounted_percentage');
         });
     }

@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -16,10 +17,8 @@ class CustomerPriorityRangePoint extends Model
      * @SWG\Property(property="min_point",type="integet")
      * @SWG\Property(property="max_point",type="integet")
      * @SWG\Property(property="range_name",type="string")
-     *
      */
-    
-    protected $table = "customer_priority_range_points";
+    protected $table = 'customer_priority_range_points';
 
     protected $fillable = [
         'id',
@@ -29,6 +28,6 @@ class CustomerPriorityRangePoint extends Model
         'max_point',
         'range_name',
         'created_at',
-        'deleted_at'
+        'deleted_at',
     ];
 }

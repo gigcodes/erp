@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterFlowActionsAddMessageTitle extends Migration
 {
@@ -13,8 +13,8 @@ class AlterFlowActionsAddMessageTitle extends Migration
      */
     public function up()
     {
-        Schema::table("flow_actions",function(Blueprint $table) {
-           $table->text('message_title')->nullable();
+        Schema::table('flow_actions', function (Blueprint $table) {
+            $table->text('message_title')->nullable();
         });
     }
 

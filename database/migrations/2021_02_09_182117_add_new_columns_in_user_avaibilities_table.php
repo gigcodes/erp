@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddNewColumnsInUserAvaibilitiesTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddNewColumnsInUserAvaibilitiesTable extends Migration
     public function up()
     {
         Schema::table('user_avaibilities', function (Blueprint $table) {
-            $table->decimal('day',4,2)->default(0)->after('to');
+            $table->decimal('day', 4, 2)->default(0)->after('to');
             $table->integer('minute')->default(0)->after('day');
         });
     }

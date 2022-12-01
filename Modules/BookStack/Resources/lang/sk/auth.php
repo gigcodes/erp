@@ -1,4 +1,5 @@
 <?php
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -42,7 +43,6 @@ return [
     'registration_email_domain_invalid' => 'Táto emailová doména nemá prístup k tejto aplikácii',
     'register_success' => 'Ďakujeme za registráciu! Teraz ste registrovaný a prihlásený.',
 
-
     /**
      * Password Reset
      */
@@ -55,7 +55,6 @@ return [
     'email_reset_subject' => 'Reset Vášho :appName hesla',
     'email_reset_text' => 'Tento email Ste dostali pretože sme dostali požiadavku na reset hesla pre Váš účet.',
     'email_reset_not_requested' => 'Ak ste nepožiadali o reset hesla, nemusíte nič robiť.',
-
 
     /**
      * Email Confirmation

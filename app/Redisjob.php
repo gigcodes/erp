@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -18,6 +19,7 @@ class Redisjob extends Model
         'name',
         'type',
         'status',
-        ];
-    protected $table='redis_jobs';
+    ];
+
+    protected $table = 'redis_jobs';
 }

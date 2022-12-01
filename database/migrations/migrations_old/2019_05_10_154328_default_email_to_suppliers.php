@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class DefaultEmailToSuppliers extends Migration
 {
@@ -14,7 +14,7 @@ class DefaultEmailToSuppliers extends Migration
     public function up()
     {
         Schema::table('suppliers', function (Blueprint $table) {
-          $table->string('default_email')->nullable()->after('email');
+            $table->string('default_email')->nullable()->after('email');
         });
     }
 
@@ -26,7 +26,7 @@ class DefaultEmailToSuppliers extends Migration
     public function down()
     {
         Schema::table('suppliers', function (Blueprint $table) {
-          $table->dropColumn('default_email');
+            $table->dropColumn('default_email');
         });
     }
 }

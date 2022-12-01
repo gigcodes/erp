@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class StoreViewsGtMetrixUrl extends Migration
 {
@@ -15,13 +15,12 @@ class StoreViewsGtMetrixUrl extends Migration
     {
         Schema::create('store_views_gt_metrix_url', function (Blueprint $table) {
             $table->increments('id');
-			$table->integer('account_id')->nullable();
-			$table->integer('store_view_id')->nullable();
-			$table->string('store_name')->nullable();
+            $table->integer('account_id')->nullable();
+            $table->integer('store_view_id')->nullable();
+            $table->string('store_name')->nullable();
             $table->text('website_url')->nullable();
-			$table->integer('process')->nullable();
+            $table->integer('process')->nullable();
             $table->timestamps();
         });
     }
-
-    }
+}

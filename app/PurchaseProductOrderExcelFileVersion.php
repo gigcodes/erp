@@ -8,6 +8,6 @@ class PurchaseProductOrderExcelFileVersion extends Model
 {
     //
     protected $fillable = [
-        'excel_id', 'file_name', 'file_version'
+        'excel_id', 'file_name', 'file_version',
     ];
 }

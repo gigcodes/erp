@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateGiftCardsTable extends Migration
 {
@@ -21,9 +21,9 @@ class CreateGiftCardsTable extends Migration
             $table->string('receiver_email')->nullable();
             $table->string('gift_card_coupon_code')->nullable()->index();
             $table->text('gift_card_description')->nullable();
-            $table->double('gift_card_amount',8,2)->nullable();
+            $table->double('gift_card_amount', 8, 2)->nullable();
             $table->string('gift_card_message')->nullable();
-            $table->dateTime('expiry_date',0)->nullable();
+            $table->dateTime('expiry_date', 0)->nullable();
             $table->integer('store_website_id');
             $table->foreign('store_website_id')->references('id')->on('store_websites');
             $table->timestamps();

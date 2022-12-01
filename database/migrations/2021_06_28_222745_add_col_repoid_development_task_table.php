@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddColRepoidDevelopmentTaskTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddColRepoidDevelopmentTaskTable extends Migration
     public function up()
     {
         Schema::table('developer_tasks', function (Blueprint $table) {
-            if(!Schema::hasColumn('developer_tasks','repository_id')) {
+            if (! Schema::hasColumn('developer_tasks', 'repository_id')) {
                 $table->integer('repository_id')->nullable();
             }
         });

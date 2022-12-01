@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableMailinglistTemplatesAddFromEmail extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableMailinglistTemplatesAddFromEmail extends Migration
     public function up()
     {
         //
-        Schema::table('mailinglist_templates',function(Blueprint $table) {
-            $table->string("from_email")->nullable()->after("subject");
+        Schema::table('mailinglist_templates', function (Blueprint $table) {
+            $table->string('from_email')->nullable()->after('subject');
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableMailinglistTemplatesAddFromEmail extends Migration
     public function down()
     {
         //
-        Schema::table('mailinglist_templates',function(Blueprint $table) {
-            $table->dropField("from_email");
+        Schema::table('mailinglist_templates', function (Blueprint $table) {
+            $table->dropField('from_email');
         });
     }
 }

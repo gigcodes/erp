@@ -30,7 +30,6 @@ class SyncInstagramMessage extends Command
      *
      * @return void
      */
-
     private $messages;
 
 //    public function __construct(DirectMessage $messages)
@@ -48,7 +47,7 @@ class SyncInstagramMessage extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -60,7 +59,7 @@ class SyncInstagramMessage extends Command
                     if (count($user) !== 1) {
                         continue;
                     }
-                    echo $user[0]['username'] . "\n";
+                    echo $user[0]['username']."\n";
                     $customer = $this->createCustomer($user[0]);
 
                     if ($customer) {
@@ -88,13 +87,13 @@ class SyncInstagramMessage extends Command
 
         $customer = Customer::where('ig_username', $user['username'])->first();
 
-        if (!$customer) {
-            $customer       = new Customer();
+        if (! $customer) {
+            $customer = new Customer();
             $customer->name = $user['full_name'];
         }
 
         $customer->instahandler = $user['pk'];
-        $customer->ig_username  = $user['username'];
+        $customer->ig_username = $user['username'];
         $customer->save();
 
         return $customer;
@@ -102,7 +101,6 @@ class SyncInstagramMessage extends Command
 
     private function createThread($customer, $t)
     {
-
 //        $thread               = new InstagramThread();
 //        $thread->customer_id  = $customer->id;
 //        $thread->thread_id    = $t['thread_id'];

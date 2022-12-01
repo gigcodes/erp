@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIndexToPaymentReceiptsTable extends Migration
 {
@@ -33,7 +33,6 @@ class AddIndexToPaymentReceiptsTable extends Migration
             $table->dropIndex(['date']);
             $table->dropIndex(['user_id']);
             $table->dropIndex(['billing_due_date']);
-
         });
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableStoreWebsiteAnalyticsEmail extends Migration
 {
@@ -14,10 +14,10 @@ class AlterTableStoreWebsiteAnalyticsEmail extends Migration
     public function up()
     {
         //
-        Schema::table("store_website_analytics",function(Blueprint $table) {
-            $table->string("email")->nullable()->after("website");
-            $table->string("last_error")->nullable()->after("email");
-            $table->timestamp("last_error_at")->nullable()->after("last_error");
+        Schema::table('store_website_analytics', function (Blueprint $table) {
+            $table->string('email')->nullable()->after('website');
+            $table->string('last_error')->nullable()->after('email');
+            $table->timestamp('last_error_at')->nullable()->after('last_error');
         });
     }
 
@@ -29,10 +29,10 @@ class AlterTableStoreWebsiteAnalyticsEmail extends Migration
     public function down()
     {
         //
-        Schema::table("store_website_analytics",function(Blueprint $table) {
-            $table->dropField("email");
-            $table->dropField("last_error");
-            $table->dropField("last_error_at");
+        Schema::table('store_website_analytics', function (Blueprint $table) {
+            $table->dropField('email');
+            $table->dropField('last_error');
+            $table->dropField('last_error_at');
         });
     }
 }

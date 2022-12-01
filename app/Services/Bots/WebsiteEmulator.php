@@ -13,7 +13,6 @@ class WebsiteEmulator
 
     private $manager;
 
-
     public function getSelectedProxy()
     {
         return $this->selectedProxy;
@@ -22,13 +21,12 @@ class WebsiteEmulator
     public function setProxyList(): void
     {
         $this->selectedProxy = [
-          'ip' => '123.136.62.162',
-          'port' => '8080'
+            'ip' => '123.136.62.162',
+            'port' => '8080',
         ];
     }
 
     private $data;
-
 
     public function emulate($command, $url, $commands = null): ?array
     {
@@ -37,7 +35,6 @@ class WebsiteEmulator
         try {
             $this->manager->browse($command, function ($browser) use ($url, $self) {
                 try {
-
                     $price = '';
 
                     $sku = $browser->visit($url)
@@ -45,23 +42,19 @@ class WebsiteEmulator
                         ->element('div.product-code div.value p.title')
                         ->getAttribute('innerHTML');
 
-                    if($browser->visit($url)
+                    if ($browser->visit($url)
                         ->pause(500)
                         ->element('span.price')) {
-
                         $price = $browser->visit($url)
                             ->pause(500)
                             ->element('span.price')
-                            ->getAttribute('innerHTML')
-                        ;
-
+                            ->getAttribute('innerHTML');
                     }
 
                     $sku = str_replace(' ', '', $sku);
                     $price = str_replace('&nbsp;', '', $price);
 
                     $self->data = [$price, $sku];
-
                 } catch (\Exception $exception) {
                     $self->data = ['', ''];
                 }
@@ -77,12 +70,10 @@ class WebsiteEmulator
     {
         $driver = new Chrome($this->getSelectedProxy());
 
-
         $this->manager = new Manager(
             $driver
         );
     }
-
 
     public function getProxyList(): \Illuminate\Support\Collection
     {

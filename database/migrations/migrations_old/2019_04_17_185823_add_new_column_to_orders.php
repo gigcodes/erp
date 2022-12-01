@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddNewColumnToOrders extends Migration
 {
@@ -14,8 +14,8 @@ class AddNewColumnToOrders extends Migration
     public function up()
     {
         Schema::table('orders', function (Blueprint $table) {
-          $table->string('refund_answer')->nullable()->after('user_id');
-          $table->datetime('refund_answer_date')->nullable()->after('refund_answer');
+            $table->string('refund_answer')->nullable()->after('user_id');
+            $table->datetime('refund_answer_date')->nullable()->after('refund_answer');
         });
     }
 
@@ -27,8 +27,8 @@ class AddNewColumnToOrders extends Migration
     public function down()
     {
         Schema::table('orders', function (Blueprint $table) {
-          $table->dropColumn('refund_answer');
-          $table->dropColumn('refund_answer_date');
+            $table->dropColumn('refund_answer');
+            $table->dropColumn('refund_answer_date');
         });
     }
 }

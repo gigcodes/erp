@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddStatusToCommunicationHistories extends Migration
 {
@@ -14,7 +14,7 @@ class AddStatusToCommunicationHistories extends Migration
     public function up()
     {
         Schema::table('communication_histories', function (Blueprint $table) {
-          $table->boolean('is_stopped')->default(0)->after('method');
+            $table->boolean('is_stopped')->default(0)->after('method');
         });
     }
 
@@ -26,7 +26,7 @@ class AddStatusToCommunicationHistories extends Migration
     public function down()
     {
         Schema::table('communication_histories', function (Blueprint $table) {
-          $table->dropColumn('is_stopped');
+            $table->dropColumn('is_stopped');
         });
     }
 }

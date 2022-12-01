@@ -46,7 +46,6 @@ class InstagramDirectMessagesController extends Controller
      */
     public function show(InstagramDirectMessages $instagramDirectMessages)
     {
-
     }
 
     /**

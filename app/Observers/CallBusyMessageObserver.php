@@ -4,7 +4,6 @@ namespace App\Observers;
 
 use App\CallBusyMessage;
 
-
 class CallBusyMessageObserver
 {
     /**
@@ -14,13 +13,13 @@ class CallBusyMessageObserver
      * @return void
      */
     public function created(CallBusyMessage $callBusyMessage)
-    {   
-		if($callBusyMessage->recording_url != '') {
-			 $recordedText = (new CallBusyMessage)->convertSpeechToText($callBusyMessage->recording_url);
-			 if($recordedText != '') {
-				 CallBusyMessage::where('id', $callBusyMessage->id)->update(['audio_text'=>$recordedText]);
-			 }
-		}
+    {
+        if ($callBusyMessage->recording_url != '') {
+            $recordedText = (new CallBusyMessage)->convertSpeechToText($callBusyMessage->recording_url);
+            if ($recordedText != '') {
+                CallBusyMessage::where('id', $callBusyMessage->id)->update(['audio_text' => $recordedText]);
+            }
+        }
     }
 
     /**
@@ -30,13 +29,13 @@ class CallBusyMessageObserver
      * @return void
      */
     public function updated(CallBusyMessage $callBusyMessage)
-    { 
-		if($callBusyMessage->recording_url != '' and $callBusyMessage->isDirty('recording_url')) { 
-			$recordedText = (new CallBusyMessage)->convertSpeechToText($callBusyMessage->recording_url);
-			if($recordedText != '') {
-				CallBusyMessage::where('id', $callBusyMessage->id)->update(['audio_text'=>$recordedText]);
-			}
-		}
+    {
+        if ($callBusyMessage->recording_url != '' and $callBusyMessage->isDirty('recording_url')) {
+            $recordedText = (new CallBusyMessage)->convertSpeechToText($callBusyMessage->recording_url);
+            if ($recordedText != '') {
+                CallBusyMessage::where('id', $callBusyMessage->id)->update(['audio_text' => $recordedText]);
+            }
+        }
     }
 
     /**

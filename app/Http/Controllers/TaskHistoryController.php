@@ -2,23 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Task;
-
-use App\Models\Tasks\TaskHistoryForCost;
 use App\Models\Tasks\TaskDueDateHistoryLog;
-
+use App\Models\Tasks\TaskDueDateHistoryLogApprovals;
+use App\Models\Tasks\TaskHistoryForCost;
 use App\Models\Tasks\TaskHistoryForStartDate;
 use App\Models\Tasks\TaskHistoryForStartDateApprovals;
 
-use App\Models\Tasks\TaskDueDateHistoryLogApprovals;
-
-
-class TaskHistoryController extends Controller {
-
-    public function __construct() {
+class TaskHistoryController extends Controller
+{
+    public function __construct()
+    {
     }
 
-    public function historyStartDate() {
+    public function historyStartDate()
+    {
         $list = TaskHistoryForStartDate::with('updatedBy')->where('task_id', request('id'))->orderBy('id', 'DESC')->get();
 
         $html = [];
@@ -36,12 +33,12 @@ class TaskHistoryController extends Controller {
         if ($list->count()) {
             foreach ($list as $single) {
                 $html[] = '<tr>
-                    <td><input type="radio" name="radio_for_approve" value="' . $single->id . '" ' . ($single->approved ? 'checked' : '') . ' style="height:auto;" /></td>
-                    <td>' . $single->id . '</td>
-                    <td>' . ($single->updatedBy ? $single->updatedBy->name : '-') . '</td>
-                    <td>' . $single->old_value . '</td>
-                    <td>' . $single->new_value . '</td>
-                    <td>' . $single->created_at . '</td>
+                    <td><input type="radio" name="radio_for_approve" value="'.$single->id.'" '.($single->approved ? 'checked' : '').' style="height:auto;" /></td>
+                    <td>'.$single->id.'</td>
+                    <td>'.($single->updatedBy ? $single->updatedBy->name : '-').'</td>
+                    <td>'.$single->old_value.'</td>
+                    <td>'.$single->new_value.'</td>
+                    <td>'.$single->created_at.'</td>
                 </tr>';
             }
         } else {
@@ -50,10 +47,12 @@ class TaskHistoryController extends Controller {
             </tr>';
         }
         $html[] = '</table>';
+
         return respJson(200, '', ['data' => implode('', $html)]);
     }
 
-    public function historyDueDate() {
+    public function historyDueDate()
+    {
         $list = TaskDueDateHistoryLog::with(['users'])->where('task_id', request('id'))->orderBy('id', 'DESC')->get();
 
         $html = [];
@@ -71,12 +70,12 @@ class TaskHistoryController extends Controller {
         if ($list->count()) {
             foreach ($list as $single) {
                 $html[] = '<tr>
-                    <td><input type="radio" name="radio_for_approve" value="' . $single->id . '" ' . ($single->approved ? 'checked' : '') . ' style="height:auto;" /></td>
-                    <td>' . $single->id . '</td>
-                    <td>' . ($single->users ? $single->users->name : '-') . '</td>
-                    <td>' . $single->old_due_date . '</td>
-                    <td>' . $single->new_due_date . '</td>
-                    <td>' . $single->created_at . '</td>
+                    <td><input type="radio" name="radio_for_approve" value="'.$single->id.'" '.($single->approved ? 'checked' : '').' style="height:auto;" /></td>
+                    <td>'.$single->id.'</td>
+                    <td>'.($single->users ? $single->users->name : '-').'</td>
+                    <td>'.$single->old_due_date.'</td>
+                    <td>'.$single->new_due_date.'</td>
+                    <td>'.$single->created_at.'</td>
                 </tr>';
             }
         } else {
@@ -85,10 +84,12 @@ class TaskHistoryController extends Controller {
             </tr>';
         }
         $html[] = '</table>';
+
         return respJson(200, '', ['data' => implode('', $html)]);
     }
 
-    public function historyCost() {
+    public function historyCost()
+    {
         $list = TaskHistoryForCost::with('updatedBy')->where('task_id', request('id'))->orderBy('id', 'DESC')->get();
 
         $html = [];
@@ -105,11 +106,11 @@ class TaskHistoryController extends Controller {
         if ($list->count()) {
             foreach ($list as $single) {
                 $html[] = '<tr>
-                    <td>' . $single->id . '</td>
-                    <td>' . ($single->updatedBy ? $single->updatedBy->name : '-') . '</td>
-                    <td>' . $single->old_value . '</td>
-                    <td>' . $single->new_value . '</td>
-                    <td>' . $single->created_at . '</td>
+                    <td>'.$single->id.'</td>
+                    <td>'.($single->updatedBy ? $single->updatedBy->name : '-').'</td>
+                    <td>'.$single->old_value.'</td>
+                    <td>'.$single->new_value.'</td>
+                    <td>'.$single->created_at.'</td>
                 </tr>';
             }
         } else {
@@ -118,22 +119,25 @@ class TaskHistoryController extends Controller {
             </tr>';
         }
         $html[] = '</table>';
+
         return respJson(200, '', ['data' => implode('', $html)]);
     }
 
-    public function approve() {
+    public function approve()
+    {
         $id = request('radio_for_approve');
         $type = request('type');
         if ($type == 'start_date') {
             TaskHistoryForStartDate::approved($id);
-        } else if ($type == 'due_date') {
+        } elseif ($type == 'due_date') {
             TaskDueDateHistoryLog::approved($id);
         }
 
         return respJson(200, 'Approved successfully.');
     }
 
-    public function approveHistory() {
+    public function approveHistory()
+    {
         $type = request('type');
         $taskId = request('id');
         if ($type == 'start_date') {
@@ -145,11 +149,11 @@ class TaskHistoryController extends Controller {
             $q->where('t2.task_id', $taskId);
             $q->select([
                 't1.*',
-                't2.new_value AS value'
+                't2.new_value AS value',
             ]);
             $q->orderBy('id', 'DESC');
             $list = $q->get();
-        } else if ($type == 'due_date') {
+        } elseif ($type == 'due_date') {
             $q = TaskDueDateHistoryLogApprovals::from('task_due_date_history_logs_approvals as t1');
             $q->with(['approvedBy']);
             $q->leftJoin('task_due_date_history_logs as t2', function ($join) {
@@ -158,7 +162,7 @@ class TaskHistoryController extends Controller {
             $q->where('t2.task_id', $taskId);
             $q->select([
                 't1.*',
-                't2.new_due_date AS value'
+                't2.new_due_date AS value',
             ]);
             $q->orderBy('id', 'DESC');
             $list = $q->get();
@@ -177,10 +181,10 @@ class TaskHistoryController extends Controller {
         if (isset($list) && $list->count()) {
             foreach ($list as $single) {
                 $html[] = '<tr>
-                    <td>' . $single->parent_id . '</td>
-                    <td>' . ($single->approvedByName() ?: '-') . '</td>
-                    <td>' . $single->value . '</td>
-                    <td>' . $single->created_at . '</td>
+                    <td>'.$single->parent_id.'</td>
+                    <td>'.($single->approvedByName() ?: '-').'</td>
+                    <td>'.$single->value.'</td>
+                    <td>'.$single->created_at.'</td>
                 </tr>';
             }
         } else {
@@ -189,6 +193,7 @@ class TaskHistoryController extends Controller {
             </tr>';
         }
         $html[] = '</table>';
+
         return respJson(200, '', ['data' => implode('', $html)]);
     }
 }

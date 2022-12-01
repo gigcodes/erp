@@ -14,11 +14,15 @@ class UpdateProductCategoryFromErp implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $params;
+
     public $from;
+
     public $to;
+
     public $user_id;
 
     public $tries = 3;
+
     public $backoff = 5;
 
     /**
@@ -28,15 +32,16 @@ class UpdateProductCategoryFromErp implements ShouldQueue
      */
     public function __construct($params)
     {
-        $this->from    = $params["from"];
-        $this->to      = $params["to"];
-        $this->user_id = isset($params["user_id"]) ? $params["user_id"] : 6;
-        $this->params  = $params;
+        $this->from = $params['from'];
+        $this->to = $params['to'];
+        $this->user_id = isset($params['user_id']) ? $params['user_id'] : 6;
+        $this->params = $params;
     }
 
     public static function putLog($message)
     {
         \Log::channel('update_category_job')->info($message);
+
         return true;
     }
 
@@ -47,14 +52,14 @@ class UpdateProductCategoryFromErp implements ShouldQueue
      */
     public function handle()
     {
-        try{
-            self::putLog("Job update product category from erp start time : " . date("Y-m-d H:i:s"));
+        try {
+            self::putLog('Job update product category from erp start time : '.date('Y-m-d H:i:s'));
 
             $affectedProducts = ScrapedProducts::matchedCategory($this->from);
 
             //$sku = [];
 
-            if (!empty($affectedProducts)) {
+            if (! empty($affectedProducts)) {
                 foreach ($affectedProducts as $affectedProduct) {
                     $oldCat = $affectedProduct->category;
                     $affectedProduct->category = $this->to;
@@ -62,30 +67,30 @@ class UpdateProductCategoryFromErp implements ShouldQueue
 
                     //$sku[] = $affectedProduct->sku;
                     // do entry for the history as well
-                    $productCatHis                  = new \App\ProductCategoryHistory;
-                    $productCatHis->user_id         = ($this->user_id) ? $this->user_id : 6;
-                    $productCatHis->category_id     = !empty($this->to) ? $this->to : "";
-                    $productCatHis->old_category_id = !empty($oldCat) ? $oldCat : "";
-                    $productCatHis->product_id      = $affectedProduct->id;
+                    $productCatHis = new \App\ProductCategoryHistory;
+                    $productCatHis->user_id = ($this->user_id) ? $this->user_id : 6;
+                    $productCatHis->category_id = ! empty($this->to) ? $this->to : '';
+                    $productCatHis->old_category_id = ! empty($oldCat) ? $oldCat : '';
+                    $productCatHis->product_id = $affectedProduct->id;
                     $productCatHis->save();
                 }
             }
 
             //\Log::info(print_r($sku,true));
 
-            self::putLog("Job update product category from erp end time : " . date("Y-m-d H:i:s"));
+            self::putLog('Job update product category from erp end time : '.date('Y-m-d H:i:s'));
 
             return true;
         } catch (\Exception $e) {
-            self::putLog("Job update product category from erp end time : " . date("Y-m-d H:i:s"). ' => '.$e->getMessage());
+            self::putLog('Job update product category from erp end time : '.date('Y-m-d H:i:s').' => '.$e->getMessage());
             throw new \Exception($e->getMessage());
+
             return false;
         }
-        
     }
 
-    public function tags() 
+    public function tags()
     {
-        return [ 'supplier_products', $this->user_id];
+        return ['supplier_products', $this->user_id];
     }
 }

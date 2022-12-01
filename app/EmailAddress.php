@@ -5,8 +5,6 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use App\EmailAssign;
-use App\StoreWebsite;
 use Illuminate\Database\Eloquent\Model;
 
 class EmailAddress extends Model
@@ -26,7 +24,6 @@ class EmailAddress extends Model
      * @SWG\Property(property="password",type="datetime")
      * @SWG\Property(property="store_website_id",type="integer")
      */
-
     protected $fillable = [
         'from_name',
         'from_address',
@@ -49,7 +46,7 @@ class EmailAddress extends Model
         'signature_logo',
         'signature_image',
         'signature_social',
-        'twilio_recovery_code'
+        'twilio_recovery_code',
     ];
 
     public function website()
@@ -72,5 +69,4 @@ class EmailAddress extends Model
         //dd('sdfdsf');
         return $this->hasOne(EmailRunHistories::class, 'email_address_id', 'id')->latest();
     }
-
 }

@@ -5,13 +5,13 @@ namespace App\Mails\Manual;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ForwardEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
     private $forwardEmail;
+
     private $message;
 
     /**
@@ -41,7 +41,7 @@ class ForwardEmail extends Mailable
         }
 
         if (substr($subject, 0, 5) !== $forwardPrefix) {
-            $subject = $forwardPrefix . $subject;
+            $subject = $forwardPrefix.$subject;
         }
 
         $this->from($this->forwardEmail->from);
@@ -57,5 +57,4 @@ class ForwardEmail extends Mailable
             'timeCreated' => $timeCreated,
         ]);
     }
-
 }

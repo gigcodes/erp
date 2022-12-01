@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     /**
@@ -20,7 +21,7 @@ return [
     'role' => 'الدور',
     'cover_image' => 'صورة الغلاف',
     'cover_image_description' => 'الصورة يجب أن تكون مقاربة لحجم 440×250 بكسل.',
-    
+
     /**
      * Actions
      */

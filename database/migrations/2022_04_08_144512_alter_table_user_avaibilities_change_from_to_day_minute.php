@@ -1,9 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+
 class AlterTableUserAvaibilitiesChangeFromToDayMinute extends Migration
 {
     /**
@@ -13,12 +12,12 @@ class AlterTableUserAvaibilitiesChangeFromToDayMinute extends Migration
      */
     public function up()
     {
-        DB::statement("ALTER TABLE `user_avaibilities`
+        DB::statement('ALTER TABLE `user_avaibilities`
         CHANGE `from` `from` DATE NULL DEFAULT NULL,
         CHANGE `to` `to` DATE NULL DEFAULT NULL,
         CHANGE `minute` `minute` TIME NULL DEFAULT NULL,
         CHANGE `date` `date` TEXT NULL DEFAULT NULL, 
-        CHANGE `day` `day` INTEGER NULL DEFAULT NULL");
+        CHANGE `day` `day` INTEGER NULL DEFAULT NULL');
     }
 
     /**

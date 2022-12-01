@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddSeenToEmails extends Migration
 {
@@ -14,7 +14,7 @@ class AddSeenToEmails extends Migration
     public function up()
     {
         Schema::table('emails', function (Blueprint $table) {
-          $table->boolean('seen')->default(0)->after('type');
+            $table->boolean('seen')->default(0)->after('type');
         });
     }
 
@@ -26,7 +26,7 @@ class AddSeenToEmails extends Migration
     public function down()
     {
         Schema::table('emails', function (Blueprint $table) {
-          $table->dropColumn('seen');
+            $table->dropColumn('seen');
         });
     }
 }

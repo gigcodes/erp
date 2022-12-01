@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AddStoreWebsiteToCustomerCharityTable extends Migration
 {
@@ -26,6 +26,6 @@ class AddStoreWebsiteToCustomerCharityTable extends Migration
      */
     public function down()
     {
-        DB::select("CREATE TABLE `sololuxury`.`customer_charity_website_stores` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `customer_charity_id` INT(11) NULL , `website_store_id` INT(11) NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;");
+        DB::select('CREATE TABLE `sololuxury`.`customer_charity_website_stores` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `customer_charity_id` INT(11) NULL , `website_store_id` INT(11) NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;');
     }
 }

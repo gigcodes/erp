@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class IndexColumnStoreWebsitesTable extends Migration
 {
@@ -13,8 +13,7 @@ class IndexColumnStoreWebsitesTable extends Migration
      */
     public function up()
     {
-        Schema::table('store_websites', function(Blueprint $table)
-        {
+        Schema::table('store_websites', function (Blueprint $table) {
             $table->index('cropper_color');
         });
     }

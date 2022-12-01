@@ -11,7 +11,7 @@ class IntentService extends Service
      *
      * @var string
      */
-    protected $url = "https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/1875ce0b-ffe1-45a1-be2b-21a8488a0350";
+    protected $url = 'https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/1875ce0b-ffe1-45a1-be2b-21a8488a0350';
 
     /**
      * API service version
@@ -40,8 +40,8 @@ class IntentService extends Service
     {
         return $this->client->request(
             'POST',
-            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/intents',
-            ['query' => ['version' => $version], "json" => $params]
+            $this->getMountedUrl().'workspaces/'.$workspaceId.'/intents',
+            ['query' => ['version' => $version], 'json' => $params]
         );
     }
 
@@ -49,7 +49,7 @@ class IntentService extends Service
     {
         return $this->client->request(
             'GET',
-            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/intents',
+            $this->getMountedUrl().'workspaces/'.$workspaceId.'/intents',
             ['query' => ['version' => $version] + $params]
         );
     }
@@ -58,7 +58,7 @@ class IntentService extends Service
     {
         return $this->client->request(
             'GET',
-            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/intents/' . $intents,
+            $this->getMountedUrl().'workspaces/'.$workspaceId.'/intents/'.$intents,
             ['query' => ['version' => $version]]
         );
     }
@@ -67,8 +67,8 @@ class IntentService extends Service
     {
         return $this->client->request(
             'POST',
-            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/intents/' . $intents,
-            ['query' => ['version' => $version], "json" => $params]
+            $this->getMountedUrl().'workspaces/'.$workspaceId.'/intents/'.$intents,
+            ['query' => ['version' => $version], 'json' => $params]
         );
     }
 
@@ -76,18 +76,17 @@ class IntentService extends Service
     {
         return $this->client->request(
             'DELETE',
-            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/intents/' . $intents,
+            $this->getMountedUrl().'workspaces/'.$workspaceId.'/intents/'.$intents,
             ['query' => ['version' => $version]]
         );
     }
 
-    public function updateExample($workspaceId, $intents, $text, $params = [], $version = '2019-02-28') 
+    public function updateExample($workspaceId, $intents, $text, $params = [], $version = '2019-02-28')
     {
         return $this->client->request(
             'POST',
-            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/intents/' . $intents.'/examples/'.$text,
-            ['query' => ['version' => $version], "json" => $params]
+            $this->getMountedUrl().'workspaces/'.$workspaceId.'/intents/'.$intents.'/examples/'.$text,
+            ['query' => ['version' => $version], 'json' => $params]
         );
     }
-
 }

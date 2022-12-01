@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableChatMessagesChanges extends Migration
 {
@@ -13,9 +13,9 @@ class AlterTableChatMessagesChanges extends Migration
      */
     public function up()
     {
-        Schema::table('chat_messages',function(Blueprint $table){
+        Schema::table('chat_messages', function (Blueprint $table) {
             $table->index(['sop_user_id']);
-            });
+        });
     }
 
     /**
@@ -25,12 +25,8 @@ class AlterTableChatMessagesChanges extends Migration
      */
     public function down()
     {
-
-        Schema::table('chat_messages',function(Blueprint $table){
+        Schema::table('chat_messages', function (Blueprint $table) {
             $table->dropIndex(['sop_user_id']);
-         });
-
-
-
+        });
     }
 }

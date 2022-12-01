@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateChatMessagesTableAddChatbot extends Migration
 {
@@ -25,7 +24,7 @@ class UpdateChatMessagesTableAddChatbot extends Migration
      */
     public function down()
     {
-         Schema::table('chat_messages', function ($table) {
+        Schema::table('chat_messages', function ($table) {
             $table->dropColumn('is_chatbot');
         });
     }

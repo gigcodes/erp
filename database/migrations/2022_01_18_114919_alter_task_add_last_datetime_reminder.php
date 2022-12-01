@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTaskAddLastDatetimeReminder extends Migration
 {
@@ -13,7 +13,7 @@ class AlterTaskAddLastDatetimeReminder extends Migration
      */
     public function up()
     {
-         Schema::table('tasks',function(Blueprint $table) {
+        Schema::table('tasks', function (Blueprint $table) {
             $table->timestamp('last_date_time_reminder')->nullable();
         });
     }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddParentIdToTaskCategories extends Migration
 {
@@ -14,8 +14,8 @@ class AddParentIdToTaskCategories extends Migration
     public function up()
     {
         Schema::table('task_categories', function (Blueprint $table) {
-          $table->integer('parent_id')->unsigned()->default(0)->after('id');
-          $table->renameColumn('name', 'title');
+            $table->integer('parent_id')->unsigned()->default(0)->after('id');
+            $table->renameColumn('name', 'title');
         });
     }
 
@@ -27,8 +27,8 @@ class AddParentIdToTaskCategories extends Migration
     public function down()
     {
         Schema::table('task_categories', function (Blueprint $table) {
-          $table->dropColumn('parent_id');
-          $table->renameColumn('title', 'name');
+            $table->dropColumn('parent_id');
+            $table->renameColumn('title', 'name');
         });
     }
 }

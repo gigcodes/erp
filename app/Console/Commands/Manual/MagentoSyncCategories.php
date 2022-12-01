@@ -42,7 +42,7 @@ class MagentoSyncCategories extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             // Set memory limit
@@ -62,14 +62,14 @@ class MagentoSyncCategories extends Command
                     $topLevelId = $category->magento_id;
 
                     // Output name
-                    echo $category->title . " > ";
+                    echo $category->title.' > ';
                     if ((int) $category->magento_id > 0) {
                         $result = $magentoSoapHelper->catalogCategoryInfo($category->magento_id);
 
                         if ($result === false) {
                             echo "\n";
                         } else {
-                            echo $result->name . "\n";
+                            echo $result->name."\n";
                         }
                     } else {
                         echo "Category not exists. Missing Magento ID.\n";
@@ -80,7 +80,7 @@ class MagentoSyncCategories extends Command
 
                     // Loop over level two categories
                     foreach ($levelTwoCategories as $levelTwoCategory) {
-                        echo '|-' . $levelTwoCategory->title . " > ";
+                        echo '|-'.$levelTwoCategory->title.' > ';
 
                         if ((int) $levelTwoCategory->magento_id > 0) {
                             $result = $magentoSoapHelper->catalogCategoryInfo($levelTwoCategory->magento_id);
@@ -88,7 +88,7 @@ class MagentoSyncCategories extends Command
                             if ($result === false) {
                                 echo "\n";
                             } else {
-                                echo $result->name . "\n";
+                                echo $result->name."\n";
                             }
                         } else {
                             echo "Category not exists. Missing Magento ID.\n";
@@ -99,7 +99,7 @@ class MagentoSyncCategories extends Command
 
                         // Loop over level three categories
                         foreach ($levelThreeCategories as $levelThreeCategory) {
-                            echo '|---' . $levelThreeCategory->title . " > ";
+                            echo '|---'.$levelThreeCategory->title.' > ';
 
                             if ((int) $levelThreeCategory->magento_id > 0) {
                                 $result = $magentoSoapHelper->catalogCategoryInfo($levelThreeCategory->magento_id);
@@ -109,12 +109,12 @@ class MagentoSyncCategories extends Command
 
                                     // Create new category
                                     $arrCategoryData = [
-                                        'name'              => ucwords($levelThreeCategory->title),
-                                        'is_active'         => 1,
-                                        'include_in_menu'   => 1,
+                                        'name' => ucwords($levelThreeCategory->title),
+                                        'is_active' => 1,
+                                        'include_in_menu' => 1,
                                         'available_sort_by' => ['position'],
-                                        'url_key'           => str_replace(' ', '-', strtolower($levelThreeCategory->title)),
-                                        'default_sort_by'   => 'position',
+                                        'url_key' => str_replace(' ', '-', strtolower($levelThreeCategory->title)),
+                                        'default_sort_by' => 'position',
                                     ];
                                     $newId = $magentoSoapHelper->catalogCategoryCreate($levelTwoCategory->magento_id, $arrCategoryData);
 
@@ -122,7 +122,7 @@ class MagentoSyncCategories extends Command
                                     $levelThreeCategory->magento_id;
                                     $levelThreeCategory->save();
                                 } else {
-                                    echo $result->name . "\n";
+                                    echo $result->name."\n";
                                 }
                             } else {
                                 echo "Category not exists. Missing Magento ID.\n";

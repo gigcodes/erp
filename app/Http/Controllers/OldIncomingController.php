@@ -2,30 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Issue;
 use App\OldIncoming;
-use Session;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
-use View;
-use App\Issue;
+use Session;
 
 class OldIncomingController extends Controller
 {
     /**
      * Defining scope of variable
      *
-     * @access protected
      *
-     * @var    array $oldIncoming
+     * @var    array
      */
     protected $oldincoming;
 
     /**
      * Create a new controller instance.
      *
-     * @param mixed $oldincoming get oldincoming model
-     *
+     * @param  mixed  $oldincoming get oldincoming model
      * @return void
      */
     public function __construct(OldIncoming $oldincoming)
@@ -41,27 +38,28 @@ class OldIncomingController extends Controller
     public function index()
     {
         $issues = new Issue;
-        if (!empty($_GET['sr_no'])) {
+        if (! empty($_GET['sr_no'])) {
             $sr_no = $_GET['sr_no'];
             $old_incomings = $this->oldincoming::where('serial_no', $sr_no)->paginate(10)->setPath('');
             $pagination = $old_incomings->appends(
-                array(
+                [
                     'sr_no' => Input::get('sr_no'),
-                )
+                ]
             );
-        } else if (!empty($_GET['status'])) {
+        } elseif (! empty($_GET['status'])) {
             $status = $_GET['status'];
             $old_incomings = $this->oldincoming::where('status', $status)->paginate(5)->setPath('');
             $pagination = $old_incomings->appends(
-                array(
+                [
                     'status' => Input::get('status'),
-                )
+                ]
             );
         } else {
             $old_incomings = $this->oldincoming->paginate(10);
         }
         $issues = $issues->orderBy('created_at', 'DESC')->with('communications')->get();
         $status = $this->oldincoming->getStatus();
+
         return view('old-incomings.index', compact('status', 'old_incomings', 'issues'));
     }
 
@@ -85,6 +83,7 @@ class OldIncomingController extends Controller
     {
         $this->oldincoming->saveRecord($request);
         Session::flash('success', 'Record Created');
+
         return Redirect::back();
     }
 
@@ -106,9 +105,10 @@ class OldIncomingController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($serial_no)
-    {        
+    {
         $old_incoming = $this->oldincoming::where('serial_no', $serial_no)->first();
         $status = $this->oldincoming->getStatus();
+
         return view('old-incomings.edit', compact('status', 'old_incoming'));
     }
 
@@ -123,6 +123,7 @@ class OldIncomingController extends Controller
     {
         $this->oldincoming->updateRecord($request, $serial_no);
         Session::flash('success', 'Record Updated');
+
         return redirect('old-incomings');
     }
 

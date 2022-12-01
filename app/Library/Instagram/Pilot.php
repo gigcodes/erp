@@ -1,7 +1,9 @@
 <?php
 /**
  * Pilot - Extend basic functionality of the Instagram API
+ *
  * @name Pilot
+ *
  * @copyright DM PIlot - https://dmpilot.live
  */
 
@@ -13,11 +15,12 @@ class Pilot extends Instagram
 {
     /**
      * Send the choice to get the verification code in case of checkpoint.
+     *
      * @param  string  $username       Instagram username.
      * @param  string  $password       Instagram password.
-     * @param  string $apiPath         Challange api path
-     * @param  int $choice             Choice of the user. Possible values: 0, 1
-     * @return Array
+     * @param  string  $apiPath         Challange api path
+     * @param  int  $choice             Choice of the user. Possible values: 0, 1
+     * @return array
      */
     public function sendChallangeCode($username, $password, $apiPath, $choice)
     {
@@ -25,14 +28,14 @@ class Pilot extends Instagram
             throw new \InvalidArgumentException('You must provide a username and password to sendChallangeCode().');
         }
 
-        if (!is_string($apiPath) || !$apiPath) {
+        if (! is_string($apiPath) || ! $apiPath) {
             throw new \InvalidArgumentException('You must provide a valid apiPath to sendChallangeCode().');
         }
 
         $this->_setUser($username, $password);
         $this->_sendPreLoginFlow();
 
-        return $this->request(ltrim($apiPath, "/"))
+        return $this->request(ltrim($apiPath, '/'))
             ->setNeedsAuth(false)
             ->addPost('choice', $choice)
             ->addPost('_uuid', $this->uuid)
@@ -45,10 +48,11 @@ class Pilot extends Instagram
 
     /**
      * Re-send the virification code for the checkpoint challenge
+     *
      * @param  string  $username       Instagram username.
      * @param  string  $password       Instagram password.
-     * @param  string $apiPath         Api path to send a resend request
-     * @return Array
+     * @param  string  $apiPath         Api path to send a resend request
+     * @return array
      */
     public function resendChallengeCode($username, $password, $apiPath, $choice)
     {
@@ -62,7 +66,7 @@ class Pilot extends Instagram
 
         $this->_setUser($username, $password);
 
-        return $this->request(ltrim($apiPath, "/"))
+        return $this->request(ltrim($apiPath, '/'))
             ->setNeedsAuth(false)
             ->addPost('choice', $choice)
             ->getDecodedResponse();
@@ -81,13 +85,12 @@ class Pilot extends Instagram
      *                                     for the challenge.
      * @param  string  $securityCode       Verification code you have received
      *                                     via SMS or Email.
-     * @param  integer $appRefreshInterval See `login()` for description of this
+     * @param  int  $appRefreshInterval See `login()` for description of this
      *                                     parameter.
+     * @return \InstagramAPI\Response\LoginResponse
      *
      * @throws \InvalidArgumentException
      * @throws \InstagramAPI\Exception\InstagramException
-     *
-     * @return \InstagramAPI\Response\LoginResponse
      */
     public function finishChallengeLogin($username, $password, $apiPath, $securityCode, $appRefreshInterval = 1800)
     {
@@ -105,7 +108,7 @@ class Pilot extends Instagram
         $this->_setUser($username, $password);
         $this->_sendPreLoginFlow();
 
-        return $this->request(ltrim($apiPath, "/"))
+        return $this->request(ltrim($apiPath, '/'))
             ->setNeedsAuth(false)
             ->addPost('security_code', $securityCode)
             ->addPost('_uuid', $this->uuid)
@@ -114,6 +117,5 @@ class Pilot extends Instagram
             ->addPost('_uid', $this->account_id)
             ->addPost('_csrftoken', $this->client->getToken())
             ->getDecodedResponse();
-
     }
 }

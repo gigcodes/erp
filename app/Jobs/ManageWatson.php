@@ -2,35 +2,40 @@
 
 namespace App\Jobs;
 
-use App\ChatbotQuestion;
-use App\ChatbotQuestionReply;
-use App\WatsonAccount;
-use App\ChatbotErrorLog;
 use App\ChatbotDialogErrorLog;
+use App\ChatbotErrorLog;
+use App\ChatbotQuestion;
 use App\ChatbotQuestionErrorLog;
-use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use App\Library\Watson\Language\Assistant\V2\AssistantService;
 use App\Library\Watson\Language\Workspaces\V1\DialogService;
 use App\Library\Watson\Language\Workspaces\V1\EntitiesService;
-use App\Library\Watson\Language\Workspaces\V1\LogService;
 use App\Library\Watson\Language\Workspaces\V1\IntentService;
+use App\WatsonAccount;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class ManageWatson implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $question;
+
     protected $method;
+
     protected $storeParams;
+
     protected $type;
+
     protected $old_example;
+
     protected $service;
+
     protected $oldValue;
+
     public $tries = 5;
+
     public $backoff = 5;
 
     /**
@@ -56,7 +61,7 @@ class ManageWatson implements ShouldQueue
      */
     public function handle()
     {
-        try{
+        try {
             $all_watson_accounts = WatsonAccount::get();
             if ($this->type) {
                 $value = $this->question->{$this->type};
@@ -72,18 +77,18 @@ class ManageWatson implements ShouldQueue
             foreach ($all_watson_accounts as $account) {
                 if ($this->service === 'dialog') {
                     $watson = new DialogService(
-                        "apiKey",
+                        'apiKey',
                         $account->api_key
                     );
-                } else if ($this->service === 'entity') {
+                } elseif ($this->service === 'entity') {
                     $watson = new EntitiesService(
-                        "apiKey",
+                        'apiKey',
                         $account->api_key
                     );
                     $value = $this->oldValue;
-                }else{
+                } else {
                     $watson = new IntentService(
-                        "apiKey",
+                        'apiKey',
                         $account->api_key
                     );
                     $value = $this->oldValue;
@@ -91,22 +96,21 @@ class ManageWatson implements ShouldQueue
                 $watson->set_url($account->url);
                 if ($this->method === 'create') {
                     $result = $watson->create($account->work_space_id, $this->storeParams);
-                } else if ($this->method === 'update') {
+                } elseif ($this->method === 'update') {
                     $result = $watson->update($account->work_space_id, $value, $this->storeParams);
-                } else if ($this->method === 'delete') {
+                } elseif ($this->method === 'delete') {
                     $result = $watson->delete($account->work_space_id, $value);
-                } else if ($this->method === 'update_example') {
+                } elseif ($this->method === 'update_example') {
                     $result = $watson->updateExample($account->work_space_id, $value, $this->old_example, $this->storeParams);
                 }
 
                 $status = $result->getStatusCode();
-                if($status == 201 || $status == 200) {
+                if ($status == 201 || $status == 200) {
                     $success = 1;
-                }
-                else {
+                } else {
                     $success = 0;
                 }
-                if ($this->service === 'dialog') { 
+                if ($this->service === 'dialog') {
                     $errorlog = new ChatbotDialogErrorLog;
                     $errorlog->chatbot_dialog_id = $this->question->id;
                     $errorlog->reply_id = $this->storeParams['reply_id'];
@@ -116,11 +120,9 @@ class ManageWatson implements ShouldQueue
                     $errorlog->response = $result->getContent();
                     $errorlog->save();
 
-                    ChatbotQuestion::where( 'id', $this->question->id )->update([ 'watson_status' => $success]);
-
+                    ChatbotQuestion::where('id', $this->question->id)->update(['watson_status' => $success]);
                 } else {
-
-                    ChatbotQuestion::where( 'id', $this->question->id )->update([ 'watson_status' => $success]);
+                    ChatbotQuestion::where('id', $this->question->id)->update(['watson_status' => $success]);
 
                     $errorlog = new ChatbotErrorLog;
                     $errorlog->chatbot_question_id = $this->question->id;
@@ -134,20 +136,18 @@ class ManageWatson implements ShouldQueue
                     $question_error->type = $this->service;
                     $question_error->request = json_encode($this->storeParams);
                     $question_error->response = $errorlog->response;
-                    $question_error->response_type = $success == 0 ? "error" : "success";
+                    $question_error->response_type = $success == 0 ? 'error' : 'success';
                     $question_error->save();
-                    
-                    
                 }
             }
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
     }
-    
-    public function tags() 
+
+    public function tags()
     {
-        return [ 'watson_push', $this->question->id];
+        return ['watson_push', $this->question->id];
     }
 
     public function fail($exception = null)

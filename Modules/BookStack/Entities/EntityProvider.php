@@ -1,4 +1,6 @@
-<?php namespace Modules\BookStack\Entities;
+<?php
+
+namespace Modules\BookStack\Entities;
 
 /**
  * Class EntityProvider
@@ -6,12 +8,9 @@
  * Provides access to the core entity models.
  * Wrapped up in this provider since they are often used together
  * so this is a neater alternative to injecting all in individually.
- *
- * @package BookStack\Entities
  */
 class EntityProvider
 {
-
     /**
      * @var Bookshelf
      */
@@ -39,11 +38,12 @@ class EntityProvider
 
     /**
      * EntityProvider constructor.
-     * @param Bookshelf $bookshelf
-     * @param Book $book
-     * @param Chapter $chapter
-     * @param Page $page
-     * @param PageRevision $pageRevision
+     *
+     * @param  Bookshelf  $bookshelf
+     * @param  Book  $book
+     * @param  Chapter  $chapter
+     * @param  Page  $page
+     * @param  PageRevision  $pageRevision
      */
     public function __construct(
         Bookshelf $bookshelf,
@@ -62,6 +62,7 @@ class EntityProvider
     /**
      * Fetch all core entity types as an associated array
      * with their basic names as the keys.
+     *
      * @return Entity[]
      */
     public function all()
@@ -76,18 +77,21 @@ class EntityProvider
 
     /**
      * Get an entity instance by it's basic name.
-     * @param string $type
+     *
+     * @param  string  $type
      * @return Entity
      */
     public function get(string $type)
     {
         $type = strtolower($type);
+
         return $this->all()[$type];
     }
 
     /**
      * Get the morph classes, as an array, for a single or multiple types.
-     * @param string|array $types
+     *
+     * @param  string|array  $types
      * @return array<string>
      */
     public function getMorphClasses($types)
@@ -101,6 +105,7 @@ class EntityProvider
             $model = $this->get($type);
             $morphClasses[] = $model->getMorphClass();
         }
+
         return $morphClasses;
     }
 }

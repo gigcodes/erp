@@ -1,13 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterAddFieldsToHubstaffActivityByPaymentFrequencyTable extends Migration
 {
-
-  
     /**
      * Run the migrations.
      *
@@ -20,9 +18,6 @@ class AlterAddFieldsToHubstaffActivityByPaymentFrequencyTable extends Migration
             $table->date('end_date')->nullable();
             $table->string('type')->nullable();
             $table->text('payment_receipt_ids')->nullable();
-
-            
-         
         });
     }
 
@@ -33,6 +28,5 @@ class AlterAddFieldsToHubstaffActivityByPaymentFrequencyTable extends Migration
      */
     public function down()
     {
-       
     }
 }

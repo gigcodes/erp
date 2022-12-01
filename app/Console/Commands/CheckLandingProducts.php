@@ -39,12 +39,12 @@ class CheckLandingProducts extends Command
      */
     public function handle()
     {
-        $client          = new ShopifyClient();
-        $landingProducts = LandingPageProduct::whereRaw('timestamp(end_date) < NOW()')->orWhere("status",0)->get();
+        $client = new ShopifyClient();
+        $landingProducts = LandingPageProduct::whereRaw('timestamp(end_date) < NOW()')->orWhere('status', 0)->get();
         foreach ($landingProducts as $product) {
             $productData = [
                 'product' => [
-                    'published'       => false,
+                    'published' => false,
                     'published_scope' => false,
                 ],
             ];
@@ -69,6 +69,5 @@ class CheckLandingProducts extends Command
                 $response = $client->addProduct($productData, $landingPage->store_website_id);
             }
         }
-
     }
 }

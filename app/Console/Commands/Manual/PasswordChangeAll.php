@@ -43,7 +43,7 @@ class PasswordChangeAll extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -54,7 +54,7 @@ class PasswordChangeAll extends Command
             $folder = storage_path('framework/sessions');
 
             //Get a list of all of the file names in the folder.
-            $files = glob($folder . '/*');
+            $files = glob($folder.'/*');
 
             //Loop through the file list.
             foreach ($files as $file) {
@@ -79,7 +79,7 @@ class PasswordChangeAll extends Command
                     $user->save();
 
                     // Output new ones
-                    echo $user->name . "\t" . $user->email . "\t" . $newPassword . "\n";
+                    echo $user->name."\t".$user->email."\t".$newPassword."\n";
                 }
             }
 

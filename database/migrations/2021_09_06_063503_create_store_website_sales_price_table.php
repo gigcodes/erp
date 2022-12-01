@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateStoreWebsiteSalesPriceTable extends Migration
 {
@@ -18,7 +18,7 @@ class CreateStoreWebsiteSalesPriceTable extends Migration
             $table->string('type');
             $table->integer('type_id');
             $table->integer('supplier_id')->nullable();
-            $table->double('amount',8,2);
+            $table->double('amount', 8, 2);
             $table->string('amount_type');
             $table->date('start_date');
             $table->date('end_date');

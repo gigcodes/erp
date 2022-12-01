@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterHubstaffActivitySummaries extends Migration
 {
@@ -14,8 +14,8 @@ class AlterHubstaffActivitySummaries extends Migration
     public function up()
     {
         Schema::table('hubstaff_activity_summaries', function (Blueprint $table) {
-            $table->integer("pending")->nullable();
-            $table->longText("pending_ids")->nullable();
+            $table->integer('pending')->nullable();
+            $table->longText('pending_ids')->nullable();
         });
     }
 
@@ -27,8 +27,8 @@ class AlterHubstaffActivitySummaries extends Migration
     public function down()
     {
         Schema::table('hubstaff_activity_summaries', function (Blueprint $table) {
-            $table->dropField("pending");
-            $table->dropField("pending_ids");
+            $table->dropField('pending');
+            $table->dropField('pending_ids');
         });
     }
 }

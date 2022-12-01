@@ -9,25 +9,23 @@ use App\Github\GithubRepository;
 use App\GitMigrationErrorLog;
 use App\Helpers\githubTrait;
 use App\Helpers\MessageHelper;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Artisan;
 use Carbon\Carbon;
 use DateTime;
 use Exception;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 
 class RepositoryController extends Controller
 {
-
     use githubTrait;
 
     private $client;
 
-    function __construct()
+    public function __construct()
     {
         $this->client = new Client([
             // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
@@ -38,7 +36,7 @@ class RepositoryController extends Controller
     private function refreshGithubRepos()
     {
         // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/repos?per_page=100";
-        $url = "https://api.github.com/orgs/" . config('env.GITHUB_ORG_ID') . "/repos?per_page=100";
+        $url = 'https://api.github.com/orgs/'.config('env.GITHUB_ORG_ID').'/repos?per_page=100';
 
         $response = $this->client->get($url);
 
@@ -47,24 +45,24 @@ class RepositoryController extends Controller
         $dbRepositories = [];
 
         foreach ($repositories as $repository) {
-
             $data = [
                 'id' => $repository->id,
                 'name' => $repository->name,
                 'html' => $repository->html_url,
                 'webhook' => $repository->hooks_url,
                 'created_at' => Carbon::createFromFormat(DateTime::ISO8601, $repository->created_at),
-                'updated_at' => Carbon::createFromFormat(DateTime::ISO8601, $repository->updated_at)
+                'updated_at' => Carbon::createFromFormat(DateTime::ISO8601, $repository->updated_at),
             ];
 
             GithubRepository::updateOrCreate(
                 [
-                    'id' => $repository->id
+                    'id' => $repository->id,
                 ],
                 $data
             );
             $dbRepositories[] = $data;
         }
+
         return $dbRepositories;
     }
 
@@ -72,8 +70,9 @@ class RepositoryController extends Controller
     public function listRepositories()
     {
         $repositories = $this->refreshGithubRepos();
+
         return view('github.repositories', [
-            'repositories' => $repositories
+            'repositories' => $repositories,
         ]);
     }
 
@@ -82,7 +81,7 @@ class RepositoryController extends Controller
         $repository = GithubRepository::find($repositoryId);
         $branches = $repository->branches;
 
-        $currentBranch = exec('/usr/bin/sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/get_current_deployment.sh');
+        $currentBranch = exec('/usr/bin/sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').$repository->name.'/get_current_deployment.sh');
 
         //exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh master');
 
@@ -90,7 +89,7 @@ class RepositoryController extends Controller
         return view('github.repository_settings', [
             'repository' => $repository,
             'branches' => $branches,
-            'current_branch' => $currentBranch
+            'current_branch' => $currentBranch,
         ]);
 
         //print_r($repository);
@@ -101,91 +100,88 @@ class RepositoryController extends Controller
         //dd($repoId);
         $source = 'master';
         $destination = Input::get('branch');
-        $pullOnly = request('pull_only',0);
+        $pullOnly = request('pull_only', 0);
 
-        $url = "https://api.github.com/repositories/" . $repoId . "/merges";
+        $url = 'https://api.github.com/repositories/'.$repoId.'/merges';
 
         try {
             // Merge master into branch
-            if(empty($pullOnly) || $pullOnly != 1) {
-
+            if (empty($pullOnly) || $pullOnly != 1) {
                 $this->client->post(
                     $url,
                     [
                         RequestOptions::BODY => json_encode([
                             'base' => $destination,
                             'head' => $source,
-                        ])
+                        ]),
                     ]
                 );
                 echo 'done';
                 //Artisan::call('github:load_branch_state');
-                if($source == 'master'){
+                if ($source == 'master') {
                     $this->updateBranchState($repoId, $destination);
-                }else if($destination == 'master'){
+                } elseif ($destination == 'master') {
                     $this->updateBranchState($repoId, $source);
                 }
-
             }
 
             // Deploy branch
             $repository = GithubRepository::find($repoId);
 
             $branch = Input::get('branch');
-            $composerupdate = request("composer",false);
+            $composerupdate = request('composer', false);
             //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
-             $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/'.$repository->name . '/deploy_branch.sh ' . $branch . ' '.$composerupdate. ' 2>&1';
+            $cmd = 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/'.$repository->name.'/deploy_branch.sh '.$branch.' '.$composerupdate.' 2>&1';
             //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
-            $allOutput = array();
+            $allOutput = [];
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput);
-            
-            $migrationError = is_array($result)? json_encode($result) : $result;
-            if (str_contains($migrationError, 'database/migrations') || str_contains($migrationError, 'migrations') ||  str_contains($migrationError, 'Database/Migrations') || str_contains($migrationError, 'Migrations')) { 
-                if($source == 'master') {
+
+            $migrationError = is_array($result) ? json_encode($result) : $result;
+            if (str_contains($migrationError, 'database/migrations') || str_contains($migrationError, 'migrations') || str_contains($migrationError, 'Database/Migrations') || str_contains($migrationError, 'Migrations')) {
+                if ($source == 'master') {
                     $this->createGitMigrationErrorLog($repoId, $destination, $migrationError);
-                } else if($destination == 'master') {
+                } elseif ($destination == 'master') {
                     $this->createGitMigrationErrorLog($repoId, $source, $migrationError);
-                } else{
+                } else {
                     $this->createGitMigrationErrorLog($repoId, $source, $migrationError);
                 }
             }
-
         } catch (Exception $e) {
             print_r($e->getMessage());
-            $errorArr = array();
+            $errorArr = [];
             $errorArr = $e->getMessage();
-            if(!is_array($errorArr)){
+            if (! is_array($errorArr)) {
                 $arrErr[] = $errorArr;
-                $errorArr = implode(" ",$arrErr);
-            }else{
+                $errorArr = implode(' ', $arrErr);
+            } else {
                 $arrErr = $errorArr;
                 $errorArr = $errorArr;
             }
-            $migrationError = is_array($result)? json_encode($errorArr) : $errorArr;
-            if (str_contains($migrationError, 'database/migrations') || str_contains($migrationError, 'migrations') ||  str_contains($migrationError, 'Database/Migrations') || str_contains($migrationError, 'Migrations')) { 
-                if($source == 'master') {
+            $migrationError = is_array($result) ? json_encode($errorArr) : $errorArr;
+            if (str_contains($migrationError, 'database/migrations') || str_contains($migrationError, 'migrations') || str_contains($migrationError, 'Database/Migrations') || str_contains($migrationError, 'Migrations')) {
+                if ($source == 'master') {
                     $this->createGitMigrationErrorLog($repoId, $destination, $migrationError);
-                } else if($destination == 'master') {
+                } elseif ($destination == 'master') {
                     $this->createGitMigrationErrorLog($repoId, $source, $migrationError);
-                } else{
+                } else {
                     $this->createGitMigrationErrorLog($repoId, $source, $migrationError);
                 }
             }
-            
+
             return redirect(url('/github/pullRequests'))->with(
                 [
                     'message' => $e->getMessage(),
-                    'alert-type' => 'error'
+                    'alert-type' => 'error',
                 ]
             );
         }
 
         return redirect(url('/github/pullRequests'))->with([
             'message' => print_r($allOutput, true),
-            'alert-type' => 'success'
+            'alert-type' => 'success',
         ]);
     }
 
@@ -201,40 +197,43 @@ class RepositoryController extends Controller
     {
         $comparison = $this->compareRepoBranches($repoId, $branchName);
         GitMigrationErrorLog::create([
-                'repository_id'               => $repoId,
-                'branch_name'                 => $branchName,
-                'ahead_by'                    => $comparison['ahead_by'],
-                'behind_by'                   => $comparison['behind_by'],
-                'last_commit_author_username' => $comparison['last_commit_author_username'],
-                'last_commit_time'            => $comparison['last_commit_time'],
-                'error'                       => $errorLog
-            ]);
+            'repository_id' => $repoId,
+            'branch_name' => $branchName,
+            'ahead_by' => $comparison['ahead_by'],
+            'behind_by' => $comparison['behind_by'],
+            'last_commit_author_username' => $comparison['last_commit_author_username'],
+            'last_commit_time' => $comparison['last_commit_time'],
+            'error' => $errorLog,
+        ]);
     }
 
-    public function getGitMigrationErrorLog(){
-        try{
+    public function getGitMigrationErrorLog()
+    {
+        try {
             $gitDbError = GitMigrationErrorLog::orderBy('id', 'desc')->take(100)->get();
+
             return view('github.deploy_branch_error', compact('gitDbError'));
         } catch(\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
         }
     }
 
-    private function updateBranchState($repoId, $branchName){
+    private function updateBranchState($repoId, $branchName)
+    {
         $comparison = $this->compareRepoBranches($repoId, $branchName);
 
         GithubBranchState::updateOrCreate(
             [
                 'repository_id' => $repoId,
-                'branch_name'   => $branchName,
+                'branch_name' => $branchName,
             ],
             [
-                'repository_id'               => $repoId,
-                'branch_name'                 => $branchName,
-                'ahead_by'                    => $comparison['ahead_by'],
-                'behind_by'                   => $comparison['behind_by'],
+                'repository_id' => $repoId,
+                'branch_name' => $branchName,
+                'ahead_by' => $comparison['ahead_by'],
+                'behind_by' => $comparison['behind_by'],
                 'last_commit_author_username' => $comparison['last_commit_author_username'],
-                'last_commit_time'            => $comparison['last_commit_time'],
+                'last_commit_time' => $comparison['last_commit_time'],
             ]
         );
     }
@@ -246,8 +245,8 @@ class RepositoryController extends Controller
 
         if (count($usIt) > 1) {
             $devTaskId = $usIt[1];
-        }else{
-            $usIt = explode(' ',$branchName);            
+        } else {
+            $usIt = explode(' ', $branchName);
             if (count($usIt) > 1) {
                 $devTaskId = $usIt[1];
             }
@@ -256,55 +255,51 @@ class RepositoryController extends Controller
         return  DeveloperTask::find($devTaskId);
     }
 
-    private function updateDevTask($branchName,$pull_request_id){
-        $devTask = $this->findDeveloperTask($branchName);//DeveloperTask::find($devTaskId);
-        
+    private function updateDevTask($branchName, $pull_request_id)
+    {
+        $devTask = $this->findDeveloperTask($branchName); //DeveloperTask::find($devTaskId);
+
         \Log::info('updateDevTask call '.$branchName);
 
         if ($devTask) {
-            \Log::info('updateDevTask find success '.$branchName);            
+            \Log::info('updateDevTask find success '.$branchName);
             try {
-
                 \Log::info('updateDevTask :: PR merge msg send .'.json_encode($devTask->user));
 
-                $message =  $branchName.':: PR has been merged';
+                $message = $branchName.':: PR has been merged';
 
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
                 app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
 
-                MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to, $devTask->team_lead_id, $devTask->tester_id] , $message .'. kindly test task in live if possible and put test result as comment in task.' );
-$devTask->update(['is_pr_merged'=>1]);
+                MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to, $devTask->team_lead_id, $devTask->tester_id], $message.'. kindly test task in live if possible and put test result as comment in task.');
+                $devTask->update(['is_pr_merged' => 1]);
 
-                    $request = new DeveoperTaskPullRequestMerge;
-                    $request->task_id = $devTask->id;
-                    $request->pull_request_id = $pull_request_id;
-                    $request->user_id = auth()->user()->id;
-                    $request->save();
-
+                $request = new DeveoperTaskPullRequestMerge;
+                $request->task_id = $devTask->id;
+                $request->pull_request_id = $pull_request_id;
+                $request->user_id = auth()->user()->id;
+                $request->save();
 
                 //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($devTask->user->phone, $devTask->user->whatsapp_number, $branchName.':: PR has been merged', false);
             } catch (Exception $e) {
-                \Log::info('updateDevTask ::'. $e->getMessage());
-                \Log::error('updateDevTask ::'. $e->getMessage());
-
+                \Log::info('updateDevTask ::'.$e->getMessage());
+                \Log::error('updateDevTask ::'.$e->getMessage());
             }
 
             $devTask->status = 'In Review';
             $devTask->save();
         }
     }
-   
+
     public function mergeBranch($id)
     {
-        
         $source = Input::get('source');
         $destination = Input::get('destination');
-        $pull_request_id =Input::get('task_id');
-       
-   
-        $url = "https://api.github.com/repositories/" . $id . "/merges";
+        $pull_request_id = Input::get('task_id');
+
+        $url = 'https://api.github.com/repositories/'.$id.'/merges';
 
         try {
             $this->client->post(
@@ -313,21 +308,19 @@ $devTask->update(['is_pr_merged'=>1]);
                     RequestOptions::BODY => json_encode([
                         'base' => $destination,
                         'head' => $source,
-                    ])
+                    ]),
                 ]
             );
             echo 'done';
             //Artisan::call('github:load_branch_state');
             if ($source == 'master') {
                 $this->updateBranchState($id, $destination);
-            } else if ($destination == 'master') {
+            } elseif ($destination == 'master') {
                 $this->updateBranchState($id, $source);
             }
-            
 
             \Log::info('updateDevTask calling...'.$source);
-            $this->updateDevTask($source,$pull_request_id);
-       
+            $this->updateDevTask($source, $pull_request_id);
 
             // Deploy branch
             $repository = GithubRepository::find($id);
@@ -335,27 +328,27 @@ $devTask->update(['is_pr_merged'=>1]);
             $branch = 'master';
             //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
-            $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch . ' 2>&1';
-            $allOutput = array();
+            $cmd = 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').$repository->name.'/deploy_branch.sh '.$branch.' 2>&1';
+            $allOutput = [];
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput);
-            \Log::info(print_r($allOutput,true));
+            \Log::info(print_r($allOutput, true));
 
             // Used to reset php cache after merge.
             opcache_reset();
 
             $sqlIssue = false;
-            if(!empty($allOutput) && is_array($allOutput)) {
-                foreach($allOutput as $output) {
-                    if(strpos(strtolower($output), "sqlstate") !== false){
+            if (! empty($allOutput) && is_array($allOutput)) {
+                foreach ($allOutput as $output) {
+                    if (strpos(strtolower($output), 'sqlstate') !== false) {
                         $sqlIssue = true;
                     }
                 }
             }
-            if($sqlIssue) {
+            if ($sqlIssue) {
                 $devTask = $this->findDeveloperTask($source);
-                if($devTask) {
-                    $message =  $source.':: there is some issue while running migration please check migration or contact administrator';
+                if ($devTask) {
+                    $message = $source.':: there is some issue while running migration please check migration or contact administrator';
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
@@ -363,51 +356,49 @@ $devTask->update(['is_pr_merged'=>1]);
                 }
 
                 //Merged to master get migration error
-                $migrationError = is_array($allOutput)? json_encode($allOutput) : $allOutput;
+                $migrationError = is_array($allOutput) ? json_encode($allOutput) : $allOutput;
                 $this->createGitMigrationErrorLog($id, $source, $migrationError);
 
-                 
                 return redirect(url('/github/pullRequests'))->with([
                     'message' => 'Branch merged successfully but migration failed',
-                    'alert-type' => 'error'
+                    'alert-type' => 'error',
                 ]);
             }
-
         } catch (Exception $e) {
             \Log::error($e);
             print_r($e->getMessage());
             $devTask = $this->findDeveloperTask($source);
-            if($devTask) {
-                $message =  $source.':: Failed to Merge please check branch has not any conflict or contact administrator';
+            if ($devTask) {
+                $message = $source.':: Failed to Merge please check branch has not any conflict or contact administrator';
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
                 app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
             }
+
             return redirect(url('/github/pullRequests'))->with(
                 [
                     'message' => 'Failed to Merge please check branch has not any conflict !',
-                    'alert-type' => 'error'
+                    'alert-type' => 'error',
                 ]
             );
         }
 
-
         return redirect(url('/github/pullRequests'))->with([
             'message' => 'Branch merged successfully',
-            'alert-type' => 'success'
+            'alert-type' => 'success',
         ]);
     }
 
     private function getPullRequests($repoId)
     {
-        $pullRequests = array();
-        $url = "https://api.github.com/repositories/" . $repoId . "/pulls?per_page=200";
-        try{
+        $pullRequests = [];
+        $url = 'https://api.github.com/repositories/'.$repoId.'/pulls?per_page=200';
+        try {
             $response = $this->client->get($url);
             $decodedJson = json_decode($response->getBody()->getContents());
             foreach ($decodedJson as $pullRequest) {
-                $pullRequests[] = array(
+                $pullRequests[] = [
                     'id' => $pullRequest->number,
                     'title' => $pullRequest->title,
                     'number' => $pullRequest->number,
@@ -415,20 +406,17 @@ $devTask->update(['is_pr_merged'=>1]);
                     'userId' => $pullRequest->user->id,
                     'updated_at' => $pullRequest->updated_at,
                     'source' => $pullRequest->head->ref,
-                    'destination' => $pullRequest->base->ref
-                );
+                    'destination' => $pullRequest->base->ref,
+                ];
             }
-        }catch(Exception $e) {
-
+        } catch(Exception $e) {
         }
-
 
         return $pullRequests;
     }
 
     public function listPullRequests($repoId)
     {
-
         $repository = GithubRepository::find($repoId);
 
         $pullRequests = $this->getPullRequests($repoId);
@@ -452,19 +440,20 @@ $devTask->update(['is_pr_merged'=>1]);
 
         return view('github.repository_pull_requests', [
             'pullRequests' => $pullRequests,
-            'repository' => $repository
+            'repository' => $repository,
         ]);
     }
 
     public function listAllPullRequests()
     {
         $repositories = GithubRepository::all(['id', 'name']);
-		$allPullRequests = [];
-        foreach ($repositories as $repository) { 
+        $allPullRequests = [];
+        foreach ($repositories as $repository) {
             $pullRequests = $this->getPullRequests($repository->id);
-			$pullRequests = array_map(
-                function($pullRequest) use($repository){
+            $pullRequests = array_map(
+                function ($pullRequest) use ($repository) {
                     $pullRequest['repository'] = $repository;
+
                     return $pullRequest;
                 },
                 $pullRequests
@@ -479,12 +468,13 @@ $devTask->update(['is_pr_merged'=>1]);
         return view(
             'github.all_pull_requests',
             [
-                'pullRequests' =>  $allPullRequests
+                'pullRequests' => $allPullRequests,
             ]
         );
     }
 
-    function deployNodeScrapers(){
+    public function deployNodeScrapers()
+    {
         return $this->getRepositoryDetails(231924853);
     }
 }

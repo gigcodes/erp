@@ -9,12 +9,9 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Plank\Mediable\Mediable;
-use Illuminate\Support\Facades\DB;
 
-use App\DeveloperTaskHistory;
-use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
-
-class DeveloperTask extends Model {
+class DeveloperTask extends Model
+{
     /**
      * @var string
      * @SWG\Property(property="user_id",type="integer")
@@ -53,8 +50,8 @@ class DeveloperTask extends Model {
      * @SWG\Property(property="priority_no",type="integer")
      */
     use Mediable;
-    use SoftDeletes;
 
+    use SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -100,66 +97,92 @@ class DeveloperTask extends Model {
         'last_send_reminder',
         'repository_id',
         'last_date_time_reminder',
-        'parent_review_task_id'
+        'parent_review_task_id',
     ];
 
+    const DEV_TASK_STATUS_DONE = 'Done';
 
-    const DEV_TASK_STATUS_DONE                  = 'Done';
-    const DEV_TASK_STATUS_DISCUSSING            = 'Discussing';
-    const DEV_TASK_STATUS_IN_PROGRESS           = 'In Progress';
-    const DEV_TASK_STATUS_ISSUE                 = 'Issue';
-    const DEV_TASK_STATUS_PLANNED               = 'Planned';
-    const DEV_TASK_STATUS_DISCUSS_WITH_LEAD     = 'Discuss with Lead';
-    const DEV_TASK_STATUS_NOTE                  = 'Note';
-    const DEV_TASK_STATUS_LEAD_RESPONSE_NEEDED  = 'Lead Response Needed';
-    const DEV_TASK_STATUS_ERRORS_IN_TASK        = 'Errors in Task';
-    const DEV_TASK_STATUS_IN_REVIEW             = 'In Review';
-    const DEV_TASK_STATUS_PRIORITY              = 'Priority';
-    const DEV_TASK_STATUS_HIGH_PRIORITY         = 'High Priority';
+    const DEV_TASK_STATUS_DISCUSSING = 'Discussing';
+
+    const DEV_TASK_STATUS_IN_PROGRESS = 'In Progress';
+
+    const DEV_TASK_STATUS_ISSUE = 'Issue';
+
+    const DEV_TASK_STATUS_PLANNED = 'Planned';
+
+    const DEV_TASK_STATUS_DISCUSS_WITH_LEAD = 'Discuss with Lead';
+
+    const DEV_TASK_STATUS_NOTE = 'Note';
+
+    const DEV_TASK_STATUS_LEAD_RESPONSE_NEEDED = 'Lead Response Needed';
+
+    const DEV_TASK_STATUS_ERRORS_IN_TASK = 'Errors in Task';
+
+    const DEV_TASK_STATUS_IN_REVIEW = 'In Review';
+
+    const DEV_TASK_STATUS_PRIORITY = 'Priority';
+
+    const DEV_TASK_STATUS_HIGH_PRIORITY = 'High Priority';
+
     const DEV_TASK_STATUS_REVIEW_ESTIMATED_TIME = 'Review Estimated Time';
-    const DEV_TASK_STATUS_USER_COMPLETE         = 'User Complete';
-    const DEV_TASK_STATUS_USER_ESTIMATED        = 'User Estimated';
-    const DEV_TASK_STATUS_DECLINE               = 'Decline';
-    const DEV_TASK_STATUS_REOPEN                = 'Reopen';
-    const DEV_TASK_STATUS_APPROVED              = 'Approved';
 
+    const DEV_TASK_STATUS_USER_COMPLETE = 'User Complete';
 
-    public function user() {
+    const DEV_TASK_STATUS_USER_ESTIMATED = 'User Estimated';
+
+    const DEV_TASK_STATUS_DECLINE = 'Decline';
+
+    const DEV_TASK_STATUS_REOPEN = 'Reopen';
+
+    const DEV_TASK_STATUS_APPROVED = 'Approved';
+
+    public function user()
+    {
         return $this->belongsTo('App\User');
     }
 
-    public function development_details() {
+    public function development_details()
+    {
         return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-detail')->latest();
     }
 
-    public function development_discussion() {
+    public function development_discussion()
+    {
         return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-discussion')->latest();
     }
 
-    public function messages() {
+    public function messages()
+    {
         return $this->hasMany(ChatMessage::class, 'developer_task_id', 'id');
     }
 
-    public function developerModule() {
+    public function developerModule()
+    {
         return $this->belongsTo(DeveloperModule::class, 'module_id', 'id');
     }
 
-    public function communications() {
+    public function communications()
+    {
         return $this->hasMany(ChatMessage::class, 'issue_id', 'id');
     }
-    public function responsibleUser() {
+
+    public function responsibleUser()
+    {
         return $this->belongsTo(User::class, 'responsible_user_id', 'id');
     }
 
-    public function assignedUser() {
+    public function assignedUser()
+    {
         return $this->belongsTo(User::class, 'assigned_to', 'id');
     }
 
-    public function submitter() {
+    public function submitter()
+    {
         return $this->belongsTo(User::class, 'created_by', 'id');
     }
 
-    public function whatsappAll($needBroadCast = false) {
+    public function whatsappAll($needBroadCast = false)
+    {
         if ($needBroadCast) {
             return $this->hasMany('App\ChatMessage', 'developer_task_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
         }
@@ -167,23 +190,28 @@ class DeveloperTask extends Model {
         return $this->hasMany('App\ChatMessage', 'developer_task_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
-    public function countUserTaskFromReference($id) {
+    public function countUserTaskFromReference($id)
+    {
         return $this->whereNotNull('reference')->where('responsible_user_id', $id)->count();
     }
 
-    public function masterUser() {
+    public function masterUser()
+    {
         return $this->belongsTo(User::class, 'master_user_id', 'id');
     }
 
-    public function teamLead() {
+    public function teamLead()
+    {
         return $this->belongsTo(User::class, 'team_lead_id', 'id');
     }
 
-    public function tester() {
+    public function tester()
+    {
         return $this->belongsTo(User::class, 'tester_id', 'id');
     }
 
-    public function timeSpent() {
+    public function timeSpent()
+    {
         return $this->hasOne(
             'App\Hubstaff\HubstaffActivity',
             'task_id',
@@ -193,7 +221,8 @@ class DeveloperTask extends Model {
             ->groupBy('task_id');
     }
 
-    public function leadtimeSpent() {
+    public function leadtimeSpent()
+    {
         return $this->hasOne(
             'App\Hubstaff\HubstaffActivity',
             'task_id',
@@ -203,7 +232,8 @@ class DeveloperTask extends Model {
             ->groupBy('task_id');
     }
 
-    public function testertimeSpent() {
+    public function testertimeSpent()
+    {
         return $this->hasOne(
             'App\Hubstaff\HubstaffActivity',
             'task_id',
@@ -213,24 +243,29 @@ class DeveloperTask extends Model {
             ->groupBy('task_id');
     }
 
-    public function taskType() {
+    public function taskType()
+    {
         return $this->belongsTo(TaskTypes::class, 'task_type_id', 'id');
     }
 
-    public function allMessages() {
+    public function allMessages()
+    {
         return $this->hasMany(ChatMessage::class, 'developer_task_id', 'id')->orderBy('id', 'desc');
     }
 
-    public function scopeNotEstimated($query) {
+    public function scopeNotEstimated($query)
+    {
         return $query->whereNull('estimate_minutes')
             ->where('estimate_date', '0000-00-00');
     }
 
-    public function scopeEstimated($query) {
+    public function scopeEstimated($query)
+    {
         return $query->whereNotNull('estimate_minutes');
     }
 
-    public function scopeAdminNotApproved($query) {
+    public function scopeAdminNotApproved($query)
+    {
         return $query->join('developer_tasks_history', 'developer_tasks_history.developer_task_id', 'developer_tasks.id')
             ->estimated()
             ->where('attribute', 'estimation_minute')
@@ -238,17 +273,18 @@ class DeveloperTask extends Model {
             ->where('is_approved', '0');
     }
 
-    public function developerTaskHistory() {
+    public function developerTaskHistory()
+    {
         return  $this->hasOne(DeveloperTaskHistory::class, 'developer_task_id', 'id');
     }
 
-    public function ApprovedDeveloperTaskHistory() {
+    public function ApprovedDeveloperTaskHistory()
+    {
         return  $this->hasOne(DeveloperTaskHistory::class, 'developer_task_id', 'id')->where('is_approved', 1);
     }
 
-
-
-    public function updateHistory($type, $oldValue, $newValue) {
+    public function updateHistory($type, $oldValue, $newValue)
+    {
         if ($oldValue != $newValue) {
             DeveloperTaskHistory::create([
                 'developer_task_id' => $this->id,
@@ -261,8 +297,8 @@ class DeveloperTask extends Model {
         }
     }
 
-
-    public function updateStartDate($new) {
+    public function updateStartDate($new)
+    {
         $type = 'start_date';
         $old = $this->start_date;
 
@@ -279,7 +315,9 @@ class DeveloperTask extends Model {
             DeveloperTaskHistory::historySave($this->id, $type, $old, $new, 1);
         }
     }
-    public function updateEstimateDate($new) {
+
+    public function updateEstimateDate($new)
+    {
         $type = 'estimate_date';
         $old = $this->estimate_date;
 
@@ -297,7 +335,8 @@ class DeveloperTask extends Model {
         }
     }
 
-    public static function getMessagePrefix($obj) {
-        return '#DEVTASK-' . $obj->id . '-' . $obj->subject . ' => ';
+    public static function getMessagePrefix($obj)
+    {
+        return '#DEVTASK-'.$obj->id.'-'.$obj->subject.' => ';
     }
 }

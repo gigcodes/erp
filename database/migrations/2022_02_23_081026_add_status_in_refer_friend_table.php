@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddStatusInReferFriendTable extends Migration
 {
@@ -15,7 +15,7 @@ class AddStatusInReferFriendTable extends Migration
     {
         Schema::table('refer_friend', function (Blueprint $table) {
             //
-            $table->string('status')->default('')->after("store_website_id");
+            $table->string('status')->default('')->after('store_website_id');
         });
     }
 

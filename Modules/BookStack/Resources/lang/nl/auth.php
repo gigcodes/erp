@@ -1,4 +1,5 @@
 <?php
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -42,7 +43,6 @@ return [
     'registration_email_domain_invalid' => 'Dit e-maildomein is niet toegestaan',
     'register_success' => 'Bedankt voor het inloggen. Je bent ook geregistreerd.',
 
-
     /**
      * Password Reset
      */
@@ -55,7 +55,6 @@ return [
     'email_reset_subject' => 'Herstel je wachtwoord van :appName',
     'email_reset_text' => 'Je ontvangt deze e-mail zodat je je wachtwoord kunt herstellen.',
     'email_reset_not_requested' => 'Als je jouw wachtwoord niet wilt wijzigen, doe dan niets.',
-
 
     /**
      * Email Confirmation

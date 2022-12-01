@@ -47,7 +47,7 @@ class CreateGoogleSpreadsheet
             $this->googleDoc->save();
         } catch (Exception $e) {
             // TODO(developer) - handle error appropriately
-            echo 'Message: ' . $e->getMessage();
+            echo 'Message: '.$e->getMessage();
             dd($e);
         }
     }
@@ -61,18 +61,19 @@ class CreateGoogleSpreadsheet
             $driveService = new Drive($client);
             $emptyFileMetadata = new DriveFile();
             // Retrieve the existing parents to remove
-            $file = $driveService->files->get($fileId, array('fields' => 'parents'));
+            $file = $driveService->files->get($fileId, ['fields' => 'parents']);
 
-            $previousParents = join(',', $file->parents);
+            $previousParents = implode(',', $file->parents);
 
             // Move the file to the new folder
-            $file = $driveService->files->update($fileId, $emptyFileMetadata, array(
+            $file = $driveService->files->update($fileId, $emptyFileMetadata, [
                 'addParents' => $folderId,
                 'removeParents' => $previousParents,
-                'fields' => 'id, parents'));
+                'fields' => 'id, parents', ]);
+
             return $file->parents;
         } catch (Exception $e) {
-            echo "Error Message: " . $e;
+            echo 'Error Message: '.$e;
         }
     }
 
@@ -83,19 +84,19 @@ class CreateGoogleSpreadsheet
             $client->useApplicationDefaultCredentials();
             $client->addScope(Drive::DRIVE);
             $driveService = new Drive($client);
-            $fileMetadata = new Drive\DriveFile(array(
+            $fileMetadata = new Drive\DriveFile([
                 'name' => $this->googleDoc->name,
-                'parents' => array($folderId),
-                "mimeType" => "application/vnd.google-apps.spreadsheet",
-            ));
+                'parents' => [$folderId],
+                'mimeType' => 'application/vnd.google-apps.spreadsheet',
+            ]);
 
-            $file = $driveService->files->create($fileMetadata, array(
-                'fields' => 'id,parents,mimeType'
-            ));
+            $file = $driveService->files->create($fileMetadata, [
+                'fields' => 'id,parents,mimeType',
+            ]);
 
             return $file;
         } catch (Exception $e) {
-            echo "Error Message: " . $e;
+            echo 'Error Message: '.$e;
             dd($e);
         }
     }
@@ -109,12 +110,12 @@ class CreateGoogleSpreadsheet
 
         $spreadsheet = new Google_Service_Sheets_Spreadsheet([
             'properties' => [
-                'title' => $this->googleDoc->name
-            ]
+                'title' => $this->googleDoc->name,
+            ],
         ]);
 
         $spreadsheet = $service->spreadsheets->create($spreadsheet, [
-            'fields' => 'spreadsheetId,properties'
+            'fields' => 'spreadsheetId,properties',
         ]);
 
         return $spreadsheet->spreadsheetId;

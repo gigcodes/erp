@@ -38,9 +38,9 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             //            \App\Http\Middleware\LogLastUserActivity::class,
-           \App\Http\Middleware\CheckDailyPlanner::class,
+            \App\Http\Middleware\CheckDailyPlanner::class,
             //\PragmaRX\Tracker\Vendor\Laravel\Middlewares\Tracker::class,
-            \App\Http\Middleware\LogLastUserActivity::class
+            \App\Http\Middleware\LogLastUserActivity::class,
         ],
 
         'api' => [

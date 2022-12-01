@@ -42,11 +42,11 @@ class ReconsileBrand extends Command
         //
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-            $storeWebsites = \App\StoreWebsite::where("website_source", "magento")->get();
-            if (!$storeWebsites->isEmpty()) {
+            $storeWebsites = \App\StoreWebsite::where('website_source', 'magento')->get();
+            if (! $storeWebsites->isEmpty()) {
                 foreach ($storeWebsites as $storeWebsite) {
                     $requestData = new Request();
                     $requestData->setMethod('POST');

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddColumnsToAutoReplies extends Migration
 {
@@ -14,11 +14,11 @@ class AddColumnsToAutoReplies extends Migration
     public function up()
     {
         Schema::table('auto_replies', function (Blueprint $table) {
-          $table->string('type')->after('id');
-          $table->datetime('sending_time')->nullable()->after('reply');
-          $table->string('repeat')->nullable()->after('sending_time');
+            $table->string('type')->after('id');
+            $table->datetime('sending_time')->nullable()->after('reply');
+            $table->string('repeat')->nullable()->after('sending_time');
 
-          $table->string('keyword')->nullable()->change();
+            $table->string('keyword')->nullable()->change();
         });
     }
 
@@ -30,11 +30,11 @@ class AddColumnsToAutoReplies extends Migration
     public function down()
     {
         Schema::table('auto_replies', function (Blueprint $table) {
-          $table->dropColumn('type');
-          $table->dropColumn('sending_time');
-          $table->dropColumn('repeat');
+            $table->dropColumn('type');
+            $table->dropColumn('sending_time');
+            $table->dropColumn('repeat');
 
-          $table->string('keyword')->change();
+            $table->string('keyword')->change();
         });
     }
 }

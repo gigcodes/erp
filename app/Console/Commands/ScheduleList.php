@@ -8,7 +8,8 @@ use Illuminate\Console\Scheduling\Schedule;
 
 class ScheduleList extends Command
 {
-    protected $signature   = 'schedule:list';
+    protected $signature = 'schedule:list';
+
     protected $description = 'List when scheduled commands are executed.';
 
     /**
@@ -19,7 +20,7 @@ class ScheduleList extends Command
     /**
      * ScheduleList constructor.
      *
-     * @param Schedule $schedule
+     * @param  Schedule  $schedule
      */
     public function __construct(Schedule $schedule)
     {
@@ -37,9 +38,8 @@ class ScheduleList extends Command
     {
         try {
             $events = array_map(function ($event) {
-
                 return [
-                    'cron'    => $event->expression,
+                    'cron' => $event->expression,
                     'command' => static::fixupCommand($event->command),
                 ];
             }, $this->schedule->events());
@@ -47,16 +47,15 @@ class ScheduleList extends Command
             //Getting artisan
             foreach ($events as $event) {
                 $schedule = $event['cron'];
-                $command  = explode(' ', $event['command']);
+                $command = explode(' ', $event['command']);
                 if (isset($command[1])) {
                     $signature = $command[1];
                     if ($signature != null) {
-
                         $detail = CronJob::where('signature', 'like', "%{$signature}%")->first();
                         if ($detail == null) {
-                            $cron              = new CronJob();
-                            $cron->signature   = $signature;
-                            $cron->schedule    = $schedule;
+                            $cron = new CronJob();
+                            $cron->signature = $signature;
+                            $cron->schedule = $schedule;
                             $cron->error_count = 0;
                             $cron->save();
                         }
@@ -84,5 +83,4 @@ class ScheduleList extends Command
 
         return implode(' ', $parts);
     }
-
 }

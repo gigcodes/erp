@@ -3,19 +3,19 @@
 namespace App\Http\Controllers;
 
 //use InstagramAPI\Instagram;
-use Illuminate\Http\Request;
-use \App\Account;
-use \App\Customer;
+use App\Account;
+use App\Brand;
+use App\ChatMessage;
 //use \App\InstagramDirectMessages;
 //use \App\InstagramUsersList;
 //use \App\InstagramThread;
-use Plank\Mediable\Media;
-use App\ChatMessage;
-use App\Brand;
-use DB;
+use App\Customer;
 use App\ReadOnly\SoloNumbers;
-//use InstagramAPI\Media\Photo\InstagramPhoto;
 use App\ScrapInfluencer;
+use Illuminate\Http\Request;
+//use InstagramAPI\Media\Photo\InstagramPhoto;
+use Plank\Mediable\Media;
+
 //use App\InstagramDirectMessagesHistory;
 //Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
@@ -57,13 +57,13 @@ class DirectMessageController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-//	public function history( Request $request ){
+    //	public function history( Request $request ){
 //
-//		if( $request->id ){
-//			$history = InstagramDirectMessagesHistory::where('thread_id', $request->id )->orderBy("created_at","desc")->get();
-//			return response()->json( ["code" => 200 , "data" => $history] );
-//		}
-//	}
+    //		if( $request->id ){
+    //			$history = InstagramDirectMessagesHistory::where('thread_id', $request->id )->orderBy("created_at","desc")->get();
+    //			return response()->json( ["code" => 200 , "data" => $history] );
+    //		}
+    //	}
 
 //    public function incomingPendingRead(Request $request)
 //    {
@@ -74,8 +74,8 @@ class DirectMessageController extends Controller
 //    		try {
 //                	$instagram = new Instagram();
 //                    //$instagram->setProxy($account->proxy);
-//				   $instagram->login($account->email, $account->password);
-//				   $this->instagram = $instagram;
+    //				   $instagram->login($account->email, $account->password);
+    //				   $this->instagram = $instagram;
 //                } catch (\Exception $e) {
 //                   \Log::error($account->last_name.' :: '.$e->getMessage());
 //                    array_push($messege, $account->last_name.' :: '.$e->getMessage());
@@ -91,41 +91,41 @@ class DirectMessageController extends Controller
 //                if (isset($inbox['inbox']['threads'])) {
 //                	 $incomingThread = $inbox['inbox'];
 //                	if($incomingThread['unseen_count'] != 0){
-//	                    $threads = $inbox['inbox']['threads'];
-//	                    foreach ($threads as $thread) {
-//	                        $user = $thread['users'];
+    //	                    $threads = $inbox['inbox']['threads'];
+    //	                    foreach ($threads as $thread) {
+    //	                        $user = $thread['users'];
 //
-//							//check instagram Users
-//	                        $userInstagram = InstagramUsersList::where('user_id',$user[0]['pk'])->first();
+    //							//check instagram Users
+    //	                        $userInstagram = InstagramUsersList::where('user_id',$user[0]['pk'])->first();
 //
-//	                        if(!$userInstagram){
-//	                        	$info = $user[0];
-//	                        	$userInstagram = new InstagramUsersList();
+    //	                        if(!$userInstagram){
+    //	                        	$info = $user[0];
+    //	                        	$userInstagram = new InstagramUsersList();
 //                                $userInstagram->fullname = $info['full_name'];
-//	                        	$userInstagram->username = $info['username'];
-//		                        $userInstagram->user_id = $user[0]['pk'];
-//		                        $userInstagram->image_url = $info['profile_pic_url'];
-//		                        $userInstagram->bio = '';
-//		                        $userInstagram->rating = 0;
-//		                        $userInstagram->location_id = 0;
-//		                        $userInstagram->because_of = 'instagram_dm';
-//		                        $userInstagram->posts = 0;
-//		                        $userInstagram->followers = 0;
-//		                        $userInstagram->following = 0;
-//		                        $userInstagram->location = '';
-//		                        $userInstagram->save();
+    //	                        	$userInstagram->username = $info['username'];
+    //		                        $userInstagram->user_id = $user[0]['pk'];
+    //		                        $userInstagram->image_url = $info['profile_pic_url'];
+    //		                        $userInstagram->bio = '';
+    //		                        $userInstagram->rating = 0;
+    //		                        $userInstagram->location_id = 0;
+    //		                        $userInstagram->because_of = 'instagram_dm';
+    //		                        $userInstagram->posts = 0;
+    //		                        $userInstagram->followers = 0;
+    //		                        $userInstagram->following = 0;
+    //		                        $userInstagram->location = '';
+    //		                        $userInstagram->save();
 //
-//	                        }
+    //	                        }
 //
-//	                        $threadId = self::createThread($userInstagram , $thread , $account->id);
+    //	                        $threadId = self::createThread($userInstagram , $thread , $account->id);
 //
-//	                        $currentUser = $this->instagram->account_id;
-//	                        self::createDirectMessage($thread,$threadId,$currentUser);
+    //	                        $currentUser = $this->instagram->account_id;
+    //	                        self::createDirectMessage($thread,$threadId,$currentUser);
 //
-//	                        $account->new_message = 1;
-//	                		$account->save();
+    //	                        $account->new_message = 1;
+    //	                		$account->save();
 //
-//	                	}
+    //	                	}
 //                    }
 //                }
 //
@@ -164,8 +164,8 @@ class DirectMessageController extends Controller
 //
 //                try {
 //                	$instagram = new Instagram();
-//				    $instagram->login($account->last_name, $account->password);
-//				    $this->instagram = $instagram;
+    //				    $instagram->login($account->last_name, $account->password);
+    //				    $this->instagram = $instagram;
 //                } catch (\Exception $e) {
 //                    \Log::error($account->last_name.'::'.$e->getMessage());
 //                    echo "ERROR $account->last_name \n";
@@ -179,24 +179,24 @@ class DirectMessageController extends Controller
 //                    foreach ($threads as $thread) {
 //                        $user = $thread['users'];
 //
-//						//check instagram Users
+    //						//check instagram Users
 //                        $userInstagram = InstagramUsersList::where('user_id',$user[0]['pk'])->first();
 //
 //                        if(!$userInstagram){
 //                        	$info = $user[0];
 //                        	$userInstagram = new InstagramUsersList();
 //                        	$userInstagram->username = $info['username'];
-//	                        $userInstagram->user_id = $user[0]['pk'];
-//	                        $userInstagram->image_url = $info['profile_pic_url'];
-//	                        $userInstagram->bio = '';
-//	                        $userInstagram->rating = 0;
-//	                        $userInstagram->location_id = 0;
-//	                        $userInstagram->because_of = 'instagram_dm';
-//	                        $userInstagram->posts = 0;
-//	                        $userInstagram->followers = 0;
-//	                        $userInstagram->following = 0;
-//	                        $userInstagram->location = '';
-//	                        $userInstagram->save();
+    //	                        $userInstagram->user_id = $user[0]['pk'];
+    //	                        $userInstagram->image_url = $info['profile_pic_url'];
+    //	                        $userInstagram->bio = '';
+    //	                        $userInstagram->rating = 0;
+    //	                        $userInstagram->location_id = 0;
+    //	                        $userInstagram->because_of = 'instagram_dm';
+    //	                        $userInstagram->posts = 0;
+    //	                        $userInstagram->followers = 0;
+    //	                        $userInstagram->following = 0;
+    //	                        $userInstagram->location = '';
+    //	                        $userInstagram->save();
 //
 //                        }
 //
@@ -213,10 +213,10 @@ class DirectMessageController extends Controller
 //            }
 //    }
 
-     /**
-     * @param $user
-     * @return Customer|void
-     */
+    /**
+    * @param $user
+    * @return Customer|void
+    */
 //    private function createDirectMessage($t,$id,$userId)
 //    {
 //    	$thread = $this->instagram->direct->getThread($t['thread_id'])->asArray();
@@ -303,12 +303,12 @@ class DirectMessageController extends Controller
 //    	$thread = InstagramThread::where('thread_id',$t['thread_id'])->first();
 //    	if(!$thread){
 //    		$thread = new InstagramThread();
-//	        $thread->instagram_user_id  = $userInstagram->id;
-//	        $thread->account_id  = $accountId;
-//	        $thread->thread_id    = $t['thread_id'];
-//	        $thread->thread_v2_id = $t['thread_v2_id'];
-//	        $thread->save();
-//		}
+    //	        $thread->instagram_user_id  = $userInstagram->id;
+    //	        $thread->account_id  = $accountId;
+    //	        $thread->thread_id    = $t['thread_id'];
+    //	        $thread->thread_v2_id = $t['thread_v2_id'];
+    //	        $thread->save();
+    //		}
 //
 //        return $thread->id;
 //
@@ -373,7 +373,6 @@ class DirectMessageController extends Controller
 //        ]);
 //
 //    }
-
 
 //    public function sendImage(Request $request)
 //    {
@@ -536,7 +535,6 @@ class DirectMessageController extends Controller
 //
 //        }
 //    }
-
 
 //    public function influencerMessages(Request $request)
 //    {

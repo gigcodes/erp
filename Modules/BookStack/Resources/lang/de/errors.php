@@ -1,4 +1,5 @@
 <?php
+
 return [
     /**
      * Error text strings.
@@ -30,7 +31,7 @@ return [
     'cannot_get_image_from_url' => 'Bild konnte nicht von der URL :url geladen werden.',
     'cannot_create_thumbs' => 'Der Server kann keine Vorschau-Bilder erzeugen. Bitte prüfen Sie, ob die GD PHP-Erweiterung installiert ist.',
     'server_upload_limit' => 'Der Server verbietet das Hochladen von Dateien mit dieser Dateigröße. Bitte versuchen Sie es mit einer kleineren Datei.',
-    'uploaded'  => 'Der Server verbietet das Hochladen von Dateien mit dieser Dateigröße. Bitte versuchen Sie es mit einer kleineren Datei.',
+    'uploaded' => 'Der Server verbietet das Hochladen von Dateien mit dieser Dateigröße. Bitte versuchen Sie es mit einer kleineren Datei.',
     'image_upload_error' => 'Beim Hochladen des Bildes trat ein Fehler auf.',
     'image_upload_type_error' => 'Der Bildtyp der hochgeladenen Datei ist ungültig.',
     'file_upload_timeout' => 'Der Upload der Datei ist abgelaufen.',
@@ -71,5 +72,5 @@ return [
     'return_home' => 'Zurück zur Startseite',
     'error_occurred' => 'Es ist ein Fehler aufgetreten',
     'app_down' => ':appName befindet sich aktuell im Wartungsmodus.',
-    'back_soon' => 'Wir werden so schnell wie möglich wieder online sein.'
+    'back_soon' => 'Wir werden so schnell wie möglich wieder online sein.',
 ];

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterDeveloperTaskTable extends Migration
 {
@@ -14,7 +14,7 @@ class AlterDeveloperTaskTable extends Migration
     public function up()
     {
         Schema::table('developer_tasks', function (Blueprint $table) {
-            $table->integer('estimate_minutes')->nullable()->after("estimate_time");
+            $table->integer('estimate_minutes')->nullable()->after('estimate_time');
         });
     }
 

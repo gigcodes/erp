@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class CreateProductsTable extends Migration
 {
@@ -14,11 +13,11 @@ class CreateProductsTable extends Migration
     public function up()
     {
         Schema::table('products', function ($table) {
-	        $table->string('sku');
-	        $table->string('image',500);
+            $table->string('sku');
+            $table->string('image', 500);
         });
 
-	    DB::update("ALTER TABLE products AUTO_INCREMENT = 100000;");
+        DB::update('ALTER TABLE products AUTO_INCREMENT = 100000;');
     }
 
     /**
@@ -28,9 +27,9 @@ class CreateProductsTable extends Migration
      */
     public function down()
     {
-	    Schema::table('products', function($table) {
-		    $table->dropColumn('sku');
-		    $table->dropColumn('image');
-	    });
+        Schema::table('products', function ($table) {
+            $table->dropColumn('sku');
+            $table->dropColumn('image');
+        });
     }
 }

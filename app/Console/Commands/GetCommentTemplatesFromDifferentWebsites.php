@@ -6,6 +6,7 @@ use App\CronJobReport;
 //use App\InstagramAutoComments;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+
 //use InstagramAPI\Instagram;
 
 class GetCommentTemplatesFromDifferentWebsites extends Command
@@ -72,11 +73,11 @@ class GetCommentTemplatesFromDifferentWebsites extends Command
 //                        $text         = str_replace('farfetch', 'Sololuxury', $text);
 //                        $text         = str_replace('darveys', 'Sololuxury', $text);
 //                        $text         = str_replace('farfect', 'Sololuxury', $text);
-////                        $c            = new InstagramAutoComments();
-////                        $c->source    = $account;
-////                        $c->comment   = $text;
-////                        $c->use_count = 0;
-////                        $c->save();
+        ////                        $c            = new InstagramAutoComments();
+        ////                        $c->source    = $account;
+        ////                        $c->comment   = $text;
+        ////                        $c->use_count = 0;
+        ////                        $c->save();
 //                    }
 //                }
 //            }

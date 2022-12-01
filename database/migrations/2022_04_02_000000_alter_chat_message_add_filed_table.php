@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterChatMessageAddFiledTable extends Migration
 {
@@ -14,8 +14,7 @@ class AlterChatMessageAddFiledTable extends Migration
     public function up()
     {
         Schema::table('chat_messages', function (Blueprint $table) {
-            $table->integer('send_to_tickets')->nullable()->after("ticket_id");
-            
+            $table->integer('send_to_tickets')->nullable()->after('ticket_id');
         });
     }
 

@@ -1,13 +1,14 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
 use Illuminate\Database\Eloquent\Model;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
+
 class FacebookPost extends Model
 {
     /**
@@ -19,7 +20,6 @@ class FacebookPost extends Model
      * @SWG\Property(property="posted_on",type="datetime")
      * @SWG\Property(property="status",type="string")
      */
-
     use Mediable;
 
     protected $fillable = [
@@ -28,8 +28,9 @@ class FacebookPost extends Model
         'post_body',
         'post_by',
         'posted_on',
-        'status'
+        'status',
     ];
+
     public function account()
     {
         return $this->belongsTo('App\Account');

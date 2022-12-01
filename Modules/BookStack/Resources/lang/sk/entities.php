@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     /**
@@ -186,7 +187,7 @@ return [
      */
     'page_tags' => 'Štítky stránok',
     'tag' => 'Štítok',
-    'tags' =>  'Štítky',
+    'tags' => 'Štítky',
     'tag_value' => 'Hodnota štítku (Voliteľné)',
     'tags_explain' => "Pridajte pár štítkov pre uľahčenie kategorizácie Vášho obsahu. \n Štítku môžete priradiť hodnotu pre ešte lepšiu organizáciu.",
     'tags_add' => 'Pridať ďalší štítok',
@@ -238,5 +239,5 @@ return [
      */
     'revision_delete_confirm' => 'Naozaj chcete túto revíziu odstrániť?',
     'revision_delete_success' => 'Revízia bola vymazaná',
-    'revision_cannot_delete_latest' => 'Nie je možné vymazať poslednú revíziu.'
+    'revision_cannot_delete_latest' => 'Nie je možné vymazať poslednú revíziu.',
 ];

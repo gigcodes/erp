@@ -16,7 +16,6 @@ class MonetaryAccountCreated
      *
      * @return void
      */
-
     public $account;
 
     public function __construct(MonetaryAccount $account)

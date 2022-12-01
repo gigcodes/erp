@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\ProductHelper;
 use Illuminate\Console\Command;
-use \App\Helpers\ProductHelper;
 
 class ChangeSizeErpWise extends Command
 {
@@ -39,29 +39,28 @@ class ChangeSizeErpWise extends Command
     public function handle()
     {
         //
-       $deleteby = "supplier";//$this->ask('Change size product by ?');
-       $ids      = $this->ask('Enter Ids');
+        $deleteby = 'supplier'; //$this->ask('Change size product by ?');
+        $ids = $this->ask('Enter Ids');
 
-        if(!empty($deleteby) && ($deleteby == "supplier" || $deleteby == "product"  || $deleteby == "soldout")) {
-            
-            $products = \App\Product::join("product_suppliers as ps","ps.product_id","products.id")
-            ->join("suppliers as s","s.id","ps.supplier_id");
-            
-            if($deleteby == "supplier") {
-                $products = $products->whereIn("ps.supplier_id",explode(",",$ids));
+        if (! empty($deleteby) && ($deleteby == 'supplier' || $deleteby == 'product' || $deleteby == 'soldout')) {
+            $products = \App\Product::join('product_suppliers as ps', 'ps.product_id', 'products.id')
+            ->join('suppliers as s', 's.id', 'ps.supplier_id');
+
+            if ($deleteby == 'supplier') {
+                $products = $products->whereIn('ps.supplier_id', explode(',', $ids));
             }
-            
-            $products = $products->where("products.size","!=","")->select("products.*")->get();
 
-            if(!$products->isEmpty()) {
-                foreach($products as $p) {
+            $products = $products->where('products.size', '!=', '')->select('products.*')->get();
+
+            if (! $products->isEmpty()) {
+                foreach ($products as $p) {
                     $supplierModel = $p->suppliers->first();
                     // start to update the eu size
-                    if(!empty($p->size)) {
-                        $sizeExplode = explode(",", $p->size);
-                        if(!empty($sizeExplode) && is_array($sizeExplode)){
+                    if (! empty($p->size)) {
+                        $sizeExplode = explode(',', $p->size);
+                        if (! empty($sizeExplode) && is_array($sizeExplode)) {
                             $allSize = [];
-                            foreach($sizeExplode as $sizeE){
+                            foreach ($sizeExplode as $sizeE) {
                                 $helperSize = ProductHelper::getRedactedText($sizeE, 'composition');
                                 $allSize[] = $helperSize;
                                 //find the eu size and update into the field
@@ -69,7 +68,7 @@ class ChangeSizeErpWise extends Command
                             }
                             $euSize = ProductHelper::getEuSize($p, $allSize, $supplierModel->size_system_id);
                             $p->size_eu = implode(',', $euSize);
-                            if(empty($euSize)) {
+                            if (empty($euSize)) {
                                 $p->status_id = \App\Helpers\StatusHelper::$unknownSize;
                             }
                             $p->save();
@@ -82,7 +81,5 @@ class ChangeSizeErpWise extends Command
                 }
             }
         }
-
-
     }
 }

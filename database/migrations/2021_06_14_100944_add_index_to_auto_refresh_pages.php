@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIndexToAutoRefreshPages extends Migration
 {
@@ -13,8 +13,7 @@ class AddIndexToAutoRefreshPages extends Migration
      */
     public function up()
     {
-        Schema::table('auto_refresh_pages', function(Blueprint $table)
-        {
+        Schema::table('auto_refresh_pages', function (Blueprint $table) {
             $table->index(['page']);
         });
     }
@@ -26,8 +25,7 @@ class AddIndexToAutoRefreshPages extends Migration
      */
     public function down()
     {
-        Schema::table('auto_refresh_pages', function(Blueprint $table)
-        {
+        Schema::table('auto_refresh_pages', function (Blueprint $table) {
             $table->dropIndex(['page']);
         });
     }

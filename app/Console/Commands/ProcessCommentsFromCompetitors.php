@@ -10,6 +10,7 @@ use App\Keywords;
 //use App\Services\Instagram\Hashtags;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+
 //use InstagramAPI\Instagram;
 //use App\InstagramUsersList;
 
@@ -189,6 +190,5 @@ class ProcessCommentsFromCompetitors extends Command
         // } catch (\Exception $e) {
         //     \App\CronJob::insertLastError($this->signature, $e->getMessage());
         // }
-
     }
 }

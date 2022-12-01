@@ -7,7 +7,6 @@ return [
      * Contains all text strings used in the general settings sections of BookStack
      * including users and roles
      */
-
     'settings' => '設定',
     'settings_save' => '儲存設定',
     'settings_save_success' => '設定已儲存',
@@ -15,7 +14,6 @@ return [
     /**
      * App settings
      */
-
     'app_settings' => 'App設定',
     'app_name' => 'App名',
     'app_name_desc' => '此名稱將在網頁頂端和Email中顯示。',
@@ -40,7 +38,6 @@ return [
     /**
      * Registration settings
      */
-
     'reg_settings' => '註冊設定',
     'reg_allow' => '開放註冊？',
     'reg_default_role' => '註冊後的預設使用者角色',
@@ -53,10 +50,9 @@ return [
     /**
      * Maintenance settings
      */
-
     'maint' => '維護',
     'maint_image_cleanup' => '清理圖像',
-    'maint_image_cleanup_desc' => "掃描頁面和修訂內容以檢查哪些圖像是正在使用的以及哪些圖像是多余的。確保在運行前創建完整的數據庫和映像備份。",
+    'maint_image_cleanup_desc' => '掃描頁面和修訂內容以檢查哪些圖像是正在使用的以及哪些圖像是多余的。確保在運行前創建完整的數據庫和映像備份。',
     'maint_image_cleanup_ignore_revisions' => '忽略修訂記錄中的圖像',
     'maint_image_cleanup_run' => '運行清理',
     'maint_image_cleanup_warning' => '發現了 :count 張可能未使用的圖像。您確定要刪除這些圖像嗎？',
@@ -66,7 +62,6 @@ return [
     /**
      * Role settings
      */
-
     'roles' => '角色',
     'role_user_roles' => '使用者角色',
     'role_create' => '建立角色',
@@ -74,7 +69,7 @@ return [
     'role_delete' => '刪除角色',
     'role_delete_confirm' => '這將會刪除名為 \':roleName\' 的角色.',
     'role_delete_users_assigned' => '有:userCount位使用者屬於此角色。如果您想將此角色中的使用者遷移，請在下面選擇一個新角色。',
-    'role_delete_no_migration' => "不要遷移使用者",
+    'role_delete_no_migration' => '不要遷移使用者',
     'role_delete_sure' => '您確定要刪除這個角色？',
     'role_delete_success' => '角色刪除成功',
     'role_edit' => '編輯角色',
@@ -102,7 +97,6 @@ return [
     /**
      * Users
      */
-
     'users' => '使用者',
     'user_profile' => '使用者資料',
     'users_add_new' => '加入使用者',

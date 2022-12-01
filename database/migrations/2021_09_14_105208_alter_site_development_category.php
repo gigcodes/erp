@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterSiteDevelopmentCategory extends Migration
 {
@@ -13,8 +13,8 @@ class AlterSiteDevelopmentCategory extends Migration
      */
     public function up()
     {
-        Schema::table("site_development_categories",function(Blueprint $table) {
-            $table->integer("master_category_id")->nullable();
+        Schema::table('site_development_categories', function (Blueprint $table) {
+            $table->integer('master_category_id')->nullable();
         });
     }
 

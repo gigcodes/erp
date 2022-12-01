@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AlterRenameTwilioWorkspaceIdInTwilioPrioritiesTable extends Migration
 {
@@ -14,7 +14,7 @@ class AlterRenameTwilioWorkspaceIdInTwilioPrioritiesTable extends Migration
      */
     public function up()
     {
-		DB::select("ALTER TABLE twilio_priorities CHANGE twilio_workspace_id account_id INT(11)");
+        DB::select('ALTER TABLE twilio_priorities CHANGE twilio_workspace_id account_id INT(11)');
     }
 
     /**

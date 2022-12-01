@@ -33,7 +33,7 @@ return [
     'cannot_get_image_from_url' => 'Nelze získat obrázek z adresy :url',
     'cannot_create_thumbs' => 'Server nedokáže udělat náhledy. Zkontrolujte, že rozšíření GD pro PHP je nainstalováno.',
     'server_upload_limit' => 'Server nepovoluje nahrávat tak veliké soubory. Zkuste prosím menší soubor.',
-    'uploaded'  => 'Server nepovoluje nahrávat tak veliké soubory. Zkuste prosím menší soubor.', //TODO to je nějaký podezřelý
+    'uploaded' => 'Server nepovoluje nahrávat tak veliké soubory. Zkuste prosím menší soubor.', //TODO to je nějaký podezřelý
     'image_upload_error' => 'Nastala chyba během nahrávání souboru',
     'image_upload_type_error' => 'Typ nahrávaného obrázku je neplatný.',
     'file_upload_timeout' => 'Nahrávání souboru trvalo příliš dlouho a tak bylo ukončeno.',

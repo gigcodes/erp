@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateAssetsManagerTable extends Migration
 {
@@ -23,7 +23,7 @@ class CreateAssetsManagerTable extends Migration
             $table->float('amount', 8, 2);
             $table->boolean('archived');
             $table->timestamps();
-        }); 
+        });
     }
 
     /**

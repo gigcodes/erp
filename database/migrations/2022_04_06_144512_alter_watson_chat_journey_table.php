@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterWatsonChatJourneyTable extends Migration
 {
@@ -15,7 +15,6 @@ class AlterWatsonChatJourneyTable extends Migration
     {
         Schema::table('watson_chat_journey', function (Blueprint $table) {
             $table->integer('chat_message_id')->nullable();
-            
         });
     }
 

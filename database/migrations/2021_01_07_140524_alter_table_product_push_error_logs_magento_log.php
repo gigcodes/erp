@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableProductPushErrorLogsMagentoLog extends Migration
 {
@@ -14,7 +14,7 @@ class AlterTableProductPushErrorLogsMagentoLog extends Migration
     public function up()
     {
         //
-        Schema::table('product_push_error_logs',function(Blueprint $table) {
+        Schema::table('product_push_error_logs', function (Blueprint $table) {
             $table->integer('log_list_magento_id')->nullable()->after('url');
         });
     }
@@ -27,7 +27,7 @@ class AlterTableProductPushErrorLogsMagentoLog extends Migration
     public function down()
     {
         //
-        Schema::table('product_push_error_logs',function(Blueprint $table) {
+        Schema::table('product_push_error_logs', function (Blueprint $table) {
             $table->dropField('log_list_magento_id');
         });
     }

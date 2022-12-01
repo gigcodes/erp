@@ -16,7 +16,7 @@ class AffiliateMiddleware
      */
     public function handle($request, Closure $next)
     {
-        if (Auth::check() && Auth::user()->hasRole('Affiliate') && !Auth::user()->hasRole('Admin')) {
+        if (Auth::check() && Auth::user()->hasRole('Affiliate') && ! Auth::user()->hasRole('Admin')) {
             return $next($request);
         }
 
