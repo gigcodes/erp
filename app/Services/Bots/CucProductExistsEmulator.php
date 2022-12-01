@@ -2,7 +2,7 @@
 
 namespace App\Services\Bots;
 
-use App\Console\Commands\Bots\Chrome;
+use App\Services\Bots\Chrome;
 use NunoMaduro\LaravelConsoleDusk\Manager;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
 
