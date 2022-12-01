@@ -164,9 +164,7 @@ class PushToMagento implements ShouldQueue
 						ProductPushErrorLog::log('', $product->id, 'Image(s) is needed for push product', 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_images_exists']);
 					}
 
-//					MagentoServiceJob::dispatch($product, $website, $this->log)->onQueue($this->log->queue);
-					$magentoService = new MagentoService($product, $website, $this->log);
-					$magentoService->pushProduct();
+					MagentoServiceJob::dispatch($product, $website, $this->log)->onQueue($this->log->queue);
 
 					if ($this->log) {
 						$this->log->job_end_time = date("Y-m-d H:i:s");
