@@ -2543,7 +2543,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
 
 // logScraperVsAiController
 Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
-    Route::match(['get', 'post'], '/{id}', 'logScraperVsAiController@index');
+    Route::match(['get', 'post'], '/{id}', 'LogScraperVsAiController@index');
 });
 
 Route::prefix('social-media')->middleware('auth')->group(function () {
