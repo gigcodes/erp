@@ -20,18 +20,18 @@ class GoogleDocController extends Controller
     {
         $data = GoogleDoc::orderBy('created_at', 'desc');
 
-        if ($keyword = request("name")) {
+        if ($keyword = request('name')) {
             $data = $data->where(function ($q) use ($keyword) {
-                $q->where("name", "LIKE", "%$keyword%");
+                $q->where('name', 'LIKE', "%$keyword%");
             });
         }
-        if ($keyword = request("docid")) {
+        if ($keyword = request('docid')) {
             $data = $data->where(function ($q) use ($keyword) {
-                $q->where("docid", "LIKE", "%$keyword%");
+                $q->where('docid', 'LIKE', "%$keyword%");
+            });
+        }
+        $data = $data->get();
 
-            });
-        }
-            $data = $data->get();
         return view('googledocs.index', compact('data'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
@@ -46,7 +46,7 @@ class GoogleDocController extends Controller
         $data = $this->validate($request, [
             'type' => ['required', Rule::in('spreadsheet', 'doc')],
             'doc_name' => ['required', 'max:800'],
-            'existing_doc_id' => ['sometimes','nullable', 'string', 'max:800']
+            'existing_doc_id' => ['sometimes', 'nullable', 'string', 'max:800'],
         ]);
 
         DB::transaction(function () use ($data) {
@@ -55,7 +55,7 @@ class GoogleDocController extends Controller
             $googleDoc->name = $data['doc_name'];
             $googleDoc->save();
 
-            if (!empty($data['existing_doc_id'])) {
+            if (! empty($data['existing_doc_id'])) {
                 $googleDoc->docId = $data['existing_doc_id'];
                 $googleDoc->save();
             } else {
@@ -66,16 +66,16 @@ class GoogleDocController extends Controller
                 if ($googleDoc->type === 'doc') {
                     CreateGoogleDoc::dispatchNow($googleDoc);
                 }
-
             }
         });
+
         return back()->with('success', "Google {$data['type']} is Created.");
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
