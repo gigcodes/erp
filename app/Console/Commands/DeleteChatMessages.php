@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\ChatMessage;
+use App\CronJobReport;
 use Carbon\Carbon;
-use File;
 use Illuminate\Console\Command;
 
 class DeleteChatMessages extends Command
@@ -27,8 +26,8 @@ class DeleteChatMessages extends Command
     /**
      Created By : Maulik jadvani
      Delete Chat Message :
-                *when i call this scheduler then 3 month old records which have status 7,8,9,10 and have null value in  message field are getting deleted and this scheduler repeater at 12:00 am daily
-    */
+     *when i call this scheduler then 3 month old records which have status 7,8,9,10 and have null value in  message field are getting deleted and this scheduler repeater at 12:00 am daily
+     */
     public function __construct()
     {
         parent::__construct();
@@ -41,23 +40,19 @@ class DeleteChatMessages extends Command
      */
     public function handle()
     {
-          try 
-          {
-               $report = CronJobReport::create([
-                    'signature'  => $this->signature,
-                    'start_time' => Carbon::now(),
-               ]);
+        try {
+            $report = CronJobReport::create([
+                'signature' => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-               $result = ChatMessage::whereIn('status',[7,8,9,10]);
-               $result->where('created_at', '<=', date('Y-m-d',strtotime("-90 days")));
-               $result->Where('message','=','');
-               $row = $result->delete(); 
-               $report->update(['end_time' => Carbon::now()]);
-               
-
-          } catch (\Exception $e) 
-          {
-               \App\CronJob::insertLastError($this->signature, $e->getMessage());
-          }
+            $result = ChatMessage::whereIn('status', [7, 8, 9, 10]);
+            $result->where('created_at', '<=', date('Y-m-d', strtotime('-90 days')));
+            $result->Where('message', '=', '');
+            $row = $result->delete();
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

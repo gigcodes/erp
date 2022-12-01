@@ -52,7 +52,7 @@ class SendAutoReplyToCustomers extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -70,7 +70,7 @@ class SendAutoReplyToCustomers extends Command
             foreach ($messagesIds as $messagesId) {
                 $customer = Customer::where('id', $messagesId->customer_id)->whereNotNull('gender')->first();
 
-                if (!$customer) {
+                if (! $customer) {
                     continue;
                 }
 //            dump($customer->name);
@@ -82,14 +82,14 @@ class SendAutoReplyToCustomers extends Command
                     })
                     ->first();
 
-                if (!$message) {
+                if (! $message) {
                     continue;
                 }
 
                 $this->activeMessage = $message->message;
 
-                $extractedCategory    = $this->extractCategory($customer->gender);
-                $extractedBrands      = $this->extractBrands();
+                $extractedCategory = $this->extractCategory($customer->gender);
+                $extractedBrands = $this->extractBrands();
                 $extractedComposition = $this->extractCompositions();
 
                 if ($this->specificCategories !== []) {
@@ -100,7 +100,7 @@ class SendAutoReplyToCustomers extends Command
                     continue;
                 }
 
-                if (!$this->isMessageAskingForProducts($message->message)) {
+                if (! $this->isMessageAskingForProducts($message->message)) {
                     continue;
                 }
 
@@ -119,51 +119,48 @@ class SendAutoReplyToCustomers extends Command
                         foreach ($extractedComposition as $key => $composition) {
                             if ($key === 0) {
                                 $query = $query->where('composition', 'LIKE', $composition);
+
                                 continue;
                             }
 
                             $query = $query->orWhere('composition', 'LIKE', $composition);
                         }
                     });
-
                 }
 
                 $products = $products->where('is_without_image', 0)->take(25)->get();
 
                 $messageToSend = ' ';
 
-                $chatMessage              = new ChatMessage();
+                $chatMessage = new ChatMessage();
                 $chatMessage->customer_id = $customer->id;
-                $chatMessage->message     = $messageToSend;
-                $chatMessage->user_id     = 109;
-                $chatMessage->status      = 10;
-                $chatMessage->approved    = 0;
+                $chatMessage->message = $messageToSend;
+                $chatMessage->user_id = 109;
+                $chatMessage->status = 10;
+                $chatMessage->approved = 0;
                 $chatMessage->save();
 
                 foreach ($products as $product) {
                     $image = $product->getMedia(config('constants.media_tags'))->first();
 
-                    if (!$image) {
+                    if (! $image) {
                         continue;
                     }
 
                     $chatMessage->attachMedia($image, config('constants.media_tags'));
-
                 }
-
             }
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 
     private function extractBrands(): array
     {
-        $message     = $this->activeMessage;
-        $brands      = Brand::whereNull('deleted_at')->get();
+        $message = $this->activeMessage;
+        $brands = Brand::whereNull('deleted_at')->get();
         $brandsFound = [];
 
         foreach ($brands as $brand) {
@@ -174,18 +171,17 @@ class SendAutoReplyToCustomers extends Command
         }
 
         return $brandsFound;
-
     }
 
     private function extractCompositions(): array
     {
         $compositions = Compositions::all();
-        $message      = $this->activeMessage;
+        $message = $this->activeMessage;
 
         $compositionsFound = [];
 
         foreach ($compositions as $composition) {
-            $name  = $composition->name;
+            $name = $composition->name;
             $name2 = $composition->replace_with;
             if (stripos($message, $name) !== false || (stripos($message, $name2) !== false && $name2)) {
                 $compositionsFound[] = $name;
@@ -209,12 +205,12 @@ class SendAutoReplyToCustomers extends Command
 
     private function extractFemaleCategory()
     {
-        $extractedCats  = [];
+        $extractedCats = [];
         $femaleCategory = Category::find(2);
         foreach ($femaleCategory->childs as $femaleCategoryChild) {
             foreach ($femaleCategoryChild->childs as $subSubCategory) {
                 if ($this->extractCategoryIdWithReferences($subSubCategory)) {
-                    $extractedCats[]            = $subSubCategory->id;
+                    $extractedCats[] = $subSubCategory->id;
                     $this->specificCategories[] = $subSubCategory->id;
                 }
             }
@@ -225,12 +221,12 @@ class SendAutoReplyToCustomers extends Command
 
     private function extractMaleCategory(): array
     {
-        $extractedCats  = [];
+        $extractedCats = [];
         $femaleCategory = Category::find(3);
         foreach ($femaleCategory->childs as $femaleCategoryChild) {
             foreach ($femaleCategoryChild->childs as $subSubCategory) {
                 if ($this->extractCategoryIdWithReferences($subSubCategory)) {
-                    $extractedCats[]            = $subSubCategory->id;
+                    $extractedCats[] = $subSubCategory->id;
                     $this->specificCategories[] = $subSubCategory->id;
                 }
             }
@@ -241,8 +237,9 @@ class SendAutoReplyToCustomers extends Command
 
     private function extractCategoryIdWithReferences($category): bool
     {
-        $name    = strlen($category->title) > 3 ? substr($category->title, 0, -1) : $category->title;
+        $name = strlen($category->title) > 3 ? substr($category->title, 0, -1) : $category->title;
         $message = $this->activeMessage;
+
         return stripos(strtoupper($message), strtoupper($name)) !== false;
     }
 
@@ -267,5 +264,4 @@ class SendAutoReplyToCustomers extends Command
 
         return true;
     }
-
 }

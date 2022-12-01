@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -16,7 +17,7 @@ class BlockWebMessageList extends Model
      * @SWG\Property(property="updated_at",type="datetime")
      */
     protected $fillable = [
-        'object_id', 'object_type', 'created_at', 'updated_at'
+        'object_id', 'object_type', 'created_at', 'updated_at',
     ];
 
     public function reviews()

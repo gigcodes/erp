@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableProjectFileManagersHistory extends Migration
 {
@@ -13,7 +13,7 @@ class AlterTableProjectFileManagersHistory extends Migration
      */
     public function up()
     {
-        Schema::create('project_file_managers_history',function(Blueprint $table) {
+        Schema::create('project_file_managers_history', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedBigInteger('project_id');
             $table->string('name')->nullable();

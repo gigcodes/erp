@@ -38,7 +38,7 @@ return [
     'reset' => 'Сбросить',
     'remove' => 'Удалить',
     'add' => 'Добавить',
-    
+
     // Sort Options
     'sort_options' => 'Параметры сортировки',
     'sort_direction_toggle' => 'Переключить направления сортировки',
@@ -65,7 +65,7 @@ return [
     'profile_menu' => 'Меню профиля',
     'view_profile' => 'Просмотреть профиль',
     'edit_profile' => 'Редактировать профиль',
-    
+
     // Layout tabs
     'tab_info' => 'Информация',
     'tab_content' => 'Содержание',

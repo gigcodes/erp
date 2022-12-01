@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\HashTag;
 //use App\InstagramPosts;
 use App\Keywords;
 //use App\Services\Instagram\Hashtags;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+
 //use App\InstagramUsersList;
 //use App\InstagramPostsComments;
 
@@ -45,7 +45,7 @@ class GetCommentsUsingHastTagPriority extends Command
      */
     public function handle()
     {
-       // try {
+        // try {
 //            $report = \App\CronJobReport::create([
 //                'signature'  => $this->signature,
 //                'start_time' => Carbon::now(),
@@ -191,6 +191,5 @@ class GetCommentsUsingHastTagPriority extends Command
         // } catch (\Exception $e) {
         //     \App\CronJob::insertLastError($this->signature, $e->getMessage());
         // }
-
     }
 }

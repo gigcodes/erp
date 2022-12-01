@@ -2,15 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\MagentoModuleCategory;
 use App\MagentoModuleHistory;
-use App\Http\Requests\MagentoModule\MagentoModuleHistoryRequest;
 
 class MagentoModuleHistoryController extends Controller
 {
-
-
     /**
      * Display the specified resource.
      *
@@ -26,7 +21,7 @@ class MagentoModuleHistoryController extends Controller
             'store_website:id,website',
             'module_type_data:id,magento_module_type',
             'developer_name_data:id,name',
-            'task_status_data:id,name'
+            'task_status_data:id,name',
         ])
             ->where('magento_module_id', $magento_module)->get();
 
@@ -35,14 +30,14 @@ class MagentoModuleHistoryController extends Controller
                 'status' => true,
                 'data' => $magento_module_api_histories,
                 'title' => $title,
-                'code' => 200
+                'code' => 200,
             ], 200);
         } else {
             return response()->json([
                 'status' => false,
-                'data' => "",
+                'data' => '',
                 'title' => $title,
-                'code' => 500
+                'code' => 500,
             ], 500);
         }
 

@@ -1,18 +1,14 @@
 <?php
 
-
 namespace App\Services\Listing;
-
 
 use App\AttributeReplacement;
 use App\Brand;
 use App\Colors;
-use App\Product;
 use App\Services\Grammar\GrammarBot;
 
 class NameChecker implements CheckerInterface
 {
-
     private $grammerBot;
 
     public function __construct(GrammarBot $bot)
@@ -20,13 +16,13 @@ class NameChecker implements CheckerInterface
         $this->grammerBot = $bot;
     }
 
-    public function check($product): bool {
+    public function check($product): bool
+    {
         $data = $product->name;
         $data = $this->improvise($data);
         $product->name = $data;
         $product->save();
         $state = $this->grammerBot->validate($data);
-
 
         if ($state === false) {
             return false;

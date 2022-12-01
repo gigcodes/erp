@@ -1,4 +1,6 @@
-<?php namespace Modules\BookStack\Providers;
+<?php
+
+namespace Modules\BookStack\Providers;
 
 use Modules\BookStack\Translation\Translator;
 

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddExtraFieldStockLandingProductTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddExtraFieldStockLandingProductTable extends Migration
     public function up()
     {
         Schema::table('landing_page_products', function (Blueprint $table) {
-            $table->string('stock_status')->nullable()->default(1)->after("shopify_id");
+            $table->string('stock_status')->nullable()->default(1)->after('shopify_id');
         });
     }
 

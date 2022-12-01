@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateFlowLogMessagesTable extends Migration
 {
@@ -15,9 +15,9 @@ class CreateFlowLogMessagesTable extends Migration
     {
         Schema::create('flow_log_messages', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('flow_log_id')->unsigned()->index()->foreign()->references("id")->on("flow_logs")->onDelete("cascade");
+            $table->integer('flow_log_id')->unsigned()->index()->foreign()->references('id')->on('flow_logs')->onDelete('cascade');
             $table->text('messages')->nullable();
-            $table->string('flow_action')->nullable();  
+            $table->string('flow_action')->nullable();
             $table->string('modalType')->nullable();
             $table->string('customer_name', 200)->nullable();
             $table->text('leads')->nullable();

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddTwoColumnsToVendorsTable extends Migration
 {
@@ -14,8 +14,8 @@ class AddTwoColumnsToVendorsTable extends Migration
     public function up()
     {
         Schema::table('vendors', function (Blueprint $table) {
-          $table->string('default_phone')->nullable()->after('phone');
-          $table->string('whatsapp_number')->nullable()->after('default_phone');
+            $table->string('default_phone')->nullable()->after('phone');
+            $table->string('whatsapp_number')->nullable()->after('default_phone');
         });
     }
 
@@ -27,8 +27,8 @@ class AddTwoColumnsToVendorsTable extends Migration
     public function down()
     {
         Schema::table('vendors', function (Blueprint $table) {
-          $table->dropColumn('default_phone');
-          $table->dropColumn('whatsapp_number');
+            $table->dropColumn('default_phone');
+            $table->dropColumn('whatsapp_number');
         });
     }
 }

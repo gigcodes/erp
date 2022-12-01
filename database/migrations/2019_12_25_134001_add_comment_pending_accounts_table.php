@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddCommentPendingAccountsTable extends Migration
 {
@@ -13,7 +12,7 @@ class AddCommentPendingAccountsTable extends Migration
      */
     public function up()
     {
-        Schema::table('accounts',function($table){
+        Schema::table('accounts', function ($table) {
             $table->integer('comment_pending')->default(0)->after('seeding_stage');
         });
     }
@@ -25,7 +24,7 @@ class AddCommentPendingAccountsTable extends Migration
      */
     public function down()
     {
-        Schema::table('accounts',function($table){
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('seeding_stage');
         });
     }

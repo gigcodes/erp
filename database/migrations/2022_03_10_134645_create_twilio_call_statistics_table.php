@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTwilioCallStatisticsTable extends Migration
 {
@@ -26,7 +26,7 @@ class CreateTwilioCallStatisticsTable extends Migration
             $table->string('customer_country', 20)->nullable();
             $table->string('twilio_number_country', 20)->nullable();
             $table->integer('call_duration')->default(0);
-            $table->float('call_costing',8,5)->default(0);
+            $table->float('call_costing', 8, 5)->default(0);
             $table->timestamps();
         });
     }

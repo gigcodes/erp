@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateMonetaryAccountsTable extends Migration
 {
@@ -17,7 +17,7 @@ class CreateMonetaryAccountsTable extends Migration
             $table->increments('id');
             $table->date('date')->nullable();
             $table->integer('currency')->default(1);
-            $table->decimal('amount',13,4)->nullable();
+            $table->decimal('amount', 13, 4)->nullable();
             $table->string('type')->default('cash');
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();

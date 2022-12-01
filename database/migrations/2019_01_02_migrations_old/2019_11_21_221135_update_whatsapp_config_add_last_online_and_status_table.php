@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateWhatsappConfigAddLastOnlineAndStatusTable extends Migration
 {
@@ -13,7 +12,7 @@ class UpdateWhatsappConfigAddLastOnlineAndStatusTable extends Migration
      */
     public function up()
     {
-        Schema::table('whatsapp_configs', function($table){
+        Schema::table('whatsapp_configs', function ($table) {
             $table->dateTime('last_online')->nullable()->after('is_customer_support');
             // $table->tinyInteger('status')->default(0)->after('is_customer_support');
         });
@@ -26,7 +25,7 @@ class UpdateWhatsappConfigAddLastOnlineAndStatusTable extends Migration
      */
     public function down()
     {
-        Schema::table('whatsapp_configs', function($table){
+        Schema::table('whatsapp_configs', function ($table) {
             $table->dropColumn('last_online');
             // $table->dropColumn('status');
         });

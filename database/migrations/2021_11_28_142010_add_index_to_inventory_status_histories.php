@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIndexToInventoryStatusHistories extends Migration
 {
@@ -14,10 +14,8 @@ class AddIndexToInventoryStatusHistories extends Migration
     public function up()
     {
         Schema::table('inventory_status_histories', function (Blueprint $table) {
-            $table->index(['supplier_id','created_at']);
-
+            $table->index(['supplier_id', 'created_at']);
         });
-       
     }
 
     /**

@@ -6,8 +6,8 @@ use App\CronJob;
 use App\CronJobReport;
 use App\PaymentResponse;
 use App\StoreWebsite;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class GetPaymentResponses extends Command
 {
@@ -44,7 +44,7 @@ class GetPaymentResponses extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             $websites = StoreWebsite::whereNotNull('magento_url')->whereNotNull('api_token')->get();
@@ -53,14 +53,14 @@ class GetPaymentResponses extends Command
                 $token = $web->api_token;
                 $web_url = strtolower($web->magento_url);
                 $url = parse_url($web_url);
-                if (!isset($url['scheme'])) {
-                    $web_url = 'https://' . $web_url;
+                if (! isset($url['scheme'])) {
+                    $web_url = 'https://'.$web_url;
                 }
                 $api = "$web_url/rest/V1/payment/sales/order/$date";
                 $data = json_decode($this->getDataApi($api, $token), true);
-                if (!empty($data) && count($data) > 0) {
+                if (! empty($data) && count($data) > 0) {
                     foreach ($data as $da) {
-                        if (!empty($da) && count($da) > 0) {
+                        if (! empty($da) && count($da) > 0) {
                             foreach ($da as $response) {
                                 if (array_key_exists('orderPayment', $response)) {
                                     foreach ($response['orderPayment'] as $order_response) {
@@ -97,7 +97,7 @@ class GetPaymentResponses extends Command
                                             'cc_status' => $order_response['cc_status'],
                                         ];
                                         $response_exist = PaymentResponse::where('website_id', $web->id)->where('entity_id', $order_response['entity_id'])->first();
-                                        if (!empty($response_exist)) {
+                                        if (! empty($response_exist)) {
                                             $response_exist->update($insert);
                                         } else {
                                             PaymentResponse::create($insert);
@@ -110,6 +110,7 @@ class GetPaymentResponses extends Command
                 }
             }
             $report->update(['end_time' => Carbon::now()]);
+
             return 'successfully';
         } catch (\Exception $e) {
             CronJob::insertLastError($this->signature, $e->getMessage());
@@ -118,20 +119,21 @@ class GetPaymentResponses extends Command
 
     /**
      * Get API Data
-     * 
+     *
      * @param  \App\StoreWebsite  $url,$token
-     * return Response Json 
+     * return Response Json
      */
     public function getDataApi($url, $token)
     {
-        $authorization = "Authorization: Bearer " . $token;
+        $authorization = 'Authorization: Bearer '.$token;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', $authorization)); // Inject the token into the header
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', $authorization]); // Inject the token into the header
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $server_output = curl_exec($ch);
         curl_close($ch);
+
         return  $server_output;
     }
 }

@@ -8,6 +8,6 @@ class PurchaseProductOrder extends Model
 {
     //
     protected $fillable = [
-        'product_id', 'order_id', 'supplier_id', 'created_by'
+        'product_id', 'order_id', 'supplier_id', 'created_by',
     ];
 }

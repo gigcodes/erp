@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTwilioCurrentCallsTable extends Migration
 {
@@ -15,8 +15,8 @@ class CreateTwilioCurrentCallsTable extends Migration
     {
         Schema::create('twilio_current_calls', function (Blueprint $table) {
             $table->increments('id');
-			$table->integer('agent_id')->nullable();
-			$table->string('number')->nullable();
+            $table->integer('agent_id')->nullable();
+            $table->string('number')->nullable();
             $table->integer('status')->default(1);
             $table->softDeletes();
             $table->timestamps();

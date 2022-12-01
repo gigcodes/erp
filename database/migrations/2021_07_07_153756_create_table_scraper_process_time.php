@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTableScraperProcessTime extends Migration
 {
@@ -14,12 +14,12 @@ class CreateTableScraperProcessTime extends Migration
     public function up()
     {
         //
-        Schema::create('scraper_processes',function(Blueprint $table){
+        Schema::create('scraper_processes', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer("scraper_id");
-            $table->string("server_id");
-            $table->timestamp("started_at")->nullable();
-            $table->timestamp("ended_at")->nullable();
+            $table->integer('scraper_id');
+            $table->string('server_id');
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('ended_at')->nullable();
             $table->timestamps();
         });
     }

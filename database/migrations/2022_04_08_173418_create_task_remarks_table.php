@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTaskRemarksTable extends Migration
 {
@@ -17,9 +17,9 @@ class CreateTaskRemarksTable extends Migration
             $table->increments('id');
             $table->integer('task_id')->nullable();
             $table->string('task_type')->nullable();
-			$table->string('updated_by')->nullable();
-			$table->string('remark')->nullable();
-			$table->timestamps();
+            $table->string('updated_by')->nullable();
+            $table->string('remark')->nullable();
+            $table->timestamps();
         });
     }
 

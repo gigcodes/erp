@@ -1,10 +1,12 @@
 <?php
+
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use Illuminate\Database\Eloquent\Model;
 use App\Loggers\LogScraper;
+use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
 
 class ScrapRemark extends Model
@@ -19,6 +21,7 @@ class ScrapRemark extends Model
      * @SWG\Property(property="scrap_id",type="integer")
      */
     use Mediable;
+
     protected $fillable = [
         'user_name',
         'scraper_name',

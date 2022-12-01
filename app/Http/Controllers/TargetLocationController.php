@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\InstagramUsersList;
 use App\TargetLocation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -39,7 +38,6 @@ class TargetLocationController extends Controller
      */
     public function store(Request $request)
     {
-
         $this->validate($request, [
             'country' => 'required',
             'region' => 'required',
@@ -47,14 +45,12 @@ class TargetLocationController extends Controller
             'lng' => 'required',
         ]);
 
-
-
         $location = new TargetLocation();
         $location->country = $request->get('country');
         $location->region = $request->get('region');
         $polyY = explode(',', $request->get('lat'));
         $polyX = explode(',', $request->get('lng'));
-        $location->region_data = [$polyX,$polyY];
+        $location->region_data = [$polyX, $polyY];
 
         $location->save();
 
@@ -96,7 +92,6 @@ class TargetLocationController extends Controller
         $labels = implode(', ', $labels);
 
         return view('instagram.location.report', compact('data', 'labels', 'stats'));
-
     }
 
     /**

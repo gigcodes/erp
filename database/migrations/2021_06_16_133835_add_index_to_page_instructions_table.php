@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIndexToPageInstructionsTable extends Migration
 {
@@ -15,7 +15,6 @@ class AddIndexToPageInstructionsTable extends Migration
     {
         Schema::table('page_instructions', function (Blueprint $table) {
             $table->index(['page']);
-
         });
     }
 
@@ -28,7 +27,6 @@ class AddIndexToPageInstructionsTable extends Migration
     {
         Schema::table('page_instructions', function (Blueprint $table) {
             $table->dropIndex(['page']);
-
         });
     }
 }

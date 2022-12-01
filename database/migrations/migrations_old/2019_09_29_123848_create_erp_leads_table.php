@@ -14,7 +14,6 @@ class CreateErpLeadsTable extends Migration
     public function up()
     {
         Schema::create('erp_leads', function (Blueprint $table) {
-
             $table->increments('id');
 
             $table->integer('lead_status_id')->nullable()->unsigned()->index();
@@ -39,7 +38,6 @@ class CreateErpLeadsTable extends Migration
             $table->decimal('max_price')->nullable()->default('0.00');
 
             $table->timestamps();
-
         });
     }
 

@@ -1,12 +1,11 @@
 <?php
 
+use App\Supplier;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use \App\Supplier;
 
 class CreateScrapersTable extends Migration
 {
-
     /**
      * Run the migrations.
      *
@@ -14,7 +13,6 @@ class CreateScrapersTable extends Migration
      */
     public function up()
     {
-
         Schema::create('scrapers', function (Blueprint $table) {
             $table->engine = 'MyISAM';
             $table->increments('id');
@@ -35,25 +33,25 @@ class CreateScrapersTable extends Migration
         });
 
         // once table has been generate we need to fill the all information to the new tables
-        $suppliers = Supplier::where("scraper_name", "!=", "")->get();
+        $suppliers = Supplier::where('scraper_name', '!=', '')->get();
 
-        if (!$suppliers->isEmpty()) {
+        if (! $suppliers->isEmpty()) {
             foreach ($suppliers as $supplier) {
                 \DB::table('scrapers')->updateOrInsert(
                     ['supplier_id' => $supplier->id],
                     [
-                        'supplier_id'               => $supplier->id,
-                        'parent_supplier_id'        => $supplier->scraper_parent_id,
-                        'scraper_name'              => $supplier->scraper_name,
-                        'scraper_type'              => $supplier->scraper_type,
-                        'scraper_total_urls'        => $supplier->scraper_total_urls,
-                        'scraper_new_urls'          => $supplier->scraper_new_urls,
-                        'scraper_existing_urls'     => $supplier->scraper_existing_urls,
-                        'scraper_start_time'        => is_null($supplier->scraper_start_time) ? 0 : substr($supplier->scraper_start_time, 0, 2),
-                        'scraper_logic'             => $supplier->scraper_logic,
-                        'scraper_made_by'           => $supplier->scraper_madeby,
-                        'scraper_priority'          => $supplier->scraper_priority,
-                        'inventory_lifetime'        => $supplier->inventory_lifetime,
+                        'supplier_id' => $supplier->id,
+                        'parent_supplier_id' => $supplier->scraper_parent_id,
+                        'scraper_name' => $supplier->scraper_name,
+                        'scraper_type' => $supplier->scraper_type,
+                        'scraper_total_urls' => $supplier->scraper_total_urls,
+                        'scraper_new_urls' => $supplier->scraper_new_urls,
+                        'scraper_existing_urls' => $supplier->scraper_existing_urls,
+                        'scraper_start_time' => is_null($supplier->scraper_start_time) ? 0 : substr($supplier->scraper_start_time, 0, 2),
+                        'scraper_logic' => $supplier->scraper_logic,
+                        'scraper_made_by' => $supplier->scraper_madeby,
+                        'scraper_priority' => $supplier->scraper_priority,
+                        'inventory_lifetime' => $supplier->inventory_lifetime,
                         'next_step_in_product_flow' => 0,
                     ]
                 );
@@ -74,7 +72,6 @@ class CreateScrapersTable extends Migration
             $table->dropColumn('scraper_priority');
             $table->dropColumn('inventory_lifetime');
         });
-
     }
 
     /**
@@ -100,23 +97,23 @@ class CreateScrapersTable extends Migration
             $table->string('inventory_lifetime')->after('scraper_priority');
         });
 
-        $suppliers = \DB::table('scrapers')->where("scraper_name", "!=", "")->get();
+        $suppliers = \DB::table('scrapers')->where('scraper_name', '!=', '')->get();
 
-        if (!empty($suppliers)) {
+        if (! empty($suppliers)) {
             foreach ($suppliers as $supplier) {
                 \DB::table('suppliers')->where('id', $supplier->supplier_id)->update(
                     [
-                        'scraper_parent_id'     => $supplier->parent_supplier_id,
-                        'scraper_name'          => $supplier->scraper_name,
-                        'scraper_type'          => $supplier->scraper_type,
-                        'scraper_total_urls'    => $supplier->scraper_total_urls,
-                        'scraper_new_urls'      => $supplier->scraper_new_urls,
+                        'scraper_parent_id' => $supplier->parent_supplier_id,
+                        'scraper_name' => $supplier->scraper_name,
+                        'scraper_type' => $supplier->scraper_type,
+                        'scraper_total_urls' => $supplier->scraper_total_urls,
+                        'scraper_new_urls' => $supplier->scraper_new_urls,
                         'scraper_existing_urls' => $supplier->scraper_existing_urls,
-                        'scraper_start_time'    => $supplier->scraper_start_time,
-                        'scraper_logic'         => $supplier->scraper_logic,
-                        'scraper_madeby'        => $supplier->scraper_made_by,
-                        'scraper_priority'      => $supplier->scraper_priority,
-                        'inventory_lifetime'    => $supplier->inventory_lifetime,
+                        'scraper_start_time' => $supplier->scraper_start_time,
+                        'scraper_logic' => $supplier->scraper_logic,
+                        'scraper_madeby' => $supplier->scraper_made_by,
+                        'scraper_priority' => $supplier->scraper_priority,
+                        'inventory_lifetime' => $supplier->inventory_lifetime,
                     ]
                 );
             }
@@ -124,5 +121,4 @@ class CreateScrapersTable extends Migration
 
         Schema::drop('scrapers');
     }
-
 }

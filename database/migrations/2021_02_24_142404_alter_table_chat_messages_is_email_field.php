@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableChatMessagesIsEmailField extends Migration
 {
@@ -14,7 +14,7 @@ class AlterTableChatMessagesIsEmailField extends Migration
     public function up()
     {
         //
-        Schema::table("chat_messages",function(Blueprint $table) {
+        Schema::table('chat_messages', function (Blueprint $table) {
             $table->integer('is_email')->default(0)->nullable()->after('is_reminder');
         });
     }
@@ -27,7 +27,7 @@ class AlterTableChatMessagesIsEmailField extends Migration
     public function down()
     {
         //
-        Schema::table("chat_messages",function(Blueprint $table) {
+        Schema::table('chat_messages', function (Blueprint $table) {
             $table->dropField('is_email');
         });
     }

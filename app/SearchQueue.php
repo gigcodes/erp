@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -12,8 +13,8 @@ class SearchQueue extends Model
      * @var string
      * @SWG\Property(property="search_queues",type="string")
      */
-    protected $table = 'search_queues'; 
-	
+    protected $table = 'search_queues';
+
     protected $fillable = [
     ];
 

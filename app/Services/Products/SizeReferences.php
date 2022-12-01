@@ -2,13 +2,14 @@
 
 namespace App\Services\Products;
 
-class SizeReferences {
-
+class SizeReferences
+{
     private $woman;
+
     private $man;
 
     private $supplierSizes = [
-        '' => ''
+        '' => '',
     ];
 
     public function refineForFemaleUSShoes($product): void
@@ -18,10 +19,10 @@ class SizeReferences {
         $finalSizes = [];
 
         $category = $product->product_category ? $product->product_category->id : 'N/A';
-        if (!isset($this->woman[$category])) {
+        if (! isset($this->woman[$category])) {
             $category = $product->product_category->parent_id;
         }
-        if (!isset($this->woman[$category])) {
+        if (! isset($this->woman[$category])) {
             return;
         }
 
@@ -29,8 +30,8 @@ class SizeReferences {
 
         foreach ($sizes as $size) {
             $size = str_replace(
-                array('US', 'us', 'Us', 'M', 'm', '++', '+'),
-                array('', '', '', '.5', '.5', '.5', '.5'), $size);
+                ['US', 'us', 'Us', 'M', 'm', '++', '+'],
+                ['', '', '', '.5', '.5', '.5', '.5'], $size);
             $size = trim($size);
             if ($size < 30) {
                 if (isset($this->woman[$category]['US'][$size])) {
@@ -45,26 +46,26 @@ class SizeReferences {
         $product->save();
     }
 
-    public function refineForMaleUSShoes($product) {
+    public function refineForMaleUSShoes($product)
+    {
         $sizes = (string) $product->size;
         $sizes = explode(',', $sizes);
         $finalSizes = [];
 
         $category = $product->product_category ? $product->product_category->id : 'N/A';
-        if (!isset($this->man[$category])) {
+        if (! isset($this->man[$category])) {
             $category = $product->product_category->parent_id;
         }
-        if (!isset($this->man[$category])) {
+        if (! isset($this->man[$category])) {
             return;
         }
 
         dump($product->brand);
 
-
         foreach ($sizes as $size) {
             $size = str_replace(
-                array('US', 'us', 'Us', 'M', 'm', '++', '+'),
-                array('', '', '', '.5', '.5', '.5', '.5'), $size);
+                ['US', 'us', 'Us', 'M', 'm', '++', '+'],
+                ['', '', '', '.5', '.5', '.5', '.5'], $size);
             $size = trim($size);
             if ($size < 30) {
                 if (isset($this->man[$category]['US'][$size])) {
@@ -86,18 +87,17 @@ class SizeReferences {
         $finalSizes = [];
 
         $category = $product->product_category ? $product->product_category->id : 'N/A';
-        if (!isset($this->woman[$category])) {
+        if (! isset($this->woman[$category])) {
             $category = $product->product_category->parent_id;
         }
-        if (!isset($this->woman[$category])) {
+        if (! isset($this->woman[$category])) {
             return;
         }
 
-
         foreach ($sizes as $size) {
             $size = str_replace(
-                array('UK', 'uk', 'Uk', 'M', 'm', '++', '+'),
-                array('', '', '', '.5', '.5', '.5', '.5'), $size);
+                ['UK', 'uk', 'Uk', 'M', 'm', '++', '+'],
+                ['', '', '', '.5', '.5', '.5', '.5'], $size);
             $size = trim($size);
             dump($size);
             if ($size < 30) {
@@ -113,26 +113,25 @@ class SizeReferences {
         $product->save();
     }
 
-    public function refineForMaleUKShoes($product) {
+    public function refineForMaleUKShoes($product)
+    {
         $sizes = (string) $product->size;
         $sizes = explode(',', $sizes);
         $finalSizes = [];
 
         $category = $product->product_category ? $product->product_category->id : 'N/A';
-        if (!isset($this->man[$category])) {
+        if (! isset($this->man[$category])) {
             $category = $product->product_category->parent_id;
         }
 
-        if (!isset($this->man[$category])) {
+        if (! isset($this->man[$category])) {
             return;
         }
 
-
-
         foreach ($sizes as $size) {
             $size = str_replace(
-                array('UK', 'uk', 'Uk', 'M', 'm', '++', '+'),
-                array('', '', '', '.5', '.5', '.5', '.5'), $size);
+                ['UK', 'uk', 'Uk', 'M', 'm', '++', '+'],
+                ['', '', '', '.5', '.5', '.5', '.5'], $size);
             $size = trim($size);
             if ($size < 30) {
                 if (isset($this->man[$category]['UK'][$size])) {
@@ -147,7 +146,8 @@ class SizeReferences {
         $product->save();
     }
 
-    public function basicRefining($product) {
+    public function basicRefining($product)
+    {
         $sizes = (string) $product->size;
         $sizes = explode(',', $sizes);
         $finalSizes = [];
@@ -158,7 +158,7 @@ class SizeReferences {
             }
         }
 
-        $finalSizes  = implode(',', $finalSizes);
+        $finalSizes = implode(',', $finalSizes);
         $product->size = $finalSizes;
         $product->save();
     }
@@ -166,9 +166,9 @@ class SizeReferences {
     public function refineSizeToPintFive($product): void
     {
         $size = (string) $product->size;
-        $size = str_replace(['+', '½', '0.5','½'], '.5', $size);
+        $size = str_replace(['+', '½', '0.5', '½'], '.5', $size);
 
-        if(1 === preg_match('~[0-9]~', $size)){
+        if (1 === preg_match('~[0-9]~', $size)) {
             $size = str_replace(['M', 'm'], '.5', $size);
         }
 
@@ -177,16 +177,17 @@ class SizeReferences {
         $product->save();
     }
 
-    public function refineForFr($product) {
+    public function refineForFr($product)
+    {
         $sizes = strtolower($product->size);
         if (stripos($sizes, 'fr') === false) {
             return;
         }
         $category = $product->product_category ? $product->product_category->id : 'N/A';
-        if (!isset($this->woman[$category])) {
+        if (! isset($this->woman[$category])) {
             $category = $product->product_category->parent_id;
         }
-        if (!isset($this->woman[$category])) {
+        if (! isset($this->woman[$category])) {
             return;
         }
 
@@ -204,10 +205,10 @@ class SizeReferences {
         $product->size = $finalSizing;
         dump($finalSizing, '===============================================');
         $product->save();
-
     }
 
-    public function refineSizeForIt($product) {
+    public function refineSizeForIt($product)
+    {
         $sizes = $product->size;
         $sizes = explode(',', $sizes);
         $finalSize = [];
@@ -220,7 +221,8 @@ class SizeReferences {
         $product->save();
     }
 
-    public function getSizeWithReferenceRoman($product) {
+    public function getSizeWithReferenceRoman($product)
+    {
         $sizes = $product->size;
         $sizes = explode(',', $sizes);
         $finalSizes = [];
@@ -306,7 +308,7 @@ class SizeReferences {
                 '42' => '41',
                 '42.5' => '41.5',
                 '43' => '42',
-            ]
+            ],
         ];
         $this->man[5] = [
             'UK' => [
@@ -386,7 +388,7 @@ class SizeReferences {
                 '42' => '41',
                 '42.5' => '41.5',
                 '43' => '42',
-            ]
+            ],
         ];
         $this->uni = [
             '000' => '40',

@@ -1,11 +1,14 @@
-<?php namespace Modules\BookStack\Auth\Permissions;
+<?php
+
+namespace Modules\BookStack\Auth\Permissions;
 
 use Modules\BookStack\Auth\Role;
 use Modules\BookStack\Model;
 
 class RolePermission extends Model
 {
-    protected $table = "permissions";
+    protected $table = 'permissions';
+
     /**
      * The roles that belong to the permission.
      */
@@ -16,6 +19,7 @@ class RolePermission extends Model
 
     /**
      * Get the permission object by name.
+     *
      * @param $name
      * @return mixed
      */

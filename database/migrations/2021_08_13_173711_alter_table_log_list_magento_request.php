@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableLogListMagentoRequest extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableLogListMagentoRequest extends Migration
     public function up()
     {
         //
-        Schema::table("log_list_magentos",function(Blueprint $table) {
-            $table->integer("total_request_assigned")->default(0)->nullable()->after("user_id");
+        Schema::table('log_list_magentos', function (Blueprint $table) {
+            $table->integer('total_request_assigned')->default(0)->nullable()->after('user_id');
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableLogListMagentoRequest extends Migration
     public function down()
     {
         //
-        Schema::table("log_list_magentos",function(Blueprint $table) {
-            $table->dropField("user_id");
+        Schema::table('log_list_magentos', function (Blueprint $table) {
+            $table->dropField('user_id');
         });
     }
 }

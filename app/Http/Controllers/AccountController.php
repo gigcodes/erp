@@ -14,19 +14,21 @@ use Wa72\HtmlPageDom\HtmlPageCrawler;
 
 class AccountController extends Controller
 {
+    private $ig;
 
-    private  $ig;
-    public function show($id) {
+    public function show($id)
+    {
         $account = Account::findOrFail($id);
         $accounts = Account::where('platform', 'instagram')->get();
+
         return view('reviews.show', compact('account', 'accounts'));
     }
 
-    public function sendMessage($id, Request $request) {
-
+    public function sendMessage($id, Request $request)
+    {
         $this->validate($request, [
             'username' => 'required',
-            'message' => 'required'
+            'message' => 'required',
         ]);
 
         $account = Account::findOrFail($id);
@@ -43,13 +45,13 @@ class AccountController extends Controller
 
         $firstScript = str_replace('window._sharedData = ', '', $firstScript);
 
-        $firstScript = substr($firstScript, 0, strlen($firstScript)-1);
+        $firstScript = substr($firstScript, 0, strlen($firstScript) - 1);
 
         $firstScript = json_decode($firstScript, true);
 
-        if (!isset($firstScript['entry_data']['ProfilePage'][0]['graphql']['user']['id'])) {
+        if (! isset($firstScript['entry_data']['ProfilePage'][0]['graphql']['user']['id'])) {
             return response()->json([
-                'status' => 'User Not Found!'
+                'status' => 'User Not Found!',
             ]);
         }
 
@@ -58,12 +60,12 @@ class AccountController extends Controller
 //        $instagram->login($last_name, $password);
 //        $instagram->direct->sendText(['users' => [$id]], $request->get('message'));
         return response()->json([
-            'status' => 'Message Sent successfully!'
+            'status' => 'Message Sent successfully!',
         ]);
-
     }
 
-    public function test($id) {
+    public function test($id)
+    {
         $account = Account::find($id);
 //        $this->ig = new Instagram();
 //        try {
@@ -73,12 +75,10 @@ class AccountController extends Controller
 //            $account->forceDelete();
 //        }
 
-
         $Instagram = new Instagram();
 
         try {
             $Instagram->login($account->last_name, $account->password);
-
         } catch (\Exception $Exception) {
             if ($Exception instanceof ChallengeRequiredException) {
                 sleep(5);
@@ -96,7 +96,7 @@ class AccountController extends Controller
 
                     dd($ifId, $code);
 
-                    //Other stuff.
+                //Other stuff.
                 } else {
                     //Other stuff.
                 }
@@ -171,18 +171,17 @@ class AccountController extends Controller
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
-     *
      */
-    public function createAccount(Request $request) {
-
+    public function createAccount(Request $request)
+    {
         $this->validate($request, [
             'username' => 'required',
             'name' => 'required',
-            'password' => 'required'
+            'password' => 'required',
         ]);
 
         $account = new Account();
@@ -195,7 +194,7 @@ class AccountController extends Controller
         $account->save();
 
         return response()->json([
-            'status' => 'success'
+            'status' => 'success',
         ]);
     }
 }

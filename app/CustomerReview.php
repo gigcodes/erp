@@ -21,9 +21,10 @@ class CustomerReview extends Model
      * @SWG\Property(property="comment",type="string")
      * @SWG\Property(property="status",type="integer")
      */
-
     use SoftDeletes;
+
     use Mediable;
+
     protected $fillable = [
         'email', 'name', 'store_website_id', 'platform_id', 'stars', 'comment', 'status',
     ];

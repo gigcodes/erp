@@ -240,7 +240,7 @@ return [
     'book_tags' => 'Tags de Livro',
     'shelf_tags' => 'Tags de Prateleira',
     'tag' => 'Tag',
-    'tags' =>  '',
+    'tags' => '',
     'tag_value' => 'Valor da Tag (Opcional)',
     'tags_explain' => "Adicione algumas tags para melhor categorizar seu conteúdo. \n Você pode atrelar um valor para uma tag para uma organização mais consistente.",
     'tags_add' => 'Adicionar outra tag',
@@ -300,5 +300,5 @@ return [
     'revision_delete_confirm' => 'Tem certeza de que deseja excluir esta revisão?',
     'revision_restore_confirm' => 'Tem certeza que deseja restaurar esta revisão? O conteúdo atual da página será substituído.',
     'revision_delete_success' => 'Revisão excluída',
-    'revision_cannot_delete_latest' => 'Não é possível excluir a revisão mais recente.'
+    'revision_cannot_delete_latest' => 'Não é possível excluir a revisão mais recente.',
 ];

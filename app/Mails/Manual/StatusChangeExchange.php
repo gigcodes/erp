@@ -2,7 +2,6 @@
 
 namespace App\Mails\Manual;
 
-use App\Customer;
 use App\ReturnExchange;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -19,7 +18,6 @@ class StatusChangeExchange extends Mailable
      *
      * @return void
      */
-
     public $return;
 
     public function __construct(ReturnExchange $return)
@@ -35,28 +33,26 @@ class StatusChangeExchange extends Mailable
      */
     public function build()
     {
-
-        $subject = "Your Exchange request status has been changed";
+        $subject = 'Your Exchange request status has been changed';
         $return = $this->return;
         $customer = $return->customer;
 
         $this->subject = $subject;
-        $this->fromMailer = "customercare@sololuxury.co.in";
+        $this->fromMailer = 'customercare@sololuxury.co.in';
 
         if ($customer) {
-
             if ($customer->store_website_id > 0) {
                 $emailAddress = \App\EmailAddress::where('store_website_id', $customer->store_website_id)->first();
                 if ($emailAddress) {
                     $this->fromMailer = $emailAddress->from_address;
                 }
-                $template = \App\MailinglistTemplate::template("Status Change Exchange", $customer->store_website_id);
+                $template = \App\MailinglistTemplate::template('Status Change Exchange', $customer->store_website_id);
             } else {
                 $emailAddress = \App\EmailAddress::where('store_website_id', self::STORE_ERP_WEBSITE)->first();
                 if ($emailAddress) {
                     $this->fromMailer = $emailAddress->from_address;
                 }
-                $template = \App\MailinglistTemplate::template("Status Change Exchange");
+                $template = \App\MailinglistTemplate::template('Status Change Exchange');
             }
 
             if ($template) {
@@ -64,9 +60,10 @@ class StatusChangeExchange extends Mailable
                     $this->fromMailer = $template->from_email;
                 }
 
-                if (!empty($template->mail_tpl)) {
+                if (! empty($template->mail_tpl)) {
                     // need to fix the all email address
                     $this->subject = $template->subject;
+
                     return $this->subject($this->subject)
                         ->view($template->mail_tpl, compact(
                             'customer', 'return'

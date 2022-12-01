@@ -46,9 +46,8 @@ class SaveProductsImages extends Command
         // Set memory limit
         ini_set('memory_limit', '256M');
         try {
-
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -73,16 +72,16 @@ class SaveProductsImages extends Command
 
             // dd(count($products));
             // $products = Product::where('is_without_image', 1)->where('sku', 'BE2007E00C001')->get();
-            $count      = 0;
+            $count = 0;
             $has_images = 0;
             foreach ($products as $key => $product) {
                 echo "$key - Found Product \n";
 
                 if ($product->hasMedia(config('constants.media_tags'))) {
-                    dump("Has Linked Images");
+                    dump('Has Linked Images');
                     $has_images++;
 
-                    // continue;
+                // continue;
                 } else {
                     $count++;
                     // continue;
@@ -91,7 +90,7 @@ class SaveProductsImages extends Command
                 // dd($product->many_scraped_products);
 
                 foreach ($product->many_scraped_products as $scraped_product) {
-                    dump("$key - Found Scraped Product - " . $product->scraped_products->sku);
+                    dump("$key - Found Scraped Product - ".$product->scraped_products->sku);
 
                     $images = $scraped_product->images;
 
@@ -112,10 +111,10 @@ class SaveProductsImages extends Command
                                     $formatted_final = $to_lower;
                                 } else {
                                     if (strpos(strtolower($to_lower), '.jpg') !== false) {
-                                        $formatted_final = substr($to_lower, 0, strpos(strtolower($to_lower), '.jpg')) . '.jpg';
+                                        $formatted_final = substr($to_lower, 0, strpos(strtolower($to_lower), '.jpg')).'.jpg';
                                     } else {
                                         if (strpos(strtolower($to_lower), '.png') !== false) {
-                                            $formatted_final = substr($to_lower, 0, strpos(strtolower($to_lower), '.png')) . '.png';
+                                            $formatted_final = substr($to_lower, 0, strpos(strtolower($to_lower), '.png')).'.png';
                                         } else {
                                             $formatted_final = $to_lower;
                                         }
@@ -123,7 +122,7 @@ class SaveProductsImages extends Command
 
                                     $formatted_final = str_replace('//foto', '/foto', $formatted_final);
 
-                                    $exploded_url     = explode('/', $formatted_final);
+                                    $exploded_url = explode('/', $formatted_final);
                                     $corrected_pieces = [];
                                     foreach ($exploded_url as $key => $piece) {
                                         if ($key == 0) {
@@ -149,14 +148,14 @@ class SaveProductsImages extends Command
                                         'cookies' => $cookieJar,
                                     ];
 
-                                    $response  = $guzzle->request('GET', $formatted_final, $params);
-                                    $file_path = public_path() . '/uploads/' . '/one.jpg';
+                                    $response = $guzzle->request('GET', $formatted_final, $params);
+                                    $file_path = public_path().'/uploads/'.'/one.jpg';
 
                                     file_put_contents($file_path, $response->getBody()->getContents());
 
                                     $media = MediaUploader::fromSource($file_path)
                                         ->useFilename(uniqid(true))
-                                        ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
+                                        ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
                                         ->upload();
 
                                     unlink($file_path);
@@ -172,14 +171,14 @@ class SaveProductsImages extends Command
                                             'cookies' => $cookieJar,
                                         ];
 
-                                        $response  = $guzzle->request('GET', $formatted_final, $params);
-                                        $file_path = public_path() . '/uploads/' . '/one.jpg';
+                                        $response = $guzzle->request('GET', $formatted_final, $params);
+                                        $file_path = public_path().'/uploads/'.'/one.jpg';
 
                                         file_put_contents($file_path, $response->getBody()->getContents());
 
                                         $media = MediaUploader::fromSource($file_path)
                                             ->useFilename(uniqid(true))
-                                            ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
+                                            ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
                                             ->upload();
 
                                         unlink($file_path);
@@ -195,21 +194,21 @@ class SaveProductsImages extends Command
                                                 'cookies' => $cookieJar,
                                             ];
 
-                                            $response  = $guzzle->request('GET', $formatted_final, $params);
-                                            $file_path = public_path() . '/uploads/' . '/one.jpg';
+                                            $response = $guzzle->request('GET', $formatted_final, $params);
+                                            $file_path = public_path().'/uploads/'.'/one.jpg';
 
                                             file_put_contents($file_path, $response->getBody()->getContents());
 
                                             $media = MediaUploader::fromSource($file_path)
                                                 ->useFilename(uniqid(true))
-                                                ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
+                                                ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
                                                 ->upload();
 
                                             unlink($file_path);
                                         } else {
                                             $media = MediaUploader::fromSource($formatted_final)
                                                 ->useFilename(uniqid(true))
-                                                ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
+                                                ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
                                                 ->upload();
                                         }
                                     }
@@ -220,10 +219,9 @@ class SaveProductsImages extends Command
                                 $product->is_without_image = 0;
                                 $product->save();
                             } catch (\Exception $e) {
-                                echo "$key - Couldn't upload image " . $e->getMessage() . " - $product->sku \n";
+                                echo "$key - Couldn't upload image ".$e->getMessage()." - $product->sku \n";
                                 echo "$image_path \n";
                             }
-
                         }
 
                         if ($product->is_without_image == 0) {

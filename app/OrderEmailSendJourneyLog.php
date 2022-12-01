@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -24,11 +25,10 @@ class OrderEmailSendJourneyLog extends Model
      * @SWG\Property(property="error_msg",type="text")
      * @SWG\Property(property="created_at",type="date")
      */
-    protected $fillable = ['id','order_id','steps', 'model_type', 'send_type','seen', 'from_email', 'to_email', 'subject', 'message', 'template', 'error_msg', 'created_at'];
+    protected $fillable = ['id', 'order_id', 'steps', 'model_type', 'send_type', 'seen', 'from_email', 'to_email', 'subject', 'message', 'template', 'error_msg', 'created_at'];
 
     public function order()
     {
         return $this->belongsTo('App\Order');
     }
 }
-

@@ -2,14 +2,11 @@
 
 namespace App\Events;
 
-
-use Illuminate\Queue\SerializesModels;
 use App\SendgridEvent;
 
 /**
  * Class SendgridEventCreated.
  * The event that will be triggered each time Sendgrid send notification using webhook.
- * @package LaravelSendgridEvents\Events
  */
 class SendgridEventCreated
 {
@@ -18,7 +15,8 @@ class SendgridEventCreated
 
     /**
      * SendgridEventCreated constructor.
-     * @param SendgridEvent $sendgridEvent
+     *
+     * @param  SendgridEvent  $sendgridEvent
      */
     public function __construct(SendgridEvent $sendgridEvent)
     {

@@ -18,6 +18,7 @@ class RedisjobController extends Controller
         $redis_data = new Redisjob();
         $redis_data = $redis_data->paginate(25);
         $total_count = $redis_data->total();
+
         return view('radis_job.index', compact('redis_data', 'total_count'));
     }
 
@@ -31,10 +32,11 @@ class RedisjobController extends Controller
         $redis_data = new Redisjob();
         $redis_data = $redis_data->paginate(25)->get();
         $total_count = $redis_data->total();
+
         return response()->json([
-                'tbody' => view('radis_job.partials.list_more_record_ajax', compact('redis_data', 'total_count'))->render(),
-                'links' => (string) $redis_data->render(),
-            ], 200);
+            'tbody' => view('radis_job.partials.list_more_record_ajax', compact('redis_data', 'total_count'))->render(),
+            'links' => (string) $redis_data->render(),
+        ], 200);
     }
 
     /**
@@ -45,14 +47,15 @@ class RedisjobController extends Controller
      */
     public function store(Request $request)
     {
-        try{
+        try {
             $redis = new Redisjob();
             $redis->name = $request->name;
             $redis->type = $request->type;
             $redis->save();
+
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Data added successfully!']);
         } catch (\Exception $e) {
-            return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage() ]);
+            return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
         }
     }
 
@@ -64,13 +67,13 @@ class RedisjobController extends Controller
      */
     public function clearQue(Request $request)
     {
-        try{
+        try {
             Artisan::call('queue:clear redis --queue='.$request->name);
+
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Clear Queue successfully!']);
         } catch (\Exception $e) {
-            return response()->json(['code' => 500, 'data' => [], 'message' =>  $e->getMessage()]);
+            return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
         }
-    
     }
 
     /**
@@ -81,13 +84,13 @@ class RedisjobController extends Controller
      */
     public function restartManagement(Request $request)
     {
-        try{
+        try {
             Artisan::call('queue:retry --queue='.$request->name);
+
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Clear Queue successfully!']);
         } catch (\Exception $e) {
-            return response()->json(['code' => 500, 'data' => [], 'message' =>  $e->getMessage()]);
+            return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
         }
-    
     }
 
     /**
@@ -98,12 +101,12 @@ class RedisjobController extends Controller
      */
     public function removeQue(Redisjob $redisjob, Request $request)
     {
-        try{
+        try {
             $redis_data = Redisjob::where('id', $request->id)->delete();
+
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Deleted successfully!']);
         } catch (\Exception $e) {
-            return response()->json(['code' => 500, 'data' => [], 'message' =>  $e->getMessage()]);
+            return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
         }
-    
     }
 }

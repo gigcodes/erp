@@ -7,10 +7,11 @@ use Illuminate\Http\Request;
 
 class UsersFeedbackHrTicketController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         //dd('gfhgfhgf');
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -51,13 +52,12 @@ class UsersFeedbackHrTicketController extends Controller
             $task->task_asssigned_to = $request->task_asssigned_to;
             $task->status = 'In progress';
             $task->save();
-            return response()->json(['code'=>'200', 'data' => $task, 'message' => 'Data saved successfully']);
-        } catch(\Exception $e){
-            return response()->json(['code'=>'500',  'message' => $e->getMessage()]);
+
+            return response()->json(['code' => '200', 'data' => $task, 'message' => 'Data saved successfully']);
+        } catch(\Exception $e) {
+            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
         }
-
     }
-
 
     /**
      * Display the specified resource.
@@ -71,9 +71,10 @@ class UsersFeedbackHrTicketController extends Controller
             $task = UsersFeedbackHrTicket::select('users_feedback_hr_tickets.*', 'users_feedback_hr_tickets.task_subject as subject', 'users.name as assigned_to_name')
             ->join('users', 'users.id', 'users_feedback_hr_tickets.task_asssigned_to')
             ->where('feedback_cat_id', $request->id)->get();
-            return response()->json(['code'=>'200', 'data' => $task, 'message' => 'Ticket Details listed successfully']);
-        } catch(\Exception $e){
-            return response()->json(['code'=>'500',  'message' => $e->getMessage()]);
+
+            return response()->json(['code' => '200', 'data' => $task, 'message' => 'Ticket Details listed successfully']);
+        } catch(\Exception $e) {
+            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
         }
     }
 

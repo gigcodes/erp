@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddColumnLastErrorToCronJob extends Migration
 {
@@ -14,7 +14,7 @@ class AddColumnLastErrorToCronJob extends Migration
     public function up()
     {
         Schema::table('cron_jobs', function (Blueprint $table) {
-           $table->string('last_error')->nullable()->after("error_count");
+            $table->string('last_error')->nullable()->after('error_count');
         });
     }
 

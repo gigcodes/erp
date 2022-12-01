@@ -45,7 +45,7 @@ class ManualQueueForMagento extends Command
         ini_set('memory_limit', '2048M');
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             // Get all products queued for AI
@@ -54,7 +54,7 @@ class ManualQueueForMagento extends Command
             // Loop over products
             foreach ($products as $product) {
                 // Output product ID
-                echo $product->id . "\n";
+                echo $product->id."\n";
 
                 // Queue for AI
                 PushToMagento::dispatch($product)->onQueue('magento');

@@ -2,34 +2,31 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Account;
 use App\ChatMessage;
 use App\HashTag;
 //use App\InstagramPosts;
 use App\Post;
 //use App\InstagramPostsComments;
-use App\Setting;
-use Illuminate\Http\Request;
-//use InstagramAPI\Instagram;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-use File;
-use App\CommentsStats;
-//use App\InstagramCommentQueue;
 use App\ScrapInfluencer;
+use App\Setting;
+//use InstagramAPI\Instagram;
+use App\StoreSocialContent;
 use Carbon\Carbon;
+//use App\InstagramCommentQueue;
+use File;
+use Illuminate\Http\Request;
 //use App\InstagramUsersList;
 //use App\Library\Instagram\PublishPost;
 use Plank\Mediable\Media;
-use App\StoreSocialContent;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 //use App\InstagramPostLog;
 //use App\InstagramLog;
 //use App\InstagramUserLog;
 use UnsplashSearch;
+
 //use App\Jobs\InstaSchedulePost;
 //\InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
-
-
 
 class InstagramPostsController extends Controller
 {
@@ -49,11 +46,8 @@ class InstagramPostsController extends Controller
 //        return view('social-media.instagram-posts.index', compact('posts'));
     }
 
-
     public function post(Request $request)
     {
-
-       
 //       $images = $request->get('images', false);
 //       $mediaIds = $request->get('media_ids', false);
 //
@@ -146,9 +140,9 @@ class InstagramPostsController extends Controller
 //        return view('instagram.post.create' , compact('accounts','records','used_space','storage_limit', 'posts','imagesHtml'))->with('i', ($request->input('page', 1) - 1) * 5);;
     }
 
-    public function createPost(Request $request){
-        
-        //resizing media 
+    public function createPost(Request $request)
+    {
+        //resizing media
 //        $all = $request->all();
 //
 //        if($request->media)
@@ -237,12 +231,10 @@ class InstagramPostsController extends Controller
 //            }
 //
 //        }
-
     }
 
-
-    public function publishPost(Request $request, $id){
-
+    public function publishPost(Request $request, $id)
+    {
 //        $post = Post::find($id);
 //        $media = json_decode($post->ig,true);
 //        $ig         = [
@@ -259,10 +251,7 @@ class InstagramPostsController extends Controller
 //            return redirect()->route('post.index')
 //                ->with('error', __('Post failed to published'));
 //        }
-
     }
-
-
 
     public function grid(Request $request)
     {
@@ -284,7 +273,8 @@ class InstagramPostsController extends Controller
 //        return view('social-media.instagram-posts.grid', compact('posts', 'request'));
     }
 
-    private function _getFilteredInstagramPosts(Request $request) {
+    private function _getFilteredInstagramPosts(Request $request)
+    {
         // Base query
 //        $instagramPosts = InstagramPosts::orderBy('posted_at', 'DESC')
 //            ->join('hash_tags', 'instagram_posts.hashtag_id', '=', 'hash_tags.id')
@@ -312,7 +302,7 @@ class InstagramPostsController extends Controller
 //        return $instagramPosts;
     }
 
-     /**
+    /**
      * @SWG\Post(
      *   path="/instagram/post",
      *   tags={"Instagram"},
@@ -324,11 +314,10 @@ class InstagramPostsController extends Controller
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
-     *
      */
     public function apiPost(Request $request)
     {
@@ -474,11 +463,10 @@ class InstagramPostsController extends Controller
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
-     *
      */
     public function sendAccount($token)
     {
@@ -502,11 +490,10 @@ class InstagramPostsController extends Controller
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
-     *
      */
     public function getComments($username)
     {
@@ -522,8 +509,6 @@ class InstagramPostsController extends Controller
 //        }else{
 //            return response()->json(['result' =>  false, 'message' => 'No messages'],200);
 //        }
-               
-
     }
 
     /**
@@ -538,11 +523,10 @@ class InstagramPostsController extends Controller
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
-     *
      */
     public function commentSent(Request $request)
     {
@@ -550,8 +534,7 @@ class InstagramPostsController extends Controller
 //        $comment = InstagramCommentQueue::find($id);
 //        $comment->is_send = 1;
 //        $comment->save();
-
-    }    
+    }
 
     /**
      * @SWG\Get(
@@ -565,11 +548,10 @@ class InstagramPostsController extends Controller
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
-     *
      */
     public function getHashtagList()
     {
@@ -584,27 +566,25 @@ class InstagramPostsController extends Controller
 //        }
 //
 //        return response()->json(['hastag' => $hastags ],200);
-
     }
 
     /**
-    * @SWG\Post(
-    *   path="/local/instagram-post",
-    *   tags={"Local"},
-    *   summary="Save Local instagram post",
-    *   operationId="save-local-instagram-post",
-    *   @SWG\Response(response=200, description="successful operation"),
-    *   @SWG\Response(response=406, description="not acceptable"),
-    *   @SWG\Response(response=500, description="internal server error"),
-    *      @SWG\Parameter(
-    *          name="mytest",
-    *          in="path",
-    *          required=true, 
-    *          type="string" 
-    *      ),
-    * )
-    *
-    */
+     * @SWG\Post(
+     *   path="/local/instagram-post",
+     *   tags={"Local"},
+     *   summary="Save Local instagram post",
+     *   operationId="save-local-instagram-post",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true,
+     *          type="string"
+     *      ),
+     * )
+     */
     public function saveFromLocal(Request $request)
     {
         // Get raw JSON
@@ -703,7 +683,6 @@ class InstagramPostsController extends Controller
 //        ));
     }
 
-
     public function users(Request $request)
     {
 //        $users = \App\InstagramUsersList::whereNotNull('username')->where('is_manual',1)->orderBy('id','desc')->paginate(25);
@@ -711,34 +690,33 @@ class InstagramPostsController extends Controller
     }
 
     /**
-    * @SWG\Get(
-    *   path="/local/instagram-user-post",
-    *   tags={"Local"},
-    *   summary="Get Local instagram user post",
-    *   operationId="get-local-instagram-user-post",
-    *   @SWG\Response(response=200, description="successful operation"),
-    *   @SWG\Response(response=406, description="not acceptable"),
-    *   @SWG\Response(response=500, description="internal server error"),
-    *      @SWG\Parameter(
-    *          name="mytest",
-    *          in="path",
-    *          required=true, 
-    *          type="string" 
-    *      ),
-    * )
-    *
-    */
+     * @SWG\Get(
+     *   path="/local/instagram-user-post",
+     *   tags={"Local"},
+     *   summary="Get Local instagram user post",
+     *   operationId="get-local-instagram-user-post",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true,
+     *          type="string"
+     *      ),
+     * )
+     */
     public function getUserForLocal()
     {
 //        $users = \App\InstagramUsersList::select('id','user_id')->whereNotNull('username')->where('is_manual',1)->where('is_processed',0)->orderBy('id','desc')->first();
 //        return json_encode($users);
-        
     }
-	
-	public function instagramUserLogs() {
-//		$logs = InstagramUserLog::orderby('id', 'desc')->paginate(20);
-//		return view('instagram.log',compact('logs'));
-	}
+
+    public function instagramUserLogs()
+    {
+        //		$logs = InstagramUserLog::orderby('id', 'desc')->paginate(20);
+        //		return view('instagram.log',compact('logs'));
+    }
 
     public function userPost($id)
     {
@@ -747,31 +725,31 @@ class InstagramPostsController extends Controller
 //        $ig = new \InstagramAPI\Instagram();
 //
 //        try {
-//			$account = \App\Account::where('platform','instagram')->where('status',1)->first();
-//			$ig->login($account->last_name, $account->password);
+        //			$account = \App\Account::where('platform','instagram')->where('status',1)->first();
+        //			$ig->login($account->last_name, $account->password);
 //          // $ig->login('technodeviser03', '123321deviser*');
 //            //$ig->login('satyam_t', 'Schoolrocks93');
-//			$this->instagramUserLog($account->id,"success",'Logged In');
+        //			$this->instagramUserLog($account->id,"success",'Logged In');
 //        } catch (\Exception $e) {
-//			$msg = 'Instagram login failed:  - '.$e->getMessage();
-//			$this->instagramUserLog($account->id,"error",$msg);
+        //			$msg = 'Instagram login failed:  - '.$e->getMessage();
+        //			$this->instagramUserLog($account->id,"error",$msg);
 //            return response()->json(['message' => $msg, 'code' => 413],413);
 //        }
 //        try {
 //            $user_id = $ig->people->getUserIdForName($user->username);
-//			$this->instagramUserLog($account->id,"success",'User Id found '. $user_id);
+        //			$this->instagramUserLog($account->id,"success",'User Id found '. $user_id);
 //        } catch (\Exception $e) {
 //            $msg = 'Something went wrong: '.$e->getMessage();
-//			$this->instagramUserLog($account->id,"error",$msg);
+        //			$this->instagramUserLog($account->id,"error",$msg);
 //            return response()->json(['message' => $msg, 'code' => 413],413);
 //        }
 //
 //        try {
 //            $feed = $ig->timeline->getUserFeed($user_id);
-//			$this->instagramUserLog($account->id,"success",'Feed retreived ');
+        //			$this->instagramUserLog($account->id,"success",'Feed retreived ');
 //        } catch (\Exception $e) {
 //            $msg = 'Something went wrong: '.$e->getMessage();
-//			$this->instagramUserLog($account->id,"error",$msg);
+        //			$this->instagramUserLog($account->id,"error",$msg);
 //            return response()->json(['message' => $msg, 'code' => 413],413);
 //        }
 //
@@ -787,7 +765,7 @@ class InstagramPostsController extends Controller
 //            $caption = $media['caption']['text'];
 //            $user_id = $user_id;
 //            $mediaDetail = [];
-//			$this->instagramUserLog($account->id,"success",'Media type is '.$media['media_type'] .' for post id '. $postId);
+        //			$this->instagramUserLog($account->id,"success",'Media type is '.$media['media_type'] .' for post id '. $postId);
 //            if ($media['media_type'] === 1) {
 //                $mediaDetail[] = [
 //                    'media_type' => 1,
@@ -844,7 +822,7 @@ class InstagramPostsController extends Controller
 //            $media->media_url = json_encode($mediaDetail);
 //            $media->posted_at = now();
 //            $media->save();
-//			$this->instagramUserLog($account->id,"success",'Post saved.');
+        //			$this->instagramUserLog($account->id,"success",'Post saved.');
 //            $mediaId = $media->id;
 //
 //            foreach ($mediaDetail as $mediaFile) {
@@ -889,16 +867,14 @@ class InstagramPostsController extends Controller
 //            $count++;
 //        }
 //        return redirect()->to('/instagram/users/'.$user->user_id);
-        
     }
 
     public function resizeToRatio()
     {
-        
     }
 
-    public  function resize_image_crop($image,$width,$height) {
-        
+    public function resize_image_crop($image, $width, $height)
+    {
 //        $newImage = $image;
 //        $type = $image->mime_type;
 //
@@ -951,13 +927,10 @@ class InstagramPostsController extends Controller
 //        imagedestroy($image2);
 //        imagejpeg($image3,$newImage->getAbsolutePath());
 //        return $image3;
-     
-
     }
 
     public function hashtag(Request $request, $word)
     {
-
 //        if($word)
 //        {
 //            $response = $this->getHastagifyApiToken();
@@ -998,10 +971,8 @@ class InstagramPostsController extends Controller
 //        }
     }
 
-
     public function getHastagifyApiToken()
     {
-        
 //            $token = \Session()->get('hastagify');
 //            if($token){
 //                return $token;
@@ -1043,7 +1014,6 @@ class InstagramPostsController extends Controller
 //            }
 //        }
     }
-
 
     public function getHashTashSuggestions($token, $word)
     {
@@ -1107,70 +1077,63 @@ class InstagramPostsController extends Controller
 //            $this->createPostLog($post_id,"error",$e->getMessage());
 //            return response()->json(["message"=>"error while saving data"],500);
 //        }
-       
     }
 
-    public function getImages( Request $request )
-    {   
-        if( $request->type == 'user' ){
-
-            $number = rand(1,500);
-            $response = UnsplashSearch::users( $request->keyword ,['page' => $number]);
-            $content =  $response->getContents();
+    public function getImages(Request $request)
+    {
+        if ($request->type == 'user') {
+            $number = rand(1, 500);
+            $response = UnsplashSearch::users($request->keyword, ['page' => $number]);
+            $content = $response->getContents();
             $lists = json_decode($content);
             $images = [];
             foreach ($lists->results as $list) {
                 $images[] = $list->urls->full;
             }
-            return $images ? $images : null;
-        }else if( $request->type == 'collection' ){
 
-            $number = rand(1,500);
-            $response = UnsplashSearch::collections( $request->keyword ,['page' => $number]);
-            $content =  $response->getContents();
+            return $images ? $images : null;
+        } elseif ($request->type == 'collection') {
+            $number = rand(1, 500);
+            $response = UnsplashSearch::collections($request->keyword, ['page' => $number]);
+            $content = $response->getContents();
             $lists = json_decode($content);
-            
+
             $images = [];
             foreach ($lists->results as $list) {
                 $images[] = $list->cover_photo->urls->full;
             }
-            return $images ? $images : null;
 
-        }else {
-            $number = rand(1,500);
-            $response = UnsplashSearch::photos( $request->keyword ,['page' => $number, 'order_by' => 'latest']);
-            $content =  $response->getContents();
+            return $images ? $images : null;
+        } else {
+            $number = rand(1, 500);
+            $response = UnsplashSearch::photos($request->keyword, ['page' => $number, 'order_by' => 'latest']);
+            $content = $response->getContents();
             $lists = json_decode($content);
-            
+
             $images = [];
             foreach ($lists->results as $list) {
                 $images[] = $list->urls->full;
             }
+
             return $images ? $images : null;
         }
-
-
     }
 
     public function getCaptions()
     {
         $captionArray = [];
-        
+
         $captions = \App\Caption::all();
 
         foreach ($captions as $caption) {
             $captionArray[] = ['id' => $caption->id, 'caption' => $caption->caption];
-            
-               
         }
 
         return $captionArray;
-
     }
 
     public function postMultiple(Request $request)
-    {   
-        
+    {
 //        try {
 //            if($request->account_id){
 //
@@ -1370,7 +1333,6 @@ class InstagramPostsController extends Controller
 //            return true;
 //    }
 
-
 //    public function createPostLog($postId=null,$title=null,$message=null)
 //    {
 //        $InstagramPostLog = new InstagramPostLog();
@@ -1382,8 +1344,7 @@ class InstagramPostsController extends Controller
 //    }
 
     public function history(Request $request)
-    {   
-        
+    {
 //    	$productCategory = InstagramLog::where("account_id", $request->account_id)->orderBy("created_at","desc")->get();
 //        return response()->json(["code" => 200 , "data" => $productCategory]);
     }
@@ -1412,7 +1373,7 @@ class InstagramPostsController extends Controller
 //
 //        $accountSettingInfo = Setting::select('val')->where('name','instagram_message_queue_rate_setting')->first();
 //
-//$accountSettingInformation= null;
+        //$accountSettingInformation= null;
 //        if($accountSettingInfo){
 //            $accountSettingInformation = json_decode($accountSettingInfo->val,true);
 //        }
@@ -1428,7 +1389,6 @@ class InstagramPostsController extends Controller
 
     public function messageQueueSetting(Request $request)
     {
-
 //        $updatedData =  Setting::updateOrCreate(
 //            [
 //                'name' => 'instagram_message_queue_rate_setting'
@@ -1480,12 +1440,10 @@ class InstagramPostsController extends Controller
         $chatMessage->is_queue = 1;
         $result = $chatMessage->save();
 
-            if($result){
-                return response()->json(['message'=>'Approved Successfully']);
-            }
+        if ($result) {
+            return response()->json(['message' => 'Approved Successfully']);
+        }
 
-
-        return response()->json(['error'=>'Failed to change status']);
+        return response()->json(['error' => 'Failed to change status']);
     }
-
 }

@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Models\Tasks;
+
 use Illuminate\Database\Eloquent\Model;
 
-class TaskHistoryForCost extends Model {
+class TaskHistoryForCost extends Model
+{
     public $table = 'task_history_for_cost';
 
     public $fillable = [
@@ -14,7 +16,8 @@ class TaskHistoryForCost extends Model {
         'updated_by',
     ];
 
-    public function updatedBy() {
+    public function updatedBy()
+    {
         return $this->hasOne(\App\User::class, 'id', 'updated_by');
     }
 }

@@ -17,7 +17,7 @@ class CreateProblemsTable extends Migration
             $table->increments('id');
             $table->bigInteger('eventid');
             $table->bigInteger('objectid');
-            $table->string('name',155);
+            $table->string('name', 155);
             $table->timestamps();
         });
     }

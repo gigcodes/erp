@@ -2,9 +2,9 @@
 
 namespace Modules\BookStack\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Database\Eloquent\Factory;
 use Blade;
+use Illuminate\Database\Eloquent\Factory;
+use Illuminate\Support\ServiceProvider;
 
 class BookStackServiceProvider extends ServiceProvider
 {
@@ -24,8 +24,7 @@ class BookStackServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->registerFactories();
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
-
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
     }
 
     /**
@@ -65,11 +64,11 @@ class BookStackServiceProvider extends ServiceProvider
         $sourcePath = __DIR__.'/../Resources/views';
 
         $this->publishes([
-            $sourcePath => $viewPath
-        ],'views');
+            $sourcePath => $viewPath,
+        ], 'views');
 
         $this->loadViewsFrom(array_merge(array_map(function ($path) {
-            return $path . '/modules/bookstack';
+            return $path.'/modules/bookstack';
         }, \Config::get('view.paths')), [$sourcePath]), 'bookstack');
     }
 
@@ -85,7 +84,7 @@ class BookStackServiceProvider extends ServiceProvider
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, 'bookstack');
         } else {
-            $this->loadTranslationsFrom(__DIR__ .'/../Resources/lang', 'bookstack');
+            $this->loadTranslationsFrom(__DIR__.'/../Resources/lang', 'bookstack');
         }
     }
 
@@ -97,7 +96,7 @@ class BookStackServiceProvider extends ServiceProvider
     public function registerFactories()
     {
         if (! app()->environment('production') && $this->app->runningInConsole()) {
-            app(Factory::class)->load(__DIR__ . '/../Database/factories');
+            app(Factory::class)->load(__DIR__.'/../Database/factories');
         }
     }
 

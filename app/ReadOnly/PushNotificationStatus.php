@@ -8,14 +8,13 @@
 
 namespace App\ReadOnly;
 
-
 use App\ReadOnlyBase;
 
-class PushNotificationStatus extends ReadOnlyBase {
-
-	protected $data = [
-		1   => 'Accepted',
-		2   => 'Postponed',
-		3  => 'Rejected',
-	];
+class PushNotificationStatus extends ReadOnlyBase
+{
+    protected $data = [
+        1 => 'Accepted',
+        2 => 'Postponed',
+        3 => 'Rejected',
+    ];
 }

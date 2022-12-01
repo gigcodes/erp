@@ -8,17 +8,16 @@ use Illuminate\Http\Request;
 
 class PinterestAccountAcontroller extends Controller
 {
-    public function index(Request $request) {
-
+    public function index(Request $request)
+    {
         $accounts = Account::where('platform', 'pinterest');
 
         if ($request->get('query') != '') {
-            $accounts->where(function($query) use ($request) {
+            $accounts->where(function ($query) use ($request) {
                 $q = $request->get('query');
-                $query->where('first_name','LIKE', "%$q%")->orWhere('last_name', 'LIKE', "%$q%");
+                $query->where('first_name', 'LIKE', "%$q%")->orWhere('last_name', 'LIKE', "%$q%");
             });
         }
-
 
         if ($request->get('blocked') == 'on') {
             $accounts = $accounts->where('blocked', 1);
@@ -27,15 +26,16 @@ class PinterestAccountAcontroller extends Controller
         $accounts = $accounts->get();
         $countries = TargetLocation::all();
 
-        return view('pinterest.accounts',compact('accounts', 'request', 'countries'));
+        return view('pinterest.accounts', compact('accounts', 'request', 'countries'));
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $this->validate($request, [
             'last_name' => 'required',
             'first_name' => 'required',
             'password' => 'required',
-            'email' => 'required'
+            'email' => 'required',
         ]);
 
         $account = new Account();
@@ -49,23 +49,23 @@ class PinterestAccountAcontroller extends Controller
         $account->save();
 
         return redirect()->back()->with('success', 'Account added successfully!');
-
     }
 
-    public function edit($id) {
+    public function edit($id)
+    {
         $account = Account::find($id);
         $countries = TargetLocation::all();
 
         return view('pinterest.account-edit', compact('countries', 'account'));
-
     }
 
-    public function update($id, Request $request) {
+    public function update($id, Request $request)
+    {
         $this->validate($request, [
             'last_name' => 'required',
             'first_name' => 'required',
             'password' => 'required',
-            'email' => 'required'
+            'email' => 'required',
         ]);
 
         $account = Account::findOrFail($id);
@@ -80,7 +80,8 @@ class PinterestAccountAcontroller extends Controller
         return redirect()->back()->with('message', 'Account updated successfully!');
     }
 
-    public function destroy($id) {
+    public function destroy($id)
+    {
         $acc = Account::findOrFail($id);
         $acc->delete();
 

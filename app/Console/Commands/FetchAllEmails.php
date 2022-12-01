@@ -2,18 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\CashFlow;
 use App\CronJobReport;
-use App\Email;
 use App\EmailAddress;
-use App\EmailRunHistories;
-use App\Supplier;
+use App\Jobs\FetchEmail;
 use Carbon\Carbon;
-use EmailReplyParser\Parser\EmailParser;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Webklex\IMAP\Client;
-use App\Jobs\FetchEmail;
 
 /**
  * @author Sukhwinder <sukhwinder@sifars.com>
@@ -55,7 +49,7 @@ class FetchAllEmails extends Command
     public function handle()
     {
         $report = CronJobReport::create([
-            'signature'  => $this->signature,
+            'signature' => $this->signature,
             'start_time' => Carbon::now(),
         ]);
 
@@ -65,7 +59,7 @@ class FetchAllEmails extends Command
             FetchEmail::dispatch($emailAddress)->onQueue('email');
         }
 
-        $report->update(['end_time' => Carbon::now()]); 
+        $report->update(['end_time' => Carbon::now()]);
     }
 
     /**
@@ -75,6 +69,4 @@ class FetchAllEmails extends Command
      * @param [type] $email_list
      * @return array(model_id,miodel_type)
      */
-   
-
 }

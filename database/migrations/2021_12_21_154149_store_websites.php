@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class StoreWebsites extends Migration
 {
@@ -13,7 +13,7 @@ class StoreWebsites extends Migration
      */
     public function up()
     {
-       Schema::table('store_websites', function (Blueprint $table) {
+        Schema::table('store_websites', function (Blueprint $table) {
             $table->string('logo_color')->after('cropping_size')->nullable();
             $table->string('logo_border_color')->after('logo_color')->nullable();
             $table->string('text_color')->after('logo_border_color')->nullable();

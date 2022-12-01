@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AlterHubstaffTaskIdsIntToBigInt extends Migration
 {
@@ -36,6 +34,6 @@ class AlterHubstaffTaskIdsIntToBigInt extends Migration
 //         DB::statement('ALTER TABLE `developer_tasks` MODIFY `tester_hubstaff_task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;');
 //         DB::statement('ALTER TABLE `hubstaff_task_notes` MODIFY `task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;');
 //         DB::statement('ALTER TABLE `tasks` MODIFY `hubstaff_task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;');
-//         DB::statement('ALTER TABLE `tasks` MODIFY `lead_hubstaff_task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;'); 
+//         DB::statement('ALTER TABLE `tasks` MODIFY `lead_hubstaff_task_id` INT(11) unsigned NOT NULL AUTO_INCREMENT;');
     }
 }

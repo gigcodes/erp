@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateSendgridEvents extends Migration
 {
@@ -25,13 +25,13 @@ class CreateSendgridEvents extends Migration
         });
 
         $connection = config('sendgridevents.database_connection_for_events');
-        if(is_null($connection)) {
+        if (is_null($connection)) {
             $connection = config('database.default');
         }
         $driver = config("database.connections.{$connection}.driver");
 
         switch ($driver) {
-            case 'mysql': {
+            case 'mysql':
                 Schema::table(config('sendgridevents.events_table_name'), function (Blueprint $table) {
                     $table->jsonb('categories')
                         ->after('sg_message_id')
@@ -39,9 +39,8 @@ class CreateSendgridEvents extends Migration
                 });
 
                 break;
-            }
 
-            default: {
+            default:
                 Schema::table(config('sendgridevents.events_table_name'), function (Blueprint $table) {
                     $table->jsonb('categories')
                         ->after('sg_message_id')
@@ -51,7 +50,6 @@ class CreateSendgridEvents extends Migration
                 });
 
                 break;
-            }
         }
     }
 

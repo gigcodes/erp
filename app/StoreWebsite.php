@@ -48,7 +48,9 @@ class StoreWebsite extends Model
      * @SWG\Property(property="is_price_override",type="boolean")
      */
     use SoftDeletes;
+
     use Mediable;
+
     protected $fillable = [
         'title',
         'remote_software',
@@ -90,43 +92,44 @@ class StoreWebsite extends Model
         'icon',
         'is_price_override',
         'repository_id',
-		'semrush_project_id',
+        'semrush_project_id',
         'send_in_blue_account',
         'send_in_blue_api',
         'send_in_blue_smtp_email_api',
-        'logo_color',  
-        'logo_border_color',  
-        'text_color',   
-        'border_color',   
+        'logo_color',
+        'logo_border_color',
+        'text_color',
+        'border_color',
         'border_thickness',
         'sale_old_products',
         'website_address',
-		'twilio_greeting_message',
+        'twilio_greeting_message',
         'is_debug_true',
         'key_file_path',
         'project_id',
         'is_dev_website',
-        'site_folder'
+        'site_folder',
     ];
 
     const DB_CONNECTION = [
-        'mysql'          => 'Erp',
+        'mysql' => 'Erp',
         'brandsandlabel' => 'Brands and label',
-        'avoirchic'      => 'Avoirchic',
-        'olabels'        => 'O-labels',
-        'sololuxury'     => 'Sololuxury',
-        'suvandnet'      => 'Suv and net',
-        'thefitedit'     => 'The fitedit',
-        'theshadesshop'  => 'The shades shop',
-        'veralusso'      => 'Veralusso',
-        'upeau'          => 'Upeau',
+        'avoirchic' => 'Avoirchic',
+        'olabels' => 'O-labels',
+        'sololuxury' => 'Sololuxury',
+        'suvandnet' => 'Suv and net',
+        'thefitedit' => 'The fitedit',
+        'theshadesshop' => 'The shades shop',
+        'veralusso' => 'Veralusso',
+        'upeau' => 'Upeau',
     ];
 
     // Append attributes
     protected $appends = ['website_url'];
 
-    public static function list() {
-        return self::pluck("website", "id")->toArray();
+    public static function list()
+    {
+        return self::pluck('website', 'id')->toArray();
     }
 
     /**
@@ -134,17 +137,18 @@ class StoreWebsite extends Model
      */
     public function getWebsiteUrlAttribute()
     {
-        $url    = $this->website;
+        $url = $this->website;
         $parsed = parse_url($url);
         if (empty($parsed['scheme'])) {
-            return $urlStr = 'http://' . ltrim($url, '/');
+            return $urlStr = 'http://'.ltrim($url, '/');
         }
+
         return $url;
     }
 
     public function storeWebsiteProductPrice()
     {
-        return $this->hasOne(\App\StoreWebsiteProductPrice::class, "store_website_id", "id");
+        return $this->hasOne(\App\StoreWebsiteProductPrice::class, 'store_website_id', 'id');
     }
 
     /**
@@ -175,12 +179,12 @@ class StoreWebsite extends Model
 
     public static function shopifyWebsite()
     {
-        return self::where("website_source", "shopify")->pluck("title", "id")->toArray();
+        return self::where('website_source', 'shopify')->pluck('title', 'id')->toArray();
     }
 
     public static function magentoWebsite()
     {
-        return self::where("website_source", "magento")->pluck("title", "id")->toArray();
+        return self::where('website_source', 'magento')->pluck('title', 'id')->toArray();
     }
 
     public function websites()
@@ -188,27 +192,29 @@ class StoreWebsite extends Model
         return $this->hasMany('App\Website', 'store_website_id', 'id');
     }
 
-     function productCsvPath()
+     public function productCsvPath()
+     {
+         return $this->hasOne('App\WebsiteProductCsv', 'store_website_id', 'id');
+     }
+
+    public static function listMagentoSite()
     {
-        return $this->hasOne('App\WebsiteProductCsv','store_website_id','id');
+        return self::where('website_source', 'magento')->pluck('website', 'id')->toArray();
     }
 
-    public static function  listMagentoSite()
+    public function getSiteAssetData($id, $category_id, $mediatype)
     {
-        return self::where("website_source","magento")->pluck("website", "id")->toArray();
-    }
-
-    function getSiteAssetData($id, $category_id, $mediatype)
-    {
-        $data = \App\StoreWebsiteImage::where(['category_id'=> $category_id, 'store_website_id' => $id, 'media_type'=> $mediatype])->first();
-        if(!empty($data)){
+        $data = \App\StoreWebsiteImage::where(['category_id' => $category_id, 'store_website_id' => $id, 'media_type' => $mediatype])->first();
+        if (! empty($data)) {
             return true;
         }
+
         return false;
     }
 
     //return exchange status
-    public function returnExchangeStatus(){
-        return $this->hasMany('App\ReturnExchangeStatus','store_website_id','id');
+    public function returnExchangeStatus()
+    {
+        return $this->hasMany('App\ReturnExchangeStatus', 'store_website_id', 'id');
     }
- }
+}

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateReviewBrandsListTable extends Migration
 {
@@ -14,7 +14,6 @@ class CreateReviewBrandsListTable extends Migration
     public function up()
     {
         Schema::create('review_brands_list', function (Blueprint $table) {
-            
             $table->increments('id');
             $table->text('name');
             $table->text('description');

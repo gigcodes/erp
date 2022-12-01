@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AdsCampaign extends Migration
 {
@@ -13,7 +13,7 @@ class AdsCampaign extends Migration
      */
     public function up()
     {
-        Schema::create('ad_campaigns',function(Blueprint $table) {
+        Schema::create('ad_campaigns', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('ad_account_id');
             $table->string('goal');

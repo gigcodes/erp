@@ -16,7 +16,7 @@ class CreateTablePushFcmNotificationHistoriesTable extends Migration
         Schema::create('push_fcm_notification_histories', function (Blueprint $table) {
             $table->increments('id');
             $table->string('token')->nullable();
-            $table->integer('notification_id')->index() ->nullable();
+            $table->integer('notification_id')->index()->nullable();
             $table->integer('success')->default(0)->nullable();
             $table->text('error_message')->nullable();
             $table->timestamps();

@@ -13,16 +13,16 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         //
-		'twilio/*',
-		'run-webhook/*',
+        'twilio/*',
+        'run-webhook/*',
         'whatsapp/*',
         'livechat/*',
-//        'api/instagram/post',
+        //        'api/instagram/post',
         'duty/v1/calculate',
         'hubstaff/linkuser',
         'calendar',
         'calendar/*',
         'api/wetransfer-file-store',
-        'cold-leads-broadcasts'
+        'cold-leads-broadcasts',
     ];
 }

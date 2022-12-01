@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateTableSizeErpSizes extends Migration
 {
@@ -13,9 +13,9 @@ class UpdateTableSizeErpSizes extends Migration
      */
     public function up()
     {
-         Schema::table("size_erp_sizes",function(Blueprint $table) {
-			  \DB::statement('ALTER TABLE `size_erp_sizes` CHANGE `system_size_id` `system_size_id` INT(11) NULL;');
-			  \DB::statement('ALTER TABLE `size_erp_sizes` CHANGE `erp_size_id` `erp_size_id` INT(11) NULL;');
+        Schema::table('size_erp_sizes', function (Blueprint $table) {
+            \DB::statement('ALTER TABLE `size_erp_sizes` CHANGE `system_size_id` `system_size_id` INT(11) NULL;');
+            \DB::statement('ALTER TABLE `size_erp_sizes` CHANGE `erp_size_id` `erp_size_id` INT(11) NULL;');
         });
     }
 

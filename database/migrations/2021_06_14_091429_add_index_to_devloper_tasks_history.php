@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIndexToDevloperTasksHistory extends Migration
 {
@@ -13,8 +13,7 @@ class AddIndexToDevloperTasksHistory extends Migration
      */
     public function up()
     {
-        Schema::table('developer_tasks_history', function(Blueprint $table)
-        {
+        Schema::table('developer_tasks_history', function (Blueprint $table) {
             $table->index(['developer_task_id']);
         });
     }
@@ -26,8 +25,7 @@ class AddIndexToDevloperTasksHistory extends Migration
      */
     public function down()
     {
-        Schema::table('developer_tasks_history', function(Blueprint $table)
-        {
+        Schema::table('developer_tasks_history', function (Blueprint $table) {
             $table->dropIndex(['developer_task_id']);
         });
     }

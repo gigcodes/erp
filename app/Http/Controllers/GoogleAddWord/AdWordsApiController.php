@@ -34,24 +34,23 @@ use Illuminate\View\View;
 
 class AdWordsApiController extends Controller
 {
-
     private static $REPORT_TYPE_TO_DEFAULT_SELECTED_FIELDS = [
         'CAMPAIGN_PERFORMANCE_REPORT' => [
             'CampaignId',
             'CampaignName',
             'CampaignStatus',
-            'AccountDescriptiveName'
+            'AccountDescriptiveName',
         ],
         'ADGROUP_PERFORMANCE_REPORT' => [
             'AdGroupId',
             'AdGroupName',
             'AdGroupStatus',
-            'CampaignId'
+            'CampaignId',
         ],
         'AD_PERFORMANCE_REPORT' => ['AdGroupId', 'AdGroupName', 'Id', 'AdType'],
         'ACCOUNT_PERFORMANCE_REPORT' => [
             'AccountDescriptiveName',
-            'ExternalCustomerId'
+            'ExternalCustomerId',
         ],
     ];
 
@@ -59,10 +58,10 @@ class AdWordsApiController extends Controller
      * Controls a POST and GET request that is submitted from the "Get All
      * Campaigns" form.
      *
-     * @param Request $request
-     * @param FetchAuthTokenInterface $oAuth2Credential
-     * @param AdWordsServices $adWordsServices
-     * @param AdWordsSessionBuilder $adWordsSessionBuilder
+     * @param  Request  $request
+     * @param  FetchAuthTokenInterface  $oAuth2Credential
+     * @param  AdWordsServices  $adWordsServices
+     * @param  AdWordsSessionBuilder  $adWordsSessionBuilder
      * @return View
      */
     public function getCampaignsAction(
@@ -124,11 +123,11 @@ class AdWordsApiController extends Controller
      * Fetch campaigns using the provided campaign service, selected fields, the
      * number of entries per page and the specified page number.
      *
-     * @param Request $request
-     * @param CampaignService $campaignService
-     * @param string[] $selectedFields
-     * @param int $entriesPerPage
-     * @param int $pageNo
+     * @param  Request  $request
+     * @param  CampaignService  $campaignService
+     * @param  string[]  $selectedFields
+     * @param  int  $entriesPerPage
+     * @param  int  $pageNo
      * @return Collection
      */
     private function fetchCampaigns(
@@ -150,7 +149,7 @@ class AdWordsApiController extends Controller
         $results = [];
 
         $page = $campaignService->query("$query");
-        if (!empty($page->getEntries())) {
+        if (! empty($page->getEntries())) {
             $totalNumEntries = $page->getTotalNumEntries();
             $results = $page->getEntries();
         }
@@ -164,10 +163,10 @@ class AdWordsApiController extends Controller
      * Controls a POST and GET request that is submitted from the "Download
      * Report" form.
      *
-     * @param Request $request
-     * @param FetchAuthTokenInterface $oAuth2Credential
-     * @param AdWordsServices $adWordsServices
-     * @param AdWordsSessionBuilder $adWordsSessionBuilder
+     * @param  Request  $request
+     * @param  FetchAuthTokenInterface  $oAuth2Credential
+     * @param  AdWordsServices  $adWordsServices
+     * @param  AdWordsSessionBuilder  $adWordsSessionBuilder
      * @return View
      */
     public function downloadReportAction(
@@ -189,7 +188,7 @@ class AdWordsApiController extends Controller
                         'clientCustomerId',
                         'reportType',
                         'entriesPerPage',
-                        'reportRange'
+                        'reportRange',
                     ]
                 )
             );
@@ -249,10 +248,10 @@ class AdWordsApiController extends Controller
      * Download a report of the specified report type and date range, selected
      * fields, and the number of entries per page.
      *
-     * @param string $reportType
-     * @param string $reportRange
-     * @param ReportDownloader $reportDownloader
-     * @param string[] $selectedFields
+     * @param  string  $reportType
+     * @param  string  $reportRange
+     * @param  ReportDownloader  $reportDownloader
+     * @param  string[]  $selectedFields
      * @return Collection
      */
     private function downloadReport(
@@ -287,6 +286,7 @@ class AdWordsApiController extends Controller
             // "view" can render this data properly.
             $row = $resultTable['row'];
             $row = count($row) > 1 ? $row : [$row];
+
             return collect($row);
         }
 

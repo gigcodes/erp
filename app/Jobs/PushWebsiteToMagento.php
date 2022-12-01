@@ -13,7 +13,9 @@ class PushWebsiteToMagento implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $_website;
+
     public $tries = 5;
+
     public $backoff = 5;
 
     /**
@@ -34,64 +36,58 @@ class PushWebsiteToMagento implements ShouldQueue
      */
     public function handle()
     {
-        try{
+        try {
             // Set time limit
             set_time_limit(0);
 
             $website = $this->_website;
 
             if ($website) {
-
-                \Log::channel('productUpdates')->info("Website pushed start" . $website->id);
+                \Log::channel('productUpdates')->info('Website pushed start'.$website->id);
 
                 $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsite([
-                    "type" => "website",
-                    "name" => $website->name,
-                    "code" => replace_dash(strtolower($website->code)),
+                    'type' => 'website',
+                    'name' => $website->name,
+                    'code' => replace_dash(strtolower($website->code)),
                 ], $website->storeWebsite);
 
-                if (!empty($id) && is_numeric($id)) {
-
-                    \Log::channel('productUpdates')->info("Website pushed with id : " . $id);
+                if (! empty($id) && is_numeric($id)) {
+                    \Log::channel('productUpdates')->info('Website pushed with id : '.$id);
                     $website->platform_id = $id;
 
                     if ($website->save()) {
                         // start uploading
                         $stores = $website->stores;
-                        if (!$stores->isEmpty()) {
-                            \Log::channel('productUpdates')->info("Website Store pushed start");
+                        if (! $stores->isEmpty()) {
+                            \Log::channel('productUpdates')->info('Website Store pushed start');
                             foreach ($stores as $store) {
-
                                 $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsiteStore([
-                                    "type"       => "store",
-                                    "name"       => $store->name,
-                                    "code"       => replace_dash(strtolower($store->code)),
-                                    "website_id" => $website->platform_id,
+                                    'type' => 'store',
+                                    'name' => $store->name,
+                                    'code' => replace_dash(strtolower($store->code)),
+                                    'website_id' => $website->platform_id,
                                 ], $website->storeWebsite);
 
-                                if (!empty($id) && is_numeric($id)) {
-
-                                    \Log::channel('productUpdates')->info("Website Store pushed =>" . $id);
+                                if (! empty($id) && is_numeric($id)) {
+                                    \Log::channel('productUpdates')->info('Website Store pushed =>'.$id);
 
                                     $store->platform_id = $id;
                                     if ($store->save()) {
                                         $storeView = $store->storeView;
-                                        if (!$storeView->isEmpty()) {
-
-                                            \Log::channel('productUpdates')->info("Website Store view start");
+                                        if (! $storeView->isEmpty()) {
+                                            \Log::channel('productUpdates')->info('Website Store view start');
 
                                             foreach ($storeView as $sView) {
                                                 $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsiteStoreView([
-                                                    "type"     => "store_view",
-                                                    "name"     => $sView->name,
-                                                    "code"     => replace_dash(strtolower($sView->code)),
-                                                    "website_id" => $website->platform_id,
-                                                    "group_id" => $store->platform_id,
+                                                    'type' => 'store_view',
+                                                    'name' => $sView->name,
+                                                    'code' => replace_dash(strtolower($sView->code)),
+                                                    'website_id' => $website->platform_id,
+                                                    'group_id' => $store->platform_id,
                                                 ], $website->storeWebsite);
 
-                                                if (!empty($id) && is_numeric($id)) {
-
-                                                    \Log::channel('productUpdates')->info("Website Store view pushed =>" . $id);
+                                                if (! empty($id) && is_numeric($id)) {
+                                                    \Log::channel('productUpdates')->info('Website Store view pushed =>'.$id);
 
                                                     $sView->platform_id = $id;
                                                     $sView->save();
@@ -110,8 +106,8 @@ class PushWebsiteToMagento implements ShouldQueue
         }
     }
 
-    public function tags() 
+    public function tags()
     {
-        return [ 'mageone',  $this->_website->id];
+        return ['mageone',  $this->_website->id];
     }
 }

@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class SocialContact extends Model
 {
     const INSTAGRAM = 1;
+
     const FACEBOOK = 2;
 
-    const TEXT_INSTA = "instagram";
-    const TEXT_FB = "page"; 
+    const TEXT_INSTA = 'instagram';
+
+    const TEXT_FB = 'page';
 
     protected $fillable = ['account_id', 'name', 'social_config_id', 'platform'];
 

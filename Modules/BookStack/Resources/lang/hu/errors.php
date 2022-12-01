@@ -33,7 +33,7 @@ return [
     'cannot_get_image_from_url' => 'Nem lehet lekérni a képet innen: :url',
     'cannot_create_thumbs' => 'A kiszolgáló nem tud létrehozni bélyegképeket. Ellenőrizni kell, hogy telepítve van-a a GD PHP kiterjesztés.',
     'server_upload_limit' => 'A kiszolgáló nem engedélyez ilyen méretű feltöltéseket. Kisebb fájlmérettel kell próbálkozni.',
-    'uploaded'  => 'A kiszolgáló nem engedélyez ilyen méretű feltöltéseket. Kisebb fájlmérettel kell próbálkozni.',
+    'uploaded' => 'A kiszolgáló nem engedélyez ilyen méretű feltöltéseket. Kisebb fájlmérettel kell próbálkozni.',
     'image_upload_error' => 'Hiba történt a kép feltöltése közben',
     'image_upload_type_error' => 'A feltöltött kép típusa érvénytelen',
     'file_upload_timeout' => 'A fáj feltöltése időtúllépést okozott.',

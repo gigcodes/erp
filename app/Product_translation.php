@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -8,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product_translation extends Model
 {
-     /**
+    /**
      * @var string
      * @SWG\Property(property="product_id",type="integer")
      * @SWG\Property(property="locale",type="string")
@@ -18,22 +19,23 @@ class Product_translation extends Model
      * @SWG\Property(property="is_rejected",type="boolean")
      */
     protected $fillable = [
-                        'product_id',
-                        'locale',
-                        'title',
-                        'description',
-                        'site_id',
-                        'is_rejected'
+        'product_id',
+        'locale',
+        'title',
+        'description',
+        'site_id',
+        'is_rejected',
     ];
 
-    public function product() {
+    public function product()
+    {
         return $this->belongsTo('App\Product');
     }
 
-    public function site(){
+    public function site()
+    {
         return $this->hasOne(StoreWebsite::class, 'id', 'site_id');
     }
-
 
     // public function translate($locale, $string) {
     //     $str = urlencode($string);

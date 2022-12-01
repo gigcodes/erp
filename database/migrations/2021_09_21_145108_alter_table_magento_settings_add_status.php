@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableMagentoSettingsAddStatus extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableMagentoSettingsAddStatus extends Migration
     public function up()
     {
         //
-        Schema::table('magento_settings',function(Blueprint $table) {
-            $table->string("status")->nullable()->after("created_by");
+        Schema::table('magento_settings', function (Blueprint $table) {
+            $table->string('status')->nullable()->after('created_by');
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableMagentoSettingsAddStatus extends Migration
     public function down()
     {
         //
-        Schema::table('magento_settings',function(Blueprint $table) {
-            $table->dropField("status");
+        Schema::table('magento_settings', function (Blueprint $table) {
+            $table->dropField('status');
         });
     }
 }

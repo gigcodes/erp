@@ -17,7 +17,6 @@ class AlterTableChatMessagePaymentReceiptId extends Migration
         Schema::table('chat_messages', function (Blueprint $table) {
             $table->integer('payment_receipt_id')->nullable()->after('site_development_id');
         });
-
     }
 
     /**

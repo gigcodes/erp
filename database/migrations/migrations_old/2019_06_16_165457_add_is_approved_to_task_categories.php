@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIsApprovedToTaskCategories extends Migration
 {
@@ -14,7 +14,7 @@ class AddIsApprovedToTaskCategories extends Migration
     public function up()
     {
         Schema::table('task_categories', function (Blueprint $table) {
-          $table->integer('is_approved')->default(0)->after('title');
+            $table->integer('is_approved')->default(0)->after('title');
         });
     }
 
@@ -26,7 +26,7 @@ class AddIsApprovedToTaskCategories extends Migration
     public function down()
     {
         Schema::table('task_categories', function (Blueprint $table) {
-          $table->dropColumn('is_approved');
+            $table->dropColumn('is_approved');
         });
     }
 }

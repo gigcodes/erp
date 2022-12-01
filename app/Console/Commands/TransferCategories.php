@@ -42,9 +42,8 @@ class TransferCategories extends Command
     public function handle()
     {
         try {
-
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -68,7 +67,6 @@ class TransferCategories extends Command
             ];
 
             foreach ($transfers as $transfer) {
-
                 Product::where('category', $transfer[0])->update([
                     'category' => $transfer[1],
                 ]);

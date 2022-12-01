@@ -12,7 +12,7 @@ class GithubRepository extends Model
         'html',
         'webhook',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     public function users()
@@ -34,5 +34,4 @@ class GithubRepository extends Model
             'id'
         )->orderBy('last_commit_time', 'desc');
     }
-
 }

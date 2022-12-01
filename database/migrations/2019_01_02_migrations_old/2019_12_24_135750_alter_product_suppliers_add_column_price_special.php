@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterProductSuppliersAddColumnPriceSpecial extends Migration
 {
@@ -13,8 +13,7 @@ class AlterProductSuppliersAddColumnPriceSpecial extends Migration
      */
     public function up()
     {
-        Schema::table('product_suppliers', function(Blueprint $table)
-        {
+        Schema::table('product_suppliers', function (Blueprint $table) {
             $table->double('price_special')->after('price')->default(0);
         });
     }

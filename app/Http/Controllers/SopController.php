@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Category;
 use App\PurchaseProductOrderLog;
 use App\Sop;
 use App\SopPermission;
 use App\User;
-use Auth;
 // use App\Mail\downloadData;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
@@ -17,16 +15,15 @@ class SopController extends Controller
 {
     public function index(Request $request)
     {
-
         $users = User::all();
         // $users = User::limit(10)->get();
         $usersop = Sop::with(['purchaseProductOrderLogs', 'user']);
 
         if ($request->search) {
-            $usersop = $usersop->where('name', 'like', '%' . $request->search . '%')->orWhere('content', 'like', '%' . $request->search . '%');
+            $usersop = $usersop->where('name', 'like', '%'.$request->search.'%')->orWhere('content', 'like', '%'.$request->search.'%');
         }
 
-         $usersop = $usersop->limit(10)->paginate(10);
+        $usersop = $usersop->limit(10)->paginate(10);
 
         $total_record = $usersop->total();
 
@@ -68,7 +65,7 @@ class SopController extends Controller
             return response()->json(['success' => false, 'message' => 'Category already existed']);
         }
 
-        if (!$sop) {
+        if (! $sop) {
             $sop = new Sop();
             $sop->name = $request->get('name');
             $sop->category = $request->get('category');
@@ -98,10 +95,11 @@ class SopController extends Controller
 
         return response()->json(['sopedit' => $sopedit]);
     }
+
     public function update(Request $request)
     {
-        $category = $request->get("category", "");
-        $name = $request->get("name", "");
+        $category = $request->get('category', '');
+        $name = $request->get('name', '');
 
         $cat = Sop::where('category', $request->get('category'))->where('id', '!=', $request->id)->first();
         if ($cat) {
@@ -110,15 +108,15 @@ class SopController extends Controller
 
         $sopedit = Sop::where('id', $request->id)->where('category', $category)->first();
         if ($sopedit) {
-            $sopedit->name = $request->get("name", "");
-            $sopedit->category = $request->get("category", "");
-            $sopedit->content = $request->get("content", "");
+            $sopedit->name = $request->get('name', '');
+            $sopedit->category = $request->get('category', '');
+            $sopedit->content = $request->get('content', '');
             $updatedSop = $sopedit->save();
 
             $params['purchase_product_order_id'] = $request->id;
             $params['header_name'] = 'SOP Listing Approve Logs';
-            $params['replace_from'] = $request->get("sop_old_name", "");
-            $params['replace_to'] = $request->get("name", "");
+            $params['replace_from'] = $request->get('sop_old_name', '');
+            $params['replace_to'] = $request->get('name', '');
             $params['created_by'] = \Auth::id();
 
             $log = PurchaseProductOrderLog::create($params);
@@ -149,7 +147,7 @@ class SopController extends Controller
             $user_email = User::select('email')->where('id', $sop->user_id)->get();
             // $user_email = User::select('email')->where('id', $sop->user_id)->get();
             $only_date = $sop->created_at->todatestring();
-            
+
             if ($sop) {
                 return response()->json([
                     'sopedit' => $sop,
@@ -160,44 +158,42 @@ class SopController extends Controller
                 ]);
             }
         }
-
     }
 
     public function search(Request $request)
     {
         $searchsop = $request->get('search');
-        $usersop = DB::table('sops')->where('name', 'like', '%' . $searchsop . '%')->paginate(10);
+        $usersop = DB::table('sops')->where('name', 'like', '%'.$searchsop.'%')->paginate(10);
 
         return view('products.sop', compact('usersop'));
     }
 
     public function downloaddata($id)
     {
-        $usersop = Sop::where("id", $id)->first();
+        $usersop = Sop::where('id', $id)->first();
         if ($usersop) {
-            $data["name"] = $usersop->name;
-            $data["content"] = $usersop->content;
+            $data['name'] = $usersop->name;
+            $data['content'] = $usersop->content;
 
             $html = view('maileclipse::templates.Viewdownload', [
                 'name' => $usersop->name,
                 'content' => $usersop->content,
-                'usersop' => $usersop = Sop::where("id", $usersop->id)->first(),
+                'usersop' => $usersop = Sop::where('id', $usersop->id)->first(),
 
             ]);
 
             $pdf = new Dompdf();
             $pdf->loadHtml($html);
             $pdf->render();
-            $pdf->stream(date('Y-m-d H:i:s') . 'SOPData.pdf');
-
+            $pdf->stream(date('Y-m-d H:i:s').'SOPData.pdf');
         }
-
     }
 
     public function sopPermissionData(Request $request)
     {
         $user_id = $request->user_id;
-        $permission = SopPermission::where("user_id", $user_id)->get();
+        $permission = SopPermission::where('user_id', $user_id)->get();
+
         return response()->json(['status' => true, 'permissions' => $permission]);
     }
 
@@ -206,7 +202,7 @@ class SopController extends Controller
         $user_id = $request->user_id;
         $sop = $request->sop;
 
-        $permission = SopPermission::where("user_id", $user_id);
+        $permission = SopPermission::where('user_id', $user_id);
         if ($permission->count() > 0) {
             $permission->delete();
         }
@@ -218,7 +214,8 @@ class SopController extends Controller
                 $sopPermission->save();
             }
         }
-        return response()->json(['status' => true, 'message' => "Permission Saved successfully"]);
+
+        return response()->json(['status' => true, 'message' => 'Permission Saved successfully']);
     }
 
     public function sopPermissionUserList(Request $request)
@@ -226,6 +223,7 @@ class SopController extends Controller
         $sop = Sop::find($request->sop_id);
         $sop_users = SopPermission::where('sop_id', $request->sop_id)->get()->pluck('user_id');
         $user = User::all();
+
         return response()->json(['user_list' => $sop_users, 'user' => $user, 'sop' => $sop]);
     }
 
@@ -245,5 +243,4 @@ class SopController extends Controller
 
         return response()->json(['message' => 'Permission Apply Successfully']);
     }
-
 }

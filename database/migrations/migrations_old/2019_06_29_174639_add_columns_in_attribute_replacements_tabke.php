@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddColumnsInAttributeReplacementsTabke extends Migration
 {
@@ -13,7 +13,7 @@ class AddColumnsInAttributeReplacementsTabke extends Migration
      */
     public function up()
     {
-        Schema::table('attribute_replacements',function (Blueprint $table) {
+        Schema::table('attribute_replacements', function (Blueprint $table) {
             $table->integer('authorized_by')->nullable();
         });
     }
@@ -25,7 +25,7 @@ class AddColumnsInAttributeReplacementsTabke extends Migration
      */
     public function down()
     {
-        Schema::table('attribute_replacements',function (Blueprint $table) {
+        Schema::table('attribute_replacements', function (Blueprint $table) {
             $table->dropColumn('authorized_by');
         });
     }

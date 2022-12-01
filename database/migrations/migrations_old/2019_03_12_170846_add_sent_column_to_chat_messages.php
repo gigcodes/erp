@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddSentColumnToChatMessages extends Migration
 {
@@ -14,7 +14,7 @@ class AddSentColumnToChatMessages extends Migration
     public function up()
     {
         Schema::table('chat_messages', function (Blueprint $table) {
-          $table->boolean('sent')->after('status')->default(0);
+            $table->boolean('sent')->after('status')->default(0);
         });
     }
 
@@ -26,7 +26,7 @@ class AddSentColumnToChatMessages extends Migration
     public function down()
     {
         Schema::table('chat_messages', function (Blueprint $table) {
-          $table->dropColumn('sent');
+            $table->dropColumn('sent');
         });
     }
 }

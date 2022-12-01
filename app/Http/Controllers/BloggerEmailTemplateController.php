@@ -12,10 +12,11 @@ class BloggerEmailTemplateController extends Controller
     public function index()
     {
         $template = BloggerEmailTemplate::first();
-        if(!$template){
+        if (! $template) {
             $template = BloggerEmailTemplate::create([]);
         }
         $this->data['template'] = $template;
+
         return view('blogger.email-template', $this->data);
     }
 
@@ -26,6 +27,7 @@ class BloggerEmailTemplateController extends Controller
             'message' => 'required',
         ]);
         $bloggerEmailTemplate->fill($request->all())->save();
+
         return redirect()->back()->withSuccess('Template Successfully Updated');
     }
 }

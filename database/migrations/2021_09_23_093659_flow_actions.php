@@ -14,7 +14,7 @@ class FlowActions extends Migration
     public function up()
     {
         Schema::create('flow_actions', function (Blueprint $table) {
-             $table->increments('id');
+            $table->increments('id');
             $table->integer('path_id');
             $table->integer('type_id');
             $table->integer('rank');

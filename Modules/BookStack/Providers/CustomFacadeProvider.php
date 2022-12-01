@@ -2,11 +2,11 @@
 
 namespace Modules\BookStack\Providers;
 
+use Illuminate\Support\ServiceProvider;
 use Modules\BookStack\Actions\ActivityService;
 use Modules\BookStack\Actions\ViewService;
-use Modules\BookStackModules\BookStack\Settings\SettingService;
 use Modules\BookStack\Uploads\ImageService;
-use Illuminate\Support\ServiceProvider;
+use Modules\BookStackModules\BookStack\Settings\SettingService;
 
 class CustomFacadeProvider extends ServiceProvider
 {

@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class MagentoModule extends Model
 {
-
     protected $guarded = ['id'];
 
     protected $fillable = [
@@ -29,7 +28,7 @@ class MagentoModule extends Model
         'payment_status',
         'developer_name',
         'is_customized',
-        'site_impact'
+        'site_impact',
     ];
 
     public function module_category()

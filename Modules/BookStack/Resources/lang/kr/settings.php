@@ -7,7 +7,6 @@ return [
      * Contains all text strings used in the general settings sections of BookStack
      * including users and roles.
      */
-
     'settings' => '설정',
     'settings_save' => '설정 저장',
     'settings_save_success' => '설정이 저장되었습니다.',
@@ -15,7 +14,6 @@ return [
     /**
      * App settings
      */
-
     'app_settings' => '앱 설정',
     'app_name' => '어플리케이션 이름',
     'app_name_desc' => '해당 이름은 헤더와 모든 이메일에 표시됩니다.',
@@ -50,10 +48,9 @@ return [
     /**
      * Maintenance settings
      */
-
     'maint' => 'Maintenance',
     'maint_image_cleanup' => '이미지 정리',
-    'maint_image_cleanup_desc' => "페이지를 스캔하여 현재 사용중인 이미지와 도면에서 수정된 내용 및 중복된 이미지를 확인합니다. 이를 실행하기 전에 전체 데이터베이스와 이미지의 백업을 작성했는지 확인하십시오.",
+    'maint_image_cleanup_desc' => '페이지를 스캔하여 현재 사용중인 이미지와 도면에서 수정된 내용 및 중복된 이미지를 확인합니다. 이를 실행하기 전에 전체 데이터베이스와 이미지의 백업을 작성했는지 확인하십시오.',
     'maint_image_cleanup_ignore_revisions' => '수정본의 이미지를 무시합니다.',
     'maint_image_cleanup_run' => '정리 실행',
     'maint_image_cleanup_warning' => '잠재적으로 사용되지 않는 이미지를 찾았습니다. 해당 이미지들을 삭제하시겠습니까?',
@@ -69,7 +66,7 @@ return [
     'role_delete' => '역할을 삭제합니다.',
     'role_delete_confirm' => '\':roleName\'(이)라는 이름의 역할이 삭제됩니다.',
     'role_delete_users_assigned' => '해당 역할에 :userCount 명의 사용자가 할당되어 있습니다. 이 역할로부터 사용자를 재할당하고 싶다면 아래에서 새 역할을 선택하십시오.',
-    'role_delete_no_migration' => "사용자 재배치 안함",
+    'role_delete_no_migration' => '사용자 재배치 안함',
     'role_delete_sure' => '이 역할을 삭제하시겠습니까?',
     'role_delete_success' => '역할이 삭제되었습니다.',
     'role_edit' => '역할 편집',

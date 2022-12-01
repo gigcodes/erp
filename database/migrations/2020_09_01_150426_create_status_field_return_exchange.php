@@ -14,8 +14,8 @@ class CreateStatusFieldReturnExchange extends Migration
     public function up()
     {
         Schema::table('return_exchange_histories', function (Blueprint $table) {
-            if (!Schema::hasColumn('return_exchange_histories', 'status_id')) {
-                $table->integer('status_id')->nullable()->index()->after("comment");
+            if (! Schema::hasColumn('return_exchange_histories', 'status_id')) {
+                $table->integer('status_id')->nullable()->index()->after('comment');
             }
         });
     }

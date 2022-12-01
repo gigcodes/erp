@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class OrderErrorLog extends Migration
 {
@@ -15,7 +15,7 @@ class OrderErrorLog extends Migration
     {
         Schema::create('order_error_logs', function (Blueprint $table) {
             $table->increments('id');
-			$table->integer('order_id')->index()->nullable();
+            $table->integer('order_id')->index()->nullable();
             $table->string('event_type')->nullable();
             $table->text('log')->nullable();
             $table->timestamps();

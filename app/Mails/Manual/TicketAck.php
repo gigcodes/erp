@@ -17,7 +17,6 @@ class TicketAck extends Mailable
      *
      * @return void
      */
-
     public $order;
 
     public function __construct($ticket)
@@ -33,7 +32,7 @@ class TicketAck extends Mailable
      */
     public function build()
     {
-        $subject = "Ticket ACK";
+        $subject = 'Ticket ACK';
         $ticket = $this->ticket;
 
         $this->subject = $subject;
@@ -49,7 +48,7 @@ class TicketAck extends Mailable
                 $this->fromMailer = $template->from_email;
             }
 
-            if (!empty($template->mail_tpl)) {
+            if (! empty($template->mail_tpl)) {
                 // need to fix the all email address
                 return $this->from($this->fromMailer)
                     ->subject($template->subject)
@@ -58,6 +57,7 @@ class TicketAck extends Mailable
                     ));
             } else {
                 $content = $template->static_template;
+
                 return $this->from($this->fromMailer)
                     ->subject($template->subject)
                     ->view('emails.blank_content', compact(
@@ -65,6 +65,5 @@ class TicketAck extends Mailable
                     ));
             }
         }
-
     }
 }

@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Account;
 use App\ColdLeadBroadcasts;
 use App\ColdLeads;
+use App\CompetitorPage;
+//use InstagramAPI\Instagram;
+use App\ImQueue;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-//use InstagramAPI\Instagram;
-use Carbon\Carbon;
-use App\Account;
-use App\ImQueue;
-use App\CompetitorPage;
+
 //use App\Marketing\InstagramConfig;
 
 class ColdLeadBroadcastsController extends Controller
@@ -22,7 +23,7 @@ class ColdLeadBroadcastsController extends Controller
      */
     public function index(Request $request)
     {
-        if (!$request->isXmlHttpRequest()) {
+        if (! $request->isXmlHttpRequest()) {
             return view('cold_leads.broadcasts.index');
         }
 
@@ -32,23 +33,20 @@ class ColdLeadBroadcastsController extends Controller
 
         if (strlen($request->get('query')) >= 4) {
             $query = $request->get('query');
-            $leads = ColdLeadBroadcasts::where(function($q) use ($query) {
-                    $q->where('name', 'LIKE', "%$query%");
-                });
+            $leads = ColdLeadBroadcasts::where(function ($q) use ($query) {
+                $q->where('name', 'LIKE', "%$query%");
+            });
         } else {
             $leads = new ColdLeadBroadcasts;
         }
 
         $leads = $leads->orderBy('updated_at', 'DESC')->paginate($request->get('pagination'));
-        $competitors = CompetitorPage::select('id','name')->where('platform', 'instagram')->get();
-
-        
+        $competitors = CompetitorPage::select('id', 'name')->where('platform', 'instagram')->get();
 
         return response()->json([
             'leads' => $leads,
             'competitors' => $competitors,
         ]);
-
     }
 
     /**
@@ -69,7 +67,6 @@ class ColdLeadBroadcastsController extends Controller
      */
     public function store(Request $request)
     {
-
         $this->validate($request, [
             'name' => 'required',
             'number_of_users' => 'required',
@@ -78,7 +75,7 @@ class ColdLeadBroadcastsController extends Controller
             'started_at' => 'required',
             'status' => 'required',
         ]);
-        
+
         $broadcast = new ColdLeadBroadcasts();
         $broadcast->name = $request->get('name');
         $broadcast->number_of_users = $request->get('number_of_users');
@@ -100,53 +97,52 @@ class ColdLeadBroadcastsController extends Controller
         $query = ColdLeads::query();
         $competitor = $request->competitor;
 
-        if(!empty($competitor)){
+        if (! empty($competitor)) {
             $comp = CompetitorPage::find($competitor);
-            $query = $query->where('because_of','LIKE','%via '.$comp->name.'%');
+            $query = $query->where('because_of', 'LIKE', '%via '.$comp->name.'%');
         }
 
-        if(!empty($request->gender)){
-            $query = $query->where('gender', $request->gender);   
+        if (! empty($request->gender)) {
+            $query = $query->where('gender', $request->gender);
         }
 
         $coldleads = $query->where('status', 1)->where('messages_sent', '<', 5)->take($limit)->orderBy('messages_sent', 'ASC')->orderBy('id', 'ASC')->get();
-        
-        
+
         $count = 0;
         $leads = [];
 
         $now = $request->started_at ? Carbon::parse($request->started_at) : Carbon::now();
+        $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+        $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
+
+        if (! $now->between($morning, $evening, true)) {
+            if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
+                // add day
+                $now->addDay();
+                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
-
-                if (!$now->between($morning, $evening, true)) {
-                    if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
-                        // add day
-                        $now->addDay();
-                        $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                        $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                        $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
-                    } else {
-                        // dont add day
-                        $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                        $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                        $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
-                    }
-                }
-        $sendingTime = ''; 
+            } else {
+                // dont add day
+                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
+            }
+        }
+        $sendingTime = '';
 
         foreach ($coldleads as $coldlead) {
             $count++;
 
             // Convert maxTime to unixtime
-            if(empty($sendingTime)){
+            if (empty($sendingTime)) {
                 $maxTime = strtotime($now);
-            }else{
+            } else {
                 $now = $sendingTime ? Carbon::parse($sendingTime) : Carbon::now();
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
 
-                if (!$now->between($morning, $evening, true)) {
+                if (! $now->between($morning, $evening, true)) {
                     if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
                         // add day
                         $now->addDay();
@@ -163,11 +159,10 @@ class ColdLeadBroadcastsController extends Controller
                 $sendingTime = $now;
                 $maxTime = strtotime($sendingTime);
             }
-            
 
             // Add interval
             $maxTime = $maxTime + (3600 / $request->frequency);
-            
+
             // Check if it's in the future
             if ($maxTime < time()) {
                 $maxTime = time();
@@ -221,15 +216,12 @@ class ColdLeadBroadcastsController extends Controller
 //                }
 //
 //            }
-            
-            
+
             $coldlead->status = 2;
             $coldlead->save();
         }
 
-        
         return redirect()->back();
-       
 
         // $coldleads = ColdLeads::whereNotIn('status', [0])->whereNotIn('id', $leads)->where('messages_sent', '<', 5)->take($limit-$count)->orderBy('messages_sent', 'ASC')->orderBy('id', 'ASC')->get();
 
@@ -248,11 +240,6 @@ class ColdLeadBroadcastsController extends Controller
         // return response()->json([
         //     'status' => 'success'
         // ]);
-
-
-
-
-
     }
 
     /**

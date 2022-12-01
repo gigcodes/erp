@@ -46,7 +46,7 @@ class SendReminderToDubbizlesIfTheyHaventReplied extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -65,22 +65,22 @@ class SendReminderToDubbizlesIfTheyHaventReplied extends Command
             foreach ($messagesIds as $messagesId) {
                 $dubbizle = Dubbizle::find($messagesId->dubbizle_id);
 
-                if (!$dubbizle) {
+                if (! $dubbizle) {
                     continue;
                 }
 
                 $frequency = $dubbizle->frequency;
-                if (!($frequency >= 5)) {
+                if (! ($frequency >= 5)) {
                     continue;
                 }
 
-                $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "' . $now . '") >= ' . $frequency)
+                $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "'.$now.'") >= '.$frequency)
                     ->where('id', $messagesId->id)
                     ->where('user_id', '>', '0')
                     ->where('approved', '1')
                     ->first();
 
-                if (!$message) {
+                if (! $message) {
                     continue;
                 }
 
@@ -99,14 +99,13 @@ class SendReminderToDubbizlesIfTheyHaventReplied extends Command
 
     private function sendMessage($dubbizle, $message): void
     {
-
         $params = [
-            'number'      => null,
-            'user_id'     => 6,
-            'approved'    => 1,
-            'status'      => 1,
+            'number' => null,
+            'user_id' => 6,
+            'approved' => 1,
+            'status' => 1,
             'dubbizle_id' => $dubbizle,
-            'message'     => $message,
+            'message' => $message,
         ];
 
         $chat_message = ChatMessage::create($params);

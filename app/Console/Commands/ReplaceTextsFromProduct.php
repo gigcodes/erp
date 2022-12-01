@@ -45,7 +45,7 @@ class ReplaceTextsFromProduct extends Command
         return;
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -59,11 +59,10 @@ class ReplaceTextsFromProduct extends Command
             Product::select('products.*', 'product_status.name', 'product_status.value')->leftJoin('product_status', function ($join) {
                 $join->on('products.id', '=', 'product_status.product_id')->where('product_status.name', 'ATTRIBUTE_TEXT_REPLACEMENTS');
             })->orderBy('products.id', 'DESC')->chunk(1000, function ($products) use ($replacements) {
-
                 // Loop over products
                 foreach ($products as $product) {
                     // Output information
-                    echo "Checking product " . $product->id . "\n";
+                    echo 'Checking product '.$product->id."\n";
 
                     // Loop over replacements
                     foreach ($replacements as $replacement) {

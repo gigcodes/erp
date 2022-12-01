@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateSocialConfigTable extends Migration
 {
@@ -27,7 +27,7 @@ class CreateSocialConfigTable extends Migration
             $table->timestamps();
         });
     }
- 
+
     /**
      * Reverse the migrations.
      *

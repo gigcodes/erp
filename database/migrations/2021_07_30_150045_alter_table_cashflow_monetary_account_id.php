@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableCashflowMonetaryAccountId extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableCashflowMonetaryAccountId extends Migration
     public function up()
     {
         //
-        Schema::table("cash_flows",function(Blueprint $table) {
-            $table->integer("monetary_account_id")->nullable()->after("cash_flow_able_type");
+        Schema::table('cash_flows', function (Blueprint $table) {
+            $table->integer('monetary_account_id')->nullable()->after('cash_flow_able_type');
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableCashflowMonetaryAccountId extends Migration
     public function down()
     {
         //
-        Schema::table("cash_flows",function(Blueprint $table) {
-            $table->dropField("monetary_account_id");
+        Schema::table('cash_flows', function (Blueprint $table) {
+            $table->dropField('monetary_account_id');
         });
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableGoogleTranslationSettings extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableGoogleTranslationSettings extends Migration
     public function up()
     {
         //
-        Schema::table("google_traslation_settings",function(Blueprint $table) {
-            $table->timestamp("last_error_at")->nullable()->after("last_note");
+        Schema::table('google_traslation_settings', function (Blueprint $table) {
+            $table->timestamp('last_error_at')->nullable()->after('last_note');
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableGoogleTranslationSettings extends Migration
     public function down()
     {
         //
-        Schema::table("google_traslation_settings",function(Blueprint $table) {
-            $table->dropField("last_error_at");
+        Schema::table('google_traslation_settings', function (Blueprint $table) {
+            $table->dropField('last_error_at');
         });
     }
 }

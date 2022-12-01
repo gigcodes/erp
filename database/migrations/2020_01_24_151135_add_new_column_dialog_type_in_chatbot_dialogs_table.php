@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddNewColumnDialogTypeInChatbotDialogsTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddNewColumnDialogTypeInChatbotDialogsTable extends Migration
     public function up()
     {
         Schema::table('chatbot_dialogs', function (Blueprint $table) {
-            $table->enum('dialog_type',['node', 'folder']);
+            $table->enum('dialog_type', ['node', 'folder']);
         });
     }
 

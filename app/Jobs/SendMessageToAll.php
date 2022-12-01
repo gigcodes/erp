@@ -2,44 +2,45 @@
 
 namespace App\Jobs;
 
-use App\Customer;
-use App\ChatMessage;
-use App\MessageQueue;
 use App\BroadcastImage;
+use App\ChatMessage;
+use App\Customer;
+use App\Http\Controllers\WhatsAppController;
+use App\MessageQueue;
 use App\Product;
-use Carbon\Carbon;
-use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-use Illuminate\Http\Request;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Http\Controllers\WhatsAppController;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class SendMessageToAll implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $userId;
+
     protected $customer;
+
     protected $content;
+
     protected $messageQueueId;
+
     protected $groupId;
 
     public $tries = 5;
+
     public $backoff = 5;
 
     /**
      * Create a new job instance.
      *
-     * @param int $userId
-     * @param Customer $customer
-     * @param array $content
-     * @param int $messageQueueId
+     * @param  int  $userId
+     * @param  Customer  $customer
+     * @param  array  $content
+     * @param  int  $messageQueueId
      */
-    public function __construct(int $userId, Customer $customer, array $content, int $messageQueueId, $groupId=null)
+    public function __construct(int $userId, Customer $customer, array $content, int $messageQueueId, $groupId = null)
     {
         $this->userId = $userId;
         $this->customer = $customer;
@@ -55,7 +56,7 @@ class SendMessageToAll implements ShouldQueue
      */
     public function handle(): void
     {
-        try{
+        try {
             // Set default params
             $params = [
                 'number' => null,
@@ -63,7 +64,7 @@ class SendMessageToAll implements ShouldQueue
                 'customer_id' => $this->customer->id,
                 'approved' => 0,
                 'status' => 8, // status for Broadcast messages
-                'group_id' => $this->groupId
+                'group_id' => $this->groupId,
             ];
 
             // Check for phone number
@@ -77,10 +78,10 @@ class SendMessageToAll implements ShouldQueue
                     $chatMessage = ChatMessage::create($params);
 
                     // Attach all linked images
-                    foreach ($this->content[ 'linked_images' ] as $image) {
+                    foreach ($this->content['linked_images'] as $image) {
                         if (is_array($image)) {
-                            $image_key = $image[ 'key' ];
-                            $mediable_type = "BroadcastImage";
+                            $image_key = $image['key'];
+                            $mediable_type = 'BroadcastImage';
 
                             // Find broadcast image
                             $broadcast = BroadcastImage::with('Media')
@@ -109,10 +110,10 @@ class SendMessageToAll implements ShouldQueue
                 }
 
                 // Do we have a message?
-                if ($this->content[ 'message' ]) {
+                if ($this->content['message']) {
                     // Set params
-                    $params[ 'message' ] = $this->content[ 'message' ];
-                    $message = $this->content[ 'message' ];
+                    $params['message'] = $this->content['message'];
+                    $message = $this->content['message'];
 
                     // Create chatmessage
                     $chatMessage = ChatMessage::create($params);
@@ -121,11 +122,10 @@ class SendMessageToAll implements ShouldQueue
                         dump('sending message with NEW API');
                         $sendResult = ChatMessage::sendWithChatApi($this->customer->phone, $sendNumber, $message, false, $chatMessage->id);
                         if ($sendResult) {
-                            $chatMessage->unique_id = $sendResult[ 'id' ] ?? '';
+                            $chatMessage->unique_id = $sendResult['id'] ?? '';
                             $chatMessage->save();
                         }
                     } catch (\Exception $e) {
-
                     }
                 }
 
@@ -135,21 +135,20 @@ class SendMessageToAll implements ShouldQueue
                     $chatMessage = ChatMessage::create($params);
 
                     // Attach all linked images
-                    foreach ($this->content[ 'linked_images' ] as $image) {
+                    foreach ($this->content['linked_images'] as $image) {
                         // Check for image array
                         if (is_array($image)) {
                             // Attach image
-                            $chatMessage->attachMedia($image[ 'key' ], config('constants.media_tags'));
+                            $chatMessage->attachMedia($image['key'], config('constants.media_tags'));
 
                             try {
                                 dump('sending linked images with NEW API');
-                                $sendResult = ChatMessage::sendWithChatApi($this->customer->phone, $sendNumber, null, str_replace(' ', '%20', $image[ 'url' ]), $chatMessage->id);
+                                $sendResult = ChatMessage::sendWithChatApi($this->customer->phone, $sendNumber, null, str_replace(' ', '%20', $image['url']), $chatMessage->id);
                                 if ($sendResult) {
-                                    $chatMessage->unique_id = $sendResult[ 'id' ] ?? '';
+                                    $chatMessage->unique_id = $sendResult['id'] ?? '';
                                     $chatMessage->save();
                                 }
                             } catch (\Exception $e) {
-
                             }
                         } else {
                             $broadcast_image = BroadcastImage::find($image);
@@ -162,7 +161,7 @@ class SendMessageToAll implements ShouldQueue
                                         dump('sending images with NEW API');
                                         $sendResult = ChatMessage::sendWithChatApi($this->customer->phone, $sendNumber, null, str_replace(' ', '%20', $brod_image->getUrl()), $chatMessage->id);
                                         if ($sendResult) {
-                                            $chatMessage->unique_id = $sendResult[ 'id' ] ?? '';
+                                            $chatMessage->unique_id = $sendResult['id'] ?? '';
                                             $chatMessage->save();
                                         }
                                     } catch (\Exception $e) {
@@ -170,34 +169,31 @@ class SendMessageToAll implements ShouldQueue
                                 }
                             }
                         }
-
-
                     }
                 }
 
-                if (isset($this->content[ 'image' ])) {
-                    if (!isset($chatMessage)) {
+                if (isset($this->content['image'])) {
+                    if (! isset($chatMessage)) {
                         $chatMessage = ChatMessage::create($params);
                     }
 
-                    foreach ($this->content[ 'image' ] as $image) {
-                        $chatMessage->attachMedia($image[ 'key' ], config('constants.media_tags'));
+                    foreach ($this->content['image'] as $image) {
+                        $chatMessage->attachMedia($image['key'], config('constants.media_tags'));
 
                         try {
                             dump('sending simple images with NEW API');
-                            $sendResult = app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $sendNumber, null, str_replace(' ', '%20', $image[ 'url' ]), $chatMessage->id);
+                            $sendResult = app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $sendNumber, null, str_replace(' ', '%20', $image['url']), $chatMessage->id);
                             if ($sendResult) {
-                                $chatMessage->unique_id = $sendResult[ 'id' ] ?? '';
+                                $chatMessage->unique_id = $sendResult['id'] ?? '';
                                 $chatMessage->save();
                             }
                         } catch (\Exception $e) {
-
                         }
                     }
                 }
 
                 $chatMessage->update([
-                    'approved' => 1
+                    'approved' => 1,
                 ]);
 
                 $message_queue = MessageQueue::find($this->messageQueueId);
@@ -212,8 +208,8 @@ class SendMessageToAll implements ShouldQueue
         }
     }
 
-    public function tags() 
+    public function tags()
     {
-        return [ 'SendMessageToAll', $this->userId ];
+        return ['SendMessageToAll', $this->userId];
     }
 }

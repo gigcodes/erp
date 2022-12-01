@@ -1,18 +1,21 @@
-<?php namespace Modules\BookStack\Entities;
+<?php
+
+namespace Modules\BookStack\Entities;
 
 use Modules\BookStack\Entities\Repos\EntityRepo;
 use Modules\BookStack\Uploads\ImageService;
 
 class ExportService
 {
-
     protected $entityRepo;
+
     protected $imageService;
 
     /**
      * ExportService constructor.
-     * @param EntityRepo $entityRepo
-     * @param ImageService $imageService
+     *
+     * @param  EntityRepo  $entityRepo
+     * @param  ImageService  $imageService
      */
     public function __construct(EntityRepo $entityRepo, ImageService $imageService)
     {
@@ -23,23 +26,28 @@ class ExportService
     /**
      * Convert a page to a self-contained HTML file.
      * Includes required CSS & image content. Images are base64 encoded into the HTML.
-     * @param \BookStack\Entities\Page $page
+     *
+     * @param  \BookStack\Entities\Page  $page
      * @return mixed|string
+     *
      * @throws \Throwable
      */
     public function pageToContainedHtml(Page $page)
     {
         $this->entityRepo->renderPage($page);
         $pageHtml = view('bookstack::pages/export', [
-            'page' => $page
+            'page' => $page,
         ])->render();
+
         return $this->containHtml($pageHtml);
     }
 
     /**
      * Convert a chapter to a self-contained HTML file.
-     * @param \BookStack\Entities\Chapter $chapter
+     *
+     * @param  \BookStack\Entities\Chapter  $chapter
      * @return mixed|string
+     *
      * @throws \Throwable
      */
     public function chapterToContainedHtml(Chapter $chapter)
@@ -50,15 +58,18 @@ class ExportService
         });
         $html = view('bookstack::chapters/export', [
             'chapter' => $chapter,
-            'pages' => $pages
+            'pages' => $pages,
         ])->render();
+
         return $this->containHtml($html);
     }
 
     /**
      * Convert a book to a self-contained HTML file.
-     * @param Book $book
+     *
+     * @param  Book  $book
      * @return mixed|string
+     *
      * @throws \Throwable
      */
     public function bookToContainedHtml(Book $book)
@@ -66,30 +77,36 @@ class ExportService
         $bookTree = $this->entityRepo->getBookChildren($book, true, true);
         $html = view('bookstack::books/export', [
             'book' => $book,
-            'bookChildren' => $bookTree
+            'bookChildren' => $bookTree,
         ])->render();
+
         return $this->containHtml($html);
     }
 
     /**
      * Convert a page to a PDF file.
-     * @param Page $page
+     *
+     * @param  Page  $page
      * @return mixed|string
+     *
      * @throws \Throwable
      */
     public function pageToPdf(Page $page)
     {
         $this->entityRepo->renderPage($page);
         $html = view('bookstack::pages/pdf', [
-            'page' => $page
+            'page' => $page,
         ])->render();
+
         return $this->htmlToPdf($html);
     }
 
     /**
      * Convert a chapter to a PDF file.
-     * @param \BookStack\Entities\Chapter $chapter
+     *
+     * @param  \BookStack\Entities\Chapter  $chapter
      * @return mixed|string
+     *
      * @throws \Throwable
      */
     public function chapterToPdf(Chapter $chapter)
@@ -100,15 +117,18 @@ class ExportService
         });
         $html = view('bookstack::chapters/export', [
             'chapter' => $chapter,
-            'pages' => $pages
+            'pages' => $pages,
         ])->render();
+
         return $this->htmlToPdf($html);
     }
 
     /**
      * Convert a book to a PDF file
-     * @param \BookStack\Entities\Book $book
+     *
+     * @param  \BookStack\Entities\Book  $book
      * @return string
+     *
      * @throws \Throwable
      */
     public function bookToPdf(Book $book)
@@ -116,15 +136,18 @@ class ExportService
         $bookTree = $this->entityRepo->getBookChildren($book, true, true);
         $html = view('bookstack::books/export', [
             'book' => $book,
-            'bookChildren' => $bookTree
+            'bookChildren' => $bookTree,
         ])->render();
+
         return $this->htmlToPdf($html);
     }
 
     /**
      * Convert normal webpage HTML to a PDF.
+     *
      * @param $html
      * @return string
+     *
      * @throws \Exception
      */
     protected function htmlToPdf($html)
@@ -137,13 +160,16 @@ class ExportService
         } else {
             $pdf = \DomPDF::loadHTML($containedHtml);
         }
+
         return $pdf->output();
     }
 
     /**
      * Bundle of the contents of a html file to be self-contained.
+     *
      * @param $htmlContent
      * @return mixed|string
+     *
      * @throws \Exception
      */
     protected function containHtml($htmlContent)
@@ -188,7 +214,8 @@ class ExportService
     /**
      * Converts the page contents into simple plain text.
      * This method filters any bad looking content to provide a nice final output.
-     * @param Page $page
+     *
+     * @param  Page  $page
      * @return mixed
      */
     public function pageToPlainText(Page $page)
@@ -201,34 +228,38 @@ class ExportService
         $text = preg_replace('/(\x0A|\xA0|\x0A|\r|\n){2,}/su', "\n\n", $text);
         $text = html_entity_decode($text);
         // Add title
-        $text = $page->name . "\n\n" . $text;
+        $text = $page->name."\n\n".$text;
+
         return $text;
     }
 
     /**
      * Convert a chapter into a plain text string.
-     * @param \BookStack\Entities\Chapter $chapter
+     *
+     * @param  \BookStack\Entities\Chapter  $chapter
      * @return string
      */
     public function chapterToPlainText(Chapter $chapter)
     {
-        $text = $chapter->name . "\n\n";
-        $text .= $chapter->description . "\n\n";
+        $text = $chapter->name."\n\n";
+        $text .= $chapter->description."\n\n";
         foreach ($chapter->pages as $page) {
             $text .= $this->pageToPlainText($page);
         }
+
         return $text;
     }
 
     /**
      * Convert a book into a plain text string.
-     * @param Book $book
+     *
+     * @param  Book  $book
      * @return string
      */
     public function bookToPlainText(Book $book)
     {
         $bookTree = $this->entityRepo->getBookChildren($book, true, true);
-        $text = $book->name . "\n\n";
+        $text = $book->name."\n\n";
         foreach ($bookTree as $bookChild) {
             if ($bookChild->isA('chapter')) {
                 $text .= $this->chapterToPlainText($bookChild);
@@ -236,6 +267,7 @@ class ExportService
                 $text .= $this->pageToPlainText($bookChild);
             }
         }
+
         return $text;
     }
 }

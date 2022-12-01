@@ -46,14 +46,14 @@ class ZoomMeetingRecordings extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-         //   dd($report);
-            $zoomKey    = $this->zoomkey;
+            //   dd($report);
+            $zoomKey = $this->zoomkey;
             $zoomSecret = $this->zoomsecret;
-            $meetings   = new ZoomMeetings();
-            $date       = Carbon::now();
+            $meetings = new ZoomMeetings();
+            $date = Carbon::now();
             $meetings->getRecordings($zoomKey, $zoomSecret, $date);
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {

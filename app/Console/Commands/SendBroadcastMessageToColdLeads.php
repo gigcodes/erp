@@ -57,7 +57,7 @@ class SendBroadcastMessageToColdLeads extends Command
 
 //        $bs->followUser($broadcast);
 
-            //After users are followed, start DMing 10 people...
+        //After users are followed, start DMing 10 people...
             //        sleep(10);
             //
 //            $leads = $broadcast->lead()->where('cold_leads.status', 1)->where('followed_by', '>', 0)->get();

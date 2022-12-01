@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
-use App\ScrapedProducts;
 use App\Category;
+use App\ScrapedProducts;
 use App\ScrappedCategoryMapping;
 use App\ScrappedProductCategoryMapping;
 
@@ -65,7 +65,6 @@ class ScrappedProductCategoryMappingObserver
         //
     }
 
-
     protected function create($scrapedproducts)
     {
         /*
@@ -84,7 +83,7 @@ class ScrappedProductCategoryMappingObserver
                         $pro_arr[] = ['category_mapping_id' => $key,
                             'product_id' => $scrapedproducts->id
                         ];
-                    } 
+                    }
                 }
             }
 
@@ -93,6 +92,5 @@ class ScrappedProductCategoryMappingObserver
             }
         }
         */
-        
     }
 }

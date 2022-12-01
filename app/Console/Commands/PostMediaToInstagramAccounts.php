@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\CronJobReport;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+
 //use InstagramAPI\Instagram;
 
 class PostMediaToInstagramAccounts extends Command
@@ -42,7 +43,7 @@ class PostMediaToInstagramAccounts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -60,22 +61,21 @@ class PostMediaToInstagramAccounts extends Command
 
                 for ($i = 1; $i < 10; $i++) {
                     echo "FOR $account \n";
-                    $filename             = __DIR__ . '/images/' . $i . '.jpeg';
-                    $source               = imagecreatefromjpeg($filename);
-                    list($width, $height) = getimagesize($filename);
+                    $filename = __DIR__.'/images/'.$i.'.jpeg';
+                    $source = imagecreatefromjpeg($filename);
+                    [$width, $height] = getimagesize($filename);
 
-                    $newwidth  = 800;
+                    $newwidth = 800;
                     $newheight = 800;
 
                     $destination = imagecreatetruecolor($newwidth, $newheight);
                     imagecopyresampled($destination, $source, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
 
-                    imagejpeg($destination, __DIR__ . '/images/' . $i . '.jpeg', 100);
+                    imagejpeg($destination, __DIR__.'/images/'.$i.'.jpeg', 100);
 
 //                    $instagram->timeline->uploadPhoto($filename);
 
                     sleep(10);
-
                 }
             }
 

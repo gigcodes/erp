@@ -53,7 +53,6 @@ class CashFlow extends Model
 
     public function getModelNameAttribute()
     {
-
     }
 
     public function order()
@@ -73,35 +72,32 @@ class CashFlow extends Model
 
     public function monetaryAccount()
     {
-        return $this->hasOne(\App\MonetaryAccount::class,'id', 'monetary_account_id');
+        return $this->hasOne(\App\MonetaryAccount::class, 'id', 'monetary_account_id');
     }
-    
 
     public function getLink()
     {
         if ($this->cash_flow_able_type == \App\Order::class) {
-            return '<a href="' . route('order.show', $this->cash_flow_able_id) . '" class="btn-link">' . $this->cash_flow_able_id . '</a>';
-        } else if ($this->cash_flow_able_type == \App\PaymentReceipt::class) {
-            return '<a href="/voucher" class="btn-link">' . $this->cash_flow_able_id . '</a>';
+            return '<a href="'.route('order.show', $this->cash_flow_able_id).'" class="btn-link">'.$this->cash_flow_able_id.'</a>';
+        } elseif ($this->cash_flow_able_type == \App\PaymentReceipt::class) {
+            return '<a href="/voucher" class="btn-link">'.$this->cash_flow_able_id.'</a>';
         } else {
-            return '<a href="javascript:;" class="btn-link">' . $this->cash_flow_able_id . '</a>';
+            return '<a href="javascript:;" class="btn-link">'.$this->cash_flow_able_id.'</a>';
         }
     }
 
     public function get_bname()
     {
         if ($this->cash_flow_able_type == \App\Order::class) {
-            return ($this->order) ? $this->order->customer->name : "N/A";
-        } else if ($this->cash_flow_able_type == \App\AssetsManager::class) {
-            return ($this->assetsManager) ? $this->assetsManager->name : "N/A";
-        } else if ($this->cash_flow_able_type == \App\PaymentReceipt::class) {
-            return ($this->user) ?  $this->user->name :"N/A";
-        }else if ($this->cash_flow_able_type ==  \App\HubstaffActivityByPaymentFrequency::class) {
-            return ($this->user) ? $this->user->name : "N/A";
+            return ($this->order) ? $this->order->customer->name : 'N/A';
+        } elseif ($this->cash_flow_able_type == \App\AssetsManager::class) {
+            return ($this->assetsManager) ? $this->assetsManager->name : 'N/A';
+        } elseif ($this->cash_flow_able_type == \App\PaymentReceipt::class) {
+            return ($this->user) ? $this->user->name : 'N/A';
+        } elseif ($this->cash_flow_able_type == \App\HubstaffActivityByPaymentFrequency::class) {
+            return ($this->user) ? $this->user->name : 'N/A';
         } else {
-            return "Cash";
+            return 'Cash';
         }
-
     }
-
 }

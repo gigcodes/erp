@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddNewColumnTypeInProductTemplatesTable extends Migration
 {
@@ -27,9 +27,8 @@ class AddNewColumnTypeInProductTemplatesTable extends Migration
     public function down()
     {
         Schema::table('product_templates', function (Blueprint $table) {
-             $table->dropColumn('type');
-             $table->dropColumn('category_id');
-               
+            $table->dropColumn('type');
+            $table->dropColumn('category_id');
         });
     }
 }

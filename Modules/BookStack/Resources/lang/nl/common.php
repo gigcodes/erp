@@ -1,7 +1,7 @@
 <?php
+
 return [
 
-    
     // Buttons
     'cancel' => 'Annuleren',
     'confirm' => 'Bevestigen',
@@ -11,14 +11,14 @@ return [
     'select' => 'Kies',
     'toggle_all' => 'Toggle Alles',
     'more' => 'Meer',
-    
+
     // Form Labels
     'name' => 'Naam',
     'description' => 'Beschrijving',
     'role' => 'Rol',
     'cover_image' => 'Omslagfoto',
     'cover_image_description' => 'Deze afbeelding moet ongeveer 300x170px zijn.',
-    
+
     // Actions
     'actions' => 'Acties',
     'view' => 'Bekijk',
@@ -41,7 +41,7 @@ return [
     'sort_name' => 'Naam',
     'sort_created_at' => 'Aanmaakdatum',
     'sort_updated_at' => 'Gewijzigd op',
-    
+
     // Misc
     'deleted_user' => 'Verwijderde gebruiker',
     'no_activity' => 'Geen activiteiten',
@@ -63,7 +63,7 @@ return [
     // Layout tabs
     'tab_info' => 'Info',
     'tab_content' => 'Inhoud',
-    
+
     /**
      * Email Content
      */

@@ -13,7 +13,6 @@ class UserTrackTimesController extends Controller
      */
     public function index()
     {
-        
         return view('user-track-time.index', compact('comments', 'accounts'));
     }
 

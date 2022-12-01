@@ -43,7 +43,7 @@ class SendPendingTasksReminders extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -53,13 +53,13 @@ class SendPendingTasksReminders extends Command
                 $user = User::find($user_id);
 
                 if ($user) {
-                    $count   = count($data);
+                    $count = count($data);
                     $message = "Today You have $count pending tasks.";
 
                     dump("$user_id - $user->name has $count pending tasks");
 
                     try {
-                        dump("Sending message");
+                        dump('Sending message');
 
                         app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $message);
                     } catch (\Exception $e) {

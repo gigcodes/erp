@@ -11,16 +11,16 @@ class ChecklistSubject extends Model
      *
      * @var string
      */
-
     protected $fillable = [
         'subject_id',
         'checklist_id',
         'is_checked',
         'user_id',
-        'date'
-    ];    
+        'date',
+    ];
 
-    public function subject(){
+    public function subject()
+    {
         return $this->belongsTo(Subject::class);
     }
 }

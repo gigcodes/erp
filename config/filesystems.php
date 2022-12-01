@@ -52,13 +52,13 @@ return [
             'root' => base_path('resources/assets/analytics_files'),
         ],
         'uploads' => [
-	        'driver' => 'local',
-	        'root'   => public_path('uploads'),
+            'driver' => 'local',
+            'root' => public_path('uploads'),
         ],
 
         'logs' => [
             'driver' => 'local',
-            'root' => storage_path('logs')
+            'root' => storage_path('logs'),
         ],
 
         'public' => [

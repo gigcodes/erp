@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     /**
@@ -66,7 +67,7 @@ return [
     'search_created_after' => 'Utworzone po',
     'search_set_date' => 'Ustaw datę',
     'search_update' => 'Zaktualizuj wyszukiwanie',
-    
+
     /**
      * Shelves
      */
@@ -98,7 +99,7 @@ return [
     'shelves_copy_permissions' => 'Skopiuj uprawnienia',
     'shelves_copy_permissions_explain' => 'To spowoduje zastosowanie obecnych ustawień uprawnień dla tej półki do wszystkich podręczników w niej zawartych. Przed aktywacją upewnij się, że wszelkie zmiany w uprawnieniach do tej półki zostały zapisane.',
     'shelves_copy_permission_success' => 'Uprawnienia półki zostały skopiowane do :count podręczników',
-    
+
     /**
      * Books
      */
@@ -244,7 +245,7 @@ return [
     'book_tags' => 'Tagi podręcznika',
     'shelf_tags' => 'Tagi półki',
     'tag' => 'Tag',
-    'tags' =>  'Tagi',
+    'tags' => 'Tagi',
     'tag_value' => 'Wartość tagu (opcjonalnie)',
     'tags_explain' => "Dodaj tagi by skategoryzować zawartość. \n W celu dokładniejszej organizacji zawartości możesz dodać wartości do tagów.",
     'tags_add' => 'Dodaj kolejny tag',
@@ -303,10 +304,10 @@ return [
     'comment_delete_confirm' => 'Czy na pewno chcesz usunąc ten komentarz?',
     'comment_in_reply_to' => 'W odpowiedzi na :commentId',
 
-     /**
+    /**
      * Revision
      */
     'revision_delete_confirm' => 'Czy na pewno chcesz usunąć tę wersję?',
     'revision_delete_success' => 'Usunięto wersję',
-    'revision_cannot_delete_latest' => 'Nie można usunąć najnowszej wersji.'
+    'revision_cannot_delete_latest' => 'Nie można usunąć najnowszej wersji.',
 ];

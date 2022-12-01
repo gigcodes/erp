@@ -43,7 +43,7 @@ class MoveColdLeadsToCustomers extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -51,11 +51,11 @@ class MoveColdLeadsToCustomers extends Command
             $coldLeads = ColdLeads::where('is_imported', 1)->where('customer_id', null)->inRandomOrder()->get();
 
             // Set count to 0 and maxcount to 50
-            $count    = 0;
+            $count = 0;
             $maxCount = 500000;
 
             // Get all numbers from config
-            $config = \Config::get("apiwha.instances");
+            $config = \Config::get('apiwha.instances');
 
             // Loop over numbers
             $arrCustomerNumbers = [];
@@ -74,19 +74,19 @@ class MoveColdLeadsToCustomers extends Command
                     }
 
                     // Add cold lead to customers table
-                    if (!$coldLead->customer && !$coldLead->whatsapp) {
+                    if (! $coldLead->customer && ! $coldLead->whatsapp) {
                         // Check for existing customer
                         $customer = Customer::where('phone', $coldLead->platform_id)->get();
 
                         // Nothing found?
-                        if ($customer == null && !empty($coldLead->name)) {
+                        if ($customer == null && ! empty($coldLead->name)) {
                             // Create new customer
-                            $customer                  = new Customer();
-                            $customer->name            = $coldLead->name;
-                            $customer->phone           = $coldLead->platform_id;
+                            $customer = new Customer();
+                            $customer->name = $coldLead->name;
+                            $customer->phone = $coldLead->platform_id;
                             $customer->whatsapp_number = $arrCustomerNumbers[rand(0, count($arrCustomerNumbers) - 1)];
-                            $customer->city            = $coldLead->address;
-                            $customer->country         = 'IN';
+                            $customer->city = $coldLead->address;
+                            $customer->country = 'IN';
                             try {
                                 $customer->save();
                             } catch (\Exception $e) {
@@ -95,7 +95,7 @@ class MoveColdLeadsToCustomers extends Command
                                 $coldLead->save();
                             }
 
-                            if (!empty($customer->id)) {
+                            if (! empty($customer->id)) {
                                 $coldLead->customer_id = $customer->id;
                                 $coldLead->save();
                             }
@@ -106,7 +106,6 @@ class MoveColdLeadsToCustomers extends Command
 
                         $count++;
                     }
-
                 }
             }
 

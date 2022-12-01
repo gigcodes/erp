@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddHasErrorToSuppliers extends Migration
 {
@@ -14,7 +14,7 @@ class AddHasErrorToSuppliers extends Migration
     public function up()
     {
         Schema::table('suppliers', function (Blueprint $table) {
-          $table->boolean('has_error')->default(0)->after('is_flagged');
+            $table->boolean('has_error')->default(0)->after('is_flagged');
         });
     }
 
@@ -26,7 +26,7 @@ class AddHasErrorToSuppliers extends Migration
     public function down()
     {
         Schema::table('suppliers', function (Blueprint $table) {
-          $table->dropColumn('has_error');
+            $table->dropColumn('has_error');
         });
     }
 }

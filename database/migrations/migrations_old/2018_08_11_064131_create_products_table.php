@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class CreateProductsTable extends Migration
 {
@@ -13,9 +12,9 @@ class CreateProductsTable extends Migration
      */
     public function up()
     {
-	    Schema::table('products', function ($table) {
-	        $table->string('size');
-	        $table->string('price');
+        Schema::table('products', function ($table) {
+            $table->string('size');
+            $table->string('price');
         });
     }
 
@@ -26,9 +25,9 @@ class CreateProductsTable extends Migration
      */
     public function down()
     {
-	    Schema::table('products', function($table) {
-		    $table->dropColumn('size');
-		    $table->dropColumn('price');
-	    });
+        Schema::table('products', function ($table) {
+            $table->dropColumn('size');
+            $table->dropColumn('price');
+        });
     }
 }

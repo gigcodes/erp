@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTwilioLogTable extends Migration
 {
@@ -15,9 +15,9 @@ class CreateTwilioLogTable extends Migration
     {
         Schema::create('twilio_logs', function (Blueprint $table) {
             $table->increments('id');
-			$table->string('account_sid');
-			$table->string('call_sid');
-			$table->string('phone');
+            $table->string('account_sid');
+            $table->string('call_sid');
+            $table->string('phone');
             $table->text('log');
             $table->timestamps();
         });

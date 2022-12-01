@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddUserIdToUiDeviceHistoriesTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddUserIdToUiDeviceHistoriesTable extends Migration
     public function up()
     {
         Schema::table('ui_device_histories', function (Blueprint $table) {
-            $table->integer('user_id')->after("ui_devices_id")->nullable();
+            $table->integer('user_id')->after('ui_devices_id')->nullable();
         });
     }
 

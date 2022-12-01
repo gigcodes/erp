@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableCashflowDueAmount extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableCashflowDueAmount extends Migration
     public function up()
     {
         //
-        Schema::table("cash_flows",function(Blueprint $table) {
-            $table->double("due_amount_eur")->default(0.00)->after("amount_eur");
+        Schema::table('cash_flows', function (Blueprint $table) {
+            $table->double('due_amount_eur')->default(0.00)->after('amount_eur');
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableCashflowDueAmount extends Migration
     public function down()
     {
         //
-        Schema::table("cash_flows",function(Blueprint $table) {
-            $table->dropField("due_amount_eur");
+        Schema::table('cash_flows', function (Blueprint $table) {
+            $table->dropField('due_amount_eur');
         });
     }
 }

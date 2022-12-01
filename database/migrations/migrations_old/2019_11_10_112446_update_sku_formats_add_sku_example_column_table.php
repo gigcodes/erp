@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateSkuFormatsAddSKUExampleColumnTable extends Migration
 {
@@ -13,7 +12,7 @@ class UpdateSkuFormatsAddSKUExampleColumnTable extends Migration
      */
     public function up()
     {
-        Schema::table('sku_formats', function($table){
+        Schema::table('sku_formats', function ($table) {
             $table->string('sku_examples')->nullable()->after('category_id');
         });
     }
@@ -25,8 +24,8 @@ class UpdateSkuFormatsAddSKUExampleColumnTable extends Migration
      */
     public function down()
     {
-        Schema::table('sku_formats', function($table){
-           $table->dropColumn('sku_examples');
+        Schema::table('sku_formats', function ($table) {
+            $table->dropColumn('sku_examples');
         });
     }
 }

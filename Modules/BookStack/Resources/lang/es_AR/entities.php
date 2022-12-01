@@ -2,7 +2,7 @@
 /**
  * Text used for 'Entities' (Document Structure Elements) such as
  * Books, Shelves, Chapters & Pages
- * 
+ *
  * Texto utilizado para 'Entities' (Elementos de Estructura de
  * los Documentos) como Libros, Estantes, Capítulos y Páginas
  */
@@ -245,8 +245,8 @@ return [
     'book_tags' => 'Etiquetas de libro',
     'shelf_tags' => 'Shelf Tags',
     'tag' => 'Etiqueta',
-    'tags' =>  'Etiquetas',
-    'tag_name' =>  'Nombre de etiqueta',
+    'tags' => 'Etiquetas',
+    'tag_name' => 'Nombre de etiqueta',
     'tag_value' => 'Valor de la etiqueta (Opcional)',
     'tags_explain' => "Agregar algunas etiquetas para mejorar la categorización de su contenido. \n Se puede asignar un valor a una etiqueta para una organizacón con mayor detalle.",
     'tags_add' => 'Agregar otra etiqueta',
@@ -291,7 +291,6 @@ return [
     'profile_not_created_books' => ':userName no ha creado libros',
     'profile_not_created_shelves' => ':userName no ha creado estantes',
 
-
     // Comments - Comentarios
     'comment' => 'Comentario',
     'comments' => 'Comentarios',
@@ -310,9 +309,9 @@ return [
     'comment_delete_confirm' => '¿Está seguro que quiere borrar este comentario?',
     'comment_in_reply_to' => 'En respuesta a :commentId',
 
-     // Revision - Revisión
+    // Revision - Revisión
     'revision_delete_confirm' => '¿Está seguro de que quiere eliminar esta revisión?',
     'revision_restore_confirm' => '¿Está seguro de que quiere restaurar esta revisión? Se reemplazará el contenido de la página actual.',
     'revision_delete_success' => 'Revisión eliminada',
-    'revision_cannot_delete_latest' => 'No se puede eliminar la última revisión.'
+    'revision_cannot_delete_latest' => 'No se puede eliminar la última revisión.',
 ];

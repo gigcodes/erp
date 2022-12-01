@@ -19,7 +19,9 @@ class CaseReceivableCreated
      * @return void
      */
     public $case;
+
     public $receivable;
+
     public $status;
 
     public function __construct(LegalCase $case, CaseReceivable $case_receivable, $status)

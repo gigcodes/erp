@@ -3,8 +3,6 @@
 namespace App\Listeners;
 
 use App\Events\VoucherApproved;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class CreateVoucherCashFlow
 {
@@ -29,7 +27,7 @@ class CreateVoucherCashFlow
         $voucher = $event->voucher;
         $user_id = auth()->id();
         $cash_flow = $voucher->cashFlows()->first();
-        if(!$cash_flow){
+        if (! $cash_flow) {
             $cash_flow = $voucher->cashFlows()->create([
                 'user_id' => $user_id,
             ]);
@@ -45,6 +43,5 @@ class CreateVoucherCashFlow
             'updated_by' => $user_id,
             'description' => '',
         ])->save();
-
     }
 }

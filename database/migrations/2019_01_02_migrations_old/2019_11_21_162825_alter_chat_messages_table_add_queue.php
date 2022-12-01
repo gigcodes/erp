@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterChatMessagesTableAddQueue extends Migration
 {
@@ -14,7 +14,7 @@ class AlterChatMessagesTableAddQueue extends Migration
     public function up()
     {
         Schema::table('chat_messages', function (Blueprint $table) {
-            $table->integer('is_queue')->after("id");
+            $table->integer('is_queue')->after('id');
         });
     }
 

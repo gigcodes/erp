@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddSendingTimeToBroadcastImages extends Migration
 {
@@ -14,7 +14,7 @@ class AddSendingTimeToBroadcastImages extends Migration
     public function up()
     {
         Schema::table('broadcast_images', function (Blueprint $table) {
-          $table->datetime('sending_time')->nullable()->after('products');
+            $table->datetime('sending_time')->nullable()->after('products');
         });
     }
 
@@ -26,7 +26,7 @@ class AddSendingTimeToBroadcastImages extends Migration
     public function down()
     {
         Schema::table('broadcast_images', function (Blueprint $table) {
-          $table->dropColumn('sending_time');
+            $table->dropColumn('sending_time');
         });
     }
 }

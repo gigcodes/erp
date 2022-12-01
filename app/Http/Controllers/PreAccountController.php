@@ -22,7 +22,7 @@ class PreAccountController extends Controller
         $lastName = PeopleNames::inRandomOrder()->take(10)->get()->toArray();
         $countries = TargetLocation::all();
 
-        return view('pre.accounts', compact('accounts','firstName', 'lastName', 'countries'));
+        return view('pre.accounts', compact('accounts', 'firstName', 'lastName', 'countries'));
     }
 
     /**
@@ -45,13 +45,13 @@ class PreAccountController extends Controller
     {
         $this->validate($request, [
             'email' => 'required|array',
-            'password' => 'required|array'
+            'password' => 'required|array',
         ]);
 
         $emails = $request->get('email');
 
-        foreach ($emails as $key=>$email) {
-            if (!$email) {
+        foreach ($emails as $key => $email) {
+            if (! $email) {
                 continue;
             }
             $account = new PreAccount();
@@ -67,18 +67,17 @@ class PreAccountController extends Controller
 
             $a = new Account();
             $a->email = $account->email;
-            $a->first_name = $account->first_name . ' ' . $account->last_name;
+            $a->first_name = $account->first_name.' '.$account->last_name;
             $a->platform = 'instagram';
             $a->dob = date('Y-m-d');
             $a->save();
 
             $a = new Account();
             $a->email = $account->email;
-            $a->first_name = $account->first_name . ' ' . $account->last_name;
+            $a->first_name = $account->first_name.' '.$account->last_name;
             $a->platform = 'pinterest';
             $a->dob = date('Y-m-d');
             $a->save();
-
         }
 
         return redirect()->back()->with('message', 'E-mail added successfully!');

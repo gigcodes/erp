@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddShipmentDateToPurchases extends Migration
 {
@@ -14,7 +14,7 @@ class AddShipmentDateToPurchases extends Migration
     public function up()
     {
         Schema::table('purchases', function (Blueprint $table) {
-          $table->datetime('shipment_date')->nullable()->after('shipment_cost');
+            $table->datetime('shipment_date')->nullable()->after('shipment_cost');
         });
     }
 
@@ -26,7 +26,7 @@ class AddShipmentDateToPurchases extends Migration
     public function down()
     {
         Schema::table('purchases', function (Blueprint $table) {
-          $table->dropColumn('shipment_date');
+            $table->dropColumn('shipment_date');
         });
     }
 }
