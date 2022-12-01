@@ -1363,16 +1363,6 @@ if (!empty($notifications)) {
                                             </ul>
                                 </li>
 
-                                <!-- mailchimp -->
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="seoMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">MailChimp<span class="caret">
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
-                                                <li class="nav-item dropdown dropdown-submenu">
-                                                    <a href="{{ route('manage.mailchimp') }}">Manage MailChimp</a>
-
-                                                </li>
-                                            </ul>
-                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Chatbot<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">

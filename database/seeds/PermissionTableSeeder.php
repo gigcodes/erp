@@ -94,7 +94,6 @@ class PermissionTableSeeder extends Seeder
             'old',
             'old-incoming',
             'blogger-all',
-            'mailchimp',
             'hubstaff',
             'attachment-create-all',
             'attachment-create-own',

@@ -92,7 +92,6 @@ class UserTableSeeder extends Seeder
             'old',
             'old-incoming',
             'blogger-all',
-            'mailchimp',
             'hubstaff',
         ];
 

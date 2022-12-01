@@ -2809,14 +2809,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('monetary-account', 'MonetaryAccountController');
 });
 
-// Mailchimp Module
-Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function () {
-    Route::get('manageMailChimp', 'MailchimpController@manageMailChimp')->name('manage.mailchimp');
-    Route::post('subscribe', ['as' => 'subscribe', 'uses' => 'MailchimpController@subscribe']);
-    Route::post('sendCompaign', ['as' => 'sendCompaign', 'uses' => 'MailchimpController@sendCompaign']);
-    Route::get('make-active-subscribers', 'MailchimpController@makeActiveSubscriber')->name('make.active.subscriber');
-});
-
 Route::group(['middleware' => 'auth', 'namespace' => 'marketing'], function () {
     Route::get('test', function () {
         return 'hello';

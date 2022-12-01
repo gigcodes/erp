@@ -69,7 +69,6 @@
         "seo2websites/magento-helper": "dev-master",
         "seo2websites/price-comparison-scraper": "dev-master",
         "shweshi/laravel-unsplash-wrapper": "^3.0",
-        "skovmand/mailchimp-laravel": "^1.0",
         "spatie/laravel-activitylog": "^2.8",
         "spatie/laravel-analytics": "3.6.0",
         "spatie/laravel-image-optimizer": "1.3",
