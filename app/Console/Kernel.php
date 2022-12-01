@@ -32,7 +32,7 @@ use App\Console\Commands\DocumentReciever;
 use App\Console\Commands\DoubleFProductDetailScraper;
 use App\Console\Commands\DoubleFScraper;
 use App\Console\Commands\EnrichWiseProducts;
-use App\Console\Commands\errorAlertMessage;
+use App\Console\Commands\ErrorAlertMessage;
 use App\Console\Commands\FetchAllEmails;
 use App\Console\Commands\FetchEmails;
 use App\Console\Commands\FetchMagentoCronData;
@@ -290,7 +290,7 @@ class Kernel extends ConsoleKernel
         scrappersImages::class,
         scrappersImagesDelete::class,
         productActivityStore::class,
-        errorAlertMessage::class,
+        ErrorAlertMessage::class,
         //        InstagramHandler::class,
         SendDailyReports::class,
         SendDailyLearningReports::class,
