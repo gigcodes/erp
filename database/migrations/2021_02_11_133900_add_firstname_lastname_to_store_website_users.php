@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddFirstnameLastnameToStoreWebsiteUsers extends Migration
 {
@@ -13,7 +13,7 @@ class AddFirstnameLastnameToStoreWebsiteUsers extends Migration
      */
     public function up()
     {
-        Schema::table('store_website_users',function(Blueprint $table) {
+        Schema::table('store_website_users', function (Blueprint $table) {
             $table->string('first_name')->nullable()->after('username');
             $table->string('last_name')->nullable()->after('first_name');
         });
@@ -26,7 +26,7 @@ class AddFirstnameLastnameToStoreWebsiteUsers extends Migration
      */
     public function down()
     {
-         Schema::table('store_website_users',function(Blueprint $table) {
+        Schema::table('store_website_users', function (Blueprint $table) {
             $table->dropField('first_name');
             $table->dropField('last_name');
         });

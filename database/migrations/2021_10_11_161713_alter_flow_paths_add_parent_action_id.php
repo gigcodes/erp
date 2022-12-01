@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterFlowPathsAddParentActionId extends Migration
 {
@@ -13,8 +13,8 @@ class AlterFlowPathsAddParentActionId extends Migration
      */
     public function up()
     {
-        Schema::table("flow_paths",function(Blueprint $table) {
-           $table->integer('parent_action_id')->nullable();
+        Schema::table('flow_paths', function (Blueprint $table) {
+            $table->integer('parent_action_id')->nullable();
         });
     }
 

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddContactIdToMessages extends Migration
 {
@@ -14,7 +14,7 @@ class AddContactIdToMessages extends Migration
     public function up()
     {
         Schema::table('chat_messages', function (Blueprint $table) {
-          $table->integer('contact_id')->unsigned()->nullable()->after('erp_user');
+            $table->integer('contact_id')->unsigned()->nullable()->after('erp_user');
         });
     }
 
@@ -26,7 +26,7 @@ class AddContactIdToMessages extends Migration
     public function down()
     {
         Schema::table('chat_messages', function (Blueprint $table) {
-          $table->dropColumn('contact_id');
+            $table->dropColumn('contact_id');
         });
     }
 }

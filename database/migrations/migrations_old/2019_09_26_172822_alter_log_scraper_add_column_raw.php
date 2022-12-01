@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AlterLogScraperAddColumnRaw extends Migration
 {
@@ -13,9 +12,9 @@ class AlterLogScraperAddColumnRaw extends Migration
      */
     public function up()
     {
-        Schema::table( 'log_scraper', function ( $table ) {
-            $table->text( 'raw_data' )->nullable()->after( 'validation_result' );
-        } );
+        Schema::table('log_scraper', function ($table) {
+            $table->text('raw_data')->nullable()->after('validation_result');
+        });
     }
 
     /**
@@ -25,8 +24,8 @@ class AlterLogScraperAddColumnRaw extends Migration
      */
     public function down()
     {
-        Schema::table( 'log_scraper', function ( $table ) {
-            $table->dropColumn( 'raw_data' );
-        } );
+        Schema::table('log_scraper', function ($table) {
+            $table->dropColumn('raw_data');
+        });
     }
 }

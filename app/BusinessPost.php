@@ -14,12 +14,17 @@ class BusinessPost extends Model
 
     protected $fillable = ['post_id', 'social_config_id', 'message', 'item', 'verb', 'time'];
 
-    const FEED = "feed";
-    const STATUS = "status";
-    const PHOTO = "photo";
-    const VIDEO = "video";
-    const COMMENT = "comment";
-    const COMMENTS = "comments";
+    const FEED = 'feed';
+
+    const STATUS = 'status';
+
+    const PHOTO = 'photo';
+
+    const VIDEO = 'video';
+
+    const COMMENT = 'comment';
+
+    const COMMENTS = 'comments';
 
     public function comments()
     {

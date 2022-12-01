@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\AutoCommentHistory;
 use App\AutoReplyHashtags;
-use App\InstagramAutoComments;
-use App\Services\Instagram\Hashtags;
+//use App\InstagramAutoComments;
+//use App\Services\Instagram\Hashtags;
 use Illuminate\Http\Request;
-use InstagramAPI\Instagram;
 
-Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
+//use InstagramAPI\Instagram;
+
+//Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class AutoReplyHashtagsController extends Controller
 {
@@ -43,7 +44,7 @@ class AutoReplyHashtagsController extends Controller
     {
         $h = new AutoReplyHashtags();
         $h->text = $request->get('hashtag');
-        $h->type = 'hashtag';
+//        $h->type = 'hashtag';
         $h->status = 1;
         $h->save();
 
@@ -58,7 +59,6 @@ class AutoReplyHashtagsController extends Controller
      */
     public function show($hashtag, Request $request)
     {
-
         $maxId = [];
         if ($request->has('maxId')) {
             $maxId = $request->get('maxId');
@@ -77,10 +77,9 @@ class AutoReplyHashtagsController extends Controller
         $alltagsWithCount = [];
 
         foreach ($alltags as $tag) {
-
             $arh = AutoReplyHashtags::where('text', $tag)->first();
 
-            if (!$arh) {
+            if (! $arh) {
                 $arh = new AutoReplyHashtags();
                 $arh->text = $tag;
                 $arh->type = 'hashtag';
@@ -89,7 +88,7 @@ class AutoReplyHashtagsController extends Controller
 
             [$medias, $maxId] = $hashtags->getFeed($tag, $maxId[$tag] ?? '', $country, $keywords);
             $media_count = $hashtags->getMediaCount($tag);
-            $alltagsWithCount[] = $tag . "($media_count)";
+            $alltagsWithCount[] = $tag."($media_count)";
             $allCounts[$tag] = $media_count;
             $maxIds[$tag] = $maxId;
             $allMedias = array_merge($allMedias, $medias);
@@ -102,7 +101,6 @@ class AutoReplyHashtagsController extends Controller
         $hashtag = implode(',', $alltagsWithCount);
 
         return view('instagram.auto_comments.prepare', compact('medias', 'media_count', 'maxId', 'hashtag', 'countryText', 'maxIds', 'allCounts', 'alltags'));
-
     }
 
     /**
@@ -126,7 +124,7 @@ class AutoReplyHashtagsController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-           'posts' => 'required|array',
+            'posts' => 'required|array',
         ]);
 
         $medias = $request->get('posts');
@@ -144,36 +142,33 @@ class AutoReplyHashtagsController extends Controller
             $h->save();
 
             $caption = $h->caption;
-            $caption = str_replace(['#', '@', '!', '-'. '/'],  ' ', $caption);
+            $caption = str_replace(['#', '@', '!', '-'.'/'], ' ', $caption);
             $caption = explode(' ', $caption);
 
+//            $comment = InstagramAutoComments::where(function($query) use($caption) {
+//                foreach ($caption as $i => $cap) {
+//                    if (strlen($cap) > 3) {
+//                        $cap = trim($cap);
+//                        if ($i===0) {
+//                            $query = $query->where('options', 'LIKE', "%$cap%");
+//                            continue;
+//                        }
+//                        $query = $query->orWhere('options', 'LIKE', "%$cap%");
+//                    }
+//                }
+//            });
 
-            $comment = InstagramAutoComments::where(function($query) use($caption) {
-                foreach ($caption as $i => $cap) {
-                    if (strlen($cap) > 3) {
-                        $cap = trim($cap);
-                        if ($i===0) {
-                            $query = $query->where('options', 'LIKE', "%$cap%");
-                            continue;
-                        }
-                        $query = $query->orWhere('options', 'LIKE', "%$cap%");
-                    }
-                }
-            });
-
-            $comment = $comment->inRandomOrder()->first();
-
-            if (!$comment) {
-                $comment = InstagramAutoComments::where('options', null)->orWhere('options', '[]')->inRandomOrder()->first();
-            }
-
-            $h->comment = $comment->comment;
-            $h->save();
-
+//            $comment = $comment->inRandomOrder()->first();
+//
+//            if (!$comment) {
+//                $comment = InstagramAutoComments::where('options', null)->orWhere('options', '[]')->inRandomOrder()->first();
+//            }
+//
+//            $h->comment = $comment->comment;
+//            $h->save();
         }
 
         return redirect()->back()->with('message', 'Attached successfully!');
-
     }
 
     /**

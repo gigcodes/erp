@@ -49,26 +49,24 @@ class SendHubstaffReport extends Command
      * @return mixed
      */
     public function handle()
-    {   
+    {
         return false;
         //STOPPED CERTAIN MESSAGES
         //
         try {
-
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $userPastHour = $this->getActionsForPastHour();
             $userToday = $this->getActionsForToday();
-            $users     = DB::table('users')->join('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
+            $users = DB::table('users')->join('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
                 ->select(['hubstaff_user_id', 'name'])
                 ->get();
 
-            $hubstaffReport = array();
+            $hubstaffReport = [];
             foreach ($users as $user) {
-
                 $pastHour = (isset($userPastHour[$user->hubstaff_user_id])
                     ? $this->formatSeconds($userPastHour[$user->hubstaff_user_id])
                     : '0');
@@ -78,7 +76,7 @@ class SendHubstaffReport extends Command
                     : '0');
 
                 if ($today != '0') {
-                    $message          = $user->name . ' ' . $pastHour . ' ' . $today;
+                    $message = $user->name.' '.$pastHour.' '.$today;
                     $hubstaffReport[] = $message;
                 }
             }
@@ -95,25 +93,25 @@ class SendHubstaffReport extends Command
     private function formatSeconds($seconds)
     {
         $t = round($seconds);
+
         return sprintf('%02d:%02d:%02d', ($t / 3600), ($t / 60 % 60), $t % 60);
     }
 
     private function getActionsForPastHour()
     {
-        return self::getActivity(date("Y-m-d H:i:s", strtotime("-1 hour")), date("Y-m-d H:i:s"));
+        return self::getActivity(date('Y-m-d H:i:s', strtotime('-1 hour')), date('Y-m-d H:i:s'));
     }
 
     private function getActionsForToday()
     {
-        return self::getActivity(date("Y-m-d 00:00:00"), date("Y-m-d H:i:s"));
+        return self::getActivity(date('Y-m-d 00:00:00'), date('Y-m-d H:i:s'));
     }
 
     private static function getActivity($startTime, $endTime)
     {
-
         // start hubstaff section from here
-        $hubstaff        = Hubstaff::getInstance();
-        $hubstaff        = $hubstaff->authenticate();
+        $hubstaff = Hubstaff::getInstance();
+        $hubstaff = $hubstaff->authenticate();
         $organizationAct = $hubstaff->getRepository('organization')->getActivity(
             // env("HUBSTAFF_ORG_ID"),
             config('env.HUBSTAFF_ORG_ID'),
@@ -121,9 +119,9 @@ class SendHubstaffReport extends Command
             $endTime
         );
 
-        $users = array();
+        $users = [];
         // assign activity to user
-        if (!empty($organizationAct->activities)) {
+        if (! empty($organizationAct->activities)) {
             foreach ($organizationAct->activities as $activity) {
                 if (isset($users[$activity->user_id])) {
                     $users[$activity->user_id] += $activity->tracked;
@@ -134,6 +132,5 @@ class SendHubstaffReport extends Command
         }
 
         return $users;
-
     }
 }

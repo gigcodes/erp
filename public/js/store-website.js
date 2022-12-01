@@ -24,6 +24,10 @@ var page = {
             e.preventDefault();
             page.createRecord();
         });
+        page.config.bodyView.on("click",".load-duplicate-modal",function(e) {
+            e.preventDefault();
+            page.createDuplicate($(this).data('id'));
+        });
 
         // delete product templates
         page.config.bodyView.on("click",".btn-delete-template",function(e) {
@@ -64,6 +68,10 @@ var page = {
 
         $(".common-modal").on("click",".submit-store-site",function() {
             page.submitFormSite($(this));
+        });
+
+        $(".common-modal").on("click",".submit-duplicate",function() {
+            page.submitDuplicate($(this));
         });
 
         $(".common-modal").on("click",".submit-store-site-cancellation",function() {
@@ -348,6 +356,17 @@ var page = {
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
+    },
+    createDuplicate : function(response) {
+        console.log('id',response)
+        var createWebTemplate = $.templates("#template-new-duplicate");
+        var tplHtml = createWebTemplate.render({data:{}});
+
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml);
+            common.modal("show");
+            $('.store_website_id').val(0);
+            $('.store_website_id').val(response);
     },
 
     editRecord : function(ele) {
@@ -670,6 +689,18 @@ var page = {
         this.sendAjax(_z, "saveSiteCancellation");
     },
 
+    submitDuplicate : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/save-duplicate",
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveSiteDuplicate");
+    },
+
     submitMagentoUserForm : function(ele) {
         var username = ele.parents('.subMagentoUser').find('.userName').val();
         var userEmail = ele.parents('.subMagentoUser').find('.userEmail').val();
@@ -816,6 +847,17 @@ var page = {
             //page.loadFirst();
             $("#loading-image").hide();
             $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    saveSiteDuplicate : function(response) {
+        if(response.code  == 200) {
+            page.loadFirst();
+            $("#loading-image").hide();
+            $(".common-modal").modal("hide");
+            toastr["success"]("Store website(s) created successfully!", "Success");
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");

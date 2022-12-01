@@ -43,45 +43,43 @@ class ProjectDirectory extends Command
         app()->call([$cc, 'listTree'], []);*/
         // start throgh tree program
         $output = shell_exec("tree --du -h . -f -L 6 --sort=size|grep 'M]\|G]' | egrep -v '[0-9]*\.[0-9]M'");
-        if (!empty($output)) {
+        if (! empty($output)) {
             $lastFolder = null;
-            $this->info("Output : " . $output);
-
+            $this->info('Output : '.$output);
 
             foreach (explode(PHP_EOL, $output) as $o) {
-                $directory = explode("]", $o);
+                $directory = explode(']', $o);
                 if (isset($directory[0]) && isset($directory[1])) {
                     $directoryStr = trim($directory[1]);
-                    $parent       = null;
+                    $parent = null;
                     if (substr($directoryStr, 0, strlen($lastFolder)) == $lastFolder) {
                         $parent = $lastFolder;
                     }
 
                     $size = explode(']', (explode('[', $o)[1]))[0];
-                    if(strpos($size,"G") !== false) {
-                      $size = str_replace("G", "", $size);
-                      $size = $size * 1024;
-                    }else if(strpos($size,"M") !== false){
-                      $size = str_replace("M", "", $size);
+                    if (strpos($size, 'G') !== false) {
+                        $size = str_replace('G', '', $size);
+                        $size = $size * 1024;
+                    } elseif (strpos($size, 'M') !== false) {
+                        $size = str_replace('M', '', $size);
                     }
 
-                    $projectManager = ProjectFileManager::where("name",$directoryStr)->first();
-                    if($projectManager) {
+                    $projectManager = ProjectFileManager::where('name', $directoryStr)->first();
+                    if ($projectManager) {
                         $projectManager->size = trim($size);
                         $projectManager->save();
-                        if(str_replace("M","",$projectManager->size) > str_replace("M","",$projectManager->notification_at) && !empty($projectManager->notification_at)) {
-                            $requestData = new Request(); 
-                            $requestData->setMethod('POST'); 
-                            $requestData->request->add([ 'priority' => 1, 'issue' => "Error With folder size {$directoryStr} which is more then {$projectManager->size} and expected size is {$projectManager->notification_at}", 'status' => "Planned", 'module' => "cron", 'subject' => "Error With folder size {$directoryStr}", 'assigned_to' => 6 ]); 
+                        if (str_replace('M', '', $projectManager->size) > str_replace('M', '', $projectManager->notification_at) && ! empty($projectManager->notification_at)) {
+                            $requestData = new Request();
+                            $requestData->setMethod('POST');
+                            $requestData->request->add(['priority' => 1, 'issue' => "Error With folder size {$directoryStr} which is more then {$projectManager->size} and expected size is {$projectManager->notification_at}", 'status' => 'Planned', 'module' => 'cron', 'subject' => "Error With folder size {$directoryStr}", 'assigned_to' => 6]);
                             app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
                         }
-                    }else{
-                        $ProjectFileManager = ProjectFileManager::create(['name' => $directoryStr, "project_name" => "erp", "size" => trim($size), "parent" => $parent]);
+                    } else {
+                        $ProjectFileManager = ProjectFileManager::create(['name' => $directoryStr, 'project_name' => 'erp', 'size' => trim($size), 'parent' => $parent]);
                     }
                     $lastFolder = $directoryStr;
                 }
             }
         }
-
     }
 }

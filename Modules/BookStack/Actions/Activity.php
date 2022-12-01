@@ -13,7 +13,7 @@ use Modules\BookStack\Model;
  */
 class Activity extends Model
 {
-    protected $table = "book_activities";
+    protected $table = 'book_activities';
 
     /**
      * Get the entity for this activity.
@@ -23,11 +23,13 @@ class Activity extends Model
         if ($this->entity_type === '') {
             $this->entity_type = null;
         }
+
         return $this->morphTo('entity');
     }
 
     /**
      * Get the user this activity relates to.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user()
@@ -41,11 +43,12 @@ class Activity extends Model
      */
     public function getText()
     {
-        return trans('activities.' . $this->key);
+        return trans('activities.'.$this->key);
     }
 
     /**
      * Checks if another Activity matches the general information of another.
+     *
      * @param $activityB
      * @return bool
      */

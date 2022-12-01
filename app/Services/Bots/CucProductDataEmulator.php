@@ -2,7 +2,6 @@
 
 namespace App\Services\Bots;
 
-use App\Brand;
 use App\Console\Commands\Bots\Chrome;
 use App\ScrapEntries;
 use GuzzleHttp\Client;
@@ -25,13 +24,12 @@ class CucProductDataEmulator
     public function setProxyList(): void
     {
         $this->selectedProxy = [
-          'ip' => '123.136.62.162',
-          'port' => '8080'
+            'ip' => '123.136.62.162',
+            'port' => '8080',
         ];
     }
 
     private $data;
-
 
     public function emulate($command, $url, $commands = null)
     {
@@ -40,20 +38,17 @@ class CucProductDataEmulator
         try {
             $this->manager->browse($command, static function ($browser) use ($url, $self) {
                 try {
-
                     $browser->visit($url)
                         ->pause(200);
 
                     try {
                         $browser->script('$(document).find("input[type*=email]").val("yogeshmordani@icloud.com");');
                     } catch (\Exception $exception) {
-
                     }
 
                     try {
                         $browser->script('$(document).find("input[type*=password]").val("india");');
                     } catch (\Exception $exception) {
-
                     }
 
                     $browser->press('Login');
@@ -65,10 +60,8 @@ class CucProductDataEmulator
                         $imagesHTML = $browser->element('div.onepcssgrid-1200 div.paddingpage .col7')->getAttribute('innerHTML');
                         $detailsHTML = $browser->element('div.onepcssgrid-1200 div.paddingpage .col5')->getAttribute('innerHTML');
 
-
                         $imagesHTML = new HtmlPageCrawler($imagesHTML);
                         $detailsHTML = new HtmlPageCrawler($detailsHTML);
-
 
                         $imagesHTMLArray = $imagesHTML->filter('div.dettagli a img');
                         $imagesUrls = [];
@@ -85,7 +78,6 @@ class CucProductDataEmulator
                         $sku = str_replace('Art. (', '', $sku);
                         $sku = str_replace(')', '', $sku);
                         $sku = str_replace('/', '', $sku);
-
 
                         $price = $detailsHTML->filter('.prezzidettaglio span')->getInnerHtml();
                         $price = explode(',', $price);
@@ -107,7 +99,7 @@ class CucProductDataEmulator
                             $propertiesToSave[] = trim($key);
                         }
 
-                        foreach ($values as $key=>$value) {
+                        foreach ($values as $key => $value) {
                             $propertiesToSave[$propertiesToSave[$key]] = trim($value->textContent);
                             unset($propertiesToSave[$key]);
                         }
@@ -121,17 +113,13 @@ class CucProductDataEmulator
                             $sizes[] = trim($value);
                         }
 
-
-
-
                         $propertiesToSave['sizes'] = implode(',', $sizes);
                         $propertiesToSave['category'] = trim($category);
                         $propertiesToSave['original_sku'] = $sku_original;
 
-                        $title = $category . ' ' . $brand;
+                        $title = $category.' '.$brand;
 
                         //Lukas, can you check here, wht this isn't saving?
-
 
                         $client = new Client();
                         $response = $client->request('POST', 'https://erp.theluxuryunlimited.com/api/scrap-products/add', [
@@ -149,18 +137,16 @@ class CucProductDataEmulator
                             ],
                             'headers' => [
                                 'Accept' => 'application/json',
-                            ]
+                            ],
                         ]);
 
                         echo $response->getBody()->getContents();
                         echo "\n";
 
-                        if (!$response) {
+                        if (! $response) {
                             echo $response->getBody()->getContents();
                         }
-
                     }
-
                 } catch (Exception $exception) {
                     $self->data = false;
                 }
@@ -176,12 +162,10 @@ class CucProductDataEmulator
     {
         $driver = new Chrome($this->getSelectedProxy());
 
-
         $this->manager = new Manager(
             $driver
         );
     }
-
 
     public function getProxyList(): \Illuminate\Support\Collection
     {

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Library\Watson\Language\Assistant\V2;
 
 use App\Library\Watson\Response;
@@ -6,13 +7,14 @@ use App\Library\Watson\Service;
 
 class AssistantService extends Service
 {
-    CONST ASSISTANT_ID = "28754e1c-6281-42e6-82af-eec6e87618a6";
+    const ASSISTANT_ID = '28754e1c-6281-42e6-82af-eec6e87618a6';
+
     /**
      * Base url for the service
      *
      * @var string
      */
-    protected $url = "https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/1875ce0b-ffe1-45a1-be2b-21a8488a0350";
+    protected $url = 'https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/1875ce0b-ffe1-45a1-be2b-21a8488a0350';
 
     /**
      * API service version
@@ -41,7 +43,7 @@ class AssistantService extends Service
     {
         return $this->client->request(
             'GET',
-            $this->getMountedUrl() . '/tone',
+            $this->getMountedUrl().'/tone',
             ['query' => ['version' => $version, 'text' => $textToAnalyse]]
         );
     }
@@ -55,7 +57,7 @@ class AssistantService extends Service
     {
         return $this->client->request(
             'POST',
-            $this->getMountedUrl() . 'assistants/' . $assistantId . '/sessions',
+            $this->getMountedUrl().'assistants/'.$assistantId.'/sessions',
             ['query' => ['version' => $version]]
         );
     }
@@ -64,7 +66,7 @@ class AssistantService extends Service
     {
         return $this->client->request(
             'DELETE',
-            $this->getMountedUrl() . 'assistants/' . $assistantId . '/sessions/' . $sessionId,
+            $this->getMountedUrl().'assistants/'.$assistantId.'/sessions/'.$sessionId,
             ['query' => ['version' => $version]]
         );
     }
@@ -73,8 +75,8 @@ class AssistantService extends Service
     {
         return $this->client->request(
             'POST',
-            $this->getMountedUrl() . 'assistants/' . $assistantId . '/sessions/' . $sessionId . '/message',
-            ['query' => ['version' => $version], "json" => $params]
+            $this->getMountedUrl().'assistants/'.$assistantId.'/sessions/'.$sessionId.'/message',
+            ['query' => ['version' => $version], 'json' => $params]
         );
     }
 }

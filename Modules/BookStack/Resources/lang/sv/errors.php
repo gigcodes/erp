@@ -35,7 +35,7 @@ return [
     'cannot_get_image_from_url' => 'Kan inte hämta bild från :url',
     'cannot_create_thumbs' => 'Servern kan inte skapa miniatyrer. Kontrollera att du har PHPs GD-tillägg aktiverat.',
     'server_upload_limit' => 'Servern tillåter inte så här stora filer. Prova en mindre fil.',
-    'uploaded'  => 'Servern tillåter inte så här stora filer. Prova en mindre fil.',
+    'uploaded' => 'Servern tillåter inte så här stora filer. Prova en mindre fil.',
     'image_upload_error' => 'Ett fel inträffade vid uppladdningen',
     'image_upload_type_error' => 'Filtypen du försöker ladda upp är ogiltig',
     'file_upload_timeout' => 'Filuppladdningen har tagits ut.',

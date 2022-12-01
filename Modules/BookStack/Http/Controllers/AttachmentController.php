@@ -1,23 +1,28 @@
-<?php namespace Modules\BookStack\Http\Controllers;
+<?php
 
+namespace Modules\BookStack\Http\Controllers;
+
+use Illuminate\Http\Request;
 use Modules\BookStack\Entities\Repos\EntityRepo;
 use Modules\BookStack\Exceptions\FileUploadException;
 use Modules\BookStack\Exceptions\NotFoundException;
 use Modules\BookStack\Uploads\Attachment;
 use Modules\BookStack\Uploads\AttachmentService;
-use Illuminate\Http\Request;
 
 class AttachmentController extends Controller
 {
     protected $attachmentService;
+
     protected $attachment;
+
     protected $entityRepo;
 
     /**
      * AttachmentController constructor.
-     * @param \BookStack\Uploads\AttachmentService $attachmentService
-     * @param Attachment $attachment
-     * @param EntityRepo $entityRepo
+     *
+     * @param  \BookStack\Uploads\AttachmentService  $attachmentService
+     * @param  Attachment  $attachment
+     * @param  EntityRepo  $entityRepo
      */
     public function __construct(AttachmentService $attachmentService, Attachment $attachment, EntityRepo $entityRepo)
     {
@@ -27,17 +32,17 @@ class AttachmentController extends Controller
         parent::__construct();
     }
 
-
     /**
      * Endpoint at which attachments are uploaded to.
-     * @param Request $request
+     *
+     * @param  Request  $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
      */
     public function upload(Request $request)
     {
         $this->validate($request, [
             'uploaded_to' => 'required|integer|exists:pages,id',
-            'file' => 'required|file'
+            'file' => 'required|file',
         ]);
 
         $pageId = $request->get('uploaded_to');
@@ -59,15 +64,16 @@ class AttachmentController extends Controller
 
     /**
      * Update an uploaded attachment.
-     * @param int $attachmentId
-     * @param Request $request
+     *
+     * @param  int  $attachmentId
+     * @param  Request  $request
      * @return mixed
      */
     public function uploadUpdate($attachmentId, Request $request)
     {
         $this->validate($request, [
             'uploaded_to' => 'required|integer|exists:pages,id',
-            'file' => 'required|file'
+            'file' => 'required|file',
         ]);
 
         $pageId = $request->get('uploaded_to');
@@ -76,7 +82,7 @@ class AttachmentController extends Controller
 
         $this->checkOwnablePermission('page-update', $page);
         $this->checkOwnablePermission('attachment-create', $attachment);
-        
+
         if (intval($pageId) !== intval($attachment->uploaded_to)) {
             return $this->jsonError(trans('errors.attachment_page_mismatch'));
         }
@@ -94,8 +100,9 @@ class AttachmentController extends Controller
 
     /**
      * Update the details of an existing file.
+     *
      * @param $attachmentId
-     * @param Request $request
+     * @param  Request  $request
      * @return Attachment|mixed
      */
     public function update($attachmentId, Request $request)
@@ -103,7 +110,7 @@ class AttachmentController extends Controller
         $this->validate($request, [
             'uploaded_to' => 'required|integer|exists:pages,id',
             'name' => 'required|string|min:1|max:255',
-            'link' =>  'string|min:1|max:255'
+            'link' => 'string|min:1|max:255',
         ]);
 
         $pageId = $request->get('uploaded_to');
@@ -118,12 +125,14 @@ class AttachmentController extends Controller
         }
 
         $attachment = $this->attachmentService->updateFile($attachment, $request->all());
+
         return response()->json($attachment);
     }
 
     /**
      * Attach a link to a page.
-     * @param Request $request
+     *
+     * @param  Request  $request
      * @return mixed
      */
     public function attachLink(Request $request)
@@ -131,7 +140,7 @@ class AttachmentController extends Controller
         $this->validate($request, [
             'uploaded_to' => 'required|integer|exists:pages,id',
             'name' => 'required|string|min:1|max:255',
-            'link' =>  'required|string|min:1|max:255'
+            'link' => 'required|string|min:1|max:255',
         ]);
 
         $pageId = $request->get('uploaded_to');
@@ -149,6 +158,7 @@ class AttachmentController extends Controller
 
     /**
      * Get the attachments for a specific page.
+     *
      * @param $pageId
      * @return mixed
      */
@@ -156,13 +166,15 @@ class AttachmentController extends Controller
     {
         $page = $this->entityRepo->getById('page', $pageId, true);
         $this->checkOwnablePermission('page-view', $page);
+
         return response()->json($page->attachments);
     }
 
     /**
      * Update the attachment sorting.
+     *
      * @param $pageId
-     * @param Request $request
+     * @param  Request  $request
      * @return mixed
      */
     public function sortForPage($pageId, Request $request)
@@ -176,13 +188,16 @@ class AttachmentController extends Controller
 
         $attachments = $request->get('files');
         $this->attachmentService->updateFileOrderWithinPage($attachments, $pageId);
+
         return response()->json(['message' => trans('bookstack::entities.attachments_order_updated')]);
     }
 
     /**
      * Get an attachment from storage.
+     *
      * @param $attachmentId
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Symfony\Component\HttpFoundation\Response
+     *
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      * @throws NotFoundException
      */
@@ -201,13 +216,16 @@ class AttachmentController extends Controller
         }
 
         $attachmentContents = $this->attachmentService->getAttachmentFromStorage($attachment);
+
         return $this->downloadResponse($attachmentContents, $attachment->getFileName());
     }
 
     /**
      * Delete a specific attachment in the system.
+     *
      * @param $attachmentId
      * @return mixed
+     *
      * @throws \Exception
      */
     public function delete($attachmentId)
@@ -215,6 +233,7 @@ class AttachmentController extends Controller
         $attachment = $this->attachment->findOrFail($attachmentId);
         $this->checkOwnablePermission('attachment-delete', $attachment);
         $this->attachmentService->deleteFile($attachment);
+
         return response()->json(['message' => trans('bookstack::entities.attachments_deleted')]);
     }
 }

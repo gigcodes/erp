@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIsAddedFromCsvToProductPushInformationTable extends Migration
 {
@@ -31,7 +31,7 @@ class AddIsAddedFromCsvToProductPushInformationTable extends Migration
             $table->dropIndex('is_added_from_csv');
             $table->dropIndex('real_product_id');
             $table->dropIndex('is_available');
-            
+
             $table->dropColumn('is_added_from_csv');
             $table->dropColumn('real_product_id');
             $table->dropColumn('is_available');

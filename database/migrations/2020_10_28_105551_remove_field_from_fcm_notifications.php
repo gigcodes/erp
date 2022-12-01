@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class RemoveFieldFromFcmNotifications extends Migration
 {
@@ -14,8 +14,8 @@ class RemoveFieldFromFcmNotifications extends Migration
     public function up()
     {
         Schema::table('push_fcm_notifications', function (Blueprint $table) {
-            if (Schema::hasColumn('push_fcm_notifications', 'token')){
-            $table->dropColumn('token');
+            if (Schema::hasColumn('push_fcm_notifications', 'token')) {
+                $table->dropColumn('token');
             }
         });
     }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateReferFriendTable extends Migration
 {
@@ -13,7 +13,7 @@ class CreateReferFriendTable extends Migration
      */
     public function up()
     {
-        if(!Schema::hasTable('refer_friend')) {
+        if (! Schema::hasTable('refer_friend')) {
             Schema::create('refer_friend', function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('referrer_first_name')->nullable();
@@ -25,7 +25,7 @@ class CreateReferFriendTable extends Migration
                 $table->string('referee_email')->nullable();
                 $table->string('referee_phone')->nullable();
                 $table->string('website')->nullable();
-                $table->integer('store_website_id')->unsigned();;
+                $table->integer('store_website_id')->unsigned();
                 //$table->foreign('store_website_id')->references('id')->on('store_website');
                 $table->timestamps();
             });

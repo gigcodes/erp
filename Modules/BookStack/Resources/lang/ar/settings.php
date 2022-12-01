@@ -7,7 +7,6 @@ return [
      * Contains all text strings used in the general settings sections of BookStack
      * including users and roles.
      */
-
     'settings' => 'الإعدادات',
     'settings_save' => 'حفظ الإعدادات',
     'settings_save_success' => 'تم حفظ الإعدادات',
@@ -15,7 +14,6 @@ return [
     /**
      * App settings
      */
-
     'app_settings' => 'إعدادات التطبيق',
     'app_name' => 'اسم التطبيق',
     'app_name_desc' => 'سيتم عرض هذا الاسم في الترويسة وفي أي رسالة بريد إلكتروني.',
@@ -41,7 +39,6 @@ return [
     /**
      * Registration settings
      */
-
     'reg_settings' => 'إعدادات التسجيل',
     'reg_allow' => 'السماح بالتسجيل؟',
     'reg_default_role' => 'دور المستخدم الأساسي بعد التسجيل',
@@ -54,10 +51,9 @@ return [
     /**
      * Maintenance settings
      */
-
     'maint' => 'الصيانة',
     'maint_image_cleanup' => 'تنظيف الصور',
-    'maint_image_cleanup_desc' => "Scans page & revision content to check which images and drawings are currently in use and which images are redundant. Ensure you create a full database and image backup before running this.", // جار البحث عن الترجمة الأنسب
+    'maint_image_cleanup_desc' => 'Scans page & revision content to check which images and drawings are currently in use and which images are redundant. Ensure you create a full database and image backup before running this.', // جار البحث عن الترجمة الأنسب
     'maint_image_cleanup_ignore_revisions' => 'تجاهل الصور في المراجعات',
     'maint_image_cleanup_run' => 'بدء التنظيف',
     'maint_image_cleanup_warning' => 'يوجد عدد :count من الصور المحتمل عدم استخدامها. تأكيد حذف الصور؟',
@@ -67,7 +63,6 @@ return [
     /**
      * Role settings
      */
-
     'roles' => 'الأدوار',
     'role_user_roles' => 'أدوار المستخدمين',
     'role_create' => 'إنشاء دور جديد',
@@ -75,7 +70,7 @@ return [
     'role_delete' => 'حذف الدور',
     'role_delete_confirm' => 'سيتم حذف الدور المسمى \':roleName\'.',
     'role_delete_users_assigned' => 'This role has :userCount users assigned to it. If you would like to migrate the users from this role select a new role below.', // جار البحث عن الترجمة الأنسب
-    'role_delete_no_migration' => "لا تقم بترجيل المستخدمين",
+    'role_delete_no_migration' => 'لا تقم بترجيل المستخدمين',
     'role_delete_sure' => 'تأكيد حذف الدور؟',
     'role_delete_success' => 'تم حذف الدور بنجاح',
     'role_edit' => 'تعديل الدور',
@@ -102,7 +97,6 @@ return [
     /**
      * Users
      */
-
     'users' => 'المستخدمون',
     'user_profile' => 'ملف المستخدم',
     'users_add_new' => 'إضافة مستخدم جديد',

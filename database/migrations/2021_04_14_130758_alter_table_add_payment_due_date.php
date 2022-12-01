@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableAddPaymentDueDate extends Migration
 {
@@ -14,10 +14,9 @@ class AlterTableAddPaymentDueDate extends Migration
     public function up()
     {
         //
-        Schema::table('payment_receipts',function(Blueprint $table) {
+        Schema::table('payment_receipts', function (Blueprint $table) {
             $table->datetime('billing_due_date')->nullable()->after('billing_end_date');
         });
-
     }
 
     /**
@@ -28,7 +27,7 @@ class AlterTableAddPaymentDueDate extends Migration
     public function down()
     {
         //
-        Schema::table('payment_receipts',function(Blueprint $table) {
+        Schema::table('payment_receipts', function (Blueprint $table) {
             $table->dropField('billing_due_date');
         });
     }

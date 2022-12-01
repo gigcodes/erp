@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableStoreWebsiteColors extends Migration
 {
@@ -15,7 +15,7 @@ class AlterTableStoreWebsiteColors extends Migration
     {
         //
         Schema::table('store_website_colors', function (Blueprint $table) {
-           $table->integer("platform_id")->nullable()->after('store_color');
+            $table->integer('platform_id')->nullable()->after('store_color');
         });
     }
 
@@ -27,7 +27,7 @@ class AlterTableStoreWebsiteColors extends Migration
     public function down()
     {
         Schema::table('store_website_colors', function (Blueprint $table) {
-           $table->dropField("platform_id");
+            $table->dropField('platform_id');
         });
     }
 }

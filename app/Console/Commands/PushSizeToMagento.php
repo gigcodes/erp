@@ -38,21 +38,21 @@ class PushSizeToMagento extends Command
     public function handle()
     {
         //
-        $website = \App\StoreWebsite::where("website_source", "magento")->where("api_token", "!=", "")->get();
-        $sizes   = \App\Size::all();
+        $website = \App\StoreWebsite::where('website_source', 'magento')->where('api_token', '!=', '')->get();
+        $sizes = \App\Size::all();
         foreach ($sizes as $s) {
-            echo "Size Started  : " . $s->name;
-            foreach($website as $web) {
-                echo "Store Started  : " . $web->website;
-                $checkSite = \App\StoreWebsiteSize::where("size_id", $s->id)->where("store_website_id", $web->id)->where("platform_id",">",0)->first();
-                if (!$checkSite) {
+            echo 'Size Started  : '.$s->name;
+            foreach ($website as $web) {
+                echo 'Store Started  : '.$web->website;
+                $checkSite = \App\StoreWebsiteSize::where('size_id', $s->id)->where('store_website_id', $web->id)->where('platform_id', '>', 0)->first();
+                if (! $checkSite) {
                     $id = \seo2websites\MagentoHelper\MagentoHelper::addSize($s, $web);
-                    if (!empty($id)) {
-                        \App\StoreWebsiteSize::where("size_id", $s->id)->where("store_website_id", $web->id)->delete();
-                        $sws                   = new \App\StoreWebsiteSize;
-                        $sws->size_id          = $s->id;
+                    if (! empty($id)) {
+                        \App\StoreWebsiteSize::where('size_id', $s->id)->where('store_website_id', $web->id)->delete();
+                        $sws = new \App\StoreWebsiteSize;
+                        $sws->size_id = $s->id;
                         $sws->store_website_id = $web->id;
-                        $sws->platform_id      = $id;
+                        $sws->platform_id = $id;
                         $sws->save();
                     }
                 }

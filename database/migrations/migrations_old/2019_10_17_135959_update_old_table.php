@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateOldTable extends Migration
 {
@@ -13,7 +12,7 @@ class UpdateOldTable extends Migration
      */
     public function up()
     {
-        Schema::table('old', function($table){
+        Schema::table('old', function ($table) {
             $table->integer('is_blocked')->default(0);
             $table->string('phone');
             $table->string('gst')->nullable();

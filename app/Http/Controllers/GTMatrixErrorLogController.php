@@ -14,24 +14,25 @@ class GTMatrixErrorLogController extends Controller
      */
     public function index()
     {
-        $title = "GTmetrix Error";
+        $title = 'GTmetrix Error';
+
         return view('gtmetrix.gtmetrix-error', compact('title'));
     }
 
-    public function listGTmetrixError(Request $request){
-       
-        $title = "GTmetrix Error";
+    public function listGTmetrixError(Request $request)
+    {
+        $title = 'GTmetrix Error';
         if ($request->ajax()) {
-            $items = GTMatrixErrorLog::select('id', 'store_viewGTM_id','error_title', 'error', 'created_at');            
-            if (isset($request->name) && !empty($request->name)) {
-                $items->where('error_title', 'Like', '%' . $request->name . '%')->orWhere('error', 'Like', '%' . $request->name . '%')->orWhere('store_viewGTM_id', 'Like', '%' . $request->name . '%');
+            $items = GTMatrixErrorLog::select('id', 'store_viewGTM_id', 'error_title', 'error', 'created_at');
+            if (isset($request->name) && ! empty($request->name)) {
+                $items->where('error_title', 'Like', '%'.$request->name.'%')->orWhere('error', 'Like', '%'.$request->name.'%')->orWhere('store_viewGTM_id', 'Like', '%'.$request->name.'%');
             }
-            //$datas = datatables()->eloquent($items)->toJson();    
+            //$datas = datatables()->eloquent($items)->toJson();
             //dd($datas);
-            return datatables()->eloquent($items)->toJson();    
+            return datatables()->eloquent($items)->toJson();
         }
-        return redirect()->back()->with('error', 'Somthing wrong here to access GTMetrix error');
 
+        return redirect()->back()->with('error', 'Somthing wrong here to access GTMetrix error');
     }
 
     /**

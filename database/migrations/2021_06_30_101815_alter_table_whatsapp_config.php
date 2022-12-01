@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableWhatsappConfig extends Migration
 {
@@ -14,10 +13,9 @@ class AlterTableWhatsappConfig extends Migration
     public function up()
     {
         //
-        Schema::table('whatsapp_configs',function($table) {
-            $table->integer("is_use_own")->default(0)->after('store_website_id');
+        Schema::table('whatsapp_configs', function ($table) {
+            $table->integer('is_use_own')->default(0)->after('store_website_id');
         });
-
     }
 
     /**
@@ -28,8 +26,8 @@ class AlterTableWhatsappConfig extends Migration
     public function down()
     {
         //
-        Schema::table('whatsapp_configs',function($table) {
-            $table->dropField("is_use_own");
+        Schema::table('whatsapp_configs', function ($table) {
+            $table->dropField('is_use_own');
         });
     }
 }

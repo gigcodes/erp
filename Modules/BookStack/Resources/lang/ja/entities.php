@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     /**
@@ -199,7 +200,7 @@ return [
      */
     'page_tags' => 'タグ',
     'tag' => 'タグ',
-    'tags' =>  '',
+    'tags' => '',
     'tag_value' => '内容 (オプション)',
     'tags_explain' => "タグを設定すると、コンテンツの管理が容易になります。\nより高度な管理をしたい場合、タグに内容を設定できます。",
     'tags_add' => 'タグを追加',
@@ -258,10 +259,10 @@ return [
     'comment_delete_confirm' => '本当にこのコメントを削除しますか?',
     'comment_in_reply_to' => ':commentIdへ返信',
 
-     /**
+    /**
      * Revision
      */
     'revision_delete_confirm' => 'このリビジョンを削除しますか？',
     'revision_delete_success' => 'リビジョンを削除しました',
-    'revision_cannot_delete_latest' => '最新のリビジョンを削除できません。'
+    'revision_cannot_delete_latest' => '最新のリビジョンを削除できません。',
 ];

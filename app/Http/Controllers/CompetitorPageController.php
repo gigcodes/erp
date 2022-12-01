@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\CompetitorFollowers;
 use App\CompetitorPage;
 use Illuminate\Http\Request;
-use InstagramAPI\Instagram;
-use InstagramAPI\Signatures;
 
-Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
+//use InstagramAPI\Instagram;
+//use InstagramAPI\Signatures;
+
+//Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class CompetitorPageController extends Controller
 {
@@ -20,6 +21,7 @@ class CompetitorPageController extends Controller
     public function index()
     {
         $pages = CompetitorPage::all();
+
         return view('instagram.comp.index', compact('pages'));
     }
 
@@ -44,7 +46,7 @@ class CompetitorPageController extends Controller
         $this->validate($request, [
             'name' => 'required',
             'username' => 'required',
-            'platform' => 'required'
+            'platform' => 'required',
         ]);
 
         $com = new CompetitorPage();
@@ -69,58 +71,56 @@ class CompetitorPageController extends Controller
         $item = $this->getInstagramUserData($username);
 
         return view('instagram.comp.grid', compact('item'));
-
-
     }
 
-    private function getInstagramUserData($username) {
-        $instagram = new Instagram();
-        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', "NcG}4u'z;Fm7"));
-
-        $request = $instagram->request('https://www.instagram.com/'.$username.'/?__a=1')->getDecodedResponse();
-        $preparedMedia = [];
-        if (isset($request["graphql"]['user']['edge_owner_to_timeline_media']['edges'])) {
-            $medias = $request["graphql"]['user']['edge_owner_to_timeline_media']['edges'];
-            $captions = '';
-
-        foreach ($medias as $key=>$media) {
-            $preparedMedia[$key] = $media['node'];
-            $preparedMedia[$key]['comments'] = $instagram->media->getComments($media['node']['id'])->asArray();
-        }
-
-        }
-        try {
-            $profileData = $instagram->people->getInfoByName($username)->asArray();
-        } catch (\Exception $exception) {
-            $profileData = [];
-        }
-
-        if (!isset($profileData['user'])) {
-            return [];
-        }
-
-
-        $profileData = $profileData['user'];
-        $rank = Signatures::generateUUID();
-        $followers = $instagram->people->getFollowers($profileData['pk'], $rank)->asArray()['users'];
-        $following = $instagram->people->getFollowing($profileData['pk'], $rank)->asArray()['users'];
-
-        return [
-            'id' => $profileData['pk'],
-            'name' => $profileData['full_name'],
-            'username' => $profileData['username'],
-            'followers_count' => $profileData['follower_count'],
-            'following_count' => $profileData['following_count'],
-            'media' => $profileData['media_count'],
-            'profile_pic_url' => $profileData['profile_pic_url'],
-            'is_verified' => $profileData['is_verified'],
-            'bio' => $profileData['biography'],
-            'followers' => $followers,
-            'following' => $following,
-            'medias' => $preparedMedia
-        ];
-
-    }
+//    private function getInstagramUserData($username) {
+//        $instagram = new Instagram();
+//        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', "NcG}4u'z;Fm7"));
+//
+//        $request = $instagram->request('https://www.instagram.com/'.$username.'/?__a=1')->getDecodedResponse();
+//        $preparedMedia = [];
+//        if (isset($request["graphql"]['user']['edge_owner_to_timeline_media']['edges'])) {
+//            $medias = $request["graphql"]['user']['edge_owner_to_timeline_media']['edges'];
+//            $captions = '';
+//
+//        foreach ($medias as $key=>$media) {
+//            $preparedMedia[$key] = $media['node'];
+//            $preparedMedia[$key]['comments'] = $instagram->media->getComments($media['node']['id'])->asArray();
+//        }
+//
+//        }
+//        try {
+//            $profileData = $instagram->people->getInfoByName($username)->asArray();
+//        } catch (\Exception $exception) {
+//            $profileData = [];
+//        }
+//
+//        if (!isset($profileData['user'])) {
+//            return [];
+//        }
+//
+//
+//        $profileData = $profileData['user'];
+//        $rank = Signatures::generateUUID();
+//        $followers = $instagram->people->getFollowers($profileData['pk'], $rank)->asArray()['users'];
+//        $following = $instagram->people->getFollowing($profileData['pk'], $rank)->asArray()['users'];
+//
+//        return [
+//            'id' => $profileData['pk'],
+//            'name' => $profileData['full_name'],
+//            'username' => $profileData['username'],
+//            'followers_count' => $profileData['follower_count'],
+//            'following_count' => $profileData['following_count'],
+//            'media' => $profileData['media_count'],
+//            'profile_pic_url' => $profileData['profile_pic_url'],
+//            'is_verified' => $profileData['is_verified'],
+//            'bio' => $profileData['biography'],
+//            'followers' => $followers,
+//            'following' => $following,
+//            'medias' => $preparedMedia
+//        ];
+//
+//    }
 
     /**
      * Show the form for editing the specified resource.
@@ -139,59 +139,59 @@ class CompetitorPageController extends Controller
         }
 
         return view('instagram.comp.followers', compact('processedFollowers', 'followers'));
-
     }
 
-    private function getInstagramUserDataWithoutFollowers($user, $id) {
-        $instagram = new Instagram();
-        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', "NcG}4u'z;Fm7"));
-        try {
-            $profileData = $instagram->people->getInfoByName($user)->asArray();
-        } catch (\Exception $exception) {
-            $profileData = [];
-        }
+//    private function getInstagramUserDataWithoutFollowers($user, $id) {
+//        $instagram = new Instagram();
+//        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', "NcG}4u'z;Fm7"));
+//        try {
+//            $profileData = $instagram->people->getInfoByName($user)->asArray();
+//        } catch (\Exception $exception) {
+//            $profileData = [];
+//        }
+//
+//        if (!isset($profileData['user'])) {
+//            return [];
+//        }
+//
+//
+//        $profileData = $profileData['user'];
+//
+//        return [
+//            'id' => $profileData['pk'],
+//            'uid' => $id,
+//            'name' => $profileData['full_name'],
+//            'username' => $profileData['username'],
+//            'followers_count' => $profileData['follower_count'],
+//            'following_count' => $profileData['following_count'],
+//            'profile_pic_url' => $profileData['profile_pic_url'],
+//            'is_verified' => $profileData['is_verified'],
+//            'bio' => $profileData['biography']
+//        ];
+//
+//    }
 
-        if (!isset($profileData['user'])) {
-            return [];
-        }
-
-
-        $profileData = $profileData['user'];
-
-        return [
-            'id' => $profileData['pk'],
-            'uid' => $id,
-            'name' => $profileData['full_name'],
-            'username' => $profileData['username'],
-            'followers_count' => $profileData['follower_count'],
-            'following_count' => $profileData['following_count'],
-            'profile_pic_url' => $profileData['profile_pic_url'],
-            'is_verified' => $profileData['is_verified'],
-            'bio' => $profileData['biography']
-        ];
-
-    }
-
-    public function hideLead($id) {
+    public function hideLead($id)
+    {
         $c = CompetitorFollowers::findOrFail($id);
         $c->status = 0;
         $c->save();
 
         return response()->json([
-            'status' => 'success'
+            'status' => 'success',
         ]);
     }
 
-    public function approveLead($id) {
+    public function approveLead($id)
+    {
         $c = CompetitorFollowers::findOrFail($id);
         $c->status = 2;
         $c->save();
 
         return response()->json([
-            'status' => 'success'
+            'status' => 'success',
         ]);
     }
-
 
     /**
      * Update the specified resource in storage.

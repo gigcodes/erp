@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateVendorPaymentsTable extends Migration
 {
@@ -20,8 +20,8 @@ class CreateVendorPaymentsTable extends Migration
             $table->integer('currency')->default(0);
             $table->date('payment_date')->nullable();
             $table->date('paid_date')->nullable();
-            $table->decimal('payable_amount','13',4)->nullable();
-            $table->decimal('paid_amount','13',4)->nullable();
+            $table->decimal('payable_amount', '13', 4)->nullable();
+            $table->decimal('paid_amount', '13', 4)->nullable();
             $table->string('service_provided')->nullable();
             $table->string('module')->nullable();
             $table->string('work_hour')->nullable();

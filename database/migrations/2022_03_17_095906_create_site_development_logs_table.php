@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateSiteDevelopmentLogsTable extends Migration
 {
@@ -15,7 +15,7 @@ class CreateSiteDevelopmentLogsTable extends Migration
     {
         Schema::create('site_development_logs', function (Blueprint $table) {
             $table->increments('id');
-			$table->text('log')->nullable();
+            $table->text('log')->nullable();
             $table->timestamps();
         });
     }

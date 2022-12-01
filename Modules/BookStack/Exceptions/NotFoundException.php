@@ -1,11 +1,13 @@
-<?php namespace Modules\BookStack\Exceptions;
+<?php
+
+namespace Modules\BookStack\Exceptions;
 
 class NotFoundException extends PrettyException
 {
-
     /**
      * NotFoundException constructor.
-     * @param string $message
+     *
+     * @param  string  $message
      */
     public function __construct($message = 'Item not found')
     {

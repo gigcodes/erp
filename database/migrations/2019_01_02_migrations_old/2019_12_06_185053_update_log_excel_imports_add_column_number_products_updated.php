@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateLogExcelImportsAddColumnNumberProductsUpdated extends Migration
 {
@@ -25,7 +24,7 @@ class UpdateLogExcelImportsAddColumnNumberProductsUpdated extends Migration
      */
     public function down()
     {
-         Schema::table('log_excel_imports', function ($table) {
+        Schema::table('log_excel_imports', function ($table) {
             $table->dropColumn('number_products_updated');
         });
     }

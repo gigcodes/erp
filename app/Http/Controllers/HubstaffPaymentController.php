@@ -14,43 +14,43 @@ class HubstaffPaymentController extends Controller
      */
     public function index(Request $request)
     {
-        $title = "Hubstaff Payment";
+        $title = 'Hubstaff Payment';
 
-        if(isset($request->run_command) && $request->run_command == true) {
-            \Artisan::call("users:payment");
+        if (isset($request->run_command) && $request->run_command == true) {
+            \Artisan::call('users:payment');
+
             return redirect()->back();
         }
 
-        return view("hubstaff.payment.index", compact('title'));
-
+        return view('hubstaff.payment.index', compact('title'));
     }
 
     public function records(Request $request)
     {
-        $records = \App\Hubstaff\HubstaffPaymentAccount::join("users as u", "hubstaff_payment_accounts.user_id", "u.id");
+        $records = \App\Hubstaff\HubstaffPaymentAccount::join('users as u', 'hubstaff_payment_accounts.user_id', 'u.id');
 
-        $keyword = request("keyword");
-        if (!empty($keyword)) {
+        $keyword = request('keyword');
+        if (! empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
-                $q->where("user_name", "LIKE", "%$keyword%");
+                $q->where('user_name', 'LIKE', "%$keyword%");
             });
         }
 
-        if($request->start_date != null) {
-            $records = $records->whereDate("billing_start",">=",$request->start_date. " 00:00:00");
+        if ($request->start_date != null) {
+            $records = $records->whereDate('billing_start', '>=', $request->start_date.' 00:00:00');
         }
 
-        if($request->end_date != null) {
-            $records = $records->whereDate("billing_start","<=",$request->end_date. " 23:59:59");
+        if ($request->end_date != null) {
+            $records = $records->whereDate('billing_start', '<=', $request->end_date.' 23:59:59');
         }
 
-        $records = $records->select(["hubstaff_payment_accounts.*", "u.name as user_name"])->get();
+        $records = $records->select(['hubstaff_payment_accounts.*', 'u.name as user_name'])->get();
 
         foreach ($records as $record) {
             $record->status_name = @\App\Hubstaff\HubstaffPaymentAccount::STATUS[$record->status];
         }
 
-        return response()->json(["code" => 200, "data" => $records, "total" => count($records)]);
+        return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
     }
 
     public function save(Request $request)
@@ -59,35 +59,35 @@ class HubstaffPaymentController extends Controller
 
         $validator = Validator::make($post, [
             'billing_start' => 'required',
-            'billing_end'   => 'required',
-            'hrs'           => 'required',
-            'rate'          => 'required',
+            'billing_end' => 'required',
+            'hrs' => 'required',
+            'rate' => 'required',
         ]);
 
         if ($validator->fails()) {
-            $outputString = "";
-            $messages     = $validator->errors()->getMessages();
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : " . $er . "<br>";
+                    $outputString .= "$k : ".$er.'<br>';
                 }
             }
-            return response()->json(["code" => 500, "error" => $outputString]);
+
+            return response()->json(['code' => 500, 'error' => $outputString]);
         }
 
-        $id = $request->get("id", 0);
+        $id = $request->get('id', 0);
 
         $records = \App\Hubstaff\HubstaffPaymentAccount::find($id);
 
-        if (!$records) {
+        if (! $records) {
             $records = new \App\Hubstaff\HubstaffPaymentAccount;
         }
 
         $records->fill($post);
         $records->save();
 
-        return response()->json(["code" => 200, "data" => $records]);
-
+        return response()->json(['code' => 200, 'data' => $records]);
     }
 
     /**
@@ -110,9 +110,9 @@ class HubstaffPaymentController extends Controller
     {
         $this->validate($request, [
             'billing_start' => 'required',
-            'billing_end'   => 'required',
-            'hrs'           => 'required',
-            'rate'          => 'required',
+            'billing_end' => 'required',
+            'hrs' => 'required',
+            'rate' => 'required',
         ]);
 
         $data = $request->except('_token');
@@ -135,19 +135,19 @@ class HubstaffPaymentController extends Controller
 
     /**
      * Edit Page
-     * @param  Request $request [description]
+     *
+     * @param  Request  $request [description]
      * @return
      */
-
     public function edit(Request $request, $id)
     {
-        $modal = \App\Hubstaff\HubstaffPaymentAccount::where("id", $id)->first();
+        $modal = \App\Hubstaff\HubstaffPaymentAccount::where('id', $id)->first();
 
         if ($modal) {
-            return response()->json(["code" => 200, "data" => $modal]);
+            return response()->json(['code' => 200, 'data' => $modal]);
         }
 
-        return response()->json(["code" => 500, "error" => "Id is wrong!"]);
+        return response()->json(['code' => 500, 'error' => 'Id is wrong!']);
     }
 
     /**
@@ -175,19 +175,19 @@ class HubstaffPaymentController extends Controller
 
     /**
      * delete Page
-     * @param  Request $request [description]
+     *
+     * @param  Request  $request [description]
      * @return
      */
-
     public function delete(Request $request, $id)
     {
-        $isExist = \App\Hubstaff\HubstaffPaymentAccount::where("id", $id)->first();
+        $isExist = \App\Hubstaff\HubstaffPaymentAccount::where('id', $id)->first();
         if ($isExist) {
             $isExist->delete();
-            return response()->json(["code" => 200]);
+
+            return response()->json(['code' => 200]);
         }
 
-        return response()->json(["code" => 500, "error" => "Wrong id!"]);
+        return response()->json(['code' => 500, 'error' => 'Wrong id!']);
     }
-   
 }

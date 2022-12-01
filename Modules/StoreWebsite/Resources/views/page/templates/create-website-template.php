@@ -29,7 +29,7 @@
         <div class="form-group col-md-3">
           <select class="form-control globalSelect2" id="website-page-copy-to">
           <option value="">Copy To Page</option>
-            <?php foreach($pages as $k => $page) { ?>
+            <?php foreach ($pages as $k => $page) { ?>
               <option value="<?php echo $k; ?>"><?php echo $page; ?></option>
             <?php } ?>
           </select>
@@ -48,7 +48,7 @@
         <div class="form-group col-md-3">
           <select name="page" class="form-control website-page-change">
             <option value="">Copy From Page</option>
-              <?php foreach($pages as $k => $page) { ?>
+              <?php foreach ($pages as $k => $page) { ?>
                 <option value="<?php echo $k; ?>"><?php echo $page; ?></option>
               <?php } ?>
           </select>
@@ -56,7 +56,7 @@
         <div class="form-group col-md-3">
             <select name="language" class="form-control website-language-change">
               <option value="">Language</option>
-                <?php foreach($languages as $k => $language) { ?>
+                <?php foreach ($languages as $k => $language) { ?>
                   <option value="<?php echo $language; ?>"><?php echo $language; ?></option>
                 <?php } ?>
             </select> 
@@ -171,10 +171,10 @@
                      <select name="active" class="form-control store-website-change">
                         <option value="">-- N/A --</option>
                         <?php
-                            foreach([0 => "No", 1 => "Yes"] as $k => $l) {
-                                echo "<option {{if data.active == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
+                            foreach ([0 => 'No', 1 => 'Yes'] as $k => $l) {
+                                echo "<option {{if data.active == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
                             }
-                        ?>
+    ?>
                      </select>
                   </div>
                   <div class="form-group col-md-4">
@@ -182,10 +182,10 @@
                      <select name="language" class="form-control store-website-language">
                         <option value="">-- N/A --</option>
                         <?php
-                            foreach(\App\Language::pluck('name','name')->toArray() as $k => $l) {
-                                echo "<option {{if data.language == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
-                            }
-                        ?>
+        foreach (\App\Language::pluck('name', 'name')->toArray() as $k => $l) {
+            echo "<option {{if data.language == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
+        }
+    ?>
                      </select>
                   </div>
               </div>
@@ -198,10 +198,10 @@
                      <select name="store_website_id" class="form-control store-website-change">
                         <option value="">-- N/A --</option>
                         <?php
-                            foreach($storeWebsites as $k => $l) {
-                                echo "<option {{if data.store_website_id == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
-                            }
-                        ?>
+        foreach ($storeWebsites as $k => $l) {
+            echo "<option {{if data.store_website_id == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
+        }
+    ?>
                      </select>
                   </div>
                   <div class="form-group col-md-6">

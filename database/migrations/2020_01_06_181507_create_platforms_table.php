@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreatePlatformsTable extends Migration
 {
@@ -21,7 +21,7 @@ class CreatePlatformsTable extends Migration
         //Populate with inital values for platform table
         DB::table('platforms')->insert([
             ['id' => '1', 'name' => 'Instagram'],
-            ['id' => '2', 'name' => 'Google']
+            ['id' => '2', 'name' => 'Google'],
         ]);
     }
 

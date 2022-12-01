@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterOrderTable extends Migration
 {
@@ -14,9 +14,9 @@ class AlterOrderTable extends Migration
     public function up()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->string("store_currency_code")->nullable();
-            $table->integer("store_id")->nullable();
-            $table->string("store_name")->nullable();
+            $table->string('store_currency_code')->nullable();
+            $table->integer('store_id')->nullable();
+            $table->string('store_name')->nullable();
         });
     }
 
@@ -28,9 +28,9 @@ class AlterOrderTable extends Migration
     public function down()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropField("store_currency_code");
-            $table->dropField("store_id");
-            $table->dropField("store_name");
+            $table->dropField('store_currency_code');
+            $table->dropField('store_id');
+            $table->dropField('store_name');
         });
     }
 }

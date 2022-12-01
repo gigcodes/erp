@@ -12,13 +12,12 @@ class CallBusyMessageStatusSeeder extends Seeder
      */
     public function run()
     {
-        $statuses = ['missed'=>'missed','rejected'=>'rejected'];
+        $statuses = ['missed' => 'missed', 'rejected' => 'rejected'];
 
-        foreach($statuses as $key =>$status){
-
+        foreach ($statuses as $key => $status) {
             CallBusyMessageStatus::create([
-                'label'=>$key,
-                'name'=>$status
+                'label' => $key,
+                'name' => $status,
             ]);
         }
     }

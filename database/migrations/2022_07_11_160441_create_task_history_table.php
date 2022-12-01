@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTaskHistoryTable extends Migration
 {
@@ -20,10 +20,10 @@ class CreateTaskHistoryTable extends Migration
             $table->unsignedInteger('task_subject_id');
 
             // $table->foreign('task_subject_id')->references('id')->on('task_subjects')->onDelete('cascade');
-            $table->string('name_before',255)->nullable();
-            $table->string('name_after',255)->nullable();
-            $table->string('description_before',255)->nullable();
-            $table->string('description_after',255)->nullable();
+            $table->string('name_before', 255)->nullable();
+            $table->string('name_after', 255)->nullable();
+            $table->string('description_before', 255)->nullable();
+            $table->string('description_after', 255)->nullable();
 
             $table->timestamps();
         });

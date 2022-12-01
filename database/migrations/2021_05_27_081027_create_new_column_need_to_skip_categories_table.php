@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateNewColumnNeedToSkipCategoriesTable extends Migration
 {
@@ -13,7 +13,7 @@ class CreateNewColumnNeedToSkipCategoriesTable extends Migration
      */
     public function up()
     {
-        Schema::table('user_updated_attribute_histories',function(Blueprint $table) {
+        Schema::table('user_updated_attribute_histories', function (Blueprint $table) {
             $table->integer('need_to_skip')->nullable()->default(0)->after('user_id');
         });
     }
@@ -25,8 +25,8 @@ class CreateNewColumnNeedToSkipCategoriesTable extends Migration
      */
     public function down()
     {
-        Schema::table("user_updated_attribute_histories",function(Blueprint $table) {
-            $table->dropField("need_to_skip");
+        Schema::table('user_updated_attribute_histories', function (Blueprint $table) {
+            $table->dropField('need_to_skip');
         });
     }
 }

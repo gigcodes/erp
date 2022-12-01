@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
@@ -15,7 +13,7 @@ class AlterOrderStatusHistoriesNullTable extends Migration
     public function up()
     {
         //
-        DB::select("ALTER TABLE `order_status_histories` CHANGE `old_status` `old_status` INT(11) NULL;");
+        DB::select('ALTER TABLE `order_status_histories` CHANGE `old_status` `old_status` INT(11) NULL;');
     }
 
     /**

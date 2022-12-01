@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddStoreIdAndDefaultForToWhatsappConfigs extends Migration
 {
@@ -15,7 +15,7 @@ class AddStoreIdAndDefaultForToWhatsappConfigs extends Migration
     {
         Schema::table('whatsapp_configs', function (Blueprint $table) {
             $table->integer('store_website_id')->nullable();
-			$table->integer('default_for')->nullable();
+            $table->integer('default_for')->nullable();
         });
     }
 

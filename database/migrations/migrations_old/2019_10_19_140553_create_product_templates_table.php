@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateProductTemplatesTable extends Migration
 {
@@ -18,7 +18,7 @@ class CreateProductTemplatesTable extends Migration
             $table->integer('template_no')->default(0);
             $table->string('product_title')->nullable();
             $table->integer('brand_id')->nullable();
-            $table->char('currency',3)->nullable();
+            $table->char('currency', 3)->nullable();
             $table->decimal('price', 8, 2)->default(0.00);
             $table->decimal('discounted_price', 8, 2)->default(0.00);
             $table->integer('product_id')->nullable()->unsigned()->index();

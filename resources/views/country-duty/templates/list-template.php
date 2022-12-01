@@ -78,7 +78,7 @@
 					<div class="row">
 				  		<div class="col-md-12">
 				    		<div class="form-group">
-					         	<?php echo Form::text("name",null,["class" => "form-control group-name"]); ?>
+					         	<?php echo Form::text('name', null, ['class' => 'form-control group-name']); ?>
 					         </div>
 				        </div> 
 				        <div class="col-md-12">

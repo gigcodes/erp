@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddColumnsToVouchers extends Migration
 {
@@ -14,11 +14,11 @@ class AddColumnsToVouchers extends Migration
     public function up()
     {
         Schema::table('vouchers', function (Blueprint $table) {
-          $table->integer('delivery_approval_id')->after('user_id')->nullable();
-          $table->string('travel_type')->after('description')->nullable();
-          $table->integer('paid')->after('amount')->nullable();
+            $table->integer('delivery_approval_id')->after('user_id')->nullable();
+            $table->string('travel_type')->after('description')->nullable();
+            $table->integer('paid')->after('amount')->nullable();
 
-          $table->foreign('delivery_approval_id')->references('id')->on('delivery_approvals');
+            $table->foreign('delivery_approval_id')->references('id')->on('delivery_approvals');
         });
     }
 
@@ -30,9 +30,9 @@ class AddColumnsToVouchers extends Migration
     public function down()
     {
         Schema::table('vouchers', function (Blueprint $table) {
-          $table->dropForeign(['delivery_approval_id']);
-          $table->dropColumn('travel_type');
-          $table->dropColumn('paid');
+            $table->dropForeign(['delivery_approval_id']);
+            $table->dropColumn('travel_type');
+            $table->dropColumn('paid');
         });
     }
 }

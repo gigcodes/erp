@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableAdAccountsAddField extends Migration
 {
@@ -14,9 +14,9 @@ class AlterTableAdAccountsAddField extends Migration
     public function up()
     {
         //
-        Schema::table("ad_accounts",function(Blueprint $table) {
-            $table->string("last_error")->nullable()->after("status");
-            $table->timestamp("last_error_at")->nullable()->after("last_error");
+        Schema::table('ad_accounts', function (Blueprint $table) {
+            $table->string('last_error')->nullable()->after('status');
+            $table->timestamp('last_error_at')->nullable()->after('last_error');
         });
     }
 
@@ -28,9 +28,9 @@ class AlterTableAdAccountsAddField extends Migration
     public function down()
     {
         //
-        Schema::table("ad_accounts",function(Blueprint $table) {
-            $table->dropField("last_error");
-            $table->dropField("last_error_at");
+        Schema::table('ad_accounts', function (Blueprint $table) {
+            $table->dropField('last_error');
+            $table->dropField('last_error_at');
         });
     }
 }

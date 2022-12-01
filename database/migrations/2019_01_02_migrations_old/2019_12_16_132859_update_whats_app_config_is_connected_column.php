@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateWhatsAppConfigIsConnectedColumn extends Migration
 {
@@ -13,7 +12,7 @@ class UpdateWhatsAppConfigIsConnectedColumn extends Migration
      */
     public function up()
     {
-        Schema::table('whatsapp_configs', function($table){
+        Schema::table('whatsapp_configs', function ($table) {
             $table->integer('is_connected')->after('last_online')->default(0);
         });
     }
@@ -25,7 +24,7 @@ class UpdateWhatsAppConfigIsConnectedColumn extends Migration
      */
     public function down()
     {
-        Schema::table('whatsapp_configs', function($table){
+        Schema::table('whatsapp_configs', function ($table) {
             $table->dropColumn('is_connected');
         });
     }

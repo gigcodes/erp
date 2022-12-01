@@ -6,13 +6,12 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
+use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
 use Illuminate\Database\Eloquent\Model;
 
-use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
-
-class DeveloperTaskHistory extends Model {
+class DeveloperTaskHistory extends Model
+{
     /**
- 
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="developer_task_id",type="integer")
      * @SWG\Property(property="attribute",type="string")
@@ -21,17 +20,19 @@ class DeveloperTaskHistory extends Model {
      * @SWG\Property(property="model",type="string")
      * @SWG\Property(property="is_approved",type="boolean")
      */
-    protected $table = "developer_tasks_history";
+    protected $table = 'developer_tasks_history';
+
     protected $fillable = [
-        'user_id', 'developer_task_id', 'attribute', 'old_value', 'new_value', 'model', 'is_approved', 'remark'
+        'user_id', 'developer_task_id', 'attribute', 'old_value', 'new_value', 'model', 'is_approved', 'remark',
     ];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo('App\User');
     }
 
-
-    public static function historySave($taskId, $type, $old, $new, $approved) {
+    public static function historySave($taskId, $type, $old, $new, $approved)
+    {
         $single = self::create([
             'developer_task_id' => $taskId,
             'model' => 'App\DeveloperTask',
@@ -49,7 +50,8 @@ class DeveloperTaskHistory extends Model {
         }
     }
 
-    public static function approved($id, $type) {
+    public static function approved($id, $type)
+    {
         $single = self::find($id);
         self::where('model', 'App\DeveloperTask')->where('attribute', $type)->where('developer_task_id', $single->developer_task_id)->update(['is_approved' => 0]);
         self::where('id', $single->id)->update(['is_approved' => 1]);

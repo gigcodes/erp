@@ -1,16 +1,18 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class CreateUichecksHistory extends Migration {
+class CreateUichecksHistory extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up() {
+    public function up()
+    {
         Schema::create('uichecks_hisotry', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedBigInteger('uichecks_id')->index();
@@ -27,7 +29,8 @@ class CreateUichecksHistory extends Migration {
      *
      * @return void
      */
-    public function down() {
+    public function down()
+    {
         Schema::dropIfExists('uichecks_hisotry');
     }
 }

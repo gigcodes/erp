@@ -16,7 +16,8 @@ class PlanAction extends Model
         'created_by',
     ];
 
-    public function getAdminUser() {
-        return $this->belongsTo(User::class,'created_by','id');
+    public function getAdminUser()
+    {
+        return $this->belongsTo(User::class, 'created_by', 'id');
     }
 }

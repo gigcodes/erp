@@ -90,6 +90,8 @@
 										<button title="Response History" data-id="{{>prop.id}}" type="button"  class="btn response_history"style="padding:1px 0px;">
                                             <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-history"></i></a>
                                         </button>
+                                       <button type="button" class="btn btn-xs btn-image  load-duplicate-modal" data-target="#newDuplicate"  data-id="{{>prop.id}}"  style="margin-top: 1%;" title="Duplicate store website"><i class="fa fa-copy"></i> </button>
+
 										{{if prop.is_dev_website == 1 }} 	
 											<a style="padding:1px;" class="btn d-inline btn-image execute-bash-command-select-folder"  data-folder_name="{{>prop.site_folder}}" href="#" data-id="{{>prop.id}}" title="Execute Bash Command">
 												<img src="/images/send.png" style="color:gray; cursor: nwse-resize; width: 0px;">
@@ -169,7 +171,7 @@
 				</div>	
 			</div>
 		</div>
-	</div>			
+	</div>
 </script>
 
 <script type="text/x-jsrender" id="template-attached-brands">
@@ -485,9 +487,6 @@
 						<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-magento-user btn-sm" style="border:1px solid">
 							<i class="fa fa-trash" aria-hidden="true"></i>
 						</button>
-
-
-
 						        </td>
 						      </tr>
 						    {{/props}}  

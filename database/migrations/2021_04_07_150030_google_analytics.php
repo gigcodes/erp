@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class GoogleAnalytics extends Migration
 {
@@ -12,8 +12,8 @@ class GoogleAnalytics extends Migration
      * @return void
      */
     public function up()
-    {   
-        if (!Schema::hasTable('google_analytics')) {
+    {
+        if (! Schema::hasTable('google_analytics')) {
             // Code to create table
             Schema::create('google_analytics', function (Blueprint $table) {
                 $table->increments('id');

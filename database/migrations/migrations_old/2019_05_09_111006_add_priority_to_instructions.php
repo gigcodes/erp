@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddPriorityToInstructions extends Migration
 {
@@ -14,7 +14,7 @@ class AddPriorityToInstructions extends Migration
     public function up()
     {
         Schema::table('instructions', function (Blueprint $table) {
-          $table->boolean('is_priority')->default(0)->after('pending');
+            $table->boolean('is_priority')->default(0)->after('pending');
         });
     }
 
@@ -26,7 +26,7 @@ class AddPriorityToInstructions extends Migration
     public function down()
     {
         Schema::table('instructions', function (Blueprint $table) {
-          $table->dropColumn('is_priority');
+            $table->dropColumn('is_priority');
         });
     }
 }

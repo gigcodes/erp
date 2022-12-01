@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateMailinglistTemplatesTable extends Migration
 {
@@ -16,10 +16,10 @@ class CreateMailinglistTemplatesTable extends Migration
         Schema::create('mailinglist_templates', function (Blueprint $table) {
             $table->engine = 'MyISAM';
             $table->increments('id');
-            $table->string("name");
-            $table->unsignedInteger("image_count");
-            $table->unsignedInteger("text_count");
-            $table->text("example_image");
+            $table->string('name');
+            $table->unsignedInteger('image_count');
+            $table->unsignedInteger('text_count');
+            $table->text('example_image');
             $table->timestamps();
         });
     }

@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\StoreWebsite;
 use App\MagentoSetting;
 use App\MagentoSettingUpdateResponseLog;
+use App\StoreWebsite;
 use Illuminate\Console\Command;
 
 class MagentoSettingAddUpdate extends Command
@@ -40,23 +40,23 @@ class MagentoSettingAddUpdate extends Command
      */
     public function handle()
     {
-        try{
+        try {
             $websites = StoreWebsite::whereNotNull('api_token')->whereNotNull('magento_url')->whereNotNull('server_ip')->get();
-            foreach($websites as $website){
-                if($website->api_token !='' &&  $website->server_ip !=''){
+            foreach ($websites as $website) {
+                if ($website->api_token != '' && $website->server_ip != '') {
                     $curl = curl_init();
-                    curl_setopt_array($curl, array(
-                    CURLOPT_URL => $website->magento_url."/rest/V1/core/config/",
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => "",
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 30,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => "GET",
-                        CURLOPT_HTTPHEADER => array(
-                            "authorization:Bearer ".$website->api_token
-                        ),
-                    ));
+                    curl_setopt_array($curl, [
+                        CURLOPT_URL => $website->magento_url.'/rest/V1/core/config/',
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_ENCODING => '',
+                        CURLOPT_MAXREDIRS => 10,
+                        CURLOPT_TIMEOUT => 30,
+                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST => 'GET',
+                        CURLOPT_HTTPHEADER => [
+                            'authorization:Bearer '.$website->api_token,
+                        ],
+                    ]);
                     $response = curl_exec($curl);
                     $err = curl_error($curl);
                     if (curl_errno($curl)) {
@@ -64,27 +64,27 @@ class MagentoSettingAddUpdate extends Command
                     }
 
                     $response = curl_exec($curl);
-                    $http_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
-                    $resArr = is_string($response)?json_decode($response, true) : $response;
+                    $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    $resArr = is_string($response) ? json_decode($response, true) : $response;
                     curl_close($curl);
                     //dd($resArr, 'sdfgsdf');
-                    if(is_array($resArr) && isset($resArr[0][0]) && $resArr[0][0]['config_id']) {
-                        foreach($resArr as $key1 => $res1){
-                            foreach($res1 as $key => $res){
-                                if(isset($res['config_id'])){
-                                    $findMegntoSetting = MagentoSetting::where('store_website_id', $website->id)->where('path', $res["path"])->get();
-                                    if(!empty($findMegntoSetting->toArray())) {
-                                        foreach($findMegntoSetting as $megntoSetting){
+                    if (is_array($resArr) && isset($resArr[0][0]) && $resArr[0][0]['config_id']) {
+                        foreach ($resArr as $key1 => $res1) {
+                            foreach ($res1 as $key => $res) {
+                                if (isset($res['config_id'])) {
+                                    $findMegntoSetting = MagentoSetting::where('store_website_id', $website->id)->where('path', $res['path'])->get();
+                                    if (! empty($findMegntoSetting->toArray())) {
+                                        foreach ($findMegntoSetting as $megntoSetting) {
                                             MagentoSetting::where('id', $megntoSetting->id)->update(
                                                 [
-                                                    "config_id" =>  $res['config_id'],
-                                                    "scope" => $res["scope"],
-                                                    "store_website_id" => $website->id,
-                                                    "website_store_id" => $website->id,
-                                                    "scope_id" =>  $res["scope_id"],
-                                                    "path" => $res["path"],
-                                                    "value" =>  $res["value"],
-                                                    "updated_at" => $res["updated_at"]
+                                                    'config_id' => $res['config_id'],
+                                                    'scope' => $res['scope'],
+                                                    'store_website_id' => $website->id,
+                                                    'website_store_id' => $website->id,
+                                                    'scope_id' => $res['scope_id'],
+                                                    'path' => $res['path'],
+                                                    'value' => $res['value'],
+                                                    'updated_at' => $res['updated_at'],
                                                 ]
                                             );
                                         }
@@ -92,27 +92,27 @@ class MagentoSettingAddUpdate extends Command
                                         //echo $key;
                                         MagentoSetting::create(
                                             [
-                                                "config_id" =>  $res['config_id'],
-                                                "scope" => $res["scope"],
-                                                "store_website_id" => $website->id,
-                                                "website_store_id" => $website->id,
-                                                "scope_id" => $res["scope_id"],
-                                                "path" => $res["path"],
-                                                "value" =>  $res["value"],
-                                                "updated_at" => $res["updated_at"]
+                                                'config_id' => $res['config_id'],
+                                                'scope' => $res['scope'],
+                                                'store_website_id' => $website->id,
+                                                'website_store_id' => $website->id,
+                                                'scope_id' => $res['scope_id'],
+                                                'path' => $res['path'],
+                                                'value' => $res['value'],
+                                                'updated_at' => $res['updated_at'],
                                             ]
                                         );
                                     }
                                 }
                             }
                         }
-                            MagentoSettingUpdateResponseLog::create(
-                                [
-                                    'website_id' => $website->id,
-                                    //'magento_setting_id' => $findMegntoSetting[0]->id ?? '',
-                                    'response' => is_array($response) ? json_encode($response) : $response,
-                                ]
-                            );
+                        MagentoSettingUpdateResponseLog::create(
+                            [
+                                'website_id' => $website->id,
+                                //'magento_setting_id' => $findMegntoSetting[0]->id ?? '',
+                                'response' => is_array($response) ? json_encode($response) : $response,
+                            ]
+                        );
                     } else {
                         MagentoSettingUpdateResponseLog::create(
                             [
@@ -122,20 +122,18 @@ class MagentoSettingAddUpdate extends Command
                             ]
                         );
                     }
-                    
-                
+
                 // \Log::info('Magento log created : '.$website);
-                } else{
+                } else {
                     $token = empty($website->api_token) ? 'Please Check API TOKEN' : '';
-                    $server_ip = empty($website->server_ip) ? ' Please Check Server Ip' : "";
+                    $server_ip = empty($website->server_ip) ? ' Please Check Server Ip' : '';
                     MagentoSettingUpdateResponseLog::create(
                         [
                             'website_id' => $website->id,
-                            'response' =>  $token.', ==  '.$server_ip,
+                            'response' => $token.', ==  '.$server_ip,
                         ]
-                    );        
+                    );
                 }// end if condition if api_tocken not found
-
             } //end website foreach
         } catch (\Exception $e) {
             MagentoSettingUpdateResponseLog::create(
@@ -146,7 +144,6 @@ class MagentoSettingAddUpdate extends Command
                 ]
             );
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
-        } 
-        
+        }
     }
 }

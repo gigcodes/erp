@@ -45,20 +45,20 @@ class SendDeliveryDetails extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $params = [
-                'number'   => null,
-                'user_id'  => 6,
+                'number' => null,
+                'user_id' => 6,
                 'approved' => 0,
-                'status'   => 1,
+                'status' => 1,
             ];
 
-            $tomorrow      = Carbon::now()->addDay()->format('Y-m-d');
+            $tomorrow = Carbon::now()->addDay()->format('Y-m-d');
             $private_views = PrivateView::where('date', 'LIKE', "%$tomorrow%")->get();
-            $coordinators  = User::role('Delivery Coordinator')->get();
+            $coordinators = User::role('Delivery Coordinator')->get();
 
             foreach ($private_views as $private_view) {
                 dump('Private Viewing');
@@ -73,22 +73,22 @@ class SendDeliveryDetails extends Command
                     }
                 }
 
-                $address = $private_view->customer->address . ", " . $private_view->customer->pincode . ", " . $private_view->customer->city;
+                $address = $private_view->customer->address.', '.$private_view->customer->pincode.', '.$private_view->customer->city;
 
                 $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'private-viewing-details')->first();
 
-                $auto_message = preg_replace("/{customer_name}/i", $private_view->customer->name, $auto_reply->reply);
-                $auto_message = preg_replace("/{customer_phone}/i", $private_view->customer->phone, $auto_message);
-                $auto_message = preg_replace("/{customer_address}/i", $address, $auto_message);
-                $auto_message = preg_replace("/{product_information}/i", $product_information, $auto_message);
+                $auto_message = preg_replace('/{customer_name}/i', $private_view->customer->name, $auto_reply->reply);
+                $auto_message = preg_replace('/{customer_phone}/i', $private_view->customer->phone, $auto_message);
+                $auto_message = preg_replace('/{customer_address}/i', $address, $auto_message);
+                $auto_message = preg_replace('/{product_information}/i', $product_information, $auto_message);
 
                 // $params['message'] = "Details for Private Viewing: Customer - " . $private_view->customer->name . ", Phone: " . $private_view->customer->phone . ", Address: $address" . "; Products $product_information";
                 $params['message'] = $auto_message;
 
                 foreach ($coordinators as $coordinator) {
-                    dump('Sending Message to Coordinator ' . $coordinator->name);
+                    dump('Sending Message to Coordinator '.$coordinator->name);
                     $params['erp_user'] = $coordinator->id;
-                    $chat_message       = ChatMessage::create($params);
+                    $chat_message = ChatMessage::create($params);
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
@@ -100,7 +100,7 @@ class SendDeliveryDetails extends Command
 
                     $chat_message->update([
                         'approved' => 1,
-                        'status'   => 2,
+                        'status' => 2,
                     ]);
                 }
             }

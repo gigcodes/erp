@@ -40,8 +40,8 @@ return [
         'client_secret' => 'LHNwbMFPZ71DvcBo5IRSYXnBYwFtNBWUbrTS6HBbtZOrucdJln',
         'redirect' => 'http://localhost/sololux-erp/auth/twitter/callback',
     ],
-	
-	'twilio' => [
+
+    'twilio' => [
         /**
          * Taken from the environment
          */
@@ -61,8 +61,8 @@ return [
         /**
          * TaskRouter
          */
-        'missedCallEvents' => ["workflow.timeout", "task.canceled", "task.reserved"],
-        'leaveMessage' => "Sorry, All agents are busy. Please leave a message. We will call you as soon as possible",
-        'offlineMessage' => 'Your status has changed to Offline. Reply with "On" to get back Online'
-    ]
+        'missedCallEvents' => ['workflow.timeout', 'task.canceled', 'task.reserved'],
+        'leaveMessage' => 'Sorry, All agents are busy. Please leave a message. We will call you as soon as possible',
+        'offlineMessage' => 'Your status has changed to Offline. Reply with "On" to get back Online',
+    ],
 ];

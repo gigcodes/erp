@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableLogListMagentoRetry extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableLogListMagentoRetry extends Migration
     public function up()
     {
         //
-        Schema::table("log_list_magentos",function(Blueprint $table) {
-            $table->integer("tried")->default(0)->nullable();
+        Schema::table('log_list_magentos', function (Blueprint $table) {
+            $table->integer('tried')->default(0)->nullable();
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableLogListMagentoRetry extends Migration
     public function down()
     {
         //
-        Schema::table("log_list_magentos",function(Blueprint $table) {
-            $table->dropField("tried");
+        Schema::table('log_list_magentos', function (Blueprint $table) {
+            $table->dropField('tried');
         });
     }
 }

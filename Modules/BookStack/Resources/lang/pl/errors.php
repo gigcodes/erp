@@ -35,7 +35,7 @@ return [
     'cannot_get_image_from_url' => 'Nie można pobrać obrazka z :url',
     'cannot_create_thumbs' => 'Serwer nie może utworzyć miniaturek. Upewnij się że rozszerzenie GD PHP zostało zainstalowane.',
     'server_upload_limit' => 'Serwer nie pozwala na przyjęcie pliku o tym rozmiarze. Spróbuj przesłać plik o mniejszym rozmiarze.',
-    'uploaded'  => 'Serwer nie pozwala na przyjęcie pliku o tym rozmiarze. Spróbuj przesłać plik o mniejszym rozmiarze.',
+    'uploaded' => 'Serwer nie pozwala na przyjęcie pliku o tym rozmiarze. Spróbuj przesłać plik o mniejszym rozmiarze.',
     'image_upload_error' => 'Wystąpił błąd podczas przesyłania obrazka',
     'image_upload_type_error' => 'Typ przesłanego obrazka jest nieprwidłowy.',
     'file_upload_timeout' => 'Przesyłanie pliku przekroczyło limit czasu.',
@@ -66,14 +66,14 @@ return [
     'role_cannot_be_edited' => 'Ta rola nie może być edytowana',
     'role_system_cannot_be_deleted' => 'Ta rola jest rolą systemową i nie może zostać usunięta',
     'role_registration_default_cannot_delete' => 'Ta rola nie może zostać usunięta, dopóki jest ustawiona jako domyślna rola użytkownika',
-    
+
     // Comments
     'comment_list' => 'Wystąpił błąd podczas pobierania komentarzy.',
     'cannot_add_comment_to_draft' => 'Nie możesz dodawać komentarzy do wersji roboczej.',
     'comment_add' => 'Wystąpił błąd podczas dodwania / aktualizaowania komentarza.',
     'comment_delete' => 'Wystąpił błąd podczas usuwania komentarza.',
     'empty_comment' => 'Nie można dodać pustego komentarza.',
-    
+
     // Error pages
     '404_page_not_found' => 'Strona nie została znaleziona',
     'sorry_page_not_found' => 'Przepraszamy, ale strona której szukasz nie została znaleziona.',

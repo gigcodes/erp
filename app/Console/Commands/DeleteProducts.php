@@ -43,11 +43,11 @@ class DeleteProducts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $products = Product::withTrashed()->where('supplier', "Les Market")->get();
+            $products = Product::withTrashed()->where('supplier', 'Les Market')->get();
             // $product = Product::find(127805);
             // dd(count($products));
             foreach ($products as $key => $product) {
@@ -67,7 +67,6 @@ class DeleteProducts extends Command
 
                         $image->delete();
                     }
-
                 } else {
                     dump("$key - NO IMAGES");
                 }

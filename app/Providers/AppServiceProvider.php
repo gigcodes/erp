@@ -2,18 +2,18 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Schema;
-use Facebook\Facebook;
-use App\DatabaseLog;
-use Blade;
-use Studio\Totem\Totem;
-use App\ScrapedProducts;
 use App\CallBusyMessage;
+use App\DatabaseLog;
+use App\Observers\CallBusyMessageObserver;
+use App\ScrapedProducts;
+use Blade;
+use Facebook\Facebook;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
-use App\Observers\CallBusyMessageObserver;
+use Illuminate\Support\ServiceProvider;
+use Studio\Totem\Totem;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,25 +25,25 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         //
-	    Schema::defaultStringLength(191);
+        Schema::defaultStringLength(191);
 
         // Custom blade view directives
         Blade::directive('icon', function ($expression) {
             return "<?php echo icon($expression); ?>";
         });
 
-        Totem::auth(function($request) {
+        Totem::auth(function ($request) {
             // return true / false . For e.g.
             return \Auth::check();
         });
 
-        if (in_array(app('request')->ip(),config('debugip.ips') )) {
+        if (in_array(app('request')->ip(), config('debugip.ips'))) {
             config(['app.debug' => true]);
             config(['debugbar.enabled' => true]);
         }
-        
-        Validator::extend('valid_base', function ($attribute, $value, $parameters, $validator) { 
-            if (base64_decode($value, true) !== false){
+
+        Validator::extend('valid_base', function ($attribute, $value, $parameters, $validator) {
+            if (base64_decode($value, true) !== false) {
                 return true;
             } else {
                 return false;
@@ -57,7 +57,7 @@ class AppServiceProvider extends ServiceProvider
 //             }
 //         });
 
-		CallBusyMessage::observe(CallBusyMessageObserver::class);
+        CallBusyMessage::observe(CallBusyMessageObserver::class);
     }
 
     /**
@@ -68,12 +68,12 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         //
+//        if(!env('CI')) {
         $this->app->singleton(Facebook::class, function ($app) {
             return new Facebook(config('facebook.config'));
         });
+//        }
 
         $this->app->singleton(ScrapedProducts::class);
-
-        
     }
 }

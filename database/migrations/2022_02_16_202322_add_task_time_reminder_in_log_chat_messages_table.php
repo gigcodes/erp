@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddTaskTimeReminderInLogChatMessagesTable extends Migration
 {
@@ -15,7 +15,6 @@ class AddTaskTimeReminderInLogChatMessagesTable extends Migration
     {
         Schema::table('log_chat_messages', function (Blueprint $table) {
             $table->integer('task_time_reminder')->default(0)->after('log_msg')->index();
-            
         });
     }
 

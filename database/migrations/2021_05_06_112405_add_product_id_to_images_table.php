@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddProductIdToImagesTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddProductIdToImagesTable extends Migration
     public function up()
     {
         Schema::table('images', function (Blueprint $table) {
-            $table->integer("product_id")->nullable();
+            $table->integer('product_id')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddProductIdToImagesTable extends Migration
     public function down()
     {
         Schema::table('images', function (Blueprint $table) {
-            $table->dropField("product_id");
+            $table->dropField('product_id');
         });
     }
 }

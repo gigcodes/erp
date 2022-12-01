@@ -18,7 +18,6 @@ class Reply extends Model
      * @SWG\Property(property="model",type="string")
      * @SWG\Property(property="deleted_at",type="datetime")
      */
-
     use SoftDeletes;
 
     protected $fillable = ['category_id', 'store_website_id', 'reply', 'model', 'push_to_watson'];
@@ -29,5 +28,4 @@ class Reply extends Model
     {
         return $this->belongsTo('App\ReplyCategory', 'category_id');
     }
-
 }

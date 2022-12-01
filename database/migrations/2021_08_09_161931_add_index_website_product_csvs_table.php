@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIndexWebsiteProductCsvsTable extends Migration
 {
@@ -13,16 +13,13 @@ class AddIndexWebsiteProductCsvsTable extends Migration
      */
     public function up()
     {
-        Schema::table("website_product_csvs",function(Blueprint $table) {
+        Schema::table('website_product_csvs', function (Blueprint $table) {
         //    $table->string('path')->nullable()->change();
             $table->dropColumn('path');
-
         });
-        Schema::table("website_product_csvs",function(Blueprint $table) {
-           $table->string('path')->nullable();
-
+        Schema::table('website_product_csvs', function (Blueprint $table) {
+            $table->string('path')->nullable();
         });
-       
     }
 
     /**

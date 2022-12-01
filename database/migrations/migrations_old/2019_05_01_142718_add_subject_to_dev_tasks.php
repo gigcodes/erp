@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddSubjectToDevTasks extends Migration
 {
@@ -14,7 +14,7 @@ class AddSubjectToDevTasks extends Migration
     public function up()
     {
         Schema::table('developer_tasks', function (Blueprint $table) {
-          $table->string('subject')->nullable()->after('priority');
+            $table->string('subject')->nullable()->after('priority');
         });
     }
 
@@ -26,7 +26,7 @@ class AddSubjectToDevTasks extends Migration
     public function down()
     {
         Schema::table('development_tasks', function (Blueprint $table) {
-          $table->dropColumn('subject');
+            $table->dropColumn('subject');
         });
     }
 }

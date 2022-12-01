@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AlterDeveloperTasksChangeEstimateDate extends Migration
@@ -14,7 +12,6 @@ class AlterDeveloperTasksChangeEstimateDate extends Migration
     public function up()
     {
         DB::statement('ALTER TABLE developer_tasks MODIFY COLUMN estimate_date DATETIME');
-       
     }
 
     /**

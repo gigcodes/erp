@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddNewColsDailyActivitiesTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddNewColsDailyActivitiesTable extends Migration
     public function up()
     {
         Schema::table('daily_activities', function (Blueprint $table) {
-            $table->enum('type',['event','learning'])->default('event');
+            $table->enum('type', ['event', 'learning'])->default('event');
             $table->integer('type_table_id')->nullable();
             $table->date('next_run_at')->nullable()->comment('if type learning for daily');
         });

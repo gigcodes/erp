@@ -18,7 +18,6 @@ class TicketCreate extends Mailable
      *
      * @return void
      */
-
     public $ticket;
 
     public function __construct(Tickets $ticket)
@@ -34,8 +33,7 @@ class TicketCreate extends Mailable
      */
     public function build()
     {
-
-        $subject = "New Ticket # " . $this->ticket->ticket_id;
+        $subject = 'New Ticket # '.$this->ticket->ticket_id;
         $ticket = $this->ticket;
         $customer = $ticket->customer;
 
@@ -52,7 +50,7 @@ class TicketCreate extends Mailable
                 $this->fromMailer = $template->from_email;
             }
 
-            if (!empty($template->mail_tpl)) {
+            if (! empty($template->mail_tpl)) {
                 // need to fix the all email address
                 return $this->from($this->fromMailer)
                     ->subject($template->subject)
@@ -61,6 +59,7 @@ class TicketCreate extends Mailable
                     ));
             } else {
                 $content = $template->static_template;
+
                 return $this->from($this->fromMailer)
                     ->subject($template->subject)
                     ->view('emails.blank_content', compact(

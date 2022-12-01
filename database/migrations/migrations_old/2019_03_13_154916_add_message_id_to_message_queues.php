@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddMessageIdToMessageQueues extends Migration
 {
@@ -14,10 +14,10 @@ class AddMessageIdToMessageQueues extends Migration
     public function up()
     {
         Schema::table('message_queues', function (Blueprint $table) {
-          $table->integer('chat_message_id')->unsigned()->after('customer_id')->nullable();
-          $table->foreign('chat_message_id')->references('id')->on('chat_messages');
+            $table->integer('chat_message_id')->unsigned()->after('customer_id')->nullable();
+            $table->foreign('chat_message_id')->references('id')->on('chat_messages');
 
-          $table->integer('group_id')->unsigned()->after('status');
+            $table->integer('group_id')->unsigned()->after('status');
         });
     }
 
@@ -29,8 +29,8 @@ class AddMessageIdToMessageQueues extends Migration
     public function down()
     {
         Schema::table('message_queues', function (Blueprint $table) {
-          $table->dropForeign(['chat_message_id']);
-          $table->dropColumn('group_id');
+            $table->dropForeign(['chat_message_id']);
+            $table->dropColumn('group_id');
         });
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableScraperDeveloperFlag extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableScraperDeveloperFlag extends Migration
     public function up()
     {
         //
-        Schema::table("scrapers",function(Blueprint $table) {
-            $table->integer("developer_flag")->nullable()->default(0)->after('flag');
+        Schema::table('scrapers', function (Blueprint $table) {
+            $table->integer('developer_flag')->nullable()->default(0)->after('flag');
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableScraperDeveloperFlag extends Migration
     public function down()
     {
         //
-        Schema::table("scrapers",function(Blueprint $table) {
-            $table->dropField("developer_flag");
+        Schema::table('scrapers', function (Blueprint $table) {
+            $table->dropField('developer_flag');
         });
     }
 }

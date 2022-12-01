@@ -38,14 +38,13 @@ class FetchStoreWebsiteOrder extends Command
     public function handle()
     {
         $storeWebsite = \App\StoreWebsite::all();
-        foreach($storeWebsite as $sW) {
+        foreach ($storeWebsite as $sW) {
             // if site is in magento the fetch orders
-            if($sW->website_source == "magento") {
+            if ($sW->website_source == 'magento') {
                 if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                     \seo2websites\MagentoHelper\MagentoHelper::fetchOrder($sW);
                 }
             }
         }
-
     }
 }

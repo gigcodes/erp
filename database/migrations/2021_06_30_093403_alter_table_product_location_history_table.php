@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableProductLocationHistoryTable extends Migration
 {
@@ -13,7 +12,7 @@ class AlterTableProductLocationHistoryTable extends Migration
      */
     public function up()
     {
-        Schema::table('product_location_history', function($table) {
+        Schema::table('product_location_history', function ($table) {
             $table->string('instruction_message')->after('created_by')->nullable();
         });
     }

@@ -65,7 +65,7 @@ return [
     'search_set_date' => 'Установить дату',
     'search_update' => 'Обновить поиск',
 
-     //Shelves
+    //Shelves
     'shelf' => 'Полка',
     'shelves' => 'Полки',
     'x_shelves' => ':count полок|:count полок',
@@ -96,7 +96,7 @@ return [
     'shelves_copy_permissions' => 'Копировать доступы',
     'shelves_copy_permissions_explain' => 'Это применит текущие настройки доступов этой книжной полки ко всем книгам, содержащимся внутри. Перед активацией убедитесь, что все изменения в доступах этой книжной полки сохранены.',
     'shelves_copy_permission_success' => 'Доступы книжной полки скопированы для :count books',
-    
+
     //Books
     'book' => 'Книга',
     'books' => 'Книги',
@@ -136,7 +136,7 @@ return [
     'books_sort_show_other' => 'Показать другие книги',
     'books_sort_save' => 'Сохранить новый порядок',
 
-     //Chapters
+    //Chapters
     'chapter' => 'Глава',
     'chapters' => 'Главы',
     'x_chapters' => ':count глава|:count главы',
@@ -242,8 +242,8 @@ return [
     'book_tags' => 'Теги книги',
     'shelf_tags' => 'Теги полки',
     'tag' => 'Тег',
-    'tags' =>  'Теги',
-    'tag_name' =>  'Имя тега',
+    'tags' => 'Теги',
+    'tag_name' => 'Имя тега',
     'tag_value' => 'Значение тега (опционально)',
     'tags_explain' => 'Добавьте теги, чтобы лучше классифицировать ваш контент. \n Вы можете присвоить значение тегу для более глубокой организации.',
     'tags_add' => 'Добавить тег',
@@ -310,5 +310,5 @@ return [
     'revision_delete_confirm' => 'Удалить эту ревизию?',
     'revision_restore_confirm' => 'Восстановить эту ревизию? Текущее содержимое будет заменено.',
     'revision_delete_success' => 'Ревизия удалена',
-    'revision_cannot_delete_latest' => 'Нельзя удалить последнюю версию.'
+    'revision_cannot_delete_latest' => 'Нельзя удалить последнюю версию.',
 ];

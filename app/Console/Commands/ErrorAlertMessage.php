@@ -10,10 +10,13 @@ use Illuminate\Support\Facades\File;
 
 class errorAlertMessage extends Command
 {
-    const CRON_ISSUE_MODULE_NAME = "268";
-    const CRON_ISSUE_PRIORITY    = 1;
-    const CRON_ISSUE_STATUS      = "Planned";
-    const DEFAULT_ASSIGNED_TO    = 1;
+    const CRON_ISSUE_MODULE_NAME = '268';
+
+    const CRON_ISSUE_PRIORITY = 1;
+
+    const CRON_ISSUE_STATUS = 'Planned';
+
+    const DEFAULT_ASSIGNED_TO = 1;
 
     //scrappersImagesDelete
     /**
@@ -47,10 +50,10 @@ class errorAlertMessage extends Command
      */
     public function handle()
     {
-        $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
+        $filename = '/laravel-'.now()->format('Y-m-d').'.log';
 
-        $path         = storage_path('logs');
-        $fullPath     = $path . $filename;
+        $path = storage_path('logs');
+        $fullPath = $path.$filename;
         $errSelection = [];
         try {
             $content = File::get($fullPath);
@@ -60,32 +63,31 @@ class errorAlertMessage extends Command
                 foreach ($match[7] as $value) {
                     foreach ($logKeywords as $key => $logKeyword) {
                         if (strpos(strtolower($value), strtolower($logKeyword->text)) !== false) {
-                            $message = "You have error which matched the keyword  '" . $logKeyword->text . "'";
-                            $message .= " | " . $value;
-                            $subject          = "You have error which matched the keyword  '" . $logKeyword->text . "'";
-                            $hasAssignedIssue = DeveloperTask::where("subject", "like", "%{$subject}%")->whereDate("created_at", date("Y-m-d"))->where("is_resolved", 0)->first();
-                            if (!$hasAssignedIssue) {
+                            $message = "You have error which matched the keyword  '".$logKeyword->text."'";
+                            $message .= ' | '.$value;
+                            $subject = "You have error which matched the keyword  '".$logKeyword->text."'";
+                            $hasAssignedIssue = DeveloperTask::where('subject', 'like', "%{$subject}%")->whereDate('created_at', date('Y-m-d'))->where('is_resolved', 0)->first();
+                            if (! $hasAssignedIssue) {
                                 $requestData = new Request();
                                 $requestData->setMethod('POST');
                                 $requestData->request->add([
                                     'log_keyword_id' => $logKeyword->id,
-                                    'priority'    => self::CRON_ISSUE_PRIORITY,
-                                    'issue'       => $message,
-                                    'status'      => self::CRON_ISSUE_STATUS,
-                                    'module'      => self::CRON_ISSUE_MODULE_NAME,
-                                    'subject'     => $subject,
-                                    'assigned_to' => \App\Setting::get("cron_issue_assinged_to", self::DEFAULT_ASSIGNED_TO),
+                                    'priority' => self::CRON_ISSUE_PRIORITY,
+                                    'issue' => $message,
+                                    'status' => self::CRON_ISSUE_STATUS,
+                                    'module' => self::CRON_ISSUE_MODULE_NAME,
+                                    'subject' => $subject,
+                                    'assigned_to' => \App\Setting::get('cron_issue_assinged_to', self::DEFAULT_ASSIGNED_TO),
                                 ]);
                                 app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
                             }
-
                         }
                     }
                 }
             }
             $this->output->write('Cron Done', true);
         } catch (\Exception $e) {
-            $this->output->write("Error is caught here! => " . $e->getMessage(), true);
+            $this->output->write('Error is caught here! => '.$e->getMessage(), true);
         }
     }
 }

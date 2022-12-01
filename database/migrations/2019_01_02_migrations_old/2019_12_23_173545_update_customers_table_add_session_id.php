@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateCustomersTableAddSessionId extends Migration
 {
@@ -25,7 +24,7 @@ class UpdateCustomersTableAddSessionId extends Migration
      */
     public function down()
     {
-         Schema::table('customers', function ($table) {
+        Schema::table('customers', function ($table) {
             $table->dropColumn('chat_session_id');
         });
     }

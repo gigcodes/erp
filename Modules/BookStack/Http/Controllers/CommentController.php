@@ -1,20 +1,24 @@
-<?php namespace Modules\BookStack\Http\Controllers;
+<?php
+
+namespace Modules\BookStack\Http\Controllers;
 
 use Activity;
-use Modules\BookStack\Actions\CommentRepo;
-use Modules\BookStack\Entities\Repos\EntityRepo;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Modules\BookStack\Actions\CommentRepo;
+use Modules\BookStack\Entities\Repos\EntityRepo;
 
 class CommentController extends Controller
 {
     protected $entityRepo;
+
     protected $commentRepo;
 
     /**
      * CommentController constructor.
-     * @param \BookStack\Entities\Repos\EntityRepo $entityRepo
-     * @param \BookStack\Actions\CommentRepo $commentRepo
+     *
+     * @param  \BookStack\Entities\Repos\EntityRepo  $entityRepo
+     * @param  \BookStack\Actions\CommentRepo  $commentRepo
      */
     public function __construct(EntityRepo $entityRepo, CommentRepo $commentRepo)
     {
@@ -25,9 +29,10 @@ class CommentController extends Controller
 
     /**
      * Save a new comment for a Page
-     * @param Request $request
-     * @param integer $pageId
-     * @param null|integer $commentId
+     *
+     * @param  Request  $request
+     * @param  int  $pageId
+     * @param  null|int  $commentId
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
      */
     public function savePageComment(Request $request, $pageId, $commentId = null)
@@ -54,13 +59,15 @@ class CommentController extends Controller
         $this->checkPermission('comment-create-all');
         $comment = $this->commentRepo->create($page, $request->only(['html', 'text', 'parent_id']));
         Activity::add($page, 'commented_on', $page->book->id);
+
         return view('bookstack::comments.comment', ['comment' => $comment]);
     }
 
     /**
      * Update an existing comment.
-     * @param Request $request
-     * @param integer $commentId
+     *
+     * @param  Request  $request
+     * @param  int  $commentId
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function update(Request $request, $commentId)
@@ -75,12 +82,14 @@ class CommentController extends Controller
         $this->checkOwnablePermission('comment-update', $comment);
 
         $comment = $this->commentRepo->update($comment, $request->only(['html', 'text']));
+
         return view('bookstack::comments.comment', ['comment' => $comment]);
     }
 
     /**
      * Delete a comment from the system.
-     * @param integer $id
+     *
+     * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
@@ -88,6 +97,7 @@ class CommentController extends Controller
         $comment = $this->commentRepo->getById($id);
         $this->checkOwnablePermission('comment-delete', $comment);
         $this->commentRepo->delete($comment);
+
         return response()->json(['message' => trans('bookstack::entities.comment_deleted')]);
     }
 }

@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Setting;
 use App\SimplyDutyCalculation;
 use App\SimplyDutyCountry;
 use Illuminate\Http\Request;
-use App\Setting;
-use Validator;
 
 class SimplyDutyCalculationController extends Controller
 {
@@ -17,29 +16,29 @@ class SimplyDutyCalculationController extends Controller
      */
     public function index(Request $request)
     {
-         if($request->code || $request->country){
-           $query = SimplyDutyCalculation::query();
+        if ($request->code || $request->country) {
+            $query = SimplyDutyCalculation::query();
 
-            if(request('code') != null){
-                $query->where('country_code','LIKE', "%{$request->code}%");
+            if (request('code') != null) {
+                $query->where('country_code', 'LIKE', "%{$request->code}%");
             }
-            if(request('country') != null){
-                $query->where('country_name','LIKE', "%{$request->country}%");
+            if (request('country') != null) {
+                $query->where('country_name', 'LIKE', "%{$request->country}%");
             }
             $calculations = $query->paginate(Setting::get('pagination'));
-        }else{
+        } else {
             $calculations = SimplyDutyCalculation::paginate(Setting::get('pagination'));
             $countries = SimplyDutyCountry::all();
         }
-        
-         if ($request->ajax()) {
+
+        if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('simplyduty.calculation.partials.data', compact('calculations'))->render(),
-                'links' => (string)$calculations->render()
+                'links' => (string) $calculations->render(),
             ], 200);
-            }
+        }
 
-        return view('simplyduty.calculation.index',compact('calculations','countries'));
+        return view('simplyduty.calculation.index', compact('calculations', 'countries'));
     }
 
     /**
@@ -120,119 +119,122 @@ class SimplyDutyCalculationController extends Controller
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
-     *
      */
-    public function calculate(Request $request){
-        
+    public function calculate(Request $request)
+    {
         $receivedJson = json_decode($request->getContent());
-        
+
         $originCountryCode = $receivedJson->OriginCountryCode;
-        if($originCountryCode == null && $originCountryCode == ''){
+        if ($originCountryCode == null && $originCountryCode == '') {
             $message = ['error' => 'OriginCountryCode is required'];
+
             return json_encode($message, 400);
         }
 
         $destinationCountryCode = $receivedJson->DestinationCountryCode;
-        if($destinationCountryCode == null && $destinationCountryCode == ''){
+        if ($destinationCountryCode == null && $destinationCountryCode == '') {
             $message = ['error' => 'Destination Country Code is required'];
+
             return json_encode($message, 400);
         }
-        
+
         $items = $receivedJson->Items;
-        if($items == null && $items == ''){
+        if ($items == null && $items == '') {
             $message = ['error' => 'Items is required'];
+
             return json_encode($message, 400);
         }
 
         $shipping = $receivedJson->Shipping;
-        if($shipping == null && $shipping == '' && $shipping != 0){
+        if ($shipping == null && $shipping == '' && $shipping != 0) {
             $shipping = 0;
         }
 
         $insurance = $receivedJson->Insurance;
-        if($insurance == null && $insurance == ''){
+        if ($insurance == null && $insurance == '') {
             $insurance = 0;
         }
 
-        if(isset($receivedJson->DestinationStateCode)){
+        if (isset($receivedJson->DestinationStateCode)) {
             $destinationStateCode = $receivedJson->DestinationStateCode;
-        }else{
+        } else {
             $destinationStateCode = '';
         }
 
-        if(isset($receivedJson->OriginCurrencyCode)){
+        if (isset($receivedJson->OriginCurrencyCode)) {
             $originCurrencyCode = $receivedJson->OriginCurrencyCode;
-        }else{
+        } else {
             $originCurrencyCode = '';
         }
 
-        if(isset($receivedJson->DestinationCurrencyCode)){
+        if (isset($receivedJson->DestinationCurrencyCode)) {
             $destinationCurrencyCode = $receivedJson->DestinationCurrencyCode;
-        }else{
+        } else {
             $destinationCurrencyCode = '';
         }
 
-        if(isset($receivedJson->ContractInsuranceType)){
+        if (isset($receivedJson->ContractInsuranceType)) {
             $contractInsuranceType = $receivedJson->ContractInsuranceType;
-        }else{
+        } else {
             $contractInsuranceType = '';
         }
-      
+
         //Looping over items
-        foreach($items as $item){
-             
+        foreach ($items as $item) {
             $hsCode = $item->HSCode;
-            if($hsCode == null){
+            if ($hsCode == null) {
                 $message = ['error' => 'HSCode is required'];
+
                 return json_encode($message, 400);
             }
             $quantity = $item->Quantity;
-            if($quantity == null){
+            if ($quantity == null) {
                 $message = ['error' => 'Quantity is required'];
+
                 return json_encode($message, 400);
             }
             $value = $item->Value;
-            if($value == null){
+            if ($value == null) {
                 $message = ['error' => 'Value is required'];
+
                 return json_encode($message, 400);
             }
 
-         $itemsArray[]  = array('HSCode' => $hsCode,'Quantity' => $quantity,'Value' => $value);  
+            $itemsArray[] = ['HSCode' => $hsCode, 'Quantity' => $quantity, 'Value' => $value];
         }
 
-        $output =  array('OriginCountryCode' => $originCountryCode ,'DestinationCountryCode' => $destinationCountryCode ,'Items' => $itemsArray , 'Shipping' => $shipping , 'Insurance' => $insurance , 'ContractInsuranceType' => $contractInsuranceType);    
+        $output = ['OriginCountryCode' => $originCountryCode, 'DestinationCountryCode' => $destinationCountryCode, 'Items' => $itemsArray, 'Shipping' => $shipping, 'Insurance' => $insurance, 'ContractInsuranceType' => $contractInsuranceType];
         $post = json_encode($output);
-        
-			
-			$curl = curl_init();
 
-			curl_setopt_array($curl, array(
-			CURLOPT_URL => "https://www.api.simplyduty.com/api/duty/calculatemultiple",
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_ENCODING => "",
-			CURLOPT_MAXREDIRS => 10,
-			CURLOPT_TIMEOUT => 30,
-			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-			CURLOPT_CUSTOMREQUEST => "POST",
-			CURLOPT_POSTFIELDS => "$post",
-			CURLOPT_HTTPHEADER => array(
-				 "Content-Type: application/json",
-                 "Accept: application/json",
-                 "x-api-key: 7a44e06e-eb82-4c09-b197-0419b950f98f",
-			),
-			));
+        $curl = curl_init();
 
-			$response = curl_exec($curl);
-			$err = curl_error($curl);
+        curl_setopt_array($curl, [
+            CURLOPT_URL => 'https://www.api.simplyduty.com/api/duty/calculatemultiple',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => "$post",
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'Accept: application/json',
+                'x-api-key: 7a44e06e-eb82-4c09-b197-0419b950f98f',
+            ],
+        ]);
 
-            curl_close($curl);
-            if($response){
-                $req = json_decode($response);
-                foreach($req->Items as $item){
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+
+        curl_close($curl);
+        if ($response) {
+            $req = json_decode($response);
+            foreach ($req->Items as $item) {
                 $calculation = new SimplyDutyCalculation;
                 $calculation->value = $item->Value;
                 $calculation->duty = $item->Duty;
@@ -250,12 +252,9 @@ class SimplyDutyCalculationController extends Controller
                 $calculation->vat_rate = $req->VatRate;
                 $calculation->vat = $req->VAT;
                 $calculation->save();
-                }
             }
-
-            return $response;
-            
         }
 
-    
+        return $response;
+    }
 }

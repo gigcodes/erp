@@ -6,9 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class CallBusyMessageStatus extends Model
 {
- 
-    protected $fillable = ['label','name'];
-
-  
-
+    protected $fillable = ['label', 'name'];
 }

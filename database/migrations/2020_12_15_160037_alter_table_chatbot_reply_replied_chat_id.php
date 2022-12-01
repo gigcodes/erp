@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableChatbotReplyRepliedChatId extends Migration
 {
@@ -13,13 +13,12 @@ class AlterTableChatbotReplyRepliedChatId extends Migration
      */
     public function up()
     {
-        \DB::statement("ALTER TABLE `chatbot_replies` ADD INDEX(`chat_id`);");
+        \DB::statement('ALTER TABLE `chatbot_replies` ADD INDEX(`chat_id`);');
         //
-        Schema::table('chatbot_replies',function(Blueprint $table) {
+        Schema::table('chatbot_replies', function (Blueprint $table) {
             $table->integer('replied_chat_id')->nullable()->index()->after('chat_id');
             $table->text('answer')->nullable()->after('question');
         });
-
     }
 
     /**
@@ -30,7 +29,7 @@ class AlterTableChatbotReplyRepliedChatId extends Migration
     public function down()
     {
         //
-        Schema::table('chatbot_replies',function(Blueprint $table) {
+        Schema::table('chatbot_replies', function (Blueprint $table) {
             $table->dropField('replied_chat_id');
             $table->dropField('answer');
         });

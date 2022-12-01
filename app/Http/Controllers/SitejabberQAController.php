@@ -12,7 +12,6 @@ use App\Setting;
 use App\SitejabberQA;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 
 class SitejabberQAController extends Controller
 {
@@ -27,7 +26,6 @@ class SitejabberQAController extends Controller
         $sjs = SitejabberQA::where('type', 'question')->get();
 
         return view('sitejabber.index', compact('sjs'));
-
     }
 
     /**
@@ -50,9 +48,8 @@ class SitejabberQAController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'question' => 'required'
+            'question' => 'required',
         ]);
-
 
         $question = new SitejabberQA();
         $question->status = 0;
@@ -91,29 +88,27 @@ class SitejabberQAController extends Controller
         ]);
 
         $setting = ActivitiesRoutines::where('action', 'sitejabber_review')->first();
-        if (!$setting) {
+        if (! $setting) {
             $setting = new ActivitiesRoutines();
         }
         $setting->action = 'sitejabber_review';
         $setting->times_a_day = $request->get('range');
         $setting->save();
         $setting2 = ActivitiesRoutines::where('action', 'sitejabber_account_creation')->first();
-        if (!$setting2) {
+        if (! $setting2) {
             $setting2 = new ActivitiesRoutines();
         }
         $setting2->action = 'sitejabber_account_creation';
         $setting2->times_a_day = $request->get('range2');
         $setting2->save();
 
-
         $setting3 = ActivitiesRoutines::where('action', 'sitejabber_qa_post')->first();
-        if (!$setting3) {
+        if (! $setting3) {
             $setting3 = new ActivitiesRoutines();
         }
         $setting3->action = 'sitejabber_qa_post';
         $setting3->times_a_week = $request->get('range3');
         $setting3->save();
-
 
         return redirect()->back()->with('message', 'Sitejabber review settings updated!');
     }
@@ -128,8 +123,6 @@ class SitejabberQAController extends Controller
      */
     public function update(Request $request, $id)
     {
-
-
         $sj = SitejabberQA::findOrFail($id);
 
         $sju = new SitejabberQA();
@@ -142,7 +135,6 @@ class SitejabberQAController extends Controller
         $sju->save();
 
         return redirect()->back()->with('message', 'Comment added successfully! And will be posted anytime within 24 hours!');
-
     }
 
     /**
@@ -157,13 +149,14 @@ class SitejabberQAController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
      * This method will simply give all the list of the accounts which falls under the platform sitejabber
      * ALso there are filters for different status for reviews and account itslef which is clearly
      * visible in the code
      */
-    public function accounts(Request $request) {
+    public function accounts(Request $request)
+    {
         $date = null;
 
         if (strlen($request->get('date')) === 10) {
@@ -171,11 +164,11 @@ class SitejabberQAController extends Controller
         }
 
         $negativeReviews = NegativeReviews::all();
-        $reviewsPostedToday = Review::whereIn('status', ['posted', 'posted_one'])->whereRaw('DATE(updated_at) = "' . date('Y-m-d'). '"')->get();
+        $reviewsPostedToday = Review::whereIn('status', ['posted', 'posted_one'])->whereRaw('DATE(updated_at) = "'.date('Y-m-d').'"')->get();
         $accounts = Account::where('platform', 'sitejabber');
 
         if ($date !== null) {
-            $accounts = $accounts->whereHas('reviews', function($query) use ($date) {
+            $accounts = $accounts->whereHas('reviews', function ($query) use ($date) {
                 $query->where('updated_at', 'LIKE', "%$date%");
             });
         }
@@ -184,19 +177,19 @@ class SitejabberQAController extends Controller
         if ($request->get('filter') !== '') {
             $filter = $request->get('filter');
             if ($filter === 'live') {
-                $accounts = $accounts->whereHas('reviews', function($query) {
+                $accounts = $accounts->whereHas('reviews', function ($query) {
                     $query->where('status', 'posted');
                 });
-            } else if ($filter === 'approved') {
-                $accounts = $accounts->whereHas('reviews', function($query) {
+            } elseif ($filter === 'approved') {
+                $accounts = $accounts->whereHas('reviews', function ($query) {
                     $query->where('is_approved', 1)->where('status', '0');
                 });
-            } else if ($filter === 'unapproved') {
-                $accounts = $accounts->whereHas('reviews', function($query) {
+            } elseif ($filter === 'unapproved') {
+                $accounts = $accounts->whereHas('reviews', function ($query) {
                     $query->where('is_approved', 0)->where('status', '0');
                 });
-            } else if ($filter === 'not_live') {
-                $accounts = $accounts->whereHas('reviews', function($query) {
+            } elseif ($filter === 'not_live') {
+                $accounts = $accounts->whereHas('reviews', function ($query) {
                     $query->where('status', 'posted_one');
                 });
             }
@@ -240,7 +233,8 @@ class SitejabberQAController extends Controller
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
      * get all the reviews for platform sitejabber
      */
-    public function reviews() {
+    public function reviews()
+    {
         $reviews = Review::where('platform', 'sitejabber')->get();
 
         return view('sitejabber.reviews', compact('reviews'));
@@ -251,7 +245,8 @@ class SitejabberQAController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      * Attach reviews to the account which can be posted, and marks the review from review bank as used
      */
-    public function attachBrandReviews($id) {
+    public function attachBrandReviews($id)
+    {
         $reviewx = BrandReviews::findOrFail($id);
         $account = Account::whereDoesntHave('reviews')->where('platform', 'sitejabber')->orderBy('created_at', 'DESC')->first();
 
@@ -267,7 +262,6 @@ class SitejabberQAController extends Controller
         $account->touch();
 
         return redirect()->back()->with('message', 'Attached to a customer!');
-
     }
 
     /**
@@ -275,24 +269,25 @@ class SitejabberQAController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      * Delets the brand reviews..
      */
-    public function detachBrandReviews($id) {
+    public function detachBrandReviews($id)
+    {
         $reviewx = BrandReviews::findOrFail($id);
 
         $reviewx->delete();
 
         return redirect()->back()->with('message', 'Attached to a customer!');
-
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse
      * The action can be attached/ detached, as per the action value the review is atatched or detached if already attached
      */
-    public function attachOrDetachReviews(Request $request) {
+    public function attachOrDetachReviews(Request $request)
+    {
         $this->validate($request, [
             'action' => 'required',
-            'reviewTemplate' => 'required|array'
+            'reviewTemplate' => 'required|array',
         ]);
 
         $templates = $request->get('reviewTemplate');
@@ -331,26 +326,28 @@ class SitejabberQAController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      * This method will comply confirm the review as posted, setting the status to 'posted' status
      */
-    public function confirmReviewAsPosted($id) {
+    public function confirmReviewAsPosted($id)
+    {
         Review::where('id', $id)->update([
-            'status' => 'posted'
+            'status' => 'posted',
         ]);
 
         return redirect()->back();
     }
 
     /**
-     * @param Request $request
-     * @param Client $client
+     * @param  Request  $request
+     * @param  Client  $client
      * @return \Illuminate\Http\JsonResponse
      * This method sends the code to post reply to nodejs server, the IP is there which can be changed over time.
      */
-    public function sendSitejabberQAReply(Request $request, Client $client) {
+    public function sendSitejabberQAReply(Request $request, Client $client)
+    {
         $id = $request->get('rid');
         $negativeReview = NegativeReviews::where('id', $id)->first();
-        if (!$negativeReview) {
+        if (! $negativeReview) {
             return response()->json([
-                'status' => 'success'
+                'status' => 'success',
             ]);
         }
 
@@ -361,19 +358,18 @@ class SitejabberQAController extends Controller
         $negativeReview->reply = $reply;
         $negativeReview->save();
 
-
         //log to VPS and trigger the reply
         $response = $client->post('http://144.202.53.198/postReply', [
             'form_params' => [
                 'comment' => $comment,
-                'reply' => $reply
+                'reply' => $reply,
             ],
         ]);
 
         $data = $response->getBody()->getContents();
 
         return response()->json([
-            'status' => 'success'
+            'status' => 'success',
         ]);
     }
 }

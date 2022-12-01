@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Email;
-use App\EmailLog;
 use App\Mails\Manual\DefaultSendEmail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -18,6 +17,7 @@ class SendEmail implements ShouldQueue
     public $email;
 
     public $tries = 3;
+
     public $backoff = 5;
 
     /**
@@ -42,86 +42,83 @@ class SendEmail implements ShouldQueue
         $email = $this->email;
 
         try {
+            $multimail = \MultiMail::to($email->to);
 
-           $multimail = \MultiMail::to($email->to);
-
-           \App\EmailLog::create([
-            'email_id'   => $email->id,
-            'email_log' => 'To Email set from SendEmail',
-            'message'       => $email->to
+            \App\EmailLog::create([
+                'email_id' => $email->id,
+                'email_log' => 'To Email set from SendEmail',
+                'message' => $email->to,
             ]);
             // $multimail->from($email->from);
-            
-            if(!empty($email->cc)) {
+
+            if (! empty($email->cc)) {
                 $multimail->cc($email->cc);
 
                 \App\EmailLog::create([
-                    'email_id'   => $email->id,
+                    'email_id' => $email->id,
                     'email_log' => 'CC Email set from SendEmail',
-                    'message'       => $email->CC
-                    ]);
+                    'message' => $email->CC,
+                ]);
             }
-            if(!empty($email->bcc)) {
+            if (! empty($email->bcc)) {
                 $multimail->bcc($email->bcc);
 
                 \App\EmailLog::create([
-                    'email_id'   => $email->id,
+                    'email_id' => $email->id,
                     'email_log' => 'BCC Email set from SendEmail',
-                    'message'       => $email->bcc
-                    ]);
+                    'message' => $email->bcc,
+                ]);
             }
 
-            $data = json_decode($email->additional_data,true);
+            $data = json_decode($email->additional_data, true);
 
             $attchments = [];
 
-            if(!empty($data['attachment'])) {
-
+            if (! empty($data['attachment'])) {
                 $attchments = $data['attachment'];
 
                 \App\EmailLog::create([
-                    'email_id'   => $email->id,
+                    'email_id' => $email->id,
                     'email_log' => 'Email Attachment set from SendEmail',
-                    'message'       => $data['attachment']
-                    ]);
+                    'message' => $data['attachment'],
+                ]);
                 // foreach ($data['attachment'] as $file_path) {
-                //     $attchments[] = 
+                //     $attchments[] =
                 //     $multimail->attachFromStorageDisk('files', $file_path);
                 // }
             }
             \App\EmailLog::create([
-                'email_id'   => $email->id,
+                'email_id' => $email->id,
                 'email_log' => 'Sending On DefaultSendEmail from SendEmail',
-                'message'       => ''
-                ]);
+                'message' => '',
+            ]);
             $multimail->from($email->from)->send(new DefaultSendEmail($email, $attchments));
 
             \App\EmailLog::create([
-                'email_id'   => $email->id,
+                'email_id' => $email->id,
                 'email_log' => 'Message Sent Successfully from SendEmail',
-                'message'       => ''
-                ]);
+                'message' => '',
+            ]);
             \App\CommunicationHistory::create([
-                'model_id'   => $email->model_id,
+                'model_id' => $email->model_id,
                 'model_type' => $email->model_type,
-                'type'       => $email->template,
-                'refer_id'   => $email->id,
-                'method'     => 'email',
+                'type' => $email->template,
+                'refer_id' => $email->id,
+                'method' => 'email',
             ]);
             $email->is_draft = 0;
-            $email->status   = 'send';
+            $email->status = 'send';
         } catch (\Exception $e) {
-            
             $email->is_draft = 1;
             $email->error_message = $e->getMessage();
-            
-            \Log::info("Issue fom SendEmail ".$e->getMessage());
+
+            \Log::info('Issue fom SendEmail '.$e->getMessage());
             //\Log::info("Issue fom SendEmail ");
             \App\EmailLog::create([
-                'email_id'   => $email->id,
-                'email_log' =>  'Error in Sending Email',
-                'message'       => $e->getMessage()
-                ]);
+                'email_id' => $email->id,
+                'email_log' => 'Error in Sending Email',
+                'message' => $e->getMessage(),
+            ]);
             throw new \Exception($e->getMessage());
         }
 
@@ -129,10 +126,9 @@ class SendEmail implements ShouldQueue
 
         return true;
     }
-	
-	public function tags() 
-    {
-        return [ 'SendEmail', $this->email->id ];
-    }
 
+    public function tags()
+    {
+        return ['SendEmail', $this->email->id];
+    }
 }

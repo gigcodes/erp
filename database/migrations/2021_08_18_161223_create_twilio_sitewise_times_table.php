@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTwilioSitewiseTimesTable extends Migration
 {
@@ -16,8 +16,8 @@ class CreateTwilioSitewiseTimesTable extends Migration
         Schema::create('twilio_sitewise_times', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('store_website_id')->nullable();
-            $table->string('start_time')->nullable(); 
-            $table->string('end_time')->nullable(); 
+            $table->string('start_time')->nullable();
+            $table->string('end_time')->nullable();
             $table->timestamps();
         });
     }

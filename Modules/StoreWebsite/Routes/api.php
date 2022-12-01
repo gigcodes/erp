@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,4 +12,4 @@ use Illuminate\Http\Request;
 */
 
 //Giving All Brands with Reference
-Route::get('colors','ColorController@colorReference');
+Route::get('colors', 'ColorController@colorReference');

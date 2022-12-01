@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIsListedToProducts extends Migration
 {
@@ -14,7 +14,7 @@ class AddIsListedToProducts extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-          $table->boolean('isListed')->default(0)->after('isFinal');
+            $table->boolean('isListed')->default(0)->after('isFinal');
         });
     }
 
@@ -26,7 +26,7 @@ class AddIsListedToProducts extends Migration
     public function down()
     {
         Schema::table('products', function (Blueprint $table) {
-          $table->dropColumn('isListed');
+            $table->dropColumn('isListed');
         });
     }
 }

@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AddDevStageFieldsToStoreWebsitesTable extends Migration
 {
@@ -14,9 +14,9 @@ class AddDevStageFieldsToStoreWebsitesTable extends Migration
      */
     public function up()
     {
-        DB::select("ALTER TABLE `store_websites` ADD `stage_magento_url` VARCHAR(191) NULL AFTER `magento_url`;");
-        DB::select("ALTER TABLE `store_websites` ADD `dev_magento_url` VARCHAR(191) NULL AFTER `stage_magento_url`;");
-        DB::select("ALTER TABLE `store_websites` ADD `stage_api_token` VARCHAR(191) NULL AFTER `api_token`;");
+        DB::select('ALTER TABLE `store_websites` ADD `stage_magento_url` VARCHAR(191) NULL AFTER `magento_url`;');
+        DB::select('ALTER TABLE `store_websites` ADD `dev_magento_url` VARCHAR(191) NULL AFTER `stage_magento_url`;');
+        DB::select('ALTER TABLE `store_websites` ADD `stage_api_token` VARCHAR(191) NULL AFTER `api_token`;');
     }
 
     /**

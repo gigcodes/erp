@@ -2,8 +2,8 @@
 
 namespace Modules\UserManagement\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factory;
+use Illuminate\Support\ServiceProvider;
 
 class UserManagementServiceProvider extends ServiceProvider
 {
@@ -18,7 +18,7 @@ class UserManagementServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->registerFactories();
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
     }
 
     /**
@@ -58,11 +58,11 @@ class UserManagementServiceProvider extends ServiceProvider
         $sourcePath = __DIR__.'/../Resources/views';
 
         $this->publishes([
-            $sourcePath => $viewPath
-        ],'views');
+            $sourcePath => $viewPath,
+        ], 'views');
 
         $this->loadViewsFrom(array_merge(array_map(function ($path) {
-            return $path . '/modules/usermanagement';
+            return $path.'/modules/usermanagement';
         }, \Config::get('view.paths')), [$sourcePath]), 'usermanagement');
     }
 
@@ -78,7 +78,7 @@ class UserManagementServiceProvider extends ServiceProvider
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, 'usermanagement');
         } else {
-            $this->loadTranslationsFrom(__DIR__ .'/../Resources/lang', 'usermanagement');
+            $this->loadTranslationsFrom(__DIR__.'/../Resources/lang', 'usermanagement');
         }
     }
 
@@ -90,7 +90,7 @@ class UserManagementServiceProvider extends ServiceProvider
     public function registerFactories()
     {
         if (! app()->environment('production') && $this->app->runningInConsole()) {
-            app(Factory::class)->load(__DIR__ . '/../Database/factories');
+            app(Factory::class)->load(__DIR__.'/../Database/factories');
         }
     }
 

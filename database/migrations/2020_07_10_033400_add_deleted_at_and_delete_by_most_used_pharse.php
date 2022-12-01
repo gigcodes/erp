@@ -14,8 +14,8 @@ class AddDeletedAtAndDeleteByMostUsedPharse extends Migration
     public function up()
     {
         Schema::table('chat_message_phrases', function (Blueprint $table) {
-            $table->timestamp('deleted_at')->nullable()->after("chat_id");
-            $table->integer('deleted_by')->nullable()->after("deleted_at");
+            $table->timestamp('deleted_at')->nullable()->after('chat_id');
+            $table->integer('deleted_by')->nullable()->after('deleted_at');
         });
     }
 

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableLearningModuleColumn extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableLearningModuleColumn extends Migration
     public function up()
     {
         //
-        Schema::table('learning_modules',function(Blueprint $table) {
-            if(!Schema::hasColumn('learning_modules','deleted_at')) {
+        Schema::table('learning_modules', function (Blueprint $table) {
+            if (! Schema::hasColumn('learning_modules', 'deleted_at')) {
                 $table->timestamp('deleted_at')->nullable();
             }
         });

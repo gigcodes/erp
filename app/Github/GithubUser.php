@@ -12,7 +12,7 @@ class GithubUser extends Model
         'username',
         'user_id',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     public function platformUser()
@@ -32,9 +32,9 @@ class GithubUser extends Model
         );
     }
 
-    static public function getUserDetails($userId)
+    public static function getUserDetails($userId)
     {
-        $userDetails =  DB::table('github_users')
+        $userDetails = DB::table('github_users')
             ->leftJoin('github_repository_users', 'github_users.id', '=', 'github_repository_users.github_users_id')
             ->leftJoin('github_repositories', 'github_repositories.id', '=', 'github_repository_users.github_repositories_id')
             ->where('github_users.id', '=', $userId)
@@ -49,13 +49,13 @@ class GithubUser extends Model
             return [
                 'id' => $repository->github_repositories_id,
                 'name' => $repository->name,
-                'rights' => $repository->rights
+                'rights' => $repository->rights,
             ];
         });
 
         return [
             'user' => $user,
-            'repositories' => $repositories
+            'repositories' => $repositories,
         ];
     }
 }

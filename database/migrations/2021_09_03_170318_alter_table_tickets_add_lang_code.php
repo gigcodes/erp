@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableTicketsAddLangCode extends Migration
 {
@@ -14,7 +14,7 @@ class AlterTableTicketsAddLangCode extends Migration
     public function up()
     {
         //
-        Schema::table('tickets',function(Blueprint $table) {
+        Schema::table('tickets', function (Blueprint $table) {
             $table->string('lang_code')->nullable()->after('deleted_at');
         });
     }

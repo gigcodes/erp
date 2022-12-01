@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateWhatsappApiLogsTable extends Migration
 {
@@ -13,7 +13,7 @@ class CreateWhatsappApiLogsTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('whatsapp_api_logs')) {
+        if (! Schema::hasTable('whatsapp_api_logs')) {
             Schema::create('whatsapp_api_logs', function (Blueprint $table) {
                 $table->increments('id');
                 $table->integer('logs_id')->index();

@@ -1,4 +1,5 @@
 <?php
+
 return [
     /**
      * Shared
@@ -244,7 +245,7 @@ return [
     'book_tags' => 'Buch-Schlagwörter',
     'shelf_tags' => 'Regal-Schlagwörter',
     'tag' => 'Schlagwort',
-    'tags' =>  'Schlagwörter',
+    'tags' => 'Schlagwörter',
     'tag_value' => 'Inhalt (Optional)',
     'tags_explain' => "Fügen Sie Schlagwörter hinzu, um Ihren Inhalt zu kategorisieren.\nSie können einen erklärenden Inhalt hinzufügen, um eine genauere Unterteilung vorzunehmen.",
     'tags_add' => 'Weiteres Schlagwort hinzufügen',
@@ -308,5 +309,5 @@ return [
     'revision_delete_confirm' => 'Sind Sie sicher, dass Sie diese Revision löschen wollen?',
     'revision_restore_confirm' => 'Sind Sie sicher, dass Sie diese Revision wiederherstellen wollen? Der aktuelle Seiteninhalt wird ersetzt.',
     'revision_delete_success' => 'Revision gelöscht',
-    'revision_cannot_delete_latest' => 'Die letzte Version kann nicht gelöscht werden.'
+    'revision_cannot_delete_latest' => 'Die letzte Version kann nicht gelöscht werden.',
 ];

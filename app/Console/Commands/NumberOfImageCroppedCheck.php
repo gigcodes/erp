@@ -52,6 +52,5 @@ class NumberOfImageCroppedCheck extends Command
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 }

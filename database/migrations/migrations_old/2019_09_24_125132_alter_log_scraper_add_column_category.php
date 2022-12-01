@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AlterLogScraperAddColumnCategory extends Migration
 {
@@ -13,9 +12,9 @@ class AlterLogScraperAddColumnCategory extends Migration
      */
     public function up()
     {
-        Schema::table( 'log_scraper', function ( $table ) {
-            $table->string( 'category' )->nullable()->after( 'brand' );
-        } );
+        Schema::table('log_scraper', function ($table) {
+            $table->string('category')->nullable()->after('brand');
+        });
     }
 
     /**
@@ -25,8 +24,8 @@ class AlterLogScraperAddColumnCategory extends Migration
      */
     public function down()
     {
-        Schema::table( 'log_scraper', function ( $table ) {
-            $table->dropColumn( 'category' );
-        } );
+        Schema::table('log_scraper', function ($table) {
+            $table->dropColumn('category');
+        });
     }
 }

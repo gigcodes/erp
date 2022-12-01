@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class ChangeHubstaffTokenDbType extends Migration
@@ -17,7 +15,6 @@ class ChangeHubstaffTokenDbType extends Migration
         DB::statement('ALTER TABLE users MODIFY COLUMN auth_token_hubstaff TEXT');
 
         DB::statement('ALTER TABLE users MODIFY COLUMN refresh_token_hubstaff TEXT');
-        
     }
 
     /**

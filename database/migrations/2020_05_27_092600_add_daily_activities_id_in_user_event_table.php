@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddDailyActivitiesIdInUserEventTable extends Migration
 {
@@ -13,8 +12,8 @@ class AddDailyActivitiesIdInUserEventTable extends Migration
      */
     public function up()
     {
-        Schema::table('user_events',function($table){
-            $table->integer('daily_activity_id')->nullable()->after("end");
+        Schema::table('user_events', function ($table) {
+            $table->integer('daily_activity_id')->nullable()->after('end');
         });
     }
 
@@ -25,7 +24,7 @@ class AddDailyActivitiesIdInUserEventTable extends Migration
      */
     public function down()
     {
-        Schema::table('user_events',function($table){
+        Schema::table('user_events', function ($table) {
             $table->dropColumn('daily_activity_id');
         });
     }

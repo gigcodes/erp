@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Site extends Model
 {
-    protected $fillable=['site_url','permission_level'];
+    protected $fillable = ['site_url', 'permission_level'];
 }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterProductsTable extends Migration
 {
@@ -13,12 +13,12 @@ class AlterProductsTable extends Migration
      */
     public function up()
     {
-        Schema::table("products",function(Blueprint $table) {
-			 $table->decimal('price_usd')->default('0.00');
-			 $table->decimal('price_usd_special')->default('0.00');
-			 $table->decimal('usd_to_inr')->default('0.00');
-			 $table->longText('comments')->nullable();
-			 $table->string('rating')->nullable();
+        Schema::table('products', function (Blueprint $table) {
+            $table->decimal('price_usd')->default('0.00');
+            $table->decimal('price_usd_special')->default('0.00');
+            $table->decimal('usd_to_inr')->default('0.00');
+            $table->longText('comments')->nullable();
+            $table->string('rating')->nullable();
         });
     }
 

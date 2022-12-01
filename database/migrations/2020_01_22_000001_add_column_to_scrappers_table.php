@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddColumnToScrappersTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddColumnToScrappersTable extends Migration
     public function up()
     {
         Schema::table('scrapers', function (Blueprint $table) {
-            $table->string('server_id')->nullable()->after("status");
+            $table->string('server_id')->nullable()->after('status');
         });
     }
 

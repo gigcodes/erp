@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateCustomerPriorityPointsTable extends Migration
 {
@@ -15,7 +15,7 @@ class CreateCustomerPriorityPointsTable extends Migration
     {
         Schema::create('customer_priority_points', function (Blueprint $table) {
             $table->increments('id');
-			$table->integer('store_website_id')->index()->nullable();
+            $table->integer('store_website_id')->index()->nullable();
             $table->string('website_base_priority')->default(0);
             $table->string('lead_points')->default(0);
             $table->string('order_points')->default(0);

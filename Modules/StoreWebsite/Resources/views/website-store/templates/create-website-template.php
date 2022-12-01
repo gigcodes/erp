@@ -28,10 +28,10 @@
 		         <select name="website_id" class="form-control">
 	            	<option value="">-- N/A --</option>
 		            <?php
-						foreach($websites as $k => $l) {
-							echo "<option {{if data.website_id == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
-						}
-					?>
+                        foreach ($websites as $k => $l) {
+                            echo "<option {{if data.website_id == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
+                        }
+		?>
 		         </select>
 		      </div>
 		      <div class="form-group col-md-6">

@@ -41,16 +41,15 @@ class MoveCropRejectedProductsToReCrop extends Command
     public function handle()
     {
         try {
-
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $products = Product::where('is_crop_rejected', 1)->where('crop_remark', 'LIKE', '%sequence%')->get();
 
             foreach ($products as $key => $product) {
-                dump('Reverting....' . $key);
+                dump('Reverting....'.$key);
 //            $product->is_image_processed = 0;
                 //            $product->is_being_cropped = 0;
                 //            $product->is_crop_rejected = 0;
@@ -58,6 +57,7 @@ class MoveCropRejectedProductsToReCrop extends Command
                 $product->crop_approved_at = Carbon::now()->toDateTimeString();
                 $product->crop_approved_by = 109;
                 $product->save();
+
                 continue;
 //            $medias = $product->getMedia(config('constants.media_tags'));
                 //
@@ -78,7 +78,6 @@ class MoveCropRejectedProductsToReCrop extends Command
                 //                }
                 //            }
                 //            $product->save();
-
             }
 
             $report->update(['end_time' => Carbon::now()]);

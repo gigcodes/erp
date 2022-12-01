@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableLastRunCronTime extends Migration
 {
@@ -14,10 +14,9 @@ class AlterTableLastRunCronTime extends Migration
     public function up()
     {
         //
-        Schema::table('scraped_products', function(Blueprint $table) {
+        Schema::table('scraped_products', function (Blueprint $table) {
             $table->dateTime('last_cron_check')->nullable()->after('created_at');
         });
-
     }
 
     /**
@@ -27,7 +26,7 @@ class AlterTableLastRunCronTime extends Migration
      */
     public function down()
     {
-        Schema::table('scraped_products', function(Blueprint $table) {
+        Schema::table('scraped_products', function (Blueprint $table) {
             $table->dropField('last_cron_check');
         });
     }

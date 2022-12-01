@@ -1,4 +1,5 @@
 <?php
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -42,7 +43,6 @@ return [
     'registration_email_domain_invalid' => '此Email域名沒有權限進入本系統',
     'register_success' => '感謝您註冊:appName，您現在已經登入。',
 
-
     /**
      * Password Reset
      */
@@ -55,7 +55,6 @@ return [
     'email_reset_subject' => '重置您的:appName密碼',
     'email_reset_text' => '您收到此電子郵件是因為我們收到了您的帳號的密碼重置請求。',
     'email_reset_not_requested' => '如果您沒有要求重置密碼，則不需要採取進一步的操作。',
-
 
     /**
      * Email Confirmation

@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdatePasswordHistoriesChangeTables extends Migration
 {
@@ -13,7 +12,7 @@ class UpdatePasswordHistoriesChangeTables extends Migration
      */
     public function up()
     {
-        Schema::table('password_histories', function ($table){
+        Schema::table('password_histories', function ($table) {
             $table->longText('password')->change();
         });
     }

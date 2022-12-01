@@ -40,7 +40,7 @@ class AttributeReplacementController extends Controller
     {
         $this->validate($request, [
             'field_identifier' => 'required',
-            'first_term' => 'required'
+            'first_term' => 'required',
         ]);
 
         $r = new AttributeReplacement();
@@ -52,7 +52,6 @@ class AttributeReplacementController extends Controller
         $r->save();
 
         return redirect()->back()->with('message', 'Added successfully!');
-
     }
 
     /**
@@ -64,9 +63,9 @@ class AttributeReplacementController extends Controller
     public function show($id, Request $request)
     {
         $r = AttributeReplacement::find($id);
-        if (!$r) {
+        if (! $r) {
             return response()->json([
-                'status' => 'success'
+                'status' => 'success',
             ]);
         }
 
@@ -74,7 +73,7 @@ class AttributeReplacementController extends Controller
         $r->save();
 
         return response()->json([
-            'status' => 'success'
+            'status' => 'success',
         ]);
     }
 

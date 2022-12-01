@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateUiTranslatorStatusHistoriesTable extends Migration
 {
@@ -15,12 +15,12 @@ class CreateUiTranslatorStatusHistoriesTable extends Migration
     {
         Schema::create('ui_translator_status_histories', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer("ui_language_id")->nullable();
-            $table->integer("language_id")->nullable();
-            $table->integer("uicheck_id")->nullable();
-            $table->integer("user_id")->nullable();
-            $table->string("status")->nullable();
-            $table->string("old_status")->nullable();
+            $table->integer('ui_language_id')->nullable();
+            $table->integer('language_id')->nullable();
+            $table->integer('uicheck_id')->nullable();
+            $table->integer('user_id')->nullable();
+            $table->string('status')->nullable();
+            $table->string('old_status')->nullable();
             $table->timestamps();
         });
     }

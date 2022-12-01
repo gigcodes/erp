@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTblSiteCroppedImages extends Migration
 {
@@ -13,9 +13,7 @@ class CreateTblSiteCroppedImages extends Migration
      */
     public function up()
     {
-
-        if(!Schema::hasTable('site_cropped_images')) {
-
+        if (! Schema::hasTable('site_cropped_images')) {
             Schema::create('site_cropped_images', function (Blueprint $table) {
                 $table->unsignedBigInteger('website_id');
                 $table->unsignedBigInteger('product_id');
@@ -23,15 +21,11 @@ class CreateTblSiteCroppedImages extends Migration
             });
         }
 
-        if(Schema::hasColumn('products', 'cropped_image_site_ids')){
-
+        if (Schema::hasColumn('products', 'cropped_image_site_ids')) {
             Schema::table('products', function (Blueprint $table) {
-                    $table->dropColumn('cropped_image_site_ids');
+                $table->dropColumn('cropped_image_site_ids');
             });
-
         }
-
-
     }
 
     /**

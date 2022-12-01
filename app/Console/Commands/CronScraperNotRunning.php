@@ -44,12 +44,12 @@ class CronScraperNotRunning extends Command
         // Create cron job report
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             // Get all suppliers
-            $sql = "
+            $sql = '
             SELECT
                 s.id,
                 s.supplier,
@@ -74,7 +74,7 @@ class CronScraperNotRunning extends Command
                 last_update IS NULL
             ORDER BY
                 s.supplier
-        ";
+        ';
             $allSuppliers = DB::select($sql);
 
             // Do we have results?
@@ -82,15 +82,15 @@ class CronScraperNotRunning extends Command
                 // Loop over suppliers
                 foreach ($allSuppliers as $supplier) {
                     // Create message
-                    $message = '[' . date('d-m-Y H:i:s') . '] Scraper not running: ' . $supplier->supplier;
+                    $message = '['.date('d-m-Y H:i:s').'] Scraper not running: '.$supplier->supplier;
 
                     // Output debug message
-                    dump("Scraper not running: " . $supplier->supplier);
+                    dump('Scraper not running: '.$supplier->supplier);
 
                     // Try to send message
                     try {
                         // Output debug message
-                        dump("Sending message");
+                        dump('Sending message');
 
                         // Send message
                         app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('34666805119', '971502609192', $message);

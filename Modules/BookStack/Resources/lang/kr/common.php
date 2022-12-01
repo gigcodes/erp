@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     /**
@@ -20,7 +21,7 @@ return [
     'role' => '역할',
     'cover_image' => '대표 이미지',
     'cover_image_description' => '이 이미지는 약 440x250px 정도의 크기여야 합니다.',
-    
+
     /**
      * Actions
      */

@@ -8,8 +8,6 @@ use App\User;
 use App\UserActions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use PragmaRX\Tracker\Tracker;
-use PragmaRX\Tracker\Vendor\Laravel\Models\Log;
 use PragmaRX\Tracker\Vendor\Laravel\Models\Session;
 
 class UserActionsController extends Controller
@@ -45,7 +43,7 @@ class UserActionsController extends Controller
         $this->validate($request, [
             'url' => 'required',
             'type' => 'required',
-            'data' => 'required'
+            'data' => 'required',
         ]);
 
         $action = new UserActions();
@@ -79,7 +77,7 @@ class UserActionsController extends Controller
             'customer.show' => 'Viewed A Customer Page',
             'cold-leads.index' => 'Viewed Cold Leads Page',
             'home' => 'Landed Homepage',
-            'purchase.index' => 'Viewed Purchase Page'
+            'purchase.index' => 'Viewed Purchase Page',
         ];
 
         $models = [

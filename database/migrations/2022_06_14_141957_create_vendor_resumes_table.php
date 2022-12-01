@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateVendorResumesTable extends Migration
 {
@@ -24,7 +24,7 @@ class CreateVendorResumesTable extends Migration
             $table->text('career_objective')->nullable();
             $table->string('salary_in_usd')->nullable();
             $table->string('expected_salary_in_usd')->nullable();
-            
+
             $table->string('preferred_working_hours')->nullable();
             $table->string('start_time')->nullable();
             $table->string('end_time')->nullable();
@@ -41,7 +41,6 @@ class CreateVendorResumesTable extends Migration
             $table->longText('current_assignments')->nullable();
             $table->longText('current_assignments_description')->nullable();
             $table->longText('current_assignments_hours_utilisted')->nullable();
-
 
             $table->longText('work_experiance')->nullable();
             $table->longText('reason_for_leaving')->nullable();
@@ -67,7 +66,7 @@ class CreateVendorResumesTable extends Migration
             $table->longText('edu_course_name')->nullable();
             $table->longText('edu_grades')->nullable();
             $table->longText('edu_remark')->nullable();
-            
+
             $table->string('father_name')->nullable();
             $table->string('dob')->nullable();
             $table->string('gender')->nullable();

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddTaxFieldToPriceComparisonTable extends Migration
 {
@@ -14,8 +14,8 @@ class AddTaxFieldToPriceComparisonTable extends Migration
     public function up()
     {
         Schema::table('price_comparison', function (Blueprint $table) {
-            $table->double('tax',10,2)->default(0);
-            $table->double('converted_price',10,2)->default(0);
+            $table->double('tax', 10, 2)->default(0);
+            $table->double('converted_price', 10, 2)->default(0);
         });
     }
 

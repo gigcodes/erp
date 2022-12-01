@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AlterTableChatMessageAddIndexCharityId extends Migration
@@ -14,7 +12,7 @@ class AlterTableChatMessageAddIndexCharityId extends Migration
     public function up()
     {
         //
-        \DB::statement("ALTER TABLE `chat_messages` ADD INDEX(`charity_id`);");
+        \DB::statement('ALTER TABLE `chat_messages` ADD INDEX(`charity_id`);');
     }
 
     /**

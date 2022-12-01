@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Setting;
 use App\SimplyDutyCurrency;
 use Illuminate\Http\Request;
 use Response;
-use App\Setting;
 
 class SimplyDutyCurrencyController extends Controller
 {
@@ -16,26 +16,26 @@ class SimplyDutyCurrencyController extends Controller
      */
     public function index(Request $request)
     {
-        if($request->currency ){
-           $query = SimplyDutyCurrency::query();
-            
-           if(request('currency') != null){
+        if ($request->currency) {
+            $query = SimplyDutyCurrency::query();
+
+            if (request('currency') != null) {
                 $query->where('currency', request('currency'));
             }
-            
+
             $currencies = $query->paginate(Setting::get('pagination'));
-        }else{
+        } else {
             $currencies = SimplyDutyCurrency::paginate(Setting::get('pagination'));
         }
-        
-         if ($request->ajax()) {
+
+        if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('simplyduty.currency.partials.data', compact('currencies'))->render(),
-                'links' => (string)$currencies->render()
+                'links' => (string) $currencies->render(),
             ], 200);
-            }
+        }
 
-        return view('simplyduty.currency.index',compact('currencies'));
+        return view('simplyduty.currency.index', compact('currencies'));
     }
 
     /**
@@ -104,11 +104,12 @@ class SimplyDutyCurrencyController extends Controller
         //
     }
 
-    public function getCurrencyFromApi(){
-         $ch = curl_init();
-        
+    public function getCurrencyFromApi()
+    {
+        $ch = curl_init();
+
         // set url
-        curl_setopt($ch, CURLOPT_URL, "https://www.api.simplyduty.com/api/Supporting/supported-currencies");
+        curl_setopt($ch, CURLOPT_URL, 'https://www.api.simplyduty.com/api/Supporting/supported-currencies');
 
         //return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -117,23 +118,23 @@ class SimplyDutyCurrencyController extends Controller
         $output = curl_exec($ch);
 
         // close curl resource to free up system resources
-        curl_close($ch); 
+        curl_close($ch);
 
         $currencies = json_decode($output);
-        
-        foreach($currencies as $currency){
+
+        foreach ($currencies as $currency) {
             $currency = $currency->CurrencyType;
-            $cur =  SimplyDutyCurrency::where('currency',$currency)->first();
-            if($cur != '' && $cur != null){
+            $cur = SimplyDutyCurrency::where('currency', $currency)->first();
+            if ($cur != '' && $cur != null) {
                 $cur->touch();
-            }else{
+            } else {
                 $currencySave = new SimplyDutyCurrency;
                 $currencySave->currency = $currency;
                 $currencySave->save();
             }
         }
 
-        return Response::json(array('success' => true)); 
+        return Response::json(['success' => true]);
     }
 
     /**
@@ -148,17 +149,18 @@ class SimplyDutyCurrencyController extends Controller
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
-     *
      */
-    public function sendCurrencyJson(){
+    public function sendCurrencyJson()
+    {
         $currencies = SimplyDutyCurrency::all();
-        foreach($currencies as $currency){
-            $currencyArray[] = array('CurrencyType'=> $currency->currency);
+        foreach ($currencies as $currency) {
+            $currencyArray[] = ['CurrencyType' => $currency->currency];
         }
+
         return json_encode($currencyArray);
     }
 }

@@ -7,25 +7,24 @@ use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
+    public function store(Request $request)
+    {
+        $this->validate($request, [
+            'content' => 'required',
+        ]);
 
-    public function store(Request $request){
+        $data = $request->all();
+        $data['user_id'] = \Auth::id();
 
-    	$this->validate($request,[
-    		'content' => 'required',
-	    ]);
+        $comment = Comment::create($data);
 
-    	$data  = $request->all();
-    	$data['user_id'] = \Auth::id();
-
-    	$comment = Comment::create($data);
-
-    	return redirect()->back()->with('success','Comment added');
+        return redirect()->back()->with('success', 'Comment added');
     }
 
-    public function destroy(Comment $comment){
+    public function destroy(Comment $comment)
+    {
+        $comment->delete();
 
-    	$comment->delete();
-
-	    return redirect()->back()->with('success','Comment deleted');
+        return redirect()->back()->with('success', 'Comment deleted');
     }
 }

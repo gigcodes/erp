@@ -9,12 +9,10 @@ class CreateMessageQueueHistoryTable extends Migration
     public function up()
     {
         Schema::create('message_queue_history', function (Blueprint $table) {
-
-		$table->integer('id',11);
-		$table->string('number',180);
-		$table->integer('counter')->default('0');
-		$table->timestamp('time')->default(\DB::raw('CURRENT_TIMESTAMP'));
-
+            $table->integer('id', 11);
+            $table->string('number', 180);
+            $table->integer('counter')->default('0');
+            $table->timestamp('time')->default(\DB::raw('CURRENT_TIMESTAMP'));
         });
     }
 

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MagentoModuleCustomizedHistory extends Model
 {
-    protected $table = "magento_module_customized_histories";
+    protected $table = 'magento_module_customized_histories';
 
     protected $fillable = ['magento_module_id', 'magento_standards', 'remark', 'user_id'];
 

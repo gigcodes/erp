@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Courier;
 use Illuminate\Http\Request;
-use \App\Courier;
 
 class CourierController extends Controller
 {
@@ -41,12 +41,11 @@ class CourierController extends Controller
             'name' => 'required',
         ]);
 
-        $courier       = new Courier();
+        $courier = new Courier();
         $courier->name = $request->get('name');
         $courier->save();
 
         return redirect()->back()->with('message', 'Courier added successfully!');
-
     }
 
     /**
@@ -99,5 +98,4 @@ class CourierController extends Controller
 
         return redirect()->back()->with('message', 'Courier deleted successfully!');
     }
-
 }

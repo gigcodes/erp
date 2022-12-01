@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableOrderProductCurrencyField extends Migration
 {
@@ -14,9 +14,9 @@ class AlterTableOrderProductCurrencyField extends Migration
     public function up()
     {
         //
-        Schema::table('order_products',function(Blueprint $table) {
-            $table->string("currency")->default("EUR")->after("product_price");
-            $table->float("eur_price")->default("0.00")->after("currency");
+        Schema::table('order_products', function (Blueprint $table) {
+            $table->string('currency')->default('EUR')->after('product_price');
+            $table->float('eur_price')->default('0.00')->after('currency');
         });
     }
 
@@ -27,9 +27,9 @@ class AlterTableOrderProductCurrencyField extends Migration
      */
     public function down()
     {
-        Schema::table('order_products',function(Blueprint $table) {
-            $table->dropField("currency");
-            $table->dropField("eur_price");
+        Schema::table('order_products', function (Blueprint $table) {
+            $table->dropField('currency');
+            $table->dropField('eur_price');
         });
     }
 }

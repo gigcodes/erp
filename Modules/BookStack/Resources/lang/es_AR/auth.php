@@ -3,7 +3,7 @@
  * Authentication Language Lines
  * The following language lines are used during authentication for various
  * messages that we need to display to the user.
- * 
+ *
  * Líneas de lenguaje para autenticación
  * Las siguientes líneas de lenguaje se utilizan para mostrar mensajes al usuario durante la autenticación.
  */
@@ -41,7 +41,6 @@ return [
     'registration_email_domain_invalid' => 'Este dominio de correo electrónico no tiene acceso a esta aplicación',
     'register_success' => '¡Gracias por registrarse! Ahora se encuentra registrado y ha accedido a la aplicación.',
 
-
     // Password Reset - Restablecer Contraseña
     'reset_password' => 'Restablecer la contraseña',
     'reset_password_send_instructions' => 'Introduzca su correo electrónico a continuación y se le enviará un correo electrónico con un enlace para la restauración',
@@ -52,7 +51,6 @@ return [
     'email_reset_subject' => 'Restauración de la contraseña de para la aplicación :appName',
     'email_reset_text' => 'Ud. esta recibiendo este correo electrónico debido a que recibimos una solicitud de restauración de la contraseña de su cuenta.',
     'email_reset_not_requested' => 'Si ud. no solicitó un cambio de contraseña, no se requiere ninguna acción.',
-
 
     // Email Confirmation - Confirmación de correo electrónico
     'email_confirm_subject' => 'Confirme su correo electrónico en :appName',
@@ -77,5 +75,5 @@ return [
     'user_invite_page_welcome' => 'Bienvenido a :appName!',
     'user_invite_page_text' => 'Para finalizar la cuenta y tener acceso debe establcer una contraseña que utilizará para ingresar a :appName en visitas futuras.',
     'user_invite_page_confirm_button' => 'Confirmar Contraseña',
-    'user_invite_success' => 'Contraseña establecida, ahora tiene acceso a :appName!'
+    'user_invite_success' => 'Contraseña establecida, ahora tiene acceso a :appName!',
 ];

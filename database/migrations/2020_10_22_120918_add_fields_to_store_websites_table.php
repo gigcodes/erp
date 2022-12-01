@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddFieldsToStoreWebsitesTable extends Migration
 {
@@ -14,9 +14,9 @@ class AddFieldsToStoreWebsitesTable extends Migration
     public function up()
     {
         Schema::table('store_websites', function (Blueprint $table) {
-           $table->string('push_web_id')->nullable();
-           $table->string('icon')->nullable();
-           $table->string('push_web_key')->nullable();
+            $table->string('push_web_id')->nullable();
+            $table->string('icon')->nullable();
+            $table->string('push_web_key')->nullable();
         });
     }
 

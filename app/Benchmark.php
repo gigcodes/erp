@@ -3,12 +3,13 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 class Benchmark extends Model
 {
-	/**
+    /**
      * @var string
      * @SWG\Property(property="selections",type="string")
      * @SWG\Property(property="searches",type="string")
@@ -21,14 +22,14 @@ class Benchmark extends Model
      * @SWG\Property(property="for_date",type="datetime")
      */
     protected $fillable = [
-    	'selections',
-	    'searches',
-	    'attributes',
-	    'supervisor',
-	    'imagecropper',
-	    'lister',
-	    'approver',
-	    'inventory',
-	    'for_date'
+        'selections',
+        'searches',
+        'attributes',
+        'supervisor',
+        'imagecropper',
+        'lister',
+        'approver',
+        'inventory',
+        'for_date',
     ];
 }
