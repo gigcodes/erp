@@ -231,6 +231,25 @@
 			</div>
 		</div>
 	</div>
+	<div id="bugtrackingShowFullTextModel" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<!-- Modal content-->
+			<div class="modal-content ">
+				<div id="add-mail-content">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h3 class="modal-title">Full text view</h3>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body bugtrackingmanShowFullTextBody">
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
 
 	<script type="text/javascript" src="{{ asset('/js/jsrender.min.js')}}"></script>
@@ -262,64 +281,7 @@
             {{--        }--}}
             {{--    });--}}
             {{--});--}}
-            $(".assign_to").change(function (event) {
-                var id = $(this).data('id');
-                var user_id = $(this).val();
-                $.ajax({
-                    url: "/bug-tracking/assign_user/",
-                    type: "POST",
-                    data: {
-                        id: id,
-                        user_id: user_id,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    cache: false,
-                    dataType: 'json',
-                    success: function (data) {
-                        location.reload()
-                        toastr["success"]("Bug Tracking Saved Successfully");
-                    }
-                });
-            });
-			$(".bug_severity_id").change(function (event) {
-				var id = $(this).data('id');
-				var severity_id = $(this).val();
-				$.ajax({
-					url: "/bug-tracking/severity_user/",
-					type: "POST",
-					data: {
-						id: id,
-						severity_id: severity_id,
-						_token: '{{ csrf_token() }}'
-					},
-					cache: false,
-					dataType: 'json',
-					success: function (data) {
-						location.reload()
-						toastr["success"]("Bug Tracking Saved Successfully");
-					}
-				});
-			});
-			$(".bug_status_id").change(function (event) {
-				var id = $(this).data('id');
-				var status_id = $(this).val();
-				$.ajax({
-					url: "/bug-tracking/status_user/",
-					type: "POST",
-					data: {
-						id: id,
-						status_id: status_id,
-						_token: '{{ csrf_token() }}'
-					},
-					cache: false,
-					dataType: 'json',
-					success: function (data) {
-						location.reload()
-						toastr["success"]("Bug Tracking Saved Successfully");
-					}
-				});
-			});
-        })
+      })
 	</script>
 	<script type="text/javascript">
 		$(document).on('click', '.expand-row-msg', function() {

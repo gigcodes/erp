@@ -304,9 +304,10 @@ class BugTrackingController extends Controller
             'website' => 'required|string',
 
         ]);
-        $data = $request->except('_token', 'id');
-        $bug = BugTracker::where('id', $request->id)->first();
-        $data['bug_id'] = $request->id;
+
+        $data = $request->except('_token','id');
+        $bug = BugTracker::where('id',$request->id)->first();
+
         $data['created_by'] = \Auth::user()->id;
         $bug['updated_by'] = \Auth::user()->id;
         $params = ChatMessage::create([
@@ -318,6 +319,7 @@ class BugTrackingController extends Controller
             'message' => $request->remark,
         ]);
         $bug->update($data);
+        $data['bug_id']= $request->id;
         BugTrackerHistory::create($data);
 
         return redirect()->route('bug-tracking.index')->with('success', 'You have successfully updated a Bug Tracker!');
@@ -346,7 +348,6 @@ class BugTrackingController extends Controller
         $bugTracker = BugTracker::where('id', $request->id)->first();
         $bugTracker->assign_to = $request->user_id;
         $bugTracker->save();
-        $data = $bugTracker;
         $data = [
             'bug_type_id' => $bugTracker->bug_type_id,
             'summary' => $bugTracker->summary,
@@ -372,7 +373,6 @@ class BugTrackingController extends Controller
         $bugTracker = BugTracker::where('id', $request->id)->first();
         $bugTracker->bug_severity_id = $request->severity_id;
         $bugTracker->save();
-        $data = $bugTracker;
         $data = [
             'bug_type_id' => $bugTracker->bug_type_id,
             'step_to_reproduce' => $bugTracker->step_to_reproduce,
@@ -398,7 +398,7 @@ class BugTrackingController extends Controller
         $bugTracker = BugTracker::where('id', $request->id)->first();
         $bugTracker->bug_status_id = $request->status_id;
         $bugTracker->save();
-        $data = $bugTracker;
+
         $data = [
             'bug_type_id' => $bugTracker->bug_type_id,
             'summary' => $bugTracker->summary,
@@ -430,15 +430,18 @@ class BugTrackingController extends Controller
         $userid = Auth::id();
 
         if ($user) {
-            $params = ChatMessage::create([
-                //                    'id'      => $id,
-                'user_id' => $userid,
-                'bug_id' => $task->id,
-                'sent_to_user_id' => ($task->assign_to != $user->id) ? $task->assign_to : $task->created_by,
-                'approved' => '1',
-                'status' => '2',
-                'message' => $taskdata,
-            ]);
+
+                $params = ChatMessage::create([
+//                  'id'      => $id,
+                    'user_id' => $userid,
+                    'erp_user' => $userid,
+                    'bug_id' => $task->id,
+                    'sent_to_user_id' => ($task->assign_to != $user->id) ? $task->assign_to : $task->created_by ,
+                    'sent_to_user_id' => ($task->assign_to != $user->id) ? $task->assign_to : $task->created_by ,
+                    'approved' => '1',
+                    'status' => '2',
+                    'message' => $taskdata,
+                ]);
 
             if ($params) {
                 return response()->json(['code' => 200, 'message' => 'Successfully Send File']);

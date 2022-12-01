@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\BugTracker;
 use App\ChatMessage;
 use App\Customer;
 use App\CustomerCharity;
@@ -111,7 +112,10 @@ class ChatMessagesController extends Controller
                 $object = Uicheck::find($request->object_id);
                 //dd($object);
                 break;
-
+            case 'bug' :
+                $object = BugTracker::find($request->object_id);
+                //dd($object);
+                break;
             default:
                 $object = Customer::find($request->object);
         }
@@ -445,8 +449,8 @@ class ChatMessagesController extends Controller
                     'sop_category' => @$sopdata->category,
                     'sop_content' => @$sopdata->content,
                     'inout' => ($isOut) ? 'out' : 'in',
-                    'sendBy' => ($isOut) ? 'ERP' : $objectname,
-                    'sendTo' => ($isOut) ? $object->name : 'ERP',
+                    'sendBy' => ($request->object == 'bug') ? User::where('id',$chatMessage->sent_to_user_id)->value('name') :(($isOut) ? 'ERP' : $objectname),
+                    'sendTo' =>($request->object == 'bug') ? User::where('id',$chatMessage->user_id)->value('name') :( ($isOut) ? $object->name : 'ERP'),
                     'message' => $textMessage,
                     'parentMessage' => $textParent,
                     'media_url' => $chatMessage->media_url,
