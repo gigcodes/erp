@@ -4,7 +4,7 @@ namespace App\Http\Requests\MagentoModule;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class fMagentoModuleRemarkRequest extends FormRequest
+class MagentoModuleRemarkRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
