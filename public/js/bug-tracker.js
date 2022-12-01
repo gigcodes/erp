@@ -49,7 +49,21 @@ var page = {
             e.preventDefault();
             var id = $(this).data('id');
             var message = $('#getMsg'+id).val();
+            if(message != null && message != ""){
             page.sendMessage(id,message);
+            }
+        });
+        page.config.bodyView.on("change", ".assign_to", function (e) {
+            e.preventDefault();
+           page.sendAssign($(this));
+        });
+        page.config.bodyView.on("change", ".bug_severity_id", function (e) {
+            e.preventDefault();
+            page.sendSeverity($(this));
+        });
+        page.config.bodyView.on("change", ".bug_status_id", function (e) {
+            e.preventDefault();
+            page.sendStatus($(this));
         });
 
         // delete product templates
@@ -83,6 +97,10 @@ var page = {
         });
         page.config.bodyView.on("click",".btn-push",function(e) {
             page.push($(this));
+        });
+
+        page.config.bodyView.on("click", ".btn-update", function (e) {
+            page.updateData($(this));
         });
         page.config.bodyView.on("click",".btn-load-communication-modal",function(e) {
             page.communicationModel($(this));
@@ -192,7 +210,6 @@ var page = {
     },
 
     editRecord : function(ele) {
-        alert('Testing for click')
         var _z = {
             url:  this.config.baseUrl +"/edit/"+ele.data("id"),
             method: "get",
@@ -240,6 +257,18 @@ var page = {
         }
         this.sendAjax(_z, "saveSite");
     },
+
+    updateData: function (ele) {
+        var _z = {
+            url: this.config.baseUrl + "/update",
+            method: "post",
+            data: ele.closest("form").serialize(),
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveSite");
+    },
     sendMessage : function(id,message) {
         var _z = {
             url:  this.config.baseUrl + "/sendmessage",
@@ -251,7 +280,53 @@ var page = {
         }
         this.sendAjax(_z, "saveMessage");
     },
-    submitEnvironment : function(ele) {
+    sendAssign: function (ele) {
+        var _z = {
+            url: this.config.baseUrl + "/assign_user",
+            method: "POST",
+            data: {
+                id: ele.data("id"),
+                user_id: ele.val(),
+                _token: ele.data("token")
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveAssign");
+    },
+    sendSeverity: function (ele) {
+        var _z = {
+            url: this.config.baseUrl + "/severity_user",
+            method: "POST",
+            data: {
+                id: ele.data("id"),
+                severity_id: ele.val(),
+                _token: ele.data("token")
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveSeverity");
+    },
+    sendStatus: function (ele) {
+        var _z = {
+            url: this.config.baseUrl + "/status_user",
+            method: "POST",
+            data: {
+                id: ele.data("id"),
+                status_id: ele.val(),
+                _token: ele.data("token")
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveStatus");
+    },
+
+    submitEnvironment : function (ele) {
         var _z = {
             url:  this.config.baseUrl + "/environment",
             method: "post",
@@ -331,8 +406,47 @@ var page = {
             toastr["error"](response.error,"");
         }
     },
-    saveEnvironment : function(response) {
-        if(response.code  == 200) {
+    saveAssign: function (response) {
+        if (response.code == 200) {
+            // $("#loading-image").hide();
+            location.reload()
+            // page.loadFirst();
+            // $(".common-modal").modal("hide");
+            toastr["success"](response.message, "Bug Tracking Changed Successfully");
+
+        } else {
+            // $("#loading-image").hide();
+            toastr["error"](response.error, "");
+        }
+    },
+    saveSeverity: function (response) {
+        if (response.code == 200) {
+            // $("#loading-image").hide();
+            location.reload()
+            // page.loadFirst();
+            // $(".common-modal").modal("hide");
+            toastr["success"](response.message, "Bug Tracking Changed Successfully");
+
+        } else {
+            // $("#loading-image").hide();
+            toastr["error"](response.error, "");
+        }
+    },
+    saveStatus: function (response) {
+        if (response.code == 200) {
+            // $("#loading-image").hide();
+
+            location.reload()
+            // $(".common-modal").modal("hide");
+            toastr["success"](response.message, "Bug Tracking Changed Successfully");
+
+        } else {
+            // $("#loading-image").hide();
+            toastr["error"](response.error, "");
+        }
+    },
+    saveEnvironment: function (response) {
+        if (response.code == 200) {
             page.loadFirst();
             $(".common-modal").modal("hide");
             toastr["success"](response.message,"Environment Saved Successfully");
@@ -384,7 +498,7 @@ var page = {
 
     communicationModel : function(ele) {
         var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/communicationData/"+ele.data("id"),
+            url: this.config.baseUrl + "/communicationData/" + ele.data("id"),
             method: "get",
         }
         this.sendAjax(_z, 'afterCommunication');
