@@ -4,5 +4,4 @@ namespace Overrides;
 
 class QueueManager
 {
-
 }
