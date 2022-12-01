@@ -61,9 +61,9 @@ var page = {
             }
         });
 
-        // page.config.bodyView.on("click",".btn-edit-template",function(e) {
-        //     page.editRecord($(this));
-        // });
+        page.config.bodyView.on("click",".btn-edit-template",function(e) {
+             page.editRecord($(this));
+        });
 
         $(".common-modal").on("click",".submit-store-site",function() {
             page.submitFormSite($(this));
@@ -192,6 +192,7 @@ var page = {
     },
 
     editRecord : function(ele) {
+        alert('Testing for click')
         var _z = {
             url:  this.config.baseUrl +"/edit/"+ele.data("id"),
             method: "get",
@@ -200,11 +201,32 @@ var page = {
     },
 
     editResult : function(response) {
-        var createWebTemplate = $.templates("#template-create-website");
-        var tplHtml = createWebTemplate.render(response);
-        var common =  $(".common-modal");
-        common.find(".modal-dialog").html(tplHtml);
-        common.modal("show");
+        $('#bugtrackingEditModal').modal('show');
+        $('.id').val('')
+        $('.summary').val('')
+        $('.step_to_reproduce').val('')
+        $('.url').val('')
+        $('.bug_type_id').val('')
+        $('.bug_environment_id').val('')
+        $('.assign_to').val('')
+        $('.bug_severity_id').val('')
+        $('.bug_status_id').val('')
+        $('.module_id').val('')
+        $('.remark').val('')
+        $('.website').val('')
+
+        $('.id').val(response.data.id)
+        $('.summary').val(response.data.summary)
+        $('.step_to_reproduce').val(response.data.step_to_reproduce)
+        $('.url').val(response.data.url)
+        $('.bug_type_id').val(response.data.bug_type_id)
+        $('.bug_environment_id').val(response.data.bug_environment_id)
+        $('.assign_to').val(response.data.assign_to)
+        $('.bug_severity_id').val(response.data.bug_severity_id)
+        $('.bug_status_id').val(response.data.bug_status_id)
+        $('.module_id').val(response.data.module_id)
+        $('.remark').val(response.data.remark)
+        $('.website').val(response.data.website)
     },
 
     submitFormSite : function(ele) {
