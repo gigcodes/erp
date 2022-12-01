@@ -53,7 +53,6 @@ use App\Console\Commands\GtMetrixReport;
 //use App\Console\Commands\GrowInstagramAccounts;
 use App\Console\Commands\HubstuffActivityCommand;
 use App\Console\Commands\ImageBarcodeGenerator;
-use App\Console\Commands\ImportCustomersEmail;
 use App\Console\Commands\IncrementFrequencyWhatsappConfig;
 use App\Console\Commands\InfluencerDescription;
 //use App\Console\Commands\InstagramHandler;
@@ -219,7 +218,6 @@ class Kernel extends ConsoleKernel
         UploadProductsToMagento::class,
         SendAutoReplyToCustomers::class,
         FixCategoryNameBySupplier::class,
-        ImportCustomersEmail::class,
         TwilioCallLogs::class,
         ZoomMeetingRecordings::class,
         ZoomMeetingDeleteRecordings::class,
