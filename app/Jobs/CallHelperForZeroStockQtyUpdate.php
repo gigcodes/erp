@@ -68,7 +68,7 @@ class CallHelperForZeroStockQtyUpdate implements ShouldQueue
     {
         \Log::info('tags:'. json_encode($this->products));
         if (!empty($this->products))
-            return [ 'MagentoHelperForZeroStockQtyUpdate', $this->products[0]->id];
+            return [ 'MagentoHelperForZeroStockQtyUpdate', $this->products[0]['id']];
         else
             return [ 'MagentoHelperForZeroStockQtyUpdate', 'No product found'];
     }
