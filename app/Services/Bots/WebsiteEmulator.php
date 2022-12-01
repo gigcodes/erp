@@ -2,7 +2,6 @@
 
 namespace App\Services\Bots;
 
-use App\Services\Bots\Chrome;
 use NunoMaduro\LaravelConsoleDusk\Manager;
 
 class WebsiteEmulator
