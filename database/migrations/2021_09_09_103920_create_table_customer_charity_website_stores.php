@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTableCustomerCharityWebsiteStores extends Migration
 {
@@ -14,7 +14,7 @@ class CreateTableCustomerCharityWebsiteStores extends Migration
     public function up()
     {
         //
-        Schema::create('customer_charity_website_stores',function(Blueprint $table) {
+        Schema::create('customer_charity_website_stores', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('customer_charity_id')->nullable();
             $table->integer('website_store_id')->nullable();

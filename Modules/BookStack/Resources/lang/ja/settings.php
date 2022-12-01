@@ -7,7 +7,6 @@ return [
      * Contains all text strings used in the general settings sections of BookStack
      * including users and roles.
      */
-
     'settings' => '設定',
     'settings_save' => '設定を保存',
     'settings_save_success' => '設定を保存しました',
@@ -15,7 +14,6 @@ return [
     /**
      * App settings
      */
-
     'app_settings' => 'アプリケーション設定',
     'app_name' => 'アプリケーション名',
     'app_name_desc' => 'この名前はヘッダーやEメール内で表示されます。',
@@ -37,7 +35,6 @@ return [
     /**
      * Registration settings
      */
-
     'reg_settings' => '登録設定',
     'reg_allow' => '新規登録を許可',
     'reg_default_role' => '新規登録時のデフォルト役割',
@@ -50,7 +47,6 @@ return [
     /**
      * Role settings
      */
-
     'roles' => '役割',
     'role_user_roles' => '役割',
     'role_create' => '役割を作成',
@@ -58,7 +54,7 @@ return [
     'role_delete' => '役割を削除',
     'role_delete_confirm' => '役割「:roleName」を削除します。',
     'role_delete_users_assigned' => 'この役割は:userCount人のユーザに付与されています。該当するユーザを他の役割へ移行できます。',
-    'role_delete_no_migration' => "ユーザを移行しない",
+    'role_delete_no_migration' => 'ユーザを移行しない',
     'role_delete_sure' => '本当に役割を削除してよろしいですか？',
     'role_delete_success' => '役割を削除しました',
     'role_edit' => '役割を編集',
@@ -84,7 +80,6 @@ return [
     /**
      * Users
      */
-
     'users' => 'ユーザ',
     'user_profile' => 'ユーザプロフィール',
     'users_add_new' => 'ユーザを追加',
@@ -109,6 +104,6 @@ return [
     'users_social_connect' => 'アカウントを接続',
     'users_social_disconnect' => 'アカウントを接続解除',
     'users_social_connected' => '「:socialAccount」がプロフィールに接続されました。',
-    'users_social_disconnected' => '「:socialAccount」がプロフィールから接続解除されました。'
+    'users_social_disconnected' => '「:socialAccount」がプロフィールから接続解除されました。',
 
 ];

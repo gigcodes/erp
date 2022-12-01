@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AlterTableDocumentsBlobLimit extends Migration
@@ -14,7 +12,7 @@ class AlterTableDocumentsBlobLimit extends Migration
     public function up()
     {
         //
-        \DB::statement("ALTER TABLE `documents` CHANGE `file_contents` `file_contents` LONGBLOB NULL DEFAULT NULL;");
+        \DB::statement('ALTER TABLE `documents` CHANGE `file_contents` `file_contents` LONGBLOB NULL DEFAULT NULL;');
     }
 
     /**

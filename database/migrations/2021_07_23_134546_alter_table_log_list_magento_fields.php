@@ -15,7 +15,7 @@ class AlterTableLogListMagentoFields extends Migration
     {
         //
         Schema::table('log_list_magentos', function (Blueprint $table) {
-            $table->integer("error_condition")->nullable();
+            $table->integer('error_condition')->nullable();
         });
     }
 
@@ -28,9 +28,9 @@ class AlterTableLogListMagentoFields extends Migration
     {
         //
         Schema::table('log_list_magentos', function (Blueprint $table) {
-            $table->dropField("queue");
-            $table->dropField("queue_id");
-            $table->dropField("extra_attributes");
+            $table->dropField('queue');
+            $table->dropField('queue_id');
+            $table->dropField('extra_attributes');
         });
     }
 }

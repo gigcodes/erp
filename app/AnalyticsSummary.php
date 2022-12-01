@@ -12,9 +12,8 @@ class AnalyticsSummary extends Model
     /**
      * Fillables for the database
      *
-     * @access protected
      *
-     * @var array $fillable
+     * @var array
      */
     /**
      * @var string
@@ -24,8 +23,8 @@ class AnalyticsSummary extends Model
      * @SWG\Property(property="country",type="string")
      * @SWG\Property(property="city",type="string")
      */
-    protected $fillable = array(
-        'brand_name', 'gender', 'time', 
-        'country', 'city'
-    );
+    protected $fillable = [
+        'brand_name', 'gender', 'time',
+        'country', 'city',
+    ];
 }

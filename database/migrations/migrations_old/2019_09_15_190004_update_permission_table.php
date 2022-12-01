@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdatePermissionTable extends Migration
 {
@@ -13,8 +12,7 @@ class UpdatePermissionTable extends Migration
      */
     public function up()
     {
-        Schema::table('permissions', function ($table)
-        {
+        Schema::table('permissions', function ($table) {
             $table->string('route')->index()->nullable();
         });
     }

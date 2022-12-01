@@ -2,28 +2,34 @@
 
 namespace App\Jobs;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Twilio\Rest\Client;
 use App\ChatMessage;
 use App\Customer;
 use Exception;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Twilio\Rest\Client;
 
 class TwilioSmsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $account_sid;
+
     public $auth_token;
+
     public $twilio_number;
+
     public $receiverNumber;
+
     public $message;
+
     public $store_website_id;
 
     public $tries = 5;
+
     public $backoff = 5;
 
     /**
@@ -33,7 +39,6 @@ class TwilioSmsJob implements ShouldQueue
      */
     public function __construct($receiverNumber, $message, $store_website_id)
     {
-       
         $this->receiverNumber = '+'.$receiverNumber;
         $this->message = $message;
         $this->store_website_id = $store_website_id;
@@ -44,16 +49,15 @@ class TwilioSmsJob implements ShouldQueue
             ->where('store_website_twilio_numbers.store_website_id', $this->store_website_id)
             ->first();
 
-        if(isset($twilio_cred)){
+        if (isset($twilio_cred)) {
             $this->account_sid = $twilio_cred->a_sid;
             $this->auth_token = $twilio_cred->auth_token;
             $this->twilio_number = $twilio_cred->phone_number;
-        }else{
-            $this->account_sid = "AC23d37fbaf2f8a851f850aa526464ee7d";
-            $this->auth_token = "51e2bf471c33a48332ea365ae47a6517";
-            $this->twilio_number = "+18318880662";
+        } else {
+            $this->account_sid = 'AC23d37fbaf2f8a851f850aa526464ee7d';
+            $this->auth_token = '51e2bf471c33a48332ea365ae47a6517';
+            $this->twilio_number = '+18318880662';
         }
-
 
         //
     }
@@ -66,33 +70,33 @@ class TwilioSmsJob implements ShouldQueue
     public function handle()
     {
         //
-       try {
+        try {
             $client = new Client($this->account_sid, $this->auth_token);
             $client->messages->create($this->receiverNumber, [
-            'from' => $this->twilio_number,
-            'body' => $this->message
+                'from' => $this->twilio_number,
+                'body' => $this->message,
             ]);
-            $phone = str_replace('+', '', $this->receiverNumber); 
+            $phone = str_replace('+', '', $this->receiverNumber);
             $custId = Customer::where('phone', 'like', '%'.$phone.'%')->pluck('id')->first();
-            $chat =[
-            'message_application_id'=>3,
-            'message'=>$this->message,
-            'number'=>$this->receiverNumber,
-            'send_by'=>$this->twilio_number,
-            "user_id" => \Auth::id(),
-            'approved'=>1,
-            'is_delivered'=>1,
-            'customer_id'=>$custId,
+            $chat = [
+                'message_application_id' => 3,
+                'message' => $this->message,
+                'number' => $this->receiverNumber,
+                'send_by' => $this->twilio_number,
+                'user_id' => \Auth::id(),
+                'approved' => 1,
+                'is_delivered' => 1,
+                'customer_id' => $custId,
             ];
             ChatMessage::create($chat);
         } catch (Exception $e) {
-            \Log::info("Sending SMS issue #2215 ->" . $e->getMessage());
+            \Log::info('Sending SMS issue #2215 ->'.$e->getMessage());
             throw new \Exception($e->getMessage());
         }
     }
 
-    public function tags() 
+    public function tags()
     {
-        return [ 'TwilioSmsJob', $this->store_website_id];
+        return ['TwilioSmsJob', $this->store_website_id];
     }
 }

@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class ReplyCategory extends Model
 {
-
     public $fillable = ['name', 'parent_id', 'pushed_to_watson', 'dialog_id', 'intent_id'];
 
     public function approval_leads()
@@ -80,23 +79,20 @@ class ReplyCategory extends Model
     public function parentList()
     {
         $parent = $this->parent;
-        $arr    = [];
+        $arr = [];
         if ($parent) {
-            $arr[]  = $parent->name;
+            $arr[] = $parent->name;
             $parent = $parent->parent;
             if ($parent) {
-                $arr[]  = $parent->name;
+                $arr[] = $parent->name;
                 $parent = $parent->parent;
                 if ($parent) {
-                    $arr[]  = $parent->name;
+                    $arr[] = $parent->name;
                     $parent = $parent->parent;
                 }
             }
         }
 
-        return implode(" > ", array_reverse($arr));
+        return implode(' > ', array_reverse($arr));
     }
-
-
-
 }

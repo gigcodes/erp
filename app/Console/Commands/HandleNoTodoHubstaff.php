@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Helpers\HubstaffTrait;
-use App\Hubstaff\HubstaffMember;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
@@ -15,6 +14,7 @@ use Illuminate\Console\Command;
 class HandleNoTodoHubstaff extends Command
 {
     use HubstaffTrait;
+
     /**
      * The name and signature of the console command.
      *
@@ -55,14 +55,15 @@ class HandleNoTodoHubstaff extends Command
             $response = $this->doHubstaffOperationWithAccessToken(
                 function ($accessToken) {
                     // $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/last_activities';
-                    $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/last_activities';
+                    $url = 'https://api.hubstaff.com/v2/organizations/'.config('env.HUBSTAFF_ORG_ID').'/last_activities';
 
-                    echo $url . PHP_EOL;
+                    echo $url.PHP_EOL;
+
                     return $this->client->get(
                         $url,
                         [
                             RequestOptions::HEADERS => [
-                                'Authorization' => 'Bearer ' . $accessToken,
+                                'Authorization' => 'Bearer '.$accessToken,
                             ],
                         ]
                     );
@@ -75,42 +76,39 @@ class HandleNoTodoHubstaff extends Command
                 return is_null($activity->last_task_id);
             });
 
-            $projectsToRemoveFrom = array();
+            $projectsToRemoveFrom = [];
 
             foreach ($nonTaskActivities as $activity) {
-                if (!array_key_exists($activity->last_project_id, $projectsToRemoveFrom)) {
-                    $projectsToRemoveFrom[$activity->last_project_id] = array();
+                if (! array_key_exists($activity->last_project_id, $projectsToRemoveFrom)) {
+                    $projectsToRemoveFrom[$activity->last_project_id] = [];
                 }
                 $projectsToRemoveFrom[$activity->last_project_id][] = [
                     'user_ids' => $activity->user_id,
-                    'role' => 'remove'
+                    'role' => 'remove',
                 ];
             }
 
             foreach ($projectsToRemoveFrom as $projectId => $users) {
-
-
                 $this->doHubstaffOperationWithAccessToken(function ($accessToken) use ($projectId, $users) {
-
-                    $url = 'https://api.hubstaff.com/v2/projects/' . $projectId . '/update_members';
+                    $url = 'https://api.hubstaff.com/v2/projects/'.$projectId.'/update_members';
 
                     $body = json_encode(
-                        array(
+                        [
                             'members' => $users,
-                            'ignored' => true
-                        )
+                            'ignored' => true,
+                        ]
                     );
 
-                    echo $url . PHP_EOL;
-                    echo print_r($body, true) . PHP_EOL;
+                    echo $url.PHP_EOL;
+                    echo print_r($body, true).PHP_EOL;
 
                     return $this->client->put(
                         $url,
                         [
                             RequestOptions::HEADERS => [
-                                'Authorization' => 'Bearer ' . $accessToken,
+                                'Authorization' => 'Bearer '.$accessToken,
                             ],
-                            RequestOptions::BODY => $body
+                            RequestOptions::BODY => $body,
                         ]
                     );
                 });

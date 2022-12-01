@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddMoreColumnsToSuppliers extends Migration
 {
@@ -14,11 +14,11 @@ class AddMoreColumnsToSuppliers extends Migration
     public function up()
     {
         Schema::table('suppliers', function (Blueprint $table) {
-          $table->string('address')->nullable()->after('supplier');
-          $table->string('phone')->nullable()->after('address');
-          $table->string('email')->nullable()->after('phone');
-          $table->string('social_handle')->nullable()->after('email');
-          $table->string('gst')->nullable()->after('social_handle');
+            $table->string('address')->nullable()->after('supplier');
+            $table->string('phone')->nullable()->after('address');
+            $table->string('email')->nullable()->after('phone');
+            $table->string('social_handle')->nullable()->after('email');
+            $table->string('gst')->nullable()->after('social_handle');
         });
     }
 
@@ -30,11 +30,11 @@ class AddMoreColumnsToSuppliers extends Migration
     public function down()
     {
         Schema::table('suppliers', function (Blueprint $table) {
-          $table->dropColumn('address');
-          $table->dropColumn('phone');
-          $table->dropColumn('email');
-          $table->dropColumn('social_handle');
-          $table->dropColumn('gst');
+            $table->dropColumn('address');
+            $table->dropColumn('phone');
+            $table->dropColumn('email');
+            $table->dropColumn('social_handle');
+            $table->dropColumn('gst');
         });
     }
 }

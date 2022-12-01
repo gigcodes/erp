@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateDeveloperTasks extends Migration
 {
@@ -14,7 +13,7 @@ class UpdateDeveloperTasks extends Migration
     public function up()
     {
         //
-        Schema::table('developer_tasks', function($table) {
+        Schema::table('developer_tasks', function ($table) {
             $table->date('estimate_date');
         });
     }
@@ -27,7 +26,7 @@ class UpdateDeveloperTasks extends Migration
     public function down()
     {
         //
-        Schema::table('developer_tasks', function($table) {
+        Schema::table('developer_tasks', function ($table) {
             $table->dropColumn('estimate_date');
         });
     }

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MagentoModuleCronJobHistory extends Model
 {
-    protected $table = "magento_module_cron_job_histories";
+    protected $table = 'magento_module_cron_job_histories';
 
     protected $fillable = ['magento_module_id', 'cron_time', 'frequency', 'cpu_memory', 'comments', 'user_id'];
 

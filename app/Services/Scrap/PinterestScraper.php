@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Scrap;
 
 use Wa72\HtmlPageDom\HtmlPageCrawler;
@@ -7,9 +8,8 @@ class PinterestScraper extends Scraper
 {
     private const GOOGLE_IMAGE_SEARCH_URL = [
         'https://www.google.com/search?tbs=isz:l&tbm=isch&source=lnms&q=site:www.pinterest.com "{query_string}"&&chips=q:site:www.pinterest.com "{query_string}",g_1:{chip_value}',
-        'https://www.pinterest.com/search/?q={query_string}&rs=rs&eq='
+        'https://www.pinterest.com/search/?q={query_string}&rs=rs&eq=',
     ];
-
 
     public function scrapPinterestImages($q, $chip_value, $outputCount): array
     {
@@ -26,16 +26,17 @@ class PinterestScraper extends Scraper
         foreach ($imageJson as $key => $image) {
             // $item = json_decode($image->firstChild->data, true);
             foreach ($image->firstChild->attributes as $att => $image) {
-                if( $image->name == 'src' ){
+                if ($image->name == 'src') {
                     $images[] = $image->value ?? null;
                 }
             }
             // $images[] = $item['ou'];
 
-            if ($key+1>=$outputCount) {
+            if ($key + 1 >= $outputCount) {
                 break;
             }
         }
+
         return $images;
     }
 }

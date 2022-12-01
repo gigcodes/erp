@@ -1,8 +1,8 @@
 <?php
 
+use App\Product;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use App\Product;
 
 class ProductsTableSeeder extends Seeder
 {
@@ -19,7 +19,7 @@ class ProductsTableSeeder extends Seeder
         // Load Faker
         $faker = \Faker\Factory::create();
         $status = DB::table('status')->orderBy('id')->first();
-        if(!$status) {
+        if (! $status) {
             DB::table('status')->insert(['name' => 'import']);
         }
         $status_id = DB::table('status')->orderBy('id')->first()->id;
@@ -61,7 +61,7 @@ class ProductsTableSeeder extends Seeder
             'crop skipped',
             'is being enhanced',
             'crop rejected',
-            'is being sequenced'
+            'is being sequenced',
         ];
 
         // Insert all of them
@@ -77,11 +77,11 @@ class ProductsTableSeeder extends Seeder
             'XS,L,XL',
             '00,0,2,4,8,10,12',
             '36,37,39,39.5,42',
-            '7,8,9,10'
+            '7,8,9,10',
         ];
 
         // Return random sizes
-        return $arrSizes[ rand(0, 3) ];
+        return $arrSizes[rand(0, 3)];
     }
 
     private function _getRandomComposition()
@@ -91,10 +91,10 @@ class ProductsTableSeeder extends Seeder
             '100 % nylon',
             '100 % wool',
             '100 % cotton',
-            'leather'
+            'leather',
         ];
 
         // Return random sizes
-        return $arrComposition[ rand(0, 3) ];
+        return $arrComposition[rand(0, 3)];
     }
 }

@@ -45,7 +45,7 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -54,7 +54,7 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
             $now = Carbon::now()->toDateTimeString();
 
             $tasks = DeveloperTask::where(function ($query) use ($now) {
-                $query->whereRaw('TIMESTAMPDIFF(HOUR, `estimate_time`, "' . $now . '") = 1');
+                $query->whereRaw('TIMESTAMPDIFF(HOUR, `estimate_time`, "'.$now.'") = 1');
             })
                 ->where('status', '!=', 'Done')
                 ->where('estimate_time', '!=', '')
@@ -62,21 +62,20 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
                 ->get();
 
             foreach ($tasks as $task) {
-                $message = 'You have 1 hour to complete the task #' . $task->id . '. Please update if this will be completed or not.';
+                $message = 'You have 1 hour to complete the task #'.$task->id.'. Please update if this will be completed or not.';
 
                 $myRequest = new Request();
                 $myRequest->setMethod('POST');
                 $myRequest->request->add([
-                    'message'           => $message,
+                    'message' => $message,
                     'developer_task_id' => $task->id,
-                    'status'            => 2,
+                    'status' => 2,
                 ]);
                 app(WhatsAppController::class)->sendMessage($myRequest, 'developer_task');
-
             }
 
             $tasks = DeveloperTask::where(function ($query) use ($now) {
-                $query->whereRaw('TIMESTAMPDIFF(HOUR, `estimate_time`, "' . $now . '") = 0');
+                $query->whereRaw('TIMESTAMPDIFF(HOUR, `estimate_time`, "'.$now.'") = 0');
             })
                 ->where('status', '!=', 'Done')
                 ->where('estimate_time', '!=', '')
@@ -84,50 +83,47 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
                 ->get();
 
             foreach ($tasks as $task) {
-                $message = 'Is your task #' . $task->id . ' complete? Please mark as Complete if its completed or let us know if it needs to be revised.';
+                $message = 'Is your task #'.$task->id.' complete? Please mark as Complete if its completed or let us know if it needs to be revised.';
 
                 $myRequest = new Request();
                 $myRequest->setMethod('POST');
                 $myRequest->request->add([
-                    'message'           => $message,
+                    'message' => $message,
                     'developer_task_id' => $task->id,
-                    'status'            => 2,
+                    'status' => 2,
                 ]);
                 app(WhatsAppController::class)->sendMessage($myRequest, 'developer_task');
-
             }
 
-            $tasks = DeveloperTask::whereRaw('"' . $now . '" > `estimate_time`')
+            $tasks = DeveloperTask::whereRaw('"'.$now.'" > `estimate_time`')
                 ->where('status', '!=', 'Done')
                 ->where('estimate_time', '!=', '')
                 ->whereNotNull('estimate_time')
                 ->get();
 
             foreach ($tasks as $task) {
-                $message = 'You have not updated the time for task #' . $task->id . '. Please revise ASAP.';
+                $message = 'You have not updated the time for task #'.$task->id.'. Please revise ASAP.';
 
                 $myRequest = new Request();
                 $myRequest->setMethod('POST');
                 $myRequest->request->add([
-                    'message'           => $message,
+                    'message' => $message,
                     'developer_task_id' => $task->id,
-                    'status'            => 2,
+                    'status' => 2,
                 ]);
                 app(WhatsAppController::class)->sendMessage($myRequest, 'developer_task');
-
             }
 
             $this->sendAlertsForIssues($now);
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 
     private function sendAlertsForIssues($now)
     {
         $tasks = Issue::where(function ($query) use ($now) {
-            $query->whereRaw('TIMESTAMPDIFF(HOUR, `estimate_time`, "' . $now . '") = 1');
+            $query->whereRaw('TIMESTAMPDIFF(HOUR, `estimate_time`, "'.$now.'") = 1');
         })
             ->where('is_resolved', '0')
             ->where('estimate_time', '!=', '')
@@ -135,21 +131,20 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
             ->get();
 
         foreach ($tasks as $task) {
-            $message = 'You have 1 hour to resolve the issue #' . $task->id . '. Please update if this will be resolved or not.';
+            $message = 'You have 1 hour to resolve the issue #'.$task->id.'. Please update if this will be resolved or not.';
 
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add([
-                'message'  => $message,
+                'message' => $message,
                 'issue_id' => $task->id,
-                'status'   => 2,
+                'status' => 2,
             ]);
             app(WhatsAppController::class)->sendMessage($myRequest, 'issue');
-
         }
 
         $tasks = Issue::where(function ($query) use ($now) {
-            $query->whereRaw('TIMESTAMPDIFF(HOUR, `estimate_time`, "' . $now . '") = 0');
+            $query->whereRaw('TIMESTAMPDIFF(HOUR, `estimate_time`, "'.$now.'") = 0');
         })
             ->where('is_resolved', '0')
             ->where('estimate_time', '!=', '')
@@ -157,38 +152,36 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
             ->get();
 
         foreach ($tasks as $task) {
-            $message = 'Is your issue #' . $task->id . ' resolved? Please mark as Resolved if its resolved or let us know if it needs to be revised.';
+            $message = 'Is your issue #'.$task->id.' resolved? Please mark as Resolved if its resolved or let us know if it needs to be revised.';
 
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add([
-                'message'  => $message,
+                'message' => $message,
                 'issue_id' => $task->id,
-                'status'   => 2,
+                'status' => 2,
             ]);
             app(WhatsAppController::class)->sendMessage($myRequest, 'issue');
-
         }
 
-        $tasks = Issue::whereRaw('"' . $now . '" > `estimate_time`')
+        $tasks = Issue::whereRaw('"'.$now.'" > `estimate_time`')
             ->where('is_resolved', '0')
             ->where('estimate_time', '!=', '')
             ->whereNotNull('estimate_time')
             ->get();
 
         foreach ($tasks as $task) {
-            $message = 'You have not updated the time for issue #' . $task->id . '. Please revise ASAP.';
+            $message = 'You have not updated the time for issue #'.$task->id.'. Please revise ASAP.';
 
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add([
-                'message'  => $message,
+                'message' => $message,
                 'issue_id' => $task->id,
-                'status'   => 2,
+                'status' => 2,
             ]);
 
             app(WhatsAppController::class)->sendMessage($myRequest, 'issue');
-
         }
 
         $report->update(['end_time' => Carbon::now()]);

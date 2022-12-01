@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableAddColumnOnUserAvaibilities extends Migration
 {
@@ -27,7 +27,7 @@ class AlterTableAddColumnOnUserAvaibilities extends Migration
      */
     public function down()
     {
-        Schema::table('user_avaibilities', function($table) {
+        Schema::table('user_avaibilities', function ($table) {
             $table->dropColumn('start_time');
             $table->dropColumn('end_time');
             $table->dropColumn('launch_time');

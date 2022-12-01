@@ -38,7 +38,6 @@ return [
     'registration_email_domain_invalid' => 'O domínio de e-mail usado não tem acesso permitido a essa aplicação',
     'register_success' => 'Obrigado por se registrar! Você agora encontra-se registrado e logado..',
 
-
     // Password Reset
     'reset_password' => 'Resetar senha',
     'reset_password_send_instructions' => 'Digite seu e-mail abaixo e o sistema enviará uma mensagem com o link de reset de senha.',
@@ -48,7 +47,6 @@ return [
     'email_reset_subject' => 'Resetar a senha de :appName',
     'email_reset_text' => 'Você recebeu esse e-mail pois recebemos uma solicitação de reset de senha para sua conta.',
     'email_reset_not_requested' => 'Caso não tenha sido você a solicitar o reset de senha, ignore esse e-mail.',
-
 
     // Email Confirmation
     'email_confirm_subject' => 'Confirme seu e-mail para :appName',

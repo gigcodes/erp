@@ -8,5 +8,5 @@ class GoogleAnalytics extends Model
 {
     protected $table = 'google_analytics';
 
-	protected $fillable = ['website_analytics_id', 'dimensions','dimensions_name','dimensions_value'];
+    protected $fillable = ['website_analytics_id', 'dimensions', 'dimensions_name', 'dimensions_value'];
 }

@@ -16,11 +16,11 @@ class CreateTableCustomerBasket extends Migration
         //
         Schema::create('customer_baskets', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer("customer_id")->nullable();
-            $table->string("customer_name")->nullable();
-            $table->string("customer_email")->nullable();
-            $table->integer("store_website_id")->nullable();
-            $table->string("language_code")->nullable();
+            $table->integer('customer_id')->nullable();
+            $table->string('customer_name')->nullable();
+            $table->string('customer_email')->nullable();
+            $table->integer('store_website_id')->nullable();
+            $table->string('language_code')->nullable();
             $table->timestamps();
         });
     }

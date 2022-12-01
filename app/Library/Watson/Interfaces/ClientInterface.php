@@ -2,8 +2,8 @@
 
 namespace App\Library\Watson\Interfaces;
 
-use GuzzleHttp\Client as GuzzleClient;
 use App\Library\Watson\Response;
+use GuzzleHttp\Client as GuzzleClient;
 
 interface ClientInterface
 {
@@ -19,9 +19,10 @@ interface ClientInterface
 
     /**
      * Set the current Guzzle instance
-     * 
-     * @param GuzzleClient $guzzle
+     *
+     * @param  GuzzleClient  $guzzle
      * @return
+     *
      * @internal param GuzzleClient $client
      */
     public function setGuzzleInstance(GuzzleClient $guzzle);
@@ -33,11 +34,10 @@ interface ClientInterface
      */
     public function getOptions();
 
-
     /**
      *  Set the client options merging and/or overwriting its contents
      *
-     * @param array $options
+     * @param  array  $options
      * @return null
      */
     public function setOptions(array $options);
@@ -45,7 +45,7 @@ interface ClientInterface
     /**
      *  Set the response instance
      *
-     * @param ResponseInterface $response
+     * @param  ResponseInterface  $response
      * @return null
      */
     public function setResponse(ResponseInterface $response);

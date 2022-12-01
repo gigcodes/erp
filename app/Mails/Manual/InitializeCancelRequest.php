@@ -2,7 +2,6 @@
 
 namespace App\Mails\Manual;
 
-use App\Customer;
 use App\ReturnExchange;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -13,12 +12,12 @@ class InitializeCancelRequest extends Mailable
     use Queueable, SerializesModels;
 
     const STORE_ERP_WEBSITE = 15;
+
     /**
      * Create a new message instance.
      *
      * @return void
      */
-
     public $return;
 
     public function __construct(ReturnExchange $return)
@@ -34,13 +33,12 @@ class InitializeCancelRequest extends Mailable
      */
     public function build()
     {
-
-        $subject = "Cancellation Request Initialized";
+        $subject = 'Cancellation Request Initialized';
         $return = $this->return;
         $customer = $return->customer;
 
         $this->subject = $subject;
-        $this->fromMailer = "customercare@sololuxury.co.in";
+        $this->fromMailer = 'customercare@sololuxury.co.in';
 
         if ($customer) {
             if ($customer->store_website_id > 0) {
@@ -61,9 +59,10 @@ class InitializeCancelRequest extends Mailable
                     $this->fromMailer = $template->from_email;
                 }
 
-                if (!empty($template->mail_tpl)) {
+                if (! empty($template->mail_tpl)) {
                     // need to fix the all email address
                     $this->subject = $template->subject;
+
                     return $this->subject($this->subject)
                         ->view($template->mail_tpl, compact(
                             'customer', 'return'

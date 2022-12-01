@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddSkuToScrapedProducts extends Migration
 {
@@ -14,7 +14,7 @@ class AddSkuToScrapedProducts extends Migration
     public function up()
     {
         Schema::table('scraped_products', function (Blueprint $table) {
-          $table->string('sku')->after('website');
+            $table->string('sku')->after('website');
         });
     }
 
@@ -26,7 +26,7 @@ class AddSkuToScrapedProducts extends Migration
     public function down()
     {
         Schema::table('scraped_products', function (Blueprint $table) {
-          $table->dropColumn('sku');
+            $table->dropColumn('sku');
         });
     }
 }

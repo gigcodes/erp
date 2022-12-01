@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableInstructions extends Migration
 {
@@ -13,8 +12,8 @@ class AlterTableInstructions extends Migration
      */
     public function up()
     {
-        Schema::table( 'instructions', function ( $table ) {
-           $table->integer('customer_id')->index()->nullable()->change();
+        Schema::table('instructions', function ($table) {
+            $table->integer('customer_id')->index()->nullable()->change();
         });
     }
 
@@ -25,8 +24,8 @@ class AlterTableInstructions extends Migration
      */
     public function down()
     {
-        Schema::table( 'instructions', function ( $table ) {
-            $table->dropColumn( 'customer_id' );
+        Schema::table('instructions', function ($table) {
+            $table->dropColumn('customer_id');
         });
     }
 }

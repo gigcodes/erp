@@ -6,7 +6,6 @@ use App\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class SendDailyActivityReport extends Mailable
 {
@@ -17,14 +16,15 @@ class SendDailyActivityReport extends Mailable
      *
      * @return void
      */
-     public $user;
-     public $time_slots;
+    public $user;
 
-     public function __construct(User $user, array $time_slots)
-     {
-       $this->user = $user;
-       $this->time_slots = $time_slots;
-     }
+    public $time_slots;
+
+    public function __construct(User $user, array $time_slots)
+    {
+        $this->user = $user;
+        $this->time_slots = $time_slots;
+    }
 
     /**
      * Build the message.

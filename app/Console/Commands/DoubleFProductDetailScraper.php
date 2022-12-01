@@ -22,12 +22,13 @@ class DoubleFProductDetailScraper extends Command
      * @var string
      */
     protected $description = 'Command description';
+
     private $scraper;
 
     /**
      * Create a new command instance.
      *
-     * @param DoubleFProductDetailsScraper $scraper
+     * @param  DoubleFProductDetailsScraper  $scraper
      */
     public function __construct(DoubleFProductDetailsScraper $scraper)
     {
@@ -44,7 +45,7 @@ class DoubleFProductDetailScraper extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 

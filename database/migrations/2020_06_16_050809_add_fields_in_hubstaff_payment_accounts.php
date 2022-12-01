@@ -13,19 +13,19 @@ class AddFieldsInHubstaffPaymentAccounts extends Migration
     public function up()
     {
         Schema::table('hubstaff_payment_accounts', function ($table) {
-            $table->datetime("billing_start")->after('accounted_at');
-            $table->datetime("billing_end")->after('billing_start');
-            $table->float("hrs")->default("0.00")->after('billing_end');
-            $table->float("rate")->default("0.00")->after('hrs');
-            $table->char("currency")->default("USD")->after('rate');
-            $table->char("payment_currency")->default("INR")->after('currency');
-            $table->float("total_payout")->default("0.00")->after('payment_currency');
-            $table->float("total_paid")->default("0.00")->after('total_payout');
-            $table->float("ex_rate")->default("0.00")->after('payment_currency');
-            $table->integer("status")->default(1)->after('ex_rate');
-            $table->string("payment_info")->nullable()->after('status');
-            $table->text("payment_remark")->nullable()->after('payment_info');
-            $table->datetime("scheduled_on")->after('payment_remark');
+            $table->datetime('billing_start')->after('accounted_at');
+            $table->datetime('billing_end')->after('billing_start');
+            $table->float('hrs')->default('0.00')->after('billing_end');
+            $table->float('rate')->default('0.00')->after('hrs');
+            $table->char('currency')->default('USD')->after('rate');
+            $table->char('payment_currency')->default('INR')->after('currency');
+            $table->float('total_payout')->default('0.00')->after('payment_currency');
+            $table->float('total_paid')->default('0.00')->after('total_payout');
+            $table->float('ex_rate')->default('0.00')->after('payment_currency');
+            $table->integer('status')->default(1)->after('ex_rate');
+            $table->string('payment_info')->nullable()->after('status');
+            $table->text('payment_remark')->nullable()->after('payment_info');
+            $table->datetime('scheduled_on')->after('payment_remark');
         });
     }
 

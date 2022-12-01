@@ -7,6 +7,7 @@ use App\ChatMessage;
 use App\Customer;
 use App\CustomerCharity;
 use App\DeveloperTask;
+use App\Document;
 use App\Learning;
 use App\Old;
 use App\Order;
@@ -14,33 +15,31 @@ use App\PaymentReceipt;
 use App\PublicKey;
 use App\SiteDevelopment;
 use App\SocialStrategy;
-use App\Sop;
 use App\StoreSocialContent;
 use App\Supplier;
 use App\Task;
 use App\Tickets;
+use App\Uicheck;
 use App\User;
 use App\Vendor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Document;
-use App\Uicheck;
 
 class ChatMessagesController extends Controller
 {
     /**
      * Load more messages from chat_messages
-     * @param Request $request
+     *
+     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function loadMoreMessages(Request $request)
     {
-       
         // Set variables
-        $limit = $request->get("limit", 3);
-        $loadAttached = $request->get("load_attached", 0);
-        $loadAllMessages = $request->get("load_all", 0);
+        $limit = $request->get('limit', 3);
+        $loadAttached = $request->get('load_attached', 0);
+        $loadAllMessages = $request->get('load_all', 0);
 
         // Get object (customer, vendor, etc.)
         switch ($request->object) {
@@ -98,11 +97,11 @@ class ChatMessagesController extends Controller
             case 'payment-receipts':
                 $object = PaymentReceipt::find($request->object_id);
                 break;
-            //START - Purpose - Add learning - DEVTASK-4020
+                //START - Purpose - Add learning - DEVTASK-4020
             case 'learning':
                 $object = Learning::find($request->object_id);
                 break;
-            //END - DEVTASK-4020
+                //END - DEVTASK-4020
             case 'SOP':
                 $object = User::find($request->object_id);
                 // no break
@@ -117,7 +116,6 @@ class ChatMessagesController extends Controller
                 $object = BugTracker::find($request->object_id);
                 //dd($object);
                 break;
-
             default:
                 $object = Customer::find($request->object);
         }
@@ -128,42 +126,41 @@ class ChatMessagesController extends Controller
         // Do we want all?
         if ($loadAllMessages == 1) {
             $loadAttached = 1;
-            $rawWhere = "1=1";
+            $rawWhere = '1=1';
         }
 
         // Get chat messages
-        $currentPage = request("page", 1);
+        $currentPage = request('page', 1);
         $skip = ($currentPage - 1) * $limit;
 
         $loadType = $request->get('load_type');
         $onlyBroadcast = false;
 
         //  if loadtype is brodcast then get the images only
-        if ($loadType == "broadcast") {
+        if ($loadType == 'broadcast') {
             $onlyBroadcast = true;
-            $loadType = "images";
+            $loadType = 'images';
         }
 
         $chatMessages = $object->whatsappAll($onlyBroadcast)->whereRaw($rawWhere);
-        
-        if ($request->object == "SOP") {
+
+        if ($request->object == 'SOP') {
             $chatMessages = ChatMessage::where('sop_user_id', $object->id);
         }
-        
-        if ($request->object == "user-feedback") {
+
+        if ($request->object == 'user-feedback') {
             $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id', $request->feedback_category_id);
         }
-        if ($request->object == "user-feedback-hrTicket") { 
+        if ($request->object == 'user-feedback-hrTicket') {
             $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id', $request->feedback_category_id);
         }
-        if ($request->object == "uicheck") {
-           $chatMessages = ChatMessage::where('ui_check_id', $request->object_id);
-           
+        if ($request->object == 'uicheck') {
+            $chatMessages = ChatMessage::where('ui_check_id', $request->object_id);
         }
-        if ($request->object == "hubstuff") {
+        if ($request->object == 'hubstuff') {
             $chatMessages = ChatMessage::where('hubstuff_activity_user_id', $object->id);
         }
-        if (!$onlyBroadcast) {
+        if (! $onlyBroadcast) {
             $chatMessages = $chatMessages->where('status', '!=', 10);
         }
 
@@ -172,15 +169,15 @@ class ChatMessagesController extends Controller
         }
 
         if ($request->keyword != null) {
-            $chatMessages = $chatMessages->where('message', "like", "%" . $request->keyword . "%"); //Purpose - solve issue for search message , Replace form whereDate to where - DEVTASK-4020
+            $chatMessages = $chatMessages->where('message', 'like', '%'.$request->keyword.'%'); //Purpose - solve issue for search message , Replace form whereDate to where - DEVTASK-4020
         }
 
         $chatMessages = $chatMessages->skip($skip)->take($limit);
 
         switch ($loadType) {
             case 'text':
-                $chatMessages = $chatMessages->whereNotNull("message")
-                    ->whereNull("media_url")
+                $chatMessages = $chatMessages->whereNotNull('message')
+                    ->whereNull('media_url')
                     ->whereRaw('id not in (select mediable_id from mediables WHERE mediable_type LIKE "App%ChatMessage")');
                 break;
             case 'images':
@@ -207,7 +204,7 @@ class ChatMessagesController extends Controller
                 break;
             case 'text_with_incoming_img':
                 $chatMessages = $chatMessages->where(function ($query) use ($object) {
-                    $query->whereRaw("(chat_messages.number = " . $object->phone . " and ( media_url is not null
+                    $query->whereRaw('(chat_messages.number = '.$object->phone." and ( media_url is not null
                                                 or id in (
                                                 select
                                                     mediable_id
@@ -217,15 +214,15 @@ class ChatMessagesController extends Controller
                                                 WHERE
                                                     mediable_type LIKE 'App%ChatMessage'
                                             )) )")->orWhere(function ($query) {
-                        $query->whereNotNull("message")
-                            ->whereNull("media_url")
+                        $query->whereNotNull('message')
+                            ->whereNull('media_url')
                             ->whereRaw('id not in (select mediable_id from mediables WHERE mediable_type LIKE "App%ChatMessage")');
                     });
                 });
                 break;
             case 'incoming_img':
                 $chatMessages = $chatMessages->where(function ($query) use ($object) {
-                    $query->whereRaw("(chat_messages.number = " . $object->phone . " and ( media_url is not null
+                    $query->whereRaw('(chat_messages.number = '.$object->phone." and ( media_url is not null
                                                 or id in (
                                                 select
                                                     mediable_id
@@ -239,7 +236,7 @@ class ChatMessagesController extends Controller
                 break;
             case 'outgoing_img':
                 $chatMessages = $chatMessages->where(function ($query) use ($object) {
-                    $query->whereRaw("((chat_messages.number != " . $object->phone . "  or chat_messages.number is null) and ( media_url is not null
+                    $query->whereRaw('((chat_messages.number != '.$object->phone."  or chat_messages.number is null) and ( media_url is not null
                                             or id in (
                                             select
                                                 mediable_id
@@ -283,7 +280,7 @@ class ChatMessagesController extends Controller
             if ($loadAttached == 1 && $chatMessage->hasMedia(config('constants.media_tags'))) {
                 foreach ($chatMessage->getMedia(config('constants.media_tags')) as $key => $image) {
                     // Supplier checkbox
-                    if (in_array($request->object, ["supplier"])) {
+                    if (in_array($request->object, ['supplier'])) {
                         $tempImage = [
                             'key' => $image->getKey(),
                             'image' => $image->getUrl(),
@@ -293,7 +290,7 @@ class ChatMessagesController extends Controller
                         ];
 
                         $imageKey = $image->getKey();
-                        $mediableType = "Product";
+                        $mediableType = 'Product';
 
                         $productImage = \App\Product::with('Media')
                             ->whereRaw("products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $imageKey AND mediables.mediable_type LIKE '%$mediableType%')")
@@ -375,7 +372,7 @@ class ChatMessagesController extends Controller
                         $image = $images->first();
                         // Supplier checkbox
                         if ($image) {
-                            if (in_array($request->object, ["supplier"])) {
+                            if (in_array($request->object, ['supplier'])) {
                                 $tempImage = [
                                     'key' => $image->getKey(),
                                     'image' => $image->getUrl(),
@@ -384,7 +381,7 @@ class ChatMessagesController extends Controller
                                     'size' => '',
                                 ];
                                 $imageKey = $image->getKey();
-                                $mediableType = "Product";
+                                $mediableType = 'Product';
 
                                 $productImage = \App\Product::with('Media')
                                     ->whereRaw("products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $imageKey AND mediables.mediable_type LIKE '%$mediableType%')")
@@ -427,21 +424,21 @@ class ChatMessagesController extends Controller
 
             //START - Purpose : Get Excel sheet - DEVTASK-4236
             $excel_attach = json_decode($chatMessage->additional_data);
-            if (!empty($excel_attach)) {
+            if (! empty($excel_attach)) {
                 $path = $excel_attach->attachment[0];
                 $additional_data = $path;
             } else {
                 $additional_data = '';
             }
-            $sopdata = \App\Sop::where(['chat_message_id'=> $chatMessage->id])->first();
+            $sopdata = \App\Sop::where(['chat_message_id' => $chatMessage->id])->first();
             //END - DEVTASK-4236
 
             if (isset($request->downloadMessages) && $request->downloadMessages == 1) {
                 if ($textMessage != '') {
                     $chatFileData .= html_entity_decode($textMessage, ENT_QUOTES, 'UTF-8');
-                    $chatFileData .= "\n From " . (($isOut) ? 'ERP' : $objectname) . " To " . (($isOut) ? $object->name : 'ERP');
-                    $chatFileData .= "\n On " . Carbon::parse($chatMessage->created_at)->format('Y-m-d H:i A');
-                    $chatFileData .= "\n" . "\n" . "\n";
+                    $chatFileData .= "\n From ".(($isOut) ? 'ERP' : $objectname).' To '.(($isOut) ? $object->name : 'ERP');
+                    $chatFileData .= "\n On ".Carbon::parse($chatMessage->created_at)->format('Y-m-d H:i A');
+                    $chatFileData .= "\n"."\n"."\n";
                 }
             } else {
                 $messages[] = [
@@ -460,10 +457,10 @@ class ChatMessagesController extends Controller
                     'datetime' => Carbon::parse($chatMessage->created_at)->format('Y-m-d H:i A'),
                     'media' => is_array($media) ? $media : null,
                     'mediaWithDetails' => is_array($mediaWithDetails) ? $mediaWithDetails : null,
-                    'product_id' => !empty($productId) ? $productId : null,
+                    'product_id' => ! empty($productId) ? $productId : null,
                     'parentMedia' => is_array($parentMedia) ? $parentMedia : null,
                     'parentMediaWithDetails' => is_array($parentMediaWithDetails) ? $parentMediaWithDetails : null,
-                    'parentProductId' => !empty($parentProductId) ? $parentProductId : null,
+                    'parentProductId' => ! empty($parentProductId) ? $parentProductId : null,
                     'status' => $chatMessage->status,
                     'resent' => $chatMessage->resent,
                     'customer_id' => $chatMessage->customer_id,
@@ -480,13 +477,13 @@ class ChatMessagesController extends Controller
 
         // Return JSON
         if (isset($request->downloadMessages) && $request->downloadMessages == 1) {
-            $storagelocation = storage_path() . '/chatMessageFiles';
-            if (!is_dir($storagelocation)) {
+            $storagelocation = storage_path().'/chatMessageFiles';
+            if (! is_dir($storagelocation)) {
                 mkdir($storagelocation, 0777, true);
             }
-            $filename = $request->object . $request->object_id . "_chat.txt";
-            $file = $storagelocation . '/' . $filename;
-            $txt = fopen($file, "w") or die("Unable to open file!");
+            $filename = $request->object.$request->object_id.'_chat.txt';
+            $file = $storagelocation.'/'.$filename;
+            $txt = fopen($file, 'w') or exit('Unable to open file!');
             fwrite($txt, $chatFileData);
             fclose($txt);
             if ($chatFileData == '') {
@@ -494,6 +491,7 @@ class ChatMessagesController extends Controller
                     'downloadUrl' => '',
                 ]);
             }
+
             return response()->json([
                 'downloadUrl' => $file,
             ]);
@@ -519,7 +517,7 @@ class ChatMessagesController extends Controller
         if ($productImage->size != null) {
             $size = $productImage->size;
         } else {
-            $size = (string) $productImage->lmeasurement . ', ' . (string) $productImage->hmeasurement . ', ' . (string) $productImage->dmeasurement;
+            $size = (string) $productImage->lmeasurement.', '.(string) $productImage->hmeasurement.', '.(string) $productImage->dmeasurement;
         }
 
         return $size;
@@ -530,10 +528,12 @@ class ChatMessagesController extends Controller
         $message = ChatMessage::find($id);
         if ($message) {
             $message->update(['is_reviewed' => 1]);
+
             return response()->json([
                 'message' => 'Review Successful',
             ], 200);
         }
+
         return response()->json([
             'message' => 'Error',
         ], 500);
@@ -543,74 +543,74 @@ class ChatMessagesController extends Controller
     {
         $file = $request->filename;
         header('Content-Description: File Transfer');
-        header('Content-Disposition: attachment; filename=' . basename($file));
+        header('Content-Disposition: attachment; filename='.basename($file));
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
         header('Pragma: public');
-        header('Content-Length: ' . filesize($file));
-        header("Content-Type: text/plain");
+        header('Content-Length: '.filesize($file));
+        header('Content-Type: text/plain');
         readfile($file);
         unlink($file);
     }
 
     public function dndList(Request $request)
     {
-        $title = "DND List";
+        $title = 'DND List';
 
-        return view("dnd-list.index", compact('title'));
+        return view('dnd-list.index', compact('title'));
     }
 
     public function dndListRecords(Request $request)
     {
-        $messages = ChatMessage::join("customers as c", "c.id", "chat_messages.customer_id")->whereNull("chat_messages.number");
+        $messages = ChatMessage::join('customers as c', 'c.id', 'chat_messages.customer_id')->whereNull('chat_messages.number');
 
         $startTime = null;
         $endTime = null;
         if ($request->time_range != null) {
-            $time = explode(" - ", $request->time_range);
-            if (!empty($time[0])) {
+            $time = explode(' - ', $request->time_range);
+            if (! empty($time[0])) {
                 $startTime = $time[0];
             }
-            if (!empty($time[1])) {
+            if (! empty($time[1])) {
                 $endTime = $time[1];
             }
         }
 
         if ($startTime != null) {
-            $messages = $messages->where("chat_messages.created_at", ">=", date("Y-m-d H:i:s", strtotime($startTime)));
+            $messages = $messages->where('chat_messages.created_at', '>=', date('Y-m-d H:i:s', strtotime($startTime)));
         }
 
         if ($endTime != null) {
-            $messages = $messages->where("chat_messages.created_at", "<=", date("Y-m-d H:i:s", strtotime($endTime)));
+            $messages = $messages->where('chat_messages.created_at', '<=', date('Y-m-d H:i:s', strtotime($endTime)));
         }
 
         if ($request->whatsapp_number != null) {
-            $messages = $messages->where("c.whatsapp_number", $request->whatsapp_number);
+            $messages = $messages->where('c.whatsapp_number', $request->whatsapp_number);
         }
 
         if ($request->keyword != null) {
             $messages = $messages->where(function ($q) use ($request) {
-                $q->where("c.name", "like", $request->keyword)->orWhere("c.phone", "like", $request->keyword);
+                $q->where('c.name', 'like', $request->keyword)->orWhere('c.phone', 'like', $request->keyword);
             });
         }
 
-        $messages = $messages->where("c.do_not_disturb", 0);
+        $messages = $messages->where('c.do_not_disturb', 0);
 
-        $messages = $messages->groupBy("c.id")
+        $messages = $messages->groupBy('c.id')
             ->orderBy('chat_messages.id', 'desc')
-            ->select(["c.*"])
+            ->select(['c.*'])
             ->paginate(24);
 
-        return response()->json(["code" => 200, "total" => $messages->total(), "data" => $messages->items(), "pagination" => (string) $messages->links()]);
+        return response()->json(['code' => 200, 'total' => $messages->total(), 'data' => $messages->items(), 'pagination' => (string) $messages->links()]);
     }
 
     public function moveDnd(Request $request)
     {
         $ids = $request->customer_id;
 
-        if (!empty($ids)) {
-            $customer = \App\Customer::whereIn("id", $ids)->get();
-            if (!$customer->isEmpty()) {
+        if (! empty($ids)) {
+            $customer = \App\Customer::whereIn('id', $ids)->get();
+            if (! $customer->isEmpty()) {
                 foreach ($customer as $c) {
                     $c->do_not_disturb = 1;
                     $c->save();
@@ -618,26 +618,27 @@ class ChatMessagesController extends Controller
             }
         }
 
-        return response()->json(["code" => 200, "data" => [], "messages" => "Customer updated Successfully"]);
+        return response()->json(['code' => 200, 'data' => [], 'messages' => 'Customer updated Successfully']);
     }
 
     public function customChatListing()
     {
-        $title = "List | Custom Chat Message";
+        $title = 'List | Custom Chat Message';
 
         $users = User::orderBy('name')->get();
 
         $vendors = Vendor::orderBy('name')->get();
 
         $customers = Customer::orderBy('name')->get();
+
         return view('custom-chat-message.index', compact('title', 'users', 'vendors', 'customers'));
     }
 
     public function customChatRecords(Request $request)
     {
-        if ($request->get("keyword") != null) {
+        if ($request->get('keyword') != null) {
             $delimiters = ['/', ','];
-            $str = $request->get("keyword");
+            $str = $request->get('keyword');
             $newStr = str_replace($delimiters, $delimiters[0], $str);
             $arr = explode($delimiters[0], $newStr);
             $keywords = array_filter($arr);
@@ -657,34 +658,34 @@ class ChatMessagesController extends Controller
                 $query->orWhereNotNull('user_id');
                 $query->orWhereNotNull('customer_id');
             });
-        if (!empty($keywords)) {
+        if (! empty($keywords)) {
             $records = $records->where(function ($query) use ($keywords) {
-               foreach ($keywords as $keyword) {
-                    $query->orWhere('message', 'like', '%' . $keyword . '%');
-                    $query->orWhere('created_at', 'like', '%' . $keyword . '%');
+                foreach ($keywords as $keyword) {
+                    $query->orWhere('message', 'like', '%'.$keyword.'%');
+                    $query->orWhere('created_at', 'like', '%'.$keyword.'%');
                 }
             })->orWhereHas('user', function ($query) use ($keywords) {
                 foreach ($keywords as $keyword) {
-                    $query->where('name', 'like', '%' . $keyword . '%');
+                    $query->where('name', 'like', '%'.$keyword.'%');
                 }
             });
         }
-        if (!empty($request->user_id)) {
-            $records = $records->where("user_id", $request->user_id);
+        if (! empty($request->user_id)) {
+            $records = $records->where('user_id', $request->user_id);
         }
 
-        if (!empty($request->vendor_id)) {
-            $records = $records->where("vendor_id", $request->vendor_id);
+        if (! empty($request->vendor_id)) {
+            $records = $records->where('vendor_id', $request->vendor_id);
         }
 
-        if (!empty($request->customer_id)) {
-            $records = $records->where("customer_id", $request->customer_id);
+        if (! empty($request->customer_id)) {
+            $records = $records->where('customer_id', $request->customer_id);
         }
 
-        if (!empty($request->created_at)) {
-            $records = $records->whereDate("created_at", date('Y-m-d', strtotime($request->created_at)));
+        if (! empty($request->created_at)) {
+            $records = $records->whereDate('created_at', date('Y-m-d', strtotime($request->created_at)));
         }
-        
+
         $records = $records->latest()->paginate(20);
         $recorsArray = [];
 
@@ -711,11 +712,11 @@ class ChatMessagesController extends Controller
         }
 
         return response()->json([
-            "code" => 200,
-            "data" => $recorsArray,
-            "pagination" => (string) $records->links(),
-            "total" => $records->total(),
-            "page" => $records->currentPage(),
+            'code' => 200,
+            'data' => $recorsArray,
+            'pagination' => (string) $records->links(),
+            'total' => $records->total(),
+            'page' => $records->currentPage(),
         ]);
     }
 }

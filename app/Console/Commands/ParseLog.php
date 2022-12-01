@@ -46,7 +46,6 @@ class ParseLog extends Command
                 $filename = $log->getFilename();
                 //Getting Only Laravel FIle from Log Table
                 if (strpos($filename, 'laravel') !== false) {
-
                 } else {
                     continue;
                 }
@@ -67,26 +66,20 @@ class ParseLog extends Command
                         continue;
                     }
 
-
-
                     if (strpos($value, 'local.ERROR') !== false) {
-
                         //Check if already exist and update the time
                         $loggedBefore = LaravelLog::where('log', $value)->first();
-                        if(empty($loggedBefore)){
-                            $log              = new LaravelLog();
+                        if (empty($loggedBefore)) {
+                            $log = new LaravelLog();
                             $log->log_created = $dateTime;
-                            $log->filename    = $filename;
-                            $log->log         = $value;
+                            $log->filename = $filename;
+                            $log->log = $value;
                             $log->save();
-                        }else{
+                        } else {
                             $loggedBefore->touch();
                         }
-                        
                     }
-
                 }
-
             }
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\WebsiteLog;
+use Illuminate\Console\Command;
 
 class MagentoReportLog extends Command
 {
@@ -38,20 +38,20 @@ class MagentoReportLog extends Command
      */
     public function handle()
     {
-        try{
+        try {
             $storewebsite = \App\StoreWebsite::whereNotNull('server_ip')->get();
-            $types = array('unit','integration', 'integration-all', 'static', 'static-all', 'integrity', 'legacy', 'default');
-            foreach($storewebsite AS $stroewebsite){
-                foreach($types as $type){
+            $types = ['unit', 'integration', 'integration-all', 'static', 'static-all', 'integrity', 'legacy', 'default'];
+            foreach ($storewebsite as $stroewebsite) {
+                foreach ($types as $type) {
                     //$cmd = ' bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh --server '. $stroewebsite->server_ip .' --type tests --test '. $type;
-                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh --server '. $stroewebsite->server_ip .' --type tests --test '. $type;
-                    
-                    $allOutput = array();
+                    $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'magento-commands.sh --server '.$stroewebsite->server_ip.' --type tests --test '.$type;
+
+                    $allOutput = [];
                     $allOutput[] = $cmd;
                     $result = exec($cmd, $allOutput); //Execute command
                     $status = 'Error';
                     //Storing data to log table
-                    if(!empty($result)){
+                    if (! empty($result)) {
                         $ins = new WebsiteLog;
                         $ins->sql_query = json_encode($result);
                         $ins->time = date('Y-m-d H:s:i');
@@ -64,6 +64,6 @@ class MagentoReportLog extends Command
             echo '=== DONE ===';
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
-        } 
+        }
     }
 }

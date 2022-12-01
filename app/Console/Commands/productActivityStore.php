@@ -3,11 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\scraperImags;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-use seo2websites\ErpExcelImporter\ErpExcelImporter;
-use Illuminate\Support\Facades\File;
 
 class productActivityStore extends Command
 {
@@ -52,7 +48,7 @@ class productActivityStore extends Command
             $productStats = DB::table('productactivities')->insert([
                 'status_id' => $key,
                 'value' => $productStat,
-                'created_at' => DB::raw('CURRENT_TIMESTAMP')
+                'created_at' => DB::raw('CURRENT_TIMESTAMP'),
             ]);
         }
 

@@ -8,14 +8,14 @@ class Service implements ServiceInterface
 {
     /**
      * Base url for the service
-     * 
+     *
      * @var string
      */
     protected $url;
 
     /**
      * API version
-     * 
+     *
      * @var string
      */
     protected $version;
@@ -36,6 +36,7 @@ class Service implements ServiceInterface
 
     /**
      * Sdk client
+     *
      * @var Client
      */
     protected $client;
@@ -79,6 +80,7 @@ class Service implements ServiceInterface
     public function setUrl($url)
     {
         $this->url = $url;
+
         return $this;
     }
 
@@ -96,6 +98,7 @@ class Service implements ServiceInterface
     public function setVersion($version)
     {
         $this->version = $version;
+
         return $this;
     }
 
@@ -115,8 +118,9 @@ class Service implements ServiceInterface
      * @param $string
      * @return string
      */
-    protected function normalizeUrlEndBar($string) {
-        return (substr($string, -1) != '/') ? $string.'/': $string;
+    protected function normalizeUrlEndBar($string)
+    {
+        return (substr($string, -1) != '/') ? $string.'/' : $string;
     }
 
     /**
@@ -128,7 +132,7 @@ class Service implements ServiceInterface
     }
 
     /**
-     * @param string $password
+     * @param  string  $password
      */
     public function setPassword($password)
     {
@@ -144,7 +148,7 @@ class Service implements ServiceInterface
     }
 
     /**
-     * @param string $username
+     * @param  string  $username
      */
     public function setUsername($username)
     {

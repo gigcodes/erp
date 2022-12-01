@@ -7,7 +7,6 @@ return [
      * Contains all text strings used in the general settings sections of BookStack
      * including users and roles.
      */
-
     'settings' => 'Préférences',
     'settings_save' => 'Enregistrer les préférences',
     'settings_save_success' => 'Préférences enregistrées',
@@ -15,7 +14,6 @@ return [
     /**
      * App settings
      */
-
     'app_customization' => 'Personnalisation',
     'app_features_security' => 'Fonctionnalités et sécurité',
     'app_name' => 'Nom de l\'application',
@@ -43,11 +41,10 @@ return [
     'app_disable_comments' => 'Désactiver les commentaires',
     'app_disable_comments_toggle' => 'Désactiver les commentaires',
     'app_disable_comments_desc' => 'Désactive les commentaires sur toutes les pages de l\'application. Les commentaires existants ne sont pas affichés.',
-    
+
     /**
      * Registration settings
      */
-
     'reg_settings' => 'Préférence pour l\'inscription',
     'reg_enable' => 'Activer l\'inscription',
     'reg_enable_toggle' => 'Activer l\'inscription',
@@ -63,7 +60,6 @@ return [
     /**
      * Maintenance settings
      */
-
     'maint' => 'Maintenance',
     'maint_image_cleanup' => 'Nettoyer les images',
     'maint_image_cleanup_desc' => "Scan le contenu des pages et des révisions pour vérifier les images et les dessins en cours d'utilisation et lesquels sont redondant. Veuillez à faire une sauvegarde de la base de données et des images avant de lancer ceci.",
@@ -72,11 +68,10 @@ return [
     'maint_image_cleanup_warning' => ':count images potentiellement inutilisées trouvées. Etes-vous sûr de vouloir supprimer ces images ?',
     'maint_image_cleanup_success' => ':count images potentiellement inutilisées trouvées et supprimées !',
     'maint_image_cleanup_nothing_found' => 'Aucune image inutilisée trouvée, rien à supprimer !',
-    
+
     /**
      * Role settings
      */
-
     'roles' => 'Rôles',
     'role_user_roles' => 'Rôles des utilisateurs',
     'role_create' => 'Créer un nouveau rôle',
@@ -84,7 +79,7 @@ return [
     'role_delete' => 'Supprimer le rôle',
     'role_delete_confirm' => 'Ceci va supprimer le rôle \':roleName\'.',
     'role_delete_users_assigned' => 'Ce rôle a :userCount utilisateurs assignés. Vous pouvez choisir un rôle de remplacement pour ces utilisateurs.',
-    'role_delete_no_migration' => "Ne pas assigner de nouveau rôle",
+    'role_delete_no_migration' => 'Ne pas assigner de nouveau rôle',
     'role_delete_sure' => 'Êtes-vous sûr de vouloir supprimer ce rôle ?',
     'role_delete_success' => 'Le rôle a été supprimé avec succès',
     'role_edit' => 'Modifier le rôle',
@@ -112,7 +107,6 @@ return [
     /**
      * Users
      */
-
     'users' => 'Utilisateurs',
     'user_profile' => 'Profil d\'utilisateur',
     'users_add_new' => 'Ajouter un nouvel utilisateur',

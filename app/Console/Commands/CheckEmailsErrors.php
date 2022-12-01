@@ -44,23 +44,23 @@ class CheckEmailsErrors extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $imap = new Client([
-                'host'          => env('IMAP_HOST_PURCHASE'),
-                'port'          => env('IMAP_PORT_PURCHASE'),
-                'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
+                'host' => env('IMAP_HOST_PURCHASE'),
+                'port' => env('IMAP_PORT_PURCHASE'),
+                'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
                 'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
-                'username'      => env('IMAP_USERNAME_PURCHASE'),
-                'password'      => env('IMAP_PASSWORD_PURCHASE'),
-                'protocol'      => env('IMAP_PROTOCOL_PURCHASE'),
+                'username' => env('IMAP_USERNAME_PURCHASE'),
+                'password' => env('IMAP_PASSWORD_PURCHASE'),
+                'protocol' => env('IMAP_PROTOCOL_PURCHASE'),
             ]);
 
             $imap->connect();
 
-            $inbox           = $imap->getFolder('INBOX');
+            $inbox = $imap->getFolder('INBOX');
             $email_addresses = [
                 'Mailer-Daemon@se1.mailspamprotection.com',
                 'Mailer-Daemon@se2.mailspamprotection.com',
@@ -98,10 +98,10 @@ class CheckEmailsErrors extends Command
                     }
 
                     if (preg_match_all("/failed: ([\a-zA-Z0-9_.-@]+) host/i", preg_replace('/\s+/', ' ', $content), $match)) {
-                        dump('Found address ' . $match[1][0]);
+                        dump('Found address '.$match[1][0]);
 
                         $suppliers = Supplier::where('email', $match[1][0])->get();
-                        $agents    = Agent::where('email', $match[1][0])->get();
+                        $agents = Agent::where('email', $match[1][0])->get();
 
                         foreach ($agents as $agent) {
                             dump('Found agent email');

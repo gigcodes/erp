@@ -13,6 +13,7 @@ class CaseReceivableController extends Controller
     public function index(LegalCase $case)
     {
         $receivables = $case->receivables()->orderBy('receivable_date')->paginate(50);
+
         return view('case.receivables', [
             'receivables' => $receivables,
             'case' => $case,
@@ -47,6 +48,7 @@ class CaseReceivableController extends Controller
         } catch (\Exception $exception) {
             return redirect()->back()->withErrors('Couldn\'t store Case Receivable');
         }
+
         return redirect()->back()->withSuccess('You have successfully added a Case Receivable!');
     }
 
@@ -78,6 +80,7 @@ class CaseReceivableController extends Controller
         } catch (\Exception $exception) {
             return redirect()->back()->withErrors('Couldn\'t update Case Receivable');
         }
+
         return redirect()->back()->withSuccess('You have successfully updated Case Receivable!');
     }
 
@@ -89,6 +92,7 @@ class CaseReceivableController extends Controller
         } catch (\Exception $exception) {
             return redirect()->back()->withErrors('Couldn\'t delete Case Receivable');
         }
+
         return redirect()->back()->withSuccess('You have successfully deleted Case Receivable!');
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddStoreMasterStatusIdToStoreOrderStatusTable extends Migration
 {
@@ -17,7 +17,7 @@ class AddStoreMasterStatusIdToStoreOrderStatusTable extends Migration
             $table->integer('store_master_status_id');
             //$table->string('status')->nullable()->change();
         });
-        \DB::statement("ALTER TABLE `store_order_statuses` CHANGE `status` `status` VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;");
+        \DB::statement('ALTER TABLE `store_order_statuses` CHANGE `status` `status` VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;');
     }
 
     /**

@@ -1,19 +1,17 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+use App\Helpers\ProductHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use App\Brand;
-use App\Product;
-use App\ScrapStatistics;
-use App\Helpers\ProductHelper;
 
 class ScrapedProducts extends Model
 {
-/**
+    /**
      * @var string
      * @SWG\Property(property="images",type="string")
      * @SWG\Property(property="properties",type="string")
@@ -34,11 +32,11 @@ class ScrapedProducts extends Model
      * @SWG\Property(property="color",type="string")
      * @SWG\Property(property="composition",type="string")
      */
-
     protected $casts = [
         'images' => 'array',
         'properties' => 'array',
     ];
+
     protected static $all_afftected_scrapped_products = null;
 
     protected $fillable = [
@@ -59,13 +57,13 @@ class ScrapedProducts extends Model
         'can_be_deleted',
         'categories',
         'color',
-        'composition'
+        'composition',
     ];
 
     public function bulkScrapeImport($arrBulkJson = [], $isExcel = 0, $nextExcelStatus = 2)
     {
         // Check array
-        if (!is_array($arrBulkJson) || count($arrBulkJson) == 0) {
+        if (! is_array($arrBulkJson) || count($arrBulkJson) == 0) {
             // return false
             return false;
         }
@@ -73,7 +71,7 @@ class ScrapedProducts extends Model
         // Set count to 0
         $count = 0;
 
-        //Created product count 
+        //Created product count
         $createdProductCount = 0;
 
         //Updated product count
@@ -84,7 +82,7 @@ class ScrapedProducts extends Model
             // Excel?
             if ($isExcel == 1) {
                 // No title set? Continue to the next, it's probably the nextExcelStatus field
-                if (!isset($json->title)) {
+                if (! isset($json->title)) {
                     continue;
                 }
 
@@ -94,9 +92,9 @@ class ScrapedProducts extends Model
 
             // Check for required values
             if (
-                !empty($json->title) &&
-                !empty($json->sku) &&
-                !empty($json->brand_id)
+                ! empty($json->title) &&
+                ! empty($json->sku) &&
+                ! empty($json->brand_id)
             ) {
                 // Set possible alternate SKU
                 $ourSku = ProductHelper::getSku($json->sku);
@@ -131,10 +129,10 @@ class ScrapedProducts extends Model
 
                     // Create the product
                     $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);
-                    if(is_array($productsCreatorResult)){
-                        if($productsCreatorResult['product_created'] == 1){
+                    if (is_array($productsCreatorResult)) {
+                        if ($productsCreatorResult['product_created'] == 1) {
                             $createdProductCount++;
-                        }elseif($productsCreatorResult['product_updated'] == 1){
+                        } elseif ($productsCreatorResult['product_updated'] == 1) {
                             $updatedProductCount++;
                         }
                     }
@@ -170,10 +168,10 @@ class ScrapedProducts extends Model
 
                     // Create the product
                     $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);
-                    if(is_array($productsCreatorResult)){
-                        if($productsCreatorResult['product_created'] == 1){
+                    if (is_array($productsCreatorResult)) {
+                        if ($productsCreatorResult['product_created'] == 1) {
                             $createdProductCount++;
-                        }elseif($productsCreatorResult['product_updated'] == 1){
+                        } elseif ($productsCreatorResult['product_updated'] == 1) {
                             $updatedProductCount++;
                         }
                     }
@@ -189,9 +187,9 @@ class ScrapedProducts extends Model
                 }
             }
         }
-        
+
         // Return count
-        return array('updated' => $updatedProductCount , 'created' => $createdProductCount , 'count' => $count);
+        return ['updated' => $updatedProductCount, 'created' => $createdProductCount, 'count' => $count];
     }
 
     public function brand()
@@ -204,44 +202,48 @@ class ScrapedProducts extends Model
         return $this->hasOne('App\Product', 'id', 'product_id');
     }
 
-    public static function matchedColors($name) 
+    public static function matchedColors($name)
     {
-       $q = '"color":"'.$name.'"';
-       return \App\Product::where("sp.properties","like",'%'.$q.'%')
-       ->join("scraped_products as sp","sp.sku","products.sku")
-       ->where("products.color","")
-       ->select("products.*")
-       ->get();
+        $q = '"color":"'.$name.'"';
+
+        return \App\Product::where('sp.properties', 'like', '%'.$q.'%')
+        ->join('scraped_products as sp', 'sp.sku', 'products.sku')
+        ->where('products.color', '')
+        ->select('products.*')
+        ->get();
     }
 
-    public static function matchedComposition($name) 
+    public static function matchedComposition($name)
     {
-       $q  = '"'.$name.'"';
-       return \App\Product::where("sp.properties","like",'%'.$q.'%')
-       ->join("scraped_products as sp","sp.sku","products.sku")
-       ->where("products.composition","")
-       ->select("products.*")
-       ->get();
+        $q = '"'.$name.'"';
+
+        return \App\Product::where('sp.properties', 'like', '%'.$q.'%')
+        ->join('scraped_products as sp', 'sp.sku', 'products.sku')
+        ->where('products.composition', '')
+        ->select('products.*')
+        ->get();
     }
 
-    public static function matchedCategory($name) 
+    public static function matchedCategory($name)
     {
-       $q  = '"'.$name.'"';
-       return \App\Product::where("sp.properties","like",'%'.$q.'%')
-       ->join("scraped_products as sp","sp.sku","products.sku")
-       ->where(function($q) {
-            $q->whereNull("products.category")->orWhere("products.category","<=",1);
-       })
-       ->select("products.*")
-       ->get();
+        $q = '"'.$name.'"';
+
+        return \App\Product::where('sp.properties', 'like', '%'.$q.'%')
+        ->join('scraped_products as sp', 'sp.sku', 'products.sku')
+        ->where(function ($q) {
+            $q->whereNull('products.category')->orWhere('products.category', '<=', 1);
+        })
+        ->select('products.*')
+        ->get();
     }
 
-    public static function matchedSizes($name) 
+    public static function matchedSizes($name)
     {
-       $q  = '"'.$name.'"';
-       return \App\Product::where("sp.properties","like",'%'.$q.'%')
-       ->join("scraped_products as sp","sp.sku","products.sku")
-       ->select("products.*")
-       ->get();
-    }    
+        $q = '"'.$name.'"';
+
+        return \App\Product::where('sp.properties', 'like', '%'.$q.'%')
+        ->join('scraped_products as sp', 'sp.sku', 'products.sku')
+        ->select('products.*')
+        ->get();
+    }
 }

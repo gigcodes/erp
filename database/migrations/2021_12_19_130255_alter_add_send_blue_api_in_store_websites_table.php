@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterAddSendBlueApiInStoreWebsitesTable extends Migration
 {
@@ -14,10 +14,9 @@ class AlterAddSendBlueApiInStoreWebsitesTable extends Migration
     public function up()
     {
         Schema::table('store_websites', function (Blueprint $table) {
-            $table->string('send_in_blue_account')->nullable()->after("description");
-            $table->string('send_in_blue_api')->nullable()->after("send_in_blue_account");
-            $table->string('send_in_blue_smtp_email_api')->nullable()->after("send_in_blue_api"); 
-         
+            $table->string('send_in_blue_account')->nullable()->after('description');
+            $table->string('send_in_blue_api')->nullable()->after('send_in_blue_account');
+            $table->string('send_in_blue_smtp_email_api')->nullable()->after('send_in_blue_api');
         });
     }
 

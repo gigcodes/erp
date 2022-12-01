@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateSupplierBrandDiscountsTable extends Migration
 {
@@ -18,11 +18,11 @@ class CreateSupplierBrandDiscountsTable extends Migration
             $table->integer('supplier_id')->nullable();
             $table->integer('brand_id')->nullable();
             $table->string('gender')->nullable();
-            $table->string('category')->nullable(); 
-            $table->string('generic_price')->nullable(); 
-            $table->string('exceptions')->nullable(); 
-            $table->string('condition_from_retail')->nullable(); 
-            $table->string('condition_from_retail_exceptions')->nullable(); 
+            $table->string('category')->nullable();
+            $table->string('generic_price')->nullable();
+            $table->string('exceptions')->nullable();
+            $table->string('condition_from_retail')->nullable();
+            $table->string('condition_from_retail_exceptions')->nullable();
             $table->timestamps();
         });
     }

@@ -1,7 +1,7 @@
 <?php
 
-
 namespace App\Http\Controllers;
+
 use App\AutoCommentHistory;
 use App\AutoReplyHashtags;
 use App\TargetLocation;
@@ -48,7 +48,6 @@ class AutoCommentHistoryController extends Controller
         $statsByHashtag = DB::table('auto_comment_histories')->selectRaw('target, COUNT("*") AS total')->groupBy(['target'])->get();
 
         $users = User::all();
-
 
         return view('instagram.auto_comments.report', compact('comments', 'hashtags', 'countries', 'statsByCountry', 'statsByHashtag', 'request', 'users'));
     }
@@ -98,7 +97,7 @@ class AutoCommentHistoryController extends Controller
         $comment->save();
 
         return response()->json([
-            'status' => 'success'
+            'status' => 'success',
         ]);
     }
 

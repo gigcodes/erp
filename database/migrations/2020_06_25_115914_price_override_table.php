@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class PriceOverrideTable extends Migration
 {
@@ -18,9 +18,9 @@ class PriceOverrideTable extends Migration
             $table->integer('brand_id')->nullable();
             $table->integer('category_id')->nullable();
             $table->string('country_code')->nullable();
-            $table->enum('type',['PERCENTAGE', 'FIXED'])->default('PERCENTAGE');
-            $table->enum('calculated',['+', '-'])->default('+');
-            $table->decimal('value')->default("0.00");
+            $table->enum('type', ['PERCENTAGE', 'FIXED'])->default('PERCENTAGE');
+            $table->enum('calculated', ['+', '-'])->default('+');
+            $table->decimal('value')->default('0.00');
             $table->timestamps();
         });
     }

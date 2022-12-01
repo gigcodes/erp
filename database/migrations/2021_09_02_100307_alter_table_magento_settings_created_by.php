@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableMagentoSettingsCreatedBy extends Migration
 {
@@ -14,7 +14,7 @@ class AlterTableMagentoSettingsCreatedBy extends Migration
     public function up()
     {
         //
-        Schema::table('magento_settings',function(Blueprint $table) {
+        Schema::table('magento_settings', function (Blueprint $table) {
             $table->integer('created_by')->nullable()->after('value');
         });
     }
@@ -27,9 +27,8 @@ class AlterTableMagentoSettingsCreatedBy extends Migration
     public function down()
     {
         //
-        Schema::table('magento_settings',function(Blueprint $table) {
+        Schema::table('magento_settings', function (Blueprint $table) {
             $table->dropField('created_by');
         });
     }
 }
-

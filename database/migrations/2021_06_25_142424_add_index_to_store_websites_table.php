@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIndexToStoreWebsitesTable extends Migration
 {
@@ -15,10 +15,8 @@ class AddIndexToStoreWebsitesTable extends Migration
     {
         Schema::table('store_websites', function (Blueprint $table) {
             $table->index(['deleted_at']);
-
         });
     }
-    
 
     /**
      * Reverse the migrations.
@@ -29,7 +27,6 @@ class AddIndexToStoreWebsitesTable extends Migration
     {
         Schema::table('store_websites', function (Blueprint $table) {
             $table->dropIndex(['deleted_at']);
-
         });
     }
 }

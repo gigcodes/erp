@@ -1,13 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use App\ProductDiscountExcelFile;
-use App\SupplierDiscountLogHistory;
 use App\SupplierBrandDiscount;
-
-
+use App\SupplierDiscountLogHistory;
+use Illuminate\Database\Migrations\Migration;
 
 class AlterTableProductDiscountExcelFilesTruncate extends Migration
 {
@@ -18,11 +14,9 @@ class AlterTableProductDiscountExcelFilesTruncate extends Migration
      */
     public function up()
     {
-        
         ProductDiscountExcelFile::truncate();
         SupplierDiscountLogHistory::truncate();
         SupplierBrandDiscount::truncate();
-
     }
 
     /**
@@ -35,4 +29,3 @@ class AlterTableProductDiscountExcelFilesTruncate extends Migration
         //
     }
 }
-

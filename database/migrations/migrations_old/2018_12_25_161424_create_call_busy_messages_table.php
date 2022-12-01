@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateCallBusyMessagesTable extends Migration
 {
@@ -15,8 +15,8 @@ class CreateCallBusyMessagesTable extends Migration
     {
         Schema::create('call_busy_messages', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer("lead_id");
-            $table->text("message")->default('');
+            $table->integer('lead_id');
+            $table->text('message')->default('');
             $table->tinyInteger('status')->default(0);
             $table->timestamps();
         });

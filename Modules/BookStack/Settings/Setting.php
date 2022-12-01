@@ -1,4 +1,6 @@
-<?php namespace Modules\BookStack\Settings;
+<?php
+
+namespace Modules\BookStack\Settings;
 
 use Modules\BookStack\Model;
 

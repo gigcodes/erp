@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -16,11 +17,10 @@ class CustomerPriorityPoint extends Model
      * @SWG\Property(property="order_points",type="integet")
      * @SWG\Property(property="refund_points",type="integet")
      * @SWG\Property(property="ticket_points",type="integer")
-     *
      */
-    
+
     // protected $appends = ['communication'];
-    protected $table = "customer_priority_points";
+    protected $table = 'customer_priority_points';
 
     protected $fillable = [
         'store_website_id',
@@ -29,6 +29,6 @@ class CustomerPriorityPoint extends Model
         'order_points',
         'refund_points',
         'ticket_points',
-        'return_points'
+        'return_points',
     ];
 }

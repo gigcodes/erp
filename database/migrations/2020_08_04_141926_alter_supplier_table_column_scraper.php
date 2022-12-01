@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AlterSupplierTableColumnScraper extends Migration
@@ -13,9 +11,9 @@ class AlterSupplierTableColumnScraper extends Migration
      */
     public function up()
     {
-        \DB::statement("ALTER TABLE `suppliers` CHANGE `scrapper` `scrapper` VARCHAR(191) NULL;");
+        \DB::statement('ALTER TABLE `suppliers` CHANGE `scrapper` `scrapper` VARCHAR(191) NULL;');
         \DB::statement("update suppliers set scrapper = null where scrapper =''");
-        \DB::statement("ALTER TABLE `suppliers` CHANGE `scrapper` `scrapper` INT(11) NULL DEFAULT NULL;");
+        \DB::statement('ALTER TABLE `suppliers` CHANGE `scrapper` `scrapper` INT(11) NULL DEFAULT NULL;');
     }
 
     /**
@@ -25,6 +23,6 @@ class AlterSupplierTableColumnScraper extends Migration
      */
     public function down()
     {
-        \DB::statement("ALTER TABLE `suppliers` CHANGE `scrapper` `scrapper` VARCHAR(191) NULL;");
+        \DB::statement('ALTER TABLE `suppliers` CHANGE `scrapper` `scrapper` VARCHAR(191) NULL;');
     }
 }

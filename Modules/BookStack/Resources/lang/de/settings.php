@@ -1,4 +1,5 @@
 <?php
+
 return [
     /**
      * Settings text strings
@@ -56,7 +57,6 @@ return [
     /**
      * Maintenance settings
      */
-
     'maint' => 'Wartung',
     'maint_image_cleanup' => 'Bilder bereinigen',
     'maint_image_cleanup_desc' => 'Überprüft Seiten- und Versionsinhalte auf ungenutzte und mehrfach vorhandene Bilder. Erstellen Sie vor dem Start ein Backup Ihrer Datenbank und Bilder.',
@@ -76,7 +76,7 @@ return [
     'role_delete' => 'Rolle löschen',
     'role_delete_confirm' => 'Sie möchten die Rolle ":roleName" löschen.',
     'role_delete_users_assigned' => 'Diese Rolle ist :userCount Benutzern zugeordnet. Sie können unten eine neue Rolle auswählen, die Sie diesen Benutzern zuordnen möchten.',
-    'role_delete_no_migration' => "Den Benutzern keine andere Rolle zuordnen",
+    'role_delete_no_migration' => 'Den Benutzern keine andere Rolle zuordnen',
     'role_delete_sure' => 'Sind Sie sicher, dass Sie diese Rolle löschen möchten?',
     'role_delete_success' => 'Rolle erfolgreich gelöscht',
     'role_edit' => 'Rolle bearbeiten',

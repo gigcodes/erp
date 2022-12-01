@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddOrderProductIdToPrivateViewing extends Migration
 {
@@ -14,7 +14,7 @@ class AddOrderProductIdToPrivateViewing extends Migration
     public function up()
     {
         Schema::table('private_views', function (Blueprint $table) {
-          $table->integer('order_product_id')->unsigned()->nullable()->after('assigned_user_id');
+            $table->integer('order_product_id')->unsigned()->nullable()->after('assigned_user_id');
         });
     }
 
@@ -26,7 +26,7 @@ class AddOrderProductIdToPrivateViewing extends Migration
     public function down()
     {
         Schema::table('private_views', function (Blueprint $table) {
-          $table->dropColumn('order_product_id');
+            $table->dropColumn('order_product_id');
         });
     }
 }

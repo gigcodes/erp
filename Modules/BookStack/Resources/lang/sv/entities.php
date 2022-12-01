@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     /**
@@ -253,7 +254,7 @@ return [
     'chapter_tags' => 'Kapiteltaggar',
     'book_tags' => 'Boktaggar',
     'tag' => 'Tagg',
-    'tags' =>  'Taggar',
+    'tags' => 'Taggar',
     'tag_value' => 'Taggvärde (Frivilligt)',
     'tags_explain' => "Lägg till taggar för att kategorisera ditt innehåll bättre. \n Du kan tilldela ett värde till en tagg för ännu bättre organisering.",
     'tags_add' => 'Lägg till ännu en tagg',
@@ -319,5 +320,5 @@ return [
     'revision_delete_confirm' => 'Är du säker på att du vill radera den här versionen?',
     'revision_delete_success' => 'Revisionen raderad',
     'revision_cannot_delete_latest' => 'Det går inte att ta bort den senaste versionen.',
-    'revision_restore_confirm' => 'Är du säker på att du vill använda denna revision? Det nuvarande innehållet kommer att ersättas.'
+    'revision_restore_confirm' => 'Är du säker på att du vill använda denna revision? Det nuvarande innehållet kommer att ersättas.',
 ];

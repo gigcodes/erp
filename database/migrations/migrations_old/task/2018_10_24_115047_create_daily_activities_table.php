@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateDailyActivitiesTable extends Migration
 {
@@ -14,23 +14,21 @@ class CreateDailyActivitiesTable extends Migration
     public function up()
     {
         Schema::create('daily_activities', function (Blueprint $table) {
+            $table->increments('id');
 
-	        $table->increments('id');
+            $table->string('time_slot')->nullable();
+            $table->string('activity')->nullable();
 
-	        $table->string('time_slot')->nullable();
-	        $table->string('activity')->nullable();
+            $table->integer('user_id');
+            $table->integer('is_admin')->nullable();
 
-	        $table->integer('user_id');
-	        $table->integer('is_admin')->nullable();
+            $table->string('assist_msg')->nullable();
 
-	        $table->string('assist_msg')->nullable();
-
-	        $table->date('for_date');
-	        $table->timestamps();
+            $table->date('for_date');
+            $table->timestamps();
         });
 
         Schema::create('daily_task', function (Blueprint $table) {
-
             $table->increments('id');
 
             $table->integer('assign_from');

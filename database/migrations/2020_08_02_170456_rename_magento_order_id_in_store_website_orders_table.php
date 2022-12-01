@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class RenameMagentoOrderIdInStoreWebsiteOrdersTable extends Migration
 {
@@ -16,7 +16,7 @@ class RenameMagentoOrderIdInStoreWebsiteOrdersTable extends Migration
         /*Schema::table('store_website_orders', function (Blueprint $table) {
             $table->renameColumn('magento_order_id', 'platform_order_id');
         });*/
-        \DB::statement("ALTER TABLE `store_website_orders` CHANGE `magento_order_id` `platform_order_id` VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;");
+        \DB::statement('ALTER TABLE `store_website_orders` CHANGE `magento_order_id` `platform_order_id` VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;');
     }
 
     /**

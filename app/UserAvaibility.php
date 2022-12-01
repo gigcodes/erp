@@ -8,7 +8,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserAvaibility extends Model {
+class UserAvaibility extends Model
+{
     protected $fillable = [
         'user_id',
         'from',
@@ -19,14 +20,16 @@ class UserAvaibility extends Model {
         'start_time',
         'end_time',
         'lunch_time',
-        'is_latest'
+        'is_latest',
     ];
 
-    public static function getAvailableDays($str) {
+    public static function getAvailableDays($str)
+    {
         return $str ? explode(',', str_replace(' ', '', $str)) : [];
     }
 
-    public static function getAvailableDates($stDate, $enDate, $days, $dates = []) {
+    public static function getAvailableDates($stDate, $enDate, $days, $dates = [])
+    {
         $return = [];
         $range = dateRangeArr($stDate, $enDate);
         foreach ($range as $value) {
@@ -36,39 +39,41 @@ class UserAvaibility extends Model {
         }
         if ($dates) {
             foreach ($return as $key => $value) {
-                if (!in_array($value, $dates)) {
+                if (! in_array($value, $dates)) {
                     unset($return[$key]);
                 }
             }
             $return = array_values($return);
         }
+
         return $return;
     }
 
-    public static function dateWiseHourlySlots($dateArr, $stTimer, $enTimer, $lunchTimer = NULL) {
+    public static function dateWiseHourlySlots($dateArr, $stTimer, $enTimer, $lunchTimer = null)
+    {
         $slots = [];
 
         foreach ($dateArr as $date) {
             if ($stTimer < $enTimer) {
-                $stDatetime = date('Y-m-d H:i:00', strtotime($date . ' ' . $stTimer));
-                $enDatetime = date('Y-m-d H:i:00', strtotime($date . ' ' . $enTimer));
+                $stDatetime = date('Y-m-d H:i:00', strtotime($date.' '.$stTimer));
+                $enDatetime = date('Y-m-d H:i:00', strtotime($date.' '.$enTimer));
             } else {
-                $stDatetime = date('Y-m-d H:i:00', strtotime($date . ' ' . $stTimer));
-                $enDatetime = date('Y-m-d H:i:00', strtotime($date . ' ' . $enTimer . ' + 1 day'));
+                $stDatetime = date('Y-m-d H:i:00', strtotime($date.' '.$stTimer));
+                $enDatetime = date('Y-m-d H:i:00', strtotime($date.' '.$enTimer.' + 1 day'));
             }
 
-            $lunchTime = NULL;
+            $lunchTime = null;
             if ($lunchTimer) {
-                $lunchTime = date('Y-m-d H:i:00', strtotime($date . ' ' . $lunchTimer));
+                $lunchTime = date('Y-m-d H:i:00', strtotime($date.' '.$lunchTimer));
                 if ($lunchTime < date('Y-m-d H:i:00', strtotime($stDatetime))) {
-                    $lunchTime = date('Y-m-d H:i:00', strtotime($lunchTime . ' + 1 day'));
+                    $lunchTime = date('Y-m-d H:i:00', strtotime($lunchTime.' + 1 day'));
                 } else {
                     $lunchTime = date('Y-m-d H:i:00', strtotime($lunchTime));
                 }
                 if ($stDatetime <= $lunchTime && $lunchTime <= $enDatetime) {
                     // Do nothing
                 } else {
-                    $lunchTime = NULL;
+                    $lunchTime = null;
                 }
             }
 
@@ -77,14 +82,13 @@ class UserAvaibility extends Model {
                 $enTime1 = $lunchTime;
                 $slots = array_merge_recursive($slots, getHourlySlots($stTime1, $enTime1));
 
-                $temp = getHourlySlots($lunchTime, date('Y-m-d H:i:00', strtotime($lunchTime . ' +1 hour')));
+                $temp = getHourlySlots($lunchTime, date('Y-m-d H:i:00', strtotime($lunchTime.' +1 hour')));
                 foreach ($temp as $key => $value) {
                     $temp[$key]['type'] = 'LUNCH';
                 }
                 $slots = array_merge_recursive($slots, $temp);
 
-
-                $stTime2 = date('Y-m-d H:i:00', strtotime($lunchTime . ' +1 hour'));
+                $stTime2 = date('Y-m-d H:i:00', strtotime($lunchTime.' +1 hour'));
                 $enTime2 = $enDatetime;
                 $slots = array_merge_recursive($slots, getHourlySlots($stTime2, $enTime2));
             } else {

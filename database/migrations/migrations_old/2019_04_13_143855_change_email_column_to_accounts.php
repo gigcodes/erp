@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class ChangeEmailColumnToAccounts extends Migration
 {
@@ -14,7 +14,7 @@ class ChangeEmailColumnToAccounts extends Migration
     public function up()
     {
         Schema::table('accounts', function (Blueprint $table) {
-          $table->string('email')->nullable()->change();
+            $table->string('email')->nullable()->change();
         });
     }
 
@@ -26,7 +26,7 @@ class ChangeEmailColumnToAccounts extends Migration
     public function down()
     {
         Schema::table('accounts', function (Blueprint $table) {
-          $table->string('email')->change();
+            $table->string('email')->change();
         });
     }
 }

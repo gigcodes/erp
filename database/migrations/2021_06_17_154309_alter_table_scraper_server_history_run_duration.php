@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableScraperServerHistoryRunDuration extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableScraperServerHistoryRunDuration extends Migration
     public function up()
     {
         //
-        Schema::table('scraper_server_status_histories',function(Blueprint $table) {
-            $table->string("duration")->nullable()->after('pid');
+        Schema::table('scraper_server_status_histories', function (Blueprint $table) {
+            $table->string('duration')->nullable()->after('pid');
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableScraperServerHistoryRunDuration extends Migration
     public function down()
     {
         //
-        Schema::table('scraper_server_status_histories',function(Blueprint $table) {
-            $table->dropField("duration");
+        Schema::table('scraper_server_status_histories', function (Blueprint $table) {
+            $table->dropField('duration');
         });
     }
 }

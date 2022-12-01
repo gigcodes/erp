@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateMagentoSettingUpdateResponseLogsTable extends Migration
 {
@@ -18,7 +18,7 @@ class CreateMagentoSettingUpdateResponseLogsTable extends Migration
             $table->integer('website_id')->nullable();
             $table->integer('magento_setting_id')->nullable();
             $table->longText('response')->nullable();
-            $table->timestamps(); 
+            $table->timestamps();
         });
     }
 

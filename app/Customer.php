@@ -1,19 +1,16 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
-use App\ChatMessage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\CustomerMarketingPlatform;
-use App\ImQueue;
-use App\CustomerAddressData;
+
 class Customer extends Model
 {
-
     /**
      * @var string
      * @SWG\Property(property="name",type="string")
@@ -22,7 +19,7 @@ class Customer extends Model
      * @SWG\Property(property="whatsapp_number",type="integer")
      * @SWG\Property(property="chat_session_id",type="integer")
      * @SWG\Property(property="in_w_list",type="string")
-  
+
      * @SWG\Property(property="store_website_id",type="integer")
      * @SWG\Property(property="user_id",type="integer")
 
@@ -33,6 +30,7 @@ class Customer extends Model
      * @SWG\Property(property="do_not_disturb",type="sting")
      */
     use SoftDeletes;
+
     // protected $appends = ['communication'];
     protected $fillable = [
         'name',
@@ -53,29 +51,29 @@ class Customer extends Model
         'language',
         'newsletter',
         'platform_id',
-        'priority'
+        'priority',
     ];
 
     protected $casts = [
-        'notes' => 'array'
+        'notes' => 'array',
     ];
 
     protected static function boot()
     {
         parent::boot();
         self::updating(function ($model) {
-            if(!empty(\Auth::id())) {
-               $model->updated_by = \Auth::id();
+            if (! empty(\Auth::id())) {
+                $model->updated_by = \Auth::id();
             }
         });
         self::saving(function ($model) {
-            if(!empty(\Auth::id())) {
-               $model->updated_by = \Auth::id();
+            if (! empty(\Auth::id())) {
+                $model->updated_by = \Auth::id();
             }
         });
         self::creating(function ($model) {
-            if(!empty(\Auth::id())) {
-               $model->updated_by = \Auth::id();
+            if (! empty(\Auth::id())) {
+                $model->updated_by = \Auth::id();
             }
         });
     }
@@ -84,10 +82,12 @@ class Customer extends Model
     {
         return $this->hasMany('App\ErpLeads')->orderBy('created_at', 'DESC');
     }
+
     public function customerAddress()
     {
         return $this->hasMany(CustomerAddressData::class, 'customer_id', 'id');
     }
+
     public function dnd()
     {
         return $this->hasMany('App\CustomerBulkMessageDND', 'customer_id', 'id')->where('filter', app('request')->keyword_filter);
@@ -202,11 +202,11 @@ class Customer extends Model
 
     public function whatsappAll($needBroadcast = false)
     {
-        if($needBroadcast) {
-            return $this->hasMany('App\ChatMessage', 'customer_id')->where(function($q){
-                $q->whereIn('status', ['7', '8', '9', '10'])->orWhere("group_id",">",0);
+        if ($needBroadcast) {
+            return $this->hasMany('App\ChatMessage', 'customer_id')->where(function ($q) {
+                $q->whereIn('status', ['7', '8', '9', '10'])->orWhere('group_id', '>', 0);
             })->latest();
-        }else{
+        } else {
             return $this->hasMany('App\ChatMessage', 'customer_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
         }
     }
@@ -255,37 +255,42 @@ class Customer extends Model
 
     public function broadcastLatest()
     {
-        return $this->hasOne('App\ChatMessage','customer_id','id')->where('status','8')->where('group_id','>',0)->latest();
+        return $this->hasOne('App\ChatMessage', 'customer_id', 'id')->where('status', '8')->where('group_id', '>', 0)->latest();
     }
 
     public function customerMarketingPlatformRemark()
     {
-        return $this->hasMany(CustomerMarketingPlatform::class,'customer_id','id')->whereNotNull('remark')->orderBy('created_at','desc');
+        return $this->hasMany(CustomerMarketingPlatform::class, 'customer_id', 'id')->whereNotNull('remark')->orderBy('created_at', 'desc');
     }
+
     public function customerMarketingPlatformActive()
     {
-        return $this->hasOne(CustomerMarketingPlatform::class,'customer_id','id')->whereNull('remark');
+        return $this->hasOne(CustomerMarketingPlatform::class, 'customer_id', 'id')->whereNull('remark');
     }
 
-    public function broadcastAll(){
-       return $this->hasMany('App\ChatMessage','customer_id','id')->where('status','8')->where('group_id','>',0)->orderby('id','desc');
+    public function broadcastAll()
+    {
+        return $this->hasMany('App\ChatMessage', 'customer_id', 'id')->where('status', '8')->where('group_id', '>', 0)->orderby('id', 'desc');
     }
 
-    public function lastBroadcastSend(){
-       return $this->hasOne(ImQueue::class,'number_to','phone')->whereNotNull('sent_at')->latest();
+    public function lastBroadcastSend()
+    {
+        return $this->hasOne(ImQueue::class, 'number_to', 'phone')->whereNotNull('sent_at')->latest();
     }
 
-    public function lastImQueueSend(){
-       return $this->hasOne(ImQueue::class,'number_to','phone')->orderby('sent_at','desc');
+    public function lastImQueueSend()
+    {
+        return $this->hasOne(ImQueue::class, 'number_to', 'phone')->orderby('sent_at', 'desc');
     }
 
-    public function notDelieveredImQueueMessage(){
-       return $this->hasOne(ImQueue::class,'number_to','phone')->where('sent_at','2002-02-02 02:02:02')->latest();
+    public function notDelieveredImQueueMessage()
+    {
+        return $this->hasOne(ImQueue::class, 'number_to', 'phone')->where('sent_at', '2002-02-02 02:02:02')->latest();
     }
 
     public function receivedLastestMessage()
     {
-        return $this->hasOne('App\ChatMessage','customer_id','id')->whereNotNull('number')->latest();
+        return $this->hasOne('App\ChatMessage', 'customer_id', 'id')->whereNotNull('number')->latest();
     }
 
     public function hasDND()
@@ -295,21 +300,20 @@ class Customer extends Model
 
     public function kyc()
     {
-        return $this->hasMany(App\CustomerKycDocument::class,"customer_id","id");
+        return $this->hasMany(App\CustomerKycDocument::class, 'customer_id', 'id');
     }
-
 
     /**
      *  Get information by ids
+     *
      *  @param []
-     *  @return Mixed
+     *  @return mixed
      */
-
-    public static function getInfoByIds($ids, $fields = ["*"], $toArray = false)
+    public static function getInfoByIds($ids, $fields = ['*'], $toArray = false)
     {
-        $list = self::whereIn("id",$ids)->select($fields)->get();
+        $list = self::whereIn('id', $ids)->select($fields)->get();
 
-        if($toArray) {
+        if ($toArray) {
             $list = $list->toArray();
         }
 
@@ -329,19 +333,21 @@ class Customer extends Model
         return $this->hasMany(ReturnExchange::class, 'customer_id');
     }
 
-    public static function ListSource(){
-        return array(
-            'instagram' => "Instagram",
-            'default' => "Default"
-        );
+    public static function ListSource()
+    {
+        return [
+            'instagram' => 'Instagram',
+            'default' => 'Default',
+        ];
     }
 
     public function wishListBasket()
     {
         return $this->hasOne(\App\CustomerBasket::class, 'customer_id', 'id');
     }
+
     public function maillistCustomerHistory()
     {
-       return  $this->hasOne(\App\MaillistCustomerHistory::class,'customer_id','id');
+        return  $this->hasOne(\App\MaillistCustomerHistory::class, 'customer_id', 'id');
     }
 }

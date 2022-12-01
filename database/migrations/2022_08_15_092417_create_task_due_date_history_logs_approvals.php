@@ -1,16 +1,18 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class CreateTaskDueDateHistoryLogsApprovals extends Migration {
+class CreateTaskDueDateHistoryLogsApprovals extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up() {
+    public function up()
+    {
         Schema::create('task_due_date_history_logs_approvals', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('parent_id');
@@ -24,7 +26,8 @@ class CreateTaskDueDateHistoryLogsApprovals extends Migration {
      *
      * @return void
      */
-    public function down() {
+    public function down()
+    {
         Schema::dropIfExists('task_due_date_history_logs_approvals');
     }
 }

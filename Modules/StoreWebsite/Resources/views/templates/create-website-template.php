@@ -37,14 +37,14 @@
                   <select name="mailing_service_id" class="form-control">
                      <option disabled>-- N/A --</option>
                      <?php
-                        if(isset($services)){
-                        foreach($services as $service){
-                        ?>
-                     <option value="<?php echo $service->id;  ?> {{if data}}{{:data.website==}}<?php echo $service->id ; ?> SELECTED {{/if}} "><?php echo $service->name; ?>  </option>
+                        if (isset($services)) {
+                            foreach ($services as $service) {
+                                ?>
+                     <option value="<?php echo $service->id; ?> {{if data}}{{:data.website==}}<?php echo $service->id; ?> SELECTED {{/if}} "><?php echo $service->name; ?>  </option>
                      <?php
+                            }
                         }
-                         			}
-                        ?>
+   ?>
                   </select>
                </div>
             </div>
@@ -231,10 +231,10 @@
                   <select name="country_duty" class="form-control">
                      <option value="">-- N/A --</option>
                      <?php
-                        foreach(\App\SimplyDutyCountry::all() as $k => $l) {
-                            echo "<option {{if data.country_duty == '".$l->country_code."'}} selected {{/if}} value='".$l->country_code."'>".$l->country_name."</option>";
-                        }
-                        ?>
+   foreach (\App\SimplyDutyCountry::all() as $k => $l) {
+       echo "<option {{if data.country_duty == '".$l->country_code."'}} selected {{/if}} value='".$l->country_code."'>".$l->country_name.'</option>';
+   }
+   ?>
                   </select>
                </div>
             </div>
@@ -283,10 +283,10 @@
                   <select name="repository_id" class="form-control">
                      <option value="">-- N/A --</option>
                      <?php
-                        foreach(\App\Github\GithubRepository::all() as $k => $l) {
-                        	echo "<option {{if data.repository_id == '".$l->id."'}} selected {{/if}} value='".$l->id."'>".$l->name."</option>";
-                        }
-                        ?>
+   foreach (\App\Github\GithubRepository::all() as $k => $l) {
+       echo "<option {{if data.repository_id == '".$l->id."'}} selected {{/if}} value='".$l->id."'>".$l->name.'</option>';
+   }
+   ?>
                   </select>
                </div>
             </div>
@@ -308,20 +308,20 @@
                   <select name="site_folder" id="site_folder" class="form-control siteFolder">
                      <option>--Select Site Folder--</option>
                   <?php
-                        foreach(\App\AssetsManager::whereNotNull('ip')->get() as $k => $l) {
-                            echo "<option {{if data.site_folder == '".$l->folder_name."'}} selected {{/if}} value='".$l->folder_name."'>".$l->ip_name."</option>";
-                        }
-                        /*$dataofIp = \App\AssetsManager::whereNotNull('ip')->get();
-                        foreach($dataofIp as $kk => $ll) {
-                           $arrIp = json_decode($ll->ip_name) ?? '';
-                           if(is_array($arrIp)){
-                              foreach($arrIp as $k => $l) {
-                                 echo "<option {{if data.site_folder == '".$l."'}} selected {{/if}} value='".$l."'>".$l."</option>";
-                              }
-                           }
-                        }
-                        */
-                        ?>
+   foreach (\App\AssetsManager::whereNotNull('ip')->get() as $k => $l) {
+       echo "<option {{if data.site_folder == '".$l->folder_name."'}} selected {{/if}} value='".$l->folder_name."'>".$l->ip_name.'</option>';
+   }
+   /*$dataofIp = \App\AssetsManager::whereNotNull('ip')->get();
+   foreach($dataofIp as $kk => $ll) {
+      $arrIp = json_decode($ll->ip_name) ?? '';
+      if(is_array($arrIp)){
+         foreach($arrIp as $k => $l) {
+            echo "<option {{if data.site_folder == '".$l."'}} selected {{/if}} value='".$l."'>".$l."</option>";
+         }
+      }
+   }
+   */
+   ?>
                   </select>
                </div>
             </div>

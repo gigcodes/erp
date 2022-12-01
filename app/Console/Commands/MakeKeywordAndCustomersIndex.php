@@ -30,7 +30,7 @@ class MakeKeywordAndCustomersIndex extends Command
     /**
      * Create a new command instance.
      *
-     * @param KeywordsChecker $checker
+     * @param  KeywordsChecker  $checker
      */
     public function __construct(KeywordsChecker $checker)
     {
@@ -47,9 +47,8 @@ class MakeKeywordAndCustomersIndex extends Command
     public function handle()
     {
         try {
-
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -58,7 +57,7 @@ class MakeKeywordAndCustomersIndex extends Command
                 $this->checker->assignCustomerAndKeyword($keywords, $customers);
             });
 
-            $keywords  = BulkCustomerRepliesKeyword::where('is_processed', 0)->get();
+            $keywords = BulkCustomerRepliesKeyword::where('is_processed', 0)->get();
             $customers = Customer::all();
             $this->checker->assignCustomerAndKeyword($keywords, $customers);
             BulkCustomerRepliesKeyword::where('is_processed', 0)->update([

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableStoreWebsitesDisablePush extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableStoreWebsitesDisablePush extends Migration
     public function up()
     {
         //
-        Schema::table('store_websites',function(Blueprint $table) {
-            $table->integer("disable_push")->default(0)->after("is_published");
+        Schema::table('store_websites', function (Blueprint $table) {
+            $table->integer('disable_push')->default(0)->after('is_published');
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableStoreWebsitesDisablePush extends Migration
     public function down()
     {
         //
-        Schema::table('store_websites',function(Blueprint $table) {
-            $table->dropField("disable_push");
+        Schema::table('store_websites', function (Blueprint $table) {
+            $table->dropField('disable_push');
         });
     }
 }

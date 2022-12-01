@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTableStoreWebsiteAttachBrandsTable extends Migration
 {
@@ -16,7 +16,7 @@ class CreateTableStoreWebsiteAttachBrandsTable extends Migration
         Schema::create('store_website_brands', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('brand_id');
-            $table->double('markup', 8, 2)->nullable()->default("0.00");
+            $table->double('markup', 8, 2)->nullable()->default('0.00');
             $table->integer('store_website_id');
             $table->timestamps();
         });

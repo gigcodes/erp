@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddMagnetoValueToStoreWebsiteBrandsTable extends Migration
 {
@@ -27,6 +27,6 @@ class AddMagnetoValueToStoreWebsiteBrandsTable extends Migration
     {
         Schema::table('store_website_brands', function (Blueprint $table) {
             $table->dropColumn('magento_value');
-        }); 
+        });
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     /**
@@ -95,7 +96,7 @@ return [
     'shelves_copy_permissions' => 'Kopieer Permissies',
     'shelves_copy_permissions_explain' => 'Met deze actie worden de permissies van deze boekenplank gekopieerd naar alle boeken op de plank. Voordat deze actie wordt uitgevoerd, zorg dat de wijzigingen in de permissies van deze boekenplank zijn opgeslagen.',
     'shelves_copy_permission_success' => 'Boekenplank permissies gekopieerd naar :count boeken',
-	
+
     // Books
     'book' => 'Boek',
     'books' => 'Boeken',
@@ -231,7 +232,7 @@ return [
      */
     'page_tags' => 'Pagina Labels',
     'tag' => 'Label',
-    'tags' =>  '',
+    'tags' => '',
     'tag_value' => 'Label Waarde (Optioneel)',
     'tags_explain' => "Voeg labels toe om de inhoud te categoriseren. \n Je kunt meerdere labels toevoegen.",
     'tags_add' => 'Voeg een extra label toe',
@@ -289,10 +290,10 @@ return [
     'comment_delete_confirm' => 'Zeker reactie verwijderen?',
     'comment_in_reply_to' => 'Antwoord op :commentId',
 
-     /**
+    /**
      * Revision
      */
     'revision_delete_confirm' => 'Weet u zeker dat u deze revisie wilt verwijderen?',
     'revision_delete_success' => 'Revisie verwijderd',
-    'revision_cannot_delete_latest' => 'Kan de laatste revisie niet verwijderen.'
+    'revision_cannot_delete_latest' => 'Kan de laatste revisie niet verwijderen.',
 ];

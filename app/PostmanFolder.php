@@ -9,6 +9,4 @@ class PostmanFolder extends Model
     protected $table = 'postman_folders';
 
     protected $guarded = [];
-
 }
- 

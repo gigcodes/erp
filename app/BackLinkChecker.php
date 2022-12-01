@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -11,9 +12,8 @@ class BackLinkChecker extends Model
     /**
      * Fillables for the database
      *
-     * @access protected
      *
-     * @var array $fillable
+     * @var array
      */
     /**
      * @var string
@@ -30,22 +30,20 @@ class BackLinkChecker extends Model
      * @SWG\Property(property="created_at",type="datetime")
      * @SWG\Property(property="updated_at",type="datetime")
      */
-    protected $fillable = array(
+    protected $fillable = [
         'domains', 'links', 'link_type',
         'review_numbers', 'rank',
         'rating', 'serp_id', 'snippet',
-        'title', 'visible_link'
-    );
+        'title', 'visible_link',
+    ];
 
     /**
      * Protected Date
      *
-     * @access protected
-     * @var    array $dates
+     * @var    array
      */
     protected $dates = [
         'created_at',
         'updated_at',
     ];
-
 }

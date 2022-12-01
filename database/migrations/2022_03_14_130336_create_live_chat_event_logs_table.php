@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateLiveChatEventLogsTable extends Migration
 {
@@ -15,7 +15,7 @@ class CreateLiveChatEventLogsTable extends Migration
     {
         Schema::create('live_chat_event_logs', function (Blueprint $table) {
             $table->increments('id');
-			$table->integer('customer_id')->index()->nullable();
+            $table->integer('customer_id')->index()->nullable();
             $table->string('thread')->nullable();
             $table->string('event_type')->nullable();
             $table->string('log')->nullable();

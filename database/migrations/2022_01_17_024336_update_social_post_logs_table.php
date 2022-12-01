@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateSocialPostLogsTable extends Migration
 {
@@ -13,9 +12,8 @@ class UpdateSocialPostLogsTable extends Migration
      */
     public function up()
     {
-        Schema::table('social_post_logs',function($table){
+        Schema::table('social_post_logs', function ($table) {
             $table->string('modal')->nullable();
-           
         });
     }
 
@@ -26,7 +24,7 @@ class UpdateSocialPostLogsTable extends Migration
      */
     public function down()
     {
-        Schema::table('social_post_logs',function($table){
+        Schema::table('social_post_logs', function ($table) {
             $table->dropColumn('modal');
         });
     }

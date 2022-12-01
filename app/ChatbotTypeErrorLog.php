@@ -4,12 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 class ChatbotTypeErrorLog extends Model
 {
     use Mediable;
+
     /**
      * @var string
      * @SWG\Property(property="store_website_id",type="integer")
@@ -19,15 +21,15 @@ class ChatbotTypeErrorLog extends Model
      * @SWG\Property(property="created_at",type="datetime")
      * @SWG\Property(property="updated_at",type="datetime")
      */
-    protected $fillable = ['id','store_website_id', 'call_sid', 'phone_number', 'type_error', 'is_active', 'created_at', 'updated_at'];
+    protected $fillable = ['id', 'store_website_id', 'call_sid', 'phone_number', 'type_error', 'is_active', 'created_at', 'updated_at'];
 
     public function storeWebsite()
     {
-        return $this->hasOne(StoreWebsite::class, 'store_website_id', "id");
+        return $this->hasOne(StoreWebsite::class, 'store_website_id', 'id');
     }
 
-    public function chatbotQuestionName() 
+    public function chatbotQuestionName()
     {
-        return $this->hasOne(ChatbotQuestion::class, "chatbot_id", "id");
+        return $this->hasOne(ChatbotQuestion::class, 'chatbot_id', 'id');
     }
 }

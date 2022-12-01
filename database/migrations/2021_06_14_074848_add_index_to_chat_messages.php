@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIndexToChatMessages extends Migration
 {
@@ -13,9 +13,8 @@ class AddIndexToChatMessages extends Migration
      */
     public function up()
     {
-        Schema::table('chat_messages', function(Blueprint $table)
-        {
-            $table->index(['issue_id','developer_task_id']);
+        Schema::table('chat_messages', function (Blueprint $table) {
+            $table->index(['issue_id', 'developer_task_id']);
         });
     }
 
@@ -26,9 +25,8 @@ class AddIndexToChatMessages extends Migration
      */
     public function down()
     {
-        Schema::table('chat_messages', function (Blueprint $table)
-        {
-            $table->dropIndex(['issue_id','developer_task_id']);
+        Schema::table('chat_messages', function (Blueprint $table) {
+            $table->dropIndex(['issue_id', 'developer_task_id']);
         });
     }
 }

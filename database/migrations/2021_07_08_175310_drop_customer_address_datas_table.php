@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class DropCustomerAddressDatasTable extends Migration
@@ -14,7 +12,7 @@ class DropCustomerAddressDatasTable extends Migration
     public function up()
     {
         //
-        \DB::statement("DROP TABLE `customer_address_datas`");
+        \DB::statement('DROP TABLE `customer_address_datas`');
     }
 
     /**

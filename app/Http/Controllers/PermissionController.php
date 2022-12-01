@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\User;
 use App\Permission;
+use App\User;
+use Illuminate\Http\Request;
 
 class PermissionController extends Controller
 {
@@ -17,24 +17,23 @@ class PermissionController extends Controller
     {
         $query = Permission::query();
 
-        if($request->term){
-            $query = $query->where('route', 'LIKE','%'.$request->term.'%');
+        if ($request->term) {
+            $query = $query->where('route', 'LIKE', '%'.$request->term.'%');
         }
 
-        
-        $users = User::where('is_active',1)->get();
+        $users = User::where('is_active', 1)->get();
 
-        $permissions =  $query->orderBy('id', 'DESC')->paginate(25)->appends(request()->except(['page']));
+        $permissions = $query->orderBy('id', 'DESC')->paginate(25)->appends(request()->except(['page']));
 
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('permissions.partials.list-permission', compact('permissions'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
-                'links' => (string)$permissions->render(),
+                'links' => (string) $permissions->render(),
                 'count' => $permissions->total(),
             ], 200);
         }
 
-        return view('permissions.index',compact('users','permissions'))->with('i', ($request->input('page', 1) - 1) * 10);
+        return view('permissions.index', compact('users', 'permissions'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     /**
@@ -58,16 +57,15 @@ class PermissionController extends Controller
         $this->validate($request, [
             'name' => 'required|unique:roles,name',
             'route' => 'required|unique:roles,name',
-            
+
         ]);
         $permission = new Permission();
         $permission->name = $request->name;
         $permission->route = $request->route;
         $permission->save();
-      
 
         return redirect()->back()
-                         ->with('success','Permission created successfully');
+                         ->with('success', 'Permission created successfully');
     }
 
     /**
@@ -79,7 +77,8 @@ class PermissionController extends Controller
     public function show($id)
     {
         $permissions = Permission::find($id);
-        return view('permissions.show',compact('permissions'));
+
+        return view('permissions.show', compact('permissions'));
     }
 
     /**
@@ -91,7 +90,8 @@ class PermissionController extends Controller
     public function edit($id)
     {
         $permissions = Permission::find($id);
-        return view('permissions.edit',compact('permissions'));
+
+        return view('permissions.edit', compact('permissions'));
     }
 
     /**
@@ -106,17 +106,16 @@ class PermissionController extends Controller
         $this->validate($request, [
             'name' => 'required',
             'route' => 'required',
-            
-        ]);
 
+        ]);
 
         $permission = Permission::find($id);
         $permission->name = $request->input('name');
         $permission->route = $request->input('route');
         $permission->save();
-        
+
         return redirect()->route('permissions.index')
-                         ->with('success','Role updated successfully');
+                         ->with('success', 'Role updated successfully');
     }
 
     /**
@@ -129,15 +128,17 @@ class PermissionController extends Controller
     {
         $permission = Permission::find($id);
         $permission->delete();
+
         return redirect()->route('permissions.index')
-                         ->with('success','Role deleted successfully');
+                         ->with('success', 'Role deleted successfully');
     }
 
     public function users(Request $request)
     {
-        $users = User::where('is_active',1)->orderBy('name','asc')->get();
-        $permissions = Permission::orderBy('name','asc')->get();
-        return view('permissions.users',compact('users','permissions'))->with('i', ($request->input('page', 1) - 1) * 10);
+        $users = User::where('is_active', 1)->orderBy('name', 'asc')->get();
+        $permissions = Permission::orderBy('name', 'asc')->get();
+
+        return view('permissions.users', compact('users', 'permissions'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     /**
@@ -152,37 +153,33 @@ class PermissionController extends Controller
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
-     *
      */
-    public function  updatePermission(Request $request){
-       $user_id =  $request->user_id;
-       $permission_id = $request->permission_id;
-       $is_Active = $request->is_active;
+    public function updatePermission(Request $request)
+    {
+        $user_id = $request->user_id;
+        $permission_id = $request->permission_id;
+        $is_Active = $request->is_active;
         $user = User::findorfail($user_id);
         //ADD PERMISSION
-        if($is_Active == 0){
+        if ($is_Active == 0) {
             $user->permissions()->attach($permission_id);
-            $message = "Permission added Successfully";
+            $message = 'Permission added Successfully';
         }
         //REMOVE PERMISSION
-        if($is_Active == 1){
+        if ($is_Active == 1) {
             $user->permissions()->detach($permission_id);
-            $message = "Permission removed Successfully";
+            $message = 'Permission removed Successfully';
         }
 
         $data = [
             'success' => true,
-            'message'=> $message
-        ] ;
+            'message' => $message,
+        ];
+
         return response()->json($data);
-
-
     }
-
-    
-    
 }

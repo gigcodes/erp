@@ -10,4 +10,3 @@ class UiResponsivestatusHistory extends Model
 
     protected $fillable = ['id', 'user_id', 'uicheck_id', 'device_no', 'ui_device_id', 'status', 'old_status', 'created_at'];
 }
-

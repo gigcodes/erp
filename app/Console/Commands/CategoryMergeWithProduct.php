@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Category;
+use Illuminate\Console\Command;
 
 class CategoryMergeWithProduct extends Command
 {
@@ -38,14 +38,11 @@ class CategoryMergeWithProduct extends Command
      */
     public function handle()
     {
-
         //cleaning reference with product name and color and composition or any other database files
-        $categories = Category::where('parent_id','!=',0)->get();
+        $categories = Category::where('parent_id', '!=', 0)->get();
 
         foreach ($categories as $category) {
-            
-            if($category->references){
-
+            if ($category->references) {
                 try {
                     $word = $category->title;
                     $word = preg_replace('/\s+/', '', $word);
@@ -53,7 +50,7 @@ class CategoryMergeWithProduct extends Command
                     $referenceArray = explode(',', $category->references);
                     $matches = [];
                     foreach ($referenceArray as $input) {
-                        if(!empty($input)){
+                        if (! empty($input)) {
                             $input = preg_replace('/\s+/', '', $input);
                             $input = preg_replace('/[^a-zA-Z0-9_ -]/s', '', $input);
                             similar_text(strtolower($input), strtolower($word), $percent);
@@ -61,26 +58,19 @@ class CategoryMergeWithProduct extends Command
                                 $matches[] = $input;
                             }
                         }
-
                     }
-                    if(count($matches) == 0){
+                    if (count($matches) == 0) {
                         $category->references = '';
                         $category->update();
-                    }else{
-                        $category->references = implode(',',$matches);
+                    } else {
+                        $category->references = implode(',', $matches);
                         $category->update();
                     }
                     // dd($referenceArray);
                 } catch (\Exception $e) {
-                    
                 }
-
             }
-            # code...
+            // code...
         }
-
-        
-
-        
     }
 }

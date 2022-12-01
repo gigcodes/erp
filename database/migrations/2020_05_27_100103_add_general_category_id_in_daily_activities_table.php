@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddGeneralCategoryIdInDailyActivitiesTable extends Migration
 {
@@ -13,8 +12,8 @@ class AddGeneralCategoryIdInDailyActivitiesTable extends Migration
      */
     public function up()
     {
-        Schema::table('daily_activities',function($table){
-            $table->integer('general_category_id')->nullable()->after("is_completed");
+        Schema::table('daily_activities', function ($table) {
+            $table->integer('general_category_id')->nullable()->after('is_completed');
         });
     }
 
@@ -25,7 +24,7 @@ class AddGeneralCategoryIdInDailyActivitiesTable extends Migration
      */
     public function down()
     {
-        Schema::table('daily_activities',function($table){
+        Schema::table('daily_activities', function ($table) {
             $table->dropColumn('general_category_id');
         });
     }

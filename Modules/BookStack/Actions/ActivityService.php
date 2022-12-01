@@ -1,4 +1,6 @@
-<?php namespace Modules\BookStack\Actions;
+<?php
+
+namespace Modules\BookStack\Actions;
 
 use Modules\BookStack\Auth\Permissions\PermissionService;
 use Modules\BookStack\Entities\Entity;
@@ -7,13 +9,16 @@ use Session;
 class ActivityService
 {
     protected $activity;
+
     protected $user;
+
     protected $permissionService;
 
     /**
      * ActivityService constructor.
-     * @param \BookStack\Actions\Activity $activity
-     * @param PermissionService $permissionService
+     *
+     * @param  \BookStack\Actions\Activity  $activity
+     * @param  PermissionService  $permissionService
      */
     public function __construct(Activity $activity, PermissionService $permissionService)
     {
@@ -24,10 +29,11 @@ class ActivityService
 
     /**
      * Add activity data to database.
-     * @param Entity $entity
-     * @param        $activityKey
-     * @param int $bookId
-     * @param bool $extra
+     *
+     * @param  Entity  $entity
+     * @param    $activityKey
+     * @param  int  $bookId
+     * @param  bool  $extra
      */
     public function add(Entity $entity, $activityKey, $bookId = 0, $extra = false)
     {
@@ -44,9 +50,10 @@ class ActivityService
 
     /**
      * Adds a activity history with a message & without binding to a entity.
-     * @param            $activityKey
-     * @param int $bookId
-     * @param bool|false $extra
+     *
+     * @param    $activityKey
+     * @param  int  $bookId
+     * @param  bool|false  $extra
      */
     public function addMessage($activityKey, $bookId = 0, $extra = false)
     {
@@ -60,12 +67,12 @@ class ActivityService
         $this->setNotification($activityKey);
     }
 
-
     /**
      * Removes the entity attachment from each of its activities
      * and instead uses the 'extra' field with the entities name.
      * Used when an entity is deleted.
-     * @param Entity $entity
+     *
+     * @param  Entity  $entity
      * @return mixed
      */
     public function removeEntity(Entity $entity)
@@ -77,13 +84,15 @@ class ActivityService
             $activity->entity_type = null;
             $activity->save();
         }
+
         return $activities;
     }
 
     /**
      * Gets the latest activity.
-     * @param int $count
-     * @param int $page
+     *
+     * @param  int  $count
+     * @param  int  $page
      * @return array
      */
     public function latest($count = 20, $page = 0)
@@ -98,9 +107,10 @@ class ActivityService
     /**
      * Gets the latest activity for an entity, Filtering out similar
      * items to prevent a message activity list.
-     * @param Entity $entity
-     * @param int $count
-     * @param int $page
+     *
+     * @param  Entity  $entity
+     * @param  int  $count
+     * @param  int  $page
      * @return array
      */
     public function entityActivity($entity, $count = 20, $page = 1)
@@ -111,7 +121,7 @@ class ActivityService
             $query = $this->activity->where('entity_type', '=', $entity->getMorphClass())
                 ->where('entity_id', '=', $entity->id);
         }
-        
+
         $activity = $this->permissionService
             ->filterRestrictedEntityRelations($query, 'book_activities', 'entity_id', 'entity_type')
             ->orderBy('created_at', 'desc')
@@ -126,9 +136,10 @@ class ActivityService
     /**
      * Get latest activity for a user, Filtering out similar
      * items.
+     *
      * @param $user
-     * @param int $count
-     * @param int $page
+     * @param  int  $count
+     * @param  int  $page
      * @return array
      */
     public function userActivity($user, $count = 20, $page = 0)
@@ -136,12 +147,14 @@ class ActivityService
         $activityList = $this->permissionService
             ->filterRestrictedEntityRelations($this->activity, 'book_activities', 'entity_id', 'entity_type')
             ->orderBy('created_at', 'desc')->where('user_id', '=', $user->id)->skip($count * $page)->take($count)->get();
+
         return $this->filterSimilar($activityList);
     }
 
     /**
      * Filters out similar activity.
-     * @param Activity[] $activities
+     *
+     * @param  Activity[]  $activities
      * @return array
      */
     protected function filterSimilar($activities)
@@ -152,23 +165,26 @@ class ActivityService
             if ($previousItem === false) {
                 $previousItem = $activityItem;
                 $newActivity[] = $activityItem;
+
                 continue;
             }
-            if (!$activityItem->isSimilarTo($previousItem)) {
+            if (! $activityItem->isSimilarTo($previousItem)) {
                 $newActivity[] = $activityItem;
             }
             $previousItem = $activityItem;
         }
+
         return $newActivity;
     }
 
     /**
      * Flashes a notification message to the session if an appropriate message is available.
+     *
      * @param $activityKey
      */
     protected function setNotification($activityKey)
     {
-        $notificationTextKey = 'book_activities.' . $activityKey . '_notification';
+        $notificationTextKey = 'book_activities.'.$activityKey.'_notification';
         if (trans()->has($notificationTextKey)) {
             $message = trans($notificationTextKey);
             Session::flash('success', $message);

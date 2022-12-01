@@ -1,22 +1,23 @@
-<?php namespace Modules\BookStack\Actions;
+<?php
+
+namespace Modules\BookStack\Actions;
 
 use Modules\BookStack\Entities\Entity;
 
 /**
  * Class CommentRepo
- * @package BookStack\Repos
  */
 class CommentRepo
 {
-
     /**
-     * @var \BookStack\Actions\Comment $comment
+     * @var \BookStack\Actions\Comment
      */
     protected $comment;
 
     /**
      * CommentRepo constructor.
-     * @param \BookStack\Actions\Comment $comment
+     *
+     * @param  \BookStack\Actions\Comment  $comment
      */
     public function __construct(Comment $comment)
     {
@@ -25,6 +26,7 @@ class CommentRepo
 
     /**
      * Get a comment by ID.
+     *
      * @param $id
      * @return \BookStack\Actions\Comment|\Illuminate\Database\Eloquent\Model
      */
@@ -35,8 +37,9 @@ class CommentRepo
 
     /**
      * Create a new comment on an entity.
-     * @param \BookStack\Entities\Entity $entity
-     * @param array $data
+     *
+     * @param  \BookStack\Entities\Entity  $entity
+     * @param  array  $data
      * @return \BookStack\Actions\Comment
      */
     public function create(Entity $entity, $data = [])
@@ -47,25 +50,29 @@ class CommentRepo
         $comment->updated_by = $userId;
         $comment->local_id = $this->getNextLocalId($entity);
         $entity->comments()->save($comment);
+
         return $comment;
     }
 
     /**
      * Update an existing comment.
-     * @param \BookStack\Actions\Comment $comment
-     * @param array $input
+     *
+     * @param  \BookStack\Actions\Comment  $comment
+     * @param  array  $input
      * @return mixed
      */
     public function update($comment, $input)
     {
         $comment->updated_by = user()->id;
         $comment->update($input);
+
         return $comment;
     }
 
     /**
      * Delete a comment from the system.
-     * @param \BookStack\Actions\Comment $comment
+     *
+     * @param  \BookStack\Actions\Comment  $comment
      * @return mixed
      */
     public function delete($comment)
@@ -75,7 +82,8 @@ class CommentRepo
 
     /**
      * Get the next local ID relative to the linked entity.
-     * @param \BookStack\Entities\Entity $entity
+     *
+     * @param  \BookStack\Entities\Entity  $entity
      * @return int
      */
     protected function getNextLocalId(Entity $entity)
@@ -84,6 +92,7 @@ class CommentRepo
         if ($comments === null) {
             return 1;
         }
+
         return $comments->local_id + 1;
     }
 }

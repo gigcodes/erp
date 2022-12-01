@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateOrderMagentoErrorLogsTable extends Migration
 {
@@ -31,4 +31,3 @@ class CreateOrderMagentoErrorLogsTable extends Migration
         Schema::dropIfExists('order_magento_error_logs');
     }
 }
-

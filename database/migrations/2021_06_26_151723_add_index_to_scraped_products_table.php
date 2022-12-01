@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIndexToScrapedProductsTable extends Migration
 {
@@ -15,7 +15,6 @@ class AddIndexToScrapedProductsTable extends Migration
     {
         Schema::table('scraped_products', function (Blueprint $table) {
             $table->index(['composition']);
-
         });
     }
 
@@ -28,7 +27,6 @@ class AddIndexToScrapedProductsTable extends Migration
     {
         Schema::table('scraped_products', function (Blueprint $table) {
             $table->dropIndex(['composition']);
-
         });
     }
 }

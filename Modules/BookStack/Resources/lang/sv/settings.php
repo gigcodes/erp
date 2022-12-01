@@ -62,7 +62,7 @@ return [
      */
     'maint' => 'Underhåll',
     'maint_image_cleanup' => 'Rensa bilder',
-    'maint_image_cleanup_desc' => "Söker igenom innehåll i sidor & revisioner för att se vilka bilder och teckningar som är i bruk och vilka som är överflödiga. Se till att ta en komplett backup av databas och bilder innan du kör detta.",
+    'maint_image_cleanup_desc' => 'Söker igenom innehåll i sidor & revisioner för att se vilka bilder och teckningar som är i bruk och vilka som är överflödiga. Se till att ta en komplett backup av databas och bilder innan du kör detta.',
     'maint_image_cleanup_ignore_revisions' => 'Ignorera bilder i revisioner',
     'maint_image_cleanup_run' => 'Kör rensning',
     'maint_image_cleanup_warning' => 'Hittade :count bilder som potentiellt inte används. Vill du verkligen ta bort dessa bilder?',
@@ -139,5 +139,5 @@ return [
     'users_social_connect' => 'Anslut konto',
     'users_social_disconnect' => 'Koppla från konto',
     'users_social_connected' => ':socialAccount har kopplats till ditt konto.',
-    'users_social_disconnected' => ':socialAccount har kopplats bort från ditt konto.'
+    'users_social_disconnected' => ':socialAccount har kopplats bort från ditt konto.',
 ];

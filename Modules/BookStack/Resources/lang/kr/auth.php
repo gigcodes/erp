@@ -1,4 +1,5 @@
 <?php
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -42,7 +43,6 @@ return [
     'registration_email_domain_invalid' => '해당 이메일 도메인으로 액세스 할 수 없습니다.',
     'register_success' => '등록을 완료하고 로그인 할 수 있습니다!',
 
-
     /**
      * Password Reset
      */
@@ -55,7 +55,6 @@ return [
     'email_reset_subject' => ':appName 암호를 재설정',
     'email_reset_text' => '귀하의 계정에 대한 비밀번호 재설정 요청을 받았기 때문에 본 이메일이 발송되었습니다.',
     'email_reset_not_requested' => '암호 재설정을 요청하지 않은 경우 더 이상의 조치는 필요하지 않습니다.',
-
 
     /**
      * Email Confirmation

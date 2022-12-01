@@ -32,14 +32,14 @@ class OrderDeliveryDateChangeMail extends Mailable
      */
     public function build()
     {
-        $subject = "Order # " . $this->order->order_id . " delivery date has been changed";
+        $subject = 'Order # '.$this->order->order_id.' delivery date has been changed';
         $order = $this->order;
 
         $customer = $order->customer;
         $order_products = $order->order_products;
 
         $this->subject = $subject;
-        $this->fromMailer = "customercare@sololuxury.co.in";
+        $this->fromMailer = 'customercare@sololuxury.co.in';
 
         //$email          = "customercare@sololuxury.co.in";
 
@@ -65,14 +65,13 @@ class OrderDeliveryDateChangeMail extends Mailable
             }
 
             $this->subject = $template->subject;
-            if (!empty($template->mail_tpl)) {
+            if (! empty($template->mail_tpl)) {
                 return $this->from($this->fromMailer)
                     ->subject($this->subject)
                     ->view($template->mail_tpl, compact(
                         'order', 'customer', 'order_products'
                     ));
             } else {
-
                 $content = $template->static_template;
                 $arrToReplace = ['{FIRST_NAME}', '{ORDER_DELIVERY_DATE}', '{ORDER_ID}'];
                 $valToReplace = [$order->customer->name, $order->order_status, $order->order_id];

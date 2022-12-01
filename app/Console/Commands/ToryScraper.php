@@ -15,6 +15,7 @@ class ToryScraper extends Command
      * @var string
      */
     protected $signature = 'scrap:tory-list';
+
     private $scraper;
 
     /**
@@ -26,7 +27,8 @@ class ToryScraper extends Command
 
     /**
      * Create a new command instance.
-     * @param Tory $scraper
+     *
+     * @param  Tory  $scraper
      */
     public function __construct(Tory $scraper)
     {
@@ -43,7 +45,7 @@ class ToryScraper extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 

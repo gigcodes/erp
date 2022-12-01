@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddMoreColumnsToEmails extends Migration
 {
@@ -14,8 +14,8 @@ class AddMoreColumnsToEmails extends Migration
     public function up()
     {
         Schema::table('emails', function (Blueprint $table) {
-          $table->string('template')->after('message');
-          $table->string('additional_data')->nullable()->after('template');
+            $table->string('template')->after('message');
+            $table->string('additional_data')->nullable()->after('template');
         });
     }
 
@@ -27,8 +27,8 @@ class AddMoreColumnsToEmails extends Migration
     public function down()
     {
         Schema::table('emails', function (Blueprint $table) {
-          $table->dropColumn('template');
-          $table->dropColumn('additional_data');
+            $table->dropColumn('template');
+            $table->dropColumn('additional_data');
         });
     }
 }

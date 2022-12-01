@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateImQueuesTable extends Migration
 {
@@ -11,7 +11,6 @@ class CreateImQueuesTable extends Migration
      *
      * @return void
      */
-
     public function up()
     {
         Schema::create('im_queues', function (Blueprint $table) {

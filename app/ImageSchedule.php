@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -8,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ImageSchedule extends Model
 {
-	   /**
+    /**
      * @var string
      * @SWG\Property(property="scheduled_for",type="string")
      * @SWG\Property(property="created_at",type="datetime")
@@ -17,10 +18,11 @@ class ImageSchedule extends Model
     protected $dates = [
         'created_at',
         'updated_at',
-        'scheduled_for'
+        'scheduled_for',
     ];
 
-    public function image() {
+    public function image()
+    {
         return $this->belongsTo(Image::class, 'image_id', 'id');
     }
 }

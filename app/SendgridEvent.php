@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class SendgridEvent
  *
- * @package LaravelSendgridEvents\Models
  *
  * @property array|string[] $categories
  * @property Carbon $created_at
@@ -23,14 +22,15 @@ use Illuminate\Database\Eloquent\Model;
  */
 class SendgridEvent extends Model
 {
-
     /**
      * The attributes that should be mutated to dates.
      *
      * @var array
      */
     protected $dates = ['timestamp'];
-	protected $fillable = ['timestamp', 'email', 'event', 'sg_event_id', 'sg_message_id', 'categories', 'payload','email_id'];
+
+    protected $fillable = ['timestamp', 'email', 'event', 'sg_event_id', 'sg_message_id', 'categories', 'payload', 'email_id'];
+
     /**
      * The attributes that should be cast to native types.
      *

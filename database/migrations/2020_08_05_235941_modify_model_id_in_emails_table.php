@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class ModifyModelIdInEmailsTable extends Migration
 {
@@ -16,7 +16,7 @@ class ModifyModelIdInEmailsTable extends Migration
         /*Schema::table('emails', function (Blueprint $table) {
             $table->integer('model_id')->unsigned()->nullable()->change();
         });*/
-        \DB::statement("ALTER TABLE `emails` CHANGE `model_id` `model_id` INT(10) UNSIGNED NULL;");
+        \DB::statement('ALTER TABLE `emails` CHANGE `model_id` `model_id` INT(10) UNSIGNED NULL;');
     }
 
     /**

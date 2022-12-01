@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreatePlanSolutionsTable extends Migration
 {
@@ -14,7 +14,6 @@ class CreatePlanSolutionsTable extends Migration
     public function up()
     {
         Schema::create('plan_solutions', function (Blueprint $table) {
-            
             $table->increments('id');
             $table->text('solution');
             $table->integer('plan_id');

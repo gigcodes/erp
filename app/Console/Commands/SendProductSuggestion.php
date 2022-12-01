@@ -6,7 +6,6 @@ use App\ChatMessage;
 use App\CronJobReport;
 use App\Customer;
 use App\Product;
-use App\Suggestion;
 use App\SuggestedProduct;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -46,7 +45,7 @@ class SendProductSuggestion extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -56,10 +55,10 @@ class SendProductSuggestion extends Command
                 $customer = Customer::find($suggestion->customer_id);
 
                 if ($customer) {
-                    $brands     = json_decode($suggestion->brands);
+                    $brands = json_decode($suggestion->brands);
                     $categories = json_decode($suggestion->categories);
-                    $sizes      = json_decode($suggestion->size);
-                    $suppliers  = json_decode($suggestion->supplier);
+                    $sizes = json_decode($suggestion->size);
+                    $suppliers = json_decode($suggestion->supplier);
 
                     if ($brands[0] != null) {
                         $products = Product::whereIn('brand', $brands);
@@ -121,18 +120,18 @@ class SendProductSuggestion extends Command
 
                     if (count($products) > 0) {
                         $params = [
-                            'number'      => null,
-                            'user_id'     => 6,
-                            'approved'    => 0,
-                            'status'      => 1,
-                            'message'     => 'Suggested images',
+                            'number' => null,
+                            'user_id' => 6,
+                            'approved' => 0,
+                            'status' => 1,
+                            'message' => 'Suggested images',
                             'customer_id' => $customer->id,
                         ];
 
                         $count = 0;
 
                         foreach ($products as $product) {
-                            if (!$product->suggestions->contains($suggestion->id)) {
+                            if (! $product->suggestions->contains($suggestion->id)) {
                                 if ($image = $product->getMedia(config('constants.media_tags'))->first()) {
                                     if ($count == 0) {
                                         $chat_message = ChatMessage::create($params);

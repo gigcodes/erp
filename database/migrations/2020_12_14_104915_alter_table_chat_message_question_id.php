@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableChatMessageQuestionId extends Migration
 {
@@ -17,7 +17,6 @@ class AlterTableChatMessageQuestionId extends Migration
         Schema::table('chat_messages', function (Blueprint $table) {
             $table->integer('question_id')->nullable();
         });
-
     }
 
     /**
@@ -28,7 +27,7 @@ class AlterTableChatMessageQuestionId extends Migration
     public function down()
     {
         //
-        Schema::table('chat_messages',function(Blueprint $table) {
+        Schema::table('chat_messages', function (Blueprint $table) {
             $table->dropField('question_id');
         });
     }

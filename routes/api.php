@@ -1,6 +1,5 @@
 <?php
 
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -153,7 +152,7 @@ Route::post('local/instagram-post', 'InstagramPostsController@saveFromLocal');
 Route::get('local/instagram-user-post', 'InstagramPostsController@getUserForLocal');
 
 Route::post('node/get-status', 'ScrapController@getStatus');
-Route::get('node/get-log', 'ScrapController@getLatestLog')->name("scraper.get.log.list");
+Route::get('node/get-log', 'ScrapController@getLatestLog')->name('scraper.get.log.list');
 
 Route::prefix('v1')->group(function () {
     Route::prefix('product')->group(function () {
@@ -252,22 +251,20 @@ Route::post('customer/add_cart_data', 'Api\v1\CustomerController@add_cart_data')
 
 // Social Webhook
 Route::get('social/webhook', 'SocialWebhookController@verifyWebhook');
-Route::post('social/webhook', 'SocialWebhookController@webhook'); 
+Route::post('social/webhook', 'SocialWebhookController@webhook');
 
 //Sync Transaction with order
 Route::post('order/sync-transaction', 'OrderController@syncTransaction');
 
 Route::post('updateLog', 'UpdateLogController@store');
 
-
 Route::group([
     'middleware' => 'api',
     'prefix' => 'auth',
-    'namespace' => 'Api\v1\Auth'
+    'namespace' => 'Api\v1\Auth',
 ], function ($router) {
     Route::post('login', 'LoginController@login');
     Route::post('logout', 'LoginController@logout');
     Route::post('refresh', 'LoginController@refresh');
     Route::post('me', 'LoginController@me');
-
 });

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateSentAtSentOnFieldsFcmNotifications extends Migration
 {
@@ -14,9 +14,8 @@ class UpdateSentAtSentOnFieldsFcmNotifications extends Migration
     public function up()
     {
         Schema::table('push_fcm_notifications', function (Blueprint $table) {
-            \DB::statement("ALTER TABLE `push_fcm_notifications` MODIFY `sent_on` datetime NULL DEFAULT NULL;");
-            \DB::statement("ALTER TABLE `push_fcm_notifications` MODIFY `sent_at` datetime NULL DEFAULT NULL;");
-
+            \DB::statement('ALTER TABLE `push_fcm_notifications` MODIFY `sent_on` datetime NULL DEFAULT NULL;');
+            \DB::statement('ALTER TABLE `push_fcm_notifications` MODIFY `sent_at` datetime NULL DEFAULT NULL;');
         });
     }
 

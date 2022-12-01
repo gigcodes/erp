@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddTypeToComplaints extends Migration
 {
@@ -14,7 +14,7 @@ class AddTypeToComplaints extends Migration
     public function up()
     {
         Schema::table('complaints', function (Blueprint $table) {
-          $table->string('thread_type')->after('name');
+            $table->string('thread_type')->after('name');
         });
     }
 
@@ -26,7 +26,7 @@ class AddTypeToComplaints extends Migration
     public function down()
     {
         Schema::table('complaints', function (Blueprint $table) {
-          $table->dropColumn('thread_type');
+            $table->dropColumn('thread_type');
         });
     }
 }

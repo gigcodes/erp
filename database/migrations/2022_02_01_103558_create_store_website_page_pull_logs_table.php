@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateStoreWebsitePagePullLogsTable extends Migration
 {
@@ -15,11 +15,11 @@ class CreateStoreWebsitePagePullLogsTable extends Migration
     {
         Schema::create('store_website_page_pull_logs', function (Blueprint $table) {
             $table->increments('id');
-			$table->string('platform_id')->nullable();
+            $table->string('platform_id')->nullable();
             $table->integer('page_id')->nullable();
             $table->integer('store_website_id')->nullable();
             $table->string('url_key')->nullable();
-			$table->string('title')->nullable();
+            $table->string('title')->nullable();
             $table->string('meta_title')->nullable();
             $table->string('meta_keywords')->nullable();
             $table->text('meta_description')->nullable();

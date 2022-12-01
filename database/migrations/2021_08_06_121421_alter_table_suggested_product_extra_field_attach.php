@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableSuggestedProductExtraFieldAttach extends Migration
 {
@@ -14,9 +14,9 @@ class AlterTableSuggestedProductExtraFieldAttach extends Migration
     public function up()
     {
         //
-        Schema::table("suggested_products",function(Blueprint $table) {
-            $table->string("platform")->nullable()->default("attachment")->after("chat_message_id");
-            $table->integer("platform_id")->nullable()->after("platform");
+        Schema::table('suggested_products', function (Blueprint $table) {
+            $table->string('platform')->nullable()->default('attachment')->after('chat_message_id');
+            $table->integer('platform_id')->nullable()->after('platform');
         });
     }
 
@@ -28,9 +28,9 @@ class AlterTableSuggestedProductExtraFieldAttach extends Migration
     public function down()
     {
         //
-        Schema::table("suggested_products",function(Blueprint $table) {
-            $table->dropField("platform");
-            $table->dropField("platform_id");
+        Schema::table('suggested_products', function (Blueprint $table) {
+            $table->dropField('platform');
+            $table->dropField('platform_id');
         });
     }
 }

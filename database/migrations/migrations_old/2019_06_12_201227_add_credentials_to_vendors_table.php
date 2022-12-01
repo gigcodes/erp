@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddCredentialsToVendorsTable extends Migration
 {
@@ -14,9 +14,9 @@ class AddCredentialsToVendorsTable extends Migration
     public function up()
     {
         Schema::table('vendors', function (Blueprint $table) {
-          $table->string('website')->nullable()->after('social_handle');
-          $table->string('login')->nullable()->after('website');
-          $table->string('password')->nullable()->after('login');
+            $table->string('website')->nullable()->after('social_handle');
+            $table->string('login')->nullable()->after('website');
+            $table->string('password')->nullable()->after('login');
         });
     }
 
@@ -28,9 +28,9 @@ class AddCredentialsToVendorsTable extends Migration
     public function down()
     {
         Schema::table('vendors', function (Blueprint $table) {
-          $table->dropColumn('website');
-          $table->dropColumn('login');
-          $table->dropColumn('password');
+            $table->dropColumn('website');
+            $table->dropColumn('login');
+            $table->dropColumn('password');
         });
     }
 }

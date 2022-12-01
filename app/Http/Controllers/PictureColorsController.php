@@ -15,6 +15,7 @@ class PictureColorsController extends Controller
     public function index()
     {
         $pictures = PictureColors::all();
+
         return view('test2', compact('pictures'));
     }
 

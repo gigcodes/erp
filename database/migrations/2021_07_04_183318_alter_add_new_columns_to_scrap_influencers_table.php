@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterAddNewColumnsToScrapInfluencersTable extends Migration
 {
@@ -30,11 +30,11 @@ class AlterAddNewColumnsToScrapInfluencersTable extends Migration
     public function down()
     {
         Schema::table('scrap_influencers', function (Blueprint $table) {
-            $table->dropField("profile_pic");
-            $table->dropField("friends");
-            $table->dropField("cover_photo");
-            $table->dropField("interests");
-            $table->dropField("work_at");
+            $table->dropField('profile_pic');
+            $table->dropField('friends');
+            $table->dropField('cover_photo');
+            $table->dropField('interests');
+            $table->dropField('work_at');
         });
     }
 }

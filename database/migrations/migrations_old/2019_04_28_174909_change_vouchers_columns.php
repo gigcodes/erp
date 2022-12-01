@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class ChangeVouchersColumns extends Migration
 {
@@ -14,8 +14,8 @@ class ChangeVouchersColumns extends Migration
     public function up()
     {
         Schema::table('vouchers', function (Blueprint $table) {
-          $table->string('amount')->nullable()->change();
-          $table->string('paid')->nullable()->change();
+            $table->string('amount')->nullable()->change();
+            $table->string('paid')->nullable()->change();
         });
     }
 
@@ -27,8 +27,8 @@ class ChangeVouchersColumns extends Migration
     public function down()
     {
         Schema::table('vouchers', function (Blueprint $table) {
-          $table->integer('amount')->change();
-          $table->integer('paid')->change();
+            $table->integer('amount')->change();
+            $table->integer('paid')->change();
         });
     }
 }

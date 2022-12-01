@@ -14,7 +14,7 @@ class AddStatusIdToLandingPageProductsTable extends Migration
     public function up()
     {
         Schema::table('landing_page_products', function (Blueprint $table) {
-            if (!Schema::hasColumn('landing_page_products', 'landing_page_status_id')) {
+            if (! Schema::hasColumn('landing_page_products', 'landing_page_status_id')) {
                 $table->integer('landing_page_status_id')->unsigned()->after('status');
             }
         });

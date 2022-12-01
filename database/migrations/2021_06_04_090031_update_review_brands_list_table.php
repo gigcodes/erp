@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateReviewBrandsListTable extends Migration
 {
@@ -14,7 +14,7 @@ class UpdateReviewBrandsListTable extends Migration
     public function up()
     {
         //
-        Schema::table('review_brands_list',function(Blueprint $table) {
+        Schema::table('review_brands_list', function (Blueprint $table) {
             $table->text('url')->nullable();
         });
     }

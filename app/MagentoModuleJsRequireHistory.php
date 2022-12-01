@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MagentoModuleJsRequireHistory extends Model
 {
-    protected $table = "magento_module_js_require_histories";
+    protected $table = 'magento_module_js_require_histories';
 
     protected $fillable = ['magento_module_id', 'files_include', 'native_functionality', 'user_id'];
 

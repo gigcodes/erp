@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\MagentoCommand;
-use App\StoreWebsite;
-use App\User;
 use App\MagentoCommandRunLog;
 use App\Setting;
+use App\StoreWebsite;
+use App\User;
 use Illuminate\Http\Request;
 
 class MagentoCommandController extends Controller
@@ -20,13 +20,15 @@ class MagentoCommandController extends Controller
     {
         try {
             $magentoCommand = MagentoCommand::paginate(Setting::get('pagination'))->appends(request()->except(['page']));
-            
+
             $websites = StoreWebsite::all();
             //dd($websites);
             $users = User::all();
-            return view("magento-command.index", compact('magentoCommand', 'websites', 'users'));
+
+            return view('magento-command.index', compact('magentoCommand', 'websites', 'users'));
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+
             return redirect()->back()->withErrors($msg);
         }
     }
@@ -34,20 +36,21 @@ class MagentoCommandController extends Controller
     public function search(Request $request)
     {
         $magentoCommand = MagentoCommand::whereNotNull('id');
-        
-        if (!empty($request->website)) {
-            $magentoCommand->where("website_ids", "like", "%".$request->website."%");
+
+        if (! empty($request->website)) {
+            $magentoCommand->where('website_ids', 'like', '%'.$request->website.'%');
         }
-        if (!empty($request->command_name)) {
-            $magentoCommand->where("command_name", "like", "%".$request->command_name."%");
+        if (! empty($request->command_name)) {
+            $magentoCommand->where('command_name', 'like', '%'.$request->command_name.'%');
         }
-        if (!empty($request->user_id)) {
-            $magentoCommand->where("user_id", "=", $request->user_id);
+        if (! empty($request->user_id)) {
+            $magentoCommand->where('user_id', '=', $request->user_id);
         }
         $magentoCommand = $magentoCommand->paginate(Setting::get('pagination'));
         $users = User::all();
         $websites = StoreWebsite::all();
-        return view("magento-command.index", compact('magentoCommand', 'websites', 'users'));
+
+        return view('magento-command.index', compact('magentoCommand', 'websites', 'users'));
     }
 
     /**
@@ -58,10 +61,9 @@ class MagentoCommandController extends Controller
      */
     public function store(Request $request)
     {
-        
-        try{
+        try {
             $created_user_permission = '';
-            if(isset($request->id) && $request->id > 0){
+            if (isset($request->id) && $request->id > 0) {
                 $mCom = MagentoCommand::where('id', $request->id)->first();
                 $type = 'Update';
             } else {
@@ -70,21 +72,21 @@ class MagentoCommandController extends Controller
             }
             //dd(\Auth::user()->id);
             $mCom->user_id = \Auth::user()->id ?? '';
-            $mCom->website_ids = isset($request->websites_ids)?implode(",",$request->websites_ids): $mCom->websites_ids;
-            //dd($mCom); 
+            $mCom->website_ids = isset($request->websites_ids) ? implode(',', $request->websites_ids) : $mCom->websites_ids;
+            //dd($mCom);
             $mCom->command_name = $request->command_name;
             $mCom->command_type = $request->command_type;
             $mCom->save();
             //$this->createPostmanHistory($mCom->id, $type);
-            
+
             return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
 
-    
     /**
      * Display the specified resource.
      *
@@ -93,16 +95,15 @@ class MagentoCommandController extends Controller
      */
     public function runCommand(Request $request)
     {
+        try {
+            $comd = \Artisan::call('command:MagentoCreatRunCommand', ['id' => $request->id]);
 
-        try{
-            
-            $comd = \Artisan::call("command:MagentoCreatRunCommand", ['id' => $request->id]);
             return response()->json(['code' => 200, 'message' => 'Magento Command Run successfully']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+
             return response()->json(['code' => 500, 'message' => $msg]);
         }
-    
     }
 
     /**
@@ -113,33 +114,37 @@ class MagentoCommandController extends Controller
      */
     public function edit(Request $request)
     {
-        try{
+        try {
             $magentoCom = MagentoCommand::find($request->id);
             $websites = StoreWebsite::all();
             $ops = '';
-            foreach($websites as $website){
+            foreach ($websites as $website) {
                 $selected = '';
-                if($magentoCom->website_ids == $website->id)
+                if ($magentoCom->website_ids == $website->id) {
                     $selected = 'selected';
+                }
                 $ops .= '<option value="'.$website->id.'" '.$selected.'>'.$website->name.'</option>';
             }
-            
+
             return response()->json(['code' => 200, 'data' => $magentoCom, 'ops' => $ops, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
 
     public function commandHistoryLog(Request $request)
     {
-        try{
+        try {
             $postHis = MagentoCommandRunLog::select('magento_command_run_logs.*', 'u.name AS userName')
             ->leftJoin('users AS u', 'u.id', 'magento_command_run_logs.user_id')
             ->where('command_id', '=', $request->id)->orderby('id', 'DESC')->get();
-            return response()->json(['code' => 200, 'data' => $postHis,'message' => 'Listed successfully!!!']);
+
+            return response()->json(['code' => 200, 'data' => $postHis, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -152,11 +157,13 @@ class MagentoCommandController extends Controller
      */
     public function destroy(Request $request)
     {
-        try{
+        try {
             $postman = MagentoCommand::where('id', '=', $request->id)->delete();
-            return response()->json(['code' => 200, 'data' => $postman,'message' => 'Deleted successfully!!!']);
+
+            return response()->json(['code' => 200, 'data' => $postman, 'message' => 'Deleted successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }

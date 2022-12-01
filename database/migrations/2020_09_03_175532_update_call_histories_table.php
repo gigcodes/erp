@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateCallHistoriesTable extends Migration
 {
@@ -14,9 +14,9 @@ class UpdateCallHistoriesTable extends Migration
     public function up()
     {
         Schema::table('call_histories', function (Blueprint $table) {
-            if (!Schema::hasColumn('call_histories', 'store_website_id')) {
-                $table->integer('store_website_id')->nullable()->after("status");
-                $table->string('call_id')->nullable()->after("store_website_id");
+            if (! Schema::hasColumn('call_histories', 'store_website_id')) {
+                $table->integer('store_website_id')->nullable()->after('status');
+                $table->string('call_id')->nullable()->after('store_website_id');
             }
         });
     }

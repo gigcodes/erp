@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateSupplierBrandCountsTable extends Migration
 {
@@ -13,7 +12,7 @@ class UpdateSupplierBrandCountsTable extends Migration
      */
     public function up()
     {
-        Schema::table('supplier_brand_counts', function ($table){
+        Schema::table('supplier_brand_counts', function ($table) {
             $table->longtext('url')->nullable();
             $table->integer('category_id');
         });

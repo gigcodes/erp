@@ -41,10 +41,9 @@ class MergeDuplicateProducts extends Command
      */
     public function handle()
     {
-
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -136,7 +135,6 @@ class MergeDuplicateProducts extends Command
 
                                 $image->delete();
                             }
-
                         } else {
                             dump("$key - $key2 - NO IMAGES");
                         }
@@ -154,7 +152,7 @@ class MergeDuplicateProducts extends Command
                     }
                 }
 
-                dump("------------------");
+                dump('------------------');
             }
 
             $report->update(['end_time' => Carbon::now()]);

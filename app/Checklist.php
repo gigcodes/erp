@@ -14,12 +14,14 @@ class Checklist extends Model
     protected $table = 'checklist';
 
     protected $fillable = [
-        'category_name', 
-        'sub_category_name'
+        'category_name',
+        'sub_category_name',
     ];
+
     protected $primaryKey = 'id';
 
-    public function subjects(){
+    public function subjects()
+    {
         return $this->hasMany(Subject::class);
     }
 }

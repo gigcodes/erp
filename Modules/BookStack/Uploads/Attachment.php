@@ -1,4 +1,6 @@
-<?php namespace Modules\BookStack\Uploads;
+<?php
+
+namespace Modules\BookStack\Uploads;
 
 use Modules\BookStack\Entities\Page;
 use Modules\BookStack\Ownable;
@@ -9,6 +11,7 @@ class Attachment extends Ownable
 
     /**
      * Get the downloadable file name for this upload.
+     *
      * @return mixed|string
      */
     public function getFileName()
@@ -16,11 +19,13 @@ class Attachment extends Ownable
         if (str_contains($this->name, '.')) {
             return $this->name;
         }
-        return $this->name . '.' . $this->extension;
+
+        return $this->name.'.'.$this->extension;
     }
 
     /**
      * Get the page this file was uploaded to.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function page()
@@ -30,6 +35,7 @@ class Attachment extends Ownable
 
     /**
      * Get the url of this file.
+     *
      * @return string
      */
     public function getUrl()
@@ -37,6 +43,7 @@ class Attachment extends Ownable
         if ($this->external && strpos($this->path, 'http') !== 0) {
             return $this->path;
         }
-        return url('/attachments/' . $this->id);
+
+        return url('/attachments/'.$this->id);
     }
 }

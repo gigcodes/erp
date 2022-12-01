@@ -50,6 +50,7 @@ class SalesItemController extends Controller
     {
         $products = SalesItem::where('supplier', $supplier)->paginate(25);
         $title = $supplier;
+
         return view('scrap.sale.show', compact('products', 'title'));
     }
 

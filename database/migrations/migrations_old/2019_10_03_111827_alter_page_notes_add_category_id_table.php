@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AlterPageNotesAddCategoryIdTable extends Migration
 {
@@ -13,10 +12,10 @@ class AlterPageNotesAddCategoryIdTable extends Migration
      */
     public function up()
     {
-        Schema::table( 'page_notes', function ( $table ) {
+        Schema::table('page_notes', function ($table) {
             $table->integer('category_id')->unsigned()->nullable()->after('url');
             $table->foreign('category_id')->references('id')->on('page_notes_categories')->onDelete('cascade');
-        } );
+        });
     }
 
     /**
@@ -26,8 +25,8 @@ class AlterPageNotesAddCategoryIdTable extends Migration
      */
     public function down()
     {
-        Schema::table( 'page_notes', function ( $table ) {
-            $table->dropColumn( 'category_id' );
-        } );
+        Schema::table('page_notes', function ($table) {
+            $table->dropColumn('category_id');
+        });
     }
 }
