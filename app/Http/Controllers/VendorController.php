@@ -35,7 +35,7 @@ use Webklex\IMAP\Client;
 
 class VendorController extends Controller
 {
-    use githubTrait;
+    use GithubTrait;
     use HubstaffTrait;
 
     const DEFAULT_FOR = 2; //For Vendor
