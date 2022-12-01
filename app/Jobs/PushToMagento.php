@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Helpers\ProductHelper;
 use App\Helpers\StatusHelper;
-use App\Library\Magento\MagentoService;
 use App\Product;
 use App\ProductPushErrorLog;
 use App\ProductPushJourney;
@@ -30,9 +29,9 @@ class PushToMagento implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param Product $product
-     * @param StoreWebsite $website
-     * @param null $log
+     * @param  Product  $product
+     * @param  StoreWebsite  $website
+     * @param  null  $log
      */
     public function __construct(Product $product, StoreWebsite $website, $log = null)
     {
@@ -143,16 +142,12 @@ class PushToMagento implements ShouldQueue
                                 return false;
                             }
 
-
-					
-
                             if ($categorym && $categorym->size_chart_needed == 1 && empty($categorym->getSizeChart($website->id))) {
                                 ProductPushErrorLog::log('', $product->id, 'Size chart is needed for push product', 'error', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_size_chart_exists']);
                                 $this->log->message = 'Size chart is needed for push product';
                                 $this->log->sync_status = 'size_chart_needed';
                                 $this->log->job_end_time = date('Y-m-d H:i:s');
                                 $this->log->save();
-
 
                                 return false;
                             }
@@ -176,8 +171,7 @@ class PushToMagento implements ShouldQueue
                         ProductPushErrorLog::log('', $product->id, 'Image(s) is needed for push product', 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_images_exists']);
                     }
 
-                  MagentoServiceJob::dispatch($product, $website, $this->log)->onQueue($this->log->queue);
-          
+                    MagentoServiceJob::dispatch($product, $website, $this->log)->onQueue($this->log->queue);
 
                     if ($this->log) {
                         $this->log->job_end_time = date('Y-m-d H:i:s');

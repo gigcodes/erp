@@ -42,12 +42,12 @@ class HorizonClear extends Command
         if (! $this->confirmToProceed()) {
             return 1;
         }
- 
+
         $connection = Arr::first($this->laravel['config']->get('horizon.defaults'))['connection'] ?? 'redis';
 
         $jobRepository->purge($queue = $this->getQueue($connection));
 
-        // @todo this clear command is not clearing queues from redis cli. 
+        // @todo this clear command is not clearing queues from redis cli.
         $count = $jobRepository->clear($queue);
 
         $this->line('<info>Cleared '.$count.' jobs from the ['.$queue.'] queue</info> ');
@@ -78,5 +78,4 @@ class HorizonClear extends Command
             'default'
         );
     }
-
 }

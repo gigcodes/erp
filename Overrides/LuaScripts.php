@@ -43,7 +43,6 @@ class LuaScripts extends \Laravel\Horizon\LuaScripts
 LUA;
     }
 
-
     /**
      * Get the Lua script for removing all jobs from the queue.
      *
