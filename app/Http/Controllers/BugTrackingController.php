@@ -305,8 +305,8 @@ class BugTrackingController extends Controller
 
         ]);
 
-        $data = $request->except('_token','id');
-        $bug = BugTracker::where('id',$request->id)->first();
+        $data = $request->except('_token', 'id');
+        $bug = BugTracker::where('id', $request->id)->first();
 
         $data['created_by'] = \Auth::user()->id;
         $bug['updated_by'] = \Auth::user()->id;
@@ -319,7 +319,7 @@ class BugTrackingController extends Controller
             'message' => $request->remark,
         ]);
         $bug->update($data);
-        $data['bug_id']= $request->id;
+        $data['bug_id'] = $request->id;
         BugTrackerHistory::create($data);
 
         return redirect()->route('bug-tracking.index')->with('success', 'You have successfully updated a Bug Tracker!');
@@ -430,18 +430,17 @@ class BugTrackingController extends Controller
         $userid = Auth::id();
 
         if ($user) {
-
-                $params = ChatMessage::create([
-//                  'id'      => $id,
-                    'user_id' => $userid,
-                    'erp_user' => $userid,
-                    'bug_id' => $task->id,
-                    'sent_to_user_id' => ($task->assign_to != $user->id) ? $task->assign_to : $task->created_by ,
-                    'sent_to_user_id' => ($task->assign_to != $user->id) ? $task->assign_to : $task->created_by ,
-                    'approved' => '1',
-                    'status' => '2',
-                    'message' => $taskdata,
-                ]);
+            $params = ChatMessage::create([
+                //                  'id'      => $id,
+                'user_id' => $userid,
+                'erp_user' => $userid,
+                'bug_id' => $task->id,
+                'sent_to_user_id' => ($task->assign_to != $user->id) ? $task->assign_to : $task->created_by,
+                'sent_to_user_id' => ($task->assign_to != $user->id) ? $task->assign_to : $task->created_by,
+                'approved' => '1',
+                'status' => '2',
+                'message' => $taskdata,
+            ]);
 
             if ($params) {
                 return response()->json(['code' => 200, 'message' => 'Successfully Send File']);
