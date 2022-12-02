@@ -55,7 +55,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-6"  style="padding-right: 0px !important;"  {{ $errors->has('bug_environment_id') ? 'has-error' : '' }}>
+                <div class="col-md-6"  style="padding-right: 0px !important;"  {{ $errors->has('bug_environment_ver') ? 'has-error' : '' }}>
                     <label> Environment Version </label>
                     <input class="form-control" name="bug_environment_ver" type="text">
                     <span class="text-danger">{{ $errors->first('bug_environment_ver') }}</span>
