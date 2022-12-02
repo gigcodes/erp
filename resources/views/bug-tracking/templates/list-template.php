@@ -32,7 +32,7 @@
 			        <td class='break expand-row-msg' data-name="step_to_reproduce" data-id="{{:prop.id}}"><span class="show-short-Steps to reproduce-{{:prop.id}}">{{:prop.step_to_reproduce_short}}</span>
                         <span class="show-full-step_to_reproduce-{{:prop.id}} hidden" >{{:prop.step_to_reproduce}}</span>
                     </td>
-			        <td class='break'>{{:prop.bug_environment_id}}</td>
+			        <td class='break'>{{:prop.bug_environment_id}} {{:prop.bug_environment_ver}}</td>
 			        <td class='break expand-row-msg' data-name="url" data-id="{{:prop.id}}">
 			            <a href="{{:prop.url}}" target="_blank">
 			                <span href="" class="show-short-url-{{:prop.id}}">{{:prop.url_short}}</span>

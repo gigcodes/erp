@@ -13,6 +13,12 @@
         }
     </style>
 
+
+<style>
+th {border: 1px solid black;}
+table{border-collapse: collapse;}
+.ui-icon, .ui-widget-content .ui-icon {background-image: none;}
+</style>	
 	<div class="row" id="common-page-layout">
 		<div class="col-lg-12 margin-tb">
 			<h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
@@ -292,7 +298,7 @@
 			var full = '.expand-row-msg .show-full-' + name + '-' + id;
 			var fullText = $(full).html();
 			console.log(id,name,fullText,full)
-			$(".bugtrackingmanShowFullTextBody").html(fullText);
+			$(".bugtrackingmanShowFullTextBody").html(fullText.replaceAll("\n", "<br>"));
 		});
 		$(document).on("click",".btn-copy-url",function() {
 			var url = $(this).data('id');
@@ -305,5 +311,8 @@
 		});
 
 
+		$(window).on('load', function() {
+			$( "th" ).resizable();
+		});
 	</script>
 @endsection

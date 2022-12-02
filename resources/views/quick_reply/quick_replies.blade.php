@@ -68,7 +68,7 @@
                                                 </div>
                                                 <div id="show_reply_list_sub_{{ $all_category->id }}" class="w-100 pull-left">
                                                     <span>{{ $all_category->name }} </span>  
-                                                    <a href="javascript::void()" class="add_sub_cat btn btn-sm p-0" id="show_add_option_sub_{{ $all_category->id }}" data-id="{{ $all_category->id }}"><i class="fa fa-plus"></i></a> 
+                                                    <a href="javascript::void()" class="add_sub_cat btn btn-sm p-0" id="show_add_option_sub_{{ $all_category->id }}" data-id="{{ $all_category->id }}"><i class="fa fa-plus"></i> <?php if(count($all_category['childs'])>0) { ?></a> <i class="fa fa-arrow-circle-down arrow_show_reply_list"  data-listid="{{ $all_category->id }}"></i><?php } ?>
                                                 </div>
                                             </td>
                                              <td></td>
@@ -97,13 +97,13 @@
                                                                                 <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                                                                                     <div class="modal-content">
                                                                                         <div class="modal-header p-0 pt-2 pl-2 pr-2">
-                                                                                            <h5 class="modal-title" id="exampleModalLongTitle">All Replies</h5>
+                                                                                            <h5 class="modal-title" id="exampleModalLongTitle">All Replies <i class='fa fa-copy copy_remark' onclick="copyToClipboard('#ul_replies{{ $all_category->id}}-{{$websites->id}}')"></i></h5>
                                                                                             <button type="button" class="close btn-xs p-0 mr-2" data-dismiss="modal" aria-label="Close">
                                                                                                 <i class="fa fa-times"></i>
                                                                                             </button>
                                                                                         </div>
                                                                                         <div class="modal-body edit-modal-body" id="all-replies">
-                                                                                        <ul class="list-group">
+                                                                                        <ul class="list-group" id="ul_replies{{ $all_category->id}}-{{$websites->id}}">
                                                                                         @foreach($item as $val)
                                                                                         <li id="edit_reply_{{ $val->id }}" class="edit_reply_input list-group-item p-2" style="display: none;">
                                                                                             <input type="text" value="{{ $val->reply }}" id="edit_reply_{{ $val->id }}" class="form-control w-75 pull-left" />
@@ -134,7 +134,7 @@
                                         @if($all_category['childs'])
 
                                                 @foreach($all_category['childs'] as $all_category_sub)
-                                                <tr>
+                                                <tr class="tr_show_add_option_sub_{{ $all_category->id }} ">
                                                     <td></td>
                                                     <td class="p-0 pt-1 pl-1">
                                                 
@@ -147,11 +147,11 @@
                                                     <div id="show_add_sub_sub_{{ $all_category_sub->id }}" class="hide_all_inputs_sub_sub" style="display: none;">
                                                         <input type="text" id="reply_sub_sub_{{ $all_category_sub->id }}" class="reply_inputs_sub_sub form-control w-75 pull-left"/>
                                                         <button class="btn btn-sm p-0 pt-2 save_reply_sub_sub pull-left w-25"><i class="fa fa-check"></i></button>
-                                                    </div>
+                                                    </div>													
 
                                                     <div id="show_reply_list_sub_sub_{{ $all_category_sub->id }}" class="w-100 pull-left">
                                                         <span id="{{ $all_category_sub->id }}" class="edit_reply_sub">{{ $all_category_sub->name }}</span>  
-                                                        <a href="javascript:void(0)" class="add_sub_cat_sub btn btn-sm p-0" id="show_add_option_sub_sub_{{ $all_category_sub->id }}" data-id="{{ $all_category_sub->id }}"><i class="fa fa-plus"></i></a> 
+                                                        <a href="javascript:void(0)" class="add_sub_cat_sub btn btn-sm p-0" id="show_add_option_sub_sub_{{ $all_category_sub->id }}" data-id="{{ $all_category_sub->id }}"><i class="fa fa-plus"></i></a> <?php if(count($all_category_sub['subchilds'])>0) { ?><i class="fa fa-arrow-circle-down arrow_show_reply_list_sub"data-listid="{{ $all_category_sub->id }}" ></i><?php } ?>
                                                     </div>
                                                
                                                     </td>
@@ -178,14 +178,14 @@
                                                                                 <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                                                                                     <div class="modal-content">
                                                                                         <div class="modal-header p-0 pt-2 pl-2 pr-2">
-                                                                                            <h5 class="modal-title" id="exampleModalLongTitle">All Replies</h5>
+                                                                                            <h5 class="modal-title" id="exampleModalLongTitle">All Replies <i class='fa fa-copy copy_remark' onclick="copyToClipboard('#ul_edit_reply_{{ $val->id }}')"></i></h5>
                                                                                             <button type="button" class="close btn-xs p-0 mr-2" data-dismiss="modal" aria-label="Close">
                                                                                                 <i class="fa fa-times"></i>
                                                                                             </button>
                                                                                         </div>
                                                                                         
                                                                                         <div class="modal-body edit-modal-body" id="all-replies">
-                                                                                        <ul class="list-group">
+                                                                                        <ul class="list-group" id="ul_edit_reply_{{ $val->id }}">
                                                                                         @foreach($item as $val)
                                                                                         <li id="edit_reply_{{ $val->id }}" class="edit_reply_input list-group-item p-2" style="display: none;">
                                                                                             <input type="text" value="{{ $val->reply }}" id="edit_reply_{{ $val->id }}" class="form-control w-75 pull-left" />
@@ -212,7 +212,7 @@
                                                 @if($all_category_sub['subchilds'])
 
                                                 @foreach($all_category_sub['subchilds'] as $all_category_sub_sub)
-                                                <tr>
+                                                <tr class="tr_show_add_option_sub_{{ $all_category->id }} tr_show_reply_list_sub_sub_{{ $all_category_sub->id }}">
                                                     <td></td>
                                                     <td></td>
                                                     <td class="p-0 pt-1 pl-1">
@@ -248,14 +248,14 @@
                                                                                 <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                                                                                     <div class="modal-content">
                                                                                         <div class="modal-header p-0 pt-2 pl-2 pr-2">
-                                                                                            <h5 class="modal-title" id="exampleModalLongTitle">All Replies</h5>
+                                                                                            <h5 class="modal-title" id="exampleModalLongTitle">All Replies <i class='fa fa-copy copy_remark' onclick="copyToClipboard('#ul_edit_reply_{{ $val->id }}')"></i></h5>
                                                                                             <button type="button" class="close btn-xs p-0 mr-2" data-dismiss="modal" aria-label="Close">
                                                                                                 <i class="fa fa-times"></i>
                                                                                             </button>
                                                                                         </div>
                                                                                         
                                                                                         <div class="modal-body edit-modal-body" id="all-replies">
-                                                                                        <ul class="list-group">
+                                                                                        <ul class="list-group data-remark_text" id="ul_edit_reply_{{ $val->id }}">
                                                                                         @foreach($item as $val)
                                                                                         <li id="edit_reply_{{ $val->id }}" class="edit_reply_input list-group-item p-2" style="display: none;">
                                                                                             <input type="text" value="{{ $val->reply }}" id="edit_reply_{{ $val->id }}" class="form-control w-75 pull-left" />
@@ -510,5 +510,36 @@
 
 
         });
+		
+		
+		
+		function copyToClipboard(element) {		  
+		  var sampleTextarea = document.createElement("input");
+			document.body.appendChild(sampleTextarea);
+			var str = $(element).text().trim();
+			str =  str.replace( /(<([^>]+)>)/ig, '');			
+			sampleTextarea.value = str; //save main text in it
+			sampleTextarea.select(); //select textarea contenrs
+			//alert("copy");			
+			navigator.clipboard.writeText(str);
+			document.body.removeChild(sampleTextarea);
+			toastr['success']("Copied the text: " + str);
+		}
+		
+		
+		
+		 $(document).on('click','.arrow_show_reply_list',function(){			
+			 var id = $(this).attr("data-listid");
+			 $(".tr_show_add_option_sub_"+id).toggle();		
+			$(this).toggleClass('fa-arrow-circle-up fa-arrow-circle-down');	
+		 });
+		 
+		 $(document).on('click','.arrow_show_reply_list_sub',function(){			
+			 var id = $(this).attr("data-listid");			 
+			 $(".tr_show_reply_list_sub_sub_"+id).toggle();
+			 $(this).toggleClass('fa-arrow-circle-up fa-arrow-circle-down');
+			 
+		 });
+		
     </script>
 @endsection
