@@ -111,8 +111,13 @@ table tr td {
             <div >
                 <form class="form-inline" action="" method="GET">
                     <div class="form-group col-md-2 pd-3">
-                        <input style="width:100%;" id="totem__search__form" name="q" type="text" class="form-control" value="{{ isset($_REQUEST['q']) ? $_REQUEST['q'] : '' }}" placeholder="Search...">
-                    </div> 
+                        <input list="tasks-lists" style="width:100%;" id="totem__search__form" name="q" type="text" class="form-control" value="{{ isset($_REQUEST['q']) ? $_REQUEST['q'] : '' }}" placeholder="Search...">
+                        <datalist id="tasks-lists">
+                            @foreach($tasks as $key => $task)
+                            <option value="{{$task->description}}">
+                            @endforeach
+                        </datalist>
+                    </div>
                     <div class="form-group col-md-1 pd-3">
                         <button type="submit" class="btn btn-image ml-0"><img src="{{asset('images/filter.png')}}" /></button>
                         <a href="{{ route('totem.tasks.all') }}" class="fa fa-refresh" aria-hidden="true"></a>
