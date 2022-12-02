@@ -2,12 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Account;
+use App\InstagramKeyword;
+use App\Marketing\InstaAccAutomationForm;
+use App\Setting;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
-use App\Marketing\InstaAccAutomationForm;
-use App\Account;
-use App\Setting;
-use App\InstagramKeyword;
+
 class InstaAutoFeedDaily extends Command
 {
     /**
@@ -47,7 +48,7 @@ class InstaAutoFeedDaily extends Command
 //        $accept_requests = Setting::get('accept_requests_per_day');
 //        $image_requests = Setting::get('image_per_post');
 //
-//		// $automation_form = InstaAccAutomationForm::latest()->first();
+        //		// $automation_form = InstaAccAutomationForm::latest()->first();
 //        // $posts = $automation_form->posts_per_day;
 //        // $likes = $automation_form->likes_per_day;
 //        // $send_requests = $automation_form->send_requests_per_day;
@@ -140,7 +141,6 @@ class InstaAutoFeedDaily extends Command
 //        }
 //        return $randomString;
 //    }
-
 
 //    function getImages($length = 10) {
 //        $post_data = new Request();

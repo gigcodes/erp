@@ -17,9 +17,7 @@ class ScrapLog extends Model
      * @SWG\Property(property="file_name",type="string")
      * @SWG\Property(property="log_messages",type="string")
      */
-
     protected $fillable = [
-        'scraper_id', 'folder_name', 'file_name', 'log_messages', 'type','reason'
+        'scraper_id', 'folder_name', 'file_name', 'log_messages', 'type', 'reason',
     ];
-
 }

@@ -29,7 +29,6 @@ class ToryScraper extends Scraper
         'rings' => 'https://www.toryburch.it/accessori/anelli/?sz=1200&start=1',
     ];
 
-
     public function scrap(): void
     {
         foreach (self::URL as $url) {
@@ -37,10 +36,10 @@ class ToryScraper extends Scraper
         }
     }
 
-    private function scrapPage($url, $hasProduct=true): void
+    private function scrapPage($url, $hasProduct = true): void
     {
         $scrapEntry = ScrapEntries::where('url', $url)->first();
-        if (!$scrapEntry) {
+        if (! $scrapEntry) {
             $scrapEntry = new ScrapEntries();
             $scrapEntry->title = $url;
             $scrapEntry->site_name = 'Tory';
@@ -51,15 +50,13 @@ class ToryScraper extends Scraper
         if ($hasProduct) {
             $this->getProducts($scrapEntry);
         }
-
     }
 
-    private function getProducts(ScrapEntries $scrapEntriy ): void
+    private function getProducts(ScrapEntries $scrapEntriy): void
     {
-
         $date = date('Y-m-d');
         $allLinks = ScrapCounts::where('scraped_date', $date)->where('website', 'Tory')->first();
-        if (!$allLinks) {
+        if (! $allLinks) {
             $allLinks = new ScrapCounts();
             $allLinks->scraped_date = $date;
             $allLinks->website = 'Tory';
@@ -77,14 +74,13 @@ class ToryScraper extends Scraper
 
             echo $link;
 
-            if (!$title || !$link) {
+            if (! $title || ! $link) {
                 continue;
             }
 
             $entry = ScrapEntries::where('title', $title)
                 ->orWhere('url', $link)
-                ->first()
-            ;
+                ->first();
 
             if ($entry) {
                 continue;
@@ -96,12 +92,11 @@ class ToryScraper extends Scraper
             $entry->site_name = 'Tory';
             $entry->is_product_page = 1;
             $entry->save();
-
         }
-
     }
 
-    private function getTitleFromProduct($product) {
+    private function getTitleFromProduct($product)
+    {
         try {
             $description = preg_replace('/\s\s+/', '', $product->getAttribute('title'));
         } catch (\Exception $exception) {
@@ -122,12 +117,12 @@ class ToryScraper extends Scraper
         return $link;
     }
 
-    private function getPaginationData( HtmlPageCrawler $c): array
+    private function getPaginationData(HtmlPageCrawler $c): array
     {
         $maxPageNumber = 1;
         $options = [
             'current_page_number' => 1,
-            'total_pages' => $maxPageNumber
+            'total_pages' => $maxPageNumber,
         ];
 
         $text = $c->filter('div.pages ol li.current span')->getInnerHtml();
@@ -137,11 +132,11 @@ class ToryScraper extends Scraper
         }
 
         $text = explode(' ', $text);
-        $maxPageNumber = $text[count($text)-1];
+        $maxPageNumber = $text[count($text) - 1];
 
         $options = [
             'current_page_number' => 1,
-            'total_pages' => $maxPageNumber
+            'total_pages' => $maxPageNumber,
         ];
 
         return $options;

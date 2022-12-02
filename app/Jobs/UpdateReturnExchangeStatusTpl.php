@@ -3,22 +3,24 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Http\Request;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Request;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class UpdateReturnExchangeStatusTpl implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-	public $tries = 1;
+    public $tries = 1;
+
     public $backoff = 5;
 
     private $returnId;
+
     private $message;
-	
+
     /**
      * Create a new job instance.
      *
@@ -37,31 +39,31 @@ class UpdateReturnExchangeStatusTpl implements ShouldQueue
      */
     public function handle()
     {
-        try{
+        try {
             $return = \App\ReturnExchange::where('id', $this->returnId)->first();
             if ($return) {
-                $product 	 = \App\ReturnExchangeProduct::where("return_exchange_id", $this->returnId)->first();   
-                
+                $product = \App\ReturnExchangeProduct::where('return_exchange_id', $this->returnId)->first();
+
                 $msg = $this->message;
-                
+
                 // start update the order status
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add([
                     'customer_id' => $return->customer_id,
-                    'message'     => $msg,
-                    'status'      => 0,
-                    'order_id'    => $product->order_product_id,
+                    'message' => $msg,
+                    'status' => 0,
+                    'order_id' => $product->order_product_id,
                 ]);
                 app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
             }
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
-        }  
+        }
     }
 
-    public function tags() 
+    public function tags()
     {
-        return [ 'UpdateReturnExchangeStatusTpl', $this->returnId];
+        return ['UpdateReturnExchangeStatusTpl', $this->returnId];
     }
 }

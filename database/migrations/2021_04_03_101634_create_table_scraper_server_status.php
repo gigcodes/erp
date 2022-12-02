@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTableScraperServerStatus extends Migration
 {
@@ -14,7 +14,7 @@ class CreateTableScraperServerStatus extends Migration
     public function up()
     {
         //
-        Schema::create('scraper_server_status_histories',function(Blueprint $table) {
+        Schema::create('scraper_server_status_histories', function (Blueprint $table) {
             $table->increments('id');
             $table->string('scraper_name');
             $table->string('scraper_string');

@@ -6,11 +6,11 @@ use App\Account;
 use App\AutoCommentHistory;
 use App\ErpAccounts;
 use App\User;
-use App\Vendor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+
 //use InstagramAPI\Instagram;
 
 //\InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
@@ -26,7 +26,7 @@ class UsersAutoCommentHistoriesController extends Controller
     {
         $autoCommentHistories = new AutoCommentHistory();
         $user = Auth::user();
-        if (!$user->hasRole('Admin')) {
+        if (! $user->hasRole('Admin')) {
             $autoCommentHistories = $autoCommentHistories->whereIn('id', DB::table('users_auto_comment_histories')
                 ->where('user_id', $user->id)
                 ->pluck('auto_comment_history_id')
@@ -39,10 +39,10 @@ class UsersAutoCommentHistoriesController extends Controller
         $comments = $autoCommentHistories->orderBy('created_at', 'DESC')->paginate(25);
 
         return view('instagram.auto_comments.user_ach', compact('comments', 'accounts'));
-
     }
 
-    public function assignPosts() {
+    public function assignPosts()
+    {
         $user = Auth::user();
 
         $autoCommentHistory = AutoCommentHistory::where('status', 0)
@@ -57,16 +57,16 @@ class UsersAutoCommentHistoriesController extends Controller
                 'user_id' => $user->id,
                 'auto_comment_history_id' => $ach->id,
                 'created_at' => Carbon::now()->toDateTimeString(),
-                'updated_at' => Carbon::now()->toDateTimeString()
+                'updated_at' => Carbon::now()->toDateTimeString(),
             ]);
             $productsAttached++;
         }
 
-        return redirect()->back()->with('message', 'Successfully added ' . $productsAttached . ' posts to comment!');
-
+        return redirect()->back()->with('message', 'Successfully added '.$productsAttached.' posts to comment!');
     }
 
-    public function sendMessagesToWhatsappToScrap(Request $request) {
+    public function sendMessagesToWhatsappToScrap(Request $request)
+    {
         $posts = $request->get('posts');
         $user = Auth::user();
 
@@ -83,15 +83,14 @@ class UsersAutoCommentHistoriesController extends Controller
             'vendor_id' => $user->id,
             'message' => $message,
             'is_vendor_user' => 'yes',
-            'status' => 1
+            'status' => 1,
         ]);
 
         app(WhatsAppController::class)->sendMessage($myRequest, 'vendor');
 
         return response()->json([
-            'status' => 'success'
+            'status' => 'success',
         ]);
-
     }
 
 //    public function verifyComment(Request $request) {

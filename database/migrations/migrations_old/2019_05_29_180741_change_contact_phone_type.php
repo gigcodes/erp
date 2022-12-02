@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class ChangeContactPhoneType extends Migration
 {
@@ -14,7 +14,7 @@ class ChangeContactPhoneType extends Migration
     public function up()
     {
         Schema::table('contacts', function (Blueprint $table) {
-          $table->dropUnique('contacts_phone_unique');
+            $table->dropUnique('contacts_phone_unique');
         });
     }
 
@@ -26,7 +26,7 @@ class ChangeContactPhoneType extends Migration
     public function down()
     {
         Schema::table('contacts', function (Blueprint $table) {
-          $table->string('phone')->unique()->change();
+            $table->string('phone')->unique()->change();
         });
     }
 }

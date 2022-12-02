@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateChatMessagesTable extends Migration
 {
@@ -16,11 +16,11 @@ class CreateChatMessagesTable extends Migration
         Schema::create('chat_messages', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
-			$table->string('message');
-			$table->string('number');
-			$table->boolean('received');
-			$table->integer('lead_id')->unsigned();
-			$table->foreign('lead_id')->references('id')->on('leads');
+            $table->string('message');
+            $table->string('number');
+            $table->boolean('received');
+            $table->integer('lead_id')->unsigned();
+            $table->foreign('lead_id')->references('id')->on('leads');
         });
     }
 

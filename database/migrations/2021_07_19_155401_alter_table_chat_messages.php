@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableChatMessages extends Migration
 {
@@ -13,8 +13,8 @@ class AlterTableChatMessages extends Migration
      */
     public function up()
     {
-        Schema::table('chat_messages',function(Blueprint $table){
-            $table->string("sop_user_id")->after('user_id')->nullable();
+        Schema::table('chat_messages', function (Blueprint $table) {
+            $table->string('sop_user_id')->after('user_id')->nullable();
         });
     }
 
@@ -25,7 +25,7 @@ class AlterTableChatMessages extends Migration
      */
     public function down()
     {
-        Schema::table('chat_messages',function(Blueprint $table){
+        Schema::table('chat_messages', function (Blueprint $table) {
             $table->dropColumn('sop_user_id');
         });
     }

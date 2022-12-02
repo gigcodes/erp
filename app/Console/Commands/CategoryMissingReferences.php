@@ -3,11 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Category;
-use App\ScrapedProducts;
 use App\CronJobReport;
 use App\Loggers\LogScraper;
+use App\ScrapedProducts;
 use Carbon\Carbon;
-use Dompdf\Exception;
 use Illuminate\Console\Command;
 
 class CategoryMissingReferences extends Command
@@ -46,7 +45,7 @@ class CategoryMissingReferences extends Command
         try {
             // Create cron job report
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -54,10 +53,10 @@ class CategoryMissingReferences extends Command
             $arrUnknown = [];
 
             // Get all categories from log_scraper
-            $logScrapers = ScrapedProducts::join("brands as b","b.id","scraped_products.brand_id")
+            $logScrapers = ScrapedProducts::join('brands as b', 'b.id', 'scraped_products.brand_id')
             ->whereNotNull('category')
             ->whereNotIn('website', ['amrstore', 'antonia', 'baseblu', 'brunarosso', 'coltorti', 'doublef', 'giglio', 'griffo210', 'leam', 'les-market', 'lidiashopping', 'nugnes1920', 'savannahs', 'stilmoda', 'vinicio'])
-            ->select(["b.name as brand","website","category"])
+            ->select(['b.name as brand', 'website', 'category'])
             ->get(['website', 'brand', 'category']);
             //$logScrapers = LogScraper::whereNotNull('category')->where('url', 'LIKE', '%farfetch%')->get(['category']);
 
@@ -79,7 +78,7 @@ class CategoryMissingReferences extends Command
 
                     // Exists?
                     if ($exists == null) {
-                        $exists = Category::where('references', 'LIKE', '%' . $lastCategory . '%')->first();
+                        $exists = Category::where('references', 'LIKE', '%'.$lastCategory.'%')->first();
                     }
 
                     // Still null
@@ -99,7 +98,7 @@ class CategoryMissingReferences extends Command
 
             // Update
             if ($unknownCategory != null && strlen($arrUnknown) > 0) {
-                $unknownCategory->references = $unknownCategory->references . ',' . $arrUnknown;
+                $unknownCategory->references = $unknownCategory->references.','.$arrUnknown;
                 $unknownCategory->save();
             }
 

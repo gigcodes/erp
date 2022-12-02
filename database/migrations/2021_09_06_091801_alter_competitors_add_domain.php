@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterCompetitorsAddDomain extends Migration
 {
@@ -13,7 +13,7 @@ class AlterCompetitorsAddDomain extends Migration
      */
     public function up()
     {
-        Schema::table("competitors",function(Blueprint $table) {
+        Schema::table('competitors', function (Blueprint $table) {
             $table->dropColumn('domian');
             $table->text('domain');
         });

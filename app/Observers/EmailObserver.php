@@ -2,10 +2,11 @@
 
 namespace App\Observers;
 
+use App\ContentManageentEmail;
 use App\Email;
 use App\GmailDataList;
 use App\GmailDataMedia;
-use App\ContentManageentEmail;
+
 class EmailObserver
 {
     /**
@@ -71,14 +72,14 @@ class EmailObserver
             if ($receiver_email == $content_management_email->email) {
                 $a = preg_match_all('/<a[^>]+href=([\'"])(?<href>.+?)\1[^>]*>/i', $email->message, $aTags);
                 $img = preg_match_all('/<img[^>]+src=([\'"])(?<src>.+?)\1[^>]*>/i', $email->message, $imgTags);
-        
+
                 if ($a > 0) {
                     $gmail = new GmailDataList;
                     $gmail->sender = $email->from;
-                    $gmail->domain = substr($email->from, strpos($email->from, "@") + 1);
+                    $gmail->domain = substr($email->from, strpos($email->from, '@') + 1);
                     $gmail->received_at = $email->created_at->format('m/d/Y');
                     $gmail->save();
-        
+
                     for ($i = 0; $i < count($imgTags[0]); $i++) {
                         if (file_get_contents($imgTags['src'][$i]) != '') {
                             $gmail_media = new GmailDataMedia;

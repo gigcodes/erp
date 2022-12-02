@@ -11,11 +11,11 @@ class ReportExport implements FromView
 
     public function __construct($data)
     {
-      $this->data = $data;
+        $this->data = $data;
     }
 
     public function view(): View
     {
-        return view('exports.report',["reportData" => $this->data]);
+        return view('exports.report', ['reportData' => $this->data]);
     }
 }

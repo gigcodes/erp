@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddScraperidToFlowLogMessages extends Migration
 {
@@ -14,11 +13,9 @@ class AddScraperidToFlowLogMessages extends Migration
     public function up()
     {
         //
-        Schema::table('flow_log_messages', function($table) {
+        Schema::table('flow_log_messages', function ($table) {
             $table->integer('scraper_id')->default(0);
         });
-        
-
     }
 
     /**

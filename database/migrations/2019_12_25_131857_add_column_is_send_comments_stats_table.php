@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddColumnIsSendCommentsStatsTable extends Migration
 {
@@ -13,7 +12,7 @@ class AddColumnIsSendCommentsStatsTable extends Migration
      */
     public function up()
     {
-        Schema::table('comments_stats',function($table){
+        Schema::table('comments_stats', function ($table) {
             $table->integer('is_send')->default(0)->after('code');
         });
     }
@@ -25,7 +24,7 @@ class AddColumnIsSendCommentsStatsTable extends Migration
      */
     public function down()
     {
-        Schema::table('comments_stats',function($table){
+        Schema::table('comments_stats', function ($table) {
             $table->dropColumn('is_send');
         });
     }

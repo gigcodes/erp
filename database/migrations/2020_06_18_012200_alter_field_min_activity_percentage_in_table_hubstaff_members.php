@@ -13,7 +13,7 @@ class AlterFieldMinActivityPercentageInTableHubstaffMembers extends Migration
     public function up()
     {
         Schema::table('hubstaff_members', function ($table) {
-            $table->float("min_activity_percentage")->default("0.00")->after('currency');
+            $table->float('min_activity_percentage')->default('0.00')->after('currency');
         });
     }
 
@@ -25,7 +25,7 @@ class AlterFieldMinActivityPercentageInTableHubstaffMembers extends Migration
     public function down()
     {
         Schema::table('hubstaff_members', function ($table) {
-            $table->dropColumn("min_activity_percentage");
+            $table->dropColumn('min_activity_percentage');
         });
     }
 }

@@ -42,21 +42,20 @@ class GetSizesFromScrapedData extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             Product::where(function ($q) {
                 $q->where('size', '')
-                    ->orWhereNull('size')
-                ;
+                    ->orWhereNull('size');
             })->where('is_approved', 0)->where('is_crop_ordered', '1')->chunk(1000, function ($products) {
                 foreach ($products as $product) {
                     dump($product->id);
                     $scrapedProducts = $product->many_scraped_products;
                     foreach ($scrapedProducts as $scrapedProduct) {
                         $properties = $scrapedProduct->properties;
-                        $size       = $properties['size'] ?? '';
+                        $size = $properties['size'] ?? '';
                         if (is_array($size)) {
                             $size = implode(',', $size);
                         }

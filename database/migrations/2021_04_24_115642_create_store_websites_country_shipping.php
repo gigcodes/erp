@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateStoreWebsitesCountryShipping extends Migration
 {
@@ -13,7 +13,7 @@ class CreateStoreWebsitesCountryShipping extends Migration
      */
     public function up()
     {
-        Schema::create('store_websites_country_shipping',function(Blueprint $table) {
+        Schema::create('store_websites_country_shipping', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('store_website_id')->nullable();
             $table->string('country_code')->nullable();

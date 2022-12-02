@@ -45,6 +45,27 @@ var page = {
             page.createStatus();
         });
 
+        page.config.bodyView.on("click",".send-message",function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            var message = $('#getMsg'+id).val();
+            if(message != null && message != ""){
+            page.sendMessage(id,message);
+            }
+        });
+        page.config.bodyView.on("change", ".assign_to", function (e) {
+            e.preventDefault();
+           page.sendAssign($(this));
+        });
+        page.config.bodyView.on("change", ".bug_severity_id", function (e) {
+            e.preventDefault();
+            page.sendSeverity($(this));
+        });
+        page.config.bodyView.on("change", ".bug_status_id", function (e) {
+            e.preventDefault();
+            page.sendStatus($(this));
+        });
+
         // delete product templates
         page.config.bodyView.on("click",".btn-delete-template",function(e) {
             if(!confirm("Are you sure you want to delete record?")) {
@@ -54,9 +75,9 @@ var page = {
             }
         });
 
-        // page.config.bodyView.on("click",".btn-edit-template",function(e) {
-        //     page.editRecord($(this));
-        // });
+        page.config.bodyView.on("click",".btn-edit-template",function(e) {
+             page.editRecord($(this));
+        });
 
         $(".common-modal").on("click",".submit-store-site",function() {
             page.submitFormSite($(this));
@@ -78,6 +99,12 @@ var page = {
             page.push($(this));
         });
 
+        page.config.bodyView.on("click", ".btn-update", function (e) {
+            page.updateData($(this));
+        });
+        page.config.bodyView.on("click",".btn-load-communication-modal",function(e) {
+            page.communicationModel($(this));
+        });
 
     },
     validationRule : function(response) {
@@ -191,11 +218,32 @@ var page = {
     },
 
     editResult : function(response) {
-        var createWebTemplate = $.templates("#template-create-website");
-        var tplHtml = createWebTemplate.render(response);
-        var common =  $(".common-modal");
-        common.find(".modal-dialog").html(tplHtml);
-        common.modal("show");
+        $('#bugtrackingEditModal').modal('show');
+        $('.id').val('')
+        $('.summary').val('')
+        $('.step_to_reproduce').val('')
+        $('.url').val('')
+        $('.bug_type_id').val('')
+        $('.bug_environment_id').val('')
+        $('.assign_to').val('')
+        $('.bug_severity_id').val('')
+        $('.bug_status_id').val('')
+        $('.module_id').val('')
+        $('.remark').val('')
+        $('.website').val('')
+
+        $('.id').val(response.data.id)
+        $('.summary').val(response.data.summary)
+        $('.step_to_reproduce').val(response.data.step_to_reproduce)
+        $('.url').val(response.data.url)
+        $('.bug_type_id').val(response.data.bug_type_id)
+        $('.bug_environment_id').val(response.data.bug_environment_id)
+        $('.assign_to').val(response.data.assign_to)
+        $('.bug_severity_id').val(response.data.bug_severity_id)
+        $('.bug_status_id').val(response.data.bug_status_id)
+        $('.module_id').val(response.data.module_id)
+        $('.remark').val(response.data.remark)
+        $('.website').val(response.data.website)
     },
 
     submitFormSite : function(ele) {
@@ -210,7 +258,75 @@ var page = {
         this.sendAjax(_z, "saveSite");
     },
 
-    submitEnvironment : function(ele) {
+    updateData: function (ele) {
+        var _z = {
+            url: this.config.baseUrl + "/update",
+            method: "post",
+            data: ele.closest("form").serialize(),
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveSite");
+    },
+    sendMessage : function(id,message) {
+        var _z = {
+            url:  this.config.baseUrl + "/sendmessage",
+            method: "post",
+            data :{"id":id,message:message},
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveMessage");
+    },
+    sendAssign: function (ele) {
+        var _z = {
+            url: this.config.baseUrl + "/assign_user",
+            method: "POST",
+            data: {
+                id: ele.data("id"),
+                user_id: ele.val(),
+                _token: ele.data("token")
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveAssign");
+    },
+    sendSeverity: function (ele) {
+        var _z = {
+            url: this.config.baseUrl + "/severity_user",
+            method: "POST",
+            data: {
+                id: ele.data("id"),
+                severity_id: ele.val(),
+                _token: ele.data("token")
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveSeverity");
+    },
+    sendStatus: function (ele) {
+        var _z = {
+            url: this.config.baseUrl + "/status_user",
+            method: "POST",
+            data: {
+                id: ele.data("id"),
+                status_id: ele.val(),
+                _token: ele.data("token")
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveStatus");
+    },
+
+    submitEnvironment : function (ele) {
         var _z = {
             url:  this.config.baseUrl + "/environment",
             method: "post",
@@ -277,8 +393,60 @@ var page = {
             toastr["error"](response.error,"");
         }
     },
-    saveEnvironment : function(response) {
+    saveMessage : function(response) {
         if(response.code  == 200) {
+            $("#loading-image").hide();
+
+            page.loadFirst();
+            // $(".common-modal").modal("hide");
+            toastr["success"](response.message,"Bug Tracking Saved Successfully");
+
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    saveAssign: function (response) {
+        if (response.code == 200) {
+            // $("#loading-image").hide();
+            location.reload()
+            // page.loadFirst();
+            // $(".common-modal").modal("hide");
+            toastr["success"](response.message, "Bug Tracking Changed Successfully");
+
+        } else {
+            // $("#loading-image").hide();
+            toastr["error"](response.error, "");
+        }
+    },
+    saveSeverity: function (response) {
+        if (response.code == 200) {
+            // $("#loading-image").hide();
+            location.reload()
+            // page.loadFirst();
+            // $(".common-modal").modal("hide");
+            toastr["success"](response.message, "Bug Tracking Changed Successfully");
+
+        } else {
+            // $("#loading-image").hide();
+            toastr["error"](response.error, "");
+        }
+    },
+    saveStatus: function (response) {
+        if (response.code == 200) {
+            // $("#loading-image").hide();
+
+            location.reload()
+            // $(".common-modal").modal("hide");
+            toastr["success"](response.message, "Bug Tracking Changed Successfully");
+
+        } else {
+            // $("#loading-image").hide();
+            toastr["error"](response.error, "");
+        }
+    },
+    saveEnvironment: function (response) {
+        if (response.code == 200) {
             page.loadFirst();
             $(".common-modal").modal("hide");
             toastr["success"](response.message,"Environment Saved Successfully");
@@ -327,6 +495,14 @@ var page = {
         }
         this.sendAjax(_z, 'afterPush');
     },
+
+    communicationModel : function(ele) {
+        var _z = {
+            url: this.config.baseUrl + "/communicationData/" + ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'afterCommunication');
+    },
     afterPush : function(response) {
         if(response.code  == 200) {
             console.log(response)
@@ -346,13 +522,41 @@ var page = {
                     html+=" <th>"+ item.bug_status_id +"</th>"
                     html+=" <th>"+ item.bug_severity_id +"</th>"
                     html+=" <th>"+ item.module_id +"</th>"
-                    html+=" <th>"+ item.remark +"</th>"
+                    html+=" <th>"+ item.updated_by +"</th>"
                     html+="</tr>"
                 })
 
                 $('.tbh').html(html)
             }
             toastr["success"](response.message,"Bug Tracking History Listed Successfully");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"Something went wrong");
+        }
+    },
+
+    afterCommunication : function(response) {
+        if(response.code  == 200) {
+            console.log(response)
+            $('#newCommunictionModal').modal('show');
+
+            $('.tbh').html("")
+            if(response.data.length >0){
+
+                var html ="";
+
+                $.each(response.data, function (i,item){
+                    console.log(item)
+                    html+="<tr class='in-background filter-message reviewed_msg'>"
+                    html+=" <th>"+ item.message +"</th>"
+
+                    html+=" <th>"+ item.user_name +"</th>"
+                    html+="</tr>"
+                })
+
+                $('.tbhc').html(html)
+            }
+            // toastr["success"](response.message,"Bug Tracking History Listed Successfully");
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"Something went wrong");

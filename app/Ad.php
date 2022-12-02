@@ -38,7 +38,7 @@ class Ad extends Model
         'different_url_mobile',
         'mobile_final_url',
         'ad_id',
-        'ad_response'
+        'ad_response',
 
     ];
 }

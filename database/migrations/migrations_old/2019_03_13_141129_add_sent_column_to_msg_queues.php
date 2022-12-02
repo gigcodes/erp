@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddSentColumnToMsgQueues extends Migration
 {
@@ -14,7 +14,7 @@ class AddSentColumnToMsgQueues extends Migration
     public function up()
     {
         Schema::table('message_queues', function (Blueprint $table) {
-          $table->boolean('sent')->after('data')->default(0);
+            $table->boolean('sent')->after('data')->default(0);
         });
     }
 
@@ -26,7 +26,7 @@ class AddSentColumnToMsgQueues extends Migration
     public function down()
     {
         Schema::table('message_queues', function (Blueprint $table) {
-          $table->dropColumn('sent');
+            $table->dropColumn('sent');
         });
     }
 }

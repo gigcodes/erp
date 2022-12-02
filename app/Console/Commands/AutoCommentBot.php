@@ -5,13 +5,12 @@ namespace App\Console\Commands;
 use App\Account;
 use App\AutoCommentHistory;
 use App\AutoReplyHashtags;
-use App\Comment;
 use App\CronJobReport;
 //use App\InstagramAutoComments;
 //use App\Services\Instagram\Hashtags;
-use Illuminate\Console\Command;
-//use InstagramAPI\Instagram;
 use Carbon\Carbon;
+//use InstagramAPI\Instagram;
+use Illuminate\Console\Command;
 
 class AutoCommentBot extends Command
 {
@@ -50,7 +49,7 @@ class AutoCommentBot extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -71,7 +70,6 @@ class AutoCommentBot extends Command
             $posts = AutoCommentHistory::where('status', 1)->take(50)->get();
 
             foreach ($posts as $post) {
-
                 $country = $post->country;
 
 //                $comment = new InstagramAutoComments();
@@ -87,7 +85,7 @@ class AutoCommentBot extends Command
                 }
 
                 $caption = $post->caption;
-                $caption = str_replace(['#', '@', '!', '-' . '/'], ' ', $caption);
+                $caption = str_replace(['#', '@', '!', '-'.'/'], ' ', $caption);
                 $caption = explode(' ', $caption);
 
 //                $comment = $comment->where(function ($query) use ($caption) {
@@ -119,9 +117,9 @@ class AutoCommentBot extends Command
 
                 $this->accounts[$account->id]->media->comment($post->post_id, $comment->comment);
 
-                $post->status     = 0;
+                $post->status = 0;
                 $post->account_id = $account->id;
-                $post->comment    = $comment->comment;
+                $post->comment = $comment->comment;
                 $post->save();
 
                 sleep(5);
@@ -131,6 +129,5 @@ class AutoCommentBot extends Command
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 }

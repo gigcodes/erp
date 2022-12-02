@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class HubstaffHistory extends Migration
 {
@@ -16,7 +16,7 @@ class HubstaffHistory extends Migration
         Schema::create('hubstaff_historys', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedBigInteger('developer_task_id');
-           
+
             $table->string('old_value')->nullable();
             $table->string('new_value')->nullable();
             $table->unsignedBigInteger('user_id');

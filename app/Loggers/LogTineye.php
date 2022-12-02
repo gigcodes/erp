@@ -18,6 +18,5 @@ class LogTineye extends Model
         $logTineye->save();
 
         // Return
-        return;
     }
 }

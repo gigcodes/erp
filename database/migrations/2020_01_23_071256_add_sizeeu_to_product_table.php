@@ -14,7 +14,7 @@ class AddSizeeuToProductTable extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->text('size_eu')->nullable()->after("size");
+            $table->text('size_eu')->nullable()->after('size');
         });
     }
 

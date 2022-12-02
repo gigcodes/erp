@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableStoreWebsiteIsPriceOvverride extends Migration
 {
@@ -14,7 +14,7 @@ class AlterTableStoreWebsiteIsPriceOvverride extends Migration
     public function up()
     {
         //
-        Schema::table('store_websites',function(Blueprint $table) {
+        Schema::table('store_websites', function (Blueprint $table) {
             $table->integer('is_price_override')->default(0)->nullable()->after('country_duty');
         });
     }
@@ -27,7 +27,7 @@ class AlterTableStoreWebsiteIsPriceOvverride extends Migration
     public function down()
     {
         //
-        Schema::table('store_websites',function(Blueprint $table) {
+        Schema::table('store_websites', function (Blueprint $table) {
             $table->dropField('is_price_override');
         });
     }

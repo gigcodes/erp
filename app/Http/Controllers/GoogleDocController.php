@@ -18,12 +18,23 @@ class GoogleDocController extends Controller
      */
     public function index(Request $request)
     {
-        $data = GoogleDoc::orderBy('created_at', 'desc')->get();
+        $data = GoogleDoc::orderBy('created_at', 'desc');
+
+        if ($keyword = request('name')) {
+            $data = $data->where(function ($q) use ($keyword) {
+                $q->where('name', 'LIKE', "%$keyword%");
+            });
+        }
+        if ($keyword = request('docid')) {
+            $data = $data->where(function ($q) use ($keyword) {
+                $q->where('docid', 'LIKE', "%$keyword%");
+            });
+        }
+        $data = $data->get();
 
         return view('googledocs.index', compact('data'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
-
 
     /**
      * Show the form for creating a new resource.
@@ -35,7 +46,7 @@ class GoogleDocController extends Controller
         $data = $this->validate($request, [
             'type' => ['required', Rule::in('spreadsheet', 'doc')],
             'doc_name' => ['required', 'max:800'],
-            'existing_doc_id' => ['sometimes','nullable', 'string', 'max:800']
+            'existing_doc_id' => ['sometimes', 'nullable', 'string', 'max:800'],
         ]);
 
         DB::transaction(function () use ($data) {
@@ -44,9 +55,9 @@ class GoogleDocController extends Controller
             $googleDoc->name = $data['doc_name'];
             $googleDoc->save();
 
-            if (!empty($data['existing_doc_id'])) {
+            if (! empty($data['existing_doc_id'])) {
                 $googleDoc->docId = $data['existing_doc_id'];
-                $googleDoc->save();    
+                $googleDoc->save();
             } else {
                 if ($googleDoc->type === 'spreadsheet') {
                     CreateGoogleSpreadsheet::dispatchNow($googleDoc);
@@ -55,16 +66,16 @@ class GoogleDocController extends Controller
                 if ($googleDoc->type === 'doc') {
                     CreateGoogleDoc::dispatchNow($googleDoc);
                 }
-
             }
         });
+
         return back()->with('success', "Google {$data['type']} is Created.");
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -75,7 +86,7 @@ class GoogleDocController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -86,7 +97,7 @@ class GoogleDocController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -97,8 +108,8 @@ class GoogleDocController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -109,7 +120,7 @@ class GoogleDocController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

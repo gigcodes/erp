@@ -22,7 +22,7 @@ class Flows extends Migration
             $table->timestamps();
         });
     }
- 
+
     /**
      * Reverse the migrations.
      *

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterAddColumnLearningIdTable extends Migration
 {
@@ -14,7 +14,7 @@ class AlterAddColumnLearningIdTable extends Migration
     public function up()
     {
         //
-        Schema::table('chat_messages', function(Blueprint $table){
+        Schema::table('chat_messages', function (Blueprint $table) {
             $table->boolean('learning_id')->nullable();
         });
     }
@@ -27,7 +27,7 @@ class AlterAddColumnLearningIdTable extends Migration
     public function down()
     {
         //
-        Schema::table('chat_messages',function(Blueprint $table) {
+        Schema::table('chat_messages', function (Blueprint $table) {
             $table->dropField('learning_id');
         });
     }

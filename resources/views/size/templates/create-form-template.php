@@ -16,8 +16,8 @@
 	            <label for="name">Name</label>
 	            <input type="text" name="name" value="{{if data}}{{:data.name}}{{/if}}" class="form-control" id="name" placeholder="Enter name">
 	         </div>
-	         <?php if(!empty($storeWebsites)) { ?>
-		        <?php foreach($storeWebsites as $v => $sw){  ?>
+	         <?php if (! empty($storeWebsites)) { ?>
+		        <?php foreach ($storeWebsites as $v => $sw) {  ?>
 		        	<div class="form-group">
 		        		<label for="name"><?php echo $sw; ?> (Platform id)</label>
 		        		<input class="form-control" name="store_website[<?php echo $v; ?>]" value="{{if stores && stores.store_<?php echo $v; ?>}}{{:stores.store_<?php echo $v; ?>}}{{/if}}">

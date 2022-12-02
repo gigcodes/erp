@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\VendorResume;
-use App\Setting;
 use App\Position;
+use App\Setting;
+use App\VendorResume;
 use Illuminate\Http\Request;
-use App\Models\File;
-use GuzzleHttp\Client;
 
 class VendorResumeController extends Controller
 {
@@ -19,13 +17,14 @@ class VendorResumeController extends Controller
     public function index()
     {
         $resumes = VendorResume::latest()->paginate(Setting::get('pagination'));
+
         return view('vendors.list-cv', [
             'resumes' => $resumes,
         ]);
     }
 
-    public function search(Request $request) {
-
+    public function search(Request $request)
+    {
         $resumes = VendorResume::latest();
         //if vendoe_id is not null
         if ($request->vendoe_id != null) {
@@ -34,34 +33,34 @@ class VendorResumeController extends Controller
 
         //If first_name is not null
         if ($request->first_name != null) {
-            $resumes->where('first_name', 'LIKE', '%' . $request->first_name . '%');
+            $resumes->where('first_name', 'LIKE', '%'.$request->first_name.'%');
         }
 
         //if second_name is not null
         if ($request->second_name != null) {
-            $resumes->where('second_name', 'LIKE', '%' . $request->second_name . '%');
+            $resumes->where('second_name', 'LIKE', '%'.$request->second_name.'%');
         }
 
         //if email is not null
         if ($request->email != null) {
-            $resumes->where('email', 'LIKE', '%' . $request->email . '%');
+            $resumes->where('email', 'LIKE', '%'.$request->email.'%');
         }
 
         //if mobile is not null
         if ($request->mobile != null) {
-            $resumes->where('mobile', 'LIKE', '%' . $request->mobile . '%');
+            $resumes->where('mobile', 'LIKE', '%'.$request->mobile.'%');
         }
 
         //if expected_salary_in_usd is not null
         if ($request->expected_salary_in_usd != null) {
-            $resumes->where('expected_salary_in_usd', 'LIKE', '%' . $request->expected_salary_in_usd . '%');
+            $resumes->where('expected_salary_in_usd', 'LIKE', '%'.$request->expected_salary_in_usd.'%');
         }
 
         $resumes = $resumes->paginate(Setting::get('pagination'));
+
         return view('vendors.list-cv', [
             'resumes' => $resumes,
         ]);
-
     }
 
     /**
@@ -71,8 +70,8 @@ class VendorResumeController extends Controller
      */
     public function getWorkExperience(Request $request)
     {
-        try{
-            $resumes = VendorResume::where('id',$request->id)->first();
+        try {
+            $resumes = VendorResume::where('id', $request->id)->first();
             //if vendoe_id is not null
             if ($request->id != null) {
                 //$resumes->where('id', $request->id);
@@ -96,10 +95,10 @@ class VendorResumeController extends Controller
             $project = unserialize($resumes->project);
             $dev_role = unserialize($resumes->dev_role);
             $tools = unserialize($resumes->tools);
-            
+
             //dd($workExperiance);
             $counter = 0;
-            foreach($workExperiance as $key => $val){
+            foreach ($workExperiance as $key => $val) {
                 $salary_in_usd_val = $salary_in_usd[$key] ?? '';
                 $date_from_val = $date_from[$key] ?? '';
                 $date_to_val = $date_to[$key] ?? '';
@@ -137,35 +136,34 @@ class VendorResumeController extends Controller
                 $html .= '<tr>';
                 $html .= '<td colspan="4"><b>Remark </b>: '.$work_remark_val.'</td>';
                 $html .= '</tr>';
-                
-                foreach($project as $prokey => $pval){
+
+                foreach ($project as $prokey => $pval) {
                     $html .= '<tr>';
-                    $html .= '<td colspan="6"><b>Project '.($prokey+1).'</b></td>';
+                    $html .= '<td colspan="6"><b>Project '.($prokey + 1).'</b></td>';
                     $html .= '</tr>';
-                    foreach($pval as $prokey1 =>$pval1){
+                    foreach ($pval as $prokey1 => $pval1) {
                         //dd($dev_role[$prokey][$prokey][$prokey1]);
                         $html .= '<tr>';
                         $html .= '<td><b>Project '.($pval1).'</b></td>';
                         $html .= '<td><b>Role '.($dev_role[$prokey][$prokey][$prokey1]).'</b></td>';
                         $html .= '<td><b>Project '.($tools[$prokey][$prokey][$prokey1]).'</b></td>';
                         $html .= '</tr>';
-                    
                     }
                 }
                 $counter++;
             }
 
-            return response()->json(["code" => 200, "data" => $html, "message" => 'Data listed successfully!!!']);
+            return response()->json(['code' => 200, 'data' => $html, 'message' => 'Data listed successfully!!!']);
         } catch (\Exception $e) {
-            return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
+            return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
         }
-
     }
 
-    public function getEducation(Request $request){
-        try{
-            $resumes = VendorResume::where('id',$request->id)->first();
-            
+    public function getEducation(Request $request)
+    {
+        try {
+            $resumes = VendorResume::where('id', $request->id)->first();
+
             $html = '<tr><td colspan="5"><b>Educational Qualifications</b></td></tr>';
             $edu_date_from = unserialize($resumes->edu_date_from);
             $edu_date_to = unserialize($resumes->edu_date_to);
@@ -174,13 +172,12 @@ class VendorResumeController extends Controller
             $edu_grades = unserialize($resumes->edu_grades);
             $edu_remark = unserialize($resumes->edu_remark);
             //dd($workExperiance);
-            foreach($edu_date_from as $key => $val){
+            foreach ($edu_date_from as $key => $val) {
                 $edu_date_to_val = $edu_date_to[$key] ?? '';
                 $edu_institute_programme_val = $edu_institute_programme[$key] ?? '';
                 $edu_course_name_val = $edu_course_name[$key] ?? '';
                 $edu_grades_val = $edu_grades[$key] ?? '';
                 $edu_remark_val = $edu_remark[$key] ?? '';
-                
 
                 $html .= '<tr>';
                 $html .= '<td><b>From Date </b>: '.$val.'</td>';
@@ -192,24 +189,26 @@ class VendorResumeController extends Controller
                 $html .= '<tr>';
                 $html .= '<td colspan="4"><b>Remark </b>: '.$edu_remark_val.'</td>';
                 $html .= '</tr>';
-                
             }
 
-            return response()->json(["code" => 200, "data" => $html, "message" => 'Educational Data listed successfully!!!']);
+            return response()->json(['code' => 200, 'data' => $html, 'message' => 'Educational Data listed successfully!!!']);
         } catch (\Exception $e) {
-            return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
+            return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
         }
     }
 
-    public function create($vendor_id = null){
+    public function create($vendor_id = null)
+    {
         $positions = Position::get();
-        return view("vendor-resume.create",["vendor_id"=>$vendor_id,"positions"=>$positions]);
+
+        return view('vendor-resume.create', ['vendor_id' => $vendor_id, 'positions' => $positions]);
     }
 
-    public function getAddress(Request $request){
-        try{
-            $resumes = VendorResume::where('id',$request->id)->first();
-            
+    public function getAddress(Request $request)
+    {
+        try {
+            $resumes = VendorResume::where('id', $request->id)->first();
+
             $html = '<tr><td colspan="5"><b>Address</b></td></tr>';
             $address = unserialize($resumes->address);
 
@@ -218,24 +217,23 @@ class VendorResumeController extends Controller
             $html .= '<td><b>State </b>: '.$resumes->state.'</td>';
             $html .= '<td><b>Country </b>: '.$resumes->country.'</td>';
             $html .= '</tr>';
-            
-            foreach($address as $key => $val){
-                
+
+            foreach ($address as $key => $val) {
                 $html .= '<tr>';
-                $html .= '<td colspan="4"><b>Address '.($key+1).'</b>:</td>';
+                $html .= '<td colspan="4"><b>Address '.($key + 1).'</b>:</td>';
                 $html .= '</tr>';
-                
+
                 $html .= '<tr>';
                 $html .= '<td colspan="4">'.$val.'</td>';
                 $html .= '</tr>';
-                
             }
 
-            return response()->json(["code" => 200, "data" => $html, "message" => 'Educational Data listed successfully!!!']);
+            return response()->json(['code' => 200, 'data' => $html, 'message' => 'Educational Data listed successfully!!!']);
         } catch (\Exception $e) {
-            return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
+            return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
         }
     }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -250,9 +248,9 @@ class VendorResumeController extends Controller
         $dev_role = [];
         $tools = [];
 
-        foreach($requestData['work_experiance'] as $key => $val){
-            if(isset($requestData['project'.$key])) {
-                foreach($requestData['project'.$key] as $pKey => $pval){
+        foreach ($requestData['work_experiance'] as $key => $val) {
+            if (isset($requestData['project'.$key])) {
+                foreach ($requestData['project'.$key] as $pKey => $pval) {
                     $project[$key][$pKey] = $pval;
                     $dev_role[$key][$pKey] = $request->input('dev_role'.$key);
                     $tools[$key][$pKey] = $request->input('tools'.$key);
@@ -261,17 +259,16 @@ class VendorResumeController extends Controller
         }
 
         $path = public_path('vendorResume');
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             mkdir($path, 0777, true);
         }
         $vendorResumeName = '';
-        if($request->file('soft_upload_document')) {
+        if ($request->file('soft_upload_document')) {
             $file = $request->file('soft_upload_document');
-            $vendorResumeName = uniqid() . '_' . trim($file->getClientOriginalName());
+            $vendorResumeName = uniqid().'_'.trim($file->getClientOriginalName());
             $file->move($path, $vendorResumeName);
         }
-        try{
-            
+        try {
             $vendorResume = new VendorResume();
             $vendorResume->vendor_id = $request->vendor_id;
             $vendorResume->pre_name = $request->pre_name;
@@ -280,9 +277,9 @@ class VendorResumeController extends Controller
             $vendorResume->email = $request->email;
             $vendorResume->mobile = $request->mobile;
             $vendorResume->position_id = $request->position_id;
-            if(!empty($request->criteria)){
-                $vendorResume->criteria = implode(",",$request->criteria);
-            }  
+            if (! empty($request->criteria)) {
+                $vendorResume->criteria = implode(',', $request->criteria);
+            }
             $vendorResume->career_objective = $request->career_objective;
             $vendorResume->salary_in_usd = serialize($request->salary_in_usd);
             $vendorResume->expected_salary_in_usd = $request->expected_salary_in_usd;
@@ -336,7 +333,7 @@ class VendorResumeController extends Controller
             $vendorResume->address = serialize($request->address);
             $vendorResume->save();
             //dd(\DB::getQueryLog());
-           return back()->with('success', 'Data stored successfully!!!');
+            return back()->with('success', 'Data stored successfully!!!');
             //return response()->json(["code" => 200, "data" => $vendorResume, "message" => 'Data stored successfully!!!']);
         } catch (\Exception $e) {
             //return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
@@ -344,7 +341,6 @@ class VendorResumeController extends Controller
             return back()->with('message', $e->getMessage());
         }
     }
-    
 
     /**
      * Display the specified resource.
@@ -354,11 +350,12 @@ class VendorResumeController extends Controller
      */
     public function show(VendorResume $vendorResume)
     {
-        try{
+        try {
             $vendorResume = new VendorResume();
-            return response()->json(["code" => 200, "data" => $vendorResume, "message" => 'Data stored successfully!!!']);
+
+            return response()->json(['code' => 200, 'data' => $vendorResume, 'message' => 'Data stored successfully!!!']);
         } catch (\Exception $e) {
-            return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
+            return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
         }
     }
 

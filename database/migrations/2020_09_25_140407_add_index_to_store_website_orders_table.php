@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIndexToStoreWebsiteOrdersTable extends Migration
 {
@@ -15,9 +15,9 @@ class AddIndexToStoreWebsiteOrdersTable extends Migration
     {
         Schema::table('store_website_orders', function (Blueprint $table) {
             $table->index('website_id');
-			$table->index('status_id');
-			$table->index('order_id');
-			$table->index('platform_order_id');
+            $table->index('status_id');
+            $table->index('order_id');
+            $table->index('platform_order_id');
         });
     }
 
@@ -30,9 +30,9 @@ class AddIndexToStoreWebsiteOrdersTable extends Migration
     {
         Schema::table('store_website_orders', function (Blueprint $table) {
             $table->dropIndex('website_id');
-			$table->dropIndex('status_id');
-			$table->dropIndex('order_id');
-			$table->dropIndex('platform_order_id');
+            $table->dropIndex('status_id');
+            $table->dropIndex('order_id');
+            $table->dropIndex('platform_order_id');
         });
     }
 }

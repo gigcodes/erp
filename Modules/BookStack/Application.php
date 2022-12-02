@@ -4,7 +4,6 @@ namespace Modules\BookStack;
 
 class Application extends \Illuminate\Foundation\Application
 {
-
     /**
      * Get the path to the application configuration files.
      *
@@ -15,5 +14,4 @@ class Application extends \Illuminate\Foundation\Application
     {
         return $this->basePath.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'Config'.($path ? DIRECTORY_SEPARATOR.$path : $path);
     }
-
 }

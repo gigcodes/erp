@@ -1,4 +1,6 @@
-<?php namespace Modules\BookStack;
+<?php
+
+namespace Modules\BookStack;
 
 use Modules\BookStack\Auth\User;
 
@@ -6,6 +8,7 @@ abstract class Ownable extends Model
 {
     /**
      * Relation for the user that created this entity.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function createdBy()
@@ -15,6 +18,7 @@ abstract class Ownable extends Model
 
     /**
      * Relation for the user that updated this entity.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function updatedBy()
@@ -24,6 +28,7 @@ abstract class Ownable extends Model
 
     /**
      * Gets the class name.
+     *
      * @return string
      */
     public static function getClassName()

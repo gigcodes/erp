@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIndexToCustomersTable extends Migration
 {
@@ -15,7 +15,6 @@ class AddIndexToCustomersTable extends Migration
     {
         Schema::table('customers', function (Blueprint $table) {
             $table->index(['user_id']);
-
         });
     }
 
@@ -28,7 +27,6 @@ class AddIndexToCustomersTable extends Migration
     {
         Schema::table('customers', function (Blueprint $table) {
             $table->dropIndex(['user_id']);
-
         });
     }
 }

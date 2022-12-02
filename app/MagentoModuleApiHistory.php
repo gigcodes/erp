@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MagentoModuleApiHistory extends Model
 {
-    protected $table = "magento_module_api_histories";
+    protected $table = 'magento_module_api_histories';
 
     protected $fillable = ['magento_module_id', 'resources', 'frequency', 'user_id'];
 

@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class SlowLogsEnableDisable extends Model
 {
-    protected $fillable = ['user_id','response','type'];
+    protected $fillable = ['user_id', 'response', 'type'];
 }

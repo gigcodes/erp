@@ -2,11 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\StoreViewsGTMetrix;
-use App\Repositories\GtMatrixRepository;
 use App\Repositories\GooglePageSpeedRepository;
-
+use App\Repositories\GtMatrixRepository;
+use App\StoreViewsGTMetrix;
+use Illuminate\Console\Command;
 
 class GtMetrixReport extends Command
 {
@@ -43,16 +42,15 @@ class GtMetrixReport extends Command
     {
         //Checking for all available urls
         $gtMatrixURLs = app(StoreViewsGTMetrix::class)->where('status', 'queued')->get();
-        foreach($gtMatrixURLs as $gtMatrixURL){
-            if(!$gtMatrixURL->account_id){
-                $gtMatrixURL->update(['status' => 'error','reason' => 'No gt-metrix account assoicated with this test']);
+        foreach ($gtMatrixURLs as $gtMatrixURL) {
+            if (! $gtMatrixURL->account_id) {
+                $gtMatrixURL->update(['status' => 'error', 'reason' => 'No gt-metrix account assoicated with this test']);
+
                 continue;
             }
             app(GtMatrixRepository::class)->generateLog($gtMatrixURL);
             //Getting the record from google page speed
             app(GooglePageSpeedRepository::class)->generateReport($gtMatrixURL);
-
         }
-
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterDropForeignKeyPageNotesTable extends Migration
 {
@@ -29,7 +29,7 @@ class AlterDropForeignKeyPageNotesTable extends Migration
         //
         /*Schema::table('page_notes', function (Blueprint $table) {
             // $table->unsignedInteger('category_id');
-  
+
             $table->foreign('category_id')
                   ->references('id')
                   ->on('page_notes_categories')

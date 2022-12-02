@@ -15,7 +15,7 @@ class FlowActionMessages extends Migration
     {
         Schema::create('flow_action_messages', function (Blueprint $table) {
             $table->increments('id');
-			$table->integer('action_id');
+            $table->integer('action_id');
             $table->string('sender_name');
             $table->string('sender_email_address');
             $table->string('subject');

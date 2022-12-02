@@ -6,7 +6,6 @@ use App\Email;
 use App\MailinglistTemplate;
 use App\Mails\Manual\PurchaseEmail;
 use Illuminate\Http\Request;
-use Mail;
 
 class CommonController extends Controller
 {
@@ -85,14 +84,15 @@ class CommonController extends Controller
     {
         //
     }
+
     public function sendCommonEmail(request $request)
     {
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
-            'cc.*'    => 'nullable|email',
-            'bcc.*'   => 'nullable|email',
-            'sendto'  => 'required',
+            'cc.*' => 'nullable|email',
+            'bcc.*' => 'nullable|email',
+            'sendto' => 'required',
         ]);
 
         // $fromEmail = 'buying@amourint.com';
@@ -102,21 +102,21 @@ class CommonController extends Controller
             $mail = \App\EmailAddress::where('from_address', $request->from_mail)->first();
             if ($mail) {
                 $fromEmail = $mail->from_address;
-                $fromName  = $mail->from_name;
-                $config    = config("mail");
+                $fromName = $mail->from_name;
+                $config = config('mail');
                 unset($config['sendmail']);
-                $configExtra = array(
-                    'driver'     => $mail->driver,
-                    'host'       => $mail->host,
-                    'port'       => $mail->port,
-                    'from'       => [
+                $configExtra = [
+                    'driver' => $mail->driver,
+                    'host' => $mail->host,
+                    'port' => $mail->port,
+                    'from' => [
                         'address' => $mail->from_address,
-                        'name'    => $mail->from_name,
+                        'name' => $mail->from_name,
                     ],
                     'encryption' => $mail->encryption,
-                    'username'   => $mail->username,
-                    'password'   => $mail->password,
-                );
+                    'username' => $mail->username,
+                    'password' => $mail->password,
+                ];
                 \Config::set('mail', array_merge($config, $configExtra));
                 (new \Illuminate\Mail\MailServiceProvider(app()))->register();
             }
@@ -155,7 +155,7 @@ class CommonController extends Controller
             foreach ($request->file('file') as $file) {
                 $filename = $file->getClientOriginalName();
 
-                $file->storeAs("documents", $filename, 'files');
+                $file->storeAs('documents', $filename, 'files');
 
                 $file_paths[] = "documents/$filename";
             }
@@ -169,61 +169,65 @@ class CommonController extends Controller
             $bcc = array_values(array_filter($request->bcc));
         }
 
-        $emailClass = (new PurchaseEmail($request->subject, $request->message, $file_paths, ["from" => $fromEmail]))->build();
+        $emailClass = (new PurchaseEmail($request->subject, $request->message, $file_paths, ['from' => $fromEmail]))->build();
 
         $params = [
-            'model_id'        => $request->id,
-            'from'            => $fromEmail,
-            'seen'            => 1,
-            'to'              => $request->sendto,
-            'subject'         => $request->subject,
-            'message'         => $emailClass->render(),
-            'template'        => 'simple',
+            'model_id' => $request->id,
+            'from' => $fromEmail,
+            'seen' => 1,
+            'to' => $request->sendto,
+            'subject' => $request->subject,
+            'message' => $emailClass->render(),
+            'template' => 'simple',
             'additional_data' => json_encode(['attachment' => $file_paths]),
-            'cc'              => $cc ?: null,
-            'bcc'             => $bcc ?: null,
+            'cc' => $cc ?: null,
+            'bcc' => $bcc ?: null,
         ];
         if ($request->object) {
             if ($request->object == 'vendor') {
-                $params['model_type'] = "Vendor::class";
+                $params['model_type'] = 'Vendor::class';
             } elseif ($request->object == 'user') {
-                $params['model_type'] = "User::class";
+                $params['model_type'] = 'User::class';
             } elseif ($request->object == 'supplier') {
-                $params['model_type'] = "Supplier::class";
+                $params['model_type'] = 'Supplier::class';
             } elseif ($request->object == 'customer') {
-                $params['model_type'] = "Customer::class";
+                $params['model_type'] = 'Customer::class';
             } elseif ($request->object == 'order') {
-                $params['model_type'] = "Order::class";
+                $params['model_type'] = 'Order::class';
             } elseif ($request->object == 'charity') {
-                $params['model_type'] = "Charity::class";
+                $params['model_type'] = 'Charity::class';
             }
         }
 
         $email = Email::create($params);
-		\App\EmailLog::create([
-            'email_id'   => $email->id,
+        \App\EmailLog::create([
+            'email_id' => $email->id,
             'email_log' => 'Email initiated',
-            'message'       => $email->to
+            'message' => $email->to,
         ]);
 
-        \App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
+        \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
 
-        if(isset($request->from) && $request->from == 'sop')
+        if (isset($request->from) && $request->from == 'sop') {
             return response()->json(['success' => 'You have send email successfully !']);
-        else
+        } else {
             return redirect()->back()->withSuccess('You have successfully sent email!');
-        
-
+        }
     }
+
     public function getMailTemplate(request $request)
     {
         if (isset($request->mailtemplateid)) {
-            $data            = MailinglistTemplate::select('static_template', 'subject')->where('id', $request->mailtemplateid)->first();
+            $data = MailinglistTemplate::select('static_template', 'subject')->where('id', $request->mailtemplateid)->first();
             $static_template = $data->static_template;
-            $subject         = $data->subject;
-            if (!$static_template) {return response()->json(['error' => 'unable to get template', 'success' => false]);}
+            $subject = $data->subject;
+            if (! $static_template) {
+                return response()->json(['error' => 'unable to get template', 'success' => false]);
+            }
+
             return response()->json(['template' => $static_template, 'subject' => $subject, 'success' => true]);
         }
+
         return response()->json(['error' => 'unable to get template', 'success' => false]);
     }
 }

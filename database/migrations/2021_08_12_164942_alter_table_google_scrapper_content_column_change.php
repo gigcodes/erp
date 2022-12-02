@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AlterTableGoogleScrapperContentColumnChange extends Migration
@@ -14,7 +12,7 @@ class AlterTableGoogleScrapperContentColumnChange extends Migration
     public function up()
     {
         //
-        \DB::statement("ALTER TABLE `google_scrapper_content` CHANGE `image` `image` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;");
+        \DB::statement('ALTER TABLE `google_scrapper_content` CHANGE `image` `image` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;');
     }
 
     /**

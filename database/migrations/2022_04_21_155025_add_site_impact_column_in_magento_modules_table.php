@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddSiteImpactColumnInMagentoModulesTable extends Migration
 {
@@ -26,7 +26,6 @@ class AddSiteImpactColumnInMagentoModulesTable extends Migration
     public function down()
     {
         Schema::table('magento_modules', function (Blueprint $table) {
-
             $table->dropColumn('site_impact');
         });
     }

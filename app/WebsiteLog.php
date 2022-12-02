@@ -7,14 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class WebsiteLog extends Model
 {
     protected $fillable = [
-        'id', 
-        'sql_query', 
-        'time', 
-        'module', 
-        'website_id', 
+        'id',
+        'sql_query',
+        'time',
+        'module',
+        'website_id',
         'type',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
-
 }

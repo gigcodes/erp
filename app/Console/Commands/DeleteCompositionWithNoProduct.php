@@ -40,16 +40,16 @@ class DeleteCompositionWithNoProduct extends Command
         //
         $compositions = \App\Compositions::query();
 
-        $compositions = $compositions->where(function($q) {
-            $q->orWhere('replace_with','')->orWhereNull('replace_with');
+        $compositions = $compositions->where(function ($q) {
+            $q->orWhere('replace_with', '')->orWhereNull('replace_with');
         });
 
         $compositions = $compositions->get();
 
-        if(!$compositions->isEmpty()) {
-            foreach($compositions as $c) {
+        if (! $compositions->isEmpty()) {
+            foreach ($compositions as $c) {
                 $count = $c->products($c->name);
-                if($count <= 0) {
+                if ($count <= 0) {
                     $c->delete();
                     echo "Compositions {$c->name} => $count count found so deleted";
                     echo PHP_EOL;

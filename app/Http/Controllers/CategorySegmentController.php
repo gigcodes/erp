@@ -18,13 +18,13 @@ class CategorySegmentController extends Controller
         $category_segments = CategorySegment::query();
 
         $keyword = request('keyword');
-        if(!empty($keyword)) {
-            $category_segments = $category_segments->where("name","like","%".$keyword."%");
+        if (! empty($keyword)) {
+            $category_segments = $category_segments->where('name', 'like', '%'.$keyword.'%');
         }
 
         $category_segments = $category_segments->paginate(Setting::get('pagination'));
 
-        return view( 'category-segment.index', compact('category_segments'))->with('i', (request()->input('page', 1) - 1) * 10);
+        return view('category-segment.index', compact('category_segments'))->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
     /**
@@ -34,9 +34,10 @@ class CategorySegmentController extends Controller
      */
     public function create()
     {
-        $data[ 'name' ] = '';
-        $data[ 'status' ] = '';
-        $data[ 'modify' ] = 0;
+        $data['name'] = '';
+        $data['status'] = '';
+        $data['modify'] = 0;
+
         return view('category-segment.form', $data);
     }
 
@@ -49,12 +50,13 @@ class CategorySegmentController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|unique:category_segments,name'
+            'name' => 'required|unique:category_segments,name',
         ]);
         $category_segment = new CategorySegment();
         $category_segment->name = $request->name;
         $category_segment->status = $request->status;
         $category_segment->save();
+
         return redirect()->route('category-segment.index')->with('success', 'Category Segment created successfully!');
     }
 
@@ -68,7 +70,7 @@ class CategorySegmentController extends Controller
     {
         $category_segment = CategorySegment::find($id);
         $data = $category_segment->toArray();
-        $data[ 'modify' ] = 1;
+        $data['modify'] = 1;
 
         return view('category-segment.form', $data);
     }
@@ -83,12 +85,13 @@ class CategorySegmentController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'name' => 'required|unique:category_segments,name,' . $id
+            'name' => 'required|unique:category_segments,name,'.$id,
         ]);
         $category_segment = CategorySegment::find($id);
         $category_segment->name = $request->name;
         $category_segment->status = $request->status;
         $category_segment->save();
+
         return redirect()->route('category-segment.index')->with('success', 'Category Segment updated successfully!');
     }
 
@@ -101,9 +104,10 @@ class CategorySegmentController extends Controller
     public function destroy($id)
     {
         $category_segment = CategorySegment::find($id);
-        if($category_segment) {
+        if ($category_segment) {
             $category_segment->delete();
         }
+
         return redirect()->route('category-segment.index')->with('success', 'Category Segment deleted successfully!');
     }
 }

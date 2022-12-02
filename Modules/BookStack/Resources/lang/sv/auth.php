@@ -1,4 +1,5 @@
 <?php
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -44,7 +45,6 @@ return [
     'registration_email_domain_invalid' => 'Den e-postadressen har inte tillgång till den här applikationen',
     'register_success' => 'Tack för din registrering! Du är nu registerad och inloggad.',
 
-
     /**
      * Password Reset
      */
@@ -57,7 +57,6 @@ return [
     'email_reset_subject' => 'Återställ ditt lösenord till :appName',
     'email_reset_text' => 'Du får detta mail eftersom vi fått en begäran om att återställa lösenordet till ditt konto.',
     'email_reset_not_requested' => 'Om du inte begärt att få ditt lösenord återställt behöver du inte göra någonting',
-
 
     /**
      * Email Confirmation

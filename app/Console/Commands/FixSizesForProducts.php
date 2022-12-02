@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use PhpOffice\PhpSpreadsheet\Reader\Csv;
 
 class FixSizesForProducts extends Command
 {
@@ -38,6 +37,5 @@ class FixSizesForProducts extends Command
      */
     public function handle()
     {
-
     }
 }

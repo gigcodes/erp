@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Email extends Model
 {
-      /**
+    /**
      * @var string
      * @SWG\Property(property="model_id",type="integer")
      * @SWG\Property(property="model_type",type="string")
@@ -28,30 +29,29 @@ class Email extends Model
      * @SWG\Property(property="origin_id",type="integer")
      * @SWG\Property(property="reference_id",type="integer")
      */
-  protected $fillable = [
-    'model_id', 'model_type', 'type', 'seen', 'from', 'to', 'subject', 'message', 'template', 'additional_data', 'created_at',
-      'cc', 'bcc','origin_id','reference_id', 'status','approve_mail','is_draft' , 'error_message','store_website_id',
-	  'message_en','schedule_at','mail_status', 'order_id', 'order_status'
-  ];
+    protected $fillable = [
+        'model_id', 'model_type', 'type', 'seen', 'from', 'to', 'subject', 'message', 'template', 'additional_data', 'created_at',
+        'cc', 'bcc', 'origin_id', 'reference_id', 'status', 'approve_mail', 'is_draft', 'error_message', 'store_website_id',
+        'message_en', 'schedule_at', 'mail_status', 'order_id', 'order_status',
+    ];
 
-  protected $casts = [
-    'cc' => 'array',
-    'bcc' => 'array',
-  ];
+    protected $casts = [
+        'cc' => 'array',
+        'bcc' => 'array',
+    ];
 
+    public function model()
+    {
+        return $this->morphTo();
+    }
 
-  public function model()
-  {
-  	return $this->morphTo();
-  }
+    public function remarks()
+    {
+        return $this->hasMany(EmailRemark::class);
+    }
 
-  public function remarks(){
-    return $this->hasMany(EmailRemark::class);
-  }
-
-  public function category() {
-    
-    return $this->belongsTo(EmailCategory::class,  'email_category_id', 'id');
-    
-  }
+    public function category()
+    {
+        return $this->belongsTo(EmailCategory::class, 'email_category_id', 'id');
+    }
 }

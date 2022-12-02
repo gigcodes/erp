@@ -1,7 +1,6 @@
 <?php
 
 use App\Permission;
-use App\Role;
 use Illuminate\Database\Seeder;
 
 class DeployerPermissionSeeder extends Seeder
@@ -17,7 +16,7 @@ class DeployerPermissionSeeder extends Seeder
             [
                 'name' => 'deployer',
                 'guard_name' => 'web',
-                'route' => 'deploy-node-list'
+                'route' => 'deploy-node-list',
             ]
         );
     }

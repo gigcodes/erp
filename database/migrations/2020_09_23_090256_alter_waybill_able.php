@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterWaybillAble extends Migration
 {
@@ -14,7 +14,7 @@ class AlterWaybillAble extends Migration
     public function up()
     {
         Schema::table('waybills', function (Blueprint $table) {
-           $table->integer('pickuprequest')->default(0)->after('pickup_date');
+            $table->integer('pickuprequest')->default(0)->after('pickup_date');
         });
     }
 
@@ -26,7 +26,7 @@ class AlterWaybillAble extends Migration
     public function down()
     {
         Schema::table('waybills', function (Blueprint $table) {
-           $table->dropColumn('pickuprequest');
+            $table->dropColumn('pickuprequest');
         });
     }
 }

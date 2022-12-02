@@ -5,9 +5,9 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use Illuminate\Database\Eloquent\Model;
 use App\Events\MonetaryAccountCreated;
 use App\Events\MonetaryAccountUpdated;
+use Illuminate\Database\Eloquent\Model;
 
 class MonetaryAccount extends Model
 {
@@ -35,5 +35,4 @@ class MonetaryAccount extends Model
     {
         return $this->morphMany(\App\MonetaryAccountHistory::class, 'model');
     }
-
 }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateGoogleSearchAnalyticsTable extends Migration
 {
@@ -25,13 +25,11 @@ class CreateGoogleSearchAnalyticsTable extends Migration
             $table->string('page')->nullable();
             $table->string('query')->nullable();
             $table->string('search_apperiance')->nullable();
-          
 
             $table->foreign('site_id')
           ->references('id')->on('sites')
           ->onDelete('CASCADE')
           ->onUpdate('SET NULL');
-            
 
             $table->timestamps();
         });
@@ -45,6 +43,5 @@ class CreateGoogleSearchAnalyticsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('google_search_analytics');
-
     }
 }

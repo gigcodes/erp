@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableChatbotRepliesField extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableChatbotRepliesField extends Migration
     public function up()
     {
         //
-        Schema::table("chatbot_replies",function(Blueprint $table) {
-            $table->integer("is_read")->comment("0 => Unread , 1 => Read")->default(0)->after("reply_from");
+        Schema::table('chatbot_replies', function (Blueprint $table) {
+            $table->integer('is_read')->comment('0 => Unread , 1 => Read')->default(0)->after('reply_from');
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableChatbotRepliesField extends Migration
     public function down()
     {
         //
-        Schema::table("chatbot_replies",function(Blueprint $table) {
-            $table->dropField("is_read");
+        Schema::table('chatbot_replies', function (Blueprint $table) {
+            $table->dropField('is_read');
         });
     }
 }

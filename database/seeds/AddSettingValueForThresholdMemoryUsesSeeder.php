@@ -14,10 +14,10 @@ class AddSettingValueForThresholdMemoryUsesSeeder extends Seeder
     public function run()
     {
         Setting::updateOrCreate([
-            'name'=>'thresold_limit_for_memory_uses',
-        ],[
-            'val'=>80,
-            'type'=>'number'
+            'name' => 'thresold_limit_for_memory_uses',
+        ], [
+            'val' => 80,
+            'type' => 'number',
         ]);
 
         // MemoryUsage::create([
@@ -30,19 +30,18 @@ class AddSettingValueForThresholdMemoryUsesSeeder extends Seeder
 
         // ]);
 
-
         // to add data
 
         // $arr = [2000,4000,8000,16000,32000];
         // $free_r = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9];
-        
+
         // for ($i = 0; $i < 10000; $i++) {
         //      $total = $arr[array_rand($arr,1)];
         //      $free_ram  =$free_r[array_rand($free_r,1)] * $total;
         //      $uses = $total - $free_ram;
         //      $buff_cache = (random_int(1,5)/100)*$total;
         //      $available  = $total - $uses - $buff_cache;
-            
+
         //     MemoryUsage::create([
         //         'total'=>$total,
         //             'used'=>$uses,
@@ -52,8 +51,6 @@ class AddSettingValueForThresholdMemoryUsesSeeder extends Seeder
 
         //     ]);
 
-
         // }
-
     }
 }

@@ -4,7 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
-class CreateErpLeadFromCancellationOrder extends Command {
+class CreateErpLeadFromCancellationOrder extends Command
+{
     /**
      * The name and signature of the console command.
      *
@@ -24,7 +25,8 @@ class CreateErpLeadFromCancellationOrder extends Command {
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
     }
 
@@ -33,9 +35,10 @@ class CreateErpLeadFromCancellationOrder extends Command {
      *
      * @return mixed
      */
-    public function handle() {
-        if (!(\App\Setting::getErpLeadsCronSave())) {
-            die('Disabled');
+    public function handle()
+    {
+        if (! (\App\Setting::getErpLeadsCronSave())) {
+            exit('Disabled');
         }
         try {
             $orders = \App\Order::where('order_status_id', \App\Helpers\OrderHelper::$cancel)->get();
@@ -65,10 +68,10 @@ class CreateErpLeadFromCancellationOrder extends Command {
                     if ($media) {
                         $erpLeads->attachMedia($media, config('constants.media_tags'));
                     }
-                    $this->info('order id = ' . $order->id . ' create id = ' . $erpLeads->id . "\n");
+                    $this->info('order id = '.$order->id.' create id = '.$erpLeads->id."\n");
                 }
             }
-            $message = $this->generate_erp_response("erp.lead.created.for.candellation.order.success", 0, $default = 'Successfully update!!', request('lang_code'));
+            $message = $this->generate_erp_response('erp.lead.created.for.candellation.order.success', 0, $default = 'Successfully update!!', request('lang_code'));
             echo $message;
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

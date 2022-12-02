@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserEventParticipant extends Model
 {
-
     public $timestamps = false;
 
     protected $fillable = [

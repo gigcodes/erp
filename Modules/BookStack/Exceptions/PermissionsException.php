@@ -1,8 +1,9 @@
-<?php namespace Modules\BookStack\Exceptions;
+<?php
+
+namespace Modules\BookStack\Exceptions;
 
 use Exception;
 
 class PermissionsException extends Exception
 {
-
 }

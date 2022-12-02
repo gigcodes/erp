@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateWebsiteLogsTable extends Migration
 {
@@ -15,11 +15,11 @@ class CreateWebsiteLogsTable extends Migration
     {
         Schema::create('website_logs', function (Blueprint $table) {
             $table->increments('id');
-            $table->longText("sql_query")->nullable();
-            $table->string("module")->nullable();
-            $table->string("time")->nullable();
-            $table->string("website_id")->nullable();
-            $table->string("file_path")->nullable();
+            $table->longText('sql_query')->nullable();
+            $table->string('module')->nullable();
+            $table->string('time')->nullable();
+            $table->string('website_id')->nullable();
+            $table->string('file_path')->nullable();
             $table->timestamps();
         });
     }

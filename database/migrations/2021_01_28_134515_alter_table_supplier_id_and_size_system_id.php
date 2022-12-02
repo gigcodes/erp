@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableSupplierIdAndSizeSystemId extends Migration
 {
@@ -14,9 +14,9 @@ class AlterTableSupplierIdAndSizeSystemId extends Migration
     public function up()
     {
         //
-        Schema::table('products',function(Blueprint $table) {
-            $table->integer("supplier_id")->after('supplier')->nullable();
-        }); 
+        Schema::table('products', function (Blueprint $table) {
+            $table->integer('supplier_id')->after('supplier')->nullable();
+        });
     }
 
     /**
@@ -27,8 +27,8 @@ class AlterTableSupplierIdAndSizeSystemId extends Migration
     public function down()
     {
         //
-        Schema::table('products',function(Blueprint $table) {
-            $table->dropField("supplier_id");
-        }); 
+        Schema::table('products', function (Blueprint $table) {
+            $table->dropField('supplier_id');
+        });
     }
 }

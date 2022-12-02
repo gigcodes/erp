@@ -1,24 +1,26 @@
-<?php namespace Modules\BookStack\Entities\Repos;
+<?php
 
+namespace Modules\BookStack\Entities\Repos;
+
+use Carbon\Carbon;
+use DOMDocument;
+use DOMElement;
+use DOMXPath;
 use Modules\BookStack\Entities\Book;
 use Modules\BookStack\Entities\Chapter;
 use Modules\BookStack\Entities\Entity;
 use Modules\BookStack\Entities\Page;
 use Modules\BookStack\Entities\PageRevision;
-use Carbon\Carbon;
-use DOMDocument;
-use DOMElement;
-use DOMXPath;
-use Illuminate\Support\Collection;
 
 class PageRepo extends EntityRepo
 {
-
     /**
      * Get page by slug.
-     * @param string $pageSlug
-     * @param string $bookSlug
+     *
+     * @param  string  $pageSlug
+     * @param  string  $bookSlug
      * @return Page
+     *
      * @throws \BookStack\Exceptions\NotFoundException
      */
     public function getPageBySlug(string $pageSlug, string $bookSlug)
@@ -29,8 +31,9 @@ class PageRepo extends EntityRepo
     /**
      * Search through page revisions and retrieve the last page in the
      * current book that has a slug equal to the one given.
-     * @param string $pageSlug
-     * @param string $bookSlug
+     *
+     * @param  string  $pageSlug
+     * @param  string  $bookSlug
      * @return null|Page
      */
     public function getPageByOldSlug(string $pageSlug, string $bookSlug)
@@ -43,15 +46,18 @@ class PageRepo extends EntityRepo
             ->where('book_slug', '=', $bookSlug)
             ->orderBy('created_at', 'desc')
             ->with('page')->first();
+
         return $revision !== null ? $revision->page : null;
     }
 
     /**
      * Updates a page with any fillable data and saves it into the database.
-     * @param Page $page
-     * @param int $book_id
-     * @param array $input
+     *
+     * @param  Page  $page
+     * @param  int  $book_id
+     * @param  array  $input
      * @return Page
+     *
      * @throws \Exception
      */
     public function updatePage(Page $page, int $book_id, array $input)
@@ -102,9 +108,11 @@ class PageRepo extends EntityRepo
 
     /**
      * Saves a page revision into the system.
-     * @param Page $page
-     * @param null|string $summary
+     *
+     * @param  Page  $page
+     * @param  null|string  $summary
      * @return PageRevision
+     *
      * @throws \Exception
      */
     public function savePageRevision(Page $page, string $summary = null)
@@ -137,7 +145,8 @@ class PageRepo extends EntityRepo
 
     /**
      * Formats a page's html to be tagged correctly within the system.
-     * @param string $htmlText
+     *
+     * @param  string  $htmlText
      * @return string
      */
     protected function formatHtml(string $htmlText)
@@ -179,8 +188,9 @@ class PageRepo extends EntityRepo
     /**
      * Set a unique id on the given DOMElement.
      * A map for existing ID's should be passed in to check for current existence.
-     * @param DOMElement $element
-     * @param array $idMap
+     *
+     * @param  DOMElement  $element
+     * @param  array  $idMap
      */
     protected function setUniqueId($element, array &$idMap)
     {
@@ -190,20 +200,21 @@ class PageRepo extends EntityRepo
 
         // Overwrite id if not a BookStack custom id
         $existingId = $element->getAttribute('id');
-        if (strpos($existingId, 'bkmrk') === 0 && !isset($idMap[$existingId])) {
+        if (strpos($existingId, 'bkmrk') === 0 && ! isset($idMap[$existingId])) {
             $idMap[$existingId] = true;
+
             return;
         }
 
         // Create an unique id for the element
         // Uses the content as a basis to ensure output is the same every time
         // the same content is passed through.
-        $contentId = 'bkmrk-' . mb_substr(strtolower(preg_replace('/\s+/', '-', trim($element->nodeValue))), 0, 20);
+        $contentId = 'bkmrk-'.mb_substr(strtolower(preg_replace('/\s+/', '-', trim($element->nodeValue))), 0, 20);
         $newId = urlencode($contentId);
         $loopIndex = 0;
 
         while (isset($idMap[$newId])) {
-            $newId = urlencode($contentId . '-' . $loopIndex);
+            $newId = urlencode($contentId.'-'.$loopIndex);
             $loopIndex++;
         }
 
@@ -213,20 +224,24 @@ class PageRepo extends EntityRepo
 
     /**
      * Get the plain text version of a page's content.
-     * @param \BookStack\Entities\Page $page
+     *
+     * @param  \BookStack\Entities\Page  $page
      * @return string
      */
-    protected function pageToPlainText(Page $page) : string
+    protected function pageToPlainText(Page $page): string
     {
         $html = $this->renderPage($page, true);
+
         return strip_tags($html);
     }
 
     /**
      * Get a new draft page instance.
-     * @param Book $book
-     * @param Chapter|null $chapter
+     *
+     * @param  Book  $book
+     * @param  Chapter|null  $chapter
      * @return \BookStack\Entities\Page
+     *
      * @throws \Throwable
      */
     public function getDraftPage(Book $book, Chapter $chapter = null)
@@ -244,13 +259,15 @@ class PageRepo extends EntityRepo
         $book->pages()->save($page);
         $page = $this->entityProvider->page->find($page->id);
         $this->permissionService->buildJointPermissionsForEntity($page);
+
         return $page;
     }
 
     /**
      * Save a page update draft.
-     * @param Page $page
-     * @param array $data
+     *
+     * @param  Page  $page
+     * @param  array  $data
      * @return PageRevision|Page
      */
     public function updatePageDraft(Page $page, array $data = [])
@@ -262,6 +279,7 @@ class PageRepo extends EntityRepo
                 $page->text = $this->pageToPlainText($page);
             }
             $page->save();
+
             return $page;
         }
 
@@ -286,15 +304,18 @@ class PageRepo extends EntityRepo
         }
 
         $draft->save();
+
         return $draft;
     }
 
     /**
      * Publish a draft page to make it a normal page.
      * Sets the slug and updates the content.
-     * @param Page $draftPage
-     * @param array $input
+     *
+     * @param  Page  $draftPage
+     * @param  array  $input
      * @return Page
+     *
      * @throws \Exception
      */
     public function publishPageDraft(Page $draftPage, array $input)
@@ -319,12 +340,14 @@ class PageRepo extends EntityRepo
         $draftPage->save();
         $this->savePageRevision($draftPage, trans('bookstack::entities.pages_initial_revision'));
         $this->searchService->indexEntity($draftPage);
+
         return $draftPage;
     }
 
     /**
      * The base query for getting user update drafts.
-     * @param Page $page
+     *
+     * @param  Page  $page
      * @param $userId
      * @return mixed
      */
@@ -338,7 +361,8 @@ class PageRepo extends EntityRepo
 
     /**
      * Get the latest updated draft revision for a particular page and user.
-     * @param Page $page
+     *
+     * @param  Page  $page
      * @param $userId
      * @return PageRevision|null
      */
@@ -349,7 +373,8 @@ class PageRepo extends EntityRepo
 
     /**
      * Get the notification message that informs the user that they are editing a draft page.
-     * @param PageRevision $draft
+     *
+     * @param  PageRevision  $draft
      * @return string
      */
     public function getUserPageDraftMessage(PageRevision $draft)
@@ -358,13 +383,15 @@ class PageRepo extends EntityRepo
         if ($draft->page->updated_at->timestamp <= $draft->updated_at->timestamp) {
             return $message;
         }
-        return $message . "\n" . trans('bookstack::entities.pages_draft_edited_notification');
+
+        return $message."\n".trans('bookstack::entities.pages_draft_edited_notification');
     }
 
     /**
      * A query to check for active update drafts on a particular page.
-     * @param Page $page
-     * @param int $minRange
+     *
+     * @param  Page  $page
+     * @param  int  $minRange
      * @return mixed
      */
     protected function activePageEditingQuery(Page $page, int $minRange = null)
@@ -387,34 +414,39 @@ class PageRepo extends EntityRepo
      * Checks for edits since last page updated.
      * Passing in a minuted range will check for edits
      * within the last x minutes.
-     * @param Page $page
-     * @param int $minRange
+     *
+     * @param  Page  $page
+     * @param  int  $minRange
      * @return bool
      */
     public function isPageEditingActive(Page $page, int $minRange = null)
     {
         $draftSearch = $this->activePageEditingQuery($page, $minRange);
+
         return $draftSearch->count() > 0;
     }
 
     /**
      * Get a notification message concerning the editing activity on a particular page.
-     * @param Page $page
-     * @param int $minRange
+     *
+     * @param  Page  $page
+     * @param  int  $minRange
      * @return string
      */
     public function getPageEditingActiveMessage(Page $page, int $minRange = null)
     {
         $pageDraftEdits = $this->activePageEditingQuery($page, $minRange)->get();
 
-        $userMessage = $pageDraftEdits->count() > 1 ? trans('bookstack::entities.pages_draft_edit_active.start_a', ['count' => $pageDraftEdits->count()]): trans('bookstack::entities.pages_draft_edit_active.start_b', ['userName' => $pageDraftEdits->first()->createdBy->name]);
-        $timeMessage = $minRange === null ? trans('bookstack::entities.pages_draft_edit_active.time_a') : trans('bookstack::entities.pages_draft_edit_active.time_b', ['minCount'=>$minRange]);
+        $userMessage = $pageDraftEdits->count() > 1 ? trans('bookstack::entities.pages_draft_edit_active.start_a', ['count' => $pageDraftEdits->count()]) : trans('bookstack::entities.pages_draft_edit_active.start_b', ['userName' => $pageDraftEdits->first()->createdBy->name]);
+        $timeMessage = $minRange === null ? trans('bookstack::entities.pages_draft_edit_active.time_a') : trans('bookstack::entities.pages_draft_edit_active.time_b', ['minCount' => $minRange]);
+
         return trans('entities.pages_draft_edit_active.message', ['start' => $userMessage, 'time' => $timeMessage]);
     }
 
     /**
      * Parse the headers on the page to get a navigation menu
-     * @param string $pageContent
+     *
+     * @param  string  $pageContent
      * @return array
      */
     public function getPageNav(string $pageContent)
@@ -426,23 +458,23 @@ class PageRepo extends EntityRepo
         $doc = new DOMDocument();
         $doc->loadHTML(mb_convert_encoding($pageContent, 'HTML-ENTITIES', 'UTF-8'));
         $xPath = new DOMXPath($doc);
-        $headers = $xPath->query("//h1|//h2|//h3|//h4|//h5|//h6");
+        $headers = $xPath->query('//h1|//h2|//h3|//h4|//h5|//h6');
 
         if (is_null($headers)) {
             return [];
         }
 
-        $tree = collect($headers)->map(function($header) {
+        $tree = collect($headers)->map(function ($header) {
             $text = trim(str_replace("\xc2\xa0", '', $header->nodeValue));
             $text = mb_substr($text, 0, 100);
 
             return [
                 'nodeName' => strtolower($header->nodeName),
                 'level' => intval(str_replace('h', '', $header->nodeName)),
-                'link' => '#' . $header->getAttribute('id'),
+                'link' => '#'.$header->getAttribute('id'),
                 'text' => $text,
             ];
-        })->filter(function($header) {
+        })->filter(function ($header) {
             return mb_strlen($header['text']) > 0;
         });
 
@@ -450,6 +482,7 @@ class PageRepo extends EntityRepo
         $levelChange = ($tree->pluck('level')->min() - 1);
         $tree = $tree->map(function ($header) use ($levelChange) {
             $header['level'] -= ($levelChange);
+
             return $header;
         });
 
@@ -458,10 +491,12 @@ class PageRepo extends EntityRepo
 
     /**
      * Restores a revision's content back into a page.
-     * @param Page $page
-     * @param Book $book
-     * @param  int $revisionId
+     *
+     * @param  Page  $page
+     * @param  Book  $book
+     * @param  int  $revisionId
      * @return Page
+     *
      * @throws \Exception
      */
     public function restorePageRevision(Page $page, Book $book, int $revisionId)
@@ -475,13 +510,16 @@ class PageRepo extends EntityRepo
         $page->updated_by = user()->id;
         $page->save();
         $this->searchService->indexEntity($page);
+
         return $page;
     }
 
     /**
      * Change the page's parent to the given entity.
-     * @param Page $page
-     * @param Entity $parent
+     *
+     * @param  Page  $page
+     * @param  Entity  $parent
+     *
      * @throws \Throwable
      */
     public function changePageParent(Page $page, Entity $parent)
@@ -498,10 +536,12 @@ class PageRepo extends EntityRepo
 
     /**
      * Create a copy of a page in a new location with a new name.
-     * @param \BookStack\Entities\Page $page
-     * @param \BookStack\Entities\Entity $newParent
-     * @param string $newName
+     *
+     * @param  \BookStack\Entities\Page  $page
+     * @param  \BookStack\Entities\Entity  $newParent
+     * @param  string  $newName
      * @return \BookStack\Entities\Page
+     *
      * @throws \Throwable
      */
     public function copyPage(Page $page, Entity $newParent, string $newName = '')
@@ -512,7 +552,7 @@ class PageRepo extends EntityRepo
         $pageData = $page->getAttributes();
 
         // Update name
-        if (!empty($newName)) {
+        if (! empty($newName)) {
             $pageData['name'] = $newName;
         }
 
@@ -536,21 +576,22 @@ class PageRepo extends EntityRepo
 
     /**
      * Get pages that have been marked as templates.
-     * @param int $count
-     * @param int $page
-     * @param string $search
+     *
+     * @param  int  $count
+     * @param  int  $page
+     * @param  string  $search
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function getPageTemplates(int $count = 10, int $page = 1,  string $search = '')
+    public function getPageTemplates(int $count = 10, int $page = 1, string $search = '')
     {
         $query = $this->entityQuery('page')
             ->where('template', '=', true)
             ->orderBy('name', 'asc')
-            ->skip( ($page - 1) * $count)
+            ->skip(($page - 1) * $count)
             ->take($count);
 
         if ($search) {
-            $query->where('name', 'like', '%' . $search . '%');
+            $query->where('name', 'like', '%'.$search.'%');
         }
 
         $paginator = $query->paginate($count, ['*'], 'page', $page);

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddColumnsToDailyActivities extends Migration
 {
@@ -14,8 +14,8 @@ class AddColumnsToDailyActivities extends Migration
     public function up()
     {
         Schema::table('daily_activities', function (Blueprint $table) {
-          $table->integer('pending_for')->default(0)->after('for_date');
-          $table->datetime('is_completed')->nullable()->after('pending_for');
+            $table->integer('pending_for')->default(0)->after('for_date');
+            $table->datetime('is_completed')->nullable()->after('pending_for');
         });
     }
 
@@ -27,8 +27,8 @@ class AddColumnsToDailyActivities extends Migration
     public function down()
     {
         Schema::table('daily_activities', function (Blueprint $table) {
-          $table->dropColumn('pending_for');
-          $table->dropColumn('is_completed');
+            $table->dropColumn('pending_for');
+            $table->dropColumn('is_completed');
         });
     }
 }

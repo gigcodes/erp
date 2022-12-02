@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     /**
@@ -29,5 +30,5 @@ return [
     'code_editor' => 'プログラムブロック編集',
     'code_language' => 'プログラミング言語の選択',
     'code_content' => 'プログラム内容',
-    'code_save' => 'プログラムを保存'
+    'code_save' => 'プログラムを保存',
 ];

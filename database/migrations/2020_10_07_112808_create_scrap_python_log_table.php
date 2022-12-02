@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateScrapPythonLogTable extends Migration
 {
@@ -13,7 +13,7 @@ class CreateScrapPythonLogTable extends Migration
      */
     public function up()
     {
-        if(!Schema::hasTable('scrap_python_logs')) {
+        if (! Schema::hasTable('scrap_python_logs')) {
             Schema::create('scrap_python_logs', function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('website')->nullable();

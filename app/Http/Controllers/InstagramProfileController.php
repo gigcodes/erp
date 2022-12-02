@@ -6,6 +6,7 @@ use App\ColdLeads;
 use App\Customer;
 use App\HashTag;
 use Illuminate\Http\Request;
+
 //use InstagramAPI\Instagram;
 //use InstagramAPI\Signatures;
 
@@ -13,7 +14,8 @@ Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class InstagramProfileController extends Controller
 {
-    public function index() {
+    public function index()
+    {
 //        $customers = Customer::where('instahandler', '!=', '')->where('rating', '>', 5)->orderBy('created_at', 'DESC')->orderBy('rating', 'DESC')->paginate(5);
 //
 //        $customers = $customers->toArray();
@@ -28,7 +30,8 @@ class InstagramProfileController extends Controller
 //        return view('instagram.profile.list', compact('instagramProfiles'));
     }
 
-    public function show($id, Request $request) {
+    public function show($id, Request $request)
+    {
 //        $customer = [
 //            'instahandler' => $id
 //        ];
@@ -37,7 +40,8 @@ class InstagramProfileController extends Controller
 //        return response()->json($instagramProfile);
     }
 
-    private function getInstagramUserData($customer) {
+    private function getInstagramUserData($customer)
+    {
 //        $instagram = new Instagram();
 //        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', "NcG}4u'z;Fm7"));
 //        try {
@@ -70,21 +74,20 @@ class InstagramProfileController extends Controller
 //            'followers' => $followers,
 //            'following' => $following
 //        ];
-
     }
 
-    public function getFollowers($id) {
+    public function getFollowers($id)
+    {
 //        $instagram = new Instagram();
 //        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', "NcG}4u'z;Fm7"));
 //        $rankToken = Signatures::generateUUID();
 //        $followers = $instagram->people->getFollowers($id, $rankToken);
 //
 //        dd($followers);
-
     }
 
-    public function getPosts() {
-
+    public function getPosts()
+    {
 //        $customers = Customer::where('instahandler', '!=', '')->where('rating', '>', 5)->orderBy('rating', 'DESC')->get(10);
 //
 //        $instagram = new Instagram();
@@ -100,7 +103,8 @@ class InstagramProfileController extends Controller
 //        }
     }
 
-    public function add(Request $request) {
+    public function add(Request $request)
+    {
         /*$this->validate($request, [
             'name' => 'required',
             'username' => 'required',
@@ -137,14 +141,13 @@ class InstagramProfileController extends Controller
         ]);*/
     }
 
-    public function edit($d) {
-
-
+    public function edit($d)
+    {
 //        $customers = Customer::where('instahandler', '!=', '')->where('rating', '>', 5)->orderBy('rating', 'DESC')->get();
 //
 //        $instagram = new Instagram();
 //        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', "NcG}4u'z;Fm7"));
-////        $rankToken = Signatures::generateUUID();
+        ////        $rankToken = Signatures::generateUUID();
 //
 //        $captions = '';
 //

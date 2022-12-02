@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands\Manual;
 
-use Illuminate\Console\Command;
 use App\SkuColorReferences;
+use Illuminate\Console\Command;
 
 class TestTest extends Command
 {

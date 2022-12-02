@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateHistoryWhatsappNumberTable extends Migration
 {
@@ -15,9 +15,9 @@ class CreateHistoryWhatsappNumberTable extends Migration
     {
         Schema::create('history_whatsapp_number', function (Blueprint $table) {
             $table->increments('id');
-			$table->dateTime('date_time');
+            $table->dateTime('date_time');
             $table->string('object');
-			$table->integer('object_id');
+            $table->integer('object_id');
             $table->string('old_number')->nullable();
             $table->string('new_number')->nullable();
         });

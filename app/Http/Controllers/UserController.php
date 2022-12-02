@@ -6,7 +6,6 @@ use App\ApiKey;
 use App\Customer;
 use App\EmailNotificationEmailDetails;
 use App\Helpers;
-use App\Http\Controllers\Controller;
 use App\Hubstaff\HubstaffActivity;
 use App\Hubstaff\HubstaffPaymentAccount;
 use App\Payment;
@@ -34,7 +33,6 @@ use Log;
 
 class UserController extends Controller
 {
-
     const DEFAULT_FOR = 4; //For User
 
     /**
@@ -64,8 +62,8 @@ class UserController extends Controller
             $query = $query->where('id', $request->id);
         }
         if ($request->term) {
-            $query = $query->where('name', 'LIKE', '%' . $request->term . '%')->orWhere('email', 'LIKE', '%' . $request->term . '%')
-                ->orWhere('phone', 'LIKE', '%' . $request->term . '%');
+            $query = $query->where('name', 'LIKE', '%'.$request->term.'%')->orWhere('email', 'LIKE', '%'.$request->term.'%')
+                ->orWhere('phone', 'LIKE', '%'.$request->term.'%');
         }
 
         $data = $query->orderBy('name', 'asc')->paginate(25)->appends(request()->except(['page']));
@@ -76,17 +74,20 @@ class UserController extends Controller
                 'count' => $data->total(),
             ], 200);
         }
-        $whatsapp = DB::select('SELECT number FROM whatsapp_configs WHERE status = 1'); 
-        return view('users.index', compact('data','whatsapp'))
+        $whatsapp = DB::select('SELECT number FROM whatsapp_configs WHERE status = 1');
+
+        return view('users.index', compact('data', 'whatsapp'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
-    public function changeWhatsapp(Request $request) {
-          $user = User::find($request->user_id);  
-          $data =  array('whatsapp_number'=>$request->whatsapp_number);
-          $user->update($data);
-          return response()->json(['success'=>'successfully updated','data'=>$data]);
-    }
 
+    public function changeWhatsapp(Request $request)
+    {
+        $user = User::find($request->user_id);
+        $data = ['whatsapp_number' => $request->whatsapp_number];
+        $user->update($data);
+
+        return response()->json(['success' => 'successfully updated', 'data' => $data]);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -95,9 +96,10 @@ class UserController extends Controller
      */
     public function create()
     {
-        $roles       = Role::pluck('name', 'name')->all();
-        $users       = User::all();
-        $agent_roles = array('sales' => 'Sales', 'support' => 'Support', 'queries' => 'Others');
+        $roles = Role::pluck('name', 'name')->all();
+        $users = User::all();
+        $agent_roles = ['sales' => 'Sales', 'support' => 'Support', 'queries' => 'Others'];
+
         return view('users.create', compact('roles', 'users', 'agent_roles'));
     }
 
@@ -110,36 +112,36 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name'        => 'required',
-            'email'       => 'required|email|unique:users,email',
-            'phone'       => 'sometimes|nullable|integer|unique:users,phone',
-            'password'    => 'required|same:confirm-password',
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'sometimes|nullable|integer|unique:users,phone',
+            'password' => 'required|same:confirm-password',
             'hourly_rate' => 'numeric',
-            'currency'    => 'string',
+            'currency' => 'string',
 
         ]);
 
-        $input    = $request->all();
+        $input = $request->all();
         $userRate = new UserRate();
 
         //get default whatsapp number for vendor from whatsapp config
 
-        if (empty($input["whatsapp_number"])) {
+        if (empty($input['whatsapp_number'])) {
             $task_info = DB::table('whatsapp_configs')
                 ->select('*')
-                ->whereRaw("find_in_set(" . self::DEFAULT_FOR . ",default_for)")
+                ->whereRaw('find_in_set('.self::DEFAULT_FOR.',default_for)')
                 ->first();
-            $input["whatsapp_number"] = $task_info->number;
+            $input['whatsapp_number'] = $task_info->number;
         }
 
-        $userRate->start_date  = Carbon::now();
+        $userRate->start_date = Carbon::now();
         $userRate->hourly_rate = $input['hourly_rate'];
-        $userRate->currency    = $input['currency'];
+        $userRate->currency = $input['currency'];
 
         unset($input['hourly_rate']);
         unset($input['currency']);
 
-        $input['name']     = str_replace(' ', '_', $input['name']);
+        $input['name'] = str_replace(' ', '_', $input['name']);
         $input['password'] = Hash::make($input['password']);
         if (isset($input['agent_role'])) {
             $input['agent_role'] = implode(',', $input['agent_role']);
@@ -150,7 +152,7 @@ class UserController extends Controller
         $userRate->user_id = $user->id;
         $userRate->save();
 
-        return redirect()->to('/users/' . $user->id . '/edit')->with('success', 'User created successfully');
+        return redirect()->to('/users/'.$user->id.'/edit')->with('success', 'User created successfully');
     }
 
     /**
@@ -167,13 +169,13 @@ class UserController extends Controller
             return redirect()->route('users.index')->withWarning("You don't have access to this page!");
         }
 
-        $users_array      = Helpers::getUserArray(User::all());
-        $roles            = Role::pluck('name', 'name')->all();
-        $users            = User::all();
-        $userRole         = $user->roles->pluck('name', 'name')->all();
-        $agent_roles      = array('sales' => 'Sales', 'support' => 'Support', 'queries' => 'Others');
+        $users_array = Helpers::getUserArray(User::all());
+        $roles = Role::pluck('name', 'name')->all();
+        $users = User::all();
+        $userRole = $user->roles->pluck('name', 'name')->all();
+        $agent_roles = ['sales' => 'Sales', 'support' => 'Support', 'queries' => 'Others'];
         $user_agent_roles = explode(',', $user->agent_role);
-        $api_keys         = ApiKey::select('number')->get();
+        $api_keys = ApiKey::select('number')->get();
 
         $pending_tasks = Task::where('is_statutory', 0)
             ->whereNull('is_completed')
@@ -185,15 +187,15 @@ class UserController extends Controller
         // dd($pending_tasks);
 
         return view('users.show', [
-            'user'             => $user,
-            'users_array'      => $users_array,
-            'roles'            => $roles,
-            'users'            => $users,
-            'userRole'         => $userRole,
-            'agent_roles'      => $agent_roles,
+            'user' => $user,
+            'users_array' => $users_array,
+            'roles' => $roles,
+            'users' => $users,
+            'userRole' => $userRole,
+            'agent_roles' => $agent_roles,
             'user_agent_roles' => $user_agent_roles,
-            'api_keys'         => $api_keys,
-            'pending_tasks'    => $pending_tasks,
+            'api_keys' => $api_keys,
+            'pending_tasks' => $pending_tasks,
         ]);
     }
 
@@ -205,17 +207,17 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        $user       = User::with('webhookNotification')->find($id);
-        $roles      = Role::orderBy('name', 'asc')->pluck('name', 'id')->all();
+        $user = User::with('webhookNotification')->find($id);
+        $roles = Role::orderBy('name', 'asc')->pluck('name', 'id')->all();
         $permission = Permission::orderBy('name', 'asc')->pluck('name', 'id')->all();
 
-        $users            = User::all();
-        $userRole         = $user->roles->pluck('name', 'id')->all();
-        $userPermission   = $user->permissions->pluck('name', 'id')->all();
-        $agent_roles      = array('sales' => 'Sales', 'support' => 'Support', 'queries' => 'Others');
+        $users = User::all();
+        $userRole = $user->roles->pluck('name', 'id')->all();
+        $userPermission = $user->permissions->pluck('name', 'id')->all();
+        $agent_roles = ['sales' => 'Sales', 'support' => 'Support', 'queries' => 'Others'];
         $user_agent_roles = explode(',', $user->agent_role);
-        $api_keys         = ApiKey::select('number')->get();
-        $customers_all    = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->whereRaw("customers.id NOT IN (SELECT customer_id FROM user_customers WHERE user_id != $id)")->get()->toArray();
+        $api_keys = ApiKey::select('number')->get();
+        $customers_all = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->whereRaw("customers.id NOT IN (SELECT customer_id FROM user_customers WHERE user_id != $id)")->get()->toArray();
 
         $userRate = UserRate::getRateForUser($user->id);
 
@@ -238,17 +240,17 @@ class UserController extends Controller
     {
         // dd($request->all());
         $this->validate($request, [
-            'name'     => 'required',
-            'email'    => 'required|email|unique:users,email,' . $id,
-            'phone'    => 'sometimes|nullable|integer|unique:users,phone,' . $id,
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email,'.$id,
+            'phone' => 'sometimes|nullable|integer|unique:users,phone,'.$id,
             'password' => 'same:confirm-password',
-            'roles'    => 'required',
+            'roles' => 'required',
         ]);
 
         $input = $request->all();
 
         $hourly_rate = $input['hourly_rate'];
-        $currency    = $input['currency'];
+        $currency = $input['currency'];
 
         unset($input['hourly_rate']);
         unset($input['currency']);
@@ -263,10 +265,10 @@ class UserController extends Controller
         //        $input['email'] = 'admin@example.com';
         //        $input['password'] = 'admin@example.com';
 
-        if (!empty($input['password'])) {
+        if (! empty($input['password'])) {
             $input['password'] = Hash::make($input['password']);
         } else {
-            $input = array_except($input, array('password'));
+            $input = array_except($input, ['password']);
         }
 
         //START - Purpose : Set Email notification status - DEVTASK-4359
@@ -275,13 +277,12 @@ class UserController extends Controller
             if ($request->email_notification_chkbox == 1) {
                 $input['mail_notification'] = 1;
             }
-
         }
 
         if ($request->notification_mail_id != '') {
             EmailNotificationEmailDetails::updateOrCreate(
-                ["user_id" => $id],
-                ["emails" => $request->notification_mail_id]
+                ['user_id' => $id],
+                ['emails' => $request->notification_mail_id]
             );
         }
         //END - DEVTASK-4359
@@ -304,7 +305,7 @@ class UserController extends Controller
         $user->roles()->sync($request->input('roles'));
         $user->permissions()->sync($request->input('permissions'));
 
-        $user->listing_approval_rate  = $request->get('listing_approval_rate') ?? '0';
+        $user->listing_approval_rate = $request->get('listing_approval_rate') ?? '0';
         $user->listing_rejection_rate = $request->get('listing_rejection_rate') ?? '0';
         $user->save();
 
@@ -314,11 +315,11 @@ class UserController extends Controller
             ], $request->webhook);
         }
 
-        $userRate              = new UserRate();
-        $userRate->start_date  = Carbon::now();
+        $userRate = new UserRate();
+        $userRate->start_date = Carbon::now();
         $userRate->hourly_rate = $hourly_rate;
-        $userRate->currency    = $currency;
-        $userRate->user_id     = $user->id;
+        $userRate->currency = $currency;
+        $userRate->user_id = $user->id;
         $userRate->save();
 
         return redirect()->back()
@@ -370,7 +371,7 @@ class UserController extends Controller
 
     public function assignProducts(Request $request, $id)
     {
-        $user            = User::find($id);
+        $user = User::find($id);
         $amount_assigned = 25;
 
         $products = Product::where('stock', '>=', 1)
@@ -393,7 +394,8 @@ class UserController extends Controller
         $user->products()->attach($products);
 
         if (count($products) >= $amount_assigned - 1) {
-            $message = 'You have successfully assigned ' . count($products) . ' products';
+            $message = 'You have successfully assigned '.count($products).' products';
+
             return redirect()->back()->with('success', $message);
         }
 
@@ -423,12 +425,12 @@ class UserController extends Controller
 
     public function login(Request $request)
     {
-        $date   = $request->date ? $request->date : Carbon::now()->format('Y-m-d');
+        $date = $request->date ? $request->date : Carbon::now()->format('Y-m-d');
         $logins = UserLogin::whereBetween('login_at', [$date, Carbon::parse($date)->addDay()])->latest()->paginate(Setting::get('pagination'));
 
         return view('users.login', [
             'logins' => $logins,
-            'date'   => $date,
+            'date' => $date,
         ]);
     }
 
@@ -457,7 +459,6 @@ class UserController extends Controller
 
     public function payments(Request $request)
     {
-
         $params = $request->all();
 
         $date = new DateTime();
@@ -466,15 +467,15 @@ class UserController extends Controller
             $year = $params['year'];
             $week = $params['week'];
         } else {
-            $week = $date->format("W");
-            $year = $date->format("Y");
+            $week = $date->format('W');
+            $year = $date->format('Y');
         }
 
         $result = getStartAndEndDate($week, $year);
-        $start  = $result['week_start'];
-        $end    = $result['week_end'];
+        $start = $result['week_start'];
+        $end = $result['week_end'];
 
-        $users              = User::join('hubstaff_payment_accounts as hpa', "hpa.user_id", "users.id")->with(['currentRate'])->get();
+        $users = User::join('hubstaff_payment_accounts as hpa', 'hpa.user_id', 'users.id')->with(['currentRate'])->get();
         $usersRatesThisWeek = UserRate::ratesForWeek($week, $year);
 
         $usersRatesPreviousWeek = UserRate::latestRatesForWeek($week - 1, $year);
@@ -488,12 +489,11 @@ class UserController extends Controller
         $now = now();
 
         foreach ($users as $user) {
-
             $user->secondsTracked = 0;
-            $user->currency       = '-';
-            $user->total          = 0;
+            $user->currency = '-';
+            $user->total = 0;
 
-            $userPaymentsDone      = 0;
+            $userPaymentsDone = 0;
             $userPaymentsDoneModel = $paymentsDone->first(function ($value) use ($user) {
                 return $value->user_id == $user->id;
             });
@@ -502,7 +502,7 @@ class UserController extends Controller
                 $userPaymentsDone = $userPaymentsDoneModel->paid;
             }
 
-            $userPaymentsToBeDone    = 0;
+            $userPaymentsToBeDone = 0;
             $userAmountToBePaidModel = $amountToBePaid->first(function ($value) use ($user) {
                 return $value->user_id == $user->id;
             });
@@ -522,11 +522,11 @@ class UserController extends Controller
             $weekRates = [];
 
             if ($invidualRatesPreviousWeek) {
-                $weekRates[] = array(
+                $weekRates[] = [
                     'start_date' => $start,
-                    'rate'       => $invidualRatesPreviousWeek->hourly_rate,
-                    'currency'   => $invidualRatesPreviousWeek->currency,
-                );
+                    'rate' => $invidualRatesPreviousWeek->hourly_rate,
+                    'currency' => $invidualRatesPreviousWeek->currency,
+                ];
             }
 
             $rates = $usersRatesThisWeek->filter(function ($value, $key) use ($user) {
@@ -534,13 +534,12 @@ class UserController extends Controller
             });
 
             if ($rates) {
-
                 foreach ($rates as $rate) {
-                    $weekRates[] = array(
+                    $weekRates[] = [
                         'start_date' => $rate->start_date,
-                        'rate'       => $rate->hourly_rate,
-                        'currency'   => $rate->currency,
-                    );
+                        'rate' => $rate->hourly_rate,
+                        'currency' => $rate->currency,
+                    ];
                 }
             }
 
@@ -548,14 +547,14 @@ class UserController extends Controller
                 return strtotime($a['start_date']) - strtotime($b['start_date']);
             });
 
-            if (sizeof($weekRates) > 0) {
-                $lastEntry = $weekRates[sizeof($weekRates) - 1];
+            if (count($weekRates) > 0) {
+                $lastEntry = $weekRates[count($weekRates) - 1];
 
-                $weekRates[] = array(
+                $weekRates[] = [
                     'start_date' => $end,
-                    'rate'       => $lastEntry['rate'],
-                    'currency'   => $lastEntry['currency'],
-                );
+                    'rate' => $lastEntry['rate'],
+                    'currency' => $lastEntry['currency'],
+                ];
 
                 $user->currency = $lastEntry['currency'];
             }
@@ -569,15 +568,14 @@ class UserController extends Controller
             foreach ($activities as $activity) {
                 $user->secondsTracked += $activity->tracked;
                 $i = 0;
-                while ($i < sizeof($weekRates) - 1) {
-
+                while ($i < count($weekRates) - 1) {
                     $start = $weekRates[$i];
-                    $end   = $weekRates[$i + 1];
+                    $end = $weekRates[$i + 1];
 
                     if ($activity->starts_at >= $start['start_date'] && $activity->start_time < $end['start_date']) {
                         // the activity needs calculation for the start rate and hence do it
-                        $earnings           = $activity->tracked * ($start['rate'] / 60 / 60);
-                        $activity->rate     = $start['rate'];
+                        $earnings = $activity->tracked * ($start['rate'] / 60 / 60);
+                        $activity->rate = $start['rate'];
                         $activity->earnings = $earnings;
                         $user->total += $earnings;
                         break;
@@ -588,7 +586,7 @@ class UserController extends Controller
         }
 
         //exit;
-        $paymentMethods = array();
+        $paymentMethods = [];
         foreach (PaymentMethod::all() as $paymentMethod) {
             $paymentMethods[$paymentMethod->id] = $paymentMethod->name;
         }
@@ -596,9 +594,9 @@ class UserController extends Controller
         return view(
             'users.payments',
             [
-                'users'          => $users,
-                'selectedYear'   => $year,
-                'selectedWeek'   => $week,
+                'users' => $users,
+                'selectedYear' => $year,
+                'selectedWeek' => $week,
                 'paymentMethods' => $paymentMethods,
             ]
         );
@@ -607,9 +605,9 @@ class UserController extends Controller
     public function makePayment(Request $request)
     {
         $this->validate($request, [
-            'amount'         => 'required|numeric|min:1',
+            'amount' => 'required|numeric|min:1',
             'payment_method' => 'required',
-            'currency'       => 'required',
+            'currency' => 'required',
         ]);
 
         $parameters = $request->all();
@@ -618,11 +616,11 @@ class UserController extends Controller
             'name' => $parameters['payment_method'],
         ]);
 
-        $payment                    = new Payment;
-        $payment->user_id           = $parameters['user_id'];
-        $payment->amount            = $parameters['amount'];
-        $payment->currency          = $parameters['currency'];
-        $payment->note              = $parameters['note'];
+        $payment = new Payment;
+        $payment->user_id = $parameters['user_id'];
+        $payment->amount = $parameters['amount'];
+        $payment->currency = $parameters['currency'];
+        $payment->note = $parameters['note'];
         $payment->payment_method_id = $paymentMethod->id;
         $payment->save();
 
@@ -631,7 +629,7 @@ class UserController extends Controller
 
     public function checkUserLogins()
     {
-        Log::channel('customer')->info(Carbon::now() . " begin checking users logins");
+        Log::channel('customer')->info(Carbon::now().' begin checking users logins');
         $users = User::all();
 
         foreach ($users as $user) {
@@ -640,28 +638,28 @@ class UserController extends Controller
                 $login = UserLogin::create(['user_id' => $user->id]);
             }
 
-            if (Cache::has('user-is-online-' . $user->id)) {
+            if (Cache::has('user-is-online-'.$user->id)) {
                 if ($login->logout_at) {
                     UserLogin::create(['user_id' => $user->id, 'login_at' => Carbon::now()]);
-                } else if (!$login->login_at) {
+                } elseif (! $login->login_at) {
                     $login->update(['login_at' => Carbon::now()]);
                 }
             } else {
-                if ($login->created_at && !$login->logout_at) {
+                if ($login->created_at && ! $login->logout_at) {
                     $login->update(['logout_at' => Carbon::now()]);
                 }
             }
         }
 
-        Log::channel('customer')->info(Carbon::now() . " end of checking users logins");
+        Log::channel('customer')->info(Carbon::now().' end of checking users logins');
     }
 
     public function searchUser(Request $request)
     {
         $q = $request->input('q');
 
-        $results = User::select('id', 'name','name AS text')
-            ->orWhere('name', 'LIKE', '%' . $q . '%')
+        $results = User::select('id', 'name', 'name AS text')
+            ->orWhere('name', 'LIKE', '%'.$q.'%')
             ->offset(0)
             ->limit(15)
             ->get();
@@ -676,25 +674,23 @@ class UserController extends Controller
             ->latest()
             ->get();
         if ($request->ajax()) {
-            return response()->json(["code" => 200, "data" => $user_ips]);
+            return response()->json(['code' => 200, 'data' => $user_ips]);
         } else {
             return view('users.ips', compact('user_ips'));
         }
-
     }
 
     public function addSystemIp(Request $request)
     {
         if ($request->ip) {
-
-            $shell_cmd = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH') . "/webaccess-firewall.sh -f add -i " . $request->ip . " -c " . $request->get("comment", ""));
+            $shell_cmd = shell_exec('bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/webaccess-firewall.sh -f add -i '.$request->ip.' -c '.$request->get('comment', ''));
 
             UserSysyemIp::create([
-                'index_txt'       => $shell_cmd['index'] ?? 'null',
-                'ip'              => $request->ip,
-                'user_id'         => $request->user_id ?? null,
+                'index_txt' => $shell_cmd['index'] ?? 'null',
+                'ip' => $request->ip,
+                'user_id' => $request->user_id ?? null,
                 'other_user_name' => $request->other_user_name ?? null,
-                'notes'           => $request->comment ?? null,
+                'notes' => $request->comment ?? null,
             ]);
 
             $userID = $request->user_id ?? null;
@@ -702,9 +698,9 @@ class UserController extends Controller
             if ($userID) {
                 $user = \App\User::find($userID);
                 if ($user) {
-                    $params            = [];
+                    $params = [];
                     $params['user_id'] = $userID;
-                    $params['message'] = "Your ip address " . $value . "  whitelist request has been approved";
+                    $params['message'] = 'Your ip address '.$value.'  whitelist request has been approved';
                     // send chat message
                     $chat_message = \App\ChatMessage::create($params);
                     // send
@@ -712,24 +708,25 @@ class UserController extends Controller
                 }
             }
 
-            return response()->json(["code" => 200, "data" => "Success"]);
+            return response()->json(['code' => 200, 'data' => 'Success']);
         }
-        return response()->json(["code" => 500, "data" => "Error occured!"]);
+
+        return response()->json(['code' => 500, 'data' => 'Error occured!']);
     }
 
     public function deleteSystemIp(Request $request)
     {
         if ($request->usersystemid) {
-
             $row = UserSysyemIp::where('id', $request->usersystemid)->first();
 
-            shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH') . "/webaccess-firewall.sh -f delete -n " . $row->index ?? '');
+            shell_exec('bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/webaccess-firewall.sh -f delete -n '.$row->index ?? '');
 
             $row->delete();
 
-            return response()->json(["code" => 200, "data" => "Success"]);
+            return response()->json(['code' => 200, 'data' => 'Success']);
         }
-        return response()->json(["code" => 500, "data" => "Error occured!"]);
+
+        return response()->json(['code' => 500, 'data' => 'Error occured!']);
     }
 
     public function statusChange(Request $request)
@@ -744,37 +741,37 @@ class UserController extends Controller
                     ->update(['is_active' => false]);
             }
         }
+
         return $request->status;
     }
 
     public function addSystemIpFromText(Request $request)
     {
         if ($request->id) {
-
-            $chatMessage = \app\ChatMessage::where("id", $request->id)->first();
+            $chatMessage = \app\ChatMessage::where('id', $request->id)->first();
             if ($chatMessage) {
                 preg_match_all('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', $chatMessage->message, $ip_matches);
                 $ip_matches = array_filter($ip_matches);
-                if (!empty($ip_matches)) {
+                if (! empty($ip_matches)) {
                     if ($chatMessage->user_id > 0 || $chatMessage->erp_user > 0) {
                         foreach ($ip_matches[0] as $key => $value) {
-                            $shell_cmd = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH') . "/webaccess-firewall.sh -f add -i " . $value . " -c Added from chat messages");
-                            $userID    = $chatMessage->erp_user ?? $chatMessage->user_id;
+                            $shell_cmd = shell_exec('bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'/webaccess-firewall.sh -f add -i '.$value.' -c Added from chat messages');
+                            $userID = $chatMessage->erp_user ?? $chatMessage->user_id;
 
                             UserSysyemIp::create([
-                                'index_txt'       => $shell_cmd['index'] ?? 'null',
-                                'ip'              => $value,
-                                'user_id'         => $chatMessage->erp_user ?? $chatMessage->user_id,
+                                'index_txt' => $shell_cmd['index'] ?? 'null',
+                                'ip' => $value,
+                                'user_id' => $chatMessage->erp_user ?? $chatMessage->user_id,
                                 'other_user_name' => $request->other_user_name ?? null,
-                                'notes'           => "Added from chat messages",
+                                'notes' => 'Added from chat messages',
                             ]);
 
                             if ($userID) {
                                 $user = \App\User::find($userID);
                                 if ($user) {
-                                    $params            = [];
+                                    $params = [];
                                     $params['user_id'] = $userID;
-                                    $params['message'] = "Your ip address " . $value . "  whitelist request has been approved";
+                                    $params['message'] = 'Your ip address '.$value.'  whitelist request has been approved';
                                     // send chat message
                                     $chat_message = \App\ChatMessage::create($params);
                                     // send
@@ -784,12 +781,13 @@ class UserController extends Controller
                         }
                     }
                 }
-                return response()->json(["code" => 200, "message" => "Success"]);
+
+                return response()->json(['code' => 200, 'message' => 'Success']);
             } else {
-                return response()->json(["code" => 500, "message" => "Can only white list user ip only!"]);
+                return response()->json(['code' => 500, 'message' => 'Can only white list user ip only!']);
             }
         }
 
-        return response()->json(["code" => 500, "message" => "Message record not found!"]);
+        return response()->json(['code' => 500, 'message' => 'Message record not found!']);
     }
 }

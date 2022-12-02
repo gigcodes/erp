@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -16,7 +17,7 @@ class CharityCountry extends Model
      * @SWG\Property(property="whatsapp_number",type="integer")
      * @SWG\Property(property="assign_to",type="string")
      */
-	protected $guarded = [];
-	protected $table = 'charity_countries';
-    
+    protected $guarded = [];
+
+    protected $table = 'charity_countries';
 }

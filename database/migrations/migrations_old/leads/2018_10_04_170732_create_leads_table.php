@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateLeadsTable extends Migration
 {
@@ -18,7 +18,7 @@ class CreateLeadsTable extends Migration
             $table->string('client_name');
             $table->string('contactno');
             $table->string('city');
-            $table->string('solophone');    
+            $table->string('solophone');
             $table->string('instahandler')->nullable();
             $table->string('rating');
             $table->string('status');

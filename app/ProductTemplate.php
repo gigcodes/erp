@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -9,7 +10,7 @@ use Plank\Mediable\Mediable;
 
 class ProductTemplate extends Model
 {
-         /**
+    /**
      * @var string
      * @SWG\Property(property="template_no",type="string")
      * @SWG\Property(property="product_title",type="string")
@@ -26,6 +27,7 @@ class ProductTemplate extends Model
      * @SWG\Property(property="store_website_id",type="integer")
      */
     use Mediable;
+
     protected $fillable = [
         'template_no',
         'product_title',
@@ -43,27 +45,26 @@ class ProductTemplate extends Model
         'template_status',
         'image_url',
         'uid',
-        'store_website_id'
+        'store_website_id',
     ];
 
     public function brand()
     {
-        return $this->hasOne("\App\Brand", "id", "brand_id");
+        return $this->hasOne("\App\Brand", 'id', 'brand_id');
     }
 
     public function category()
     {
-        return $this->hasOne("\App\Category", "id", "category_id");
+        return $this->hasOne("\App\Category", 'id', 'category_id');
     }
 
     public function template()
     {
-        return $this->hasOne("\App\Template", "id", "template_no");
+        return $this->hasOne("\App\Template", 'id', 'template_no');
     }
 
     public function storeWebsite()
     {
         return $this->hasOne(\App\StoreWebsite::class, 'id', 'store_website_id');
     }
-
 }

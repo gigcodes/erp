@@ -2,10 +2,10 @@
 
 namespace App\Observers;
 
-use App\Brand;
 use App\Activity;
+use App\Brand;
+use App\User;
 use Auth;
-use \App\User;
 
 class BrandObserver
 {
@@ -17,15 +17,16 @@ class BrandObserver
      */
     public function created(Brand $brand)
     {
-        if(Auth::check())
+        if (Auth::check()) {
             $user = Auth::user();
-        else
+        } else {
             $user = User::find(6);
+        }
         Activity::create([
-            'subject_type' => "Brand",
+            'subject_type' => 'Brand',
             'subject_id' => $brand->id,
             'causer_id' => $user->id,
-            'description' => $user->name ." has created brand ".$brand->name 
+            'description' => $user->name.' has created brand '.$brand->name,
         ]);
     }
 
@@ -37,15 +38,16 @@ class BrandObserver
      */
     public function updated(Brand $brand)
     {
-        if(Auth::check())
+        if (Auth::check()) {
             $user = Auth::user();
-        else
+        } else {
             $user = User::find(6);
+        }
         Activity::create([
-            'subject_type' => "Brand",
+            'subject_type' => 'Brand',
             'subject_id' => $brand->id,
             'causer_id' => $user->id,
-            'description' => $user->name ." has updated brand ".$brand->name 
+            'description' => $user->name.' has updated brand '.$brand->name,
         ]);
     }
 
@@ -57,15 +59,16 @@ class BrandObserver
      */
     public function deleted(Brand $brand)
     {
-        if(Auth::check())
+        if (Auth::check()) {
             $user = Auth::user();
-        else
+        } else {
             $user = User::find(6);
+        }
         Activity::create([
-            'subject_type' => "Brand",
+            'subject_type' => 'Brand',
             'subject_id' => $brand->id,
             'causer_id' => $user->id,
-            'description' => $user->name ." has deleted brand ".$brand->name 
+            'description' => $user->name.' has deleted brand '.$brand->name,
         ]);
     }
 

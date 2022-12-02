@@ -41,47 +41,41 @@ class ImportCustomersEmail extends Command
     public function handle()
     {
         try {
-
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             Customer::where('email', '!=', null)->chunk(100, function ($customers) {
-
                 $bar = $this->output->createProgressBar(count($customers));
 
                 $client = new \GuzzleHttp\Client();
 
                 foreach ($customers as $customer) {
-
                     try {
-
                         $response = $client->request('POST',
-                            'https://us3.api.mailchimp.com/3.0/' . 'lists/' . env('LIST_ID') . '/members',
+                            'https://us3.api.mailchimp.com/3.0/'.'lists/'.env('LIST_ID').'/members',
                             [
-                                'auth'       => ['app', env('MAILCHIMP_APIKEY')],
-                                'json'       => [
+                                'auth' => ['app', env('MAILCHIMP_APIKEY')],
+                                'json' => [
                                     'email_address' => $customer->email,
-                                    'email_type'    => 'html',
-                                    'status'        => 'subscribed',
+                                    'email_type' => 'html',
+                                    'status' => 'subscribed',
                                 ],
                                 'exceptions' => false,
                             ]);
                     } catch (ClientException $e) {
-                        return $e . "Something went wrong please try again";
+                        return $e.'Something went wrong please try again';
                     }
 
                     if ($this->getOutput()->isVerbose()) {
-                        $this->info("\nPulled customer: " . $customer->name . " Email: " . $customer->email);
+                        $this->info("\nPulled customer: ".$customer->name.' Email: '.$customer->email);
                     }
 
                     $bar->advance();
-
                 }
 
                 $bar->finish();
-
             });
 
             $this->info("\nDone");

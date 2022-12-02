@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddCategoryIdToVouchers extends Migration
 {
@@ -14,7 +14,7 @@ class AddCategoryIdToVouchers extends Migration
     public function up()
     {
         Schema::table('vouchers', function (Blueprint $table) {
-          $table->integer('category_id')->unsigned()->nullable()->after('delivery_approval_id');
+            $table->integer('category_id')->unsigned()->nullable()->after('delivery_approval_id');
         });
     }
 
@@ -26,7 +26,7 @@ class AddCategoryIdToVouchers extends Migration
     public function down()
     {
         Schema::table('vouchers', function (Blueprint $table) {
-          $table->dropColumn('category_id');
+            $table->dropColumn('category_id');
         });
     }
 }

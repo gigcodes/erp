@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateSmsServiceTable extends Migration
 {
@@ -15,7 +15,7 @@ class CreateSmsServiceTable extends Migration
     {
         Schema::create('sms_service', function (Blueprint $table) {
             $table->increments('id');
-			$table->string('name');
+            $table->string('name');
             $table->timestamps();
         });
     }

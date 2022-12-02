@@ -8,7 +8,6 @@ use App\Exports\EmailFailedReport;
 use App\StoreWebsite;
 use App\User;
 use Carbon\Carbon;
-use DB;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -25,33 +24,33 @@ class EmailAddressesController extends Controller
         //$queryNew = new EmailAddress;
         //dd($query);
         $query->select('email_addresses.*')->with(['email_assignes',
-        'history_last_message' => function($q) use($request){
-            //dd($request->website_id);
-            if($request->status){
-                $q->where('is_success', $request->status)->orderBy('id', 'DESC')->limit(1);
-            }
-        }
+            'history_last_message' => function ($q) use ($request) {
+                //dd($request->website_id);
+                if ($request->status) {
+                    $q->where('is_success', $request->status)->orderBy('id', 'DESC')->limit(1);
+                }
+            },
         ]);
-       
+
         $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption', 'send_grid_token'];
 
         if ($request->keyword) {
             foreach ($columns as $column) {
-                $query->orWhere($column, 'LIKE', '%' . $request->keyword . '%');
+                $query->orWhere($column, 'LIKE', '%'.$request->keyword.'%');
             }
         }
-        
-        if($request->username !=''){
-            $query->where('username', 'LIKE', '%' . $request->username . '%');
+
+        if ($request->username != '') {
+            $query->where('username', 'LIKE', '%'.$request->username.'%');
         }
 
-        if($request->website_id !=''){
+        if ($request->website_id != '') {
             $query->where('store_website_id', $request->website_id);
         }
-        
+
         //$query->where('id', 1);
-        
-       // dd($query);
+
+        // dd($query);
         $emailAddress = $query->paginate();
         //dd($emailAddress->website);
         $allStores = StoreWebsite::all();
@@ -61,13 +60,12 @@ class EmailAddressesController extends Controller
 
         $users = User::orderBy('name', 'asc')->get()->toArray();
         // dd($users);
-        $ops = "";
-        foreach($users as $key => $user){
-            $ops .= '<option class="form-control" value="'.$user['id'].'">'. $user['name'] .'</option>';
+        $ops = '';
+        foreach ($users as $key => $user) {
+            $ops .= '<option class="form-control" value="'.$user['id'].'">'.$user['name'].'</option>';
         }
         //dd($ops);
         if ($request->ajax()) {
-
             return view('email-addresses.index_ajax', [
                 'emailAddress' => $emailAddress,
                 'allStores' => $allStores,
@@ -78,7 +76,6 @@ class EmailAddressesController extends Controller
                 'uops' => $ops,
             ]);
         } else {
-
             return view('email-addresses.index', [
                 'emailAddress' => $emailAddress,
                 'allStores' => $allStores,
@@ -104,7 +101,7 @@ class EmailAddressesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -121,7 +118,7 @@ class EmailAddressesController extends Controller
             'password' => 'required|string|max:255',
             //'recovery_phone' => 'required|string|max:255',
             //'recovery_email' => 'required|string|max:255',
-            
+
         ]);
 
         $data = $request->except('_token', 'signature_logo', 'signature_image');
@@ -147,7 +144,7 @@ class EmailAddressesController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -158,13 +155,12 @@ class EmailAddressesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  int $id
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-
         $this->validate($request, [
             'from_name' => 'required|string|max:255',
             'from_address' => 'required|string|max:255',
@@ -177,7 +173,7 @@ class EmailAddressesController extends Controller
             'password' => 'required|string|max:255',
             //'recovery_phone' => 'required|string|max:255',
             //'recovery_email' => 'required|string|max:255',
-            
+
         ]);
 
         $data = $request->except('_token', 'signature_logo', 'signature_image');
@@ -203,7 +199,7 @@ class EmailAddressesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -225,16 +221,16 @@ class EmailAddressesController extends Controller
             ->get();
 
         $history = '';
-        if (sizeof($EmailHistory) > 0) {
+        if (count($EmailHistory) > 0) {
             foreach ($EmailHistory as $runHistory) {
-                $status = ($runHistory->is_success == 0) ? "Failed" : "Success";
-                $message = empty($runHistory->message) ? "-" : $runHistory->message;
+                $status = ($runHistory->is_success == 0) ? 'Failed' : 'Success';
+                $message = empty($runHistory->message) ? '-' : $runHistory->message;
                 $history .= '<tr>
-                <td>' . $runHistory->id . '</td>
-                <td>' . $runHistory->from_name . '</td>
-                <td>' . $status . '</td>
-                <td>' . $message . '</td>
-                <td>' . $runHistory->created_at->format('Y-m-d H:i:s') . '</td>
+                <td>'.$runHistory->id.'</td>
+                <td>'.$runHistory->from_name.'</td>
+                <td>'.$status.'</td>
+                <td>'.$message.'</td>
+                <td>'.$runHistory->created_at->format('Y-m-d H:i:s').'</td>
                 </tr>';
             }
         } else {
@@ -250,70 +246,69 @@ class EmailAddressesController extends Controller
 
     public function getRelatedAccount(Request $request)
     {
-        $adsAccounts = \App\GoogleAdsAccount::where("account_name", $request->id)->get();
-        $translations = \App\googleTraslationSettings::where("email", $request->id)->get();
-        $analytics = \App\StoreWebsiteAnalytic::where("email", $request->id)->get();
+        $adsAccounts = \App\GoogleAdsAccount::where('account_name', $request->id)->get();
+        $translations = \App\googleTraslationSettings::where('email', $request->id)->get();
+        $analytics = \App\StoreWebsiteAnalytic::where('email', $request->id)->get();
 
         $accounts = [];
 
-        if (!$adsAccounts->isEmpty()) {
+        if (! $adsAccounts->isEmpty()) {
             foreach ($adsAccounts as $adsAccount) {
                 $accounts[] = [
-                    "name" => $adsAccount->account_name,
-                    "email" => $adsAccount->account_name,
-                    "last_error" => $adsAccount->last_error,
-                    "last_error_at" => $adsAccount->last_error_at,
-                    "credential" => $adsAccount->config_file_path,
+                    'name' => $adsAccount->account_name,
+                    'email' => $adsAccount->account_name,
+                    'last_error' => $adsAccount->last_error,
+                    'last_error_at' => $adsAccount->last_error_at,
+                    'credential' => $adsAccount->config_file_path,
                     'store_website' => $adsAccount->store_websites,
                     'status' => $adsAccount->status,
-                    'type' => "Google Ads Account",
+                    'type' => 'Google Ads Account',
                 ];
             }
         }
 
-        if (!$translations->isEmpty()) {
+        if (! $translations->isEmpty()) {
             foreach ($translations as $translation) {
                 $accounts[] = [
-                    "name" => $translation->email,
-                    "email" => $translation->email,
-                    "last_error" => $translation->last_note,
-                    "last_error_at" => $translation->last_error_at,
-                    "credential" => $translation->account_json,
-                    'store_website' => "N/A",
+                    'name' => $translation->email,
+                    'email' => $translation->email,
+                    'last_error' => $translation->last_note,
+                    'last_error_at' => $translation->last_error_at,
+                    'credential' => $translation->account_json,
+                    'store_website' => 'N/A',
                     'status' => $translation->status,
-                    'type' => "Google Translation",
+                    'type' => 'Google Translation',
                 ];
             }
         }
 
-        if (!$analytics->isEmpty()) {
+        if (! $analytics->isEmpty()) {
             foreach ($analytics as $analytic) {
                 $accounts[] = [
-                    "name" => $analytic->email,
-                    "email" => $analytic->email,
-                    "last_error" => $analytic->last_error,
-                    "last_error_at" => $analytic->last_error_at,
-                    "credential" => $analytic->account_id . " - " . $analytic->view_id,
+                    'name' => $analytic->email,
+                    'email' => $analytic->email,
+                    'last_error' => $analytic->last_error,
+                    'last_error_at' => $analytic->last_error_at,
+                    'credential' => $analytic->account_id.' - '.$analytic->view_id,
                     'store_website' => $analytic->website,
-                    'status' => "N/A",
-                    'type' => "Google Analytics",
+                    'status' => 'N/A',
+                    'type' => 'Google Analytics',
                 ];
             }
         }
 
-        return view("email-addresses.partials.task", compact('accounts'));
-
+        return view('email-addresses.partials.task', compact('accounts'));
     }
 
     public function getErrorEmailHistory(Request $request)
     {
-        ini_set("memory_limit", -1);
+        ini_set('memory_limit', -1);
 
         $histories = EmailAddress::whereHas('history_last_message', function ($query) {
             $query->where('is_success', 0);
         })
             ->with(['history_last_message' => function ($q) {
-                $q->where('created_at', ">", date("Y-m-d H:i:s", strtotime("-10 day")));
+                $q->where('created_at', '>', date('Y-m-d H:i:s', strtotime('-10 day')));
             }])
             ->get();
 
@@ -322,14 +317,14 @@ class EmailAddressesController extends Controller
         if ($histories) {
             foreach ($histories as $row) {
                 if ($row->history_last_message) {
-                    $status = ($row->history_last_message->is_success == 0) ? "Failed" : "Success";
+                    $status = ($row->history_last_message->is_success == 0) ? 'Failed' : 'Success';
                     $message = $row->history_last_message->message ?? '-';
                     $history .= '<tr>
-                    <td>' . $row->history_last_message->id . '</td>
-                    <td>' . $row->from_name . '</td>
-                    <td>' . $status . '</td>
-                    <td>' . $message . '</td>
-                    <td>' . $row->history_last_message->created_at->format('Y-m-d H:i:s') . '</td>
+                    <td>'.$row->history_last_message->id.'</td>
+                    <td>'.$row->from_name.'</td>
+                    <td>'.$status.'</td>
+                    <td>'.$message.'</td>
+                    <td>'.$row->history_last_message->created_at->format('Y-m-d H:i:s').'</td>
                     </tr>';
                 }
             }
@@ -346,12 +341,11 @@ class EmailAddressesController extends Controller
 
     public function downloadFailedHistory(Request $request)
     {
-
         $histories = EmailAddress::whereHas('history_last_message', function ($query) {
             $query->where('is_success', 0);
         })
             ->with(['history_last_message' => function ($q) {
-                $q->where('created_at', ">", date("Y-m-d H:i:s", strtotime("-1 day")));
+                $q->where('created_at', '>', date('Y-m-d H:i:s', strtotime('-1 day')));
             }])
             ->get();
 
@@ -361,13 +355,14 @@ class EmailAddressesController extends Controller
                 $recordsArr[] = [
                     'id' => $row->history_last_message->id,
                     'from_name' => $row->from_name,
-                    'status' => ($row->history_last_message->is_success == 0) ? "Failed" : "Success",
+                    'status' => ($row->history_last_message->is_success == 0) ? 'Failed' : 'Success',
                     'message' => $row->history_last_message->message ?? '-',
                     'created_at' => $row->history_last_message->created_at->format('Y-m-d H:i:s'),
                 ];
             }
         }
-        $filename = 'Report-Email-failed' . '.csv';
+        $filename = 'Report-Email-failed'.'.csv';
+
         return Excel::download(new EmailFailedReport($recordsArr), $filename);
     }
 
@@ -377,8 +372,8 @@ class EmailAddressesController extends Controller
             return redirect()->back()->with('error', 'Please select user');
         }
 
-        $users = explode(",", $request->users);
-        $data = array();
+        $users = explode(',', $request->users);
+        $data = [];
         foreach ($users as $key) {
             // Generate new password
             $newPassword = str_random(12);
@@ -389,6 +384,7 @@ class EmailAddressesController extends Controller
             $data[$key] = $newPassword;
         }
         \Session::flash('success', 'Password Updated');
+
         return redirect()->back();
     }
 
@@ -400,11 +396,12 @@ class EmailAddressesController extends Controller
         $number = $user->phone;
         $whatsappnumber = '971502609192';
 
-        $message = 'Password For ' . $emailDetail->username . 'is: ' . $emailDetail->password;
+        $message = 'Password For '.$emailDetail->username.'is: '.$emailDetail->password;
 
         $whatsappmessage = new WhatsAppController();
         $whatsappmessage->sendWithThirdApi($number, $user->whatsapp_number, $message);
         \Session::flash('success', 'Password sent');
+
         return redirect()->back();
     }
 
@@ -416,16 +413,15 @@ class EmailAddressesController extends Controller
         if (isset($request->users)) {
             foreach ($request->users as $_user) {
                 $data[] = ['user_id' => $_user, 'email_address_id' => $request->email_id, 'created_at' => Carbon::today(), 'updated_at' => Carbon::today()];
-
             }
         }
 
         if (count($data) > 0) {
             $data_added = \App\EmailAssign::insert($data);
+
             return redirect()->back()->withSuccess('You have successfully assigned users to email address!');
         }
 
         return redirect()->back();
     }
-
 }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateCaseReceivablesTable extends Migration
 {
@@ -20,8 +20,8 @@ class CreateCaseReceivablesTable extends Migration
             $table->integer('currency')->default(0);
             $table->date('receivable_date')->nullable();
             $table->date('received_date')->nullable();
-            $table->decimal('receivable_amount',13,4)->nullable();
-            $table->decimal('received_amount',13,4)->nullable();
+            $table->decimal('receivable_amount', 13, 4)->nullable();
+            $table->decimal('received_amount', 13, 4)->nullable();
             $table->text('description')->nullable();
             $table->text('other')->nullable();
             $table->boolean('status')->default(0);

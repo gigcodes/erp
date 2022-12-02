@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Subject extends Model
 {
     protected $fillable = [
-        'id', 'title','checklist_id','created_at', 'updated_at'
+        'id', 'title', 'checklist_id', 'created_at', 'updated_at',
     ];
 
     public function checklistsubject()
@@ -17,6 +17,6 @@ class Subject extends Model
 
     public function checklistsubjectRemark()
     {
-        return $this->hasMany(ChecklistSubjectRemarkHistory::class, "subject_id", "id")->orderBy('id', 'DESC');
+        return $this->hasMany(ChecklistSubjectRemarkHistory::class, 'subject_id', 'id')->orderBy('id', 'DESC');
     }
 }

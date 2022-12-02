@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIndexsWebsiteTable extends Migration
 {
@@ -15,10 +15,7 @@ class AddIndexsWebsiteTable extends Migration
     {
         Schema::table('websites', function (Blueprint $table) {
             $table->index(['store_website_id']);
-
         });
-
-        
     }
 
     /**
@@ -31,6 +28,5 @@ class AddIndexsWebsiteTable extends Migration
         Schema::create('websites', function (Blueprint $table) {
             $table->dropIndex(['store_website_id']);
         });
-
     }
 }

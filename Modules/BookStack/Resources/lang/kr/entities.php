@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     /**
@@ -243,7 +244,7 @@ return [
     'book_tags' => '책 테그',
     'shelf_tags' => '책꽃이 테그',
     'tag' => '테그',
-    'tags' =>  '테그들',
+    'tags' => '테그들',
     'tag_value' => '테그 값 (선택사항)',
     'tags_explain' => "컨텐츠를 더 잘 분류하기 위해 테그를 추가하세요! \n 보다 상세한 구성을 위해 태그값을 할당 할 수 있습니다.",
     'tags_add' => '다른 테그 추가',
@@ -307,5 +308,5 @@ return [
      */
     'revision_delete_confirm' => '해당 개정판을 지우시겠습니까??',
     'revision_delete_success' => '개정판 삭제성공',
-    'revision_cannot_delete_latest' => '최신버전은 지울수 없습니다.'
+    'revision_cannot_delete_latest' => '최신버전은 지울수 없습니다.',
 ];

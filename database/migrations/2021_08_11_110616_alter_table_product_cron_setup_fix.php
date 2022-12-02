@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableProductCronSetupFix extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableProductCronSetupFix extends Migration
     public function up()
     {
         //
-        Schema::table("products",function(Blueprint $table){
-            $table->integer("is_cron_check")->default(0)->after("is_without_image");
+        Schema::table('products', function (Blueprint $table) {
+            $table->integer('is_cron_check')->default(0)->after('is_without_image');
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableProductCronSetupFix extends Migration
     public function down()
     {
         //
-        Schema::table("products",function(Blueprint $table){
-            $table->dropField("is_cron_check");
+        Schema::table('products', function (Blueprint $table) {
+            $table->dropField('is_cron_check');
         });
     }
 }

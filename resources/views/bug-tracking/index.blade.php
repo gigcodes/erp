@@ -110,7 +110,9 @@
 											@endforeach
 										</select>
 									</div>
-
+									<div class="form-group">
+										<input name="date" type="date" class="form-control" placeholder="Search Date" id="bug-date" data-allow-clear="true" />
+									</div>
 									<div class="form-group">
 										<label for="button">&nbsp;</label>
 										<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
@@ -197,7 +199,7 @@
 						<th>Status</th>
 						<th>Severity</th>
 						<th>Module/Feature</th>
-						<th>Remarks </th>
+						<th>Updated By </th>
 					</tr>
 					<tbody class="tbh">
 
@@ -206,6 +208,48 @@
 			</div>
 		</div>
 	</div>
+
+	<div id="newCommunictionModal" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3>Communication</h3>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+				<table class="table">
+					<thead>
+					<th></th>
+					<th></th>
+					</thead>
+					<tbody class="tbhc">
+
+					</tbody>
+				</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="bugtrackingShowFullTextModel" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<!-- Modal content-->
+			<div class="modal-content ">
+				<div id="add-mail-content">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h3 class="modal-title">Full text view</h3>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body bugtrackingmanShowFullTextBody">
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
 
 	<script type="text/javascript" src="{{ asset('/js/jsrender.min.js')}}"></script>
@@ -220,107 +264,24 @@
 			baseUrl: "<?php echo url("/"); ?>"
 		});
         $(document).ready(function () {
-            $(".btn-edit-template").click(function (event) {
-                var id = $(this).data('id');
-                $.ajax({
-                    url: "/bug-tracking/edit/"+id,
-                    type: "GET",
-                    data: {
-                        id: id,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    cache: false,
-                    dataType: 'json',
-                    success: function (data) {
-                        $('#bugtrackingEditModal').modal('show');
+            {{--$(".btn-edit-template").click(function (event) {--}}
+            {{--    var id = $(this).data('id');--}}
+            {{--    $.ajax({--}}
+            {{--        url: "/bug-tracking/edit/"+id,--}}
+            {{--        type: "GET",--}}
+            {{--        data: {--}}
+            {{--            id: id,--}}
+            {{--            _token: '{{ csrf_token() }}'--}}
+            {{--        },--}}
+            {{--        cache: false,--}}
+            {{--        dataType: 'json',--}}
+            {{--        success: function (data) {--}}
+            {{--            --}}
 
-                        $('.id').val('')
-                        $('.summary').val('')
-                        $('.step_to_reproduce').val('')
-                        $('.url').val('')
-                        $('.bug_type_id').val('')
-                        $('.bug_environment_id').val('')
-                        $('.assign_to').val('')
-                        $('.bug_severity_id').val('')
-                        $('.bug_status_id').val('')
-                        $('.module_id').val('')
-                        $('.remark').val('')
-                        $('.website').val('')
-
-                        $('.id').val(data.data.id)
-                        $('.summary').val(data.data.summary)
-                        $('.step_to_reproduce').val(data.data.step_to_reproduce)
-                        $('.url').val(data.data.url)
-                        $('.bug_type_id').val(data.data.bug_type_id)
-                        $('.bug_environment_id').val(data.data.bug_environment_id)
-                        $('.assign_to').val(data.data.assign_to)
-                        $('.bug_severity_id').val(data.data.bug_severity_id)
-                        $('.bug_status_id').val(data.data.bug_status_id)
-                        $('.module_id').val(data.data.module_id)
-                        $('.remark').val(data.data.remark)
-                        $('.website').val(data.data.website)
-
-                    }
-                });
-            });
-            $(".assign_to").change(function (event) {
-                var id = $(this).data('id');
-                var user_id = $(this).val();
-                $.ajax({
-                    url: "/bug-tracking/assign_user/",
-                    type: "POST",
-                    data: {
-                        id: id,
-                        user_id: user_id,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    cache: false,
-                    dataType: 'json',
-                    success: function (data) {
-                        location.reload()
-                        toastr["success"]("Bug Tracking Saved Successfully");
-                    }
-                });
-            });
-			$(".bug_severity_id").change(function (event) {
-				var id = $(this).data('id');
-				var severity_id = $(this).val();
-				$.ajax({
-					url: "/bug-tracking/severity_user/",
-					type: "POST",
-					data: {
-						id: id,
-						severity_id: severity_id,
-						_token: '{{ csrf_token() }}'
-					},
-					cache: false,
-					dataType: 'json',
-					success: function (data) {
-						location.reload()
-						toastr["success"]("Bug Tracking Saved Successfully");
-					}
-				});
-			});
-			$(".bug_status_id").change(function (event) {
-				var id = $(this).data('id');
-				var status_id = $(this).val();
-				$.ajax({
-					url: "/bug-tracking/status_user/",
-					type: "POST",
-					data: {
-						id: id,
-						status_id: status_id,
-						_token: '{{ csrf_token() }}'
-					},
-					cache: false,
-					dataType: 'json',
-					success: function (data) {
-						location.reload()
-						toastr["success"]("Bug Tracking Saved Successfully");
-					}
-				});
-			});
-        })
+            {{--        }--}}
+            {{--    });--}}
+            {{--});--}}
+      })
 	</script>
 	<script type="text/javascript">
 		$(document).on('click', '.expand-row-msg', function() {
@@ -333,5 +294,16 @@
 			console.log(id,name,fullText,full)
 			$(".bugtrackingmanShowFullTextBody").html(fullText);
 		});
+		$(document).on("click",".btn-copy-url",function() {
+			var url = $(this).data('id');
+			var $temp = $("<input>");
+			$("body").append($temp);
+			$temp.val(url).select();
+			document.execCommand("copy");
+			$temp.remove();
+			alert("Copied!");
+		});
+
+
 	</script>
 @endsection

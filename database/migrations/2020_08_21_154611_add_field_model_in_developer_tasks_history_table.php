@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddFieldModelInDeveloperTasksHistoryTable extends Migration
 {
@@ -13,9 +13,8 @@ class AddFieldModelInDeveloperTasksHistoryTable extends Migration
      */
     public function up()
     {
-        
         Schema::table('developer_tasks_history', function (Blueprint $table) {
-           // $table->string('model')->nullable();
+            // $table->string('model')->nullable();
         });
     }
 

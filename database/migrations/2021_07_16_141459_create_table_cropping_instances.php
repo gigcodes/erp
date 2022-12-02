@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTableCroppingInstances extends Migration
 {
@@ -14,7 +14,7 @@ class CreateTableCroppingInstances extends Migration
     public function up()
     {
         //
-        Schema::create('cropping_instances',function(Blueprint $table) {
+        Schema::create('cropping_instances', function (Blueprint $table) {
             $table->increments('id');
             $table->string('instance_id');
             $table->text('comment')->nullable();

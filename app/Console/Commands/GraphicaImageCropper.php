@@ -42,11 +42,11 @@ class GraphicaImageCropper extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $domC = ColorThief::getColor(__DIR__ . '/image.jpg');
+            $domC = ColorThief::getColor(__DIR__.'/image.jpg');
             dd($domC);
 
             $report->update(['end_time' => Carbon::now()]);
@@ -54,5 +54,4 @@ class GraphicaImageCropper extends Command
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
-
 }

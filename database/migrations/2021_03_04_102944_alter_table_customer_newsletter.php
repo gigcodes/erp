@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableCustomerNewsletter extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableCustomerNewsletter extends Migration
     public function up()
     {
         //
-        Schema::table("customers",function(Blueprint $table) {
-            $table->integer("newsletter")->nullable()->default(0)->after("store_name");
+        Schema::table('customers', function (Blueprint $table) {
+            $table->integer('newsletter')->nullable()->default(0)->after('store_name');
         });
     }
 
@@ -27,7 +27,7 @@ class AlterTableCustomerNewsletter extends Migration
     public function down()
     {
         //
-        Schema::table('customers',function(Blueprint $table) {
+        Schema::table('customers', function (Blueprint $table) {
             $table->dropField('newsletter');
         });
     }

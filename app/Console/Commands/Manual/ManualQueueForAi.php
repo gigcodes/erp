@@ -43,7 +43,7 @@ class ManualQueueForAi extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             // Get all products queued for AI
@@ -52,7 +52,7 @@ class ManualQueueForAi extends Command
             // Loop over products
             foreach ($products as $product) {
                 // Output product ID
-                echo $product->id . "\n";
+                echo $product->id."\n";
 
                 // Queue for AI
                 ProductAi::dispatch($product)->onQueue('product');

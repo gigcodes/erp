@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableCategorySizeChartNeeded extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTableCategorySizeChartNeeded extends Migration
     public function up()
     {
         //
-        Schema::table("categories",function(Blueprint $table) {
-            $table->integer("size_chart_needed")->default(0)->after("need_to_check_size");
+        Schema::table('categories', function (Blueprint $table) {
+            $table->integer('size_chart_needed')->default(0)->after('need_to_check_size');
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTableCategorySizeChartNeeded extends Migration
     public function down()
     {
         //
-        Schema::table("categories",function(Blueprint $table) {
-            $table->dropField("size_chart_needed");
+        Schema::table('categories', function (Blueprint $table) {
+            $table->dropField('size_chart_needed');
         });
     }
 }

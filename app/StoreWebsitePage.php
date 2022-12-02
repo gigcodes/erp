@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -8,10 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class StoreWebsitePage extends Model
 {
-        /**
+    /**
      * @var string
-    
-      * @SWG\Property(property="title",type="string")
+
+     * @SWG\Property(property="title",type="string")
      * @SWG\Property(property="meta_title",type="string")
      * @SWG\Property(property="meta_keywords",type="string")
      * @SWG\Property(property="meta_description",type="string")
@@ -22,7 +23,7 @@ class StoreWebsitePage extends Model
      * @SWG\Property(property="active",type="string")
      * @SWG\Property(property="stores",type="string")
      * @SWG\Property(property="language",type="string")
-      * @SWG\Property(property="platform_id",type="integer")
+     * @SWG\Property(property="platform_id",type="integer")
      * @SWG\Property(property="store_website_id",type="integer")
      */
     protected $fillable = [
@@ -41,12 +42,12 @@ class StoreWebsitePage extends Model
         'store_website_id',
         'language',
         'is_pushed',
-		'is_latest_version_translated',
-		'is_latest_version_pushed'
+        'is_latest_version_translated',
+        'is_latest_version_pushed',
     ];
 
     public function storeWebsite()
     {
-        return $this->hasOne(\App\StoreWebsite::class, "id", "store_website_id");
+        return $this->hasOne(\App\StoreWebsite::class, 'id', 'store_website_id');
     }
 }

@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MagentoModule\MagentoModuleRemarkRequest;
-use Illuminate\Http\Request;
-use App\MagentoModuleCategory;
-use App\MagentoModule;
-use App\Setting;
 use App\Http\Requests\MagentoModule\MagentoModuleRequest;
+use App\MagentoModule;
+use App\MagentoModuleCategory;
 use App\MagentoModuleHistory;
 use App\MagentoModuleRemark;
 use App\MagentoModuleType;
@@ -15,11 +13,10 @@ use App\StoreWebsite;
 use App\TaskStatus;
 use App\User;
 use Auth;
+use Illuminate\Http\Request;
 
 class MagentoModuleController extends Controller
 {
-
-
     public function __construct()
     {
         //view files
@@ -36,20 +33,17 @@ class MagentoModuleController extends Controller
      */
     public function index(Request $request)
     {
-
         if (env('PRODUCTION', true)) {
-            $users = User::select('name','id')->role('Developer')->orderby('name', 'asc')->where('is_active', 1)->get();
+            $users = User::select('name', 'id')->role('Developer')->orderby('name', 'asc')->where('is_active', 1)->get();
         } else {
-            $users = User::select('name','id')->where('is_active', 1)->orderby('name', 'asc')->get();
+            $users = User::select('name', 'id')->where('is_active', 1)->orderby('name', 'asc')->get();
         }
         $module_categories = MagentoModuleCategory::select('category_name', 'id')->where('status', 1)->get();
         $magento_module_types = MagentoModuleType::select('magento_module_type', 'id')->get();
-        $task_statuses = TaskStatus::select('name','id')->get();
-        $store_websites = StoreWebsite::select("website", "id")->get();
-
+        $task_statuses = TaskStatus::select('name', 'id')->get();
+        $store_websites = StoreWebsite::select('website', 'id')->get();
 
         if ($request->ajax()) {
-
             $items = MagentoModule::with(['lastRemark'])
                 ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
                 ->join('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
@@ -66,24 +60,24 @@ class MagentoModuleController extends Controller
                     'users.name as developer_name',
                     'users.id as developer_id'
                 );
-                
-            if (isset($request->module) && !empty($request->module)) {
-                $items->where('magento_modules.module', 'Like', '%' . $request->module . '%');
+
+            if (isset($request->module) && ! empty($request->module)) {
+                $items->where('magento_modules.module', 'Like', '%'.$request->module.'%');
             }
 
-            if (isset($request->user_id) && !empty($request->user_id)) {
+            if (isset($request->user_id) && ! empty($request->user_id)) {
                 $items->where('users.user_id', $request->user_id);
             }
 
-            if (isset($request->store_website_id) && !empty($request->store_website_id)) {
+            if (isset($request->store_website_id) && ! empty($request->store_website_id)) {
                 $items->where('magento_modules.store_website_id', $request->store_website_id);
             }
 
-            if (isset($request->module_type) && !empty($request->module_type)) {
+            if (isset($request->module_type) && ! empty($request->module_type)) {
                 $items->where('magento_modules.module_type', $request->module_type);
             }
 
-            if (isset($request->task_status) && !empty($request->task_status)) {
+            if (isset($request->task_status) && ! empty($request->task_status)) {
                 $items->where('magento_modules.task_status', $request->task_status);
             }
 
@@ -91,26 +85,26 @@ class MagentoModuleController extends Controller
                 $items->where('magento_modules.is_customized', $request->is_customized);
             }
 
-            if (isset($request->module_category_id) && !empty($request->module_category_id)) {
+            if (isset($request->module_category_id) && ! empty($request->module_category_id)) {
                 $items->where('magento_modules.module_category_id', $request->module_category_id);
             }
             if (isset($request->site_impact)) {
                 $items->where('magento_modules.site_impact', $request->site_impact);
             }
-             
+
             if (isset($request->status)) {
-                $items->where('magento_modules.status', $request->status); 
+                $items->where('magento_modules.status', $request->status);
             }
-           
-            
-            return datatables()->eloquent($items)->addColumn("m_types",$magento_module_types)->addColumn("developer_list", $users)->addColumn("categories",$module_categories)->addColumn("website_list", $store_websites)->toJson();
+
+            return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->toJson();
         } else {
             $title = 'Magento Module';
             $users = $users->pluck('name', 'id');
             $module_categories = $module_categories->pluck('category_name', 'id');
             $magento_module_types = $magento_module_types->pluck('magento_module_type', 'id');
-            $task_statuses = $task_statuses->pluck("name", "id");
-            $store_websites = $store_websites->pluck("website", "id");
+            $task_statuses = $task_statuses->pluck('name', 'id');
+            $store_websites = $store_websites->pluck('website', 'id');
+
             return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users'));
         }
     }
@@ -125,7 +119,8 @@ class MagentoModuleController extends Controller
         $title = 'Magento Module';
         $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
         $magento_module_types = MagentoModuleType::get()->pluck('magento_module_type', 'id');
-        $task_statuses = TaskStatus::pluck("name", "id");
+        $task_statuses = TaskStatus::pluck('name', 'id');
+
         return view($this->create_view, compact('module_categories', 'title', 'task_statuses', 'magento_module_types'));
     }
 
@@ -148,17 +143,18 @@ class MagentoModuleController extends Controller
             unset($input_data['id']);
             $input_data['user_id'] = auth()->user()->id;
             MagentoModuleHistory::create($input_data);
+
             return response()->json([
                 'status' => true,
                 'data' => $data,
                 'message' => 'Magento Module saved successfully',
-                'status_name' => 'success'
+                'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
                 'status' => false,
                 'message' => 'something error occurred',
-                'status_name' => 'error'
+                'status_name' => 'error',
             ], 500);
         }
     }
@@ -177,13 +173,13 @@ class MagentoModuleController extends Controller
             return response()->json([
                 'data' => view('magento_module.partials.data', compact('magento_module'))->render(),
                 'title' => $title,
-                'code' => 200
+                'code' => 200,
             ], 200);
         } else {
             return response()->json([
-                'data' => "",
+                'data' => '',
                 'title' => $title,
-                'code' => 500
+                'code' => 500,
             ], 500);
         }
 
@@ -200,7 +196,8 @@ class MagentoModuleController extends Controller
     {
         $title = 'Magento Module';
         $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
-        $task_statuses = TaskStatus::pluck("name", "id");
+        $task_statuses = TaskStatus::pluck('name', 'id');
+
         return view($this->edit_view, compact('module_categories', 'title', 'magento_module', 'task_statuses'));
     }
 
@@ -208,7 +205,7 @@ class MagentoModuleController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  MagentoModule $magento_module
+     * @param  MagentoModule  $magento_module
      * @return \Illuminate\Http\Response
      */
     public function update(MagentoModuleRequest $request, MagentoModule $magento_module)
@@ -227,13 +224,13 @@ class MagentoModuleController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Updated successfully',
-                'status_name' => 'success'
+                'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
                 'status' => false,
                 'message' => 'Updated unsuccessfully',
-                'status_name' => 'error'
+                'status_name' => 'error',
             ], 500);
         }
     }
@@ -241,7 +238,7 @@ class MagentoModuleController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  MagentoModule $magento_module
+     * @param  MagentoModule  $magento_module
      * @return \Illuminate\Http\Response
      */
     public function destroy(MagentoModule $magento_module)
@@ -252,13 +249,13 @@ class MagentoModuleController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Deleted successfully',
-                'status_name' => 'success'
+                'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
                 'status' => false,
                 'message' => 'Deleted unsuccessfully',
-                'status_name' => 'error'
+                'status_name' => 'error',
             ], 500);
         }
     }
@@ -271,7 +268,6 @@ class MagentoModuleController extends Controller
      */
     public function storeRemark(MagentoModuleRemarkRequest $request)
     {
-
         $input = $request->except(['_token']);
         $input['user_id'] = Auth::user()->id;
 
@@ -283,13 +279,13 @@ class MagentoModuleController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Remark added successfully',
-                'status_name' => 'success'
+                'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
                 'status' => false,
                 'message' => 'Remark added unsuccessfully',
-                'status_name' => 'error'
+                'status_name' => 'error',
             ], 500);
         }
     }
@@ -302,36 +298,33 @@ class MagentoModuleController extends Controller
      */
     public function getRemarks($magento_module)
     {
-
         $remarks = MagentoModuleRemark::with(['user'])->where('magento_module_id', $magento_module)->get();
-        
+
         return response()->json([
             'status' => true,
             'data' => $remarks,
             'message' => 'Remark added successfully',
-            'status_name' => 'success'
+            'status_name' => 'success',
         ], 200);
     }
 
-    public function updateMagentoModuleOptions(Request $request){
-        
+    public function updateMagentoModuleOptions(Request $request)
+    {
+        $updateMagentoModule = MagentoModule::where('id', (int) $request->id)->update([$request->columnName => $request->data]);
 
-       $updateMagentoModule = MagentoModule::where('id', (int)$request->id)->update([$request->columnName => $request->data]);
-       
-        if($updateMagentoModule){
+        if ($updateMagentoModule) {
             return response()->json([
                 'status' => true,
                 'message' => 'Updated successfully',
                 'status_name' => 'success',
-                'code' => 200
+                'code' => 200,
             ], 200);
         } else {
             return response()->json([
                 'status' => false,
                 'message' => 'Updated unsuccessfully',
-                'status_name' => 'error'
+                'status_name' => 'error',
             ], 500);
-        }        
-
+        }
     }
 }

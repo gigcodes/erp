@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddScraperTypeColumnToScrapLogsTable extends Migration
 {
@@ -14,7 +14,6 @@ class AddScraperTypeColumnToScrapLogsTable extends Migration
     public function up()
     {
         Schema::table('scrap_logs', function (Blueprint $table) {
-            
             $table->string('scrap_type')->after('scraper_id');
         });
     }
@@ -27,7 +26,7 @@ class AddScraperTypeColumnToScrapLogsTable extends Migration
     public function down()
     {
         Schema::table('scrap_logs', function (Blueprint $table) {
-               $table->dropColumn('scrap_type');
+            $table->dropColumn('scrap_type');
         });
     }
 }

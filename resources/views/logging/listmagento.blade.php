@@ -70,9 +70,9 @@
         <button class="btn btn-primary" id="retry-failed-job">
           Retry failed job
         </button>
-		
+
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#Export_popup">Export</button>
-        
+
       </div>
       </h2>
   </div>
@@ -180,7 +180,7 @@
 
 
      <div class="row m-0">
-        <div class="table-responsive">
+        <div class="table-responsive table-horizontal-scroll">
           <table id="magento_list_tbl_895" class="table table-bordered table-hover" style="table-layout: fixed">
             <thead>
               <th width="4%">ID</th>
@@ -204,24 +204,24 @@
               <th width="3%;">Size</th>
               <th width="5%;">Queue</th>
               <th width="2%">Try</th>
-              <th width="10%">Action</th>
+              <th width="13.5%">Action</th>
 
             </thead>
             <tbody class="infinite-scroll-pending-inner">
-				@include("logging.partials.magento_product_data")                
+				@include("logging.partials.magento_product_data")
             </tbody>
           </table>
 
 
         </div>
-        
+
      </div>
 
   <div id="ErrorLogModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">magento push error log</h4>
+          <h4 class="modal-title">Magento push error log</h4>
         </div>
         <div class="modal-body">
           <table class="table table-bordered table-hover" style="table-layout:fixed;">
@@ -260,7 +260,7 @@
             <thead>
               <th style="width:7%">Step </th>
               <th style="width:6%">Is checked</th>
-             
+
             </thead>
             <tbody class="push_journey_logs">
 
@@ -289,7 +289,7 @@
             {{-- <thead>
               <th style="width:7%">Step </th>
               <th style="width:6%">Is checked</th>
-             
+
             </thead> --}}
             <tbody class="push_journey_horizontal_logs">
 
@@ -342,7 +342,7 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
-  
+
   <div id="Export_popup" class="modal fade" role="dialog">
     <div class="modal-dialog " style="padding: 0px;">
       <div class="modal-content">
@@ -389,7 +389,7 @@
             <div class="form-group col-md-6">
               <input name="name" type="text" class="form-control" id="update_name" value=""placeholder="Name" required>
             </div>
-            
+
             <div class="form-group col-md-6">
               <input name="size" type="text" class="form-control" id="update_size" value=""placeholder="Size">
             </div>
@@ -452,7 +452,7 @@
               <input name="supplier" type="text" class="form-control" id="update_supplier" placeholder="Supplier">
             </div>
             <div class="form-group col-md-6">
-              
+
               <input name="supplier_link" type="text" class="form-control" id="update_supplier_link"placeholder="Supplier Link">
             </div>
             <div class="form-group col-md-6">
@@ -477,8 +477,8 @@
           <h4 class="modal-title">Error with count</h4>
         </div>
           <div class="modal-body">
-            
-            
+
+
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
@@ -536,7 +536,7 @@
                               <strong>Start Date&nbsp;:&nbsp;</strong>
                               <input type="text" name="start_date" value="" class="form-control start-date-picker">
                           </div>
-                        </div>  
+                        </div>
                         <div class="col">
                           <div class="form-group">
                               <strong>End Date&nbsp;:&nbsp;</strong>
@@ -550,7 +550,7 @@
                               <strong>Store website&nbsp;:&nbsp;</strong>
                               <?php echo Form::select("store_website_id",[null => "- Select -"] + \App\StoreWebsite::where("website_source","magento")->pluck('title','id')->toArray(),null,["class" => "form-control select2"]); ?>
                           </div>
-                        </div>  
+                        </div>
                         <div class="col">
                           <div class="form-group">
                               <strong>Product id&nbsp;:&nbsp;</strong>
@@ -583,7 +583,7 @@
                               <strong>Start Date&nbsp;:&nbsp;</strong>
                               <input type="text" name="start_date" value="" class="form-control start-date-picker">
                           </div>
-                        </div>  
+                        </div>
                         <div class="col">
                           <div class="form-group">
                               <strong>End Date&nbsp;:&nbsp;</strong>
@@ -597,7 +597,7 @@
                               <strong>Store website&nbsp;:&nbsp;</strong>
                               <?php echo Form::select("store_website_id",[null => "- Select -"] + \App\StoreWebsite::where("website_source","magento")->pluck('title','id')->toArray(),null,["class" => "form-control select2"]); ?>
                           </div>
-                        </div>  
+                        </div>
                         <div class="col">
                           <div class="form-group">
                               <strong>Product id&nbsp;:&nbsp;</strong>
@@ -649,7 +649,7 @@
               <h4 class="modal-title">Product Translation</h4>
             </div>
            <div class="modal-body">
-              
+
            </div>
             <div class="modal-footer">
                <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
@@ -658,7 +658,7 @@
       </div>
   </div>
 
-  
+
 
 @endsection
 
@@ -683,7 +683,7 @@
             format: 'yyyy-mm-dd'
         });
 
-        
+
     </script>
   <script type="text/javascript">
   var product = []
@@ -701,7 +701,7 @@
     ref.find('td:eq(15)').children('.selectProductCheckbox_class').change(function(){
       if($(this).is(':checked')){
         var val = $(this).val()
-        //if(!product.includes($(this).val())){  
+        //if(!product.includes($(this).val())){
           if(product.length > 0){
             $.each(product,function(i,e){
             if(e.sku == val){
@@ -709,10 +709,10 @@
             }
           })
           }
-          
+
           var item = {"sku":$(this).val(),"websiteid":$(this).attr("websiteid")}
             product.push(item)
-            
+
         //  }
           localStorage.setItem('luxury-product-data-asin', JSON.stringify(product));
       } else {
@@ -731,24 +731,42 @@
     })
     console.log(product)
   })
-  $(document).on("click", ".show_error_logs", function() {
-    var id = $(this).data('id');
-    var store_website_id = $(this).data('website');
-    $.ajax({
-      method: "GET",
-      url: "/logging/show-error-log-by-id/" + id,
-      data: {
-        "_token": "{{ csrf_token() }}"
-      },
-      dataType: 'html'
-    })
-    .done(function(result) {
-      $('#ErrorLogModal').modal('show');
-      $('.error-log-data').html(result);
-    });
+  $(document).on("click", ".show_error_logs", function () {
+      var id = $(this).data('id');
+      var store_website_id = $(this).data('website');
+      $.ajax({
+          method: "GET",
+          url: "/logging/show-error-log-by-id/" + id,
+          data: {
+              "_token": "{{ csrf_token() }}"
+          },
+          dataType: 'html'
+      })
+          .done(function (result) {
+              $('#ErrorLogModal').modal('show');
+              $('#ErrorLogModal .modal-title').text('Magento product push error logs');
+              $('.error-log-data').html(result);
+          });
 
   });
-  
+
+  $(document).on("click", ".show_product_push_logs", function () {
+      var id = $(this).data('id');
+      var store_website_id = $(this).data('website');
+      $.ajax({
+          method: "GET",
+          url: "/logging/show-product-push-log/" + id,
+          data: {
+              "_token": "{{ csrf_token() }}"
+          },
+          dataType: 'html'
+      }).done(function (result) {
+          $('#ErrorLogModal').modal('show');
+          $('#ErrorLogModal .modal-title').text('Magento product push logs');
+          $('.error-log-data').html(result);
+      });
+  });
+
   $(document).on("click", ".push_journey", function() {
     var id = $(this).data('id');
     var store_website_id = $(this).data('website');
@@ -959,11 +977,11 @@
         method: "GET",
         url: "/logging/list-magento/get-live-product-screenshot",
         data : {
-          id : $this.data("id") 
+          id : $this.data("id")
         },
         beforeSend : function(response) {
            $("#loading-image").show();
-           
+
         }
       })
       .done(function(response) {
@@ -1126,7 +1144,7 @@
 				},
 				success: function (data) {
 					//console.log(data);
-					$loader.hide();				
+					$loader.hide();
 					$('.infinite-scroll-pending-inner').append(data.tbody);
 					isLoading = false;
 					if(data.tbody == "") {

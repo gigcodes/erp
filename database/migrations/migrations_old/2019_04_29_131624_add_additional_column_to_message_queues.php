@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddAdditionalColumnToMessageQueues extends Migration
 {
@@ -14,8 +14,8 @@ class AddAdditionalColumnToMessageQueues extends Migration
     public function up()
     {
         Schema::table('message_queues', function (Blueprint $table) {
-          $table->string('phone')->nullable()->change();
-          $table->string('whatsapp_number')->nullable()->after('phone');
+            $table->string('phone')->nullable()->change();
+            $table->string('whatsapp_number')->nullable()->after('phone');
         });
     }
 
@@ -27,7 +27,7 @@ class AddAdditionalColumnToMessageQueues extends Migration
     public function down()
     {
         Schema::table('message_queues', function (Blueprint $table) {
-          $table->dropColumn('whatsapp_number');
+            $table->dropColumn('whatsapp_number');
         });
     }
 }

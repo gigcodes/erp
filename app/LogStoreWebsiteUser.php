@@ -20,7 +20,6 @@ class LogStoreWebsiteUser extends Model
      * @SWG\Property(property="last_name",type="string")
      * @SWG\Property(property="website_mode",type="string")
      * @SWG\Property(property="log_msg",type="string")
-    
      */
     protected $fillable = [
         'store_website_id',

@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AddFieldToSuggestedProductListsTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddFieldToSuggestedProductListsTable extends Migration
      */
     public function up()
     {
-        DB::select("ALTER TABLE `suggested_product_lists` ADD `media_id` INT(10) NULL DEFAULT NULL AFTER `chat_message_id`;");
+        DB::select('ALTER TABLE `suggested_product_lists` ADD `media_id` INT(10) NULL DEFAULT NULL AFTER `chat_message_id`;');
     }
 
     /**

@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateCategoriesTableAddSimplydutyCodeColumn extends Migration
 {
@@ -25,7 +24,7 @@ class UpdateCategoriesTableAddSimplydutyCodeColumn extends Migration
      */
     public function down()
     {
-         Schema::table('categories', function ($table) {
+        Schema::table('categories', function ($table) {
             $table->dropColumn('simplyduty_code');
         });
     }

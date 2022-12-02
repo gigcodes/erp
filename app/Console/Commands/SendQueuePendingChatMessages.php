@@ -3,15 +3,16 @@
 namespace App\Console\Commands;
 
 use App\ChatMessage;
+use App\MessageQueueHistory;
 use App\Services\Whatsapp\ChatApi\ChatApi;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
-use App\MessageQueueHistory;
 
 class SendQueuePendingChatMessages extends Command
 {
-    const BROADCAST_PRIORITY        = 8;
+    const BROADCAST_PRIORITY = 8;
+
     const MARKETING_MESSAGE_TYPE_ID = 3;
 
     public $waitingMessages;
@@ -42,19 +43,17 @@ class SendQueuePendingChatMessages extends Command
 
     public static function getNumberList()
     {
-
-        $q = \DB::table("whatsapp_configs")->select([
-            "number", "instance_id", "token", "is_customer_support", "status", "is_default",
-        ])->where("instance_id", "!=", "")
-            ->where("token", "!=", "")
-            ->where("status", 1)
-            ->orderBy("is_default", "DESC")
+        $q = \DB::table('whatsapp_configs')->select([
+            'number', 'instance_id', 'token', 'is_customer_support', 'status', 'is_default',
+        ])->where('instance_id', '!=', '')
+            ->where('token', '!=', '')
+            ->where('status', 1)
+            ->orderBy('is_default', 'DESC')
             ->get();
 
         $noList = [];
         foreach ($q as $queue) {
             $noList[] = $queue->number;
-
         }
 
         return $noList;
@@ -67,11 +66,10 @@ class SendQueuePendingChatMessages extends Command
      */
     public function handle()
     {
-		$now = Carbon::now()->format('Y-m-d H:i:s');
+        $now = Carbon::now()->format('Y-m-d H:i:s');
         try {
-
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -79,86 +77,82 @@ class SendQueuePendingChatMessages extends Command
 
             // get the status for approval
             $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
-            $limit          = ChatMessage::getQueueLimit();
+            $limit = ChatMessage::getQueueLimit();
 
             // if message is approve then only need to run the queue
             if ($approveMessage == 1) {
-
-                $allWhatsappNo = config("apiwha.instances");
+                $allWhatsappNo = config('apiwha.instances');
 
                 $this->waitingMessages = [];
-                if (!empty($numberList)) {
+                if (! empty($numberList)) {
                     foreach ($numberList as $no) {
-                        $chatApi                    = new ChatApi;
-                        $waitingMessage             = $chatApi->waitingLimit($no);
+                        $chatApi = new ChatApi;
+                        $waitingMessage = $chatApi->waitingLimit($no);
                         $this->waitingMessages[$no] = $waitingMessage;
                     }
                 }
 
-                if (!empty($numberList)) {
+                if (! empty($numberList)) {
                     foreach ($numberList as $number) {
-
                         $sendLimit = isset($limit[$number]) ? $limit[$number] : 0;
 
-                        $chatMessage = ChatMessage::where('is_queue', ">", 0)
-                            ->join("customers as c", "c.id", "chat_messages.customer_id")
-                            ->where("c.whatsapp_number", $number)
+                        $chatMessage = ChatMessage::where('is_queue', '>', 0)
+                            ->join('customers as c', 'c.id', 'chat_messages.customer_id')
+                            ->where('c.whatsapp_number', $number)
                             ->where(function ($q) {
-                                $q->orWhere("chat_messages.group_id", "<=", 0)->orWhereNull("chat_messages.group_id")->orWhere("chat_messages.group_id", "");
+                                $q->orWhere('chat_messages.group_id', '<=', 0)->orWhereNull('chat_messages.group_id')->orWhere('chat_messages.group_id', '');
                             })->where(function ($q) {
-                                $q->whereNull("chat_messages.scheduled_at")->orWhere("chat_messages.scheduled_at", '<=', $now);
+                                $q->whereNull('chat_messages.scheduled_at')->orWhere('chat_messages.scheduled_at', '<=', $now);
                             })
-                            ->select("chat_messages.*")
+                            ->select('chat_messages.*')
                             ->limit($sendLimit)->get();
 
-                        if (!$chatMessage->isEmpty()) {
+                        if (! $chatMessage->isEmpty()) {
                             foreach ($chatMessage as $value) {
                                 // check first if message need to be send from broadcast
                                 if ($value->is_queue > 1) {
-                                    $sendNumber = \DB::table("whatsapp_configs")->where("id", $value->is_queue)->first();
+                                    $sendNumber = \DB::table('whatsapp_configs')->where('id', $value->is_queue)->first();
                                     // if chat message has image then send as a multiple message
                                     if ($images = $value->getMedia(config('constants.media_tags'))) {
                                         foreach ($images as $k => $image) {
                                             \App\ImQueue::create([
-                                                "im_client"                 => "whatsapp",
-                                                "number_to"                 => $value->customer->phone,
-                                                "number_from"               => ($sendNumber) ? $sendNumber->number : $value->customer->whatsapp_number,
-                                                "text"                      => ($k == 0) ? $value->message : "",
-                                                "image"                     => $image->getUrl(),
-                                                "priority"                  => self::BROADCAST_PRIORITY,
-                                                "marketing_message_type_id" => self::MARKETING_MESSAGE_TYPE_ID,
+                                                'im_client' => 'whatsapp',
+                                                'number_to' => $value->customer->phone,
+                                                'number_from' => ($sendNumber) ? $sendNumber->number : $value->customer->whatsapp_number,
+                                                'text' => ($k == 0) ? $value->message : '',
+                                                'image' => $image->getUrl(),
+                                                'priority' => self::BROADCAST_PRIORITY,
+                                                'marketing_message_type_id' => self::MARKETING_MESSAGE_TYPE_ID,
                                             ]);
                                         }
                                     } else {
                                         \App\ImQueue::create([
-                                            "im_client"                 => "whatsapp",
-                                            "number_to"                 => $value->customer->phone,
-                                            "number_from"               => ($sendNumber) ? $sendNumber->number : $value->customer->whatsapp_number,
-                                            "text"                      => $value->message,
-                                            "priority"                  => self::BROADCAST_PRIORITY,
-                                            "marketing_message_type_id" => self::MARKETING_MESSAGE_TYPE_ID,
+                                            'im_client' => 'whatsapp',
+                                            'number_to' => $value->customer->phone,
+                                            'number_from' => ($sendNumber) ? $sendNumber->number : $value->customer->whatsapp_number,
+                                            'text' => $value->message,
+                                            'priority' => self::BROADCAST_PRIORITY,
+                                            'marketing_message_type_id' => self::MARKETING_MESSAGE_TYPE_ID,
                                         ]);
                                     }
 
                                     $value->is_queue = 0;
                                     $value->save();
 
-                                    $dataInsert = array(
-                                        'counter'  => $sendLimit,
-                                        'number'   => $number,
-                                        'type'     => 'individual',
-                                        'user_id'  => $value->customer_id,
-                                        'time'     => Carbon::now()->format('Y-m-d H:i:s')
-                                    );
+                                    $dataInsert = [
+                                        'counter' => $sendLimit,
+                                        'number' => $number,
+                                        'type' => 'individual',
+                                        'user_id' => $value->customer_id,
+                                        'time' => Carbon::now()->format('Y-m-d H:i:s'),
+                                    ];
                                     MessageQueueHistory::insert($dataInsert);
-
                                 } else {
-
                                     // check message is full or not
                                     $isSendingLimitFull = isset($this->waitingMessages[$value->customer->whatsapp_number])
                                     ? $this->waitingMessages[$value->customer->whatsapp_number] : 0;
                                     // if message queue is full then go for the next;
-                                    if ($isSendingLimitFull >= config("apiwha.message_queue_limit", 100)) {
+                                    if ($isSendingLimitFull >= config('apiwha.message_queue_limit', 100)) {
                                         continue;
                                     }
 
@@ -167,85 +161,79 @@ class SendQueuePendingChatMessages extends Command
                                     $myRequest->request->add(['messageId' => $value->id]);
                                     app('App\Http\Controllers\WhatsAppController')->approveMessage('customer', $myRequest);
 
-
-                                    
-                                    $dataInsert = array(
-                                        'counter'  => $sendLimit,
-                                        'number'   => $number,
-                                        'type'     => 'individual',
-                                        'user_id'  => $value->customer_id,
-                                        'time'     => Carbon::now()->format('Y-m-d H:i:s')
-                                    );
-                                    MessageQueueHistory::insert($dataInsert);    
+                                    $dataInsert = [
+                                        'counter' => $sendLimit,
+                                        'number' => $number,
+                                        'type' => 'individual',
+                                        'user_id' => $value->customer_id,
+                                        'time' => Carbon::now()->format('Y-m-d H:i:s'),
+                                    ];
+                                    MessageQueueHistory::insert($dataInsert);
                                 }
                             }
                         }
-
                     }
                 }
-
             }
 
             //  For vendor
             $this->waitingMessages = [];
 
-            if (!empty($numberList)) {
+            if (! empty($numberList)) {
                 foreach ($numberList as $no) {
-                    $chatApi                    = new ChatApi;
-                    $waitingMessage             = $chatApi->waitingLimit($no);
+                    $chatApi = new ChatApi;
+                    $waitingMessage = $chatApi->waitingLimit($no);
                     $this->waitingMessages[$no] = $waitingMessage;
                 }
             }
 
-            if (!empty($numberList)) {
+            if (! empty($numberList)) {
                 foreach ($numberList as $number) {
                     $sendLimit = isset($limit[$number]) ? $limit[$number] : 0;
 
-                    $chatMessage = ChatMessage::where('is_queue', ">", 0)
-                        ->join("vendors as v", "v.id", "chat_messages.vendor_id")
-                        ->where("v.whatsapp_number", $number)
-                        ->select("chat_messages.*")
+                    $chatMessage = ChatMessage::where('is_queue', '>', 0)
+                        ->join('vendors as v', 'v.id', 'chat_messages.vendor_id')
+                        ->where('v.whatsapp_number', $number)
+                        ->select('chat_messages.*')
                         ->limit($sendLimit)->get();
 
-                    if (!$chatMessage->isEmpty()) {
+                    if (! $chatMessage->isEmpty()) {
                         foreach ($chatMessage as $value) {
                             // check first if message need to be send from broadcast
                             if ($value->is_queue > 1) {
-                                $sendNumber = \DB::table("whatsapp_configs")->where("id", $value->is_queue)->first();
+                                $sendNumber = \DB::table('whatsapp_configs')->where('id', $value->is_queue)->first();
                                 // if chat message has image then send as a multiple message
                                 if ($images = $value->getMedia(config('constants.media_tags'))) {
                                     foreach ($images as $k => $image) {
                                         \App\ImQueue::create([
-                                            "im_client"                 => "whatsapp",
-                                            "number_to"                 => $value->vendor->phone,
-                                            "number_from"               => ($sendNumber) ? $sendNumber->number : $value->vendor->whatsapp_number,
-                                            "text"                      => ($k == 0) ? $value->message : "",
-                                            "image"                     => $image->getUrl(),
-                                            "priority"                  => self::BROADCAST_PRIORITY,
-                                            "marketing_message_type_id" => self::MARKETING_MESSAGE_TYPE_ID,
+                                            'im_client' => 'whatsapp',
+                                            'number_to' => $value->vendor->phone,
+                                            'number_from' => ($sendNumber) ? $sendNumber->number : $value->vendor->whatsapp_number,
+                                            'text' => ($k == 0) ? $value->message : '',
+                                            'image' => $image->getUrl(),
+                                            'priority' => self::BROADCAST_PRIORITY,
+                                            'marketing_message_type_id' => self::MARKETING_MESSAGE_TYPE_ID,
                                         ]);
                                     }
                                 } else {
                                     \App\ImQueue::create([
-                                        "im_client"                 => "whatsapp",
-                                        "number_to"                 => $value->vendor->phone,
-                                        "number_from"               => ($sendNumber) ? $sendNumber->number : $value->vendor->whatsapp_number,
-                                        "text"                      => $value->message,
-                                        "priority"                  => self::BROADCAST_PRIORITY,
-                                        "marketing_message_type_id" => self::MARKETING_MESSAGE_TYPE_ID,
+                                        'im_client' => 'whatsapp',
+                                        'number_to' => $value->vendor->phone,
+                                        'number_from' => ($sendNumber) ? $sendNumber->number : $value->vendor->whatsapp_number,
+                                        'text' => $value->message,
+                                        'priority' => self::BROADCAST_PRIORITY,
+                                        'marketing_message_type_id' => self::MARKETING_MESSAGE_TYPE_ID,
                                     ]);
                                 }
 
                                 $value->is_queue = 0;
                                 $value->save();
-
                             } else {
-
                                 // check message is full or not
                                 $isSendingLimitFull = isset($this->waitingMessages[$value->vendor->whatsapp_number])
                                 ? $this->waitingMessages[$value->vendor->whatsapp_number] : 0;
                                 // if message queue is full then go for the next;
-                                if ($isSendingLimitFull >= config("apiwha.message_queue_limit", 100)) {
+                                if ($isSendingLimitFull >= config('apiwha.message_queue_limit', 100)) {
                                     continue;
                                 }
 
@@ -254,10 +242,8 @@ class SendQueuePendingChatMessages extends Command
                                 $myRequest->request->add(['messageId' => $value->id]);
                                 app('App\Http\Controllers\WhatsAppController')->approveMessage('vendor', $myRequest);
                             }
-
                         }
                     }
-
                 }
             }
 
@@ -265,6 +251,5 @@ class SendQueuePendingChatMessages extends Command
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 }
