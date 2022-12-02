@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\MagentoModuleCategory;
 use App\Http\Requests\MagentoModule\MagentoModuleCategoryRequest;
+use App\MagentoModuleCategory;
 use App\TaskStatus;
+use Illuminate\Http\Request;
 
 class MagentoModuleCategoryController extends Controller
 {
@@ -34,7 +34,8 @@ class MagentoModuleCategoryController extends Controller
         } else {
             $title = 'Magento Module Category';
             $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
-            $task_statuses = TaskStatus::pluck("name", "id");
+            $task_statuses = TaskStatus::pluck('name', 'id');
+
             return view($this->index_view, compact('title', 'module_categories', 'task_statuses'));
         }
     }
@@ -48,7 +49,8 @@ class MagentoModuleCategoryController extends Controller
     {
         $title = 'Magento Module Category';
         $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
-        $task_statuses = TaskStatus::pluck("name", "id");
+        $task_statuses = TaskStatus::pluck('name', 'id');
+
         return view($this->create_view, compact('module_categories', 'title', 'task_statuses'));
     }
 
@@ -69,13 +71,13 @@ class MagentoModuleCategoryController extends Controller
                 'status' => true,
                 'data' => $data,
                 'message' => 'Stored successfully',
-                'status_name' => 'success'
+                'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
                 'status' => false,
                 'message' => 'something error occurred',
-                'status_name' => 'error'
+                'status_name' => 'error',
             ], 500);
         }
     }
@@ -94,13 +96,13 @@ class MagentoModuleCategoryController extends Controller
             return response()->json([
                 'data' => view('magento_module_category.partials.data', compact('magento_module_category'))->render(),
                 'title' => $title,
-                'code' => 200
+                'code' => 200,
             ], 200);
         } else {
             return response()->json([
-                'data' => "",
+                'data' => '',
                 'title' => $title,
-                'code' => 500
+                'code' => 500,
             ], 500);
         }
 
@@ -117,7 +119,8 @@ class MagentoModuleCategoryController extends Controller
     {
         $title = 'Magento Module Category';
         $magento_module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
-        $task_statuses = TaskStatus::pluck("name", "id");
+        $task_statuses = TaskStatus::pluck('name', 'id');
+
         return view($this->edit_view, compact('magento_module_categories', 'title', 'magento_module_category', 'task_statuses'));
     }
 
@@ -125,7 +128,7 @@ class MagentoModuleCategoryController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  MagentoModuleCategory $magento_module_category
+     * @param  MagentoModuleCategory  $magento_module_category
      * @return \Illuminate\Http\Response
      */
     public function update(MagentoModuleCategoryRequest $request, MagentoModuleCategory $magento_module_category)
@@ -138,13 +141,13 @@ class MagentoModuleCategoryController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Updated successfully',
-                'status_name' => 'success'
+                'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
                 'status' => false,
                 'message' => 'Updated unsuccessfully',
-                'status_name' => 'error'
+                'status_name' => 'error',
             ], 500);
         }
     }
@@ -152,7 +155,7 @@ class MagentoModuleCategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  MagentoModuleCategory $magento_module_category
+     * @param  MagentoModuleCategory  $magento_module_category
      * @return \Illuminate\Http\Response
      */
     public function destroy(MagentoModuleCategory $magento_module_category)
@@ -163,13 +166,13 @@ class MagentoModuleCategoryController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Deleted successfully',
-                'status_name' => 'success'
+                'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
                 'status' => false,
                 'message' => 'Deleted unsuccessfully',
-                'status_name' => 'error'
+                'status_name' => 'error',
             ], 500);
         }
     }

@@ -4,15 +4,20 @@ namespace App\Library\DHL;
 
 abstract class APIAbstract
 {
-    protected $_stagingUrl    = 'https://wsbexpress.dhl.com/sndpt/expressRateBook';
+    protected $_stagingUrl = 'https://wsbexpress.dhl.com/sndpt/expressRateBook';
+
     protected $_productionUrl = 'https://wsbexpress.dhl.com/gbl/expressRateBook';
 
     protected $document;
+
     protected $results;
+
     protected $resultsRAW;
 
     protected $username;
+
     protected $password;
+
     protected $accountNumber;
 
     protected $_mode;
@@ -23,26 +28,28 @@ abstract class APIAbstract
         // $this->password      = getenv('DHL_KEY') ?: config('dhl.DHL_KEY');
         // $this->_mode         = getenv('DHL_MODE') ?: config('app.env');
         // $this->accountNumber = getenv('DHL_ACCOUNT') ?: config('dhl.api.accountNumber');
-        $this->username      = config('env.DHL_ID') ?: config('dhl.DHL_ID');
-        $this->password      = config('env.DHL_KEY') ?: config('dhl.DHL_KEY');
-        $this->_mode         = config('env.DHL_MODE') ?: config('app.env');
+        $this->username = config('env.DHL_ID') ?: config('dhl.DHL_ID');
+        $this->password = config('env.DHL_KEY') ?: config('dhl.DHL_KEY');
+        $this->_mode = config('env.DHL_MODE') ?: config('app.env');
         $this->accountNumber = config('env.DHL_ACCOUNT') ?: config('dhl.api.accountNumber');
-        $this->type          = "curl";
+        $this->type = 'curl';
     }
 
     /**
      * [setType] curl or soap call
-     * @param string $type
+     *
+     * @param  string  $type
      */
-    public function setType($type = "curl")
+    public function setType($type = 'curl')
     {
         $this->type = $type;
+
         return true;
     }
 
     public function doCurlPost()
-    { 
-        if ($this->_mode == "production") {
+    {
+        if ($this->_mode == 'production') {
             $ch = curl_init($this->_productionUrl);
         } else {
             $ch = curl_init($this->_stagingUrl);
@@ -65,7 +72,7 @@ abstract class APIAbstract
         curl_close($ch);
         $this->resultsRAW = $result;
         try {
-            $result = str_ireplace(['xmlSOAP-ENV','ser-root:','SOAP-ENV:', 'SOAP:','rateresp:','shipresp:','trac:','dhl:','ns:'], '', $result);
+            $result = str_ireplace(['xmlSOAP-ENV', 'ser-root:', 'SOAP-ENV:', 'SOAP:', 'rateresp:', 'shipresp:', 'trac:', 'dhl:', 'ns:'], '', $result);
             $this->results = simplexml_load_string($result)->children();
         } catch (\Exception $exception) {
             return false;
@@ -92,7 +99,7 @@ abstract class APIAbstract
 
     public function document()
     {
-        if (!isset($this->document)) {
+        if (! isset($this->document)) {
             $this->toXML();
         }
 
@@ -113,7 +120,7 @@ abstract class APIAbstract
         if (empty($this->result)) {
             $this->doCurlPost();
         }
-        
+
         return $this->result;
     }
 
@@ -121,11 +128,10 @@ abstract class APIAbstract
 
     public function isDomestic()
     {
-
-        if($this->getShipper()['country_code'] == $this->getRecipient()['country_code'] && $this->getShipper()['country_code'] == "AE") {
+        if ($this->getShipper()['country_code'] == $this->getRecipient()['country_code'] && $this->getShipper()['country_code'] == 'AE') {
             return true;
         }
+
         return false;
     }
-
 }

@@ -42,7 +42,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/richtext.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-
+{{--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />--}}
 
     <script src="{{siteJs('site.js')}}" defer></script>
 
@@ -1774,6 +1774,8 @@ if (!empty($notifications)) {
 											</li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast messages</a>
+                                            </li> <li class="nav-item">
+                                                <a class="dropdown-item" href="{{route('bug-tracking.index')}}">Bug Track</a>
                                             </li>
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('get.model.name') }}">Model Name</a>
@@ -2070,6 +2072,9 @@ if (!empty($notifications)) {
                                             </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('googlefiletranslator.list') }}">Google File Translator</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('google-docs.index') }}">Google Docs</a>
                                             </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ url('/google-traslation-settings') }}">Google Translator Setting</a>

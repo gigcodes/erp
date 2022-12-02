@@ -2,19 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\MagentoModuleCategory;
-use App\MagentoModuleApiHistory;
 use App\Http\Requests\MagentoModule\MagentoModuleApiHistoryRequest;
-use App\TaskStatus;
+use App\MagentoModuleApiHistory;
 
 class MagentoModuleApiHistoryController extends Controller
 {
-
     public function __construct()
     {
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -34,13 +29,13 @@ class MagentoModuleApiHistoryController extends Controller
                 'status' => true,
                 'data' => $data,
                 'message' => 'Stored successfully',
-                'status_name' => 'success'
+                'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
                 'status' => false,
                 'message' => 'something error occurred',
-                'status_name' => 'error'
+                'status_name' => 'error',
             ], 500);
         }
     }
@@ -61,14 +56,14 @@ class MagentoModuleApiHistoryController extends Controller
                 'status' => true,
                 'data' => $magento_module_api_histories,
                 'title' => $title,
-                'code' => 200
+                'code' => 200,
             ], 200);
         } else {
             return response()->json([
                 'status' => false,
-                'data' => "",
+                'data' => '',
                 'title' => $title,
-                'code' => 500
+                'code' => 500,
             ], 500);
         }
 

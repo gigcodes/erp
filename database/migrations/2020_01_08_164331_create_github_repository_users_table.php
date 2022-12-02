@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateGithubRepositoryUsersTable extends Migration
 {
@@ -20,7 +20,6 @@ class CreateGithubRepositoryUsersTable extends Migration
             $table->integer('github_users_id');
             $table->string('rights');
             $table->timestamps();
-
         });
     }
 

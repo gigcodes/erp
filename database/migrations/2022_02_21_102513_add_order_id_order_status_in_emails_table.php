@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddOrderIdOrderStatusInEmailsTable extends Migration
 {
@@ -14,9 +14,8 @@ class AddOrderIdOrderStatusInEmailsTable extends Migration
     public function up()
     {
         Schema::table('emails', function (Blueprint $table) {
-            $table->string('order_id')->nullable()->after("seen");
-            $table->string('order_status')->nullable()->after("order_id");
-
+            $table->string('order_id')->nullable()->after('seen');
+            $table->string('order_status')->nullable()->after('order_id');
         });
     }
 
@@ -30,7 +29,6 @@ class AddOrderIdOrderStatusInEmailsTable extends Migration
         Schema::table('emails', function (Blueprint $table) {
             $table->dropColumn('order_id');
             $table->dropColumn('order_status');
-            
         });
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTaskHistoryTable extends Migration
 {
@@ -15,11 +15,11 @@ class CreateTaskHistoryTable extends Migration
     {
         Schema::create('tasks_history', function (Blueprint $table) {
             $table->increments('id');
-			$table->dateTime('date_time');
-			$table->integer('task_id');
-			$table->integer('user_id');
-			$table->integer('old_assignee');
-			$table->integer('new_assignee');
+            $table->dateTime('date_time');
+            $table->integer('task_id');
+            $table->integer('user_id');
+            $table->integer('old_assignee');
+            $table->integer('new_assignee');
             $table->timestamps();
         });
     }

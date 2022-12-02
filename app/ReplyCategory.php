@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class ReplyCategory extends Model
 {
-
     public $fillable = ['name', 'parent_id', 'pushed_to_watson', 'dialog_id', 'intent_id'];
 
     public function approval_leads()
@@ -62,6 +61,16 @@ class ReplyCategory extends Model
         return $this->hasOne('App\ReplyCategory', 'id', 'parent_id');
     }
 
+    public function children()
+    {
+        return $this->hasMany('App\ReplyCategory', 'parent_id', 'id');
+    }
+
+    public function childrenRecursive()
+    {
+        return $this->children()->with('childrenRecursive');
+    }
+
     public function replies()
     {
         return $this->hasMany('App\Reply', 'category_id');
@@ -70,23 +79,20 @@ class ReplyCategory extends Model
     public function parentList()
     {
         $parent = $this->parent;
-        $arr    = [];
+        $arr = [];
         if ($parent) {
-            $arr[]  = $parent->name;
+            $arr[] = $parent->name;
             $parent = $parent->parent;
             if ($parent) {
-                $arr[]  = $parent->name;
+                $arr[] = $parent->name;
                 $parent = $parent->parent;
                 if ($parent) {
-                    $arr[]  = $parent->name;
+                    $arr[] = $parent->name;
                     $parent = $parent->parent;
                 }
             }
         }
 
-        return implode(" > ", array_reverse($arr));
+        return implode(' > ', array_reverse($arr));
     }
-
-
-
 }

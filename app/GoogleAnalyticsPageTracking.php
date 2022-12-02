@@ -7,9 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class GoogleAnalyticsPageTracking extends Model
 {
     protected $table = 'google_analytics_page_tracking';
-    
 
-    protected $fillable = [ 
+    protected $fillable = [
         'website_analytics_id',
         'page',
         'avg_time_page',
@@ -17,6 +16,6 @@ class GoogleAnalyticsPageTracking extends Model
         'unique_page_views',
         'exit_rate',
         'entrances',
-        'entrance_rate'
+        'entrance_rate',
     ];
 }

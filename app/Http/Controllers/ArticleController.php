@@ -15,41 +15,45 @@ class ArticleController extends Controller
     public function index()
     {
         $articles = Article::paginate(100);
+
         return View('articles.index',
-        compact('articles')
+            compact('articles')
         );
     }
 
     /**
      * Get Broken Links Details
      * Function for display
-     * 
+     *
      * @return json response
      */
-    public function updateTitle(Request $request) {
+    public function updateTitle(Request $request)
+    {
         $article = Article::findOrFail($request['id']);
         $article->title = $request['article_title'];
         $article->save();
+
         return response()->json([
             'type' => 'success',
-            'message' => 'Title Updated'
+            'message' => 'Title Updated',
         ]);
     }
 
     /**
      * Updated Title
      * Function for display
-     * 
+     *
      * @return json response
      */
-    public function updateDescription(Request $request) {
+    public function updateDescription(Request $request)
+    {
         $article = Article::findOrFail($request['id']);
         $article->description = $request['article_desc'];
         $article->save();
+
         return response()->json([
             'type' => 'success',
-            'message' => 'Description Updated'
+            'message' => 'Description Updated',
         ]);
     }
-
 }

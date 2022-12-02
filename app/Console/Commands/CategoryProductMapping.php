@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\ScrappedCategoryMapping;
-use App\ScrapedProducts;
 use App\ScrappedProductCategoryMapping;
+use Illuminate\Console\Command;
 
 class CategoryProductMapping extends Command
 {
@@ -43,13 +42,13 @@ class CategoryProductMapping extends Command
         //
         $all_category = ScrappedCategoryMapping::where('is_mapped', 0)->get()->pluck('name', 'id')->toArray();
 
-        dump('Total Category: ' . count($all_category));
+        dump('Total Category: '.count($all_category));
 
         foreach ($all_category as $k => $v) {
-			$v = str_replace('/', ',', $v);
-            $products = \App\ScrapedProducts::where("categories", $v)
-                ->join("products as p","p.id","scraped_products.product_id")
-                ->where("p.stock",">",0)
+            $v = str_replace('/', ',', $v);
+            $products = \App\ScrapedProducts::where('categories', $v)
+                ->join('products as p', 'p.id', 'scraped_products.product_id')
+                ->where('p.stock', '>', 0)
                 ->select('scraped_products.website', 'scraped_products.id')
                 ->distinct()
                 ->get()
@@ -57,15 +56,13 @@ class CategoryProductMapping extends Command
                 ->toArray();
 
             foreach ($products as $kk => $vv) {
-
                 $web_name = $vv;
                 if ($web_name) {
-
                     $exist = ScrappedProductCategoryMapping::where('category_mapping_id', $k)
                         ->where('product_id', $kk)
                         ->exists();
 
-                    if (!$exist) {
+                    if (! $exist) {
                         ScrappedProductCategoryMapping::insert([
                             'category_mapping_id' => $k,
                             'product_id' => $kk,
@@ -73,10 +70,9 @@ class CategoryProductMapping extends Command
                     }
                 }
             }
-            
-            ScrappedCategoryMapping::where('id', $k)->update(['is_mapped' => 1]);
-            dump('Category processed: => ' . $v);
 
+            ScrappedCategoryMapping::where('id', $k)->update(['is_mapped' => 1]);
+            dump('Category processed: => '.$v);
         }
     }
 }

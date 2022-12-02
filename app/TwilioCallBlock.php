@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class TwilioCallBlock extends Model
 {
-    protected $fillable = ['id', 'customer_id','user_agent_id','twilio_credentials_id','customer_website_id', 'twilio_number_website_id', 'customer_number', 'twilio_number'];
+    protected $fillable = ['id', 'customer_id', 'user_agent_id', 'twilio_credentials_id', 'customer_website_id', 'twilio_number_website_id', 'customer_number', 'twilio_number'];
 
     public function customerUser()
     {
-        return $this->hasOne(Customer::class,'id' , 'customer_id');
+        return $this->hasOne(Customer::class, 'id', 'customer_id');
     }
 
     public function twilioCredentials()
@@ -27,5 +27,4 @@ class TwilioCallBlock extends Model
     {
         return $this->hasOne(StoreWebsite::class, 'id', 'twilio_number_website_id');
     }
-    
 }

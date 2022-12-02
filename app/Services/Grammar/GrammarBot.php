@@ -1,14 +1,13 @@
 <?php
 
-
 namespace App\Services\Grammar;
-
 
 use GuzzleHttp\Client;
 
 class GrammarBot
 {
     private $request;
+
     public function __construct(Client $client)
     {
         $this->request = $client;
@@ -22,16 +21,17 @@ class GrammarBot
         try {
             $response = $this->request->request('POST', 'https://api.cognitive.microsoft.com/bing/v7.0/SpellCheck', [
                 'form_params' => [
-//                    'mode' => 'Spell',
-                    'text' => $text
+                    //                    'mode' => 'Spell',
+                    'text' => $text,
                 ],
                 'headers' => [
                     'Ocp-Apim-Subscription-Key' => 'fdcfc2cb689346a39265829bb50bf39b',
                     'Content-Type' => 'application/x-www-form-urlencoded',
-                ]
+                ],
             ]);
         } catch (\Exception $exception) {
             dump($exception);
+
             return false;
         }
 
@@ -51,6 +51,5 @@ class GrammarBot
 //        dump($text);
 
         return $text;
-
     }
 }

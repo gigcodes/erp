@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use App\ScrappedCategoryMapping;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterScrappedCategoryMappingsIndexingTable extends Migration
 {
@@ -17,7 +17,7 @@ class AlterScrappedCategoryMappingsIndexingTable extends Migration
         //
         ScrappedCategoryMapping::truncate();
 
-        Schema::table('scrapped_category_mappings',function(Blueprint $table) {
+        Schema::table('scrapped_category_mappings', function (Blueprint $table) {
             $table->index('name');
             $table->unique('name');
         });

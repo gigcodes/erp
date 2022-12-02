@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTablePaymentReceiptsMonetaryAccount extends Migration
 {
@@ -14,8 +14,8 @@ class AlterTablePaymentReceiptsMonetaryAccount extends Migration
     public function up()
     {
         //
-        Schema::table("payment_receipts",function(Blueprint $table) {
-            $table->integer("monetary_account_id")->nullable()->after("billing_due_date");
+        Schema::table('payment_receipts', function (Blueprint $table) {
+            $table->integer('monetary_account_id')->nullable()->after('billing_due_date');
         });
     }
 
@@ -27,8 +27,8 @@ class AlterTablePaymentReceiptsMonetaryAccount extends Migration
     public function down()
     {
         //
-        Schema::table("payment_receipts",function(Blueprint $table) {
-            $table->dropField("monetary_account_id");
+        Schema::table('payment_receipts', function (Blueprint $table) {
+            $table->dropField('monetary_account_id');
         });
     }
 }

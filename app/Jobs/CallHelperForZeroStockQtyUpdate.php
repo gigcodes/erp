@@ -2,20 +2,22 @@
 
 namespace App\Jobs;
 
+use App\Helpers\ProductHelper;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use seo2websites\MagentoHelper\MagentoHelper;
-use App\Helpers\ProductHelper;
 
 class CallHelperForZeroStockQtyUpdate implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private $products;
+
     public $tries = 5;
+
     public $backoff = 5;
 
     /**
@@ -37,35 +39,37 @@ class CallHelperForZeroStockQtyUpdate implements ShouldQueue
     {
         try {
             $zeroStock = [];
-            if (!empty($this->products)) {
+            if (! empty($this->products)) {
                 foreach ($this->products as $item) {
                     $websiteArrays = ProductHelper::getStoreWebsiteNameFromPushed($item['id']);
                     if (count($websiteArrays) > 0) {
                         foreach ($websiteArrays as $websiteArray) {
-                            $zeroStock[$websiteArray]['stock'][] = array('sku' => $item['sku'], 'qty' => 0);
-                            \App\StoreWebsiteProduct::where('product_id',$item['id'])
-                ->where('store_website_id',$websiteArray['id'])->delete();
-
+                            $zeroStock[$websiteArray]['stock'][] = ['sku' => $item['sku'], 'qty' => 0];
+                            \App\StoreWebsiteProduct::where('product_id', $item['id'])
+                ->where('store_website_id', $websiteArray['id'])->delete();
                         }
                     }
                 }
             }
 
-            if(!empty($zeroStock)) {
+            if (! empty($zeroStock)) {
                 if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                     MagentoHelper::callHelperForZeroStockQtyUpdate($zeroStock);
                     \Log::info('inventory:update Jobs Run');
                 }
             }
-
-        }catch (\Exception $e) {
-            \Log::info("Issue fom MagentoHelperForZeroStockQtyUpdate ".$e->getMessage());
+        } catch (\Exception $e) {
+            \Log::info('Issue fom MagentoHelperForZeroStockQtyUpdate '.$e->getMessage());
             throw new \Exception($e->getMessage());
         }
     }
 
-    public function tags() 
+    public function tags()
     {
-        return [ 'MagentoHelperForZeroStockQtyUpdate', $this->products[0]->id];
+        if (! empty($this->products)) {
+            return ['MagentoHelperForZeroStockQtyUpdate', $this->products[0]['id']];
+        } else {
+            return ['MagentoHelperForZeroStockQtyUpdate', 'No product found'];
+        }
     }
 }

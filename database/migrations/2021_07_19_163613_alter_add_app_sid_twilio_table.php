@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterAddAppSidTwilioTable extends Migration
 {
@@ -14,7 +14,7 @@ class AlterAddAppSidTwilioTable extends Migration
     public function up()
     {
         //
-        Schema::table('twilio_credentials',function(Blueprint $table) {
+        Schema::table('twilio_credentials', function (Blueprint $table) {
             $table->string('twiml_app_sid')->nullable()->after('status');
         });
     }
@@ -27,7 +27,7 @@ class AlterAddAppSidTwilioTable extends Migration
     public function down()
     {
         //
-        Schema::table('twilio_credentials',function(Blueprint $table) {
+        Schema::table('twilio_credentials', function (Blueprint $table) {
             $table->dropField('twiml_app_sid');
         });
     }

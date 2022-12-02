@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIsAddedFromCsvToProductPushInformationHistoryTable extends Migration
 {
@@ -17,7 +17,6 @@ class AddIsAddedFromCsvToProductPushInformationHistoryTable extends Migration
             $table->boolean('is_added_from_csv')->default(1)->index();
             $table->boolean('old_is_added_from_csv')->default(1)->index();
             $table->boolean('old_is_available')->default(1)->index();
-
         });
     }
 

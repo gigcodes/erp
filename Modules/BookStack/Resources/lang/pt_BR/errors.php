@@ -80,5 +80,5 @@ return [
     'error_occurred' => 'Um erro ocorreu',
     'app_down' => ':appName está fora do ar no momento',
     'back_soon' => 'Voltaremos em seguida.',
-    
+
 ];

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterAddNewProfileUrlToScrapInfluencersTable extends Migration
 {
@@ -15,7 +15,6 @@ class AlterAddNewProfileUrlToScrapInfluencersTable extends Migration
     {
         Schema::table('scrap_influencers', function (Blueprint $table) {
             $table->text('profile_url')->nullable();
-         
         });
     }
 
@@ -26,6 +25,5 @@ class AlterAddNewProfileUrlToScrapInfluencersTable extends Migration
      */
     public function down()
     {
-       
     }
 }

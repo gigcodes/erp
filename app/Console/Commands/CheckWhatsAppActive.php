@@ -55,13 +55,12 @@ class CheckWhatsAppActive extends Command
                     if ($number->last_online > Carbon::now()->subMinutes(15)->toDateTimeString()) {
                         continue;
                     }
-                    $phones  = ['+971569119192', '+31629987287'];
-                    $message = $number->number . 'Username : ' . $number->username . ' Phone Number is not working Please Check It';
+                    $phones = ['+971569119192', '+31629987287'];
+                    $message = $number->number.'Username : '.$number->username.' Phone Number is not working Please Check It';
 
                     foreach ($phones as $phone) {
                         // app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($phone, '', $message, '', '');
                     }
-
                 }
             } else {
                 dump('We only check during the day');

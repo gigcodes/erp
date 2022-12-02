@@ -41,7 +41,7 @@ class ScrapperNotRun extends Command
      */
     public function handle()
     {
-        $scraper_process = ScraperProcess::where("scraper_name", "!=", "")->orderBy('scraper_id', 'DESC')->groupBy('scraper_id')->get();
+        $scraper_process = ScraperProcess::where('scraper_name', '!=', '')->orderBy('scraper_id', 'DESC')->groupBy('scraper_id')->get();
         $scraper_proc = [];
         foreach ($scraper_process as $key => $sp) {
             $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $sp->started_at);
@@ -52,27 +52,25 @@ class ScrapperNotRun extends Command
             }
         }
         $scrapers = Scraper::with(['latestScrapperProcess'])
-            ->where("scraper_name", "!=", "")
+            ->where('scraper_name', '!=', '')
             ->whereNotIn('id', $scraper_proc)
             ->get();
 
         foreach ($scrapers as $scrapperDetails) {
-            $hasAssignedIssue = \App\DeveloperTask::where("scraper_id", $scrapperDetails->id)
+            $hasAssignedIssue = \App\DeveloperTask::where('scraper_id', $scrapperDetails->id)
                 //->whereNotNull("assigned_to")
-                ->where("is_resolved", 0)->orderBy('id', 'desc')->first();
+                ->where('is_resolved', 0)->orderBy('id', 'desc')->first();
             if ($hasAssignedIssue != null and $hasAssignedIssue->assigned_to != null) {
                 $userName = \App\User::where('id', $hasAssignedIssue->assigned_to)->pluck('name')->first();
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add(['issue_id' => $hasAssignedIssue->id, 'message' => "Scraper didn't Run In Last 24 Hr", 'status' => 1]);
                 $reason = "Scrapper process hasn't started yet";
-                if(isset($scrapperDetails->latestScrapperProcess->started_at)){
-
+                if (isset($scrapperDetails->latestScrapperProcess->started_at)) {
                     $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $scrapperDetails->latestScrapperProcess->started_at);
                     $from = \Carbon\Carbon::now();
                     $diff_in_hours = $to->diffInMinutes($from);
-                    $reason="Last started date is ".$to." and current date is ".$from." and time difference is ". gmdate('H:i:s', $diff_in_hours);
-
+                    $reason = 'Last started date is '.$to.' and current date is '.$from.' and time difference is '.gmdate('H:i:s', $diff_in_hours);
                 }
 
                 ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => "Scraper didn't Run In Last 24 Hr", 'reason' => $reason]);
@@ -80,13 +78,13 @@ class ScrapperNotRun extends Command
                 //app('\App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
                 try {
                     app('\App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
-                    ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => "Scraper didn't Run In Last 24 Hr message sent to " . $userName,'reason' => $reason]);
+                    ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => "Scraper didn't Run In Last 24 Hr message sent to ".$userName, 'reason' => $reason]);
                 } catch (\Exception $e) {
                     \Log::error($e);
-                    ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => "Coundn't send message to " . $userName." due to ".$e->getMessage(), 'reason' => $reason]);
+                    ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => "Coundn't send message to ".$userName.' due to '.$e->getMessage(), 'reason' => $reason]);
                 }
             } else {
-                ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => "Not assigned to any user", 'reason' => 'Not assigned to any user']);
+                ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => 'Not assigned to any user', 'reason' => 'Not assigned to any user']);
             }
         }
     }

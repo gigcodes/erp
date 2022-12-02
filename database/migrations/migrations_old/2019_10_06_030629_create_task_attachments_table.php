@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTaskAttachmentsTable extends Migration
 {
@@ -15,8 +15,8 @@ class CreateTaskAttachmentsTable extends Migration
     {
         Schema::create('task_attachments', function (Blueprint $table) {
             $table->increments('id');
-			$table->integer('task_id');
-			$table->string('name');
+            $table->integer('task_id');
+            $table->string('name');
             $table->timestamps();
         });
     }

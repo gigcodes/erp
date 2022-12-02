@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use App\Customer;
+use Illuminate\Database\Seeder;
 
 class CustomerTableSeeder extends Seeder
 {
@@ -23,8 +22,8 @@ class CustomerTableSeeder extends Seeder
             $customer->email = $faker->email;
             $customer->phone = $faker->phoneNumber;
             $customer->whatsapp_number = '971562744570';
-            $customer->rating = rand(0,9);
-            $customer->gender = rand(0,1) == 0 ? 'male' : 'female';
+            $customer->rating = rand(0, 9);
+            $customer->gender = rand(0, 1) == 0 ? 'male' : 'female';
             $customer->address = $faker->address;
             $customer->city = $faker->city;
             $customer->country = $faker->country;

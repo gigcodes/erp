@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIsPlannerCompletedToUsers extends Migration
 {
@@ -14,7 +14,7 @@ class AddIsPlannerCompletedToUsers extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-          $table->boolean('is_planner_completed')->default(1);
+            $table->boolean('is_planner_completed')->default(1);
         });
     }
 
@@ -26,7 +26,7 @@ class AddIsPlannerCompletedToUsers extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-          $table->dropColumn('is_planner_completed');
+            $table->dropColumn('is_planner_completed');
         });
     }
 }

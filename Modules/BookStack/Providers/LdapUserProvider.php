@@ -2,13 +2,12 @@
 
 namespace Modules\BookStack\Providers;
 
-use Modules\BookStack\Auth\Access\LdapService;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
+use Modules\BookStack\Auth\Access\LdapService;
 
 class LdapUserProvider implements UserProvider
 {
-
     /**
      * The user model.
      *
@@ -21,11 +20,11 @@ class LdapUserProvider implements UserProvider
      */
     protected $ldapService;
 
-
     /**
      * LdapUserProvider constructor.
-     * @param             $model
-     * @param \BookStack\Auth\LdapService $ldapService
+     *
+     * @param    $model
+     * @param  \BookStack\Auth\LdapService  $ldapService
      */
     public function __construct($model, LdapService $ldapService)
     {
@@ -40,15 +39,15 @@ class LdapUserProvider implements UserProvider
      */
     public function createModel()
     {
-        $class = '\\' . ltrim($this->model, '\\');
+        $class = '\\'.ltrim($this->model, '\\');
+
         return new $class;
     }
-
 
     /**
      * Retrieve a user by their unique identifier.
      *
-     * @param  mixed $identifier
+     * @param  mixed  $identifier
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     public function retrieveById($identifier)
@@ -60,7 +59,7 @@ class LdapUserProvider implements UserProvider
      * Retrieve a user by their unique identifier and "remember me" token.
      *
      * @param  mixed  $identifier
-     * @param  string $token
+     * @param  string  $token
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     public function retrieveByToken($identifier, $token)
@@ -73,12 +72,11 @@ class LdapUserProvider implements UserProvider
             ->first();
     }
 
-
     /**
      * Update the "remember me" token for the given user in storage.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable $user
-     * @param  string                                     $token
+     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
+     * @param  string  $token
      * @return void
      */
     public function updateRememberToken(Authenticatable $user, $token)
@@ -92,7 +90,7 @@ class LdapUserProvider implements UserProvider
     /**
      * Retrieve a user by the given credentials.
      *
-     * @param  array $credentials
+     * @param  array  $credentials
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     public function retrieveByCredentials(array $credentials)
@@ -117,14 +115,15 @@ class LdapUserProvider implements UserProvider
         $model->external_auth_id = $userDetails['uid'];
         $model->email = $userDetails['email'];
         $model->email_confirmed = false;
+
         return $model;
     }
 
     /**
      * Validate a user against the given credentials.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable $user
-     * @param  array                                      $credentials
+     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
+     * @param  array  $credentials
      * @return bool
      */
     public function validateCredentials(Authenticatable $user, array $credentials)

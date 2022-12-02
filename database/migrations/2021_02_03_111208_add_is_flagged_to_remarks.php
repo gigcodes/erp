@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIsFlaggedToRemarks extends Migration
 {
@@ -14,7 +14,7 @@ class AddIsFlaggedToRemarks extends Migration
     public function up()
     {
         Schema::table('remarks', function (Blueprint $table) {
-          $table->boolean('is_flagged')->default(0)->after('user_name');
+            $table->boolean('is_flagged')->default(0)->after('user_name');
         });
     }
 
@@ -26,7 +26,7 @@ class AddIsFlaggedToRemarks extends Migration
     public function down()
     {
         Schema::table('remarks', function (Blueprint $table) {
-          $table->dropColumn('is_flagged');
+            $table->dropColumn('is_flagged');
         });
     }
 }

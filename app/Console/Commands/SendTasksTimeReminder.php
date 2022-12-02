@@ -2,16 +2,14 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessage;
-use App\LogChatMessage;
 use App\DeveloperTask;
+use App\LogChatMessage;
 use App\Task;
 use App\TaskMessage;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Http\Request;
 
-class SendTasksTimeReminder extends Command {
+class SendTasksTimeReminder extends Command
+{
     /**
      * The name and signature of the console command.
      *
@@ -31,7 +29,8 @@ class SendTasksTimeReminder extends Command {
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
     }
 
@@ -40,9 +39,10 @@ class SendTasksTimeReminder extends Command {
      *
      * @return mixed
      */
-    public function handle() {
+    public function handle()
+    {
         $messageApplicationId = 3;
-        $currenttime = date("Y-m-d H:m:s");
+        $currenttime = date('Y-m-d H:m:s');
 
         $q = TaskMessage::where('message_type', 'est_time_message')->orderBy('id', 'DESC')->first();
         $est_time_msg = $q ? ($q->frequency != 0 ? $q->message : '') : '';
@@ -55,53 +55,53 @@ class SendTasksTimeReminder extends Command {
         $q->whereNotNull('user_id');
         $q->where('user_id', '<>', 0);
         // $q->where('is_flagged', '1');
-        $q->whereNotIn("status", [
+        $q->whereNotIn('status', [
             DeveloperTask::DEV_TASK_STATUS_DONE,
-            DeveloperTask::DEV_TASK_STATUS_IN_REVIEW
+            DeveloperTask::DEV_TASK_STATUS_IN_REVIEW,
         ]);
-        $q->whereRaw("assigned_to > 0");
+        $q->whereRaw('assigned_to > 0');
         // $q->whereRaw("assigned_to IN (SELECT id FROM users WHERE is_task_planned = 1)");
 
         $developertasks = $q->get();
         foreach ($developertasks as $developertask) {
             $messagePrefix = DeveloperTask::getMessagePrefix($developertask);
 
-            if (!$developertask->estimate_time && $est_time_msg) {
+            if (! $developertask->estimate_time && $est_time_msg) {
                 $chatMessage = \App\ChatMessage::firstOrCreate([
-                    "developer_task_id" => $developertask->id,
-                    "user_id" => $developertask->user_id,
-                    "message" => $messagePrefix . $est_time_msg,
-                    "status" => 1,
-                    "is_queue" => 1,
-                    "approved" => 1,
-                    "message_application_id" => $messageApplicationId,
-                    "task_time_reminder" => 1,
+                    'developer_task_id' => $developertask->id,
+                    'user_id' => $developertask->user_id,
+                    'message' => $messagePrefix.$est_time_msg,
+                    'status' => 1,
+                    'is_queue' => 1,
+                    'approved' => 1,
+                    'message_application_id' => $messageApplicationId,
+                    'task_time_reminder' => 1,
                 ]);
-                $this->logs("#1", $developertask->id, $messagePrefix . $est_time_msg, "Created Estimate Time Message for developer task");
-            } elseif (!$developertask->estimate_date && $est_date_msg) {
+                $this->logs('#1', $developertask->id, $messagePrefix.$est_time_msg, 'Created Estimate Time Message for developer task');
+            } elseif (! $developertask->estimate_date && $est_date_msg) {
                 $chatMessage = \App\ChatMessage::firstOrCreate([
-                    "developer_task_id" => $developertask->id,
-                    "user_id" => $developertask->user_id,
-                    "message" => $messagePrefix . $est_date_msg,
-                    "status" => 1,
-                    "is_queue" => 1,
-                    "approved" => 1,
-                    "message_application_id" => $messageApplicationId,
-                    "task_time_reminder" => 1,
+                    'developer_task_id' => $developertask->id,
+                    'user_id' => $developertask->user_id,
+                    'message' => $messagePrefix.$est_date_msg,
+                    'status' => 1,
+                    'is_queue' => 1,
+                    'approved' => 1,
+                    'message_application_id' => $messageApplicationId,
+                    'task_time_reminder' => 1,
                 ]);
-                $this->logs("#2", $developertask->id, $messagePrefix . $est_date_msg, "Created Estimate Date Message for developer task");
-            } else if ($developertask->estimate_date && strtotime($currenttime) > strtotime($developertask->estimate_date) && $overdue_message) {
+                $this->logs('#2', $developertask->id, $messagePrefix.$est_date_msg, 'Created Estimate Date Message for developer task');
+            } elseif ($developertask->estimate_date && strtotime($currenttime) > strtotime($developertask->estimate_date) && $overdue_message) {
                 $chatMessage = \App\ChatMessage::firstOrCreate([
-                    "developer_task_id" => $developertask->id,
-                    "user_id" => $developertask->user_id,
-                    "message" => $messagePrefix . $overdue_message,
-                    "status" => 1,
-                    "is_queue" => 1,
-                    "approved" => 1,
-                    "message_application_id" => $messageApplicationId,
-                    "task_time_reminder" => 1,
+                    'developer_task_id' => $developertask->id,
+                    'user_id' => $developertask->user_id,
+                    'message' => $messagePrefix.$overdue_message,
+                    'status' => 1,
+                    'is_queue' => 1,
+                    'approved' => 1,
+                    'message_application_id' => $messageApplicationId,
+                    'task_time_reminder' => 1,
                 ]);
-                $this->logs("#3", $developertask->id, $messagePrefix . $overdue_message, "Created Overdue Message for developer task");
+                $this->logs('#3', $developertask->id, $messagePrefix.$overdue_message, 'Created Overdue Message for developer task');
             }
         }
 
@@ -109,58 +109,59 @@ class SendTasksTimeReminder extends Command {
         $q->whereNotNull('assign_to');
         $q->where('assign_to', '<>', 0);
         // $q->where('is_flagged', '1');
-        $q->whereNotIn("status", [
+        $q->whereNotIn('status', [
             Task::TASK_STATUS_DONE,
-            Task::TASK_STATUS_IN_REVIEW
+            Task::TASK_STATUS_IN_REVIEW,
         ]);
-        $q->whereRaw("assign_to > 0");
+        $q->whereRaw('assign_to > 0');
         // $q->whereRaw("assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)");
 
         $tasks = $q->get();
         foreach ($tasks as $task) {
             $messagePrefix = Task::getMessagePrefix($task);
 
-            if (!$task->approximate && $est_time_msg) {
+            if (! $task->approximate && $est_time_msg) {
                 $chatMessage = \App\ChatMessage::firstOrCreate([
-                    "task_id" => $task->id,
-                    "user_id" => $task->assign_to,
-                    "message" => $messagePrefix . $est_time_msg,
-                    "status" => 1,
-                    "is_queue" => 1,
-                    "approved" => 1,
-                    "message_application_id" => $messageApplicationId,
-                    "task_time_reminder" => 1,
+                    'task_id' => $task->id,
+                    'user_id' => $task->assign_to,
+                    'message' => $messagePrefix.$est_time_msg,
+                    'status' => 1,
+                    'is_queue' => 1,
+                    'approved' => 1,
+                    'message_application_id' => $messageApplicationId,
+                    'task_time_reminder' => 1,
                 ]);
-                $this->logs("#4", $task->id, $messagePrefix . $est_time_msg, "Created Estimate Time message for task");
-            } else if (!$task->start_date && $est_date_msg) {
+                $this->logs('#4', $task->id, $messagePrefix.$est_time_msg, 'Created Estimate Time message for task');
+            } elseif (! $task->start_date && $est_date_msg) {
                 $chatMessage = \App\ChatMessage::firstOrCreate([
-                    "task_id" => $task->id,
-                    "user_id" => $task->assign_to,
-                    "message" => $messagePrefix . $est_date_msg,
-                    "status" => 1,
-                    "is_queue" => 1,
-                    "approved" => 1,
-                    "message_application_id" => $messageApplicationId,
-                    "task_time_reminder" => 1,
+                    'task_id' => $task->id,
+                    'user_id' => $task->assign_to,
+                    'message' => $messagePrefix.$est_date_msg,
+                    'status' => 1,
+                    'is_queue' => 1,
+                    'approved' => 1,
+                    'message_application_id' => $messageApplicationId,
+                    'task_time_reminder' => 1,
                 ]);
-                $this->logs("#5", $task->id, $messagePrefix . $est_date_msg, "Created Estimate date message for task");
-            } else if ($task->approximate && strtotime($currenttime) > strtotime($task->approximate) && $overdue_message) {
+                $this->logs('#5', $task->id, $messagePrefix.$est_date_msg, 'Created Estimate date message for task');
+            } elseif ($task->approximate && strtotime($currenttime) > strtotime($task->approximate) && $overdue_message) {
                 $chatMessage = \App\ChatMessage::firstOrCreate([
-                    "task_id" => $task->id,
-                    "user_id" => $task->assign_to,
-                    "message" => $messagePrefix . $overdue_message,
-                    "status" => 1,
-                    "is_queue" => 1,
-                    "approved" => 1,
-                    "message_application_id" => $messageApplicationId,
-                    "task_time_reminder" => 1,
+                    'task_id' => $task->id,
+                    'user_id' => $task->assign_to,
+                    'message' => $messagePrefix.$overdue_message,
+                    'status' => 1,
+                    'is_queue' => 1,
+                    'approved' => 1,
+                    'message_application_id' => $messageApplicationId,
+                    'task_time_reminder' => 1,
                 ]);
-                $this->logs("#6", $task->id, $messagePrefix . $overdue_message, "Created Overdue Message for task");
+                $this->logs('#6', $task->id, $messagePrefix.$overdue_message, 'Created Overdue Message for task');
             }
         }
     }
 
-    public function logs($log_case_id, $task_id, $message, $log_msg) {
+    public function logs($log_case_id, $task_id, $message, $log_msg)
+    {
         $log = new LogChatMessage();
         $log->log_case_id = $log_case_id;
         $log->task_id = $task_id;

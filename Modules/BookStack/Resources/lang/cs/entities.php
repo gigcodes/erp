@@ -231,7 +231,7 @@ return [
     'book_tags' => 'Štítky knihy',
     'shelf_tags' => 'Štítky knihovny',
     'tag' => 'Štítek',
-    'tags' =>  'Štítky',
+    'tags' => 'Štítky',
     'tag_value' => 'Hodnota Štítku (volitelné)',
     'tags_explain' => "Přidejte si štítky pro lepší kategorizaci knih. \n Štítky mohou nést i hodnotu pro detailnější klasifikaci.",
     'tags_add' => 'Přidat další štítek',
@@ -289,6 +289,6 @@ return [
     // Revision
     'revision_delete_confirm' => 'Opravdu chcete smazat tuto revizi?',
     'revision_delete_success' => 'Revize smazána',
-    'revision_cannot_delete_latest' => 'Nelze smazat poslední revizi.'
+    'revision_cannot_delete_latest' => 'Nelze smazat poslední revizi.',
 
 ];

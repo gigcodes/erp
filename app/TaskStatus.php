@@ -8,16 +8,18 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TaskStatus extends Model {
+class TaskStatus extends Model
+{
     /**
      * @var string
      * @SWG\Property(property="name",type="string")
-   
      */
     protected $fillable = ['name'];
 
     public static $allDataArr = [];
-    public static function dataArr() {
+
+    public static function dataArr()
+    {
         if (self::$allDataArr) {
             return self::$allDataArr;
         }
@@ -26,11 +28,14 @@ class TaskStatus extends Model {
         foreach ($temp as $key => $value) {
             self::$allDataArr[$value] = $value;
         }
+
         return self::$allDataArr;
     }
 
-    public static function printName($status) {
+    public static function printName($status)
+    {
         $arr = self::dataArr();
+
         return $arr[$status] ?? '';
     }
 }

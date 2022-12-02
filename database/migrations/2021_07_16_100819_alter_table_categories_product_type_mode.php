@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableCategoriesProductTypeMode extends Migration
 {
@@ -14,10 +14,9 @@ class AlterTableCategoriesProductTypeMode extends Migration
     public function up()
     {
         //
-        Schema::table('categories',function(Blueprint $table) {
+        Schema::table('categories', function (Blueprint $table) {
             $table->integer('push_type')->nullable();
         });
-
     }
 
     /**
@@ -28,7 +27,7 @@ class AlterTableCategoriesProductTypeMode extends Migration
     public function down()
     {
         //
-        Schema::table('categories',function(Blueprint $table) {
+        Schema::table('categories', function (Blueprint $table) {
             $table->dropField('push_type');
         });
     }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateSiteDevelopmentStatusHistories extends Migration
 {
@@ -14,14 +14,13 @@ class CreateSiteDevelopmentStatusHistories extends Migration
     public function up()
     {
         //
-        Schema::create("site_development_status_histories",function(Blueprint $table) {
+        Schema::create('site_development_status_histories', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('site_development_id')->index();
             $table->integer('status_id')->nullable();
             $table->integer('user_id')->nullable();
             $table->timestamps();
         });
-
     }
 
     /**

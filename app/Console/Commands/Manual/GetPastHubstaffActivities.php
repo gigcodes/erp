@@ -4,9 +4,7 @@ namespace App\Console\Commands\Manual;
 
 use App\Helpers\HubstaffTrait;
 use App\Hubstaff\HubstaffActivity;
-use Exception;
 use GuzzleHttp\Client;
-use GuzzleHttp\RequestOptions;
 use Illuminate\Console\Command;
 
 class GetPastHubstaffActivities extends Command
@@ -16,6 +14,7 @@ class GetPastHubstaffActivities extends Command
     use HubstaffTrait;
 
     private $client;
+
     /**
      * The name and signature of the console command.
      *
@@ -55,37 +54,37 @@ class GetPastHubstaffActivities extends Command
         $now = time();
 
         $startString = $this->argument('start');
-        $endString   = $this->argument('end');
-        $userIds     = $this->argument('user_ids');
-        $userIds     = explode(",", $userIds);
-        $userIds     = array_filter($userIds);
+        $endString = $this->argument('end');
+        $userIds = $this->argument('user_ids');
+        $userIds = explode(',', $userIds);
+        $userIds = array_filter($userIds);
 
-        $start = strtotime($startString . ' UTC');
-        $now   = strtotime($endString . ' UTC');
+        $start = strtotime($startString.' UTC');
+        $now = strtotime($endString.' UTC');
 
         while ($start < $now) {
             $end = $start + 7 * 24 * 60 * 60; // 1 week limited by API
 
-            echo '=====================' . PHP_EOL;
-            echo 'Start: ' . gmdate('c', $start) . PHP_EOL;
-            echo 'End: ' . gmdate('c', $end) . PHP_EOL;
+            echo '====================='.PHP_EOL;
+            echo 'Start: '.gmdate('c', $start).PHP_EOL;
+            echo 'End: '.gmdate('c', $end).PHP_EOL;
 
             $activities = $this->getActivitiesBetween(gmdate('c', $start), gmdate('c', $end), 0, [], $userIds);
-            
-            echo "Got activities(count): " . sizeof($activities) . PHP_EOL;
+
+            echo 'Got activities(count): '.count($activities).PHP_EOL;
             foreach ($activities as $id => $data) {
                 HubstaffActivity::updateOrCreate(
                     [
                         'id' => $id,
                     ],
                     [
-                        'user_id'   => $data['user_id'],
-                        'task_id'   => is_null($data['task_id']) ? 0 : $data['task_id'],
+                        'user_id' => $data['user_id'],
+                        'task_id' => is_null($data['task_id']) ? 0 : $data['task_id'],
                         'starts_at' => $data['starts_at'],
-                        'tracked'   => $data['tracked'],
-                        'keyboard'  => $data['keyboard'],
-                        'mouse'     => $data['mouse'],
-                        'overall'   => $data['overall'],
+                        'tracked' => $data['tracked'],
+                        'keyboard' => $data['keyboard'],
+                        'mouse' => $data['mouse'],
+                        'overall' => $data['overall'],
                     ]
                 );
             }
@@ -95,6 +94,4 @@ class GetPastHubstaffActivities extends Command
             $start = $end;
         }
     }
-
-    
 }

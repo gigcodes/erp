@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Library\Watson\Language\Workspaces\V1;
 
 use App\Library\Watson\Service;
@@ -10,7 +11,7 @@ class DialogService extends Service
      *
      * @var string
      */
-    protected $url = "https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/1875ce0b-ffe1-45a1-be2b-21a8488a0350";
+    protected $url = 'https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/1875ce0b-ffe1-45a1-be2b-21a8488a0350';
 
     /**
      * API service version
@@ -29,16 +30,18 @@ class DialogService extends Service
     {
         parent::__construct($username, $password);
     }
+
     public function set_url($url)
     {
         return $this->url = $url;
     }
+
     public function create($workspaceId, $params = [], $version = '2019-02-28')
     {
         return $this->client->request(
             'POST',
-            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/dialog_nodes',
-            ['query' => ['version' => $version], "json" => $params]
+            $this->getMountedUrl().'workspaces/'.$workspaceId.'/dialog_nodes',
+            ['query' => ['version' => $version], 'json' => $params]
         );
     }
 
@@ -46,7 +49,7 @@ class DialogService extends Service
     {
         return $this->client->request(
             'GET',
-            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/dialog_nodes',
+            $this->getMountedUrl().'workspaces/'.$workspaceId.'/dialog_nodes',
             ['query' => ['version' => $version] + $params]
         );
     }
@@ -55,7 +58,7 @@ class DialogService extends Service
     {
         return $this->client->request(
             'GET',
-            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/dialog_nodes/' . $dialogNodes,
+            $this->getMountedUrl().'workspaces/'.$workspaceId.'/dialog_nodes/'.$dialogNodes,
             ['query' => ['version' => $version]]
         );
     }
@@ -64,8 +67,8 @@ class DialogService extends Service
     {
         return $this->client->request(
             'POST',
-            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/dialog_nodes/' . $dialogNodes,
-            ['query' => ['version' => $version], "json" => $params]
+            $this->getMountedUrl().'workspaces/'.$workspaceId.'/dialog_nodes/'.$dialogNodes,
+            ['query' => ['version' => $version], 'json' => $params]
         );
     }
 
@@ -73,9 +76,8 @@ class DialogService extends Service
     {
         return $this->client->request(
             'DELETE',
-            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/dialog_nodes/' . $dialogNodes,
+            $this->getMountedUrl().'workspaces/'.$workspaceId.'/dialog_nodes/'.$dialogNodes,
             ['query' => ['version' => $version]]
         );
     }
-
 }

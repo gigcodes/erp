@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class FlaggedTaskMessage extends Migration
 {
@@ -15,9 +15,9 @@ class FlaggedTaskMessage extends Migration
     {
         Schema::create('task_messages', function (Blueprint $table) {
             $table->increments('id');
-			$table->string('message_type');
-			$table->integer('frequency');
-			$table->longText('message');
+            $table->string('message_type');
+            $table->integer('frequency');
+            $table->longText('message');
             $table->timestamps();
         });
     }

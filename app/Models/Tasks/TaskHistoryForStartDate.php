@@ -2,11 +2,11 @@
 
 namespace App\Models\Tasks;
 
-use Illuminate\Database\Eloquent\Model;
-use App\Models\Tasks\TaskHistoryForStartDateApprovals;
 use App\Task;
+use Illuminate\Database\Eloquent\Model;
 
-class TaskHistoryForStartDate extends Model {
+class TaskHistoryForStartDate extends Model
+{
     public $table = 'task_history_for_start_date';
 
     public $fillable = [
@@ -18,12 +18,13 @@ class TaskHistoryForStartDate extends Model {
         'approved',
     ];
 
-    public function updatedBy() {
+    public function updatedBy()
+    {
         return $this->hasOne(\App\User::class, 'id', 'updated_by');
     }
 
-
-    public static function historySave($taskId, $old, $new, $approved) {
+    public static function historySave($taskId, $old, $new, $approved)
+    {
         $single = self::create([
             'task_id' => $taskId,
             'task_type' => 'TASK',
@@ -40,7 +41,8 @@ class TaskHistoryForStartDate extends Model {
         }
     }
 
-    public static function approved($id) {
+    public static function approved($id)
+    {
         $single = self::find($id);
         self::where('task_id', $single->task_id)->update(['approved' => 0]);
         self::where('id', $single->id)->update(['approved' => 1]);

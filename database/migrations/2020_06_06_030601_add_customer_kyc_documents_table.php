@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddCustomerKycDocumentsTable extends Migration
 {
@@ -32,4 +32,4 @@ class AddCustomerKycDocumentsTable extends Migration
     {
         Schema::dropIfExists('customer_kyc_documents');
     }
-}   
+}

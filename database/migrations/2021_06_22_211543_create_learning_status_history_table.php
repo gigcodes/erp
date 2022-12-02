@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateLearningStatusHistoryTable extends Migration
 {
@@ -20,8 +20,6 @@ class CreateLearningStatusHistoryTable extends Migration
             $table->string('new_status');
             $table->string('update_by');
             $table->timestamps();
-
-
         });
     }
 

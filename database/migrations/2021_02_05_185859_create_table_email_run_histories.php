@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateTableEmailRunHistories extends Migration
 {
@@ -14,7 +14,7 @@ class CreateTableEmailRunHistories extends Migration
     public function up()
     {
         //
-        Schema::create('email_run_histories',function(Blueprint $table) {
+        Schema::create('email_run_histories', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('email_address_id');
             $table->integer('is_success')->default(1)->comment('1-success,0-fail');

@@ -17,8 +17,6 @@ use Illuminate\Validation\ValidationException;
 /**
  * Class WebhookController
  * Ingresses any Sendgrid webhooks
- *
- * @package LaravelSendgridEvents\Http\Controllers
  */
 class WebhookController extends Controller
 {
@@ -30,8 +28,8 @@ class WebhookController extends Controller
     /**
      * WebhookController constructor.
      *
-     * @param SendgridEvent $sendgridEvent
-     * @param SendgridEventRepositoryInterface $sendgridEventRepository
+     * @param  SendgridEvent  $sendgridEvent
+     * @param  SendgridEventRepositoryInterface  $sendgridEventRepository
      */
     public function __construct(SendgridEventRepositoryInterface $sendgridEventRepository)
     {
@@ -39,7 +37,7 @@ class WebhookController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      *
      * @throws ValidationException
      * @throws \ReflectionException
@@ -59,12 +57,12 @@ class WebhookController extends Controller
             [
                 '*.email' => 'required|email',
                 '*.timestamp' => 'required|integer',
-                '*.event' => 'required|in:' . implode(',', EventEnum::getAll()),
+                '*.event' => 'required|in:'.implode(',', EventEnum::getAll()),
                 '*.sg_event_id' => 'required|string',
                 '*.sg_message_id' => 'required|string',
                 '*.category' => function ($attribute, $value, $fail) {
-                    if (!is_null($value) && !in_array(gettype($value), ['string', 'array'])) {
-                        $fail($attribute . ' must be a string or array.');
+                    if (! is_null($value) && ! in_array(gettype($value), ['string', 'array'])) {
+                        $fail($attribute.' must be a string or array.');
                     }
                 },
                 '*.category.*' => 'string',
@@ -81,7 +79,6 @@ class WebhookController extends Controller
         Log::info('Validation Passed');
 
         foreach ($payload as $event) {
-
             Log::info('Event Before Process');
             Log::info($event);
 
@@ -104,25 +101,24 @@ class WebhookController extends Controller
      */
     private function processEvent(array $event): void
     {
-
-
         Log::info('Process event start');
-        if($event['email_id']){
+        if ($event['email_id']) {
             $emailId = $event['email_id'];
-        }else{
+        } else {
             $emailId = null;
         }
-        if ($this->sendgridEventRepository->exists($event['sg_event_id'],$emailId,$event['sg_event_id'])) {
+        if ($this->sendgridEventRepository->exists($event['sg_event_id'], $emailId, $event['sg_event_id'])) {
             Log::info('log duplicate start');
             $this->logDuplicateEvent($event);
             Log::info('log duplicate exit');
+
             return;
         }
-		
+
         Log::info('Repository start');
         $sendgridEvent = $this->sendgridEventRepository->create($event);
-        if(isset($event['email_id'])) {
-            \App\Email::where('id', $event['email_id'])->update(['status'=>$event['event']]);
+        if (isset($event['email_id'])) {
+            \App\Email::where('id', $event['email_id'])->update(['status' => $event['event']]);
         }
         Log::info('Repository exit');
 
@@ -138,7 +134,7 @@ class WebhookController extends Controller
      * Note: there is no way of validating that this webhook was actually sent by Sendgrid, so the malformation could
      * be the result of a malicious third party.
      *
-     * @param array $event
+     * @param  array  $event
      */
     private function logMalformedPayload($payload, array $validationErrors)
     {
@@ -157,7 +153,7 @@ class WebhookController extends Controller
     /**
      * Logs a message that we have received a duplicate webhook for an event
      *
-     * @param array $event
+     * @param  array  $event
      */
     private function logDuplicateEvent(array $event)
     {

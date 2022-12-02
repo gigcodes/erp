@@ -10,6 +10,6 @@ class TwilioCallStatistic extends Model
 
     const DIRECTION = [
         'inbound' => 1,
-        'outbound' => 2
+        'outbound' => 2,
     ];
 }

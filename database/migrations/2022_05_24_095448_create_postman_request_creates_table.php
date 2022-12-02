@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreatePostmanRequestCreatesTable extends Migration
 {
@@ -29,7 +29,6 @@ class CreatePostmanRequestCreatesTable extends Migration
             $table->longText('tests')->nullable();
             $table->timestamps();
         });
-        
     }
 
     /**

@@ -65,6 +65,7 @@
 </div>
 
 @include("storewebsite::templates.list-template")
+@include("storewebsite::templates.duplicate-data")
 @include("storewebsite::templates.create-website-template")
 
 <div id="userPasswordHistory" class="modal fade" role="dialog">
@@ -410,6 +411,16 @@
       $(full).toggleClass('hidden');
       $(mini).toggleClass('hidden');
     });
+
+	
+	$(document).on('click', '.btn_expand_inactive', function () {
+		var cls = $(this).parent();
+		//console.log(cls.height());
+		if(cls.height() != '297')
+			$(cls).css('height', 'auto');
+		else
+			$(cls).css('height', '44px');
+	});
 
 </script>
 

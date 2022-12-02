@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddDataToScheduledMessages extends Migration
 {
@@ -14,8 +14,8 @@ class AddDataToScheduledMessages extends Migration
     public function up()
     {
         Schema::table('scheduled_messages', function (Blueprint $table) {
-          $table->text('type')->nullable()->after('message');
-          $table->text('data')->nullable()->after('type');
+            $table->text('type')->nullable()->after('message');
+            $table->text('data')->nullable()->after('type');
         });
     }
 
@@ -27,8 +27,8 @@ class AddDataToScheduledMessages extends Migration
     public function down()
     {
         Schema::table('scheduled_messages', function (Blueprint $table) {
-          $table->dropColumn('type');
-          $table->dropColumn('data');
+            $table->dropColumn('type');
+            $table->dropColumn('data');
         });
     }
 }

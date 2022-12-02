@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateWhatappConfigTableAddSimCardTypeColumn extends Migration
 {
@@ -13,7 +12,7 @@ class UpdateWhatappConfigTableAddSimCardTypeColumn extends Migration
      */
     public function up()
     {
-        Schema::table('whatsapp_configs',function($table){
+        Schema::table('whatsapp_configs', function ($table) {
             $table->string('sim_card_type')->nullable()->after('simcard_owner');
         });
     }
@@ -25,7 +24,7 @@ class UpdateWhatappConfigTableAddSimCardTypeColumn extends Migration
      */
     public function down()
     {
-        Schema::table('whatsapp_configs',function($table){
+        Schema::table('whatsapp_configs', function ($table) {
             $table->dropColumn('sim_card_type');
         });
     }

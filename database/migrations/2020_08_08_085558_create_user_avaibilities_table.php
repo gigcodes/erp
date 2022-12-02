@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateUserAvaibilitiesTable extends Migration
 {
@@ -17,8 +17,8 @@ class CreateUserAvaibilitiesTable extends Migration
             $table->increments('id');
             $table->integer('user_id');
             $table->date('date');
-            $table->decimal('from',4,2)->nullable();
-            $table->decimal('to',4,2)->nullable();
+            $table->decimal('from', 4, 2)->nullable();
+            $table->decimal('to', 4, 2)->nullable();
             $table->boolean('status');
             $table->string('note')->nullable();
             $table->timestamps();

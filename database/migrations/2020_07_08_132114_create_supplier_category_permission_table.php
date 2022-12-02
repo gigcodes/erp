@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateSupplierCategoryPermissionTable extends Migration
 {
@@ -13,7 +13,7 @@ class CreateSupplierCategoryPermissionTable extends Migration
      */
     public function up()
     {
-        if(!Schema::hasTable('supplier_category_permissions')){
+        if (! Schema::hasTable('supplier_category_permissions')) {
             Schema::create('supplier_category_permissions', function (Blueprint $table) {
                 $table->integer('user_id');
                 $table->integer('supplier_category_id');

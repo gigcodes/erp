@@ -10,6 +10,6 @@ return [
     */
     'paths' => [
         'screenshots' => public_path('screenshots'),
-        'log'         => storage_path('laravel-console-dusk/log'),
+        'log' => storage_path('laravel-console-dusk/log'),
     ],
 ];

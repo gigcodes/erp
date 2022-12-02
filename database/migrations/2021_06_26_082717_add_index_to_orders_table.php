@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddIndexToOrdersTable extends Migration
 {
@@ -15,7 +15,6 @@ class AddIndexToOrdersTable extends Migration
     {
         Schema::table('orders', function (Blueprint $table) {
             $table->index(['deleted_at']);
-
         });
     }
 
@@ -28,7 +27,6 @@ class AddIndexToOrdersTable extends Migration
     {
         Schema::table('orders', function (Blueprint $table) {
             $table->dropIndex(['deleted_at']);
-
         });
     }
 }

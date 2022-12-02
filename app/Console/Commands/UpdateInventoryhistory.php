@@ -2,12 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Jobs\CallHelperForZeroStockQtyUpdate;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class UpdateInventoryHistory extends Command
 {
@@ -41,31 +36,30 @@ class UpdateInventoryHistory extends Command
     public function handle()
     {
         //return false;
-        
-            $date=date('Y-m-d');
-            $totalProduct =  \App\Supplier::join("scrapers as sc", "sc.supplier_id", "suppliers.id")
-                ->join("scraped_products as sp", "sp.website", "sc.scraper_name")
-                ->join("products as p", "p.id", "sp.product_id")
-                ->where("suppliers.supplier_status_id", 1)
-                ->select(\DB::raw("count(distinct p.id) as total"))->first();
 
-            $totalProduct = ($totalProduct) ? $totalProduct->total : 0;
-            $noofProductInStock =  \App\Product::where("stock",">",0)->count();
-                
-            $updated_product = \App\InventoryStatusHistory::whereDate('date' ,'=',$date )->select(\DB::raw("count(distinct product_id) as total"))->first();
-               
-               $data=[
-                   'date'=>$date,
-                   'total_product'=> $totalProduct,
-                   'updated_product'=>($updated_product) ? $updated_product->total : 0,
-                   'in_stock' =>$noofProductInStock
-               ];
-              $history= \App\InventoryHistory::whereDate('date' ,'=',$date )->first();
-              if ($history)
-                   \App\InventoryHistory::where('id',$history->id)->update($data);
-              else
-                   \App\InventoryHistory::insert($data);     
-              }
-   
+        $date = date('Y-m-d');
+        $totalProduct = \App\Supplier::join('scrapers as sc', 'sc.supplier_id', 'suppliers.id')
+            ->join('scraped_products as sp', 'sp.website', 'sc.scraper_name')
+            ->join('products as p', 'p.id', 'sp.product_id')
+            ->where('suppliers.supplier_status_id', 1)
+            ->select(\DB::raw('count(distinct p.id) as total'))->first();
 
+        $totalProduct = ($totalProduct) ? $totalProduct->total : 0;
+        $noofProductInStock = \App\Product::where('stock', '>', 0)->count();
+
+        $updated_product = \App\InventoryStatusHistory::whereDate('date', '=', $date)->select(\DB::raw('count(distinct product_id) as total'))->first();
+
+        $data = [
+            'date' => $date,
+            'total_product' => $totalProduct,
+            'updated_product' => ($updated_product) ? $updated_product->total : 0,
+            'in_stock' => $noofProductInStock,
+        ];
+        $history = \App\InventoryHistory::whereDate('date', '=', $date)->first();
+        if ($history) {
+            \App\InventoryHistory::where('id', $history->id)->update($data);
+        } else {
+            \App\InventoryHistory::insert($data);
+        }
+    }
 }

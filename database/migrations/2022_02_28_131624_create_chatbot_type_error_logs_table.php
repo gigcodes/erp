@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateChatbotTypeErrorLogsTable extends Migration
 {
@@ -15,12 +15,12 @@ class CreateChatbotTypeErrorLogsTable extends Migration
     {
         Schema::create('chatbot_type_error_logs', function (Blueprint $table) {
             $table->increments('id');
-			$table->integer('store_website_id')->index()->nullable();
+            $table->integer('store_website_id')->index()->nullable();
             $table->string('call_sid')->nullable();
-			$table->string('phone_number')->nullable();
+            $table->string('phone_number')->nullable();
             $table->string('type_error')->nullable();
-		    $table->boolean('is_active')->default(1);
-			$table->timestamps();
+            $table->boolean('is_active')->default(1);
+            $table->timestamps();
         });
     }
 

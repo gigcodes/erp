@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AlterFlowActionMessagesHtmlContentNullable extends Migration
@@ -13,8 +11,7 @@ class AlterFlowActionMessagesHtmlContentNullable extends Migration
      */
     public function up()
     {
-		\DB::statement("ALTER TABLE `flow_action_messages` CHANGE `html_content` `html_content` TEXT NULL ");
-       
+        \DB::statement('ALTER TABLE `flow_action_messages` CHANGE `html_content` `html_content` TEXT NULL ');
     }
 
     /**

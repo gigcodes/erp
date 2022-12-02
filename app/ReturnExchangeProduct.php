@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -8,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ReturnExchangeProduct extends Model
 {
-		 /**
+    /**
      * @var string
      * @SWG\Property(property="product_id",type="integer")
      * @SWG\Property(property="order_product_id",type="integer")
@@ -22,12 +23,13 @@ class ReturnExchangeProduct extends Model
         'status_id',
     ];
 
-    public function product(){
-        return $this->hasOne('App\Product','id','product_id');
+    public function product()
+    {
+        return $this->hasOne('App\Product', 'id', 'product_id');
     }
 
-    public function order_product(){
-        return $this->hasOne('App\OrderProduct','id','order_product_id');
+    public function order_product()
+    {
+        return $this->hasOne('App\OrderProduct', 'id', 'order_product_id');
     }
-
 }

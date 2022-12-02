@@ -4,7 +4,8 @@ namespace App\Models\DeveloperTasks;
 
 use Illuminate\Database\Eloquent\Model;
 
-class DeveloperTasksHistoryApprovals extends Model {
+class DeveloperTasksHistoryApprovals extends Model
+{
     public $table = 'developer_tasks_history_approvals';
 
     public $fillable = [
@@ -12,10 +13,13 @@ class DeveloperTasksHistoryApprovals extends Model {
         'approved_by',
     ];
 
-    public function approvedBy() {
+    public function approvedBy()
+    {
         return $this->hasOne(\App\User::class, 'id', 'approved_by');
     }
-    public function approvedByName() {
+
+    public function approvedByName()
+    {
         return optional($this->approvedBy)->name;
     }
 }

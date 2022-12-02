@@ -1,4 +1,6 @@
-<?php namespace Modules\BookStack\Entities;
+<?php
+
+namespace Modules\BookStack\Entities;
 
 use Modules\BookStack\Uploads\Image;
 
@@ -10,6 +12,7 @@ class Book extends Entity
 
     /**
      * Get the morph class for this model.
+     *
      * @return string
      */
     public function getMorphClass()
@@ -19,27 +22,30 @@ class Book extends Entity
 
     /**
      * Get the url for this book.
-     * @param string|bool $path
+     *
+     * @param  string|bool  $path
      * @return string
      */
     public function getUrl($path = false)
     {
         if ($path !== false) {
-            return url('/kb/books/' . urlencode($this->slug) . '/' . trim($path, '/'));
+            return url('/kb/books/'.urlencode($this->slug).'/'.trim($path, '/'));
         }
-        return url('/kb/books/' . urlencode($this->slug));
+
+        return url('/kb/books/'.urlencode($this->slug));
     }
 
     /**
      * Returns book cover image, if book cover not exists return default cover image.
-     * @param int $width - Width of the image
-     * @param int $height - Height of the image
+     *
+     * @param  int  $width - Width of the image
+     * @param  int  $height - Height of the image
      * @return string
      */
     public function getBookCover($width = 440, $height = 250)
     {
         $default = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
-        if (!$this->image_id) {
+        if (! $this->image_id) {
             return $default;
         }
 
@@ -48,11 +54,13 @@ class Book extends Entity
         } catch (\Exception $err) {
             $cover = $default;
         }
+
         return $cover;
     }
 
     /**
      * Get the cover image of the book
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function cover()
@@ -62,6 +70,7 @@ class Book extends Entity
 
     /**
      * Get all pages within this book.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function pages()
@@ -71,6 +80,7 @@ class Book extends Entity
 
     /**
      * Get the direct child pages of this book.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function directPages()
@@ -80,6 +90,7 @@ class Book extends Entity
 
     /**
      * Get all chapters within this book.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function chapters()
@@ -89,6 +100,7 @@ class Book extends Entity
 
     /**
      * Get the shelves this book is contained within.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function shelves()
@@ -98,17 +110,20 @@ class Book extends Entity
 
     /**
      * Get an excerpt of this book's description to the specified length or less.
-     * @param int $length
+     *
+     * @param  int  $length
      * @return string
      */
     public function getExcerpt(int $length = 100)
     {
         $description = $this->description;
-        return mb_strlen($description) > $length ? mb_substr($description, 0, $length-3) . '...' : $description;
+
+        return mb_strlen($description) > $length ? mb_substr($description, 0, $length - 3).'...' : $description;
     }
 
     /**
      * Return a generalised, common raw query that can be 'unioned' across entities.
+     *
      * @return string
      */
     public function entityRawQuery()

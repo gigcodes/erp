@@ -9,7 +9,7 @@ class UserEventAttendee extends Model
     protected $fillable = [
         'user_event_id',
         'contact',
-        'suggested_time'
+        'suggested_time',
     ];
 
     public function event()

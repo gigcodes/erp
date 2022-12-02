@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateCategoryTable extends Migration
 {
@@ -14,12 +14,12 @@ class CreateCategoryTable extends Migration
     public function up()
     {
         Schema::create('categories', function (Blueprint $table) {
-	        $table->increments('id');
-	        $table->integer('parent_id');
-	        $table->string('title');
-	        $table->integer('magento_id')->unsigned();
-	        $table->integer('show_all_id')->unsigned();
-	        $table->timestamps();
+            $table->increments('id');
+            $table->integer('parent_id');
+            $table->string('title');
+            $table->integer('magento_id')->unsigned();
+            $table->integer('show_all_id')->unsigned();
+            $table->timestamps();
         });
     }
 

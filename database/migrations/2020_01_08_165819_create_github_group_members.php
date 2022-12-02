@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateGithubGroupMembers extends Migration
 {
@@ -18,7 +18,6 @@ class CreateGithubGroupMembers extends Migration
             $table->increments('id');
             $table->integer('github_groups_id');
             $table->integer('github_users_id');
-
         });
     }
 

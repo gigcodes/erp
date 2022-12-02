@@ -12,21 +12,21 @@
             	<textarea id="chatMsg" placeholder="Type your message. Press shift + Enter to send"></textarea>
                 {{ csrf_field() }}
                 <?php
-					$users = ( new App\Http\Controllers\ActivityConroller() )->getUserArray();
-					?>		
+                    $users = ( new App\Http\Controllers\ActivityConroller() )->getUserArray();
+                ?>		
                    
             </div>
             <div class="col-sm-5">	
            		 <div class="msg-wgt-footer">					
 					<ul id="sendid">
 						<?php foreach ($users as $key => $user) {
-                            if(Auth::user()->name != $user) :
-                         ?>
+						    if (Auth::user()->name != $user) {
+						        ?>
 
 						 <li data-id="{{$key}}">{{$user}} <span class="new"></span> </li>
-						 <?php 
-                        endif;
-                        } ?>
+						 <?php
+						    }
+						} ?>
 					</ul>
 				</div>	
 

@@ -29,8 +29,9 @@ class Handler extends ExceptionHandler
      * Report or log an exception.
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
-     * @param  \Exception $e
+     * @param  \Exception  $e
      * @return mixed
+     *
      * @throws Exception
      */
     public function report(Exception $e)
@@ -41,8 +42,8 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Exception $e
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Exception  $e
      * @return \Illuminate\Http\Response
      */
     public function render($request, Exception $e)
@@ -51,15 +52,17 @@ class Handler extends ExceptionHandler
         // specified location then show a notification message.
         if ($this->isExceptionType($e, NotifyException::class)) {
             session()->flash('error', $this->getOriginalMessage($e));
+
             return redirect($e->redirectLocation);
         }
 
         // Handle pretty exceptions which will show a friendly application-fitting page
         // Which will include the basic message to point the user roughly to the cause.
-        if ($this->isExceptionType($e, PrettyException::class)  && !config('app.debug')) {
+        if ($this->isExceptionType($e, PrettyException::class) && ! config('app.debug')) {
             $message = $this->getOriginalMessage($e);
             $code = ($e->getCode() === 0) ? 500 : $e->getCode();
-            return response()->view('errors/' . $code, ['message' => $message], $code);
+
+            return response()->view('errors/'.$code, ['message' => $message], $code);
         }
 
         // Handle 404 errors with a loaded session to enable showing user-specific information
@@ -72,7 +75,8 @@ class Handler extends ExceptionHandler
 
     /**
      * Check the exception chain to compare against the original exception type.
-     * @param Exception $e
+     *
+     * @param  Exception  $e
      * @param $type
      * @return bool
      */
@@ -83,12 +87,14 @@ class Handler extends ExceptionHandler
                 return true;
             }
         } while ($e = $e->getPrevious());
+
         return false;
     }
 
     /**
      * Get original exception message.
-     * @param Exception $e
+     *
+     * @param  Exception  $e
      * @return string
      */
     protected function getOriginalMessage(Exception $e)
@@ -96,6 +102,7 @@ class Handler extends ExceptionHandler
         do {
             $message = $e->getMessage();
         } while ($e = $e->getPrevious());
+
         return $message;
     }
 

@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateQuickSellGroupsTable extends Migration
 {
@@ -13,7 +12,7 @@ class UpdateQuickSellGroupsTable extends Migration
      */
     public function up()
     {
-        Schema::table('quick_sell_groups', function($table){
+        Schema::table('quick_sell_groups', function ($table) {
             $table->string('name')->nullable();
             $table->string('suppliers')->nullable();
             $table->string('brands')->nullable();

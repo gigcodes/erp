@@ -14,7 +14,7 @@ return [
     */
 
     'password' => 'Heslo musí obsahovať aspoň šesť znakov a musí byť rovnaké ako potvrdzujúce.',
-    'user' => "Nenašli sme používateľa s takou emailovou adresou.",
+    'user' => 'Nenašli sme používateľa s takou emailovou adresou.',
     'token' => 'Tento token pre reset hesla je neplatný.',
     'sent' => 'Poslali sme Vám email s odkazom na reset hesla!',
     'reset' => 'Vaše heslo bolo resetované!',

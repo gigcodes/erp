@@ -6,7 +6,8 @@ use App\ColdLeads;
 use App\CronJobReport;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use InstagramAPI\Instagram;
+
+//use InstagramAPI\Instagram;
 
 class FilterColdLeadByPostCount extends Command
 {
@@ -43,7 +44,7 @@ class FilterColdLeadByPostCount extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 

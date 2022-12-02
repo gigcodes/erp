@@ -1,8 +1,7 @@
-<?php namespace Modules\BookStack\Auth;
+<?php
 
-use Modules\BookStack\Model;
-use Modules\BookStack\Notifications\ResetPassword;
-use Modules\BookStack\Uploads\Image;
+namespace Modules\BookStack\Auth;
+
 use Carbon\Carbon;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -10,10 +9,13 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
+use Modules\BookStack\Model;
+use Modules\BookStack\Notifications\ResetPassword;
+use Modules\BookStack\Uploads\Image;
 
 /**
  * Class User
- * @package BookStack\Auth
+ *
  * @property string $id
  * @property string $name
  * @property string $email
@@ -31,30 +33,35 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     /**
      * The database table used by the model.
+     *
      * @var string
      */
     protected $table = 'users';
 
     /**
      * The attributes that are mass assignable.
+     *
      * @var array
      */
     protected $fillable = ['name', 'email'];
 
     /**
      * The attributes excluded from the model's JSON form.
+     *
      * @var array
      */
     protected $hidden = ['password', 'remember_token'];
 
     /**
      * This holds the user's permissions when loaded.
+     *
      * @var array
      */
     protected $permissions;
 
     /**
      * Returns the default public user.
+     *
      * @return User
      */
     public static function getDefault()
@@ -64,6 +71,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     /**
      * Check if the user is the default public user.
+     *
      * @return bool
      */
     public function isDefault()
@@ -73,18 +81,21 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     /**
      * The roles that belong to the user.
+     *
      * @return BelongsToMany
      */
     public function roles()
     {
         if ($this->id === 0) {
-            return ;
+            return;
         }
+
         return $this->belongsToMany(Role::class);
     }
 
     /**
      * Check if the user has a role.
+     *
      * @param $role
      * @return mixed
      */
@@ -95,6 +106,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     /**
      * Check if the user has a role.
+     *
      * @param $role
      * @return mixed
      */
@@ -105,7 +117,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     /**
      * Get all permissions belonging to a the current user.
-     * @param bool $cache
+     *
+     * @param  bool  $cache
      * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
      */
     public function permissions($cache = true)
@@ -118,11 +131,13 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             return $role->permissions;
         })->flatten()->unique();
         $this->permissions = $permissions;
+
         return $permissions;
     }
 
     /**
      * Check if the user has a particular permission.
+     *
      * @param $permissionName
      * @return bool
      */
@@ -131,12 +146,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         if ($this->email === 'guest') {
             return false;
         }
+
         return $this->permissions()->pluck('name')->contains($permissionName);
     }
 
     /**
      * Attach a role to this user.
-     * @param Role $role
+     *
+     * @param  Role  $role
      */
     public function attachRole(Role $role)
     {
@@ -145,6 +162,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     /**
      * Attach a role id to this user.
+     *
      * @param $id
      */
     public function attachRoleId($id)
@@ -154,6 +172,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     /**
      * Get the social account associated with this user.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function socialAccounts()
@@ -164,7 +183,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     /**
      * Check if the user has a social account,
      * If a driver is passed it checks for that single account type.
-     * @param bool|string $socialDriver
+     *
+     * @param  bool|string  $socialDriver
      * @return bool
      */
     public function hasSocialAccount($socialDriver = false)
@@ -178,7 +198,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     /**
      * Returns the user's avatar,
-     * @param int $size
+     *
+     * @param  int  $size
      * @return string
      */
     public function getAvatar($size = 50)
@@ -194,11 +215,13 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         } catch (\Exception $err) {
             $avatar = $default;
         }
+
         return $avatar;
     }
 
     /**
      * Get the avatar for the user.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function avatar()
@@ -208,25 +231,28 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     /**
      * Get the url for editing this user.
+     *
      * @return string
      */
     public function getEditUrl()
     {
-        return url('/kb/settings/users/' . $this->id);
+        return url('/kb/settings/users/'.$this->id);
     }
 
     /**
      * Get the url that links to this user's profile.
+     *
      * @return mixed
      */
     public function getProfileUrl()
     {
-        return url('/user/' . $this->id);
+        return url('/user/'.$this->id);
     }
 
     /**
      * Get a shortened version of the user's name.
-     * @param int $chars
+     *
+     * @param  int  $chars
      * @return string
      */
     public function getShortName($chars = 8)
@@ -245,6 +271,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     /**
      * Send the password reset notification.
+     *
      * @param  string  $token
      * @return void
      */

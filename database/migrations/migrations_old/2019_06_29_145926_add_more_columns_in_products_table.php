@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddMoreColumnsInProductsTable extends Migration
 {
@@ -33,7 +33,7 @@ class AddMoreColumnsInProductsTable extends Migration
                 'manual_crop',
                 'is_manual_cropped',
                 'manual_cropped_by',
-                'manual_cropped_at'
+                'manual_cropped_at',
             ]);
         });
     }

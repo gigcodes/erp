@@ -38,7 +38,7 @@ class CroppedImageReferenceController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -49,7 +49,7 @@ class CroppedImageReferenceController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param \App\CroppedImageReference $croppedImageReference
+     * @param  \App\CroppedImageReference  $croppedImageReference
      * @return \Illuminate\Http\Response
      */
     public function show(CroppedImageReference $croppedImageReference)
@@ -60,7 +60,7 @@ class CroppedImageReferenceController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param \App\CroppedImageReference $croppedImageReference
+     * @param  \App\CroppedImageReference  $croppedImageReference
      * @return \Illuminate\Http\Response
      */
     public function edit(CroppedImageReference $croppedImageReference)
@@ -71,8 +71,8 @@ class CroppedImageReferenceController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \App\CroppedImageReference $croppedImageReference
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\CroppedImageReference  $croppedImageReference
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, CroppedImageReference $croppedImageReference)
@@ -83,7 +83,7 @@ class CroppedImageReferenceController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param \App\CroppedImageReference $croppedImageReference
+     * @param  \App\CroppedImageReference  $croppedImageReference
      * @return \Illuminate\Http\Response
      */
     public function destroy(CroppedImageReference $croppedImageReference)
@@ -93,10 +93,9 @@ class CroppedImageReferenceController extends Controller
 
     public function grid(Request $request)
     {
-        $query = CroppedImageReference::with(['differentWebsiteImages','product','httpRequestData.requestData','product.product_category'])->join('products','products.id', 'cropped_image_references.product_id');
-  
-        if ($request->category || $request->brand || $request->supplier || $request->crop || $request->status || $request->filter_id) {
+        $query = CroppedImageReference::with(['differentWebsiteImages', 'product', 'httpRequestData.requestData', 'product.product_category'])->join('products', 'products.id', 'cropped_image_references.product_id');
 
+        if ($request->category || $request->brand || $request->supplier || $request->crop || $request->status || $request->filter_id) {
             if (is_array(request('category'))) {
                 if (request('category') != null && request('category')[0] != 1) {
                     // $query->whereHas('product', function ($qu) use ($request) {
@@ -153,21 +152,19 @@ class CroppedImageReferenceController extends Controller
                     $query->whereNull('cropped_image_references.new_media_id');
                 }
             }
-        $products = $query->select(["cropped_image_references.*"])->orderBy('cropped_image_references.id', 'desc')->paginate(50);
-
+            $products = $query->select(['cropped_image_references.*'])->orderBy('cropped_image_references.id', 'desc')->paginate(50);
         } else {
-
             // $query->whereHas('product', function ($qu) use ($request) {
             //     $qu->where('status_id', '!=', StatusHelper::$cropRejected);
             // });
 
-           $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
-			
-			     $products = $query->select(["cropped_image_references.*"])->orderBy('cropped_image_references.id', 'desc')
+            $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
+
+            $products = $query->select(['cropped_image_references.*'])->orderBy('cropped_image_references.id', 'desc')
                 ->groupBy('cropped_image_references.original_media_id')
-		           ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
-                    $q->with('newMedia');
-                }])
+              ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
+                  $q->with('newMedia');
+              }])
                 ->paginate(50);
         }
         $total = $products->count();
@@ -179,7 +176,7 @@ class CroppedImageReferenceController extends Controller
         if (request('customer_range') != null) {
             $dateArray = explode('-', request('customer_range'));
             $startDate = trim($dateArray[0]);
-            $endDate   = trim(end($dateArray));
+            $endDate = trim(end($dateArray));
             if ($startDate == '1995/12/25') {
                 $totalCounts = CroppedImageReference::where('created_at', '>=', \Carbon\Carbon::now()->subHour())->count();
             } elseif ($startDate == $endDate) {
@@ -206,13 +203,14 @@ class CroppedImageReferenceController extends Controller
                 'total' => $total,
             ], 200);
         }
+
         return view('image_references.grid', compact('products', 'total', 'pendingProduct', 'totalCounts', 'pendingCategoryProduct'));
     }
 
     public function rejectCropImage(Request $request)
     {
         $reference = CroppedImageReference::find($request->id);
-        $product   = Product::find($reference->product_id);
+        $product = Product::find($reference->product_id);
         dd($product);
     }
 
@@ -221,24 +219,28 @@ class CroppedImageReferenceController extends Controller
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2', 'id' => 'category'])
             ->renderAsArray();
         $answer = $this->setByParent($category_selection);
+
         return response()->json(['result' => $answer]);
     }
 
     public function getProductIds(Request $request)
     {
         $response = Product::select('id')->get();
+
         return response()->json(['result' => $response]);
     }
 
     public function getBrands(Request $request)
     {
         $response = Brand::select(['id', 'name as text'])->get()->toArray();
+
         return response()->json(['result' => [['text' => 'Brands', 'children' => $response]]]);
     }
 
     public function getSupplier(Request $request)
     {
         $response = Supplier::select(['id', 'supplier as text'])->get();
+
         return response()->json(['result' => [['text' => 'Suppliers', 'children' => $response]]]);
     }
 
@@ -253,43 +255,40 @@ class CroppedImageReferenceController extends Controller
 
         foreach ($data as $value) {
             $result[] = [
-                'id'   => $value['id'],
-                'text' => $nbsp . $value['title'],
+                'id' => $value['id'],
+                'text' => $nbsp.$value['title'],
             ];
-            if (!empty($value['child'])) {
+            if (! empty($value['child'])) {
                 $this->setByParent($value['child'], $step + 1, $result);
             }
-
         }
+
         return $result;
     }
 
     public function manageInstance(Request $request)
     {
-        
         $instances = \App\CroppingInstance::all();
 
-        return view("image_references.partials.manage-instance", compact('instances'));
+        return view('image_references.partials.manage-instance', compact('instances'));
     }
+
     public function loginstance(Request $request)
     {
         $url = 'http://173.212.203.50:100/get-logs';
-        $date=$request->date;
-        $id=$request->id;
+        $date = $request->date;
+        $id = $request->id;
 
-
-        $data = ['instance_id' => $id,'date'=>$date];
+        $data = ['instance_id' => $id, 'date' => $date];
         $data = json_encode($data);
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'accept: application/json'));
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'accept: application/json']);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         $result = curl_exec($ch);
         echo $result;
-        
     }
-    
 
     public function addInstance(Request $request)
     {
@@ -298,8 +297,7 @@ class CroppedImageReferenceController extends Controller
 
         $instances = \App\CroppingInstance::all();
 
-        return view("image_references.partials.manage-instance", compact('instances'));
-
+        return view('image_references.partials.manage-instance', compact('instances'));
     }
 
     public function deleteInstance(Request $request)
@@ -307,22 +305,23 @@ class CroppedImageReferenceController extends Controller
         \App\CroppingInstance::find($request->id)->delete();
         $instances = \App\CroppingInstance::all();
 
-        return view("image_references.partials.manage-instance", compact('instances'));
+        return view('image_references.partials.manage-instance', compact('instances'));
     }
 
     public function startInstance(Request $request)
     {
         $instance = \App\CroppingInstance::find($request->id);
         if ($instance) {
-            $client   = new Client();
-            $response = $client->request('POST', config('constants.py_crop_script')."/start", [
+            $client = new Client();
+            $response = $client->request('POST', config('constants.py_crop_script').'/start', [
                 'form_params' => [
                     'instanceId' => $instance->instance_id,
                 ],
             ]);
-            return response()->json(["code" => 200, "message" => (string)$response->getBody()->getContents()]);
-        }else{
-            return response()->json(["code" => 500, "message" => "No instance id found"]);
+
+            return response()->json(['code' => 200, 'message' => (string) $response->getBody()->getContents()]);
+        } else {
+            return response()->json(['code' => 500, 'message' => 'No instance id found']);
         }
     }
 
@@ -330,15 +329,16 @@ class CroppedImageReferenceController extends Controller
     {
         $instance = \App\CroppingInstance::find($request->id);
         if ($instance) {
-            $client   = new Client();
-            $response = $client->request('POST', config('constants.py_crop_script')."/stop", [
+            $client = new Client();
+            $response = $client->request('POST', config('constants.py_crop_script').'/stop', [
                 'form_params' => [
                     'instanceId' => $instance->instance_id,
                 ],
             ]);
-            return response()->json(["code" => 200, "message" => (string)$response->getBody()->getContents()]);
-        }else{
-            return response()->json(["code" => 500, "message" => "No instance id found"]);
+
+            return response()->json(['code' => 200, 'message' => (string) $response->getBody()->getContents()]);
+        } else {
+            return response()->json(['code' => 500, 'message' => 'No instance id found']);
         }
     }
 }

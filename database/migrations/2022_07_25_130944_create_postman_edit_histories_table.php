@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreatePostmanEditHistoriesTable extends Migration
 {
@@ -15,10 +15,10 @@ class CreatePostmanEditHistoriesTable extends Migration
     {
         Schema::create('postman_edit_histories', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer("postman_request_id")->nullable();
-            $table->integer("user_id")->nullable();
-            $table->string("user_ids")->nullable();
-            $table->string("user_permission")->nullable();
+            $table->integer('postman_request_id')->nullable();
+            $table->integer('user_id')->nullable();
+            $table->string('user_ids')->nullable();
+            $table->string('user_permission')->nullable();
             $table->string('folder_name')->nullable();
             $table->string('request_name')->nullable();
             $table->string('request_type')->nullable();
@@ -38,7 +38,6 @@ class CreatePostmanEditHistoriesTable extends Migration
             $table->timestamps();
         });
     }
-
 
     /**
      * Reverse the migrations.

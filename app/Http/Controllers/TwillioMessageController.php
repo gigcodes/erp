@@ -14,7 +14,6 @@ use Validator;
 
 class TwillioMessageController extends Controller
 {
-
     public function index(Request $request)
     {
         $inputs = $request->input();
@@ -26,9 +25,9 @@ class TwillioMessageController extends Controller
         if (isset($inputs['status']) and $inputs['status'] != '') {
             if ($inputs['status'] == 'done') {
                 $data = $data->where('is_sent', 1);
-            } else if ($inputs['status'] == 'pending') {
+            } elseif ($inputs['status'] == 'pending') {
                 $data = $data->whereNull('scheduled_at');
-            } else if ($inputs['status'] == 'scheduled') {
+            } elseif ($inputs['status'] == 'scheduled') {
                 $data = $data->whereNotNull('scheduled_at')->where('is_sent', 0);
             }
         }
@@ -36,11 +35,12 @@ class TwillioMessageController extends Controller
             $data = $data->where('messaging_groups.store_website_id', $inputs['webiste']);
         }
         if (isset($inputs['title'])) {
-            $data = $data->where('marketing_messages.title', 'like', '%' . $inputs['title'] . '%');
+            $data = $data->where('marketing_messages.title', 'like', '%'.$inputs['title'].'%');
         }
         $data = $data->orderBy('messaging_groups.id', 'desc')->paginate(15);
         $websites = ['' => 'Select Website'] + StoreWebsite::pluck('title', 'id')->toArray();
         $services = ['' => 'Select Service'] + SmsService::pluck('name', 'id')->toArray();
+
         return view('twillio_sms.index', compact('data', 'websites', 'services', 'inputs'));
     }
 
@@ -48,6 +48,7 @@ class TwillioMessageController extends Controller
     {
         $inputs = $request->input();
         $data = \App\TwilioError::latest()->paginate(15);
+
         return view('twillio_sms.errors', compact('data', 'inputs'));
     }
 
@@ -64,8 +65,9 @@ class TwillioMessageController extends Controller
             $errors = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
-                $message .= $error[0] . '<br>';
+                $message .= $error[0].'<br>';
             }
+
             return response()->json(['status' => 'failed', 'statusCode' => 500, 'message' => $message]);
         }
 
@@ -89,12 +91,14 @@ class TwillioMessageController extends Controller
             $errors = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
-                $message .= $error[0] . '<br>';
+                $message .= $error[0].'<br>';
             }
+
             return response()->json(['status' => 'failed', 'statusCode' => 500, 'message' => $message]);
         }
         $input = $request->input();
         $data = SmsService::firstOrCreate(['name' => $input['name']], ['name' => $input['name']]);
+
         return response()->json(['status' => 'success', 'statusCode' => 200, 'message' => 'Service Created successfully']);
     }
 
@@ -124,7 +128,6 @@ class TwillioMessageController extends Controller
             $marketing_message = MarketingMessage::where('message_group_id', $messageGroupCustomer['message_group_id'])->first();
             if ($marketing_message != null) {
                 MarketingMessageCustomer::where(['marketing_message_id' => $marketing_message->id, 'customer_id' => $customerId])->delete();
-
             }
             $messageGroupCustomer->delete();
         }
@@ -160,7 +163,8 @@ class TwillioMessageController extends Controller
     public function fetchCustomers(Request $request)
     {
         $q = $request->q;
-        $customers = Customer::where('email', 'like', '%' . $q . '%')->select('id', 'email')->get();
+        $customers = Customer::where('email', 'like', '%'.$q.'%')->select('id', 'email')->get();
+
         return json_encode($customers);
     }
 
@@ -176,19 +180,21 @@ class TwillioMessageController extends Controller
             $errors = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
-                $message .= $error[0] . '<br>';
+                $message .= $error[0].'<br>';
             }
+
             return response()->json(['status' => 'failed', 'statusCode' => 500, 'message' => $message]);
         }
         $customerExist = MessagingGroupCustomer::where(['message_group_id' => $request->message_group_id, 'customer_id' => $request->customer_id])->first();
         if ($customerExist == null) {
             MessagingGroupCustomer::create(['message_group_id' => $request->message_group_id, 'customer_id' => $request->customer_id]);
+
             return response()->json(['status' => 'success', 'statusCode' => 200, 'message' => 'Customer added successfully']);
         } else {
             MessagingGroupCustomer::where(['message_group_id' => $request->message_group_id, 'customer_id' => $request->customer_id])->delete();
+
             return response()->json(['status' => 'success', 'statusCode' => 200, 'message' => 'Customer deleted successfully']);
         }
-
     }
 
     public function createMarketingMessage(Request $request)
@@ -203,8 +209,9 @@ class TwillioMessageController extends Controller
             $errors = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
-                $message .= $error[0] . '<br>';
+                $message .= $error[0].'<br>';
             }
+
             return response()->json(['status' => 'failed', 'statusCode' => 500, 'message' => $message]);
         }
 
@@ -219,6 +226,7 @@ class TwillioMessageController extends Controller
             MarketingMessageCustomer::firstOrCreate(['marketing_message_id' => $data['id'], 'customer_id' => $customer['customer_id']],
                 ['marketing_message_id' => $data['id'], 'customer_id' => $customer['customer_id']]);
         }
+
         return response()->json(['status' => 'success', 'statusCode' => 200, 'message' => 'Message Created successfully']);
     }
 
@@ -231,6 +239,7 @@ class TwillioMessageController extends Controller
             $details['scheduled_at'] = null;
             $details['message_group_id'] = $messageGroupId;
         }
+
         return view('twillio_sms.partials.message_title', compact('details'))->render();
     }
 }

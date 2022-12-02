@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterCustomerAddressTable extends Migration
 {
@@ -14,8 +14,8 @@ class AlterCustomerAddressTable extends Migration
     public function up()
     {
         //
-        Schema::table('customer_address_datas',function(Blueprint $table){
-            $table->string("entity_id")->after('customer_id')->nullable();
+        Schema::table('customer_address_datas', function (Blueprint $table) {
+            $table->string('entity_id')->after('customer_id')->nullable();
         });
     }
 
@@ -27,8 +27,8 @@ class AlterCustomerAddressTable extends Migration
     public function down()
     {
         //
-        Schema::table('customer_address_datas',function(Blueprint $table){
-            $table->dropField("entity_id");
+        Schema::table('customer_address_datas', function (Blueprint $table) {
+            $table->dropField('entity_id');
         });
     }
 }

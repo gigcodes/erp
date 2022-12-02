@@ -241,7 +241,7 @@ return [
     'book_tags' => 'Könyv címkék',
     'shelf_tags' => 'Polc címkék',
     'tag' => 'Címke',
-    'tags' =>  'Címkék',
+    'tags' => 'Címkék',
     'tag_value' => 'Címke érték (nem kötelező)',
     'tags_explain' => "Címkék hozzáadása a tartalom jobb kategorizálásához.\nA mélyebb szervezettség megvalósításához hozzá lehet rendelni egy értéket a címkéhez.",
     'tags_add' => 'Másik címke hozzáadása',
@@ -301,5 +301,5 @@ return [
     'revision_delete_confirm' => 'Biztosan törölhető ez a változat?',
     'revision_restore_confirm' => 'Biztosan visszaállítható ez a változat? A oldal jelenlegi tartalma le lesz cserélve.',
     'revision_delete_success' => 'Változat törölve',
-    'revision_cannot_delete_latest' => 'A legutolsó változat nem törölhető.'
+    'revision_cannot_delete_latest' => 'A legutolsó változat nem törölhető.',
 ];

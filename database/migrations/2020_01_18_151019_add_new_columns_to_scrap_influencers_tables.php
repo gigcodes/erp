@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AddNewColumnsToScrapInfluencersTables extends Migration
 {
@@ -13,7 +12,7 @@ class AddNewColumnsToScrapInfluencersTables extends Migration
      */
     public function up()
     {
-        Schema::table('scrap_influencers',function($table){
+        Schema::table('scrap_influencers', function ($table) {
             $table->string('email')->nullable()->after('posts');
             $table->string('country')->nullable()->after('posts');
             $table->string('facebook')->nullable()->after('posts');
@@ -30,13 +29,13 @@ class AddNewColumnsToScrapInfluencersTables extends Migration
      */
     public function down()
     {
-        Schema::table('scrap_influencers',function($table){
+        Schema::table('scrap_influencers', function ($table) {
             $table->dropColumn('email');
             $table->dropColumn('country');
             $table->dropColumn('facebook');
             $table->dropColumn('twitter');
             $table->dropColumn('website');
-            $table->dropColumn('phone'); 
+            $table->dropColumn('phone');
         });
     }
 }

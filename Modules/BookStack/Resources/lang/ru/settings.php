@@ -135,5 +135,4 @@ return [
     'users_social_connected' => ':socialAccount аккаунт упешно подключен к вашему профилю.',
     'users_social_disconnected' => ':socialAccount аккаунт успешно отключен от вашего профиля.',
 
-
 ];

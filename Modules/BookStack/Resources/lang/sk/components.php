@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     /**
@@ -21,5 +22,5 @@ return [
     'image_preview' => 'Náhľad obrázka',
     'image_upload_success' => 'Obrázok úspešne nahraný',
     'image_update_success' => 'Detaily obrázka úspešne aktualizované',
-    'image_delete_success' => 'Obrázok úspešne zmazaný'
+    'image_delete_success' => 'Obrázok úspešne zmazaný',
 ];

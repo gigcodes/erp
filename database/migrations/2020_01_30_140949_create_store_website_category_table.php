@@ -5,7 +5,6 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateStoreWebsiteCategoryTable extends Migration
 {
-
     /**
      * Run the migrations.
      *
@@ -31,5 +30,4 @@ class CreateStoreWebsiteCategoryTable extends Migration
     {
         Schema::drop('store_website_categories');
     }
-
 }

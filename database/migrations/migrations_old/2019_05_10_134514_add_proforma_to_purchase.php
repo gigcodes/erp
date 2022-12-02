@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddProformaToPurchase extends Migration
 {
@@ -14,13 +14,13 @@ class AddProformaToPurchase extends Migration
     public function up()
     {
         Schema::table('purchases', function (Blueprint $table) {
-          $table->string('transaction_id')->nullable()->after('whatsapp_number');
-          $table->datetime('transaction_date')->nullable()->after('transaction_id');
-          $table->string('transaction_amount')->nullable()->after('transaction_date');
-          $table->string('shipper')->nullable()->after('bill_number');
-          $table->string('shipment_status')->nullable()->after('shipper');
-          $table->string('shipment_cost')->nullable()->after('shipment_status');
-          $table->boolean('proforma_confirmed')->default(0)->after('shipment_cost');
+            $table->string('transaction_id')->nullable()->after('whatsapp_number');
+            $table->datetime('transaction_date')->nullable()->after('transaction_id');
+            $table->string('transaction_amount')->nullable()->after('transaction_date');
+            $table->string('shipper')->nullable()->after('bill_number');
+            $table->string('shipment_status')->nullable()->after('shipper');
+            $table->string('shipment_cost')->nullable()->after('shipment_status');
+            $table->boolean('proforma_confirmed')->default(0)->after('shipment_cost');
         });
     }
 
@@ -32,13 +32,13 @@ class AddProformaToPurchase extends Migration
     public function down()
     {
         Schema::table('purchases', function (Blueprint $table) {
-          $table->dropColumn('transaction_id');
-          $table->dropColumn('transaction_date');
-          $table->dropColumn('transaction_amount');
-          $table->dropColumn('shipper');
-          $table->dropColumn('shipment_status');
-          $table->dropColumn('shipment_cost');
-          $table->dropColumn('proforma_confirmed');
+            $table->dropColumn('transaction_id');
+            $table->dropColumn('transaction_date');
+            $table->dropColumn('transaction_amount');
+            $table->dropColumn('shipper');
+            $table->dropColumn('shipment_status');
+            $table->dropColumn('shipment_cost');
+            $table->dropColumn('proforma_confirmed');
         });
     }
 }

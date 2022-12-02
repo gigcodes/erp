@@ -11,28 +11,27 @@
 |
 */
 
-Route::prefix('message-queue')->middleware('auth')->group(function() {
-    
-    Route::get('/', 'MessageQueueController@index')->name("message-queue.index");
-    Route::get('/approve', 'MessageQueueController@approve')->name("message-queue.approve");
-    Route::get('/status', 'MessageQueueController@status')->name("message-queue.status");
-    Route::get('/update-do-not-disturb', 'MessageQueueController@updateDoNotDisturb')->name("message-queue.updateDoNotDisturb");
-    
-    Route::prefix('records')->group(function() {
-		Route::get('/', 'MessageQueueController@records');
-		Route::post('action-handler','MessageQueueController@actionHandler');
-		Route::prefix('{id}')->group(function() {
-			Route::get('delete', 'MessageQueueController@deleteRecord');
-		});
-	});
+Route::prefix('message-queue')->middleware('auth')->group(function () {
+    Route::get('/', 'MessageQueueController@index')->name('message-queue.index');
+    Route::get('/approve', 'MessageQueueController@approve')->name('message-queue.approve');
+    Route::get('/status', 'MessageQueueController@status')->name('message-queue.status');
+    Route::get('/update-do-not-disturb', 'MessageQueueController@updateDoNotDisturb')->name('message-queue.updateDoNotDisturb');
 
-	Route::prefix('report')->group(function() {
-		Route::get('/', 'MessageQueueController@report')->name("message-queue.report");
-	});
+    Route::prefix('records')->group(function () {
+        Route::get('/', 'MessageQueueController@records');
+        Route::post('action-handler', 'MessageQueueController@actionHandler');
+        Route::prefix('{id}')->group(function () {
+            Route::get('delete', 'MessageQueueController@deleteRecord');
+        });
+    });
 
-	Route::prefix('setting')->group(function() {
-		Route::post('update-limit','MessageQueueController@updateLimit');
-		Route::post('update-time','MessageQueueController@updateTime');
-		Route::get('recall','MessageQueueController@recall');
-	});
+    Route::prefix('report')->group(function () {
+        Route::get('/', 'MessageQueueController@report')->name('message-queue.report');
+    });
+
+    Route::prefix('setting')->group(function () {
+        Route::post('update-limit', 'MessageQueueController@updateLimit');
+        Route::post('update-time', 'MessageQueueController@updateTime');
+        Route::get('recall', 'MessageQueueController@recall');
+    });
 });

@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateProductsAddPriceEurColums extends Migration
 {
@@ -29,5 +28,4 @@ class UpdateProductsAddPriceEurColums extends Migration
             $table->dropColumn('price_eur_special');
         });
     }
-
 }

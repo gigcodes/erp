@@ -34,7 +34,7 @@ return [
     'cannot_get_image_from_url' => 'No se puede obtener la imagen desde :url',
     'cannot_create_thumbs' => 'El servidor no puede crear la miniatura de la imagen. Compruebe que tiene la extensión PHP GD instalada.',
     'server_upload_limit' => 'El servidor no permite la subida de ficheros de este tamaño. Intente subir un fichero de menor tamaño.',
-    'uploaded'  => 'El servidor no permite la subida de ficheros de este tamaño. Intente subir un fichero de menor tamaño.',
+    'uploaded' => 'El servidor no permite la subida de ficheros de este tamaño. Intente subir un fichero de menor tamaño.',
     'image_upload_error' => 'Ha ocurrido un error al subir la imagen',
     'image_upload_type_error' => 'El tipo de imagen que se quiere subir no es válido',
     'file_upload_timeout' => 'La carga del archivo ha caducado.',

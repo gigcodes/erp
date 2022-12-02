@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableCommunicationHistories extends Migration
 {
@@ -14,10 +14,9 @@ class AlterTableCommunicationHistories extends Migration
     public function up()
     {
         //
-        Schema::table('communication_histories',function(Blueprint $table){
+        Schema::table('communication_histories', function (Blueprint $table) {
             $table->integer('refer_id')->after('method')->nullable()->index();
         });
-
     }
 
     /**
@@ -28,7 +27,7 @@ class AlterTableCommunicationHistories extends Migration
     public function down()
     {
         //
-        Schema::table('communication_histories',function(Blueprint $table){
+        Schema::table('communication_histories', function (Blueprint $table) {
             $table->dropField('refer_id');
         });
     }

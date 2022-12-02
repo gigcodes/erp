@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AlterWatsonChatJourneyTable1 extends Migration
@@ -13,7 +11,7 @@ class AlterWatsonChatJourneyTable1 extends Migration
      */
     public function up()
     {
-		\DB::statement('ALTER TABLE watson_chat_journey MODIFY COLUMN chat_id TEXT');
+        \DB::statement('ALTER TABLE watson_chat_journey MODIFY COLUMN chat_id TEXT');
     }
 
     /**

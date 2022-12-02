@@ -17,11 +17,14 @@
 	<br>
 	<div class="col-lg-12 margin-tb">
 		<div class="row">
-			<div class="col col-md-6">
+			<div class="col col-md-5">
 				<div class="row">
 
 					<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action" data-toggle="modal" data-target="#colorCreateModal">
 						<img src="/images/add.png" style="cursor: default;">
+					</button>
+					<button style="display: inline-block;" class="btn btn-secondary btn-add-default-store m-2" data-toggle="modal" data-target="#sync-website">
+						Sync Website
 					</button>
 				</div>
 			</div>
@@ -30,6 +33,15 @@
 					<div class="row">
 						<form class="form-inline message-search-handler" method="get">
 							<div class="col">
+								<div class="form-group">
+									<label for="keyword">Update Websites:</label>
+									<select class="form-control" id="updateStoreWebsite">
+										<option value="">-- Select a website to update--</option>
+										@foreach($storeWebsites as $key => $storeWebsite)
+											<option value="{{ $key }}">{{ $storeWebsite }}</option>
+										@endforeach
+									</select>
+								</div>
 								<div class="form-group">
 									<label for="keyword">Websites:</label>
 									<?php
@@ -87,6 +99,25 @@
 </div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
           50% 50% no-repeat;display:none;">
+</div>
+<div id="sync-website" class="modal" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Sync Website</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<form>
+
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-secondary move-stores">Move Store</button>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div class="common-modal modal" role="dialog">

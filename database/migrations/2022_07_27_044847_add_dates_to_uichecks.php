@@ -1,16 +1,18 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddDatesToUichecks extends Migration {
+class AddDatesToUichecks extends Migration
+{
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up() {
+    public function up()
+    {
         Schema::table('uichecks', function (Blueprint $table) {
             $table->timestamp('start_time')->nullable();
             $table->timestamp('expected_completion_time')->nullable();
@@ -23,7 +25,8 @@ class AddDatesToUichecks extends Migration {
      *
      * @return void
      */
-    public function down() {
+    public function down()
+    {
         Schema::table('uichecks', function (Blueprint $table) {
             $table->dropColumn('start_time');
             $table->dropColumn('expected_completion_time');

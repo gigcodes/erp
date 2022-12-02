@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Services\BulkCustomerMessage;
-
 
 use App\BulkCustomerRepliesKeyword;
 use App\ChatMessage;
@@ -18,10 +16,9 @@ class KeywordsChecker
     public function assignCustomerAndKeyword($keywords, $customers): void
     {
         foreach ($customers as $customer) {
-
             $message = $this->getCustomerMessages($customer);
 
-            if (!$message) {
+            if (! $message) {
                 continue;
             }
 
@@ -46,7 +43,6 @@ class KeywordsChecker
             if (stripos($message, $keywordValue) !== false) {
                 $dataToInsert[] = ['keyword_id' => $keyword->id, 'customer_id' => $customer->id];
             }
-
         }
 
         if ($dataToInsert === []) {
@@ -79,7 +75,7 @@ class KeywordsChecker
     private function getCustomerMessages($customer): string
     {
         $messageText = '';
-        $messages = ChatMessage::whereNotIn('status', [7,8,9,10])->where('customer_id', $customer->id)->orderBy('id', 'DESC')->take(3)->get();
+        $messages = ChatMessage::whereNotIn('status', [7, 8, 9, 10])->where('customer_id', $customer->id)->orderBy('id', 'DESC')->take(3)->get();
 
         foreach ($messages as $message) {
             if ($message->user_id) {
@@ -91,5 +87,4 @@ class KeywordsChecker
 
         return $messageText;
     }
-
 }

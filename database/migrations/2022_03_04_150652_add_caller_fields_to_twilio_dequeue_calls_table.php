@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddCallerFieldsToTwilioDequeueCallsTable extends Migration
 {
@@ -14,7 +14,7 @@ class AddCallerFieldsToTwilioDequeueCallsTable extends Migration
     public function up()
     {
         Schema::table('twilio_dequeue_calls', function (Blueprint $table) {
-            $table->string("caller")->after('reservation_sid');
+            $table->string('caller')->after('reservation_sid');
         });
     }
 

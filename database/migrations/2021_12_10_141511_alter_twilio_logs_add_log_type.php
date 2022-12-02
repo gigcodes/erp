@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTwilioLogsAddLogType extends Migration
 {
@@ -13,8 +13,8 @@ class AlterTwilioLogsAddLogType extends Migration
      */
     public function up()
     {
-        Schema::table("twilio_logs",function(Blueprint $table) {
-			 $table->enum('type', ['default', 'speech'])->default('default');
+        Schema::table('twilio_logs', function (Blueprint $table) {
+            $table->enum('type', ['default', 'speech'])->default('default');
         });
     }
 

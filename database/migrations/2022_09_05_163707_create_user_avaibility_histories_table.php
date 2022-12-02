@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateUserAvaibilityHistoriesTable extends Migration
 {
@@ -17,14 +17,14 @@ class CreateUserAvaibilityHistoriesTable extends Migration
             $table->increments('id');
             $table->integer('user_avaibility_id')->nullable();
             $table->integer('user_id')->nullable();
-            $table->string("from")->nullable();
-            $table->string("to")->nullable();
-            $table->string("status")->nullable();
-            $table->string("note")->nullable();
-            $table->longText("date")->nullable();
-            $table->string("start_time")->nullable();
-            $table->string("end_time")->nullable();
-            $table->string("lunch_time")->nullable();
+            $table->string('from')->nullable();
+            $table->string('to')->nullable();
+            $table->string('status')->nullable();
+            $table->string('note')->nullable();
+            $table->longText('date')->nullable();
+            $table->string('start_time')->nullable();
+            $table->string('end_time')->nullable();
+            $table->string('lunch_time')->nullable();
             $table->timestamps();
         });
     }

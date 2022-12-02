@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AlterPurchaseProductAddColumnOrderProductId extends Migration
 {
@@ -13,8 +12,8 @@ class AlterPurchaseProductAddColumnOrderProductId extends Migration
      */
     public function up()
     {
-        Schema::table( 'purchase_products', function ( $table ) {
-            $table->integer( 'order_product_id' )->unsigned()->nullable()->after( 'product_id' );
+        Schema::table('purchase_products', function ($table) {
+            $table->integer('order_product_id')->unsigned()->nullable()->after('product_id');
         });
     }
 
@@ -25,8 +24,8 @@ class AlterPurchaseProductAddColumnOrderProductId extends Migration
      */
     public function down()
     {
-        Schema::table( 'purchase_products', function ( $table ) {
-            $table->dropColumn( 'order_product_id' );
+        Schema::table('purchase_products', function ($table) {
+            $table->dropColumn('order_product_id');
         });
     }
 }

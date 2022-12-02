@@ -46,11 +46,11 @@ return [
     // Maintenance settings
     'maint' => 'Údržba',
     'maint_image_cleanup' => 'Pročistění obrázků',
-    'maint_image_cleanup_desc' => "Prohledá stránky a jejich revize, aby zjistil, které obrázky a kresby jsou momentálně používány a které jsou zbytečné. Zajistěte plnou zálohu databáze a obrázků než se do toho pustíte.",
+    'maint_image_cleanup_desc' => 'Prohledá stránky a jejich revize, aby zjistil, které obrázky a kresby jsou momentálně používány a které jsou zbytečné. Zajistěte plnou zálohu databáze a obrázků než se do toho pustíte.',
     'maint_image_cleanup_ignore_revisions' => 'Ignorovat obrázky v revizích',
     'maint_image_cleanup_run' => 'Spustit pročištění',
     'maint_image_cleanup_warning' => 'Nalezeno :count potenciálně nepoužitých obrázků. Jste si jistí, že je chcete smazat?',
-    	
+
     'maint_image_cleanup_success' => 'Potenciálně nepoužité obrázky byly smazány. Celkem :count.',
     'maint_image_cleanup_nothing_found' => 'Žádné potenciálně nepoužité obrázky nebyly nalezeny. Nic nebylo smazáno.',
 
@@ -62,7 +62,7 @@ return [
     'role_delete' => 'Smazat roli',
     'role_delete_confirm' => 'Role \':roleName\' bude smazána.',
     'role_delete_users_assigned' => 'Role je přiřazena :userCount uživatelům. Pokud jim chcete náhradou přidělit jinou roli, zvolte jednu z následujících.',
-    'role_delete_no_migration' => "Nepřiřazovat uživatelům náhradní roli",
+    'role_delete_no_migration' => 'Nepřiřazovat uživatelům náhradní roli',
     'role_delete_sure' => 'Opravdu chcete tuto roli smazat?',
     'role_delete_success' => 'Role byla úspěšně smazána',
     'role_edit' => 'Upravit roli',
@@ -108,10 +108,10 @@ return [
     'users_avatar_desc' => 'Obrázek by měl být čtverec 256 pixelů široký. Bude oříznut do kruhu.',
     'users_preferred_language' => 'Upřednostňovaný jazyk',
     'users_social_accounts' => 'Přidružené účty ze sociálních sítí',
-    'users_social_accounts_info' => 'Zde můžete přidat vaše účty ze sociálních sítí pro pohodlnější přihlašování. Zrušení přidružení zde neznamená, že tato aplikace pozbude práva číst detaily z vašeho účtu. Zakázat této aplikaci přístup k detailům vašeho účtu musíte přímo ve vašem profilu na dané sociální síti.',     
-    
+    'users_social_accounts_info' => 'Zde můžete přidat vaše účty ze sociálních sítí pro pohodlnější přihlašování. Zrušení přidružení zde neznamená, že tato aplikace pozbude práva číst detaily z vašeho účtu. Zakázat této aplikaci přístup k detailům vašeho účtu musíte přímo ve vašem profilu na dané sociální síti.',
+
     'users_social_connect' => 'Přidružit účet',
     'users_social_disconnect' => 'Zrušit přidružení',
     'users_social_connected' => 'Účet :socialAccount byl úspěšně přidružen k vašemu profilu.',
-    'users_social_disconnected' => 'Přidružení účtu :socialAccount k vašemu profilu bylo úspěšně zrušeno.'
+    'users_social_disconnected' => 'Přidružení účtu :socialAccount k vašemu profilu bylo úspěšně zrušeno.',
 ];

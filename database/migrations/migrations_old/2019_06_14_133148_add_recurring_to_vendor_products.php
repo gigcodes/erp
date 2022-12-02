@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddRecurringToVendorProducts extends Migration
 {
@@ -14,7 +14,7 @@ class AddRecurringToVendorProducts extends Migration
     public function up()
     {
         Schema::table('vendor_products', function (Blueprint $table) {
-          $table->string('recurring_type')->nullable()->after('payment_details');
+            $table->string('recurring_type')->nullable()->after('payment_details');
         });
     }
 
@@ -26,7 +26,7 @@ class AddRecurringToVendorProducts extends Migration
     public function down()
     {
         Schema::table('vendor_products', function (Blueprint $table) {
-          $table->dropColumn('recurring_type');
+            $table->dropColumn('recurring_type');
         });
     }
 }

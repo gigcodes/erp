@@ -36,18 +36,18 @@ class ContactController extends Controller
      */
     public function store(Request $request)
     {
-      $this->validate($request, [
-        'name'      => 'required|min:1|string',
-        'phone'     => 'required|numeric',
-        'category'  => 'sometimes|nullable|string'
-      ]);
+        $this->validate($request, [
+            'name' => 'required|min:1|string',
+            'phone' => 'required|numeric',
+            'category' => 'sometimes|nullable|string',
+        ]);
 
-      $params = $request->except('_token');
-      $params['user_id'] = Auth::id();
+        $params = $request->except('_token');
+        $params['user_id'] = Auth::id();
 
-      Contact::create($params);
+        Contact::create($params);
 
-      return redirect('/')->withSuccess('You have successfully created a contact!');
+        return redirect('/')->withSuccess('You have successfully created a contact!');
     }
 
     /**

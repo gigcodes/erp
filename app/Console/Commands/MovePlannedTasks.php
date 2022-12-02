@@ -43,11 +43,11 @@ class MovePlannedTasks extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $today         = Carbon::now()->format('Y-m-d');
+            $today = Carbon::now()->format('Y-m-d');
             $planned_tasks = Task::whereNotNull('time_slot')->where('planned_at', '<', "$today 00:00")->whereNull('is_completed')->orderBy('time_slot', 'ASC')->get();
 
             foreach ($planned_tasks as $task) {

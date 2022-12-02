@@ -7,13 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class GithubGroup extends Model
 {
-
     protected $fillable = [
         'id',
-        'name'
+        'name',
     ];
-
-
 
     public function users()
     {
@@ -35,13 +32,13 @@ class GithubGroup extends Model
         )->withPivot(['rights']);
     }
 
-    static function getGroupDetails($groupId)
+    public static function getGroupDetails($groupId)
     {
         $group = GithubGroup::find($groupId);
 
         $repositories = DB::table('github_groups')
             ->join('github_repository_groups', 'github_groups.id', '=', 'github_repository_groups.github_groups_id')
-            ->join('github_repositories', 'github_repositories.id', '=' . 'github_repository_groups.github_repositories_id')
+            ->join('github_repositories', 'github_repositories.id', '='.'github_repository_groups.github_repositories_id')
             ->where('github_groups.id', '=', $groupId)
             ->get();
 
@@ -50,7 +47,7 @@ class GithubGroup extends Model
         return [
             'group' => $group,
             'repositories' => $repositories,
-            'users' => $users
+            'users' => $users,
         ];
     }
 }

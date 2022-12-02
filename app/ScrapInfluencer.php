@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -9,7 +10,6 @@ use Plank\Mediable\Mediable;
 
 class ScrapInfluencer extends Model
 {
-
     /**
      * @var string
      * @SWG\Property(property="post_id",type="integer")
@@ -60,6 +60,6 @@ class ScrapInfluencer extends Model
         'interests',
         'work_at',
         'platform',
-        'profile_url'
+        'profile_url',
     ];
 }

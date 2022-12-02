@@ -44,18 +44,17 @@ class GetProductImageForScraper extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             //Getting All Products
-            if (!empty($this->argument('website'))) {
+            if (! empty($this->argument('website'))) {
                 $scrapedProducts = ScrapedProducts::where('website', $this->argument('website'))->get();
             } else {
                 $scrapedProducts = ScrapedProducts::all();
             }
 
             foreach ($scrapedProducts as $scrapedProduct) {
-
                 //get products from scraped products
                 $product = $scrapedProduct->product;
 
@@ -89,7 +88,7 @@ class GetProductImageForScraper extends Command
                                 $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
 
                                 //save image to media
-                                $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
+                                $media = MediaUploader::fromString($jpg)->toDirectory('/product/'.floor($product->id / 10000).'/'.$product->id)->useFilename($filename)->upload();
                                 $product->attachMedia($media, config('constants.media_tags'));
                                 $countImageUpdated++;
                             }
@@ -97,7 +96,7 @@ class GetProductImageForScraper extends Command
                         if ($countImageUpdated != 0) {
                             // Call status update handler
                             StatusHelper::updateStatus($product, StatusHelper::$autoCrop);
-                            dump('images saved for product ID ' . $product->id);
+                            dump('images saved for product ID '.$product->id);
                         }
                     }
                 }

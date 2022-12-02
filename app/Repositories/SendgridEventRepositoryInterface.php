@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Repositories;
-
 
 use App\SendgridEvent;
 
@@ -14,12 +12,12 @@ interface SendgridEventRepositoryInterface
      * @param $sg_event_id
      * @return bool
      */
-    public function exists($sg_event_id,$email_id,$event);
+    public function exists($sg_event_id, $email_id, $event);
 
     /**
      * Create new SendgridEvent using the given data.
      *
-     * @param array $event
+     * @param  array  $event
      * @return SendgridEvent
      */
     public function create($event): SendgridEvent;

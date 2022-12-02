@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddWhatsappNumberCharitiesTable extends Migration
 {
@@ -15,7 +15,7 @@ class AddWhatsappNumberCharitiesTable extends Migration
     {
         Schema::table('charities', function (Blueprint $table) {
             //
-			$table->Integer('whatsapp_number')->nullable();
+            $table->Integer('whatsapp_number')->nullable();
         });
     }
 

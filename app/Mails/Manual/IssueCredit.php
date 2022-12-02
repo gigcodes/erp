@@ -6,7 +6,6 @@ use App\Customer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class IssueCredit extends Mailable
 {
@@ -17,12 +16,11 @@ class IssueCredit extends Mailable
      *
      * @return void
      */
-
     public $customer;
 
     public function __construct(Customer $customer)
     {
-      $this->customer = $customer;
+        $this->customer = $customer;
     }
 
     /**
@@ -32,9 +30,9 @@ class IssueCredit extends Mailable
      */
     public function build()
     {
-      return $this->from('customercare@sololuxury.co.in')
-                  ->bcc('customercare@sololuxury.co.in')
-                  ->subject("Customer Credit Issued")
-                  ->markdown('emails.customers.issue-credit');
+        return $this->from('customercare@sololuxury.co.in')
+                    ->bcc('customercare@sololuxury.co.in')
+                    ->subject('Customer Credit Issued')
+                    ->markdown('emails.customers.issue-credit');
     }
 }

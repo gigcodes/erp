@@ -41,7 +41,6 @@ return [
     // happen on a given request. By default, the odds are 2 out of 100.
     'lottery' => [2, 100],
 
-
     // Session Cookie Name
     // Here you may change the name of the cookie used to identify a session
     // instance by ID. The name specified here will get used every time a

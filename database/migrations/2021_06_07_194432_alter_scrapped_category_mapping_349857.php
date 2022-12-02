@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterScrappedCategoryMapping349857 extends Migration
 {
@@ -13,7 +13,7 @@ class AlterScrappedCategoryMapping349857 extends Migration
      */
     public function up()
     {
-        Schema::table('scrapped_category_mappings', function(Blueprint $table){
+        Schema::table('scrapped_category_mappings', function (Blueprint $table) {
             $table->boolean('is_mapped')->default(0)->index();
         });
     }

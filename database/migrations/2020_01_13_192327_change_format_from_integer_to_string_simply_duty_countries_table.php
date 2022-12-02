@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class ChangeFormatFromIntegerToStringSimplyDutyCountriesTable extends Migration
 {
@@ -26,7 +26,7 @@ class ChangeFormatFromIntegerToStringSimplyDutyCountriesTable extends Migration
     public function down()
     {
         Schema::table('simply_duty_countries', function (Blueprint $table) {
-           $table->integer('country_code')->change(); 
+            $table->integer('country_code')->change();
         });
     }
 }

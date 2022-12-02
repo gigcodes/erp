@@ -11,12 +11,14 @@ use Illuminate\Console\Command;
 
 class FixCategoryNameBySupplier extends Command
 {
-
     const TOP_MAIN_GENDER_CATEGORY = [2, 3];
 
     public $category = null;
+
     public $categories;
+
     public $categoryRefrences = [];
+
     public $genderCategories;
 
     /**
@@ -52,17 +54,17 @@ class FixCategoryNameBySupplier extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $this->category = Category::where('id', '>', 3)->whereNotNull('references')->where('references', '!=', '')->orderBy('id', 'DESC')->get();
 
-            if (!$this->category->isEmpty()) {
+            if (! $this->category->isEmpty()) {
                 foreach ($this->category as $i => $crt) {
                     $this->categoryRefrences[$i]['original_name'] = $crt->title;
-                    $references                                   = explode(",", $crt->references);
-                    if (!empty($references)) {
+                    $references = explode(',', $crt->references);
+                    if (! empty($references)) {
                         foreach ($references as $reference) {
                             $this->categoryRefrences[$i]['refrence'][] = $reference;
                         }
@@ -74,13 +76,13 @@ class FixCategoryNameBySupplier extends Command
 
             Product::where('is_scraped', 1)->where('category', '<', 4)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
 //        Product::where('id', 143121)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
-                echo 'Chunk again=======================================================' . "\n";
+                echo 'Chunk again======================================================='."\n";
                 $total = 1000;
                 foreach ($products as $product) {
                     $this->classify2($product);
                     $total--;
                     echo PHP_EOL;
-                    echo $total . " Finished";
+                    echo $total.' Finished';
                 }
             });
 
@@ -88,20 +90,19 @@ class FixCategoryNameBySupplier extends Command
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 
     public function getCategories($ids = [])
     {
-        $category   = Category::whereIn("id", $ids)->get();
+        $category = Category::whereIn('id', $ids)->get();
         $categories = [];
 
-        if (!$category->isEmpty()) {
+        if (! $category->isEmpty()) {
             foreach ($category as $c) {
                 $childrenCategories = $c->childs;
                 foreach ($childrenCategories as $childrenCategory) {
                     $categories[$c->id][$childrenCategory->id] = $childrenCategory->title;
-                    $grandChildren                             = $childrenCategory->childs;
+                    $grandChildren = $childrenCategory->childs;
                     foreach ($grandChildren as $grandChild) {
                         $categories[$c->id][$grandChild->id] = $grandChild->title;
                     }
@@ -110,18 +111,16 @@ class FixCategoryNameBySupplier extends Command
         }
 
         return $categories;
-
     }
 
     private function classify2($product)
     {
-        $records    = $this->category;
+        $records = $this->category;
         $categories = $this->categories;
 
         // this is optimized code
         $scrapedProducts = $product->many_scraped_products;
         foreach ($scrapedProducts as $scrapedProduct) {
-
             $catt = $scrapedProduct->properties['category'] ?? [];
 
             if (is_array($catt)) {
@@ -129,8 +128,8 @@ class FixCategoryNameBySupplier extends Command
             }
 
             foreach ($this->categoryRefrences as $categoryRefs) {
-                $originalCategory = $categoryRefs["original_name"];
-                if (!empty($categoryRefs['refrence'])) {
+                $originalCategory = $categoryRefs['original_name'];
+                if (! empty($categoryRefs['refrence'])) {
                     foreach ($categoryRefs['refrence'] as $key => $refs) {
                         $cat = strtoupper($refs);
 
@@ -138,7 +137,6 @@ class FixCategoryNameBySupplier extends Command
                             || stripos(strtoupper($scrapedProduct->title ?? ''), $cat) !== false
                             || stripos(strtoupper($scrapedProduct->url ?? ''), $cat) !== false
                         ) {
-
                             $gender = $this->getMaleOrFemale($scrapedProduct->properties);
 
                             if ($gender === false) {
@@ -182,19 +180,21 @@ class FixCategoryNameBySupplier extends Command
                             }
 
                             if ($gender === false) {
-                                $this->warn('NOOOOO' . $product->supplier);
+                                $this->warn('NOOOOO'.$product->supplier);
                                 $product->category = 1;
                                 $product->save();
+
                                 continue;
                             }
 
                             $matchedCategories = isset($categories[$gender]) ? $categories[$gender] : [];
-                            if (!empty($matchedCategories)) {
+                            if (! empty($matchedCategories)) {
                                 foreach ($matchedCategories as $mcat => $title) {
                                     if ($title == $originalCategory) {
                                         $product->category = $mcat;
                                         $this->error('SAVED');
                                         $product->save();
+
                                         return;
                                     }
                                 }
@@ -202,7 +202,6 @@ class FixCategoryNameBySupplier extends Command
                         }
                     }
                 }
-
             }
         }
 

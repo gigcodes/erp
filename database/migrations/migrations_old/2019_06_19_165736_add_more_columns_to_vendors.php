@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddMoreColumnsToVendors extends Migration
 {
@@ -14,9 +14,9 @@ class AddMoreColumnsToVendors extends Migration
     public function up()
     {
         Schema::table('vendors', function (Blueprint $table) {
-          $table->string('account_name')->nullable()->after('gst');
-          $table->string('account_iban')->nullable()->after('account_name');
-          $table->string('account_swift')->nullable()->after('account_iban');
+            $table->string('account_name')->nullable()->after('gst');
+            $table->string('account_iban')->nullable()->after('account_name');
+            $table->string('account_swift')->nullable()->after('account_iban');
         });
     }
 
@@ -28,9 +28,9 @@ class AddMoreColumnsToVendors extends Migration
     public function down()
     {
         Schema::table('vendors', function (Blueprint $table) {
-          $table->dropColumn('account_name');
-          $table->dropColumn('account_iban');
-          $table->dropColumn('account_swift');
+            $table->dropColumn('account_name');
+            $table->dropColumn('account_iban');
+            $table->dropColumn('account_swift');
         });
     }
 }

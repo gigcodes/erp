@@ -150,7 +150,7 @@ return [
         /*
          * Package Service Providers...
          */
-         Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
+        Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -161,12 +161,12 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\HorizonServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-	    Collective\Html\HtmlServiceProvider::class,
-	    Spatie\Permission\PermissionServiceProvider::class,
-	    Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
-	    App\Providers\NotificationServiceProvider::class,
-	    Plank\Mediable\MediableServiceProvider::class,
-	    Nestable\NestableServiceProvider::class,
+        Collective\Html\HtmlServiceProvider::class,
+        Spatie\Permission\PermissionServiceProvider::class,
+        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
+        App\Providers\NotificationServiceProvider::class,
+        Plank\Mediable\MediableServiceProvider::class,
+        Nestable\NestableServiceProvider::class,
         Pusher\Laravel\PusherServiceProvider::class,
         Chumper\Zipper\ZipperServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
@@ -246,7 +246,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'FORM' => Collective\Html\FormFacade::class,
-	    'HTML' => Collective\Html\HtmlFacade::class,
+        'HTML' => Collective\Html\HtmlFacade::class,
         'MediaUploader' => Plank\Mediable\MediaUploaderFacade::class,
         'Nestable' => Nestable\Facades\NestableService::class,
         'Pusher' => Pusher\Laravel\Facades\Pusher::class,
@@ -258,9 +258,9 @@ return [
 
         // Custom Modules\BookStack
         'Activity' => Modules\BookStack\Facades\Activity::class,
-        'Setting'  => Modules\BookStack\Facades\Setting::class,
-        'Views'    => Modules\BookStack\Facades\Views::class,
-        'Images'   => Modules\BookStack\Facades\Images::class,
+        'Setting' => Modules\BookStack\Facades\Setting::class,
+        'Views' => Modules\BookStack\Facades\Views::class,
+        'Images' => Modules\BookStack\Facades\Images::class,
 
         'PermissionCheck' => App\Facades\PermissionCheckClass::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
@@ -270,8 +270,8 @@ return [
         'PDF' => Barryvdh\Snappy\Facades\SnappyPdf::class,
         'SnappyImage' => Barryvdh\Snappy\Facades\SnappyImage::class,
         'DotenvEditor' => Brotzka\DotenvEditor\DotenvEditorFacade::class,
-     //    'FCM'      => LaravelFCM\Facades\FCM::class,
-	    // 'FCMGroup' => LaravelFCM\Facades\FCMGroup::class, // Optional
+        //    'FCM'      => LaravelFCM\Facades\FCM::class,
+        // 'FCMGroup' => LaravelFCM\Facades\FCMGroup::class, // Optional
         'UnsplashSearch' => shweshi\LaravelUnsplashWrapper\Facades\UnsplashSearchFacade::class,
         'UnsplashUsers' => shweshi\LaravelUnsplashWrapper\Facades\UnsplashUsersFacade::class,
         'UnsplashPhotos' => shweshi\LaravelUnsplashWrapper\Facades\UnsplashPhotosFacade::class,

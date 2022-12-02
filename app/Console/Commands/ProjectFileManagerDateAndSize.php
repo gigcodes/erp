@@ -1,13 +1,12 @@
 <?php
 
 namespace App\Console\Commands;
+
 use App\ProjectFileManager;
 use App\ProjectFileManagerHistory;
-use DB;
-use App\User;
 use App\Setting;
-use Carbon\Carbon;
-
+use App\User;
+use DB;
 use Illuminate\Console\Command;
 
 class ProjectFileManagerDateAndSize extends Command
@@ -43,149 +42,136 @@ class ProjectFileManagerDateAndSize extends Command
      */
     public function handle()
     {
-		// $row = 0;
+        // $row = 0;
         // $arr_id = [];
         // $is_file_exists_size = null;
         // $fileInformation = ProjectFileManager::limit(5)->get();
-       
 
         // $fileInformation = ProjectFileManager::limit(5)->get();
         $fileInformation = ProjectFileManager::all();
-        $param = array();
-			
-			foreach ($fileInformation as $key => $val) {
-                $path  = base_path().DIRECTORY_SEPARATOR.(str_replace("./", "", $val->name));
-                $file_size = 0;
-              if(is_dir($path)) {
+        $param = [];
 
-                    if (file_exists($path)) {
-                        $old_size = $val->size;
+        foreach ($fileInformation as $key => $val) {
+            $path = base_path().DIRECTORY_SEPARATOR.(str_replace('./', '', $val->name));
+            $file_size = 0;
+            if (is_dir($path)) {
+                if (file_exists($path)) {
+                    $old_size = $val->size;
 
-                        $limit_data = Setting::get('project_file_managers');
-		
-                        if($limit_data)
-                            $limit_rec = $limit_data;
-                        else	
-                            $limit_rec = 10;
-            
-                        $increase_size = (($old_size*$limit_rec)/100);
+                    $limit_data = Setting::get('project_file_managers');
 
-                        $id = $val->id;
-                        $name = $val->name;
-                      
-                        $io = popen('/usr/bin/du -sk ' . $path, 'r');
-                        $size = fgets($io, 4096);
-                        $new_size = substr($size, 0, strpos($size, "\t"));
-                     
-                        $new_size = round($new_size, 2);
-                        pclose($io);
-                        if ($old_size != $new_size) {
-                            $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['size' => $new_size]);
+                    if ($limit_data) {
+                        $limit_rec = $limit_data;
+                    } else {
+                        $limit_rec = 10;
+                    }
 
-                            // $param[] = DB::table('project_file_managers_history')->insert([
+                    $increase_size = (($old_size * $limit_rec) / 100);
+
+                    $id = $val->id;
+                    $name = $val->name;
+
+                    $io = popen('/usr/bin/du -sk '.$path, 'r');
+                    $size = fgets($io, 4096);
+                    $new_size = substr($size, 0, strpos($size, "\t"));
+
+                    $new_size = round($new_size, 2);
+                    pclose($io);
+                    if ($old_size != $new_size) {
+                        $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['size' => $new_size]);
+
+                        // $param[] = DB::table('project_file_managers_history')->insert([
                             //     ['project_id' => $id,
                             //     'name' => $name,
                             //     'old_size' => $old_size,
                             //     'new_size' => $new_size]
-                            //  ]);
+                        //  ]);
 
-                                    $param = [
-                                    'project_id' => $id,
-                                    'name' => $name,
-                                    'old_size' => $old_size . 'MB',
-                                    'new_size' => $new_size . 'MB'
-                                ];
+                        $param = [
+                            'project_id' => $id,
+                            'name' => $name,
+                            'old_size' => $old_size.'MB',
+                            'new_size' => $new_size.'MB',
+                        ];
 
-                                ProjectFileManagerHistory::create($param);
-                            
-                        }
-                        
-                        $both_size = ($old_size + $increase_size);
-
-                        if($new_size >= $both_size)
-                        {
-                            
-                            $message =  'Project Directory Size increase in Path = ' . $name . ',' . ' OldSize = ' . $old_size. 'MB' . ' And ' . 'NewSize = ' . $new_size . 'MB' ;
-                            
-                            $users = User::get();
-                            foreach($users as $user){
-                                if($user->isAdmin()){
-                                    app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number,$message );
-                                    $this->info('message successfully send');
-                                }
-                            }
-
-                            $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['display_dev_master' => 1]);
-                        }else{
-                            $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['display_dev_master' => 0]);
-                                                   
-                        }
+                        ProjectFileManagerHistory::create($param);
                     }
-                }else{
-                    if (file_exists($path)) {
-                        $old_size = $val->size;
-                        $limit_data = Setting::get('project_file_managers');
-            
-                        if ($limit_data) {
-                            $limit_rec = $limit_data;
-                        } else {
-                            $limit_rec = 10;
-                        }
 
-                        $increase_size = (($old_size*$limit_rec)/100);
-                        $id = $val->id;
-                        $name = $val->name;
+                    $both_size = ($old_size + $increase_size);
 
-                        $new_size = filesize($path) / 1024;
-                        $new_size = round($new_size, 2);
+                    if ($new_size >= $both_size) {
+                        $message = 'Project Directory Size increase in Path = '.$name.','.' OldSize = '.$old_size.'MB'.' And '.'NewSize = '.$new_size.'MB';
 
-                        if ($old_size != $new_size) {
-                            $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['size' => $new_size]);
-                            // dd($updatesize,22);
-                          
-                                $param = [
-                                    'project_id' => $id,
-                                    'name' => $name,
-                                    'old_size' => $old_size . 'MB',
-                                    'new_size' => $new_size . 'MB'
-                                 ];
-                            
-                                ProjectFileManagerHistory::create($param);
-                            
-                        }
-
-                        $both_size = ($old_size + $increase_size);
-
-                        
-                        if ($new_size > $both_size) {
-                            
-                            $message =  'Project Directory Size increase in Path = ' . $name . ',' . ' OldSize = ' . $old_size. 'MB' . ' And ' . 'NewSize = ' . $new_size . 'MB' ;
-                            
-                            $users = User::get();
-                            foreach ($users as $user) {
-                                if ($user->isAdmin()) {
-                                    app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number, $message);
-                                    $this->info('message successfully send');
-                                }
+                        $users = User::get();
+                        foreach ($users as $user) {
+                            if ($user->isAdmin()) {
+                                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number, $message);
+                                $this->info('message successfully send');
                             }
-                            $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['display_dev_master' => 1]);
-                        } else {
-                            $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['display_dev_master' => 0]);
                         }
-                    
-                        
-                        
-                        
-                        if(is_numeric($new_size)) {
-                            $size =  number_format($new_size / 1024 ,2,".","");
-                        }
-                   
-                        $fileInformation->size  = $new_size;
+
+                        $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['display_dev_master' => 1]);
+                    } else {
+                        $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['display_dev_master' => 0]);
                     }
                 }
-                             
-            }   
-            $this->info('success');
-    }
+            } else {
+                if (file_exists($path)) {
+                    $old_size = $val->size;
+                    $limit_data = Setting::get('project_file_managers');
 
+                    if ($limit_data) {
+                        $limit_rec = $limit_data;
+                    } else {
+                        $limit_rec = 10;
+                    }
+
+                    $increase_size = (($old_size * $limit_rec) / 100);
+                    $id = $val->id;
+                    $name = $val->name;
+
+                    $new_size = filesize($path) / 1024;
+                    $new_size = round($new_size, 2);
+
+                    if ($old_size != $new_size) {
+                        $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['size' => $new_size]);
+                        // dd($updatesize,22);
+
+                        $param = [
+                            'project_id' => $id,
+                            'name' => $name,
+                            'old_size' => $old_size.'MB',
+                            'new_size' => $new_size.'MB',
+                        ];
+
+                        ProjectFileManagerHistory::create($param);
+                    }
+
+                    $both_size = ($old_size + $increase_size);
+
+                    if ($new_size > $both_size) {
+                        $message = 'Project Directory Size increase in Path = '.$name.','.' OldSize = '.$old_size.'MB'.' And '.'NewSize = '.$new_size.'MB';
+
+                        $users = User::get();
+                        foreach ($users as $user) {
+                            if ($user->isAdmin()) {
+                                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number, $message);
+                                $this->info('message successfully send');
+                            }
+                        }
+                        $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['display_dev_master' => 1]);
+                    } else {
+                        $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['display_dev_master' => 0]);
+                    }
+
+                    if (is_numeric($new_size)) {
+                        $size = number_format($new_size / 1024, 2, '.', '');
+                    }
+
+                    $fileInformation->size = $new_size;
+                }
+            }
+        }
+        $this->info('success');
+    }
 }

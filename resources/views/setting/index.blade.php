@@ -18,15 +18,30 @@
                 <form class="form-inline" action="{{ url('settings') }}" method="GET">
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Setting Name</label>
-                       <input type="text" name="name" class="form-control-sm cls_commu_his form-control" value="{{request()->get('name')}}">
+                       <input type="text" list="name-lists" name="name" class="form-control-sm cls_commu_his form-control" value="{{request()->get('name')}}">
+						<datalist id="name-lists">
+							@foreach ($settings as $key => $val )
+							<option value="{{$val->name}}">
+							@endforeach
+						</datalist>
                     </div>
 					<div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Setting Value</label>
-                       <input type="text" name="value" class="form-control-sm cls_commu_his form-control" value="{{request()->get('value')}}">
+                       <input type="text" name="value" list="value-lists" class="form-control-sm cls_commu_his form-control" value="{{request()->get('value')}}">
+						<datalist id="value-lists">
+							@foreach ($settings->groupBy('val') as $key => $val )
+								<option value="{{$key}}">
+							@endforeach
+						</datalist>
                     </div>
 					<div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Setting Type</label>
-                       <input type="text" name="type" class="form-control-sm cls_commu_his form-control" value="{{request()->get('type')}}">
+                       <input type="text" name="type" list="type-lists" class="form-control-sm cls_commu_his form-control" value="{{request()->get('type')}}">
+						<datalist id="type-lists">
+							@foreach ($settings->groupBy('type') as $key => $val )
+								<option value="{{$key}}">
+							@endforeach
+						</datalist>
                     </div>
 					<div class="form-group ml-3 cls_filter_inputbox margin-top">
 						<button type='submit' class="btn btn-default">Search</button>

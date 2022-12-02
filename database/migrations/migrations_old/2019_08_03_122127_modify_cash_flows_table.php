@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class ModifyCashFlowsTable extends Migration
 {
@@ -14,8 +14,8 @@ class ModifyCashFlowsTable extends Migration
     public function up()
     {
         Schema::table('cash_flows', function (Blueprint $table) {
-            $table->decimal('expected',13,4)->nullable();
-            $table->decimal('actual',13,4)->nullable();
+            $table->decimal('expected', 13, 4)->nullable();
+            $table->decimal('actual', 13, 4)->nullable();
             $table->integer('cash_flow_able_id')->nullable();
             $table->string('cash_flow_able_type')->nullable();
             $table->tinyInteger('status')->default(0); //pending , complete & else to come
@@ -28,7 +28,6 @@ class ModifyCashFlowsTable extends Migration
             $table->index('status');
             $table->index('order_status');
             $table->index('currency');
-
         });
     }
 

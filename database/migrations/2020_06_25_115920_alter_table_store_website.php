@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTableStoreWebsite extends Migration
 {
@@ -13,8 +12,8 @@ class AlterTableStoreWebsite extends Migration
      */
     public function up()
     {
-        Schema::table('store_websites',function($table){
-            $table->string('country_duty')->nullable()->after("facebook_remarks");
+        Schema::table('store_websites', function ($table) {
+            $table->string('country_duty')->nullable()->after('facebook_remarks');
         });
     }
 
@@ -25,7 +24,7 @@ class AlterTableStoreWebsite extends Migration
      */
     public function down()
     {
-        Schema::table('store_websites',function($table){
+        Schema::table('store_websites', function ($table) {
             $table->dropColumn('country_duty');
         });
     }

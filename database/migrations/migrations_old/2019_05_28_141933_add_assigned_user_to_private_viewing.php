@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddAssignedUserToPrivateViewing extends Migration
 {
@@ -14,9 +14,9 @@ class AddAssignedUserToPrivateViewing extends Migration
     public function up()
     {
         Schema::table('private_views', function (Blueprint $table) {
-          $table->integer('assigned_user_id')->unsigned()->nullable()->after('customer_id');
+            $table->integer('assigned_user_id')->unsigned()->nullable()->after('customer_id');
 
-          $table->foreign('assigned_user_id')->references('id')->on('users');
+            $table->foreign('assigned_user_id')->references('id')->on('users');
         });
     }
 
@@ -28,9 +28,9 @@ class AddAssignedUserToPrivateViewing extends Migration
     public function down()
     {
         Schema::table('private_views', function (Blueprint $table) {
-          $table->dropForeign(['assigned_user_id']);
+            $table->dropForeign(['assigned_user_id']);
 
-          $table->dropColumn('assigned_user_id');
+            $table->dropColumn('assigned_user_id');
         });
     }
 }

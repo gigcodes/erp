@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SeoKeywordIdea extends Model
 {
-    protected $fillable =[
+    protected $fillable = [
         'store_website_id',
         'idea',
     ];

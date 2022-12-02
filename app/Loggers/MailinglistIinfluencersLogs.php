@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class MailinglistIinfluencersLogs extends Model
 {
-   
-
     public static function log($text)
     {
         // Log result to database
@@ -18,6 +16,4 @@ class MailinglistIinfluencersLogs extends Model
         // Return
         return $log->id;
     }
-   
-
 }

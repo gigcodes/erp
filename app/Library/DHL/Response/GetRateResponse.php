@@ -4,13 +4,9 @@ namespace App\Library\DHL\Response;
 
 /**
  * Get Rate response for DHL
- *
- *
  */
-
 class GetRateResponse extends ResponseAbstract
 {
-
     public $response;
 
     public function __construct($response)
@@ -27,10 +23,9 @@ class GetRateResponse extends ResponseAbstract
 
     public function getTotalNet()
     {
-
         $service = $this->getService();
 
-        if (!empty($service)) {
+        if (! empty($service)) {
             return ($service->TotalNet) ?: [];
         }
 
@@ -47,35 +42,36 @@ class GetRateResponse extends ResponseAbstract
     public function getCurrency()
     {
         $totalNet = $this->getTotalNet();
-        return isset($totalNet->Currency) ? $totalNet->Currency : "";
+
+        return isset($totalNet->Currency) ? $totalNet->Currency : '';
     }
 
     public function getChargesBreakDown()
     {
         $services = $this->getService();
         //echo "<pre>"; print_r($services);  echo "</pre>";die;
-        
+
         // check if service is not empty then
-        
-        $servicesR  = [];
-        if (!empty($services)) {
-            foreach($services as $service) {
+
+        $servicesR = [];
+        if (! empty($services)) {
+            foreach ($services as $service) {
                 $resCharges = [];
-                if(isset($service->CustomerAgreementInd) && $service->CustomerAgreementInd == "N") {
-                    $charges = !empty($service->Charges) ? $service->Charges : [];
-                    if (!empty($charges)) {
+                if (isset($service->CustomerAgreementInd) && $service->CustomerAgreementInd == 'N') {
+                    $charges = ! empty($service->Charges) ? $service->Charges : [];
+                    if (! empty($charges)) {
                         foreach ($charges->Charge as $key => $value) {
-                            $resCharges["charges"][] = [
-                                "name"   => (string)$value->ChargeName,
-                                "amount" => (string)$value->ChargeAmount,
+                            $resCharges['charges'][] = [
+                                'name' => (string) $value->ChargeName,
+                                'amount' => (string) $value->ChargeAmount,
                             ];
                         }
                     }
-                    $resCharges["amount"]             = (string) $service->TotalNet->Amount;
-                    $resCharges["currency"]           = (string) $service->TotalNet->Currency;
-                    $resCharges["delivery_time"]      = (string) date("Y-m-d H:i:s",strtotime($service->DeliveryTime));
-                    $resCharges["service_type"]       = (string) $service->ServiceName;
-                    $resCharges["total_transit_days"] = (string) $service->TotalTransitDays;
+                    $resCharges['amount'] = (string) $service->TotalNet->Amount;
+                    $resCharges['currency'] = (string) $service->TotalNet->Currency;
+                    $resCharges['delivery_time'] = (string) date('Y-m-d H:i:s', strtotime($service->DeliveryTime));
+                    $resCharges['service_type'] = (string) $service->ServiceName;
+                    $resCharges['total_transit_days'] = (string) $service->TotalTransitDays;
                     $servicesR[] = $resCharges;
                 }
             }

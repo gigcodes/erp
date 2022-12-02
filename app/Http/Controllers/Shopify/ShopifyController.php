@@ -35,8 +35,7 @@ class ShopifyController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -47,8 +46,7 @@ class ShopifyController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int $id
-     *
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -59,8 +57,7 @@ class ShopifyController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int $id
-     *
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -71,9 +68,8 @@ class ShopifyController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  int $id
-     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -84,8 +80,7 @@ class ShopifyController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
-     *
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -93,7 +88,7 @@ class ShopifyController extends Controller
         //
     }
 
-     /**
+    /**
      * @SWG\Post(
      *   path="/shopify/order/create",
      *   tags={"Shopify"},
@@ -105,23 +100,22 @@ class ShopifyController extends Controller
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
-     *
      */
     /**
      * Get a webhook event and create orders out of it
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return void
      */
     public function setShopifyOrders(Request $request)
     {
         $store_id = $request->query('store_website_id');
 
-        if (!$store_id) {
+        if (! $store_id) {
             return response()->json(['error' => 'Store website id missing'], 400);
         }
 
@@ -131,22 +125,22 @@ class ShopifyController extends Controller
         $shopify_secret = StoreWebsite::find($store_id)->api_token;
         $hmac_header = $request->header('x-shopify-hmac-sha256');
 
-        if (!ShopifyHelper::validateShopifyWebhook($request->getContent(), $shopify_secret, $hmac_header)) {
-
+        if (! ShopifyHelper::validateShopifyWebhook($request->getContent(), $shopify_secret, $hmac_header)) {
             // Log into general log channel
-            \Log::channel('customer')->debug("Order webhook failed ");
-            return response()->json(['error' => 'Couldnot verify webhook'], 400);
+            \Log::channel('customer')->debug('Order webhook failed ');
 
+            return response()->json(['error' => 'Couldnot verify webhook'], 400);
         }
 
         $order = $request->all();
 
         // \Log::info($orders);
         ShopifyHelper::syncShopifyOrders($store_id, $order);
+
         return response()->json(['success'], 200);
     }
 
-     /**
+    /**
      * @SWG\Post(
      *   path="/shopify/customer/create",
      *   tags={"Shopify"},
@@ -158,24 +152,23 @@ class ShopifyController extends Controller
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
-     *
      */
 
     /**
      * Get a webhook event and create customers out of it
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return void
      */
     public function setShopifyCustomers(Request $request)
     {
         $store_id = $request->query('store_website_id');
 
-        if (!$store_id) {
+        if (! $store_id) {
             return response()->json(['error' => 'Store website id missing'], 400);
         }
 
@@ -185,14 +178,15 @@ class ShopifyController extends Controller
         $shopify_secret = StoreWebsite::find($store_id)->api_token;
         $hmac_header = $request->header('x-shopify-hmac-sha256');
 
-        if (!ShopifyHelper::validateShopifyWebhook($request->getContent(), $shopify_secret, $hmac_header)) {
-            \Log::channel('customer')->debug("Customer webhook failed ");
+        if (! ShopifyHelper::validateShopifyWebhook($request->getContent(), $shopify_secret, $hmac_header)) {
+            \Log::channel('customer')->debug('Customer webhook failed ');
+
             return response()->json(['error' => 'Couldnot verify webhook'], 400);
         }
 
         $customer = $request->all();
         ShopifyHelper::syncShopifyCustomers($store_id, $customer);
+
         return response()->json(['success'], 200);
     }
-
 }

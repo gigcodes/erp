@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 
 class LogsController extends Controller
 {
-
     public function index(Request $request)
     {
         $inputs = $request->input();
@@ -26,7 +25,7 @@ class LogsController extends Controller
     public function socialWebhookLogs()
     {
         $data = \App\SocialWebhookLog::orderBy('id', 'DESC')->latest()->paginate(100);
+
         return view('social-webhook-logs.index', compact('data'));
     }
-
 }

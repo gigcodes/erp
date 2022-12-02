@@ -14,7 +14,7 @@ class AddSuggestedReplyInChatbotQuestionTable extends Migration
     public function up()
     {
         Schema::table('chatbot_questions', function (Blueprint $table) {
-            $table->text('suggested_reply')->nullable()->after("value");
+            $table->text('suggested_reply')->nullable()->after('value');
         });
     }
 

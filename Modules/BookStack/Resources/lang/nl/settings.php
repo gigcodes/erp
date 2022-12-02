@@ -7,7 +7,6 @@ return [
      * Contains all text strings used in the general settings sections of BookStack
      * including users and roles.
      */
-
     'settings' => 'Instellingen',
     'settings_save' => 'Instellingen Opslaan',
     'settings_save_success' => 'Instellingen Opgeslagen',
@@ -15,7 +14,6 @@ return [
     /**
      * App settings
      */
-
     'app_settings' => 'App Instellingen',
     'app_name' => 'Applicatienaam',
     'app_name_desc' => 'De applicatienaam wordt in e-mails in in de header weergegeven.',
@@ -37,7 +35,6 @@ return [
     /**
      * Registration settings
      */
-
     'reg_settings' => 'Registratieinstellingen',
     'reg_allow' => 'Registratie toestaan?',
     'reg_default_role' => 'Standaard rol na registratie',
@@ -50,7 +47,6 @@ return [
     /**
      * Role settings
      */
-
     'roles' => 'Rollen',
     'role_user_roles' => 'Gebruikrollen',
     'role_create' => 'Nieuwe Rol Maken',
@@ -58,7 +54,7 @@ return [
     'role_delete' => 'Rol Verwijderen',
     'role_delete_confirm' => 'Dit verwijdert de rol \':roleName\'.',
     'role_delete_users_assigned' => 'Er zijn :userCount gebruikers met deze rol. Selecteer hieronder een nieuwe rol als je deze gebruikers een andere rol wilt geven.',
-    'role_delete_no_migration' => "Geen gebruikers migreren",
+    'role_delete_no_migration' => 'Geen gebruikers migreren',
     'role_delete_sure' => 'Weet je zeker dat je deze rol wilt verwijderen?',
     'role_delete_success' => 'Rol succesvol verwijderd',
     'role_edit' => 'Rol Bewerken',
@@ -84,7 +80,6 @@ return [
     /**
      * Users
      */
-
     'users' => 'Gebruikers',
     'user_profile' => 'Gebruikersprofiel',
     'users_add_new' => 'Gebruiker toevoegen',
