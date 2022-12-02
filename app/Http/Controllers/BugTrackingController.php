@@ -254,6 +254,7 @@ class BugTrackingController extends Controller
             $records = new BugTracker();
         }
         $bug['created_by'] = \Auth::user()->id;
+		$bug['summary'] = str_replace("\n", "<br/>", $bug['summary']);														  
         $records->fill($bug);
 
         $records->save();
@@ -330,7 +331,7 @@ class BugTrackingController extends Controller
         $bugHistory = BugTrackerHistory::where('bug_id', $id)->get();
         $bugHistory = $bugHistory->map(function ($bug) {
             $bug->bug_type_id = BugType::where('id', $bug->bug_type_id)->value('name');
-            $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name');
+            $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name').' '.$bug->bug_environment_ver;
             $bug->assign_to = User::where('id', $bug->assign_to)->value('name');
             $bug->updated_by = User::where('id', $bug->updated_by)->value('name');
             $bug->bug_severity_id = BugSeverity::where('id', $bug->bug_severity_id)->value('name');

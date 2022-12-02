@@ -18,7 +18,7 @@
 
                 <div class="form-group {{ $errors->has('summary') ? 'has-error' : '' }}">
                     <label> Summary </label>
-                    <input class="form-control summary" name="summary" type="text">
+                    <textarea class="form-control summary" name="summary"></textarea>
                     <input class="form-control id" name="id" type="hidden">
                     <span class="text-danger">{{ $errors->first('summary') }}</span>
                 </div>
@@ -44,16 +44,28 @@
                         @endforeach
                     </select>
                 </div>
+				 <div class="form-group" style="padding-bottom: 58px !important;">
+                    <div class="col-md-6" style="padding-left: 0px !important;" {{ $errors->has('bug_environment_id') ? 'has-error' : '' }}>
+                        <label> Environment </label>
+                        <select class="form-control bug_environment_id" name="bug_environment_id">
+                            <option value="">Select Environment</option>
+                            @foreach($bugEnvironments as  $bugEnvironment)
+                                <option value="{{$bugEnvironment->id}}">{{$bugEnvironment->name}} </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <div class="form-group" {{ $errors->has('bug_environment_id') ? 'has-error' : '' }}>
-                    <label> Environment </label>
-                    <select class="form-control bug_environment_id" name="bug_environment_id">
-                        <option value="">Select Environment</option>
-                        @foreach($bugEnvironments as  $bugEnvironment)
-                            <option value="{{$bugEnvironment->id}}">{{$bugEnvironment->name}} </option>
-                        @endforeach
-                    </select>
+                    <div class="col-md-6"  style="padding-right: 0px !important;"  {{ $errors->has('bug_environment_ver') ? 'has-error' : '' }}>
+                        <label> Environment Version </label>
+                        <input class="form-control bug_environment_ver" name="bug_environment_ver" type="text">
+                        <span class="text-danger">{{ $errors->first('bug_environment_ver') }}</span>
+																	  
+																									   
+								   
+                    </div>
+                    
                 </div>
+
                 <div class="form-group" {{ $errors->has('assign_to') ? 'has-error' : '' }}>
                     <label> Assign To </label>
                     <select class="form-control assign_to" name="assign_to">
