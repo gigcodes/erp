@@ -254,7 +254,8 @@ class BugTrackingController extends Controller
             $records = new BugTracker();
         }
         $bug['created_by'] = \Auth::user()->id;
-		$bug['summary'] = str_replace("\n", "<br/>", $bug['summary']);														  
+        $bug['summary'] = str_replace("\n", '<br/>', $bug['summary']);
+        $bug['step_to_reproduce'] = str_replace("\n", '<br/>', $bug['step_to_reproduce']);
         $records->fill($bug);
 
         $records->save();
@@ -310,7 +311,8 @@ class BugTrackingController extends Controller
         $bug = BugTracker::where('id', $request->id)->first();
 
         $data['created_by'] = \Auth::user()->id;
-        $bug['updated_by'] = \Auth::user()->id;
+        $data['updated_by'] = \Auth::user()->id;
+
         $params = ChatMessage::create([
             'user_id' => \Auth::user()->id,
             'bug_id' => $bug->id,
@@ -319,6 +321,8 @@ class BugTrackingController extends Controller
             'status' => '2',
             'message' => $request->remark,
         ]);
+        $data['summary'] = str_replace("\n", '<br/>', $request->summary);
+        $data['step_to_reproduce'] = str_replace("\n", '<br/>', $request->step_to_reproduce);
         $bug->update($data);
         $data['bug_id'] = $request->id;
         BugTrackerHistory::create($data);
