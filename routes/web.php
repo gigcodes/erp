@@ -2377,6 +2377,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('test-cases/update', 'TestCaseController@update')->name('test-cases.update');
     Route::post('test-cases/status', 'TestCaseController@status')->name('test-cases.status');
     Route::get('test-cases/{id}/delete', 'TestCaseController@destroy');
+    Route::post('test-cases/assign_user', 'TestCaseController@assignUser')->name('test-cases.assign_user');
+    Route::post('test-cases/status_user', 'TestCaseController@statusUser')->name('test-cases.status_user');
+    Route::post('test-cases/sendmessage', 'TestCaseController@sendMessage')->name('test-cases.sendmessage');
 });
 /*
  * @date 1/13/2019

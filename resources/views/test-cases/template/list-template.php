@@ -46,7 +46,7 @@
 			            <select class='form-control test_case_status_id'  data-id="{{>prop.id}}" data-token=<?php echo csrf_token();?>>
 			                <?php
                                 foreach ($testCaseStatuses as $testCaseStatus) {
-                                    echo "<option {{if prop.test_case_status_id == '".$testCaseStatus->id."'}} selected {{/if}} value='".$testCaseStatus->id."'>".$testCaseStatus->name.'</option>';
+                                    echo "<option {{if prop.test_status_id == '".$testCaseStatus->id."'}} selected {{/if}} value='".$testCaseStatus->id."'>".$testCaseStatus->name.'</option>';
                                 }
                             ?>
 			            </select>
@@ -58,7 +58,7 @@
                        <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{>prop.id}}" name="message" placeholder="Message" value=""><div style="max-width: 30px;">
                        <button class="btn btn-sm btn-image send-message" title="Send message" data-id="{{>prop.id}}"><img src="images/filled-sent.png" /></button> </div>
                         <div style="max-width: 30px;">
-                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='bug' data-id="{{:prop.id}}" title="Load messages"><img src="images/chat.png" alt=""></button>
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='testcase' data-id="{{:prop.id}}" title="Load messages"><img src="images/chat.png" alt=""></button>
                          </div>
                         </div>
                     </div>

@@ -18,6 +18,7 @@ use App\SocialStrategy;
 use App\StoreSocialContent;
 use App\Supplier;
 use App\Task;
+use App\TestCase;
 use App\Tickets;
 use App\Uicheck;
 use App\User;
@@ -114,6 +115,10 @@ class ChatMessagesController extends Controller
                 break;
             case 'bug' :
                 $object = BugTracker::find($request->object_id);
+                //dd($object);
+                break;
+            case 'testcase' :
+                $object = TestCase::find($request->object_id);
                 //dd($object);
                 break;
             default:
@@ -449,8 +454,8 @@ class ChatMessagesController extends Controller
                     'sop_category' => @$sopdata->category,
                     'sop_content' => @$sopdata->content,
                     'inout' => ($isOut) ? 'out' : 'in',
-                    'sendBy' => ($request->object == 'bug') ? User::where('id',$chatMessage->sent_to_user_id)->value('name') :(($isOut) ? 'ERP' : $objectname),
-                    'sendTo' =>($request->object == 'bug') ? User::where('id',$chatMessage->user_id)->value('name') :( ($isOut) ? $object->name : 'ERP'),
+                    'sendBy' => ($request->object == 'bug' || $request->object == 'testcase') ? User::where('id',$chatMessage->sent_to_user_id)->value('name') :(($isOut) ? 'ERP' : $objectname),
+                    'sendTo' =>($request->object == 'bug' || $request->object =='testcase') ? User::where('id',$chatMessage->user_id)->value('name') :( ($isOut) ? $object->name : 'ERP'),
                     'message' => $textMessage,
                     'parentMessage' => $textParent,
                     'media_url' => $chatMessage->media_url,

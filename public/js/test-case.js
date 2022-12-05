@@ -63,6 +63,23 @@ var page = {
             page.updateData($(this));
         });
 
+        page.config.bodyView.on("click",".send-message",function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            var message = $('#getMsg'+id).val();
+            if(message != null && message != ""){
+                page.sendMessage(id,message);
+            }
+        });
+
+        page.config.bodyView.on("change", ".assign_to", function (e) {
+            e.preventDefault();
+            page.sendAssign($(this));
+        });
+        page.config.bodyView.on("change", ".test_case_status_id", function (e) {
+            e.preventDefault();
+            page.sendStatus($(this));
+        });
 
     },
     validationRule : function(response) {
@@ -353,7 +370,7 @@ var page = {
 
             page.loadFirst();
             // $(".common-modal").modal("hide");
-            toastr["success"](response.message,"Bug Tracking Saved Successfully");
+            toastr["success"](response.message,"Test Cases Saved Successfully");
 
         }else {
             $("#loading-image").hide();
@@ -471,11 +488,11 @@ var page = {
                     console.log(item)
                     html+="<tr>"
                     html+=" <th>"+ item.name +"</th>"
-                    html+=" <th>"+ item.test_case_status_id +"</th>"
+                    html+=" <th>"+ item.test_status_id +"</th>"
                     html+=" <th>"+ item.suite +"</th>"
                     html+=" <th>"+ item.assign_to +"</th>"
-                    html+=" <th>"+ item.updated_by +"</th>"
                     html+=" <th>"+ item.module_id +"</th>"
+                    html+=" <th>"+ item.updated_by +"</th>"
                     html+="</tr>"
                 })
 
@@ -509,7 +526,7 @@ var page = {
 
                 $('.tbhc').html(html)
             }
-            // toastr["success"](response.message,"Bug Tracking History Listed Successfully");
+            // toastr["success"](response.message,"Test Cases History Listed Successfully");
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"Something went wrong");
