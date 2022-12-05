@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\TestSuites;
 use App\BugTracker;
 use App\ChatMessage;
 use App\Customer;
@@ -121,6 +122,10 @@ class ChatMessagesController extends Controller
                 $object = TestCase::find($request->object_id);
                 //dd($object);
                 break;
+      			case 'testsuites' :
+                $object = TestSuites::find($request->object_id);
+                //dd($object);
+                break; 	
             default:
                 $object = Customer::find($request->object);
         }
@@ -454,8 +459,8 @@ class ChatMessagesController extends Controller
                     'sop_category' => @$sopdata->category,
                     'sop_content' => @$sopdata->content,
                     'inout' => ($isOut) ? 'out' : 'in',
-                    'sendBy' => ($request->object == 'bug' || $request->object == 'testcase') ? User::where('id',$chatMessage->sent_to_user_id)->value('name') :(($isOut) ? 'ERP' : $objectname),
-                    'sendTo' =>($request->object == 'bug' || $request->object =='testcase') ? User::where('id',$chatMessage->user_id)->value('name') :( ($isOut) ? $object->name : 'ERP'),
+                    'sendBy' => ($request->object == 'bug' || $request->object == 'testcase' || $request->object == 'testsuites' ) ? User::where('id',$chatMessage->sent_to_user_id)->value('name') :(($isOut) ? 'ERP' : $objectname),
+                    'sendTo' =>($request->object == 'bug' || $request->object =='testcase' || $request->object == 'testsuites') ? User::where('id',$chatMessage->user_id)->value('name') :( ($isOut) ? $object->name : 'ERP'),
                     'message' => $textMessage,
                     'parentMessage' => $textParent,
                     'media_url' => $chatMessage->media_url,

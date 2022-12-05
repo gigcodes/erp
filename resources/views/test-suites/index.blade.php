@@ -32,25 +32,13 @@ table{border-collapse: collapse;}
 							<form class="form-inline message-search-handler" method="get">
 								<div class="col">
 
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-3">
-										<?php
-										$bug_type = request('bugtype');
-										?>
-										<select class="form-control" name="bug_type" id="bug_type">
-											<option value="">Select BugType</option>
-											<?php
-											foreach ($bugTypes as $bugtype) { ?>
-											<option value="<?php echo $bugtype->id; ?>" <?php if ($bug_type == $bugtype->id) echo "selected"; ?>><?php echo $bugtype->name; ?></option>
-											<?php }
-											?>
-										</select>
-									</div>
+									
 									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
 										<?php
 										$bug_environment = request('bug_enviornment');
 										?>
 										<select class="form-control" name="bug_enviornment" id="bug_enviornment">
-											<option value="">Select BugEnvironment</option>
+											<option value="">Select Environment</option>
 											<?php
 											foreach ($bugEnvironments as $bugenvironment) { ?>
 											<option value="<?php echo $bugenvironment->id; ?>" <?php if ($bug_environment == $bugenvironment->id) echo "selected"; ?>><?php echo $bugenvironment->name; ?></option>
@@ -58,25 +46,13 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
-										<?php
-										$bug_severity = request('bug_severity');
-										?>
-										<select class="form-control" name="bug_severity" id="bug_severity">
-											<option value="">Select BugSeverity</option>
-											<?php
-											foreach ($bugSeveritys as $bugseverity) { ?>
-											<option value="<?php echo $bugseverity->id; ?>" <?php if ($bug_severity == $bugseverity->id) echo "selected"; ?>><?php echo $bugseverity->name; ?></option>
-											<?php }
-											?>
-										</select>
-									</div>
+								
 									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
 										<?php
 										$bug_status = request('bugstatus');
 										?>
 										<select class="form-control" name="bug_status" id="bug_status">
-											<option value="">Select BugStatus</option>
+											<option value="">Select Status</option>
 											<?php
 											foreach ($bugStatuses as $bugstatus) { ?>
 											<option value="<?php echo $bugstatus->id; ?>" <?php if ($bug_status == $bugstatus->id) echo "selected"; ?>><?php echo $bugstatus->name; ?></option>
@@ -98,8 +74,11 @@ table{border-collapse: collapse;}
 									<div class="form-group">
 										<input name="step_to_reproduce" type="text" class="form-control" placeholder="Search Reproduce" id="bug-search" data-allow-clear="true" />
 									</div>
+									<div class="form-group">
+										<input name="test_cases_search" type="text" class="form-control" placeholder="Search Test Cases" id="bug-test_cases_search" data-allow-clear="true" />
+									</div>
 									<div class="form-group m-3">
-										<input name="summary" type="text" class="form-control" placeholder="Search Summary" id="bug-summary" data-allow-clear="true" />
+										<input name="name" type="text" class="form-control" placeholder="Search Name" id="bug-name" data-allow-clear="true" />
 									</div>
 									<div class="form-group m-1">
 										<input name="url" type="text" class="form-control" placeholder="Search Url" id="bug-url" data-allow-clear="true" />
@@ -124,7 +103,7 @@ table{border-collapse: collapse;}
 										<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
 											<img src="/images/search.png" style="cursor: default;">
 										</button>
-										<a href="/bug-tracking" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+										<a href="/test-suites" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
 									</div>
 								</div>
 							</form>
@@ -142,15 +121,11 @@ table{border-collapse: collapse;}
 							<button class="btn btn-secondary btn-xs btn-add-environment" style="color:white;"
 									data-toggle="modal" data-target="#newEnvironment"> Environment
 							</button>&nbsp;&nbsp;
-							<button class="btn btn-secondary btn-xs btn-add-type" style="color:white;"
-									data-toggle="modal" data-target="#newType"> Type
-							</button>&nbsp;&nbsp;
+							
 							<button class="btn btn-secondary btn-xs btn-add-status" style="color:white;"
 									data-toggle="modal" data-target="#newStatus"> Status
 							</button>&nbsp;&nbsp;
-							<button class="btn btn-secondary btn-xs btn-add-severity" style="color:white;"
-									data-toggle="modal" data-target="#newSeverity"> Severity
-							</button>
+							
 						</div>&nbsp;&nbsp;
 					</div>
 				</div>
@@ -179,31 +154,26 @@ table{border-collapse: collapse;}
 	</div>
 
 
-	@include("bug-tracking.templates.list-template")
-    @include("bug-tracking.create")
-    @include("bug-tracking.edit")
-	@include("bug-tracking.templates.create-bug-tracking-template")
-	@include("bug-tracking.templates.bug-environment")
-	@include("bug-tracking.templates.bug-severity")
-	@include("bug-tracking.templates.bug-status")
-	@include("bug-tracking.templates.bug-type")
+	@include("test-suites.templates.list-template")
+    @include("test-suites.create")
+    @include("test-suites.edit")
+	@include("test-suites.templates.create-bug-tracking-template")
+	@include("test-suites.templates.bug-environment")	
+	@include("test-suites.templates.bug-status")	
 
 	<div id="newHistoryModal" class="modal fade" role="dialog">
 		<div class="modal-dialog modal-lg">
 			<!-- Modal content-->
 			<div class="modal-content">
 				<div class="modal-header">
-					<h3>Bug Tracker History</h3>
+					<h3>Test Suites History</h3>
 					<button type="button" class="close" data-dismiss="modal">&times;</button>
 				</div>
 				<table class="table">
 					<tr>
-
-						<th>Type of Bug</th>
-						<th>Summary</th>
+						<th>Name</th>
 						<th>Environment</th>
-						<th>Status</th>
-						<th>Severity</th>
+						<th>Status</th>						
 						<th>Module/Feature</th>
 						<th>Updated By </th>
 					</tr>
@@ -262,7 +232,7 @@ table{border-collapse: collapse;}
 	<script type="text/javascript" src="{{ asset('/js/jquery.validate.min.js')}}"></script>
 	<script src="{{ asset('/js/jquery-ui.js')}}"></script>
 	<script type="text/javascript" src="{{ asset('/js/common-helper.js') }}"></script>
-	<script type="text/javascript" src="{{ asset('/js/bug-tracker.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('/js/test-suites.js') }}"></script>
 
 	<script type="text/javascript">
 		page.init({
@@ -273,7 +243,7 @@ table{border-collapse: collapse;}
             {{--$(".btn-edit-template").click(function (event) {--}}
             {{--    var id = $(this).data('id');--}}
             {{--    $.ajax({--}}
-            {{--        url: "/bug-tracking/edit/"+id,--}}
+            {{--        url: "/test-suites/edit/"+id,--}}
             {{--        type: "GET",--}}
             {{--        data: {--}}
             {{--            id: id,--}}

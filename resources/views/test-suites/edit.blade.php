@@ -3,11 +3,11 @@
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="edit-h3">Edit Bug Tracking</h3>
+                <h3 class="edit-h3">Edit Test Suite</h3>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                {!! Form::open(['route'=> ['bug-tracking.update' ]  ]) !!}
+                {!! Form::open(['route'=> ['test-suites.update' ]  ]) !!}
 
                 @if ($message = Session::get('success'))
                     <div class="alert alert-success alert-block">
@@ -16,12 +16,18 @@
                     </div>
                 @endif
 
-                <div class="form-group {{ $errors->has('summary') ? 'has-error' : '' }}">
-                    <label> Summary </label>
+                <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                    <label> Name </label>
 					<input class="form-control id" name="id" type="hidden">
-                    <textarea class="form-control summary" id="summary_update" name="summary"></textarea>                    
-                    <span class="text-danger">{{ $errors->first('summary') }}</span>
+                    <textarea class="form-control name" id="name_update" name="name"></textarea>                    
+                    <span class="text-danger">{{ $errors->first('name') }}</span>
                 </div>
+				
+				 <div class="form-group {{ $errors->has('test_cases') ? 'has-error' : '' }}">
+					<label> Test Cases </label>                
+					<textarea class="form-control test_cases" id="test_cases_update" name="test_cases"></textarea>
+					<span class="text-danger">{{ $errors->first('test_cases') }}</span>
+				</div>
 
                 <div class="form-group {{ $errors->has('step_to_reproduce') ? 'has-error' : '' }}">
                     <label> Step To Reproduce </label>                    
@@ -35,16 +41,7 @@
                     <span class="text-danger">{{ $errors->first('url') }}</span>
                 </div>
 
-                <div class="form-group" {{ $errors->has('bug_type_id') ? 'has-error' : '' }}>
-                    <label> Type of Bug </label>
-                    <select class="form-control bug_type_id" id="bug_type_id_update" name="bug_type_id">
-                        <option value="">Select Type of Bug</option>
-                        @foreach($bugTypes as  $bugType)
-                            <option value="{{$bugType->id}}">{{$bugType->name}} </option>
-                        @endforeach
-                    </select>
-					<span class="text-danger"></span>
-                </div>
+               
 				 <div class="form-group" style="padding-bottom: 58px !important;">
                     <div class="col-md-6" style="padding-left: 0px !important;" {{ $errors->has('bug_environment_id') ? 'has-error' : '' }}>
                         <label> Environment </label>
@@ -78,16 +75,7 @@
                     </select>
 					<span class="text-danger"></span>
                 </div>
-                <div class="form-group" {{ $errors->has('bug_severity_id') ? 'has-error' : '' }}>
-                    <label> Severity </label>
-                    <select class="form-control bug_severity_id" id="bug_severity_id_update"  name="bug_severity_id">
-                        <option value="">Select Severity</option>
-                        @foreach($bugSeveritys as  $bugSeverity)
-                            <option value="{{$bugSeverity->id}}">{{$bugSeverity->name}} </option>
-                        @endforeach
-                    </select>
-					<span class="text-danger"></span>
-                </div>
+               
                 <div class="form-group" {{ $errors->has('bug_status_id') ? 'has-error' : '' }}>
                     <label> Status </label>
                     <select class="form-control bug_status_id" id="bug_status_id_update" name="bug_status_id">
@@ -136,63 +124,3 @@
     </div>
 </div>
 
-<script>
-$(document).on('click', '.btn-update-bug', function() {
-	$('.text-danger').html('');
-	
-	if($('#summary_update').val() == '') {
-		$('#summary_update').next().text("Please enter the summary");
-		return false;
-	}
-	if($('#step_to_reproduce_update').val() == '') {
-		$('#step_to_reproduce_update').next().text("Please enter the steps");
-		return false;
-	}
-	
-	if($('#url_update').val() == '') {
-		$('#url_update').next().text("Please enter the url");
-		
-		return false;
-	}
-	if($('#bug_type_id_update').val() == ''  || $('#bug_type_id_update').val() == null  || $('#bug_type_id_update').val() == 'null') {
-		$('#bug_type_id_update').next().text("Please enter the type of bug");
-		return false;
-	}
-	
-	if($('#bug_environment_id_update').val() == ''  || $('#bug_environment_id_update').val() == null  || $('#bug_environment_id_update').val() == 'null') {
-		$('#bug_environment_id_update').next().text("Please enter the environment");
-		return false;
-	}
-	
-	if($('#assign_to_update').val() == ''  || $('#assign_to_update').val() == null   || $('#assign_to_update').val() == 'null') {
-		
-		$('#assign_to_update').next().text("Please enter the assign to");
-		return false;
-	}
-	if($('#bug_severity_id_update').val() == '') {
-		$('#bug_severity_id_update').next().text("Please enter the severity");
-		return false;
-	}
-	
-	if($('#bug_status_id_update').val() == ''  || $('#bug_status_id_update').val() == null  || $('#bug_status_id_update').val() == 'null') {
-		$('#bug_status_id_update').next().text("Please enter the status");
-		return false;
-	}
-	
-	if($('#module_id_update').val() == ''  || $('#bug_status_id_update').val() == null  || $('#bug_status_id_update').val() == 'null') {
-		$('#module_id_update').next().text("Please enter the module");
-		return false;
-	}
-	if($('#remark_update').val() == '') {
-		$('#remark_update').next().text("Please enter the remark");
-		return false;
-	}
-	if($('#website_update').val() == ''  || $('#website_update').val() == null  || $('#website_update').val() == 'null') {
-		$('#website_update').next().text("Please enter the website");
-		return false;
-	}
-	return true;
-
-});
-
-</script>
