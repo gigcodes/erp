@@ -490,8 +490,10 @@ class ProductPriceController extends Controller
             }
         }
         $numcount = $brands->count();
-        $brands = $brands->skip($skip * Setting::get('pagination'))
-        ->limit(Setting::get('pagination'))->get()->toArray();
+        $brands = $brands
+            ->skip($skip * Setting::get('pagination'))
+        ->limit(Setting::get('pagination') ?? 10)
+            ->get()->toArray();
 
         $countriesCount = count($countries);
         $category_segments = \App\CategorySegment::where('status', 1)->get();
@@ -707,10 +709,12 @@ class ProductPriceController extends Controller
             }
         }
 
-        $numcount = $brands->count();
-        $brands = $brands->skip($skip * Setting::get('pagination'))
-        ->limit(Setting::get('pagination'))->get()->toArray();
-        $i = 0;
+		$numcount= 10 ; // $brands->count();
+        $brands = $brands
+//            ->skip($skip * (Setting::get('pagination') ?? 1))
+//        ->limit(Setting::get('pagination') ?? 10)
+            ->get()->toArray();
+		$i = 0;
 
         $countriesCount = count($countries);
         $category_segments = \App\CategorySegment::where('status', 1)->get();
