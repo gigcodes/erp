@@ -711,8 +711,8 @@ class ProductPriceController extends Controller
 
 		$numcount= 10 ; // $brands->count();
         $brands = $brands
-//            ->skip($skip * (Setting::get('pagination') ?? 1))
-//        ->limit(Setting::get('pagination') ?? 10)
+            ->skip($skip * Setting::get('pagination'))
+        ->limit(Setting::get('pagination') ?? 10)
             ->get()->toArray();
 		$i = 0;
 
