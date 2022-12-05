@@ -104,5 +104,4 @@
 		</table>
 		{{:pagination}}
 	</div>
-
 </script>
