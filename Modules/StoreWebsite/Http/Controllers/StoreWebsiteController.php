@@ -17,6 +17,7 @@ use App\SiteDevelopmentCategory;
 use App\SocialStrategy;
 use App\SocialStrategySubject;
 use App\StoreReIndexHistory;
+use App\StoreViewCodeServerMap;
 use App\StoreWebsite;
 use App\StoreWebsiteAnalytic;
 use App\StoreWebsiteAttributes;
@@ -38,6 +39,8 @@ use App\StoreWebsiteTwilioNumber;
 use App\StoreWebsiteUserHistory;
 use App\StoreWebsiteUsers;
 use App\User;
+use App\Website;
+use App\WebsiteStoreView;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -255,11 +258,17 @@ class StoreWebsiteController extends Controller
         }
 
         $storeWebsiteId = $request->get('id');
+        $storeWebsite = StoreWebsite::find($storeWebsiteId);
+        $serverId = 1;
+        $response = $this->updateStoreViewServer($storeWebsiteId, $serverId);
+        if(!$response)
+            return response()->json(['code' => 500, 'error' => 'Something went wrong in update store view server!']);
+
+        if (! $storeWebsite) {
+            return response()->json(['code' => 500, 'error' => 'No website found!']);
+        }
+
         for ($i = 1; $i <= $numberOfDuplicates; $i++) {
-            $storeWebsite = StoreWebsite::find($storeWebsiteId);
-            if (! $storeWebsite) {
-                return response()->json(['code' => 500, 'error' => 'No website found!']);
-            }
 
             $copyStoreWebsite = $storeWebsite->replicate();
             $title = $copyStoreWebsite->title;
@@ -681,10 +690,50 @@ class StoreWebsiteController extends Controller
                 return response()->json(['code' => 500, 'error' => 'Store website users failed!']);
             }
 
+            $response = $this->updateStoreViewServer($copyStoreWebsiteId, $i+1);
+            if(!$response)
+                return response()->json(['code' => 500, 'error' => 'Something went wrong in update store view server of '.$copyStoreWebsite->title.'!']);
+
             if ($i == $numberOfDuplicates) {
                 return response()->json(['code' => 200, 'error' => 'Store website created successfully']);
             }
         }
+    }
+
+    /**
+     * Function to update store view server mapping of a store website
+     * @param $storeWebsiteId
+     * @param $serverId
+     * @return \Illuminate\Http\JsonResponse
+     * @return bool
+     */
+    public function updateStoreViewServer($storeWebsiteId, $serverId)
+    {
+        $servers = StoreViewCodeServerMap::where('server_id', '=', $serverId)->pluck('code')->toArray();
+        $storeViews = WebsiteStoreView::whereIn('code', $servers)->get();
+        $count = 0;
+        foreach ($storeViews as $key => $view) {
+            $storeView = WebsiteStoreView::find($view->id);
+            if (!$storeView->websiteStore) {
+                \Log::error('Website store not found for '.$view->id.'!');
+            } elseif(!$storeView->websiteStore->website) {
+                \Log::error('Website not found for '.$view->id.'!');
+            } else {
+                $websiteId = $view->websiteStore->website->id;
+                $website = Website::find($websiteId);
+                $website->store_website_id = $storeWebsiteId;
+                $response = $website->save();
+            }
+            $count++;
+        }
+
+        if ($response && $count == $key + 1) {
+            return true;
+        } else {
+            \Log::error('Count is not equal to total store views');
+            return false;
+        }
+
     }
 
     public function saveUserInMagento(Request $request)
