@@ -52,6 +52,7 @@
                                 }
 			            ?>
 			            </select>
+			            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>
 			        </td>
 			        <td class='break'>
 			           <select class='form-control bug_severity_id'  data-id="{{>prop.id}}" data-token=<?php echo csrf_token(); ?>>
@@ -70,6 +71,8 @@
 			                }
 			            ?>
 			            </select>
+			            			            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>
+
 			        </td>
 			        <td class='break'>{{:prop.module_id}}</td>
 			        <td class='break'>
