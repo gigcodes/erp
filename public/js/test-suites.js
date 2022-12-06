@@ -7,7 +7,7 @@ var page = {
 
         console.log(settings.bodyView);
 
-        settings.baseUrl += "/bug-tracking";
+        settings.baseUrl += "/test-suites";
 
         $.extend(page.config, settings);
 
@@ -98,12 +98,6 @@ var page = {
         page.config.bodyView.on("click",".btn-push",function(e) {
             page.push($(this));
         });
-        page.config.bodyView.on("click",".show-user-history",function(e) {
-            page.userHistory($(this));
-        });
-        page.config.bodyView.on("click",".show-status-history",function(e) {
-            page.statusHistory($(this));
-        });
 
         page.config.bodyView.on("click", ".btn-update", function (e) {
             page.updateData($(this));
@@ -168,7 +162,7 @@ var page = {
     deleteResults : function(response) {
         if(response.code == 200){
             this.getResults();
-            toastr['success']('Bug Tracking deleted successfully', 'success');
+            toastr['success']('Test suites deleted successfully', 'success');
         }else{
             toastr['error']('Oops.something went wrong', 'error');
         }
@@ -226,31 +220,38 @@ var page = {
     editResult : function(response) {
         $('#bugtrackingEditModal').modal('show');
         $('.id').val('')
-        $('.summary').val('')
+        $('.name').val('')
+		$('.test_cases').val('')
         $('.step_to_reproduce').val('')
-        $('.url').val('')
-        $('.bug_type_id').val('')
+        $('.url').val('')       
         $('.bug_environment_id').val('')
-        $('.assign_to').val('')
-        $('.bug_severity_id').val('')
+        $('.assign_to').val('')       
         $('.bug_status_id').val('')
         $('.module_id').val('')
         $('.remark').val('')
         $('.website').val('')
 
-        $('.id').val(response.data.id)
-        //$('.summary').val(response.data.summary)
-		$('.summary').val(response.data.summary.replaceAll("<br>", "\n"))
-        $('.summary').val(response.data.summary.replaceAll("<br/>", "\n"))
-        //$('.step_to_reproduce').val(response.data.step_to_reproduce)
-		$('.step_to_reproduce').val(response.data.step_to_reproduce.replaceAll("<br>", "\n"))
-        $('.step_to_reproduce').val(response.data.step_to_reproduce.replaceAll("<br/>", "\n"))
-        $('.url').val(response.data.url)
-        $('.bug_type_id').val(response.data.bug_type_id)
+        $('.id').val(response.data.id)        
+		$('.name').val(response.data.name.replaceAll("<br>", "\n"))
+        $('.name').val(response.data.name.replaceAll("<br/>", "\n"))
+		if(response.data.test_cases!=null && response.data.test_cases != 'null' && response.data.test_cases!='') {
+			var test_cases = response.data.test_cases.replaceAll("<br>", "\n");
+			$('.test_cases').val(test_cases.replaceAll("<br/>", "\n")) 	
+		} else {
+			$('.test_cases').val('')
+		}
+		
+		if(response.data.step_to_reproduce!=null && response.data.step_to_reproduce != 'null' && response.data.step_to_reproduce!='') {
+			var step_to_reproduce = response.data.step_to_reproduce.replaceAll("<br>", "\n");
+			$('.step_to_reproduce').val(step_to_reproduce.replaceAll("<br/>", "\n")) 	
+		} else {
+			$('.step_to_reproduce').val('')
+		}	       
+		
+        $('.url').val(response.data.url)        
         $('.bug_environment_id').val(response.data.bug_environment_id)
 		$('.bug_environment_ver').val(response.data.bug_environment_ver)
-        $('.assign_to').val(response.data.assign_to)
-        $('.bug_severity_id').val(response.data.bug_severity_id)
+        $('.assign_to').val(response.data.assign_to)       
         $('.bug_status_id').val(response.data.bug_status_id)
         $('.module_id').val(response.data.module_id)
         $('.remark').val(response.data.remark)
@@ -397,7 +398,7 @@ var page = {
         if(response.code  == 200) {
             page.loadFirst();
             $(".common-modal").modal("hide");
-            toastr["success"](response.message,"Bug Tracking Saved Successfully");
+            toastr["success"](response.message,"Test Suites Saved Successfully");
 
         }else {
             $("#loading-image").hide();
@@ -410,7 +411,7 @@ var page = {
 
             page.loadFirst();
             // $(".common-modal").modal("hide");
-            toastr["success"](response.message,"Bug Tracking Saved Successfully");
+            toastr["success"](response.message,"Test Suites Saved Successfully");
 
         }else {
             $("#loading-image").hide();
@@ -419,11 +420,11 @@ var page = {
     },
     saveAssign: function (response) {
         if (response.code == 200) {
-            $("#loading-image").hide();
-            // location.reload()
+            // $("#loading-image").hide();
+            location.reload()
             // page.loadFirst();
             // $(".common-modal").modal("hide");
-            toastr["success"](response.message, "Bug Tracking Changed Successfully");
+            toastr["success"](response.message, "Test Suites Changed Successfully");
 
         } else {
             // $("#loading-image").hide();
@@ -432,11 +433,11 @@ var page = {
     },
     saveSeverity: function (response) {
         if (response.code == 200) {
-            $("#loading-image").hide();
-            // location.reload()
+            // $("#loading-image").hide();
+            location.reload()
             // page.loadFirst();
             // $(".common-modal").modal("hide");
-            toastr["success"](response.message, "Bug Tracking Changed Successfully");
+            toastr["success"](response.message, "Test Suites Changed Successfully");
 
         } else {
             // $("#loading-image").hide();
@@ -445,11 +446,11 @@ var page = {
     },
     saveStatus: function (response) {
         if (response.code == 200) {
-            $("#loading-image").hide();
+            // $("#loading-image").hide();
 
-            // location.reload()
+            location.reload()
             // $(".common-modal").modal("hide");
-            toastr["success"](response.message, "Bug Tracking Changed Successfully");
+            toastr["success"](response.message, "Test Suites Changed Successfully");
 
         } else {
             // $("#loading-image").hide();
@@ -506,20 +507,6 @@ var page = {
         }
         this.sendAjax(_z, 'afterPush');
     },
-    userHistory : function(ele) {
-        var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-history/"+ele.data("id"),
-            method: "get",
-        }
-        this.sendAjax(_z, 'afterUser');
-    },
-     statusHistory : function(ele) {
-        var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/status-history/"+ele.data("id"),
-            method: "get",
-        }
-        this.sendAjax(_z, 'afterStatus');
-    },
 
     communicationModel : function(ele) {
         var _z = {
@@ -540,14 +527,10 @@ var page = {
 
                 $.each(response.data, function (i,item){
                     console.log(item)
-                    html+="<tr>"
-                    html+=" <th>"+ item.created_at +"</th>"
-                    html+=" <th>"+ item.bug_type_id +"</th>"
-                    html+=" <th>"+ item.summary +"</th>"
+                    html+="<tr>"                    
+                    html+=" <th>"+ item.name +"</th>"
                     html+=" <th>"+ item.bug_environment_id +"</th>"
-                    html+=" <th>"+ item.assign_to +"</th>"
-                    html+=" <th>"+ item.bug_status_id +"</th>"
-                    html+=" <th>"+ item.bug_severity_id +"</th>"
+                    html+=" <th>"+ item.bug_status_id +"</th>"                  
                     html+=" <th>"+ item.module_id +"</th>"
                     html+=" <th>"+ item.updated_by +"</th>"
                     html+="</tr>"
@@ -555,71 +538,13 @@ var page = {
 
                 $('.tbh').html(html)
             }
-            toastr["success"](response.message,"Bug Tracking History Listed Successfully");
+            toastr["success"](response.message,"Test Suites History Listed Successfully");
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"Something went wrong");
         }
     },
 
-    afterUser : function(response) {
-        if(response.code  == 200) {
-            console.log(response)
-            $('#newuserHistoryModal').modal('show');
-
-            $('.tbhuser').html("")
-            if(response.data.length >0){
-
-                var html ="";
-
-                $.each(response.data, function (i,item){
-                    console.log(item)
-                    html+="<tr>"
-                    html+=" <th>"+ item.created_at +"</th>"
-                    html+=" <th>"+ item.new_user +"</th>"
-                    html+=" <th>"+ item.old_user +"</th>"
-                    html+=" <th>"+ item.updated_by +"</th>"
-
-                    html+="</tr>"
-                })
-
-                $('.tbhuser').html(html)
-            }
-            toastr["success"](response.message,"Bug Tracking History Listed Successfully");
-        }else {
-            $("#loading-image").hide();
-            toastr["error"](response.error,"Something went wrong");
-        }
-    },
-    afterStatus : function(response) {
-        if(response.code  == 200) {
-            console.log(response)
-            $('#newstatusHistoryModal').modal('show');
-
-            $('.tbhstatus').html("")
-            if(response.data.length >0){
-
-                var html ="";
-
-                $.each(response.data, function (i,item){
-                    console.log(item)
-                    html+="<tr>"
-                    html+=" <th>"+ item.created_at +"</th>"
-                    html+=" <th>"+ item.new_status +"</th>"
-                    html+=" <th>"+ item.old_status +"</th>"
-                    html+=" <th>"+ item.updated_by +"</th>"
-
-                    html+="</tr>"
-                })
-
-                $('.tbhstatus').html(html)
-            }
-            toastr["success"](response.message,"Bug Tracking History Listed Successfully");
-        }else {
-            $("#loading-image").hide();
-            toastr["error"](response.error,"Something went wrong");
-        }
-    },
     afterCommunication : function(response) {
         if(response.code  == 200) {
             console.log(response)
@@ -651,3 +576,111 @@ var page = {
 }
 
 $.extend(page, common);
+
+
+$(document).on('click', '.btn-save-bug', function() {
+	$('.text-danger').html('');
+	if($('#name_bug').val() == '') {
+		$('#name_bug').next().text("Please enter the name");
+		return false;
+	}
+	if($('#test_cases_bug').val() == '') {
+		$('#test_cases_bug').next().text("Please enter the test cases");
+		return false;
+	}
+	if($('#step_to_reproduce_bug').val() == '') {
+		$('#step_to_reproduce_bug').next().text("Please enter the steps");
+		return false;
+	}
+	
+	if($('#url_bug').val() == '') {
+		$('#url_bug').next().text("Please enter the url");
+		
+		return false;
+	}
+	
+	
+	if($('#bug_environment_id_bug').val() == ''  || $('#bug_environment_id_bug').val() == null || $('#bug_environment_id_bug').val() == 'null') {
+		$('#bug_environment_id_bug').next().text("Please enter the environment");
+		return false;
+	}
+	
+	if($('#assign_to_bug').val() == ''  || $('#assign_to_bug').val() == null || $('#assign_to_bug').val() == 'null') {
+		$('#assign_to_bug').next().text("Please enter the assign to");
+		return false;
+	}
+	
+	if($('#bug_status_id_bug').val() == ''  || $('#bug_status_id_bug').val() == null || $('#bug_status_id_bug').val() == 'null') {
+		$('#bug_status_id_bug').next().text("Please enter the status");
+		return false;
+	}
+	if($('#module_id_bug').val() == ''  || $('#module_id_bug').val() == null || $('#module_id_bug').val() == 'null') {
+		$('#module_id_bug').next().text("Please enter the module");
+		return false;
+	}
+	if($('#remark_bug').val() == '') {
+		$('#remark_bug').next().text("Please enter the remark");
+		return false;
+	}
+	if($('#website_bug').val() == ''   || $('#website_bug').val() == null || $('#website_bug').val() == 'null') {
+		$('#website_bug').next().text("Please enter the website");
+		return false;
+	}
+	return true;
+
+});
+
+
+$(document).on('click', '.btn-update-bug', function() {
+	$('.text-danger').html('');
+	
+	if($('#name_update').val() == '') {
+		$('#name_update').next().text("Please enter the name");
+		return false;
+	}
+	if($('#test_cases_update').val() == '') {
+		$('#test_cases_update').next().text("Please enter the test cases");
+		return false;
+	}
+	if($('#step_to_reproduce_update').val() == '') {
+		$('#step_to_reproduce_update').next().text("Please enter the steps");
+		return false;
+	}
+	
+	if($('#url_update').val() == '') {
+		$('#url_update').next().text("Please enter the url");
+		
+		return false;
+	}
+	
+	if($('#bug_environment_id_update').val() == ''  || $('#bug_environment_id_update').val() == null  || $('#bug_environment_id_update').val() == 'null') {
+		$('#bug_environment_id_update').next().text("Please enter the environment");
+		return false;
+	}
+	
+	if($('#assign_to_update').val() == ''  || $('#assign_to_update').val() == null   || $('#assign_to_update').val() == 'null') {		
+		$('#assign_to_update').next().text("Please enter the assign to");
+		return false;
+	}
+	
+	
+	if($('#bug_status_id_update').val() == ''  || $('#bug_status_id_update').val() == null  || $('#bug_status_id_update').val() == 'null') {
+		$('#bug_status_id_update').next().text("Please enter the status");
+		return false;
+	}
+	
+	if($('#module_id_update').val() == ''  || $('#bug_status_id_update').val() == null  || $('#bug_status_id_update').val() == 'null') {
+		$('#module_id_update').next().text("Please enter the module");
+		return false;
+	}
+	if($('#remark_update').val() == '') {
+		$('#remark_update').next().text("Please enter the remark");
+		return false;
+	}
+	if($('#website_update').val() == ''  || $('#website_update').val() == null  || $('#website_update').val() == 'null') {
+		$('#website_update').next().text("Please enter the website");
+		return false;
+	}
+	return true;
+
+});
