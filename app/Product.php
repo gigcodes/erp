@@ -965,7 +965,7 @@ class Product extends Model
         $website = is_object($websiteId) ? $websiteId : \App\StoreWebsite::find($websiteId);
         $priceRecords = null;
         if (is_object($website)) {
-            $this->createProductPriceLog($order_id, $product_id, 'Web site id is found', '', '', '', 'Website Record found.', '', $websiteId->id, $customer_id);
+            $this->createProductPriceLog($order_id, $product_id, 'Web site id is found', '', '', '', 'Website Record found.', '', $website->id, $customer_id);
         } else {
             $this->createProductPriceLog($order_id, $product_id, 'Web site found id not found', '', '', '', 'Web site found id not found', '', $websiteId->id, $customer_id);
         }
