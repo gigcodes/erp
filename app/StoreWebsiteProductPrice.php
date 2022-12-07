@@ -20,12 +20,12 @@ class StoreWebsiteProductPrice extends Model
 
     public function product()
     {
-        return $this->belongsTo('App\Product');
+        return $this->belongsTo(\App\Product::class);
     }
 
     public function store_website()
     {
-        return $this->belongsTo('App\StoreWebsite');
+        return $this->belongsTo(\App\StoreWebsite::class);
     }
 
     public function getWebStoreNameAttribute()

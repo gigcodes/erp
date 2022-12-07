@@ -223,8 +223,8 @@ class QuickSellController extends Controller
         $product->category = $request->category;
 
         if (! empty($product->brand) && ! empty($product->price)) {
-            $product->price_inr = app('App\Http\Controllers\ProductSelectionController')->euroToInr($product->price, $product->brand);
-            $product->price_inr_special = app('App\Http\Controllers\ProductSelectionController')->calculateSpecialDiscount($product->price_inr, $product->brand);
+            $product->price_inr = app(\App\Http\Controllers\ProductSelectionController::class)->euroToInr($product->price, $product->brand);
+            $product->price_inr_special = app(\App\Http\Controllers\ProductSelectionController::class)->calculateSpecialDiscount($product->price_inr, $product->brand);
         } else {
             $product->price_inr_special = $request->price_special;
         }

@@ -813,7 +813,7 @@ class MagentoService
         \Log::channel('listMagento')->info(json_encode([$url, $token, $data, $result, 'setSimpleProductToConfig']));
         $response = json_decode($result);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'POST', $data, json_decode($result), $httpcode, 'setSimpleSingleProductToConfig', 'App\Library\Magento\MagentoService');
+        LogRequest::log($startTime, $url, 'POST', $data, json_decode($result), $httpcode, 'setSimpleSingleProductToConfig', \App\Library\Magento\MagentoService::class);
 
         \Log::info(print_r([$url, $token, $data, $result], true));
     }
@@ -860,7 +860,7 @@ class MagentoService
             $result = curl_exec($ch);
 
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'POST', $data, json_decode($result), $httpcode, 'sendConfigurableOptions', 'App\Library\Magento\MagentoService');
+            LogRequest::log($startTime, $url, 'POST', $data, json_decode($result), $httpcode, 'sendConfigurableOptions', \App\Library\Magento\MagentoService::class);
             $err = curl_error($ch);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             \Log::info(print_r([$url, $token, $data, $result], true));
@@ -897,7 +897,7 @@ class MagentoService
         $res = curl_exec($ch);
 
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, $type, json_encode($productData), json_decode($res), $httpcode, 'sendRequest', 'App\Library\Magento\MagentoService');
+        LogRequest::log($startTime, $url, $type, json_encode($productData), json_decode($res), $httpcode, 'sendRequest', \App\Library\Magento\MagentoService::class);
         if ($httpcode != 200) {
             if ($this->log) {
                 $this->log->message = $res;

@@ -704,7 +704,7 @@ class UserController extends Controller
                     // send chat message
                     $chat_message = \App\ChatMessage::create($params);
                     // send
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
                 }
             }
 
@@ -775,7 +775,7 @@ class UserController extends Controller
                                     // send chat message
                                     $chat_message = \App\ChatMessage::create($params);
                                     // send
-                                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+                                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
                                 }
                             }
                         }

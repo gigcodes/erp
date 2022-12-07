@@ -581,17 +581,17 @@ class Product extends Model
 
     public function messages()
     {
-        return $this->hasMany('App\Message', 'moduleid')->where('moduletype', 'product')->latest()->first();
+        return $this->hasMany(\App\Message::class, 'moduleid')->where('moduletype', 'product')->latest()->first();
     }
 
     public function product_category()
     {
-        return $this->belongsTo('App\Category', 'category');
+        return $this->belongsTo(\App\Category::class, 'category');
     }
 
     public function log_scraper_vs_ai()
     {
-        return $this->hasMany('App\LogScraperVsAi');
+        return $this->hasMany(\App\LogScraperVsAi::class);
     }
 
     public function getCommunicationAttribute()
@@ -606,27 +606,27 @@ class Product extends Model
 
     public function notifications()
     {
-        return $this->hasMany('App\Notification');
+        return $this->hasMany(\App\Notification::class);
     }
 
     public function suppliers()
     {
-        return $this->belongsToMany('App\Supplier', 'product_suppliers', 'product_id', 'supplier_id');
+        return $this->belongsToMany(\App\Supplier::class, 'product_suppliers', 'product_id', 'supplier_id');
     }
 
     public function suppliers_info()
     {
-        return $this->hasMany('App\ProductSupplier');
+        return $this->hasMany(\App\ProductSupplier::class);
     }
 
     public function private_views()
     {
-        return $this->belongsToMany('App\PrivateView', 'private_view_products', 'product_id', 'private_view_id');
+        return $this->belongsToMany(\App\PrivateView::class, 'private_view_products', 'product_id', 'private_view_id');
     }
 
     public function suggestions()
     {
-        return $this->belongsToMany('App\SuggestedProduct', 'suggested_product_lists', 'product_id', 'suggested_products_id');
+        return $this->belongsToMany(\App\SuggestedProduct::class, 'suggested_product_lists', 'product_id', 'suggested_products_id');
     }
 
     public function amends()
@@ -636,17 +636,17 @@ class Product extends Model
 
     public function brands()
     {
-        return $this->hasOne('App\Brand', 'id', 'brand');
+        return $this->hasOne(\App\Brand::class, 'id', 'brand');
     }
 
     public function categories()
     {
-        return $this->hasOne('App\Category', 'id', 'category');
+        return $this->hasOne(\App\Category::class, 'id', 'category');
     }
 
     public function references()
     {
-        return $this->hasMany('App\ProductReference');
+        return $this->hasMany(\App\ProductReference::class);
     }
 
     public static function getPendingProductsCount($roleType)
@@ -664,7 +664,7 @@ class Product extends Model
 
     public function purchases()
     {
-        return $this->belongsToMany('App\Purchase', 'purchase_products', 'product_id', 'purchase_id');
+        return $this->belongsToMany(\App\Purchase::class, 'purchase_products', 'product_id', 'purchase_id');
     }
 
     public function sizes()
@@ -674,22 +674,22 @@ class Product extends Model
 
     public function orderproducts()
     {
-        return $this->hasMany('App\OrderProduct', 'product_id', 'id');
+        return $this->hasMany(\App\OrderProduct::class, 'product_id', 'id');
     }
 
     public function scraped_products()
     {
-        return $this->hasOne('App\ScrapedProducts', 'product_id', 'id');
+        return $this->hasOne(\App\ScrapedProducts::class, 'product_id', 'id');
     }
 
     public function many_scraped_products()
     {
-        return $this->hasMany('App\ScrapedProducts', 'sku', 'sku');
+        return $this->hasMany(\App\ScrapedProducts::class, 'sku', 'sku');
     }
 
     public function user()
     {
-        return $this->belongsToMany('App\User', 'user_products', 'product_id', 'user_id');
+        return $this->belongsToMany(\App\User::class, 'user_products', 'product_id', 'user_id');
     }
 
     public function cropApprover()
@@ -915,7 +915,7 @@ class Product extends Model
 
     public function websiteProducts()
     {
-        return $this->hasMany("App\WebsiteProduct", 'product_id', 'id');
+        return $this->hasMany(\App\WebsiteProduct::class, 'product_id', 'id');
     }
 
     public function publishedOn()
@@ -1304,7 +1304,7 @@ class Product extends Model
 
     public function landingPageProduct()
     {
-        return $this->hasOne('App\LandingPageProduct', 'product_id', 'id');
+        return $this->hasOne(\App\LandingPageProduct::class, 'product_id', 'id');
     }
 
     /**
@@ -1621,7 +1621,7 @@ class Product extends Model
 
     public function productstatushistory()
     {
-        return $this->hasMany('App\ProductStatusHistory', 'product_id');
+        return $this->hasMany(\App\ProductStatusHistory::class, 'product_id');
     }
 
     public function checkPriceRange()

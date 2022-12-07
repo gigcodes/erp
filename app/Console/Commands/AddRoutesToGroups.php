@@ -48,7 +48,7 @@ class AddRoutesToGroups extends Command
                 'id' => $r->route_id,
             ];
             $postData = json_encode($postData, true);
-            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+            $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
             $existing_route = DB::table('group_routes')->where('route_id', $r->route_id)->delete();
             dump([$result, $existing_route]);
         }
@@ -65,7 +65,7 @@ class AddRoutesToGroups extends Command
             'fields' => ['agent_priorities', 'routing_status'],
         ];
         $postData = json_encode($postData, true);
-        $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
         if ($result['err']) {
             dump(['status' => 'errors', 'errorMsg' => $result['err']], 403);
@@ -119,7 +119,7 @@ class AddRoutesToGroups extends Command
                         'language' => $lang_code,
                     ];
                     $postData = json_encode($postData, true);
-                    $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'PUT');
+                    $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'PUT');
                     $response = json_decode($result['response']);
                     if (! isset($response->error)) {
                         dump($g->id.' '.$g->name.' == '.$lang_code.' lang updated.');
@@ -146,7 +146,7 @@ class AddRoutesToGroups extends Command
                         'next_id' => '310b71d0e6c6dd5809f8535a6f055b17',
                     ];
                     $postData = json_encode($postData, true);
-                    $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                    $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
                     $response = json_decode($result['response']);
                     dump($response);
                     if (! isset($response->error)) {

@@ -18,10 +18,10 @@ class PushNotificationController extends Controller
         $term = $request->input('term');
         $data['term'] = $term;
 
-        $lead_notifications = PushNotification::where('model_type', 'App\Leads');
-        $order_notifications = PushNotification::where('model_type', 'App\Order');
+        $lead_notifications = PushNotification::where('model_type', \App\Leads::class);
+        $order_notifications = PushNotification::where('model_type', \App\Order::class);
         $message_notifications = PushNotification::whereIn('model_type', ['order', 'leads', 'customer']);
-        $task_notifications = PushNotification::whereIn('model_type', ['App\Task', 'App\SatutoryTask', 'App\Http\Controllers\Task', 'User']);
+        $task_notifications = PushNotification::whereIn('model_type', [\App\Task::class, \App\SatutoryTask::class, 'App\Http\Controllers\Task', 'User']);
 
         if ($request->user[0] != null) {
             $lead_notifications = $lead_notifications->where(function ($query) use ($request) {
@@ -120,7 +120,7 @@ class PushNotificationController extends Controller
             $notification->setUserNameAttribute($notification['user_id']);
             $notification->setClientNameAttribute($notification['model_type'], $notification['model_id']);
 
-            if ($notification['model_type'] == 'App\Task' || $notification['model_type'] == 'App\SatutoryTask' || $notification['model_type'] == 'App\Http\Controllers\Task' || $notification['model_type'] == 'User') {
+            if ($notification['model_type'] == \App\Task::class || $notification['model_type'] == \App\SatutoryTask::class || $notification['model_type'] == 'App\Http\Controllers\Task' || $notification['model_type'] == 'User') {
                 $notification->setSubjectAttribute($notification['model_type'], $notification['model_id']);
             }
         }
@@ -189,7 +189,7 @@ class PushNotificationController extends Controller
         }
 
         if (! empty($remark)) {
-            if ($model_type == 'App\\Task') {
+            if ($model_type == \App\Task::class) {
                 if ($status != 1) {
                     Remark::create([
                         'remark' => $remark,

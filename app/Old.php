@@ -92,14 +92,14 @@ class Old extends Model
     public function whatsappAll($needBroadCast = false)
     {
         if ($needBroadCast) {
-            return $this->hasMany('App\ChatMessage', 'old_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
+            return $this->hasMany(\App\ChatMessage::class, 'old_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
         }
 
-        return $this->hasMany('App\ChatMessage', 'old_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+        return $this->hasMany(\App\ChatMessage::class, 'old_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
     public function agents()
     {
-        return $this->hasMany('App\Agent', 'model_id')->where('model_type', 'App\Old');
+        return $this->hasMany(\App\Agent::class, 'model_id')->where('model_type', \App\Old::class);
     }
 }

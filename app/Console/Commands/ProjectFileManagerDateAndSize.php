@@ -105,7 +105,7 @@ class ProjectFileManagerDateAndSize extends Command
                         $users = User::get();
                         foreach ($users as $user) {
                             if ($user->isAdmin()) {
-                                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number, $message);
+                                app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($user->phone, $user->whatsapp_number, $message);
                                 $this->info('message successfully send');
                             }
                         }
@@ -155,7 +155,7 @@ class ProjectFileManagerDateAndSize extends Command
                         $users = User::get();
                         foreach ($users as $user) {
                             if ($user->isAdmin()) {
-                                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number, $message);
+                                app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($user->phone, $user->whatsapp_number, $message);
                                 $this->info('message successfully send');
                             }
                         }

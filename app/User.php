@@ -115,17 +115,17 @@ class User extends Authenticatable implements JWTSubject
 
     public function contacts()
     {
-        return $this->hasMany('App\Contact');
+        return $this->hasMany(\App\Contact::class);
     }
 
     public function products()
     {
-        return $this->belongsToMany('App\Product', 'user_products', 'user_id', 'product_id');
+        return $this->belongsToMany(\App\Product::class, 'user_products', 'user_id', 'product_id');
     }
 
     public function approved_products()
     {
-        return $this->belongsToMany('App\Product', 'user_products', 'user_id', 'product_id')->where('is_approved', 1);
+        return $this->belongsToMany(\App\Product::class, 'user_products', 'user_id', 'product_id')->where('is_approved', 1);
     }
 
     public function manualCropProducts()
@@ -135,7 +135,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function customers()
     {
-        return $this->belongsToMany('App\Customer', 'user_customers', 'user_id', 'customer_id');
+        return $this->belongsToMany(\App\Customer::class, 'user_customers', 'user_id', 'customer_id');
     }
 
     public function cropApproval()
@@ -165,7 +165,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function whatsappAll()
     {
-        return $this->hasMany('App\ChatMessage', 'user_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+        return $this->hasMany(\App\ChatMessage::class, 'user_id')->whereNotIn('status', ['7', '8', '9'])->latest();
     }
 
     public function instagramAutoComments()
@@ -481,7 +481,7 @@ class User extends Authenticatable implements JWTSubject
     public function currentRate()
     {
         return $this->hasOne(
-            'App\UserRate',
+            \App\UserRate::class,
             'user_id',
             'id'
         )
@@ -491,7 +491,7 @@ class User extends Authenticatable implements JWTSubject
     public function latestRate()
     {
         return $this->hasOne(
-            'App\UserRate',
+            \App\UserRate::class,
             'user_id',
             'id'
         )->latest('start_date');
@@ -543,7 +543,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function supplierCategoryPermission()
     {
-        return $this->belongsToMany('App\SupplierCategory', 'supplier_category_permissions', 'user_id', 'supplier_category_id');
+        return $this->belongsToMany(\App\SupplierCategory::class, 'supplier_category_permissions', 'user_id', 'supplier_category_id');
     }
 
     public function previousDue($lastPaidOn)
@@ -559,17 +559,17 @@ class User extends Authenticatable implements JWTSubject
 
     public function vendorCategoryPermission()
     {
-        return $this->belongsToMany('App\VendorCategory', 'vendor_category_permission', 'user_id', 'vendor_category_id');
+        return $this->belongsToMany(\App\VendorCategory::class, 'vendor_category_permission', 'user_id', 'vendor_category_id');
     }
 
     public function user_availabilities()
     {
-        return $this->hasOne('App\UserAvaibility', 'user_id', 'id');
+        return $this->hasOne(\App\UserAvaibility::class, 'user_id', 'id');
     }
 
     public function hasUserAvaibility()
     {
-        return $this->hasOne('App\UserAvaibility', 'user_id', 'id');
+        return $this->hasOne(\App\UserAvaibility::class, 'user_id', 'id');
     }
 
     public function getUserAvaibility()

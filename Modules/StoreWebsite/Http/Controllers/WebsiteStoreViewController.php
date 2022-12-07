@@ -179,7 +179,7 @@ class WebsiteStoreViewController extends Controller
             'fields' => ['agent_priorities', 'routing_status'],
         ];
         $postData = json_encode($postData, true);
-        $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
         if ($result['err']) {
             return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
@@ -244,7 +244,7 @@ class WebsiteStoreViewController extends Controller
         ];
 
         $postData = json_encode($postData, true);
-        $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
         if ($result['err']) {
             return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
@@ -262,9 +262,9 @@ class WebsiteStoreViewController extends Controller
                 $group_id = $request->group;
                 if ($group_id) {
                     $postURL1 = 'https://api.livechatinc.com/v2/properties/group/'.$group_id;
-                    $result1 = app('App\Http\Controllers\LiveChatController')->curlCall($postURL1, [], 'application/json', true, 'GET');
+                    $result1 = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL1, [], 'application/json', true, 'GET');
                     $postURL2 = 'https://api.livechatinc.com/v2/properties/group/'.$store_group_id;
-                    $result2 = app('App\Http\Controllers\LiveChatController')->curlCall($postURL2, $result1['response'], 'application/json', true, 'PUT');
+                    $result2 = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL2, $result1['response'], 'application/json', true, 'PUT');
                     $response->group_details1 = json_decode($result1['response']);
                     $response->group_details2 = json_decode($result2['response']);
                 }
@@ -300,7 +300,7 @@ class WebsiteStoreViewController extends Controller
                         ],
                     ];
                     $postData = json_encode($postData, true);
-                    $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                    $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
                     $response = json_decode($result['response']);
                     if (! isset($response->error)) {
                         DB::table('group_routes')->updateOrInsert([
@@ -331,7 +331,7 @@ class WebsiteStoreViewController extends Controller
             'id' => $store_group_id,
         ];
         $postData = json_encode($postData, true);
-        $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
         if ($result['err']) {
             return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
@@ -369,7 +369,7 @@ class WebsiteStoreViewController extends Controller
             ],
         ];
         $postData = json_encode($postData, true);
-        $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
         if ($result['err']) {
             return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
@@ -391,7 +391,7 @@ class WebsiteStoreViewController extends Controller
             'fields' => ['agent_priorities', 'routing_status'],
         ];
         $postData = json_encode($postData, true);
-        $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
         if ($result['err']) {
             return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);

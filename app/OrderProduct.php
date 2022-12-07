@@ -41,50 +41,50 @@ class OrderProduct extends Model
 
     public function order()
     {
-        return $this->belongsTo('App\Order', 'order_id', 'id');
+        return $this->belongsTo(\App\Order::class, 'order_id', 'id');
     }
 
     public function product()
     {
         //		return $this->hasOne('App\Product',['sku','color'],['sku','color']);
-        return $this->hasOne('App\Product', 'id', 'product_id');
+        return $this->hasOne(\App\Product::class, 'id', 'product_id');
     }
 
     public function products()
     {
-        return $this->hasMany('App\Product', 'id', 'product_id');
+        return $this->hasMany(\App\Product::class, 'id', 'product_id');
     }
 
     public function purchase()
     {
-        return $this->belongsTo('App\Purchase');
+        return $this->belongsTo(\App\Purchase::class);
     }
 
     public function private_view()
     {
-        return $this->hasOne('App\PrivateView');
+        return $this->hasOne(\App\PrivateView::class);
     }
 
     public function is_delivery_date_changed()
     {
-        $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\OrderProduct')->where('type', 'order-delivery-date-changed')->count();
+        $count = $this->hasMany(\App\CommunicationHistory::class, 'model_id')->where('model_type', \App\OrderProduct::class)->where('type', 'order-delivery-date-changed')->count();
 
         return $count > 0 ? true : false;
     }
 
     public function messages()
     {
-        return $this->hasMany('App\Message', 'moduleid', 'order_id')->where('moduletype', 'order')->latest()->first();
+        return $this->hasMany(\App\Message::class, 'moduleid', 'order_id')->where('moduletype', 'order')->latest()->first();
     }
 
     public function whatsapps()
     {
-        return $this->hasMany('App\ChatMessage', 'order_id', 'order_id')->latest()->first();
+        return $this->hasMany(\App\ChatMessage::class, 'order_id', 'order_id')->latest()->first();
     }
 
     public function status_changes()
     {
-        return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\OrderProduct')->latest();
+        return $this->hasMany(\App\StatusChange::class, 'model_id')->where('model_type', \App\OrderProduct::class)->latest();
     }
 
     public function getCommunicationAttribute()

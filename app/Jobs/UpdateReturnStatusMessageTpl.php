@@ -63,7 +63,7 @@ class UpdateReturnStatusMessageTpl implements ShouldQueue
                     'status' => 0,
                 ]);
 
-                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
             }
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());

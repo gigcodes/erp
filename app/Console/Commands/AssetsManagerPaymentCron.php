@@ -87,7 +87,7 @@ class AssetsManagerPaymentCron extends Command
                     'amount' => $result->amount,
                     'currency' => $result->currency,
                     'type' => 'pending',
-                    'cash_flow_able_type' => 'App\AssetsManager',
+                    'cash_flow_able_type' => \App\AssetsManager::class,
                     'cash_flow_able_id' => $result->id,
                 ]
             );

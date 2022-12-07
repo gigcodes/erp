@@ -10,7 +10,7 @@ class BugTracker extends Model
 
     public function type()
     {
-        $this->belongsTo('App\BugType', 'bug_type_id', 'id');
+        $this->belongsTo(\App\BugType::class, 'bug_type_id', 'id');
     }
 
     public function environment()
@@ -31,11 +31,11 @@ class BugTracker extends Model
     public function whatsappAll($needBroadcast = false)
     {
         if ($needBroadcast) {
-            return $this->hasMany('App\ChatMessage', 'bug_id')->where(function ($q) {
+            return $this->hasMany(\App\ChatMessage::class, 'bug_id')->where(function ($q) {
                 $q->whereIn('status', ['7', '8', '9', '10'])->orWhere('group_id', '>', 0);
             })->latest();
         } else {
-            return $this->hasMany('App\ChatMessage', 'bug_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+            return $this->hasMany(\App\ChatMessage::class, 'bug_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
         }
     }
 }

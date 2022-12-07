@@ -37,7 +37,7 @@ class Account extends Model
 
     public function reviews()
     {
-        return $this->hasMany('App\Review');
+        return $this->hasMany(\App\Review::class);
     }
 
     //  public function thread()
@@ -47,7 +47,7 @@ class Account extends Model
 
     public function has_posted_reviews()
     {
-        $count = $this->hasMany('App\Review')->where('status', 'posted')->count();
+        $count = $this->hasMany(\App\Review::class)->where('status', 'posted')->count();
 
         return $count > 0;
     }
@@ -59,6 +59,6 @@ class Account extends Model
 
     public function storeWebsite()
     {
-        return $this->hasOne('\App\StoreWebsite', 'id', 'store_website_id');
+        return $this->hasOne(\App\StoreWebsite::class, 'id', 'store_website_id');
     }
 }

@@ -205,7 +205,7 @@ class PurchaseController extends Controller
         // dd($purchase_data);
 
         $suppliers = Supplier::select(['id', 'supplier'])->get();
-        $agents = Agent::where('model_type', 'App\Supplier')->get();
+        $agents = Agent::where('model_type', \App\Supplier::class)->get();
         $agents_array = [];
 
         foreach ($agents as $agent) {
@@ -1452,7 +1452,7 @@ class PurchaseController extends Controller
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
-                    app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
 
                     $chat_message->update([
                         'approved' => 1,
@@ -1566,7 +1566,7 @@ class PurchaseController extends Controller
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
-                    app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
 
                     $chat_message->update([
                         'approved' => 1,
@@ -1591,7 +1591,7 @@ class PurchaseController extends Controller
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
-                    app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
 
                     $chat_message->update([
                         'approved' => 1,
@@ -1669,7 +1669,7 @@ class PurchaseController extends Controller
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
-                    app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
 
                     $chat_message->update([
                         'approved' => 1,
@@ -1694,7 +1694,7 @@ class PurchaseController extends Controller
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
-                    app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
 
                     $chat_message->update([
                         'approved' => 1,
@@ -1896,7 +1896,7 @@ class PurchaseController extends Controller
 
                     // throw new \Exception($coordinator->id);
 
-                    app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
 
                     $chat_message->update([
                         'approved' => 1,
@@ -2046,7 +2046,7 @@ class PurchaseController extends Controller
         $inbox = $imap->getFolder($inbox_name);
 
         $latest_email = Email::where('type', $type)->where('model_id', $supplier->id)->where(function ($query) {
-            $query->where('model_type', 'App\Supplier')->orWhere('model_type', 'App\Purchase');
+            $query->where('model_type', \App\Supplier::class)->orWhere('model_type', \App\Purchase::class);
         })->latest()->first();
 
         $latest_email_date = $latest_email
@@ -2096,7 +2096,7 @@ class PurchaseController extends Controller
             } elseif ($email->model instanceof Customer) {
                 $userName = $email->model->name;
             }
-            if ($email->model_type == 'App\Supplier') {
+            if ($email->model_type == \App\Supplier::class) {
                 $array = is_array(json_decode($email->additional_data, true)) ? json_decode($email->additional_data, true) : [];
 
                 if (array_key_exists('attachment', $array)) {
@@ -2589,7 +2589,7 @@ class PurchaseController extends Controller
                 if (is_array($attachment)) {
                     $content = $email->message;
                     foreach ($attachment as $attach) {
-                        if ($email->model_type == 'App\Supplier') {
+                        if ($email->model_type == \App\Supplier::class) {
                             $supplier = Supplier::find($email->model_id);
                             if ($supplier != null) {
                                 $filename = explode('/', $attach);
@@ -2858,7 +2858,7 @@ class PurchaseController extends Controller
                     try {
                         dump('Sending message');
 
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($supplier->phone, $supplier->whatsapp_number, $message, isset($media) && ! empty($media) ? $media : null);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($supplier->phone, $supplier->whatsapp_number, $message, isset($media) && ! empty($media) ? $media : null);
 
                         $params = [
                             'number' => $supplier->phone,

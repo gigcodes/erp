@@ -700,11 +700,11 @@ class ProductInventoryController extends Controller
                 $params['status'] = 2;
                 $params['user_id'] = $user->id;
 
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $messageData);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $messageData);
                 $chat_message = \App\ChatMessage::create($params);
                 if ($product->hasMedia(config('constants.media_tags'))) {
                     foreach ($product->getMedia(config('constants.media_tags')) as $image) {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, null, $image->getUrl());
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, null, $image->getUrl());
                         $chat_message->attachMedia($image, config('constants.media_tags'));
                     }
                 }
@@ -732,11 +732,11 @@ class ProductInventoryController extends Controller
                     $params['status'] = 2;
                     $params['user_id'] = $user->id;
 
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $messageData);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $messageData);
                     $chat_message = \App\ChatMessage::create($params);
                     if ($product->hasMedia(config('constants.media_tags'))) {
                         foreach ($product->getMedia(config('constants.media_tags')) as $image) {
-                            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, null, $image->getUrl());
+                            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, null, $image->getUrl());
                             $chat_message->attachMedia($image, config('constants.media_tags'));
                         }
                     }
@@ -845,12 +845,12 @@ class ProductInventoryController extends Controller
                         foreach ($productDispatch->getMedia(config('constants.media_tags')) as $image) {
                             $url = createProductTextImage($image->getAbsolutePath(), 'product-dispatch', $messageData, $color = '000000', $fontSize = '15', $needAbs = false);
                             if (! empty($url)) {
-                                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone, $customer->whatsapp_number, null, $url);
+                                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($customer->phone, $customer->whatsapp_number, null, $url);
                             }
                             $chat_message->attachMedia($image, config('constants.media_tags'));
                         }
                     } else {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone, $customer->whatsapp_number, $messageData);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($customer->phone, $customer->whatsapp_number, $messageData);
                     }
                 }
             }

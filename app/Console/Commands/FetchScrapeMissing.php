@@ -102,7 +102,7 @@ class FetchScrapeMissing extends Command
                     $requestData->request->add(['issue_id' => $hasAssignedIssue->id, 'message' => 'Missing data', 'status' => 1]);
                     ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => $missingdata]);
                     try {
-                        app('\App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
                         ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => $missingdata.' and message sent to '.$userName]);
                     } catch (\Exception $e) {
                         ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => "Coundn't send message to ".$userName]);

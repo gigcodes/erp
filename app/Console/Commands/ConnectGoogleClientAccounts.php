@@ -97,7 +97,7 @@ class ConnectGoogleClientAccounts extends Command
 
                     $msg = 'Google Webmaster:: Your account   has been disconnected. Gogo this link to connect: '.route('googlewebmaster.account.connect', $acc->google_client_account_id);
 
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($admin['phone'], $admin['whatsapp_number'], $msg); // for whatsapp
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($admin['phone'], $admin['whatsapp_number'], $msg); // for whatsapp
 
                     dump($acc->id.' email sent to '.$admin['name']);
                 }

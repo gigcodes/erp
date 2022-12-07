@@ -47,7 +47,7 @@ class NumberOfImageCroppedCheck extends Command
             if ($count < 1000) {
                 $message = 'Images are scraped less then 1000';
                 //$number = '+971569119192';
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('+918082488108', '', $message);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi('+918082488108', '', $message);
             }
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

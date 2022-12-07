@@ -194,7 +194,7 @@ class OrderController extends Controller
             $email = Email::where('id', $request->email_id)->first();
         } else {
             $order = Order::where('id', $request->order_id)->first();
-            $email = Email::where('model_id', $order->id)->where('model_type', 'App\Order')->orderBy('id', 'desc')->first();
+            $email = Email::where('model_id', $order->id)->where('model_type', \App\Order::class)->orderBy('id', 'desc')->first();
         }
 
         if ($email) {
@@ -1106,8 +1106,8 @@ class OrderController extends Controller
             $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 1]);
             $requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message, 'status' => 1]);
 
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData2, 'customer');
 
             // $order->update([
             //  'auto_messaged' => 1,
@@ -1126,7 +1126,7 @@ class OrderController extends Controller
             $requestData->setMethod('POST');
             $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 1]);
 
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
 
             // $order->update([
             //  'auto_messaged' => 1,
@@ -1476,8 +1476,8 @@ class OrderController extends Controller
             $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 1]);
             $requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message, 'status' => 1]);
 
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData2, 'customer');
 
             CommunicationHistory::create([
                 'model_id' => $order->id,
@@ -1491,7 +1491,7 @@ class OrderController extends Controller
             $requestData->setMethod('POST');
             $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 2]);
 
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
 
             CommunicationHistory::create([
                 'model_id' => $order->id,
@@ -1580,7 +1580,7 @@ class OrderController extends Controller
                 $requestData->setMethod('POST');
                 $requestData->request->add(['customer_id' => $order->customer_id, 'message' => $message, 'status' => 2]);
 
-                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
 
                 CommunicationHistory::create([
                     'model_id' => $order->id,
@@ -2003,8 +2003,8 @@ class OrderController extends Controller
             $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 2]);
             $requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message, 'status' => 2]);
 
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData2, 'customer');
 
             CommunicationHistory::create([
                 'model_id' => $order->id,
@@ -2018,7 +2018,7 @@ class OrderController extends Controller
             $requestData->setMethod('POST');
             $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 2]);
 
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
 
             CommunicationHistory::create([
                 'model_id' => $order->id,
@@ -2080,7 +2080,7 @@ class OrderController extends Controller
                 $requestData->setMethod('POST');
                 $requestData->request->add(['customer_id' => $order->customer_id, 'message' => $message, 'status' => 2]);
 
-                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
 
                 CommunicationHistory::create([
                     'model_id' => $order->id,
@@ -2111,7 +2111,7 @@ class OrderController extends Controller
             $requestData->setMethod('POST');
             $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 2]);
 
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
 
             CommunicationHistory::create([
                 'model_id' => $order->id,
@@ -4299,7 +4299,7 @@ class OrderController extends Controller
                        <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >".$preview.'</textarea></td>
                     </tr>
             </table>';
-            $this->createEmailSendJourneyLog($order->id, 'Status Change to '.$statusModal->status, "\App\Order", 'outgoing', '0', $from, '', 'Order # '.$order->id.' Status has been changed', $preview, $template, '', $storeWebsiteOrder->website_id);
+            $this->createEmailSendJourneyLog($order->id, 'Status Change to '.$statusModal->status, \App\Order::class, 'outgoing', '0', $from, '', 'Order # '.$order->id.' Status has been changed', $preview, $template, '', $storeWebsiteOrder->website_id);
         } else {
             $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
             if ($emailClass != null) {
@@ -4323,7 +4323,7 @@ class OrderController extends Controller
                        <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >".$preview.'</textarea></td>
                     </tr>
             </table>';
-            $this->createEmailSendJourneyLog($order->id, 'Status Change to '.$statusModal->status, "\App\Order", 'outgoing', '0', $from, '', 'Order # '.$order->id.' Status has been changed', $preview, $template, '', $storeWebsiteOrder);
+            $this->createEmailSendJourneyLog($order->id, 'Status Change to '.$statusModal->status, \App\Order::class, 'outgoing', '0', $from, '', 'Order # '.$order->id.' Status has been changed', $preview, $template, '', $storeWebsiteOrder);
         }
 
         return response()->json(['code' => 200, 'template' => $template, 'preview' => $preview]);
@@ -4366,7 +4366,7 @@ class OrderController extends Controller
                        <td>Preview </td> <td><textarea name='editableFileproduct' rows='10' id='editableFileproduct1' >".$preview.'</textarea></td>
                     </tr>
             </table>';
-            $this->createEmailSendJourneyLog($order->id, 'Status Change to '.$statusModal->status, "\App\Order", 'outgoing', '0', $from, '', 'Order # '.$order->id.' Status has been changed', $preview, $template, '', $storeWebsiteOrder->website_id);
+            $this->createEmailSendJourneyLog($order->id, 'Status Change to '.$statusModal->status, \App\Order::class, 'outgoing', '0', $from, '', 'Order # '.$order->id.' Status has been changed', $preview, $template, '', $storeWebsiteOrder->website_id);
         } else {
             $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
             if ($emailClass != null) {
@@ -4390,7 +4390,7 @@ class OrderController extends Controller
                        <td>Preview </td> <td><textarea name='editableFileproduct' rows='10' id='editableFileproduct1' >".$preview.'</textarea></td>
                     </tr>
             </table>';
-            $this->createEmailSendJourneyLog($order->id, 'Status Change to '.$statusModal->status, "\App\Order", 'outgoing', '0', $from, '', 'Order # '.$order->id.' Status has been changed', $preview, $template, '', $storeWebsiteOrder);
+            $this->createEmailSendJourneyLog($order->id, 'Status Change to '.$statusModal->status, \App\Order::class, 'outgoing', '0', $from, '', 'Order # '.$order->id.' Status has been changed', $preview, $template, '', $storeWebsiteOrder);
         }
 
         return response()->json(['code' => 200, 'template' => $template, 'preview' => $preview]);
@@ -4681,7 +4681,7 @@ class OrderController extends Controller
             $customer = Customer::find($addRequestData['customerId']);
 
             if (! empty($customer) && ! empty($customer->phone) && ! empty($customer->whatsapp_number)) {
-                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $addRequestData['message']);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $addRequestData['message']);
                 $shouldSaveInChatMessage = true;
             }
         } elseif (! $addRequestData['customerId'] && ! empty($addRequestData['whatsapp'])) {
@@ -4689,7 +4689,7 @@ class OrderController extends Controller
             $sendTo = str_replace('+', '', $addRequestData['fullNumber']);
             $sendFrom = $defaultNo;
             if (! empty($addRequestData['whatsapp']) && ! empty($sendTo) && ! empty($sendFrom)) {
-                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($sendTo, $sendFrom, $addRequestData['message']);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($sendTo, $sendFrom, $addRequestData['message']);
                 $shouldSaveInChatMessage = true;
             }
             // $customer= Customer::where('')
@@ -4774,7 +4774,7 @@ class OrderController extends Controller
         $order_id = $request->input('order_id');
         $html = '';
         $paymentData = \App\CashFlow::where('cash_flow_able_id', $order_id)
-            ->where('cash_flow_able_type', 'App\Order')
+            ->where('cash_flow_able_type', \App\Order::class)
             ->where('type', 'paid')
             ->orderBy('date', 'DESC')
             ->get();

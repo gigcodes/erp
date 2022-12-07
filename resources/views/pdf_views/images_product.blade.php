@@ -74,7 +74,7 @@
         } ?>
         <div class="page" style="page-break-after:always;">
             <?php
-            $mediable = DB::table('mediables')->where('media_id', $subMedia->id)->where('mediable_type', 'App\Product')->first();
+            $mediable = DB::table('mediables')->where('media_id', $subMedia->id)->where('mediable_type', \App\Product::class)->first();
             if ($mediable) {
                 $product_id = $mediable->mediable_id;
                 $product = App\Product::find($product_id);

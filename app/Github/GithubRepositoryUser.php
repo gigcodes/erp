@@ -15,11 +15,11 @@ class GithubRepositoryUser extends Model
 
     public function githubUser()
     {
-        return $this->hasOne('App\Github\GithubUser', 'id', 'github_users_id');
+        return $this->hasOne(\App\Github\GithubUser::class, 'id', 'github_users_id');
     }
 
     public function githubRepository()
     {
-        return $this->hasOne('App\Github\GithubRepository', 'id', 'github_repositories_id');
+        return $this->hasOne(\App\Github\GithubRepository::class, 'id', 'github_repositories_id');
     }
 }

@@ -84,7 +84,7 @@ class TmpTaskController extends Controller
 
                     $mediaArr = $lead->getMedia(config('constants.media_tags'));
                     foreach ($mediaArr as $media) {
-                        \DB::table('mediables')->where('media_id', $media->id)->where('mediable_type', 'App\ErpLeads')->delete();
+                        \DB::table('mediables')->where('media_id', $media->id)->where('mediable_type', \App\ErpLeads::class)->delete();
                         $erpLead->attachMedia($media, config('constants.media_tags'));
                     }
                 } catch (\Illuminate\Database\QueryException $e) {
@@ -97,7 +97,7 @@ class TmpTaskController extends Controller
     public function importProduct()
     {
         $scraped_product = \App\ScrapedProducts::orderBy('id', 'desc')->first();
-        app('App\Services\Products\ProductsCreator')->createProduct($scraped_product);
+        app(\App\Services\Products\ProductsCreator::class)->createProduct($scraped_product);
     }
 
     public function testEmail(Request $request)

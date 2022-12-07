@@ -29,18 +29,18 @@ class InventoryStatusHistory extends Model
 
     public function product()
     {
-        return $this->belongsTo('App\Product', 'product_id', 'id');
+        return $this->belongsTo(\App\Product::class, 'product_id', 'id');
     }
 
     public function supplier()
     {
-        return $this->belongsTo('App\Supplier', 'supplier_id', 'id');
+        return $this->belongsTo(\App\Supplier::class, 'supplier_id', 'id');
     }
 
     public function product_count()
     {
         //return self::select('product_id')->distinct()->get();
-        return $this->hasMany('App\InventoryStatusHistory', 'supplier_id', 'supplier_id');
+        return $this->hasMany(\App\InventoryStatusHistory::class, 'supplier_id', 'supplier_id');
     }
 
     public function totalBrandsLink($date, $brandID = 0)

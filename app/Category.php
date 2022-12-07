@@ -59,17 +59,17 @@ class Category extends Model
 
     public function parent()
     {
-        return $this->hasOne('App\Category', 'id', 'parent_id');
+        return $this->hasOne(\App\Category::class, 'id', 'parent_id');
     }
 
     public function parentC()
     {
-        return $this->hasOne('App\Category', 'id', 'parent_id');
+        return $this->hasOne(\App\Category::class, 'id', 'parent_id');
     }
 
     public function parentM()
     {
-        return $this->hasOne('App\Category', 'id', 'parent_id');
+        return $this->hasOne(\App\Category::class, 'id', 'parent_id');
     }
 
     public static function isParent($id)

@@ -592,7 +592,7 @@ class OldController extends Controller
 
         $inbox = $imap->getFolder($inbox_name);
 
-        $latest_email = Email::where('type', $type)->where('model_id', $old->serial_no)->where('model_type', 'App\Old')->latest()->first();
+        $latest_email = Email::where('type', $type)->where('model_id', $old->serial_no)->where('model_type', \App\Old::class)->latest()->first();
 
         $latest_email_date = $latest_email
             ? Carbon::parse($latest_email->created_at)

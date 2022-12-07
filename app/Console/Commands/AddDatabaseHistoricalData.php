@@ -104,7 +104,7 @@ class AddDatabaseHistoricalData extends Command
                                 $requestData = new Request();
                                 $requestData->setMethod('POST');
                                 $requestData->request->add(['user_id' => $user_id, 'message' => $message, 'status' => 1]);
-                                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'user');
+                                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'user');
                             }
                         }
                         DatabaseTableHistoricalRecord::create([

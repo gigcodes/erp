@@ -1868,7 +1868,7 @@ class LiveChatController extends Controller
 
     public function fetchEmailsOnTicket($ticketId)
     {
-        $emails = Email::where('model_id', $ticketId)->where('model_type', 'App\Tickets')->get();
+        $emails = Email::where('model_id', $ticketId)->where('model_type', \App\Tickets::class)->get();
         $email_status = DB::table('email_status')->get();
 
         return view('livechat.partials.ticket-email', compact('emails', 'email_status'));
@@ -1953,7 +1953,7 @@ class LiveChatController extends Controller
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add(['ticket_id' => $id, 'message' => $request->message, 'status' => 1]);
-                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'ticket');
+                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'ticket');
             }
 
             return response()->json(['code' => 200, 'message' => 'Message has been sent to all selected ticket']);

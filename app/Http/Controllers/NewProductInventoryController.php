@@ -186,7 +186,7 @@ class NewProductInventoryController extends Controller
                 'data' => $googleData,
                 'product_id' => $id,
             ]);
-            app('App\Http\Controllers\ScrapController')->downloadImages($requestData);
+            app(\App\Http\Controllers\ScrapController::class)->downloadImages($requestData);
 
             return back()->with('message', 'Images has been saved on lifestyle grid');
         }

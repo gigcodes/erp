@@ -90,90 +90,90 @@ class Supplier extends Model
 
     public function agents()
     {
-        return $this->hasMany('App\Agent', 'model_id')->where('model_type', 'App\Supplier');
+        return $this->hasMany(\App\Agent::class, 'model_id')->where('model_type', \App\Supplier::class);
     }
 
     public function products()
     {
-        return $this->belongsToMany('App\Product', 'product_suppliers', 'supplier_id', 'product_id');
+        return $this->belongsToMany(\App\Product::class, 'product_suppliers', 'supplier_id', 'product_id');
     }
 
     public function myproducts()
     {
-        return $this->hasMany('App\Product', 'supplier_id', 'id');
+        return $this->hasMany(\App\Product::class, 'supplier_id', 'id');
     }
 
     public function histories()
     {
-        return $this->hasMany('App\InventoryStatusHistory', 'supplier_id', 'id');
+        return $this->hasMany(\App\InventoryStatusHistory::class, 'supplier_id', 'id');
     }
 
     public function lastProduct()
     {
-        return $this->hasOne('App\Product', 'supplier_id', 'id')->latest();
+        return $this->hasOne(\App\Product::class, 'supplier_id', 'id')->latest();
     }
 
     public function purchases()
     {
-        return $this->hasMany('App\Purchase');
+        return $this->hasMany(\App\Purchase::class);
     }
 
     public function emails()
     {
-        return $this->hasMany('App\Email', 'model_id')->where(function ($query) {
-            $query->where('model_type', 'App\Purchase')->orWhere('model_type', 'App\Supplier');
+        return $this->hasMany(\App\Email::class, 'model_id')->where(function ($query) {
+            $query->where('model_type', \App\Purchase::class)->orWhere('model_type', \App\Supplier::class);
         });
     }
 
     public function whatsapps()
     {
-        return $this->hasMany('App\ChatMessage', 'supplier_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+        return $this->hasMany(\App\ChatMessage::class, 'supplier_id')->whereNotIn('status', ['7', '8', '9'])->latest();
     }
 
     public function category()
     {
         //return $this->belongsToMany('App\SupplierCategory', 'supplier_category', 'supplier_category_id', 'id');
-        return $this->hasMany('App\SupplierCategory');
+        return $this->hasMany(\App\SupplierCategory::class);
     }
 
     public function status()
     {
-        return $this->belongsToMany('App\SupplierStatus', 'supplier_status', 'supplier_status_id', 'id');
+        return $this->belongsToMany(\App\SupplierStatus::class, 'supplier_status', 'supplier_status_id', 'id');
         //return $this->hasMany('App\SupplierStatus');
     }
 
     public function whatsappAll($needBroadCast = false)
     {
         if ($needBroadCast) {
-            return $this->hasMany('App\ChatMessage', 'supplier_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
+            return $this->hasMany(\App\ChatMessage::class, 'supplier_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
         }
 
-        return $this->hasMany('App\ChatMessage', 'supplier_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+        return $this->hasMany(\App\ChatMessage::class, 'supplier_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
     public function whoDid()
     {
-        return $this->hasOne('App\User', 'id', 'updated_by');
+        return $this->hasOne(\App\User::class, 'id', 'updated_by');
     }
 
     public function scraperMadeBy()
     {
-        return $this->hasOne('App\User', 'id', 'scraper_madeby');
+        return $this->hasOne(\App\User::class, 'id', 'scraper_madeby');
     }
 
     public function scraperParent()
     {
-        return $this->hasOne('App\Supplier', 'id', 'scraper_parent_id');
+        return $this->hasOne(\App\Supplier::class, 'id', 'scraper_parent_id');
     }
 
     public function scraper()
     {
-        return $this->hasOne('App\Scraper', 'supplier_id', 'id');
+        return $this->hasOne(\App\Scraper::class, 'supplier_id', 'id');
     }
 
     public function scrapers()
     {
-        return $this->hasMany('App\Scraper', 'supplier_id', 'id');
+        return $this->hasMany(\App\Scraper::class, 'supplier_id', 'id');
     }
 
     public function getSupplierExcelFromSupplierEmail()
@@ -220,13 +220,13 @@ class Supplier extends Model
 
     public function inventory()
     {
-        return $this->hasMany('App\Product', 'supplier_id', 'id');
+        return $this->hasMany(\App\Product::class, 'supplier_id', 'id');
     }
 
     // START - Purpose : Product Inquiry Data -DEVTASK-4048
     public function inquiryproductdata()
     {
-        return $this->hasMany('App\SupplierOrderInquiryData', 'supplier_id', 'id');
+        return $this->hasMany(\App\SupplierOrderInquiryData::class, 'supplier_id', 'id');
     }
     // END -DEVTASK-4048
 }

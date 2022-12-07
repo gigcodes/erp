@@ -30,10 +30,10 @@ class Uicheck extends Model
     public function whatsappAll($needBroadCast = false)
     {
         if ($needBroadCast) {
-            return $this->hasMany('App\ChatMessage', 'document_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
+            return $this->hasMany(\App\ChatMessage::class, 'document_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
         }
 
-        return $this->hasMany('App\ChatMessage', 'document_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+        return $this->hasMany(\App\ChatMessage::class, 'document_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
     public function updateElement($type, $newValue)

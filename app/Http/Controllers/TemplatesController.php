@@ -274,7 +274,7 @@ class TemplatesController extends Controller
                         if ($product->getMedia(config('constants.media_tags'))->count() != 0) {
                             $oldTemplate = ProductTemplate::where('template_no', $template->id)->where('type', 1)->orderBy('id', 'desc')->first();
                             if ($oldTemplate != null) {
-                                $mediable = DB::table('mediables')->where('mediable_type', 'App\ProductTemplate')->where('mediable_id', $oldTemplate->id)->count();
+                                $mediable = DB::table('mediables')->where('mediable_type', \App\ProductTemplate::class)->where('mediable_id', $oldTemplate->id)->count();
                                 if ($template->no_of_images == $mediable) {
                                     //check if Product Template Already Exist
                                     $temp = ProductTemplate::where('template_no', $template->id)->where('brand_id', $product->brand)->where('category_id', $product->category)->where('is_processed', 0)->where('type', 1)->count();

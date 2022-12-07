@@ -29,12 +29,12 @@ class Voucher extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 
     public function category()
     {
-        return $this->belongsTo('App\VoucherCategory');
+        return $this->belongsTo(\App\VoucherCategory::class);
     }
 
     public function chat_message()

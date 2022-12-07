@@ -675,7 +675,7 @@ class ImageController extends Controller
 
         $new = new \App\SearchQueue;
         $new->search_type = 'image';
-        $new->model_name = 'App\Images';
+        $new->model_name = \App\Images::class;
         $new->search_term = $request->search_term;
         $new->created_at = $new->updated_at = time();
 

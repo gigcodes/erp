@@ -310,7 +310,7 @@ class WhatsAppController extends FindByNumberController
                                             $requestData->setMethod('POST');
                                             $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
 
-                                            app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
+                                            app(\App\Http\Controllers\LeadsController::class)->sendPrices($requestData);
                                         }
 
                                         CommunicationHistory::create([
@@ -620,7 +620,7 @@ class WhatsAppController extends FindByNumberController
                     $myRequest->setMethod('POST');
                     $myRequest->request->add(['remark' => $params['message'], 'id' => $instruction->id, 'module_type' => 'instruction', 'user_name' => 'User from Whatsapp']);
 
-                    app('App\Http\Controllers\TaskModuleController')->addRemark($myRequest);
+                    app(\App\Http\Controllers\TaskModuleController::class)->addRemark($myRequest);
                 }
 
                 NotificationQueueController::createNewNotification([
@@ -885,7 +885,7 @@ class WhatsAppController extends FindByNumberController
                                         $requestData->setMethod('POST');
                                         $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
 
-                                        app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
+                                        app(\App\Http\Controllers\LeadsController::class)->sendPrices($requestData);
 
                                         CommunicationHistory::create([
                                             'model_id' => $latest_broadcast_message->id,
@@ -3453,7 +3453,7 @@ class WhatsAppController extends FindByNumberController
                             $image_key = $imageDetails->getKey();
                             $media = Media::find($image_key);
                             if ($media) {
-                                $mediable = \App\Mediables::where('media_id', $media->id)->where('mediable_type', 'App\Product')->first();
+                                $mediable = \App\Mediables::where('media_id', $media->id)->where('mediable_type', \App\Product::class)->first();
                                 //$data['media_url'] = $media->getUrl();
                                 try {
                                     if ($iimg != 0) {
@@ -3482,7 +3482,7 @@ class WhatsAppController extends FindByNumberController
                         $medias = Media::whereIn('id', array_unique($imagesDecoded))->get();
                         if (! $medias->isEmpty()) {
                             foreach ($medias as $iimg => $media) {
-                                $mediable = \App\Mediables::where('media_id', $media->id)->where('mediable_type', 'App\Product')->first();
+                                $mediable = \App\Mediables::where('media_id', $media->id)->where('mediable_type', \App\Product::class)->first();
                                 //$data['media_url'] = $media->getUrl();
                                 try {
                                     if ($iimg != 0) {
@@ -5631,7 +5631,7 @@ class WhatsAppController extends FindByNumberController
 
         if ($request->id && $request->status == 5) {
             ChatMessagesQuickData::updateOrCreate([
-                'model' => "\App\Customer",
+                'model' => \App\Customer::class,
                 'model_id' => $request->id,
             ], [
                 'last_unread_message' => '',
@@ -6023,7 +6023,7 @@ class WhatsAppController extends FindByNumberController
         ];
 
         $user = User::find($data['assign_to']);
-        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
         $chat_message = ChatMessage::create($params);
         ChatMessagesQuickData::updateOrCreate([
             'model' => \App\Task::class,
@@ -6106,7 +6106,7 @@ class WhatsAppController extends FindByNumberController
         $requestData->setMethod('POST');
         $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
 
-        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'auto_task');
+        app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'auto_task');
 
         $hubstaff_project_id = $data['hubstaff_project'];
 

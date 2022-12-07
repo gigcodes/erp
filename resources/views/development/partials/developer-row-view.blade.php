@@ -96,7 +96,7 @@
 
         @if (auth()->user()->id == $issue->assigned_to)
         <?php
-        $developerTime = \App\MeetingAndOtherTime::where('model', 'App\DeveloperTask')
+        $developerTime = \App\MeetingAndOtherTime::where('model', \App\DeveloperTask::class)
             ->where('model_id', $issue->id)
             ->where('user_id', $issue->assigned_to)
             ->where('approve', 1)
@@ -105,7 +105,7 @@
         Others : {{ $developerTime }}
         @elseif(auth()->user()->id == $issue->master_user_id)
         <?php
-        $leadTime = \App\MeetingAndOtherTime::where('model', 'App\DeveloperTask')
+        $leadTime = \App\MeetingAndOtherTime::where('model', \App\DeveloperTask::class)
             ->where('model_id', $issue->id)
             ->where('user_id', $issue->master_user_id)
             ->where('approve', 1)
@@ -114,7 +114,7 @@
         Others : {{ $leadTime }}
         @elseif(auth()->user()->id == $issue->tester_id)
         <?php
-        $testerTime = \App\MeetingAndOtherTime::where('model', 'App\DeveloperTask')
+        $testerTime = \App\MeetingAndOtherTime::where('model', \App\DeveloperTask::class)
             ->where('model_id', $issue->id)
             ->where('user_id', $issue->tester_id)
             ->where('approve', 1)
@@ -141,7 +141,7 @@
 
         @if (auth()->user()->id == $issue->assigned_to)
         <?php
-        $developerTime = \App\MeetingAndOtherTime::where('model', 'App\DeveloperTask')
+        $developerTime = \App\MeetingAndOtherTime::where('model', \App\DeveloperTask::class)
             ->where('model_id', $issue->id)
             ->where('user_id', $issue->assigned_to)
             ->where('approve', 1)
@@ -150,7 +150,7 @@
         Others : {{ $developerTime }}
         @elseif(auth()->user()->id == $issue->master_user_id)
         <?php
-        $leadTime = \App\MeetingAndOtherTime::where('model', 'App\DeveloperTask')
+        $leadTime = \App\MeetingAndOtherTime::where('model', \App\DeveloperTask::class)
             ->where('model_id', $issue->id)
             ->where('user_id', $issue->master_user_id)
             ->where('approve', 1)
@@ -159,7 +159,7 @@
         Others : {{ $leadTime }}
         @elseif(auth()->user()->id == $issue->tester_id)
         <?php
-        $testerTime = \App\MeetingAndOtherTime::where('model', 'App\DeveloperTask')
+        $testerTime = \App\MeetingAndOtherTime::where('model', \App\DeveloperTask::class)
             ->where('model_id', $issue->id)
             ->where('user_id', $issue->tester_id)
             ->where('approve', 1)

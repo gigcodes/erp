@@ -19,7 +19,7 @@ class BusinessComment extends Model
 
     public function replyComment()
     {
-        return $this->hasMany('\App\BusinessComment', 'parent_comment_id', 'comment_id')->where('is_parent', 1)->latest('time');
+        return $this->hasMany(\App\BusinessComment::class, 'parent_comment_id', 'comment_id')->where('is_parent', 1)->latest('time');
     }
 
     public function getUserAttribute()

@@ -25,11 +25,11 @@ class ReturnExchangeProduct extends Model
 
     public function product()
     {
-        return $this->hasOne('App\Product', 'id', 'product_id');
+        return $this->hasOne(\App\Product::class, 'id', 'product_id');
     }
 
     public function order_product()
     {
-        return $this->hasOne('App\OrderProduct', 'id', 'order_product_id');
+        return $this->hasOne(\App\OrderProduct::class, 'id', 'order_product_id');
     }
 }

@@ -97,7 +97,7 @@ class BroadcastController extends Controller
                     $approveRequest->setMethod('GET');
                     $approveRequest->request->add(['messageId' => $chat_message->id]);
 
-                    app('App\Http\Controllers\WhatsAppController')->approveMessage('vendor', $approveRequest);
+                    app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('vendor', $approveRequest);
                 } elseif ($item->type == 'App\Http\Controllers\App\Supplier') {
                     //Supplier
                     $message = [
@@ -121,7 +121,7 @@ class BroadcastController extends Controller
                     $myRequest = new Request();
                     $myRequest->setMethod('POST');
                     $myRequest->request->add(['messageId' => $chat_message->id]);
-                    app('App\Http\Controllers\WhatsAppController')->approveMessage('supplier', $myRequest);
+                    app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('supplier', $myRequest);
                 } else {
                     //Customer
                     $sendingData = [];
@@ -247,7 +247,7 @@ class BroadcastController extends Controller
                     $approveRequest->setMethod('GET');
                     $approveRequest->request->add(['messageId' => $chat_message->id]);
 
-                    app('App\Http\Controllers\WhatsAppController')->approveMessage('vendor', $approveRequest);
+                    app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('vendor', $approveRequest);
                 } elseif ($item->type == 'App\Http\Controllers\App\Supplier') {
                     if ($request['is_last'] == 1) {
                         $message_data = \App\ChatMessage::where('supplier_id', $item->type_id)->latest()->first();
@@ -278,7 +278,7 @@ class BroadcastController extends Controller
                     $myRequest = new Request();
                     $myRequest->setMethod('POST');
                     $myRequest->request->add(['messageId' => $chat_message->id]);
-                    app('App\Http\Controllers\WhatsAppController')->approveMessage('supplier', $myRequest);
+                    app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('supplier', $myRequest);
                 } else {
                     //Customer
                     $sendingData = [];

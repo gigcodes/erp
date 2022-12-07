@@ -395,7 +395,7 @@ class LandingPageController extends Controller
 
     public function deleteImage($id, $productId)
     {
-        \DB::table('mediables')->where('mediable_type', 'App\Product')
+        \DB::table('mediables')->where('mediable_type', \App\Product::class)
             ->where('media_id', $id)
             ->where('mediable_id', $productId)
             ->delete();

@@ -20,6 +20,6 @@ class ChatbotKeyword extends Model
 
     public function chatbotKeywordValues()
     {
-        return $this->hasMany("App\ChatbotKeywordValue", 'chatbot_keyword_id', 'id');
+        return $this->hasMany(\App\ChatbotKeywordValue::class, 'chatbot_keyword_id', 'id');
     }
 }

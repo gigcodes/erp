@@ -49,11 +49,11 @@ class AgentController extends Controller
 
         Agent::create($data);
 
-        if ($request->model_type == 'App\Supplier') {
+        if ($request->model_type == \App\Supplier::class) {
             return redirect()->route('supplier.show', $request->model_id)->withSuccess('You have successfully added an agent!');
-        } elseif ($request->model_type == 'App\Vendor') {
+        } elseif ($request->model_type == \App\Vendor::class) {
             return redirect()->route('vendors.show', $request->model_id)->withSuccess('You have successfully added an agent!');
-        } elseif ($request->model_type == 'App\Old') {
+        } elseif ($request->model_type == \App\Old::class) {
             return redirect()->route('old.show', $request->model_id)->withSuccess('You have successfully added an agent!');
         }
     }
@@ -102,10 +102,10 @@ class AgentController extends Controller
         $agent = Agent::find($id);
         $agent->update($data);
 
-        if ($agent->model_type == 'App\Supplier') {
+        if ($agent->model_type == \App\Supplier::class) {
             return redirect()->back()->withSuccess('You have successfully updated an agent!');
         // return redirect()->route('supplier.index')->withSuccess('You have successfully updated an agent!');
-        } elseif ($agent->model_type == 'App\Vendor') {
+        } elseif ($agent->model_type == \App\Vendor::class) {
             return redirect()->back()->withSuccess('You have successfully updated an agent!');
         }
     }

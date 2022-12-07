@@ -264,7 +264,7 @@ class UserManagementController extends Controller
             // send chat message
             $chat_message = \App\ChatMessage::create($params);
             // send
-            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
 
             return response()->json(['code' => 200, 'data' => 'Permission added Successfully']);
         }
@@ -1511,7 +1511,7 @@ class UserManagementController extends Controller
             // send chat message
             $chat_message = \App\ChatMessage::create($params);
             // send
-            app('App\Http\Controllers\WhatsAppController')
+            app(\App\Http\Controllers\WhatsAppController::class)
                 ->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
 
             return response()->json(['message' => 'Successfully approved', 'code' => 200]);
@@ -1596,7 +1596,7 @@ class UserManagementController extends Controller
                 // send chat message
                 $chat_message = \App\ChatMessage::create($params);
                 // send
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
 
                 return response()->json(['code' => 200, 'message' => 'User created successfully']);
             }
@@ -1666,7 +1666,7 @@ class UserManagementController extends Controller
             // send chat message
             $chat_message = \App\ChatMessage::create($params);
             // send
-            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
 
             return response()->json(['code' => 200, 'message' => 'Table assigned successfully']);
         }

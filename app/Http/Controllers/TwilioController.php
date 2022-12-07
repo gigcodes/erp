@@ -2916,7 +2916,7 @@ class TwilioController extends FindByNumberController
 
                 ChatMessage::create($params);
 
-                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $params['message']);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $params['message']);
             }
 
             if ($request->input('From') != null || $request->input('From') != null || $request->input('From') != '') {

@@ -2129,7 +2129,7 @@ class ScrapController extends Controller
             'subject' => $request->subject, // enter issue name
             'assigned_to' => 6,
         ]);
-        app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+        app(\App\Http\Controllers\DevelopmentController::class)->issueStore($requestData, 'issue');
 
         return redirect()->back();
     }

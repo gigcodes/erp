@@ -29,7 +29,7 @@ class ProductTemplatesController extends Controller
         if ($images) {
             $productIdsArr = \DB::table('mediables')
                                 ->whereIn('media_id', json_decode($images))
-                                ->where('mediable_type', 'App\Product')
+                                ->where('mediable_type', \App\Product::class)
                                 ->pluck('mediable_id')
                                 ->toArray();
 
