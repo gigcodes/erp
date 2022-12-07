@@ -2607,9 +2607,11 @@ if (!empty($notifications)) {
                             </div>
                             <div class="card-body contacts_body">
                                 @php
-                                $chatIds = \App\CustomerLiveChat::with('customer')->orderBy('seen','asc')
-                                ->orderBy('status','desc')
-                                ->get(); 
+                                $chatIds = cache()->remember('CustomerLiveChat::with::customer::orderby::seen_asc', 60 * 60 * 24 * 1, function(){
+                                return \App\CustomerLiveChat::with('customer')->orderBy('seen','asc')
+                                        ->orderBy('status','desc')
+                                        ->get();
+                                });
                                 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                 @endphp 
                                 <ul class="contacts" id="customer-list-chat">
@@ -2786,7 +2788,9 @@ if (!empty($notifications)) {
                             <select class="form-control knowledge_base_book mb-3" name="knowledge_base_book" hidden>
                                 <option value="">Select Books</option>
                                 @php
-                                    $books = Modules\BookStack\Entities\Book::get();
+                                $books = Illuminate\Support\Facades\Cache::remember('Modules\BookStack\Entities\Book::get', 60 * 60 * 24 * 7, function(){
+                                    return Modules\BookStack\Entities\Book::get();
+                                });
                                 @endphp
                                 @foreach ($books as $book)
                                     <option value="{{ $book->name }}">{{ $book->name }}</option>
