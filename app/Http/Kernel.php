@@ -73,6 +73,7 @@ class Kernel extends HttpKernel
         'optimizeImages' => \Spatie\LaravelImageOptimizer\Middlewares\OptimizeImages::class,
         'affiliates' => AffiliateMiddleware::class,
     ];
+
     /**
      * The priority-sorted list of middleware.
      *

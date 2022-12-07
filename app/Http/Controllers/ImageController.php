@@ -280,10 +280,10 @@ class ImageController extends Controller
     public function final(Request $request)
     {
         $stats_brand = Images::where('status', '2')->whereNotNull('publish_date')->whereBetween('publish_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->select('brand', 'category', 'publish_date')->get()->groupBy([function ($date) {
-          return Carbon::parse($date->publish_date)->format('Y-m-d');
+            return Carbon::parse($date->publish_date)->format('Y-m-d');
         }, 'brand'])->toArray();
         $stats_category = Images::where('status', '2')->whereNotNull('publish_date')->whereBetween('publish_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->select('brand', 'category', 'publish_date')->get()->groupBy([function ($date) {
-          return Carbon::parse($date->publish_date)->format('Y-m-d');
+            return Carbon::parse($date->publish_date)->format('Y-m-d');
         }, 'category'])->toArray();
         $categories = Category::all();
 
