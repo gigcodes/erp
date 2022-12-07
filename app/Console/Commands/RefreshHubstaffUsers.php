@@ -72,7 +72,7 @@ class RefreshHubstaffUsers extends Command
         try {
             $this->hubstaff = $hubstaff->authenticate(false);
             $this->startGetUser();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->hubstaff = $hubstaff->authenticate(true);
             $this->startGetUser();
         }

@@ -60,25 +60,25 @@ class TemplatesController extends Controller
 
         // foreach ($request->modifications_array as $key => $row) {
 
-         //    foreach ($row as $tag => $value) {
+        //    foreach ($row as $tag => $value) {
 
-         //       if($tag !=='image_url')
-         //       {
-         //          $new_row[$tag]=$value;
-         //       }
-         //       else
-         //       {
+        //       if($tag !=='image_url')
+        //       {
+        //          $new_row[$tag]=$value;
+        //       }
+        //       else
+        //       {
 
-         //             $image=$request->file('files')[$key]['image_url'];
+        //             $image=$request->file('files')[$key]['image_url'];
 
-         //             $media = MediaUploader::fromSource($image)->toDirectory('template-images')->upload();
+        //             $media = MediaUploader::fromSource($image)->toDirectory('template-images')->upload();
 
-         //             $new_row[$tag]=($media) ? $media->getUrl() : "";
+        //             $new_row[$tag]=($media) ? $media->getUrl() : "";
 
-         //       }
-         //    }
+        //       }
+        //    }
 
-         //    $new_modification_array[]=$new_row;
+        //    $new_modification_array[]=$new_row;
 
         // }
 

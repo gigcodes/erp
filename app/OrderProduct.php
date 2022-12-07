@@ -55,55 +55,55 @@ class OrderProduct extends Model
         return $this->hasMany('App\Product', 'id', 'product_id');
     }
 
-  public function purchase()
-  {
-      return $this->belongsTo('App\Purchase');
-  }
+    public function purchase()
+    {
+        return $this->belongsTo('App\Purchase');
+    }
 
-  public function private_view()
-  {
-      return $this->hasOne('App\PrivateView');
-  }
+    public function private_view()
+    {
+        return $this->hasOne('App\PrivateView');
+    }
 
-  public function is_delivery_date_changed()
-  {
-      $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\OrderProduct')->where('type', 'order-delivery-date-changed')->count();
+    public function is_delivery_date_changed()
+    {
+        $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\OrderProduct')->where('type', 'order-delivery-date-changed')->count();
 
-      return $count > 0 ? true : false;
-  }
+        return $count > 0 ? true : false;
+    }
 
-  public function messages()
-  {
-      return $this->hasMany('App\Message', 'moduleid', 'order_id')->where('moduletype', 'order')->latest()->first();
-  }
+    public function messages()
+    {
+        return $this->hasMany('App\Message', 'moduleid', 'order_id')->where('moduletype', 'order')->latest()->first();
+    }
 
     public function whatsapps()
     {
         return $this->hasMany('App\ChatMessage', 'order_id', 'order_id')->latest()->first();
     }
 
-  public function status_changes()
-  {
-      return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\OrderProduct')->latest();
-  }
+    public function status_changes()
+    {
+        return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\OrderProduct')->latest();
+    }
 
-  public function getCommunicationAttribute()
-  {
-      $message = $this->messages();
-      $whatsapp = $this->whatsapps();
+    public function getCommunicationAttribute()
+    {
+        $message = $this->messages();
+        $whatsapp = $this->whatsapps();
 
-      if ($message && $whatsapp) {
-          if ($message->created_at > $whatsapp->created_at) {
-              return $message;
-          }
+        if ($message && $whatsapp) {
+            if ($message->created_at > $whatsapp->created_at) {
+                return $message;
+            }
 
-          return $whatsapp;
-      }
+            return $whatsapp;
+        }
 
-      if ($message) {
-          return $message;
-      }
+        if ($message) {
+            return $message;
+        }
 
-      return $whatsapp;
-  }
+        return $whatsapp;
+    }
 }

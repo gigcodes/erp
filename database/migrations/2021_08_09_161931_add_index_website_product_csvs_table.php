@@ -14,7 +14,7 @@ class AddIndexWebsiteProductCsvsTable extends Migration
     public function up()
     {
         Schema::table('website_product_csvs', function (Blueprint $table) {
-        //    $table->string('path')->nullable()->change();
+            //    $table->string('path')->nullable()->change();
             $table->dropColumn('path');
         });
         Schema::table('website_product_csvs', function (Blueprint $table) {

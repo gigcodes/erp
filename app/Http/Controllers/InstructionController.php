@@ -55,7 +55,7 @@ class InstructionController extends Controller
                     $verify_instructions = $verify_instructions->where('category_id', $selected_category);
                     $completed_instructions = $completed_instructions->where('category_id', $selected_category);
                 }
-            // $completed_instructions = Instruction::where('verified', 1)->whereIn('assigned_to', $request->user)->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page')->groupBy('category_id');
+                // $completed_instructions = Instruction::where('verified', 1)->whereIn('assigned_to', $request->user)->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page')->groupBy('category_id');
 
             // dd($instructions);
 

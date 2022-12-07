@@ -40,10 +40,10 @@ class Account extends Model
         return $this->hasMany('App\Review');
     }
 
-//  public function thread()
-//  {
+    //  public function thread()
+    //  {
 //    return $this->hasMany('App\InstagramThread','account_id','id')->whereNotNull('instagram_user_id');
-//  }
+    //  }
 
     public function has_posted_reviews()
     {

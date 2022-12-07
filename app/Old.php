@@ -74,10 +74,10 @@ class Old extends Model
         // return $types;
     }
 
-     public function emails()
-     {
-         return $this->hasMany(Email::class, 'model_id', 'serial_no');
-     }
+    public function emails()
+    {
+        return $this->hasMany(Email::class, 'model_id', 'serial_no');
+    }
 
     public function category()
     {

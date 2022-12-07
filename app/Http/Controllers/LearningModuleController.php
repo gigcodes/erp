@@ -794,9 +794,9 @@ class LearningModuleController extends Controller
         return redirect()->back()->with('success', 'Task created successfully.');
     }
 
-            // echo "<pre>";
-            // print_r($last_record_learning->toArray());
-            // exit;
+    // echo "<pre>";
+    // print_r($last_record_learning->toArray());
+    // exit;
 
     private function createHubstaffTask(string $taskSummary, ?int $hubstaffUserId, int $projectId, bool $shouldRetry = true)
     {
@@ -2112,217 +2112,217 @@ class LearningModuleController extends Controller
         }
     }
 
-        public function getTaskCategories()
-        {
-            $categories = LearningModule::where('is_approved', 1)->get();
+    public function getTaskCategories()
+    {
+        $categories = LearningModule::where('is_approved', 1)->get();
 
-            return view('learning-module.partials.all-task-category', compact('categories'));
-        }
+        return view('learning-module.partials.all-task-category', compact('categories'));
+    }
 
-        public function completeBulkTasks(Request $request)
-        {
-            if (count($request->selected_tasks) > 0) {
-                foreach ($request->selected_tasks as $t) {
-                    $task = Learning::find($t);
-                    $task->is_completed = date('Y-m-d H:i:s');
-                    $task->is_verified = date('Y-m-d H:i:s');
-                    if ($task->assignedTo) {
-                        if ($task->assignedTo->fixed_price_user_or_job == 1) {
-                            // Fixed price task.
-                            continue;
-                        }
+    public function completeBulkTasks(Request $request)
+    {
+        if (count($request->selected_tasks) > 0) {
+            foreach ($request->selected_tasks as $t) {
+                $task = Learning::find($t);
+                $task->is_completed = date('Y-m-d H:i:s');
+                $task->is_verified = date('Y-m-d H:i:s');
+                if ($task->assignedTo) {
+                    if ($task->assignedTo->fixed_price_user_or_job == 1) {
+                        // Fixed price task.
+                        continue;
                     }
-                    $task->save();
                 }
+                $task->save();
             }
-
-            return response()->json(['message' => 'Successful']);
         }
 
-        public function deleteBulkTasks(Request $request)
-        {
-            if (count($request->selected_tasks) > 0) {
-                foreach ($request->selected_tasks as $t) {
-                    $task = Learning::where('id', $t)->delete();
-                }
-            }
+        return response()->json(['message' => 'Successful']);
+    }
 
-            return response()->json(['message' => 'Successful']);
+    public function deleteBulkTasks(Request $request)
+    {
+        if (count($request->selected_tasks) > 0) {
+            foreach ($request->selected_tasks as $t) {
+                $task = Learning::where('id', $t)->delete();
+            }
         }
 
-        public function getTimeHistory(Request $request)
-        {
-            $id = $request->id;
-            $task_module = DeveloperTaskHistory::join('users', 'users.id', 'developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model', 'App\Task')->where('attribute', 'estimation_minute')->select('developer_tasks_history.*', 'users.name')->get();
-            if ($task_module) {
-                return $task_module;
-            }
+        return response()->json(['message' => 'Successful']);
+    }
 
-            return 'error';
+    public function getTimeHistory(Request $request)
+    {
+        $id = $request->id;
+        $task_module = DeveloperTaskHistory::join('users', 'users.id', 'developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model', 'App\Task')->where('attribute', 'estimation_minute')->select('developer_tasks_history.*', 'users.name')->get();
+        if ($task_module) {
+            return $task_module;
         }
 
-        public function sendDocument(Request $request)
-        {
-            if ($request->id != null && $request->user_id != null) {
-                $media = \Plank\Mediable\Media::find($request->id);
-                $user = \App\User::find($request->user_id);
-                if ($user) {
-                    if ($media) {
-                        \App\ChatMessage::sendWithChatApi(
+        return 'error';
+    }
+
+    public function sendDocument(Request $request)
+    {
+        if ($request->id != null && $request->user_id != null) {
+            $media = \Plank\Mediable\Media::find($request->id);
+            $user = \App\User::find($request->user_id);
+            if ($user) {
+                if ($media) {
+                    \App\ChatMessage::sendWithChatApi(
                             $user->phone,
                             null,
                             'Please find attached file',
                             $media->getUrl()
                         );
 
-                        return response()->json(['message' => 'Document send succesfully'], 200);
-                    }
-                } else {
-                    return response()->json(['message' => 'User  not available'], 500);
+                    return response()->json(['message' => 'Document send succesfully'], 200);
+                }
+            } else {
+                return response()->json(['message' => 'User  not available'], 500);
+            }
+        }
+
+        return response()->json(['message' => 'Sorry required fields is missing like id , userid'], 500);
+    }
+
+    /* update task status
+     */
+
+    public function updateStatus(Request $request)
+    {
+        try {
+            $task = Learning::find($request->task_id);
+
+            $task->status = $request->status;
+
+            $task->save();
+
+            return response()->json([
+                'status' => 'success', 'message' => 'The task status updated.',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'error', 'message' => 'The task status not updated.',
+            ], 500);
+        }
+    }
+
+    /* create new task status */
+
+    public function createStatus(Request $request)
+    {
+        $this->validate($request, ['task_status' => 'required']);
+
+        try {
+            TaskStatus::create(['name' => $request->task_status]);
+
+            return redirect()->back()->with('success', 'The task status created successfully.');
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function learningModuleUpdate(Request $request)
+    {
+        $id = $request->id;
+        $learning = Learning::find($id);
+        if ($request->user_id) {
+            $learning->learning_user = $request->user_id;
+            $learning->save();
+
+            return response()->json(['message' => 'User Updated Successfully']);
+        }
+
+        if ($request->provider_id) {
+            $learning->learning_vendor = $request->provider_id;
+            $learning->save();
+
+            return response()->json(['message' => 'provider Updated Successfully']);
+        }
+
+        if ($request->subject) {
+            $learning->learning_subject = $request->subject;
+            $learning->save();
+
+            return response()->json(['message' => 'Subject Updated Successfully']);
+        }
+
+        if ($request->module_id) {
+            $learning->learning_module = $request->module_id;
+            $learning->learning_submodule = null;
+            $learning->save();
+            $submodule = LearningModule::where('parent_id', $learning->learning_module)->get();
+
+            return response()->json(['message' => 'Module Updated Successfully', 'learning_id' => $learning->id, 'submodule' => $submodule]);
+        }
+
+        if ($request->submodule_id) {
+            $learning->learning_submodule = $request->submodule_id;
+            $learning->save();
+
+            return response()->json(['message' => 'Submodule Updated Successfully']);
+        }
+
+        if ($request->assignment) {
+            $learning->learning_assignment = $request->assignment;
+            $learning->save();
+
+            return response()->json(['message' => 'Assignment Updated Successfully']);
+        }
+
+        if ($request->status_id) {
+            LearningStatusHistory::create([
+                'learning_id' => $learning->id,
+                'old_status' => $learning->learning_status ?? 0,
+                'new_status' => $request->status_id,
+                'update_by' => $request->user()->id,
+            ]);
+
+            $learning->learning_status = $request->status_id;
+            $learning->save();
+            $s = TaskStatus::where('name', 'completed')->first();
+            if ($s) {
+                if ($s->id == $request->status_id) {
+                    $payment_receipt = new PaymentReceipt;
+                    $payment_receipt->date = date('Y-m-d');
+                    $payment_receipt->worked_minutes = 0;
+                    $payment_receipt->rate_estimated = $learning->cost;
+                    $payment_receipt->status = 'Pending';
+                    $payment_receipt->task_id = $learning->id;
+                    $payment_receipt->user_id = $learning->assign_to;
+                    $payment_receipt->save();
                 }
             }
 
-            return response()->json(['message' => 'Sorry required fields is missing like id , userid'], 500);
+            return response()->json(['message' => 'Status Updated Successfully']);
         }
+    }
 
-   /* update task status
-    */
+    public function getStatusHistory(Request $request)
+    {
+        $learningid = $request->learningid;
 
-   public function updateStatus(Request $request)
-   {
-       try {
-           $task = Learning::find($request->task_id);
-
-           $task->status = $request->status;
-
-           $task->save();
-
-           return response()->json([
-               'status' => 'success', 'message' => 'The task status updated.',
-           ], 200);
-       } catch (Exception $e) {
-           return response()->json([
-               'status' => 'error', 'message' => 'The task status not updated.',
-           ], 500);
-       }
-   }
-
-   /* create new task status */
-
-   public function createStatus(Request $request)
-   {
-       $this->validate($request, ['task_status' => 'required']);
-
-       try {
-           TaskStatus::create(['name' => $request->task_status]);
-
-           return redirect()->back()->with('success', 'The task status created successfully.');
-       } catch (Exception $e) {
-           return redirect()->back()->with('error', $e->getMessage());
-       }
-   }
-
-   public function learningModuleUpdate(Request $request)
-   {
-       $id = $request->id;
-       $learning = Learning::find($id);
-       if ($request->user_id) {
-           $learning->learning_user = $request->user_id;
-           $learning->save();
-
-           return response()->json(['message' => 'User Updated Successfully']);
-       }
-
-       if ($request->provider_id) {
-           $learning->learning_vendor = $request->provider_id;
-           $learning->save();
-
-           return response()->json(['message' => 'provider Updated Successfully']);
-       }
-
-       if ($request->subject) {
-           $learning->learning_subject = $request->subject;
-           $learning->save();
-
-           return response()->json(['message' => 'Subject Updated Successfully']);
-       }
-
-       if ($request->module_id) {
-           $learning->learning_module = $request->module_id;
-           $learning->learning_submodule = null;
-           $learning->save();
-           $submodule = LearningModule::where('parent_id', $learning->learning_module)->get();
-
-           return response()->json(['message' => 'Module Updated Successfully', 'learning_id' => $learning->id, 'submodule' => $submodule]);
-       }
-
-       if ($request->submodule_id) {
-           $learning->learning_submodule = $request->submodule_id;
-           $learning->save();
-
-           return response()->json(['message' => 'Submodule Updated Successfully']);
-       }
-
-       if ($request->assignment) {
-           $learning->learning_assignment = $request->assignment;
-           $learning->save();
-
-           return response()->json(['message' => 'Assignment Updated Successfully']);
-       }
-
-       if ($request->status_id) {
-           LearningStatusHistory::create([
-               'learning_id' => $learning->id,
-               'old_status' => $learning->learning_status ?? 0,
-               'new_status' => $request->status_id,
-               'update_by' => $request->user()->id,
-           ]);
-
-           $learning->learning_status = $request->status_id;
-           $learning->save();
-           $s = TaskStatus::where('name', 'completed')->first();
-           if ($s) {
-               if ($s->id == $request->status_id) {
-                   $payment_receipt = new PaymentReceipt;
-                   $payment_receipt->date = date('Y-m-d');
-                   $payment_receipt->worked_minutes = 0;
-                   $payment_receipt->rate_estimated = $learning->cost;
-                   $payment_receipt->status = 'Pending';
-                   $payment_receipt->task_id = $learning->id;
-                   $payment_receipt->user_id = $learning->assign_to;
-                   $payment_receipt->save();
-               }
-           }
-
-           return response()->json(['message' => 'Status Updated Successfully']);
-       }
-   }
-
-   public function getStatusHistory(Request $request)
-   {
-       $learningid = $request->learningid;
-
-       $records = LearningStatusHistory::with('oldstatus', 'newstatus', 'user')
+        $records = LearningStatusHistory::with('oldstatus', 'newstatus', 'user')
                ->where('learning_id', $learningid)
                ->latest()
                ->get();
 
-       if ($records) {
-           $response = [];
-           foreach ($records as $row) {
-               $response[] = [
-                   'created_date' => $row->created_at->format('Y-m-d'),
-                   'old_status' => optional($row->oldstatus)->name ?? '-',
-                   'new_status' => optional($row->newstatus)->name ?? '-',
-                   'update_by' => $row->user->name,
-               ];
-           }
+        if ($records) {
+            $response = [];
+            foreach ($records as $row) {
+                $response[] = [
+                    'created_date' => $row->created_at->format('Y-m-d'),
+                    'old_status' => optional($row->oldstatus)->name ?? '-',
+                    'new_status' => optional($row->newstatus)->name ?? '-',
+                    'update_by' => $row->user->name,
+                ];
+            }
 
-           return $response;
-       }
+            return $response;
+        }
 
-       return 'error';
-   }
+        return 'error';
+    }
 
     public function saveDueDateUpdate(Request $request)
     {

@@ -109,7 +109,7 @@ class StockController extends Controller
         // curl_setopt($curl, CURLOPT_HEADER, false);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         // curl_setopt($curl, CURLOPT_HTTPHEADER,
-      //         array("Content-type: application/json"));
+        //         array("Content-type: application/json"));
         // curl_setopt($curl, CURLOPT_POST, true);
         // curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
 

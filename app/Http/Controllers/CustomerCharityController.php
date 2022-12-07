@@ -344,21 +344,21 @@ class CustomerCharityController extends Controller
                 'product_id' => $product->id,
             ]);
             Product::where('id', $product->id)->update(['sku' => 'charity_'.$product->id]);
-            /*   $storeWebsites = StoreWebsite::whereNotNull('cropper_color')->get();
+        /*   $storeWebsites = StoreWebsite::whereNotNull('cropper_color')->get();
 
-              $website_ids = Website::whereIn('store_website_id', $request->websites)->get()->pluck('id')->toArray();
-              $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids)->get()->pluck('id')->toArray();
-              $website_store_name = WebsiteStore::whereIn('id', $request->website_stores)->get()->pluck('name')->toArray();
-              $website_stores = WebsiteStore::whereIn('name', $website_store_name)->whereIn('id', $request->website_stores)->get();
-             foreach($website_stores as $store){
-                CustomerCharityWebsiteStore::updateOrCreate([
-                    'customer_charity_id' => $charity->id,
-                    'website_store_id' => $store->id
-                ],[
-                    'customer_charity_id' => $charity->id,
-                    'website_store_id' => $store->id
-                ]);
-              }*/
+          $website_ids = Website::whereIn('store_website_id', $request->websites)->get()->pluck('id')->toArray();
+          $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids)->get()->pluck('id')->toArray();
+          $website_store_name = WebsiteStore::whereIn('id', $request->website_stores)->get()->pluck('name')->toArray();
+          $website_stores = WebsiteStore::whereIn('name', $website_store_name)->whereIn('id', $request->website_stores)->get();
+         foreach($website_stores as $store){
+            CustomerCharityWebsiteStore::updateOrCreate([
+                'customer_charity_id' => $charity->id,
+                'website_store_id' => $store->id
+            ],[
+                'customer_charity_id' => $charity->id,
+                'website_store_id' => $store->id
+            ]);
+          }*/
 
             /*foreach($storeWebsites as $w){
               $tag = 'gallery_' . $w->cropper_color;

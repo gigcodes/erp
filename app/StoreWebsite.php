@@ -192,10 +192,10 @@ class StoreWebsite extends Model
         return $this->hasMany('App\Website', 'store_website_id', 'id');
     }
 
-     public function productCsvPath()
-     {
-         return $this->hasOne('App\WebsiteProductCsv', 'store_website_id', 'id');
-     }
+    public function productCsvPath()
+    {
+        return $this->hasOne('App\WebsiteProductCsv', 'store_website_id', 'id');
+    }
 
     public static function listMagentoSite()
     {

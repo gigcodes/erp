@@ -98,7 +98,7 @@ class SendFcmNotification extends Command
                         $errorMessage = json_encode($downstreamResponse->tokensWithError());
                         \Log::info('fcm:send Message Error message =>'.$errorMessage);
                     }
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     $Notification->status = 'Failed';
                     $success = false;
                     $errorMessage = $e->getMessage();

@@ -232,7 +232,7 @@ class ProductController extends Controller
             }
         }
         // Run through query helper
- //      $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts, true);
+        //      $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts, true);
         $term = $request->input('term');
         $brand = '';
         $category = '';
@@ -344,7 +344,7 @@ class ProductController extends Controller
         if ($request->get('user_id') > 0 && $request->get('submit_for_image_approval') == 'on') {
             $newProducts = $newProducts->Join('log_list_magentos as llm', function ($join) {
                 $join->on('llm.product_id', 'products.id');
-       //         ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.product_id = products.id)"));
+                //         ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.product_id = products.id)"));
             });
             $newProducts = $newProducts->where('llm.user_id', $request->get('user_id'));
             $newProducts = $newProducts->addSelect('llm.user_id as last_approve_user');
@@ -4172,7 +4172,7 @@ class ProductController extends Controller
                 'log' => $log,
                 'type' => $type,
             ]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $prod = ProductSuggestedLog::create(['parent_id' => $parentId, 'log' => $e->getMessage(), 'type' => 'not catch']);
         }
     }
@@ -4210,7 +4210,7 @@ class ProductController extends Controller
 
                 return redirect()->route('customer.post.show', $prodSugId)->withSuccess('Message Send For Queue');
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $prod = ProductSuggestedLog::create(['parent_id' => $prodSugId, 'log' => $e->getMessage(), 'type' => 'not catch']);
         }
     }
@@ -4252,7 +4252,7 @@ class ProductController extends Controller
             }
 
             return redirect()->route('customer.post.show', $prodSugId)->withSuccess('Message Send Now on whatsapp');
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $prod = ProductSuggestedLog::create(['parent_id' => $prodSugId, 'log' => $e->getMessage(), 'type' => 'not catch']);
         }
     }

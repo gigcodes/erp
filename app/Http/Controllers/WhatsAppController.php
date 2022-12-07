@@ -2809,7 +2809,7 @@ class WhatsAppController extends FindByNumberController
                             $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $request->message, '', $chat_message->id, '');
                         }
 
-                    //Getting Vendor For Sending Documents
+                        //Getting Vendor For Sending Documents
                     } elseif ($request->user_type == 2) {
                         $document = Document::findOrFail($module_id);
                         $document_url = $document->getDocumentPathById($document->id);
@@ -2836,7 +2836,7 @@ class WhatsAppController extends FindByNumberController
                             $this->sendWithThirdApi($vendor->phone, $vendor->whatsapp_number, $request->message, '', $chat_message->id, '');
                         }
 
-                    //Getting Contact For Sending Documents
+                        //Getting Contact For Sending Documents
                     } elseif ($request->user_type == 3) {
                         $document = Document::findOrFail($module_id);
                         $document_url = $document->getDocumentPathById($document->id);
@@ -4671,7 +4671,7 @@ class WhatsAppController extends FindByNumberController
                     }
                 }
             }
-        //Broadcast for Facebook
+            //Broadcast for Facebook
         } elseif (strtolower($request->platform) == 'facebook') {
             //Getting Frequency
             $minutes = round(60 / $frequency);

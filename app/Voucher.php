@@ -37,13 +37,13 @@ class Voucher extends Model
         return $this->belongsTo('App\VoucherCategory');
     }
 
-      public function chat_message()
-      {
-          return $this->hasMany(ChatMessage::class, 'voucher_id');
-      }
+    public function chat_message()
+    {
+        return $this->hasMany(ChatMessage::class, 'voucher_id');
+    }
 
-      public function cashFlows()
-      {
-          return $this->morphMany(CashFlow::class, 'cash_flow_able');
-      }
+    public function cashFlows()
+    {
+        return $this->morphMany(CashFlow::class, 'cash_flow_able');
+    }
 }

@@ -2474,7 +2474,7 @@ class UserManagementController extends Controller
             UserFeedbackCategory::where('id', $request->id)->delete();
 
             return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => '500',  'message' => $e->getMessage()]);
         }
     }

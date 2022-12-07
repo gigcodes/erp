@@ -2482,7 +2482,7 @@ class OrderController extends Controller
                 'all_leads' => $allleads,
                 'orders' => $orders,
             ]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
             ], 500);
@@ -2976,7 +2976,7 @@ class OrderController extends Controller
             } else {
                 return redirect()->back()->with('error', 'Record not found');
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
@@ -2997,7 +2997,7 @@ class OrderController extends Controller
             } else {
                 return response()->json(['code' => 500, 'message' => 'Could not find any error Log']);
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -3018,7 +3018,7 @@ class OrderController extends Controller
             } else {
                 return response()->json(['code' => 500, 'message' => 'Could not find any error Log']);
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -3038,7 +3038,7 @@ class OrderController extends Controller
                 'exception_error' => $logMsg,
                 'type' => $type,
             ]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             EmailCommonExceptionLog::create([
                 'order_id' => $order_id,
                 'log_msg' => $e->getMessage(),
@@ -3068,7 +3068,7 @@ class OrderController extends Controller
             }
 
             return response()->json(['code' => 200, 'data' => $html, 'message' => 'Log Listed successfully']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'data' => [], 'message' => 'Sorry , there is no matching order log']);
         }
     }
@@ -3095,7 +3095,7 @@ class OrderController extends Controller
             }
 
             return response()->json(['code' => 200, 'data' => $html, 'message' => 'Payload Listed successfully']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
         }
     }
@@ -3114,7 +3114,7 @@ class OrderController extends Controller
                 'order_id' => $order_id,
                 'log_msg' => $logMsg,
             ]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             OrderMagentoErrorLog::create([
                 'order_id' => $order_id,
                 'log_msg' => $e->getMessage(),
@@ -3202,7 +3202,7 @@ class OrderController extends Controller
         return abort('404');
     }
 
-//TODO downloadInvoice - added by jammer
+    //TODO downloadInvoice - added by jammer
     public function downloadInvoice(Request $request, $id)
     {
         $invoice = Invoice::with('orders.duty_tax')->where('id', $id)->first();
@@ -4758,7 +4758,7 @@ class OrderController extends Controller
                 'event_type' => $logType,
                 'log' => $log,
             ]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             OrderErrorLog::create(['order_id' => $request->order_id ?? '', 'log' => $e->getMessage(), 'event_type' => $logType]);
         }
     }
@@ -4824,7 +4824,7 @@ class OrderController extends Controller
 
                 return response()->json(['message' => $result, 'success' => true], 200);
             }
-        //$storeWebsiteOrder->update(['order_id', $status]);
+            //$storeWebsiteOrder->update(['order_id', $status]);
         } else {
             $this->createOrderLog($request, 'Cancel Transaction', 'Store Website Orders not found');
 
@@ -4848,7 +4848,7 @@ class OrderController extends Controller
             } else {
                 return response()->json(['code' => 500, 'message' => 'Could not find any data']);
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $orderError = OrderErrorLog::where('order_id', $request->order_id)->get();
 
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
@@ -4894,7 +4894,7 @@ class OrderController extends Controller
             }
 
             return response()->json(['message' => $message, 'success' => $success, 'code' => 200], 200);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }

@@ -400,144 +400,144 @@ class ProductTemplatesController extends Controller
         return view('product-template.image', compact('templates', 'temps', 'category_selection'));
     }
 
-     public function create(Request $request)
-     {
-         // dd( $request->store_website_id );
-         $template = new \App\ProductTemplate;
-         $params = request()->all();
-         $imagesArray = [];
-         if (empty($params['product_id'])) {
-             $params['product_id'] = [];
-         }
+    public function create(Request $request)
+    {
+        // dd( $request->store_website_id );
+        $template = new \App\ProductTemplate;
+        $params = request()->all();
+        $imagesArray = [];
+        if (empty($params['product_id'])) {
+            $params['product_id'] = [];
+        }
 
-         $params['product_id'] = implode(',', (array) $params['product_id']);
-         if ($request->modifications_array) {
-             $params['background_color'] = $request->modifications_array[0]['background'] ?? null;
-             $params['text'] = $request->modifications_array[0]['text'] ?? null;
-             $params['color'] = $request->modifications_array[0]['color'] ?? null;
-         }
+        $params['product_id'] = implode(',', (array) $params['product_id']);
+        if ($request->modifications_array) {
+            $params['background_color'] = $request->modifications_array[0]['background'] ?? null;
+            $params['text'] = $request->modifications_array[0]['text'] ?? null;
+            $params['color'] = $request->modifications_array[0]['color'] ?? null;
+        }
 
-         $template->fill($params);
+        $template->fill($params);
 
-         if ($template->save()) {
-             $StoreWebsite = StoreWebsite::where('id', $request->store_website_id)->first();
+        if ($template->save()) {
+            $StoreWebsite = StoreWebsite::where('id', $request->store_website_id)->first();
 
-             if (! empty($request->get('product_media_list')) && is_array($request->get('product_media_list'))) {
-                 $mediaList = array_unique($request->get('product_media_list'));
-                 foreach ($mediaList as $mediaid) {
-                     $media = Media::find($mediaid);
-                     try {
-                         $template->attachMedia($media, ['template-image-attach']);
-                         $template->save();
-                     } catch(\Exception $e) {
-                     }
+            if (! empty($request->get('product_media_list')) && is_array($request->get('product_media_list'))) {
+                $mediaList = array_unique($request->get('product_media_list'));
+                foreach ($mediaList as $mediaid) {
+                    $media = Media::find($mediaid);
+                    try {
+                        $template->attachMedia($media, ['template-image-attach']);
+                        $template->save();
+                    } catch (\Exception $e) {
+                    }
 
-                     try {
-                         $StoreWebsite->attachMedia($media, ['website-image-attach']);
-                     } catch(\Exception $e) {
-                     }
-                     $imagesArray[] = $media->getUrl();
-                 }
-             }
+                    try {
+                        $StoreWebsite->attachMedia($media, ['website-image-attach']);
+                    } catch (\Exception $e) {
+                    }
+                    $imagesArray[] = $media->getUrl();
+                }
+            }
 
-             if ($request->hasFile('files')) {
-                 foreach ($request->file('files') as $image) {
-                     $media = MediaUploader::fromSource($image)->toDirectory('product-template-images')->upload();
+            if ($request->hasFile('files')) {
+                foreach ($request->file('files') as $image) {
+                    $media = MediaUploader::fromSource($image)->toDirectory('product-template-images')->upload();
 
-                     $template->attachMedia($media, ['template-image-attach']);
-                     $template->save();
-                     $imagesArray[] = $media->getUrl();
+                    $template->attachMedia($media, ['template-image-attach']);
+                    $template->save();
+                    $imagesArray[] = $media->getUrl();
 
-                     $StoreWebsite->attachMedia($media, ['website-image-attach']);
-                 }
-             }
+                    $StoreWebsite->attachMedia($media, ['website-image-attach']);
+                }
+            }
 
-             if ($request->generate_image_from == 'banner-bear') {
-                 return $res = $this->makeBearBannerImage($request, $imagesArray, $template);
-             } else {
-                 $template->template_status = 'python';
-                 $template->save();
+            if ($request->generate_image_from == 'banner-bear') {
+                return $res = $this->makeBearBannerImage($request, $imagesArray, $template);
+            } else {
+                $template->template_status = 'python';
+                $template->save();
 
-                 //call here the api
-                 if ($template->category) {
-                     $category = $template->category;
-                     // Get other information related to category
-                     $cat = $category->title;
-                 }
+                //call here the api
+                if ($template->category) {
+                    $category = $template->category;
+                    // Get other information related to category
+                    $cat = $category->title;
+                }
 
-                 $parent = '';
-                 $child = '';
+                $parent = '';
+                $child = '';
 
-                 try {
-                     if ($cat != 'Select Category') {
-                         if ($category->isParent($category->id)) {
-                             $parent = $cat;
-                             $child = $cat;
-                         } else {
-                             $parent = $category->parent()->first()->title;
-                             $child = $cat;
-                         }
-                     }
-                 } catch (\ErrorException $e) {
+                try {
+                    if ($cat != 'Select Category') {
+                        if ($category->isParent($category->id)) {
+                            $parent = $cat;
+                            $child = $cat;
+                        } else {
+                            $parent = $category->parent()->first()->title;
+                            $child = $cat;
+                        }
+                    }
+                } catch (\ErrorException $e) {
                     //
-                 }
-                 $productCategory = $parent.' '.$child;
+                }
+                $productCategory = $parent.' '.$child;
 
-                 $data = [];
-                 //check if template exist
-                 $templateProductCount = $template->template->no_of_images;
+                $data = [];
+                //check if template exist
+                $templateProductCount = $template->template->no_of_images;
 
-                 // if($record->getMedia('template-image')->count() <= $templateProductCount && $templateProductCount > 0){
+                // if($record->getMedia('template-image')->count() <= $templateProductCount && $templateProductCount > 0){
                 //     $data = ['message' => 'Template Product Doesnt have Proper Images'];
                 //     return response()->json($data);
-                 // }
+                // }
 
-                 $template->is_processed = 2;
-                 $template->save();
+                $template->is_processed = 2;
+                $template->save();
 
-                 if ($template) {
-                     try {
-                         $data = [
-                             'id' => $template->id,
-                             'templateNumber' => $template->template_no,
-                             'productTitle' => $template->product_title,
-                             'productBrand' => ($template->brand) ? $template->brand->name : '',
-                             'productCategory' => $productCategory,
-                             'productPrice' => $template->price,
-                             'productDiscountedPrice' => $template->discounted_price,
-                             'productCurrency' => $template->currency,
-                             'text' => $template->text,
-                             'fontStyle' => $template->font_style,
-                             'fontSize' => $template->font_size,
-                             'backgroundColor' => explode(',', $template->background_color),
-                             'color' => $template->color,
-                             'logo' => ($template->storeWebsite) ? $template->storeWebsite->title : '',
-                         ];
+                if ($template) {
+                    try {
+                        $data = [
+                            'id' => $template->id,
+                            'templateNumber' => $template->template_no,
+                            'productTitle' => $template->product_title,
+                            'productBrand' => ($template->brand) ? $template->brand->name : '',
+                            'productCategory' => $productCategory,
+                            'productPrice' => $template->price,
+                            'productDiscountedPrice' => $template->discounted_price,
+                            'productCurrency' => $template->currency,
+                            'text' => $template->text,
+                            'fontStyle' => $template->font_style,
+                            'fontSize' => $template->font_size,
+                            'backgroundColor' => explode(',', $template->background_color),
+                            'color' => $template->color,
+                            'logo' => ($template->storeWebsite) ? $template->storeWebsite->title : '',
+                        ];
 
-                         if ($template->hasMedia('template-image-attach')) {
-                             $images = [];
-                             foreach ($template->getMedia('template-image-attach') as $i => $media) {
-                                 $images[] = $media->getUrl();
-                             }
-                             $data['image'] = $images;
-                         }
-                         \Log::info(json_encode($data, true));
-                         $url = env('PYTHON_PRODUCT_TEMPLATES').'/api/product-template';
-                         $response = \App\Helpers\GuzzleHelper::post($url, $data, []);
-                         $log = new ProductTemplateLog();
-                         $log->url = $url;
-                         $log->data = json_encode($data);
-                         $log->response = $response;
-                         $log->save();
-                     } catch(\Exception $e) {
-                         \Log::info('Product Templates controller : 541 '.$e->getMessage());
-                     }
-                 }
-             }
-         }
+                        if ($template->hasMedia('template-image-attach')) {
+                            $images = [];
+                            foreach ($template->getMedia('template-image-attach') as $i => $media) {
+                                $images[] = $media->getUrl();
+                            }
+                            $data['image'] = $images;
+                        }
+                        \Log::info(json_encode($data, true));
+                        $url = env('PYTHON_PRODUCT_TEMPLATES').'/api/product-template';
+                        $response = \App\Helpers\GuzzleHelper::post($url, $data, []);
+                        $log = new ProductTemplateLog();
+                        $log->url = $url;
+                        $log->data = json_encode($data);
+                        $log->response = $response;
+                        $log->save();
+                    } catch (\Exception $e) {
+                        \Log::info('Product Templates controller : 541 '.$e->getMessage());
+                    }
+                }
+            }
+        }
 
-         return response()->json(['code' => 1, 'message' => 'Product Template Created successfully!']);
-     }
+        return response()->json(['code' => 1, 'message' => 'Product Template Created successfully!']);
+    }
 
     public function makeBearBannerImage($request, $imagesArray, $template)
     {

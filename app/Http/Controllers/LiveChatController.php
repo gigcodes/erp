@@ -1008,7 +1008,7 @@ class LiveChatController extends Controller
                         } else {
                             $message[] = '<div data-chat-id="'.$chat->id.'" class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">'.$agentInital.'</div><div class="msg_cotainer">'.$chat->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans().'</span></div></div>';
                         }
-                    //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                        //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
                     } else {
                         $message[] = '<div data-chat-id="'.$chat->id.'" class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">'.$customerInital.'</div><div class="msg_cotainer">'.$chat->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans().'</span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
                     }
@@ -2147,59 +2147,59 @@ class LiveChatController extends Controller
         return response()->json(['status' => 'success', 'threadId' => $threadId, 'customerInfo' => $returnVal], 200);
     }
 
-   public function watsonJourney(request $request)
-   {
-       $watsonJourney = WatsonChatJourney::orderBy('id', 'desc')->paginate(10)->appends(request()->except(['page']));
-       if (count($watsonJourney) != 0) {
-           foreach ($watsonJourney as $value) {
-               $id = null;
-               if (! empty($value->chat_id)) {
-                   $id = $value->chat_id;
-               } else {
-                   $id = $value->chat_message_id;
-               }
-               $senderDeatilsId = \DB::table('chat_messages')->where('id', $id)->first();
-               if (! empty($senderDeatilsId)) {
-                   $sender_id = $senderDeatil = null;
-                   if (! empty($senderDeatilsId->vendor_id)) {
-                       $sender_id = $senderDeatilsId->vendor_id;
-                       $senderDeatil = \DB::table('vendors')->select('name', 'phone', 'id')->where('id', $sender_id)->first();
-                   } elseif (! empty($senderDeatilsId->supplier_id)) {
-                       $sender_id = $senderDeatilsId->supplier_id;
-                       $senderDeatil = \DB::table('suppliers')->select('supplier as name', 'phone', 'id')->where('id', $sender_id)->first();
-                   } elseif (! empty($senderDeatilsId->user_id)) {
-                       $sender_id = $senderDeatilsId->user_id;
-                       $senderDeatil = \DB::table('users')->select('name', 'phone', 'id')->where('id', $sender_id)->first();
-                   } elseif (! empty($senderDeatilsId->customer_id)) {
-                       $sender_id = $senderDeatilsId->customer_id;
-                       $senderDeatil = \DB::table('customers')->select('name', 'phone', 'id')->where('id', $sender_id)->first();
-                   }
-               }
-               if (! empty($senderDeatil)) {
-                   $value->sender_name = $senderDeatil->name;
-                   $value->sender_phone = $senderDeatil->phone;
-               } else {
-                   $value->sender_name = '';
-                   $value->sender_phone = '';
-               }
-           }
-           // \Log::info('Watson data:'.json_encode($watsonJourney));
-       }
+    public function watsonJourney(request $request)
+    {
+        $watsonJourney = WatsonChatJourney::orderBy('id', 'desc')->paginate(10)->appends(request()->except(['page']));
+        if (count($watsonJourney) != 0) {
+            foreach ($watsonJourney as $value) {
+                $id = null;
+                if (! empty($value->chat_id)) {
+                    $id = $value->chat_id;
+                } else {
+                    $id = $value->chat_message_id;
+                }
+                $senderDeatilsId = \DB::table('chat_messages')->where('id', $id)->first();
+                if (! empty($senderDeatilsId)) {
+                    $sender_id = $senderDeatil = null;
+                    if (! empty($senderDeatilsId->vendor_id)) {
+                        $sender_id = $senderDeatilsId->vendor_id;
+                        $senderDeatil = \DB::table('vendors')->select('name', 'phone', 'id')->where('id', $sender_id)->first();
+                    } elseif (! empty($senderDeatilsId->supplier_id)) {
+                        $sender_id = $senderDeatilsId->supplier_id;
+                        $senderDeatil = \DB::table('suppliers')->select('supplier as name', 'phone', 'id')->where('id', $sender_id)->first();
+                    } elseif (! empty($senderDeatilsId->user_id)) {
+                        $sender_id = $senderDeatilsId->user_id;
+                        $senderDeatil = \DB::table('users')->select('name', 'phone', 'id')->where('id', $sender_id)->first();
+                    } elseif (! empty($senderDeatilsId->customer_id)) {
+                        $sender_id = $senderDeatilsId->customer_id;
+                        $senderDeatil = \DB::table('customers')->select('name', 'phone', 'id')->where('id', $sender_id)->first();
+                    }
+                }
+                if (! empty($senderDeatil)) {
+                    $value->sender_name = $senderDeatil->name;
+                    $value->sender_phone = $senderDeatil->phone;
+                } else {
+                    $value->sender_name = '';
+                    $value->sender_phone = '';
+                }
+            }
+            // \Log::info('Watson data:'.json_encode($watsonJourney));
+        }
 
-       return view('livechat.journey', compact('watsonJourney'))
+        return view('livechat.journey', compact('watsonJourney'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
-    //    return view('livechat.journey', compact('watsonJourney'));
-   }
+        //    return view('livechat.journey', compact('watsonJourney'));
+    }
 
-   /* Pawan added for ajax call for filter of below
-        1.Chat entered dropdown
-        2.Reply found in database dropdown
-        3.Reply searched in watson dropdown
-        4.Response sent to customer dropdown
-        5.Message received Search
-        6.Reply Search
-        7.sender(name/phone) Search
-    */
+    /* Pawan added for ajax call for filter of below
+         1.Chat entered dropdown
+         2.Reply found in database dropdown
+         3.Reply searched in watson dropdown
+         4.Response sent to customer dropdown
+         5.Message received Search
+         6.Reply Search
+         7.sender(name/phone) Search
+     */
     public function ajax(request $request)
     {
         $unsetvalue = null;

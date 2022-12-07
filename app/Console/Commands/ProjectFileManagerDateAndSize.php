@@ -81,10 +81,10 @@ class ProjectFileManagerDateAndSize extends Command
                         $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['size' => $new_size]);
 
                         // $param[] = DB::table('project_file_managers_history')->insert([
-                            //     ['project_id' => $id,
-                            //     'name' => $name,
-                            //     'old_size' => $old_size,
-                            //     'new_size' => $new_size]
+                        //     ['project_id' => $id,
+                        //     'name' => $name,
+                        //     'old_size' => $old_size,
+                        //     'new_size' => $new_size]
                         //  ]);
 
                         $param = [

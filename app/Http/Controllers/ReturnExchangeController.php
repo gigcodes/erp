@@ -310,7 +310,7 @@ class ReturnExchangeController extends Controller
             ]);
 
             return response()->json(['code' => 200, 'data' => $data]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'data' => $e->getMessage()]);
         }
     }
@@ -381,7 +381,7 @@ class ReturnExchangeController extends Controller
             </table>';
 
             return response()->json(['code' => 200, 'data' => compact('data', 'preview', 'template')]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             \Log::channel('returnExchange')->info('Sending mail issue at the returnexchangecontroller  ->'.$e->getMessage());
 
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
@@ -540,7 +540,7 @@ class ReturnExchangeController extends Controller
             } else {
                 return response()->json(['code' => 500, 'message' => 'Logs not found']);
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'data' => $e->getMessage()]);
         }
     }

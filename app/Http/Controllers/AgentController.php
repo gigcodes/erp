@@ -80,35 +80,35 @@ class AgentController extends Controller
         //
     }
 
-     /**
-      * Update the specified resource in storage.
-      *
-      * @param  \Illuminate\Http\Request  $request
-      * @param  int  $id
-      * @return \Illuminate\Http\Response
-      */
-     public function update(Request $request, $id)
-     {
-         $this->validate($request, [
-             'name' => 'required|string||max:255',
-             'phone' => 'sometimes|nullable|numeric',
-             'whatsapp_number' => 'sometimes|nullable|numeric',
-             'address' => 'sometimes|nullable|string',
-             'email' => 'sometimes|nullable|email',
-         ]);
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $this->validate($request, [
+            'name' => 'required|string||max:255',
+            'phone' => 'sometimes|nullable|numeric',
+            'whatsapp_number' => 'sometimes|nullable|numeric',
+            'address' => 'sometimes|nullable|string',
+            'email' => 'sometimes|nullable|email',
+        ]);
 
-         $data = $request->except('_token');
+        $data = $request->except('_token');
 
-         $agent = Agent::find($id);
-         $agent->update($data);
+        $agent = Agent::find($id);
+        $agent->update($data);
 
-         if ($agent->model_type == 'App\Supplier') {
-             return redirect()->back()->withSuccess('You have successfully updated an agent!');
-         // return redirect()->route('supplier.index')->withSuccess('You have successfully updated an agent!');
-         } elseif ($agent->model_type == 'App\Vendor') {
-             return redirect()->back()->withSuccess('You have successfully updated an agent!');
-         }
-     }
+        if ($agent->model_type == 'App\Supplier') {
+            return redirect()->back()->withSuccess('You have successfully updated an agent!');
+        // return redirect()->route('supplier.index')->withSuccess('You have successfully updated an agent!');
+        } elseif ($agent->model_type == 'App\Vendor') {
+            return redirect()->back()->withSuccess('You have successfully updated an agent!');
+        }
+    }
 
     /**
      * Remove the specified resource from storage.

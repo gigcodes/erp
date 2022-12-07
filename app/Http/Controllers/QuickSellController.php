@@ -781,21 +781,21 @@ class QuickSellController extends Controller
         return view('quicksell.quick-sell-list', compact('products', 'current_group'));
     }
 
-   public function quickSellGroupProductDelete(Request $request)
-   {
-       $group_id = $request->group_id;
-       $product_id = $request->product_id;
-       $delete = ProductQuicksellGroup::where('quicksell_group_id', $group_id)->where('product_id', $product_id)->delete();
-       if ($delete) {
-           return response()->json([
-               'status' => 1,
-               'message' => 'Products deleted from group successfully!',
-           ]);
-       } else {
-           return response()->json([
-               'status' => 0,
-               'message' => 'Invalid group id or product id',
-           ]);
-       }
-   }
+    public function quickSellGroupProductDelete(Request $request)
+    {
+        $group_id = $request->group_id;
+        $product_id = $request->product_id;
+        $delete = ProductQuicksellGroup::where('quicksell_group_id', $group_id)->where('product_id', $product_id)->delete();
+        if ($delete) {
+            return response()->json([
+                'status' => 1,
+                'message' => 'Products deleted from group successfully!',
+            ]);
+        } else {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Invalid group id or product id',
+            ]);
+        }
+    }
 }

@@ -213,7 +213,7 @@ class RepositoryController extends Controller
             $gitDbError = GitMigrationErrorLog::orderBy('id', 'desc')->take(100)->get();
 
             return view('github.deploy_branch_error', compact('gitDbError'));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
         }
     }
@@ -409,7 +409,7 @@ class RepositoryController extends Controller
                     'destination' => $pullRequest->base->ref,
                 ];
             }
-        } catch(Exception $e) {
+        } catch (Exception $e) {
         }
 
         return $pullRequests;

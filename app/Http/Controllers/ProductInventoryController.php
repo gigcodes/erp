@@ -1168,21 +1168,21 @@ class ProductInventoryController extends Controller
         return \Excel::download(new \App\Exports\ReportExport($reportDatas), 'exports.xls');
     }
 
-  public function inventoryHistory($id)
-  {
-      $inventory_history = \App\InventoryStatusHistory::getInventoryHistoryFromProductId($id);
+    public function inventoryHistory($id)
+    {
+        $inventory_history = \App\InventoryStatusHistory::getInventoryHistoryFromProductId($id);
 
-      foreach ($inventory_history as $each) {
-          $supplier = \App\Supplier::find($each['supplier_id']);
-          if ($supplier) {
-              $each['supplier'] = $supplier->supplier;
-          } else {
-              $each['supplier'] = '';
-          }
-      }
+        foreach ($inventory_history as $each) {
+            $supplier = \App\Supplier::find($each['supplier_id']);
+            if ($supplier) {
+                $each['supplier'] = $supplier->supplier;
+            } else {
+                $each['supplier'] = '';
+            }
+        }
 
-      return response()->json(['data' => $inventory_history]);
-  }
+        return response()->json(['data' => $inventory_history]);
+    }
 
     public function getSuppliers($id)
     {
@@ -2385,7 +2385,7 @@ class ProductInventoryController extends Controller
 
                 return redirect()->back()->with('success', 'Excel Imported Successfully!');
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Something went wrong, please check your file!');
         }
 
@@ -2429,7 +2429,7 @@ class ProductInventoryController extends Controller
             }
 
             return response()->json(['code' => 200, 'message' => 'Header Data Get Successfully , Please do Mapping', 'header_data' => $data, 'column_index' => $column_index]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 400, 'message' => 'Something went wrong, please check your file!']);
         }
 
@@ -2597,7 +2597,7 @@ class ProductInventoryController extends Controller
             $excel_log = ProductDiscountExcelFile::create($params_file);
 
             return response()->json(['code' => 200, 'message' => 'Excel Imported Successfully!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 400, 'message' => 'Something went wrong, please check your file!']);
         }
 

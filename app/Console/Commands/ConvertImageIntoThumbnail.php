@@ -78,7 +78,7 @@ class ConvertImageIntoThumbnail extends Command
                         $media->is_processed = 3;
                         $media->save();
                     }
-                } catch(Exception $exception) {
+                } catch (Exception $exception) {
                     $media->is_processed = 3;
                     $media->save();
                 }

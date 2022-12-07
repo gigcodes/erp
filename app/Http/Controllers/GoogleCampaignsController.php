@@ -367,7 +367,7 @@ class GoogleCampaignsController extends Controller
             $campaign = new Campaign();
             $campaign->setName($campaignName);
 
-        //$campaign->setAdvertisingChannelType(AdvertisingChannelType::SEARCH); //set channel Type
+            //$campaign->setAdvertisingChannelType(AdvertisingChannelType::SEARCH); //set channel Type
             $campaign->setAdvertisingChannelType($this->getAdvertisingChannelType($channel_type)); //set channel Type
         //$campaign->setAdvertisingChannelSubType($this->getAdvertisingChannelSubType($channel_sub_type));
 
@@ -432,9 +432,11 @@ class GoogleCampaignsController extends Controller
                 $networkSetting->setTargetGoogleSearch(true);
             } elseif ($channel_type == 'MULTI_CHANNEL' || $channel_sub_type == 'SHOPPING_GOAL_OPTIMIZED_ADS') {
                 $networkSetting->setTargetSearchNetwork(true);
-            }if ($channel_type == 'MULTI_CHANNEL' || $channel_type == 'MULTI_CHANNEL' || ($channel_type == 'DISPLAY' && $channel_sub_type == 'DISPLAY_SMART_CAMPAIGN') || $channel_sub_type == 'SHOPPING_GOAL_OPTIMIZED_ADS') {
+            }
+            if ($channel_type == 'MULTI_CHANNEL' || $channel_type == 'MULTI_CHANNEL' || ($channel_type == 'DISPLAY' && $channel_sub_type == 'DISPLAY_SMART_CAMPAIGN') || $channel_sub_type == 'SHOPPING_GOAL_OPTIMIZED_ADS') {
                 $networkSetting->setTargetContentNetwork(true);
-            }if ($channel_type == 'MULTI_CHANNEL') {
+            }
+            if ($channel_type == 'MULTI_CHANNEL') {
                 $networkSetting->setTargetPartnerSearchNetwork(false);
             }
 
@@ -446,7 +448,7 @@ class GoogleCampaignsController extends Controller
             $networkSetting->setTargetContentNetwork(true);
             $campaign->setNetworkSetting($networkSetting); */
 
-        // Set additional settings (optional).
+            // Set additional settings (optional).
         // Recommendation: Set the campaign to PAUSED when creating it to stop
         // the ads from immediately serving. Set to ENABLED once you've added
         // targeting and the ads are ready to serve.
@@ -505,7 +507,7 @@ class GoogleCampaignsController extends Controller
             \App\GoogleAdsCampaign::create($campaignArray);
             /* return redirect()->route('googlecampaigns.index'); */
             return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign created successfully');
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             //echo'<pre>'.print_r($e,true).'</pre>'; exit;
             return redirect()->to('google-campaigns/create?account_id='.$request->account_id)->with('actError', $e->getMessage());
         }
@@ -701,7 +703,7 @@ class GoogleCampaignsController extends Controller
             \App\GoogleAdsCampaign::whereId($campaignDetail->id)->update($campaignArray);
             //return redirect()->route('googlecampaigns.index');
             return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign updated successfully');
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return redirect()->to('google-campaigns/update/'.$request->campaignId.'?account_id='.$account_id)->with('actError', $e->getMessage());
         }
     }
@@ -741,7 +743,7 @@ class GoogleCampaignsController extends Controller
             \App\GoogleAdsCampaign::where('account_id', $account_id)->where('google_campaign_id', $campaignId)->delete();
             /* return redirect()->route('googlecampaigns.index'); */
             return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign deleted successfully');
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return redirect()->to('google-campaigns?account_id='.$account_id)->with('actError', $this->exceptionError);
         }
     }

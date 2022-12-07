@@ -119,42 +119,7 @@ class SocialAdsController extends Controller
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
                 try {
-        //        dd($data);
-                    $data['access_token'] = $this->user_access_token;
-                    $url = 'https://graph.facebook.com/v12.0/'.$this->ad_acc_id.'/ads';
-
-                    // Call to Graph api here
-                    $curl = curl_init();
-                    curl_setopt($curl, CURLOPT_URL, $url);
-                    curl_setopt($curl, CURLOPT_POST, true);
-                    curl_setopt($curl, CURLOPT_AUTOREFERER, true);
-                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-                    curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
-
-                    $resp = curl_exec($curl);
-                    $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create ad', $resp);
-                    $resp = json_decode($resp);
-                    curl_close($curl);
-
-            //    dd($resp);
-                    if (isset($resp->error->message)) {
-                        Session::flash('message', $resp->error->message);
-                    } else {
-                        Session::flash('message', 'Campaign created  successfully');
-                    }
-
-                    return redirect()->route('social.ad.index');
-                } catch(Exception $e) {
-                    $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e);
-                    Session::flash('message', $e);
-
-                    return redirect()->route('social.ad.index');
-                }
-            } else {
-                try {
-                //        dd($data);
+                    //        dd($data);
                     $data['access_token'] = $this->user_access_token;
                     $url = 'https://graph.facebook.com/v12.0/'.$this->ad_acc_id.'/ads';
 
@@ -181,7 +146,42 @@ class SocialAdsController extends Controller
                     }
 
                     return redirect()->route('social.ad.index');
-                } catch(Exception $e) {
+                } catch (Exception $e) {
+                    $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e);
+                    Session::flash('message', $e);
+
+                    return redirect()->route('social.ad.index');
+                }
+            } else {
+                try {
+                    //        dd($data);
+                    $data['access_token'] = $this->user_access_token;
+                    $url = 'https://graph.facebook.com/v12.0/'.$this->ad_acc_id.'/ads';
+
+                    // Call to Graph api here
+                    $curl = curl_init();
+                    curl_setopt($curl, CURLOPT_URL, $url);
+                    curl_setopt($curl, CURLOPT_POST, true);
+                    curl_setopt($curl, CURLOPT_AUTOREFERER, true);
+                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+
+                    $resp = curl_exec($curl);
+                    $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create ad', $resp);
+                    $resp = json_decode($resp);
+                    curl_close($curl);
+
+                    //    dd($resp);
+                    if (isset($resp->error->message)) {
+                        Session::flash('message', $resp->error->message);
+                    } else {
+                        Session::flash('message', 'Campaign created  successfully');
+                    }
+
+                    return redirect()->route('social.ad.index');
+                } catch (Exception $e) {
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e);
                     Session::flash('message', $e);
 
@@ -275,7 +275,7 @@ class SocialAdsController extends Controller
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
-        } catch(\Facebook\Exceptions\FacebookSDKException $e) {
+        } catch (\Facebook\Exceptions\FacebookSDKException $e) {
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
         }
         if ($response != '') {
@@ -306,7 +306,7 @@ class SocialAdsController extends Controller
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->'.$e->getMessage());
-        } catch(\Facebook\Exceptions\FacebookSDKException $e) {
+        } catch (\Facebook\Exceptions\FacebookSDKException $e) {
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->'.$e->getMessage());
         }
         if ($response != '') {

@@ -197,7 +197,7 @@ class BroadcastController extends Controller
             $broadData = \App\BroadcastMessageNumber::with(['customer', 'vendor', 'supplier'])->where(['broadcast_message_id' => $request->id])->orderBy('id', 'desc')->get();
 
             return response()->json(['code' => 200, 'data' => $broadData, 'message' => 'Data Listed successfully']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }

@@ -862,7 +862,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
             }
             //dd($pagespeedDatanew);
             return view('gtmetrix.gtmetrixWebsiteCategoryReport', compact('pagespeedDatanew', 'title', 'catArr'));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             dd($e->getMessage());
         }
     }

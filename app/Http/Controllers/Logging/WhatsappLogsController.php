@@ -177,7 +177,7 @@ class WhatsappLogsController extends Controller
                         }
 
                         array_push($array, $data);
-    //                    dd($data);
+                        //                    dd($data);
                     }
                 }
             }
@@ -246,7 +246,7 @@ class WhatsappLogsController extends Controller
                             }
                         }
                     } else {
-    //                  dd($match[1], $row);
+                        //                  dd($match[1], $row);
                         $finaldata['date'] = isset($match[1]) ? $match[1] : '';
 
                         // $message = preg_match('/{(.*?)}/', $row, $match);

@@ -317,7 +317,7 @@ class ScrapController extends Controller
                 $scPrice = substr($scPrice, 0, 4);
                 $scPrice = $scPrice.'.00';
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             \Log::info('Having problem with this price'.$scPrice.' and get message is '.$e->getMessage());
         }
 
