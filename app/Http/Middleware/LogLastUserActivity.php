@@ -37,7 +37,7 @@ class LogLastUserActivity
             $lastLogin = Cache::has($cacheKey, true, $expiresAt);
 
             // if cache doesn't exists, add cache and db entry.
-            if(!$lastLogin) {
+            if (! $lastLogin) {
                 // else add cache and add in db.
                 Cache::put($cacheKey, true, $expiresAt);
 

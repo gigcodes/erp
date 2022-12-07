@@ -498,7 +498,7 @@ class DevelopmentController extends Controller
         // });
 
         // Set variables with modules and users
-        $modules = Cache::remember('DeveloperModule::orderBy::name', 60 * 60 * 24 * 1 , function() {
+        $modules = Cache::remember('DeveloperModule::orderBy::name', 60 * 60 * 24 * 1, function () {
             return  DeveloperModule::orderBy('name')->get();
         });
 
@@ -507,7 +507,7 @@ class DevelopmentController extends Controller
 
         // $statusList = \DB::table("developer_tasks")->where("status", "!=", "")->groupBy("status")->select("status")->pluck("status", "status")->toArray();
 
-        $statusList = Cache::remember('task_status_select_name', 60 * 60 * 24 * 7 , function() {
+        $statusList = Cache::remember('task_status_select_name', 60 * 60 * 24 * 7, function () {
             return TaskStatus::select('name')->pluck('name', 'name')->toArray();
         });
 
@@ -537,7 +537,7 @@ class DevelopmentController extends Controller
             ->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])
             ->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
-        $userModel = Cache::remember('User::whereIn::' . implode(',',$userIds), 60 * 60 * 24 * 7 , function() use ($userIds) {
+        $userModel = Cache::remember('User::whereIn::'.implode(',', $userIds), 60 * 60 * 24 * 7, function () use ($userIds) {
             return \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
         });
         $countPlanned = [];
@@ -558,7 +558,7 @@ class DevelopmentController extends Controller
             ->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
 
-        $userModel = Cache::remember('User::whereIn::' . implode(',',$userIds), 60 * 60 * 24 * 7 , function() use ($userIds) {
+        $userModel = Cache::remember('User::whereIn::'.implode(',', $userIds), 60 * 60 * 24 * 7, function () use ($userIds) {
             return \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
         });
         $countInProgress = [];
@@ -607,10 +607,9 @@ class DevelopmentController extends Controller
 
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
-        $respositories = Cache::remember('GithubRepository::all()', 60 * 60 * 24 * 7 , function() {
-                return GithubRepository::all();
-            });
-
+        $respositories = Cache::remember('GithubRepository::all()', 60 * 60 * 24 * 7, function () {
+            return GithubRepository::all();
+        });
 
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
