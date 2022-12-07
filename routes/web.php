@@ -2369,6 +2369,21 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('bug-tracking/status-history/{id}', 'BugTrackingController@statusHistory')->name('bug-tracking.status-history');
     Route::get('bug-tracking/communicationData/{id}', 'BugTrackingController@communicationData')->name('bug-tracking.communicationData');
     Route::get('bug-tracking/{id}/delete', 'BugTrackingController@destroy');
+
+
+    Route::get('test-cases', 'TestCaseController@index')->name('test-cases.index');
+    Route::get('test-cases/create', 'TestCaseController@create')->name('test-cases.create');
+    Route::post('test-cases/store', 'TestCaseController@store')->name('test-cases.store');
+    Route::get('test-cases/records', 'TestCaseController@records')->name('test-cases.records');
+    Route::get('test-cases/edit/{id}', 'TestCaseController@edit')->name('test-cases.edit');
+    Route::get('test-cases/test-case-history/{id}', 'TestCaseController@testCaseHistory')->name('test-cases.test-cases-history');
+    Route::post('test-cases/update', 'TestCaseController@update')->name('test-cases.update');
+    Route::post('test-cases/status', 'TestCaseController@status')->name('test-cases.status');
+    Route::get('test-cases/{id}/delete', 'TestCaseController@destroy');
+    Route::post('test-cases/assign_user', 'TestCaseController@assignUser')->name('test-cases.assign_user');
+    Route::post('test-cases/status_user', 'TestCaseController@statusUser')->name('test-cases.status_user');
+    Route::post('test-cases/sendmessage', 'TestCaseController@sendMessage')->name('test-cases.sendmessage');
+
 	
 	
 	Route::get('test-suites', 'TestSuitesController@index')->name('test-suites.index');
@@ -2391,8 +2406,6 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('test-suiteshistory', 'TestSuitesController@getTrackedHistory')->name('test-suites.history');
     Route::post('test-suites/hubstaff_task', 'TestSuitesController@createHubstaffManualTask')->name('test-suites.hubstaff_task');
-
-
 
 });
 /*
