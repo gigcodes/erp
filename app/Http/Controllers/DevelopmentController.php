@@ -43,6 +43,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Plank\Mediable\Media;
@@ -486,14 +487,18 @@ class DevelopmentController extends Controller
         // });
 
         // Set variables with modules and users
-        $modules = DeveloperModule::orderBy('name')->get();
+        $modules = Cache::remember('DeveloperModule::orderBy::name', 60 * 60 * 24 * 1 , function() {
+            return  DeveloperModule::orderBy('name')->get();
+        });
 
         $usrlst = User::orderBy('name')->where('is_active', 1)->get();
         $users = Helpers::getUserArray($usrlst);
 
         // $statusList = \DB::table("developer_tasks")->where("status", "!=", "")->groupBy("status")->select("status")->pluck("status", "status")->toArray();
 
-        $statusList = \DB::table('task_statuses')->select('name')->pluck('name', 'name')->toArray();
+        $statusList = Cache::remember('task_status_select_name', 60 * 60 * 24 * 7 , function() {
+            return TaskStatus::select('name')->pluck('name', 'name')->toArray();
+        });
 
         /*$statusList = array_merge([
             "" => "Select Status",
@@ -518,8 +523,9 @@ class DevelopmentController extends Controller
         $issuesGroups = clone $issues;
         $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
-        $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
-
+        $userModel = Cache::remember('User::whereIn::' . implode(',',$userIds), 60 * 60 * 24 * 7 , function() use ($userIds) {
+            return \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+        });
         $countPlanned = [];
         if (! empty($issuesGroups) && ! empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
@@ -535,7 +541,9 @@ class DevelopmentController extends Controller
         $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
 
-        $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+        $userModel = Cache::remember('User::whereIn::' . implode(',',$userIds), 60 * 60 * 24 * 7 , function() use ($userIds) {
+            return \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+        });
         $countInProgress = [];
         if (! empty($issuesGroups) && ! empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
@@ -582,7 +590,10 @@ class DevelopmentController extends Controller
 
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
-        $respositories = GithubRepository::all();
+        $respositories = Cache::remember('GithubRepository::all()', 60 * 60 * 24 * 7 , function() {
+                return GithubRepository::all();
+            });
+
 
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
