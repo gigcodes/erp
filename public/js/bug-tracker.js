@@ -98,6 +98,12 @@ var page = {
         page.config.bodyView.on("click",".btn-push",function(e) {
             page.push($(this));
         });
+        page.config.bodyView.on("click",".show-user-history",function(e) {
+            page.userHistory($(this));
+        });
+        page.config.bodyView.on("click",".show-status-history",function(e) {
+            page.statusHistory($(this));
+        });
 
         page.config.bodyView.on("click", ".btn-update", function (e) {
             page.updateData($(this));
@@ -413,8 +419,8 @@ var page = {
     },
     saveAssign: function (response) {
         if (response.code == 200) {
-            // $("#loading-image").hide();
-            location.reload()
+            $("#loading-image").hide();
+            // location.reload()
             // page.loadFirst();
             // $(".common-modal").modal("hide");
             toastr["success"](response.message, "Bug Tracking Changed Successfully");
@@ -426,8 +432,8 @@ var page = {
     },
     saveSeverity: function (response) {
         if (response.code == 200) {
-            // $("#loading-image").hide();
-            location.reload()
+            $("#loading-image").hide();
+            // location.reload()
             // page.loadFirst();
             // $(".common-modal").modal("hide");
             toastr["success"](response.message, "Bug Tracking Changed Successfully");
@@ -439,9 +445,9 @@ var page = {
     },
     saveStatus: function (response) {
         if (response.code == 200) {
-            // $("#loading-image").hide();
+            $("#loading-image").hide();
 
-            location.reload()
+            // location.reload()
             // $(".common-modal").modal("hide");
             toastr["success"](response.message, "Bug Tracking Changed Successfully");
 
@@ -500,6 +506,20 @@ var page = {
         }
         this.sendAjax(_z, 'afterPush');
     },
+    userHistory : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-history/"+ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'afterUser');
+    },
+     statusHistory : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/status-history/"+ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'afterStatus');
+    },
 
     communicationModel : function(ele) {
         var _z = {
@@ -521,9 +541,11 @@ var page = {
                 $.each(response.data, function (i,item){
                     console.log(item)
                     html+="<tr>"
+                    html+=" <th>"+ item.created_at +"</th>"
                     html+=" <th>"+ item.bug_type_id +"</th>"
                     html+=" <th>"+ item.summary +"</th>"
                     html+=" <th>"+ item.bug_environment_id +"</th>"
+                    html+=" <th>"+ item.assign_to +"</th>"
                     html+=" <th>"+ item.bug_status_id +"</th>"
                     html+=" <th>"+ item.bug_severity_id +"</th>"
                     html+=" <th>"+ item.module_id +"</th>"
@@ -540,6 +562,64 @@ var page = {
         }
     },
 
+    afterUser : function(response) {
+        if(response.code  == 200) {
+            console.log(response)
+            $('#newuserHistoryModal').modal('show');
+
+            $('.tbhuser').html("")
+            if(response.data.length >0){
+
+                var html ="";
+
+                $.each(response.data, function (i,item){
+                    console.log(item)
+                    html+="<tr>"
+                    html+=" <th>"+ item.created_at +"</th>"
+                    html+=" <th>"+ item.new_user +"</th>"
+                    html+=" <th>"+ item.old_user +"</th>"
+                    html+=" <th>"+ item.updated_by +"</th>"
+
+                    html+="</tr>"
+                })
+
+                $('.tbhuser').html(html)
+            }
+            toastr["success"](response.message,"Bug Tracking History Listed Successfully");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"Something went wrong");
+        }
+    },
+    afterStatus : function(response) {
+        if(response.code  == 200) {
+            console.log(response)
+            $('#newstatusHistoryModal').modal('show');
+
+            $('.tbhstatus').html("")
+            if(response.data.length >0){
+
+                var html ="";
+
+                $.each(response.data, function (i,item){
+                    console.log(item)
+                    html+="<tr>"
+                    html+=" <th>"+ item.created_at +"</th>"
+                    html+=" <th>"+ item.new_status +"</th>"
+                    html+=" <th>"+ item.old_status +"</th>"
+                    html+=" <th>"+ item.updated_by +"</th>"
+
+                    html+="</tr>"
+                })
+
+                $('.tbhstatus').html(html)
+            }
+            toastr["success"](response.message,"Bug Tracking History Listed Successfully");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"Something went wrong");
+        }
+    },
     afterCommunication : function(response) {
         if(response.code  == 200) {
             console.log(response)

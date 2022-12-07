@@ -84,7 +84,7 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
+									<div class="form-group  cls_filter_inputbox p-2 mr-2">
 										<?php
 										$module_id = request('module_id');
 										?>
@@ -104,7 +104,7 @@ table{border-collapse: collapse;}
 									<div class="form-group m-1">
 										<input name="url" type="text" class="form-control" placeholder="Search Url" id="bug-url" data-allow-clear="true" />
 									</div>
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
+									<div class="form-group cls_filter_inputbox p-2 mr-2">
 										<?php
 										$website = request('website');
 										?>
@@ -113,6 +113,33 @@ table{border-collapse: collapse;}
 											@foreach($filterWebsites as  $filterWebsite)
 
 												<option value="{{$filterWebsite->id}}">{{$filterWebsite->title}} </option>
+											@endforeach
+										</select>
+									</div>
+
+									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
+										<?php
+										$assign_to_user = request('assign_to_user');
+										?>
+										<select class="form-control selectpicker" name="assign_to_user[]" multiple id="assign_to_user">
+											<option value="">Select Assign to</option>
+											@foreach($users as  $user)
+
+												<option value="{{$user->id}}">{{$user->name}} </option>
+											@endforeach
+										</select>
+									</div>
+
+
+									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
+										<?php
+										$created_by = request('created_by');
+										?>
+										<select class="form-control" name="created_by" id="created_by">
+											<option value="">Select Created by</option>
+											@foreach($users as  $user)
+
+												<option value="{{$user->id}}">{{$user->name}} </option>
 											@endforeach
 										</select>
 									</div>
@@ -199,15 +226,63 @@ table{border-collapse: collapse;}
 				<table class="table">
 					<tr>
 
+						<th>Date</th>
 						<th>Type of Bug</th>
 						<th>Summary</th>
 						<th>Environment</th>
+						<th>Assign to</th>
 						<th>Status</th>
 						<th>Severity</th>
 						<th>Module/Feature</th>
 						<th>Updated By </th>
 					</tr>
 					<tbody class="tbh">
+
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div id="newuserHistoryModal" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3>User History</h3>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<table class="table">
+					<tr>
+
+						<th>Date</th>
+						<th>New User</th>
+						<th>Old User</th>
+						<th>Updated By </th>
+					</tr>
+					<tbody class="tbhuser">
+
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+<div id="newstatusHistoryModal" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3>Status History</h3>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<table class="table">
+					<tr>
+
+						<th>Date</th>
+						<th>New Status</th>
+						<th>Old Status</th>
+						<th>Updated By </th>
+					</tr>
+					<tbody class="tbhstatus">
 
 					</tbody>
 				</table>
