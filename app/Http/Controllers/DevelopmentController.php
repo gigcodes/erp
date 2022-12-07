@@ -557,16 +557,16 @@ class DevelopmentController extends Controller
 
         // Sort
         if ($request->order == 'priority') {
-            $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
+            $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC'); // ->with('communications');
         } elseif ($request->order == 'latest_task_first') {
             $issues = $issues->orderBy('developer_tasks.id', 'DESC');
         } else {
             $issues = $issues->orderBy('chat_messages.id', 'desc');
         }
 
-        $issues = $issues->groupBy('developer_tasks.id');
+//        $issues = $issues->groupBy('developer_tasks.id');
 
-        $issues = $issues->with('communications');
+//        $issues = $issues->with('communications');
         //DB::enableQueryLog();
         // return $issues = $issues->limit(20)->get();
 
