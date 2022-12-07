@@ -445,20 +445,31 @@ class DevelopmentController extends Controller
             $whereCondition = ' and message like  "%'.$request->get('subject').'%"';
             $issues = $issues->where(function ($query) use ($request) {
                 $subject = $request->get('subject');
-                $query->where('developer_tasks.id', 'LIKE', "%$subject%")->orWhere('subject', 'LIKE', "%$subject%")->orWhere('task', 'LIKE', "%$subject%")
+                $query->where('developer_tasks.id', 'LIKE', "%$subject%")
+                    ->orWhere('subject', 'LIKE', "%$subject%")
+                    ->orWhere('task', 'LIKE', "%$subject%")
                     ->orwhere('chat_messages.message', 'LIKE', "%$subject%");
             });
         }
         // if ($request->get('language') != '') {
         //     $issues = $issues->where('language', 'LIKE', "%" . $request->get('language') . "%");
         // }
-        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message  FROM `chat_messages` where issue_id > 0 '.$whereCondition.' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin(
+            DB::raw('(SELECT MAX(id) as  max_id, issue_id, message
+            FROM `chat_messages` where issue_id > 0
+             '.$whereCondition.' GROUP BY issue_id )
+             m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
+
         if ($request->get('last_communicated', 'off') == 'on') {
             $issues = $issues->orderBy('chat_messages.id', 'desc');
         }
 
-        $issues = $issues->select('developer_tasks.*', 'chat_messages.message', 'chat_messages.user_id AS message_user_id', 'chat_messages.is_reminder AS message_is_reminder', 'chat_messages.status as message_status', 'chat_messages.sent_to_user_id');
+        $issues = $issues->select('developer_tasks.*',
+            'chat_messages.message',
+            'chat_messages.user_id AS message_user_id', 'chat_messages.is_reminder AS message_is_reminder', 'chat_messages.status as message_status', 'chat_messages.sent_to_user_id'
+        );
 
         // for devloper time
         // $issues->selectRaw('IF(developer_tasks.assigned_to IS NOT NULL, sum(mot.time) , 0) as assigned_to_time');
@@ -521,7 +532,10 @@ class DevelopmentController extends Controller
         }
         // category filter start count
         $issuesGroups = clone $issues;
-        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
+        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')
+            ->groupBy('developer_tasks.assigned_to')
+            ->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])
+            ->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
         $userModel = Cache::remember('User::whereIn::' . implode(',',$userIds), 60 * 60 * 24 * 7 , function() use ($userIds) {
             return \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
@@ -538,7 +552,10 @@ class DevelopmentController extends Controller
         }
         // category filter start count
         $issuesGroups = clone $issues;
-        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
+        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')
+            ->groupBy('developer_tasks.assigned_to')
+            ->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])
+            ->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
 
         $userModel = Cache::remember('User::whereIn::' . implode(',',$userIds), 60 * 60 * 24 * 7 , function() use ($userIds) {
@@ -973,6 +990,7 @@ class DevelopmentController extends Controller
                 ];
             }
         }
+
         // Sort
         if ($request->order == 'priority') {
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
