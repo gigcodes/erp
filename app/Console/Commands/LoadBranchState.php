@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 
 class LoadBranchState extends Command
 {
-    use githubTrait;
+    use GithubTrait;
 
     private $githubClient;
 

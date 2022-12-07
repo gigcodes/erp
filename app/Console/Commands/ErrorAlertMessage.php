@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 
-class errorAlertMessage extends Command
+class ErrorAlertMessage extends Command
 {
     const CRON_ISSUE_MODULE_NAME = '268';
 

@@ -17,7 +17,6 @@ use App\SiteDevelopmentCategory;
 use App\SocialStrategy;
 use App\SocialStrategySubject;
 use App\StoreReIndexHistory;
-use App\StoreViewCodeServerMap;
 use App\StoreWebsite;
 use App\StoreWebsiteAnalytic;
 use App\StoreWebsiteAttributes;
@@ -39,8 +38,6 @@ use App\StoreWebsiteTwilioNumber;
 use App\StoreWebsiteUserHistory;
 use App\StoreWebsiteUsers;
 use App\User;
-use App\Website;
-use App\WebsiteStoreView;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -49,6 +46,9 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
+use App\StoreViewCodeServerMap;
+use App\Website;
+use App\WebsiteStoreView;
 
 class StoreWebsiteController extends Controller
 {
@@ -690,6 +690,7 @@ class StoreWebsiteController extends Controller
                 return response()->json(['code' => 500, 'error' => 'Store website users failed!']);
             }
 
+
             $response = $this->updateStoreViewServer($copyStoreWebsiteId, $i+1);
             if(!$response)
                 return response()->json(['code' => 500, 'error' => 'Something went wrong in update store view server of '.$copyStoreWebsite->title.'!']);
@@ -733,7 +734,6 @@ class StoreWebsiteController extends Controller
             \Log::error('Count is not equal to total store views');
             return false;
         }
-
     }
 
     public function saveUserInMagento(Request $request)

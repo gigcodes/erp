@@ -2584,7 +2584,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
 
 // logScraperVsAiController
 Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
-    Route::match(['get', 'post'], '/{id}', 'logScraperVsAiController@index');
+    Route::match(['get', 'post'], '/{id}', 'LogScraperVsAiController@index');
 });
 
 Route::prefix('social-media')->middleware('auth')->group(function () {
@@ -2848,14 +2848,6 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('monetary-account/{id}/history', 'MonetaryAccountController@history')->name('monetary-account.history');
     Route::resource('monetary-account', 'MonetaryAccountController');
-});
-
-// Mailchimp Module
-Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function () {
-    Route::get('manageMailChimp', 'MailchimpController@manageMailChimp')->name('manage.mailchimp');
-    Route::post('subscribe', ['as' => 'subscribe', 'uses' => 'MailchimpController@subscribe']);
-    Route::post('sendCompaign', ['as' => 'sendCompaign', 'uses' => 'MailchimpController@sendCompaign']);
-    Route::get('make-active-subscribers', 'MailchimpController@makeActiveSubscriber')->name('make.active.subscriber');
 });
 
 Route::group(['middleware' => 'auth', 'namespace' => 'marketing'], function () {

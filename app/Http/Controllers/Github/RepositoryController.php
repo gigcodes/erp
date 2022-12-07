@@ -7,7 +7,7 @@ use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubBranchState;
 use App\Github\GithubRepository;
 use App\GitMigrationErrorLog;
-use App\Helpers\githubTrait;
+use App\Helpers\GithubTrait;
 use App\Helpers\MessageHelper;
 use App\Http\Controllers\Controller;
 use Artisan;
@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Input;
 
 class RepositoryController extends Controller
 {
-    use githubTrait;
+    use GithubTrait;
 
     private $client;
 
