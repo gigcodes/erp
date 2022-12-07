@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\BugEnvironment;
 use App\BugSeverity;
 use App\BugStatus;
+use App\BugStatusHistory;
 use App\BugTracker;
 use App\BugTrackerHistory;
 use App\BugType;
+use App\BugUserHistory;
 use App\ChatMessage;
 use App\SiteDevelopmentCategory;
 use App\StoreWebsite;
@@ -44,7 +46,11 @@ class BugTrackingController extends Controller
 
     public function records(Request $request)
     {
-        $records = BugTracker::orderBy('id', 'desc');
+        if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
+            $records = BugTracker::orderBy('id', 'desc');
+        } else {
+            $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc');
+        }
 
         if ($keyword = request('summary')) {
             $records = $records->where(function ($q) use ($keyword) {
@@ -64,6 +70,16 @@ class BugTrackingController extends Controller
         if ($keyword = request('bug_severity')) {
             $records = $records->where(function ($q) use ($keyword) {
                 $q->where('bug_severity_id', $keyword);
+            });
+        }
+        if ($keyword = request('created_by')) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where('created_by', $keyword);
+            });
+        }
+        if ($keyword = request('assign_to_user')) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->orWhereIn('assign_to', $keyword);
             });
         }
         if ($keyword = request('bug_status')) {
@@ -254,6 +270,8 @@ class BugTrackingController extends Controller
             $records = new BugTracker();
         }
         $bug['created_by'] = \Auth::user()->id;
+        $bug['summary'] = str_replace("\n", '<br/>', $bug['summary']);
+        $bug['step_to_reproduce'] = str_replace("\n", '<br/>', $bug['step_to_reproduce']);
         $records->fill($bug);
 
         $records->save();
@@ -267,6 +285,19 @@ class BugTrackingController extends Controller
         ]);
         $bug['bug_id'] = $records->id;
         $bug['updated_by'] = \Auth::user()->id;
+        $userHistory = [
+            'bug_id' => $records->id,
+            'new_user' => $request->assign_to,
+            'updated_by' => \Auth::user()->id,
+        ];
+        $statusHistory = [
+            'bug_id' => $records->id,
+            'new_status' => $request->assign_to,
+            'updated_by' => \Auth::user()->id,
+        ];
+
+        BugUserHistory::create($userHistory);
+        BugStatusHistory::create($statusHistory);
         $bugTrackerHistory = BugTrackerHistory::create($bug);
 
         return redirect()->back();
@@ -304,11 +335,16 @@ class BugTrackingController extends Controller
             'website' => 'required|string',
 
         ]);
+
         $data = $request->except('_token', 'id');
         $bug = BugTracker::where('id', $request->id)->first();
-        $data['bug_id'] = $request->id;
+
         $data['created_by'] = \Auth::user()->id;
+
         $bug['updated_by'] = \Auth::user()->id;
+        $userHistory['old_user'] = $bug->assign_to;
+        $statusHistory['old_status']= $bug->bug_status_id;
+
         $params = ChatMessage::create([
             'user_id' => \Auth::user()->id,
             'bug_id' => $bug->id,
@@ -317,9 +353,23 @@ class BugTrackingController extends Controller
             'status' => '2',
             'message' => $request->remark,
         ]);
+        $data['summary'] = str_replace("\n", '<br/>', $request->summary);
+        $data['step_to_reproduce'] = str_replace("\n", '<br/>', $request->step_to_reproduce);
         $bug->update($data);
+        $data['bug_id'] = $request->id;
         BugTrackerHistory::create($data);
-
+        $userHistory = [
+            'bug_id' => $request->id,
+            'new_user' => $request->assign_to,
+            'updated_by' => \Auth::user()->id,
+        ];
+        $statusHistory = [
+            'bug_id' => $request->id,
+            'new_status' => $request->bug_status_id,
+            'updated_by' => \Auth::user()->id,
+        ];
+        BugUserHistory::create($userHistory);
+        BugStatusHistory::create($statusHistory);
         return redirect()->route('bug-tracking.index')->with('success', 'You have successfully updated a Bug Tracker!');
     }
 
@@ -328,7 +378,7 @@ class BugTrackingController extends Controller
         $bugHistory = BugTrackerHistory::where('bug_id', $id)->get();
         $bugHistory = $bugHistory->map(function ($bug) {
             $bug->bug_type_id = BugType::where('id', $bug->bug_type_id)->value('name');
-            $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name');
+            $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name').' '.$bug->bug_environment_ver;
             $bug->assign_to = User::where('id', $bug->assign_to)->value('name');
             $bug->updated_by = User::where('id', $bug->updated_by)->value('name');
             $bug->bug_severity_id = BugSeverity::where('id', $bug->bug_severity_id)->value('name');
@@ -341,29 +391,52 @@ class BugTrackingController extends Controller
         return response()->json(['code' => 200, 'data' => $bugHistory]);
     }
 
+    public function userHistory($id)
+    {
+        $bugUsers = BugUserHistory::where('bug_id', $id)->orderBy('id', 'desc')->get();
+//        dd($bugUsers);
+        $bugUsers = $bugUsers->map(function ($bug) {
+            $bug->new_user = User::where('id', $bug->new_user)->value('name');
+            $bug->old_user = User::where('id', $bug->old_user)->value('name');
+            $bug->updated_by = User::where('id', $bug->updated_by)->value('name');
+            $bug->created_at_date = $bug->created_at;
+            return $bug;
+        });
+        return response()->json(['code' => 200, 'data' => $bugUsers]);
+
+    }
+
+    public function statusHistory($id)
+    {
+        $bugStatuses = BugStatusHistory::where('bug_id', $id)->orderBy('id', 'desc')->get();
+
+        $bugStatuses = $bugStatuses->map(function ($bug) {
+            $bug->new_status = BugStatus::where('id', $bug->new_status)->value('name');
+            $bug->old_status = BugStatus::where('id', $bug->old_status)->value('name');
+            $bug->updated_by = User::where('id', $bug->updated_by)->value('name');
+            return $bug;
+        });
+        return response()->json(['code' => 200, 'data' => $bugStatuses]);
+
+    }
     public function assignUser(Request $request)
     {
         $bugTracker = BugTracker::where('id', $request->id)->first();
+        $record = [
+            'old_user' => $bugTracker->assign_to,
+            'new_user' => $request->user_id,
+            'bug_id' => $bugTracker->id,
+            'updated_by' => \Auth::user()->id,
+        ];
         $bugTracker->assign_to = $request->user_id;
         $bugTracker->save();
-        $data = $bugTracker;
         $data = [
-            'bug_type_id' => $bugTracker->bug_type_id,
-            'summary' => $bugTracker->summary,
-            'step_to_reproduce' => $bugTracker->step_to_reproduce,
-            'url' => $bugTracker->url,
-            'bug_environment_id' => $bugTracker->bug_environment_id,
             'assign_to' => $bugTracker->assign_to,
-            'bug_severity_id' => $bugTracker->bug_severity_id,
-            'bug_status_id' => $bugTracker->bug_status_id,
-            'module_id' => $bugTracker->module_id,
-            'remark' => $bugTracker->remark,
-            'website' => $bugTracker->website,
             'bug_id' => $bugTracker->id,
             'updated_by' => \Auth::user()->id,
         ];
         BugTrackerHistory::create($data);
-
+        BugUserHistory::create($record);
         return response()->json(['code' => 200, 'data' => $data]);
     }
 
@@ -372,19 +445,8 @@ class BugTrackingController extends Controller
         $bugTracker = BugTracker::where('id', $request->id)->first();
         $bugTracker->bug_severity_id = $request->severity_id;
         $bugTracker->save();
-        $data = $bugTracker;
         $data = [
-            'bug_type_id' => $bugTracker->bug_type_id,
-            'step_to_reproduce' => $bugTracker->step_to_reproduce,
-            'url' => $bugTracker->url,
-            'summary' => $bugTracker->summary,
-            'bug_environment_id' => $bugTracker->bug_environment_id,
-            'assign_to' => $bugTracker->assign_to,
             'bug_severity_id' => $bugTracker->bug_severity_id,
-            'bug_status_id' => $bugTracker->bug_status_id,
-            'module_id' => $bugTracker->module_id,
-            'remark' => $bugTracker->remark,
-            'website' => $bugTracker->website,
             'bug_id' => $bugTracker->id,
             'updated_by' => \Auth::user()->id,
         ];
@@ -396,26 +458,22 @@ class BugTrackingController extends Controller
     public function statusUser(Request $request)
     {
         $bugTracker = BugTracker::where('id', $request->id)->first();
+        $record = [
+            'old_status' => $bugTracker->bug_status_id,
+            'new_status' => $request->status_id,
+            'bug_id' => $bugTracker->id,
+            'updated_by' => \Auth::user()->id,
+        ];
         $bugTracker->bug_status_id = $request->status_id;
         $bugTracker->save();
-        $data = $bugTracker;
+
         $data = [
-            'bug_type_id' => $bugTracker->bug_type_id,
-            'summary' => $bugTracker->summary,
-            'step_to_reproduce' => $bugTracker->step_to_reproduce,
-            'url' => $bugTracker->url,
-            'bug_environment_id' => $bugTracker->bug_environment_id,
-            'assign_to' => $bugTracker->assign_to,
-            'bug_severity_id' => $bugTracker->bug_severity_id,
             'bug_status_id' => $bugTracker->bug_status_id,
-            'module_id' => $bugTracker->module_id,
-            'remark' => $bugTracker->remark,
-            'website' => $bugTracker->website,
             'bug_id' => $bugTracker->id,
             'updated_by' => \Auth::user()->id,
         ];
         BugTrackerHistory::create($data);
-
+        BugStatusHistory::create($record);
         return response()->json(['code' => 200, 'data' => $data]);
     }
 
@@ -431,9 +489,11 @@ class BugTrackingController extends Controller
 
         if ($user) {
             $params = ChatMessage::create([
-                //                    'id'      => $id,
+                //                  'id'      => $id,
                 'user_id' => $userid,
+                'erp_user' => $userid,
                 'bug_id' => $task->id,
+                'sent_to_user_id' => ($task->assign_to != $user->id) ? $task->assign_to : $task->created_by,
                 'sent_to_user_id' => ($task->assign_to != $user->id) ? $task->assign_to : $task->created_by,
                 'approved' => '1',
                 'status' => '2',

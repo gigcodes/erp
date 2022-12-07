@@ -13,6 +13,12 @@
         }
     </style>
 
+
+<style>
+th {border: 1px solid black;}
+table{border-collapse: collapse;}
+.ui-icon, .ui-widget-content .ui-icon {background-image: none;}
+</style>	
 	<div class="row" id="common-page-layout">
 		<div class="col-lg-12 margin-tb">
 			<h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
@@ -78,7 +84,7 @@
 											?>
 										</select>
 									</div>
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
+									<div class="form-group  cls_filter_inputbox p-2 mr-2">
 										<?php
 										$module_id = request('module_id');
 										?>
@@ -98,7 +104,7 @@
 									<div class="form-group m-1">
 										<input name="url" type="text" class="form-control" placeholder="Search Url" id="bug-url" data-allow-clear="true" />
 									</div>
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
+									<div class="form-group cls_filter_inputbox p-2 mr-2">
 										<?php
 										$website = request('website');
 										?>
@@ -107,6 +113,33 @@
 											@foreach($filterWebsites as  $filterWebsite)
 
 												<option value="{{$filterWebsite->id}}">{{$filterWebsite->title}} </option>
+											@endforeach
+										</select>
+									</div>
+
+									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
+										<?php
+										$assign_to_user = request('assign_to_user');
+										?>
+										<select class="form-control selectpicker" name="assign_to_user[]" multiple id="assign_to_user">
+											<option value="">Select Assign to</option>
+											@foreach($users as  $user)
+
+												<option value="{{$user->id}}">{{$user->name}} </option>
+											@endforeach
+										</select>
+									</div>
+
+
+									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
+										<?php
+										$created_by = request('created_by');
+										?>
+										<select class="form-control" name="created_by" id="created_by">
+											<option value="">Select Created by</option>
+											@foreach($users as  $user)
+
+												<option value="{{$user->id}}">{{$user->name}} </option>
 											@endforeach
 										</select>
 									</div>
@@ -193,15 +226,63 @@
 				<table class="table">
 					<tr>
 
+						<th>Date</th>
 						<th>Type of Bug</th>
 						<th>Summary</th>
 						<th>Environment</th>
+						<th>Assign to</th>
 						<th>Status</th>
 						<th>Severity</th>
 						<th>Module/Feature</th>
 						<th>Updated By </th>
 					</tr>
 					<tbody class="tbh">
+
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div id="newuserHistoryModal" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3>User History</h3>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<table class="table">
+					<tr>
+
+						<th>Date</th>
+						<th>New User</th>
+						<th>Old User</th>
+						<th>Updated By </th>
+					</tr>
+					<tbody class="tbhuser">
+
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+<div id="newstatusHistoryModal" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3>Status History</h3>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<table class="table">
+					<tr>
+
+						<th>Date</th>
+						<th>New Status</th>
+						<th>Old Status</th>
+						<th>Updated By </th>
+					</tr>
+					<tbody class="tbhstatus">
 
 					</tbody>
 				</table>
@@ -231,6 +312,25 @@
 			</div>
 		</div>
 	</div>
+	<div id="bugtrackingShowFullTextModel" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<!-- Modal content-->
+			<div class="modal-content ">
+				<div id="add-mail-content">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h3 class="modal-title">Full text view</h3>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body bugtrackingmanShowFullTextBody">
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
 
 	<script type="text/javascript" src="{{ asset('/js/jsrender.min.js')}}"></script>
@@ -262,64 +362,7 @@
             {{--        }--}}
             {{--    });--}}
             {{--});--}}
-            $(".assign_to").change(function (event) {
-                var id = $(this).data('id');
-                var user_id = $(this).val();
-                $.ajax({
-                    url: "/bug-tracking/assign_user/",
-                    type: "POST",
-                    data: {
-                        id: id,
-                        user_id: user_id,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    cache: false,
-                    dataType: 'json',
-                    success: function (data) {
-                        location.reload()
-                        toastr["success"]("Bug Tracking Saved Successfully");
-                    }
-                });
-            });
-			$(".bug_severity_id").change(function (event) {
-				var id = $(this).data('id');
-				var severity_id = $(this).val();
-				$.ajax({
-					url: "/bug-tracking/severity_user/",
-					type: "POST",
-					data: {
-						id: id,
-						severity_id: severity_id,
-						_token: '{{ csrf_token() }}'
-					},
-					cache: false,
-					dataType: 'json',
-					success: function (data) {
-						location.reload()
-						toastr["success"]("Bug Tracking Saved Successfully");
-					}
-				});
-			});
-			$(".bug_status_id").change(function (event) {
-				var id = $(this).data('id');
-				var status_id = $(this).val();
-				$.ajax({
-					url: "/bug-tracking/status_user/",
-					type: "POST",
-					data: {
-						id: id,
-						status_id: status_id,
-						_token: '{{ csrf_token() }}'
-					},
-					cache: false,
-					dataType: 'json',
-					success: function (data) {
-						location.reload()
-						toastr["success"]("Bug Tracking Saved Successfully");
-					}
-				});
-			});
-        })
+      })
 	</script>
 	<script type="text/javascript">
 		$(document).on('click', '.expand-row-msg', function() {
@@ -330,7 +373,7 @@
 			var full = '.expand-row-msg .show-full-' + name + '-' + id;
 			var fullText = $(full).html();
 			console.log(id,name,fullText,full)
-			$(".bugtrackingmanShowFullTextBody").html(fullText);
+			$(".bugtrackingmanShowFullTextBody").html(fullText.replaceAll("\n", "<br>"));
 		});
 		$(document).on("click",".btn-copy-url",function() {
 			var url = $(this).data('id');
@@ -343,5 +386,8 @@
 		});
 
 
+		$(window).on('load', function() {
+			$( "th" ).resizable();
+		});
 	</script>
 @endsection

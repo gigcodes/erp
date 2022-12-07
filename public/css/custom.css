@@ -2475,6 +2475,10 @@ table {
   word-break: break-all;
 }
 
+.table-horizontal-scroll {
+  overflow-x: scroll !important;
+}
+
 .truncate{
   padding:3px;
   background-color: #28a745 !important;

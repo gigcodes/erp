@@ -193,6 +193,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
     Route::get('call-journey-by-id/{id}', 'Logging\LogListMagentoController@showJourneyById')->name('list.magento.show-journey-by-id');
     Route::get('call-journey-horizontal-by-id/{id}', 'Logging\LogListMagentoController@showJourneyHorizontalById')->name('list.magento.show-journey-horizontal-by-id');
     Route::get('show-error-log-by-id/{id}', 'Logging\LogListMagentoController@showErrorByLogId')->name('list.magento.show-error-log-by-id');
+    Route::get('show-product-push-log/{id}', 'Logging\LogListMagentoController@showProductPushLog')->name('list.magento.show-product-push-log');
     Route::get('show-prices/{id}', 'Logging\LogListMagentoController@showPrices')->name('list.magento.show-prices');
     Route::get('list-magento/product-push-infomation', 'Logging\LogListMagentoController@productPushInformation')->name('list.magento.product-push-information');
     Route::post('list-magento/product-push-histories/{product_id}', 'Logging\LogListMagentoController@productPushHistories')->name('list.magento.product-push-information-byid');
@@ -2364,8 +2365,48 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('bug-tracking/type', 'BugTrackingController@type')->name('bug-tracking.type');
     Route::post('bug-tracking/severity', 'BugTrackingController@severity')->name('bug-tracking.severity');
     Route::get('bug-tracking/bug-history/{id}', 'BugTrackingController@bugHistory')->name('bug-tracking.bug-history');
+    Route::get('bug-tracking/user-history/{id}', 'BugTrackingController@userHistory')->name('bug-tracking.user-history');
+    Route::get('bug-tracking/status-history/{id}', 'BugTrackingController@statusHistory')->name('bug-tracking.status-history');
     Route::get('bug-tracking/communicationData/{id}', 'BugTrackingController@communicationData')->name('bug-tracking.communicationData');
     Route::get('bug-tracking/{id}/delete', 'BugTrackingController@destroy');
+
+
+    Route::get('test-cases', 'TestCaseController@index')->name('test-cases.index');
+    Route::get('test-cases/create', 'TestCaseController@create')->name('test-cases.create');
+    Route::post('test-cases/store', 'TestCaseController@store')->name('test-cases.store');
+    Route::get('test-cases/records', 'TestCaseController@records')->name('test-cases.records');
+    Route::get('test-cases/edit/{id}', 'TestCaseController@edit')->name('test-cases.edit');
+    Route::get('test-cases/test-case-history/{id}', 'TestCaseController@testCaseHistory')->name('test-cases.test-cases-history');
+    Route::post('test-cases/update', 'TestCaseController@update')->name('test-cases.update');
+    Route::post('test-cases/status', 'TestCaseController@status')->name('test-cases.status');
+    Route::get('test-cases/{id}/delete', 'TestCaseController@destroy');
+    Route::post('test-cases/assign_user', 'TestCaseController@assignUser')->name('test-cases.assign_user');
+    Route::post('test-cases/status_user', 'TestCaseController@statusUser')->name('test-cases.status_user');
+    Route::post('test-cases/sendmessage', 'TestCaseController@sendMessage')->name('test-cases.sendmessage');
+
+	
+	
+	Route::get('test-suites', 'TestSuitesController@index')->name('test-suites.index');
+    Route::get('test-suites/records', 'TestSuitesController@records')->name("test-suites.records");
+    Route::get('test-suites/create', 'TestSuitesController@create')->name('test-suites.create');
+    Route::post('test-suites/store', 'TestSuitesController@store')->name('test-suites.store');
+    Route::get('test-suites/edit/{id}', 'TestSuitesController@edit')->name('test-suites.edit');
+    Route::post('test-suites/update', 'TestSuitesController@update')->name('test-suites.update');
+    Route::post('test-suites/assign_user', 'TestSuitesController@assignUser')->name('test-suites.assign_user');
+    Route::post('test-suites/severity_user', 'TestSuitesController@severityUser')->name('test-suites.severity_user');
+    Route::post('test-suites/status_user', 'TestSuitesController@statusUser')->name('test-suites.status_user');
+	Route::post('test-suites/sendmessage', 'TestSuitesController@sendMessage')->name('test-suites.sendmessage');
+
+    Route::post('test-suites/status', 'TestSuitesController@status')->name('test-suites.status');
+    Route::post('test-suites/environment', 'TestSuitesController@environment')->name('test-suites.environment');
+    Route::post('test-suites/type', 'TestSuitesController@type')->name('test-suites.type');
+    Route::post('test-suites/severity', 'TestSuitesController@severity')->name('test-suites.severity');
+    Route::get('test-suites/bug-history/{id}', 'TestSuitesController@bugHistory')->name('test-suites.bug-history');
+    Route::get('test-suites/{id}/delete', 'TestSuitesController@destroy');
+
+    Route::get('test-suiteshistory', 'TestSuitesController@getTrackedHistory')->name('test-suites.history');
+    Route::post('test-suites/hubstaff_task', 'TestSuitesController@createHubstaffManualTask')->name('test-suites.hubstaff_task');
+
 });
 /*
  * @date 1/13/2019
