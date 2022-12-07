@@ -2369,10 +2369,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('bug-tracking/status-history/{id}', 'BugTrackingController@statusHistory')->name('bug-tracking.status-history');
     Route::get('bug-tracking/communicationData/{id}', 'BugTrackingController@communicationData')->name('bug-tracking.communicationData');
     Route::get('bug-tracking/{id}/delete', 'BugTrackingController@destroy');
-	
-	
-	Route::get('test-suites', 'TestSuitesController@index')->name('test-suites.index');
-    Route::get('test-suites/records', 'TestSuitesController@records')->name("test-suites.records");
+
+    Route::get('test-suites', 'TestSuitesController@index')->name('test-suites.index');
+    Route::get('test-suites/records', 'TestSuitesController@records')->name('test-suites.records');
     Route::get('test-suites/create', 'TestSuitesController@create')->name('test-suites.create');
     Route::post('test-suites/store', 'TestSuitesController@store')->name('test-suites.store');
     Route::get('test-suites/edit/{id}', 'TestSuitesController@edit')->name('test-suites.edit');
@@ -2380,7 +2379,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('test-suites/assign_user', 'TestSuitesController@assignUser')->name('test-suites.assign_user');
     Route::post('test-suites/severity_user', 'TestSuitesController@severityUser')->name('test-suites.severity_user');
     Route::post('test-suites/status_user', 'TestSuitesController@statusUser')->name('test-suites.status_user');
-	Route::post('test-suites/sendmessage', 'TestSuitesController@sendMessage')->name('test-suites.sendmessage');
+    Route::post('test-suites/sendmessage', 'TestSuitesController@sendMessage')->name('test-suites.sendmessage');
 
     Route::post('test-suites/status', 'TestSuitesController@status')->name('test-suites.status');
     Route::post('test-suites/environment', 'TestSuitesController@environment')->name('test-suites.environment');
@@ -2391,9 +2390,6 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('test-suiteshistory', 'TestSuitesController@getTrackedHistory')->name('test-suites.history');
     Route::post('test-suites/hubstaff_task', 'TestSuitesController@createHubstaffManualTask')->name('test-suites.hubstaff_task');
-
-
-
 });
 /*
  * @date 1/13/2019
