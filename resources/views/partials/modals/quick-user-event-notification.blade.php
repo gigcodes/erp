@@ -108,7 +108,9 @@
                     <div class="form-group">
                         <label for="type">Currency</label>
                         @php
-                              $currency=\App\Currency::all();
+                              $currency= Illuminate\Support\Facades\Cache::remember('Currency::all', 60 * 60 * 24 * 7, function(){
+                                return \App\Currency::all();
+                                });
                         @endphp
                         <select name="currency" class="form-control">
                              @foreach($currency as $c)
