@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\TestSuites;
 use App\BugTracker;
 use App\ChatMessage;
 use App\Customer;
@@ -19,6 +18,7 @@ use App\SocialStrategy;
 use App\StoreSocialContent;
 use App\Supplier;
 use App\Task;
+use App\TestSuites;
 use App\Tickets;
 use App\Uicheck;
 use App\User;
@@ -117,10 +117,10 @@ class ChatMessagesController extends Controller
                 $object = BugTracker::find($request->object_id);
                 //dd($object);
                 break;
-			case 'testsuites' :
+            case 'testsuites' :
                 $object = TestSuites::find($request->object_id);
                 //dd($object);
-                break; 	
+                break;
             default:
                 $object = Customer::find($request->object);
         }

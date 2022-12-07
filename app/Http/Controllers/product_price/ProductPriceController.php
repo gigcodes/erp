@@ -709,12 +709,12 @@ class ProductPriceController extends Controller
             }
         }
 
-		$numcount= 10 ; // $brands->count();
+        $numcount = 10; // $brands->count();
         $brands = $brands
             ->skip($skip * Setting::get('pagination'))
         ->limit(Setting::get('pagination') ?? 10)
             ->get()->toArray();
-		$i = 0;
+        $i = 0;
 
         $countriesCount = count($countries);
         $category_segments = \App\CategorySegment::where('status', 1)->get();
