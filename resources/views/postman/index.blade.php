@@ -45,7 +45,7 @@
           <?php 
             //dd(request('folder_name'));
             if(request('folder_name')){   $folder_nameArr = request('folder_name'); }
-            else{ $folder_nameArr = array(); }
+            else{ $folder_nameArr = []; }
           ?>
           <select name="folder_name[]" class="form-control select2" multiple id="folder_name">
             <option value="" @if(count($folder_nameArr)==0) selected @endif>-- Select Folder --</option>
@@ -69,7 +69,7 @@
           <?php 
             //dd(request('folder_name'));
             if(request('request_name')){   $request_nameArr = request('request_name'); }
-            else{ $request_nameArr = array(); }
+            else{ $request_nameArr = []; }
           ?>
           <select name="request_name[]" class="form-control select2" multiple id="request_name">
             <option value="" @if(count($request_nameArr)==0) selected @endif>-- Select Request Name --</option>
@@ -92,7 +92,7 @@
           <?php 
             //dd(request('folder_name'));
             if(request('request_type')){   $request_typeArr = request('request_type'); }
-            else{ $request_typeArr = array(); }
+            else{ $request_typeArr = []; }
           ?>
           <select name="request_type[]" value="" class="form-control select2" multiple id="request_types">
 

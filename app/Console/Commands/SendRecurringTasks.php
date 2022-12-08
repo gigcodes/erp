@@ -138,7 +138,7 @@ class SendRecurringTasks extends Command
                             if ($key == 0) {
                                 $params['erp_user'] = $user->id;
                             } else {
-                                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
                             }
                         }
                     }
@@ -148,7 +148,7 @@ class SendRecurringTasks extends Command
                             if ($key == 0) {
                                 $params['contact_id'] = $task->assign_to;
                             } else {
-                                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($contact->phone, null, $params['message']);
+                                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($contact->phone, null, $params['message']);
                             }
                         }
                     }
@@ -159,7 +159,7 @@ class SendRecurringTasks extends Command
                     $myRequest->setMethod('POST');
                     $myRequest->request->add(['messageId' => $chat_message->id]);
 
-                    app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+                    app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('task', $myRequest);
                 } else {
                     dump('No message to send');
                 }

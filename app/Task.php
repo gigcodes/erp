@@ -163,27 +163,27 @@ class Task extends Model
 
     public function remarks()
     {
-        return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task')->latest();
+        return $this->hasMany(\App\Remark::class, 'taskid')->where('module_type', 'task')->latest();
     }
 
     public function notes()
     {
-        return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-note')->latest();
+        return $this->hasMany(\App\Remark::class, 'taskid')->where('module_type', 'task-note')->latest();
     }
 
     public function users()
     {
-        return $this->belongsToMany('App\User', 'task_users', 'task_id', 'user_id')->where('type', 'App\User');
+        return $this->belongsToMany(\App\User::class, 'task_users', 'task_id', 'user_id')->where('type', \App\User::class);
     }
 
     public function assignedTo()
     {
-        return $this->belongsTo('App\User', 'assign_to', 'id');
+        return $this->belongsTo(\App\User::class, 'assign_to', 'id');
     }
 
     public function contacts()
     {
-        return $this->belongsToMany('App\Contact', 'task_users', 'task_id', 'user_id')->where('type', 'App\Contact');
+        return $this->belongsToMany(\App\Contact::class, 'task_users', 'task_id', 'user_id')->where('type', \App\Contact::class);
     }
 
     public function whatsappgroup()
@@ -194,10 +194,10 @@ class Task extends Model
     public function whatsappAll($needBroadCast = false)
     {
         if ($needBroadCast) {
-            return $this->hasMany('App\ChatMessage', 'task_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
+            return $this->hasMany(\App\ChatMessage::class, 'task_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
         }
 
-        return $this->hasMany('App\ChatMessage', 'task_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+        return $this->hasMany(\App\ChatMessage::class, 'task_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
     public function allMessages()
@@ -207,13 +207,13 @@ class Task extends Model
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer', 'customer_id', 'id');
+        return $this->belongsTo(\App\Customer::class, 'customer_id', 'id');
     }
 
     public function timeSpent()
     {
         return $this->hasOne(
-            'App\Hubstaff\HubstaffActivity',
+            \App\Hubstaff\HubstaffActivity::class,
             'task_id',
             'hubstaff_task_id'
         )
@@ -301,7 +301,7 @@ class Task extends Model
                         if ($key == 0) {
                             $params['erp_user'] = $user->id;
                         } else {
-                            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
                         }
                     }
                 } else {
@@ -310,7 +310,7 @@ class Task extends Model
                             $params['erp_user'] = $task->assign_from;
                         } else {
                             if ($user->id != Auth::id()) {
-                                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
                             }
                         }
                     }
@@ -322,7 +322,7 @@ class Task extends Model
                     if ($key == 0) {
                         $params['contact_id'] = $task->assign_to;
                     } else {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($contact->phone, null, $params['message']);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($contact->phone, null, $params['message']);
                     }
                 }
             }
@@ -340,7 +340,7 @@ class Task extends Model
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add(['messageId' => $chat_message->id]);
-            app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+            app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('task', $myRequest);
         }
 
         if ($created) {
@@ -356,7 +356,7 @@ class Task extends Model
             }
             $taskSummery = substr($message, 0, 200);
             if ($hubstaffUserId) {
-                $hubstaffTaskId = app('App\Http\Controllers\TaskModuleController')->createHubstaffTask(
+                $hubstaffTaskId = app(\App\Http\Controllers\TaskModuleController::class)->createHubstaffTask(
                     $taskSummery,
                     $hubstaffUserId,
                     $hubstaff_project_id
@@ -384,7 +384,7 @@ class Task extends Model
 
     public function site_development()
     {
-        return $this->belongsTo('App\SiteDevelopment', 'site_developement_id', 'id');
+        return $this->belongsTo(\App\SiteDevelopment::class, 'site_developement_id', 'id');
     }
 
     public function updateStartDate($new)

@@ -719,7 +719,7 @@ class SocialController extends Controller
             }
 
             return redirect()->route('social.ad.campaign.create');
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Session::flash('message', $e);
 
             return redirect()->route('social.ad.campaign.create');
@@ -816,7 +816,7 @@ class SocialController extends Controller
             }
 
             return redirect()->route('social.ad.adset.create');
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Session::flash('message', $e);
 
             return redirect()->route('social.ad.adset.create');
@@ -895,7 +895,7 @@ class SocialController extends Controller
             }
 
             return redirect()->route('social.ad.create');
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Session::flash('message', $e);
 
             return redirect()->route('social.ad.create');

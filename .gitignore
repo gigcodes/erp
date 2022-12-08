@@ -87,7 +87,7 @@ app/Library/_MACOSX/*
 /app/Mail/*
 /public/mailinglist/
 /public/wetransfer/*
-/resources/assets/analytics_files/*
+/resources/analytics_files/*
 /.phpintel
 public/scrappersImages/*
 public/product_discount_file/*

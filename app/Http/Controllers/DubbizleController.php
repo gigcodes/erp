@@ -93,7 +93,7 @@ class DubbizleController extends Controller
 
             $chat_message = ChatMessage::create($params);
 
-            app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($dubbizle->phone_number, '919152731483', $params['message'], null, $chat_message->id);
+            app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($dubbizle->phone_number, '919152731483', $params['message'], null, $chat_message->id);
 
             $chat_message->update([
                 'approved' => 1,

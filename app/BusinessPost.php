@@ -28,6 +28,6 @@ class BusinessPost extends Model
 
     public function comments()
     {
-        return $this->hasMany('App\BusinessComment', 'post_id')->where('is_parent', 0);
+        return $this->hasMany(\App\BusinessComment::class, 'post_id')->where('is_parent', 0);
     }
 }

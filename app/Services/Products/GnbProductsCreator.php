@@ -25,11 +25,11 @@ class GnbProductsCreator
         if ($validator->fails()) {
             $product = Product::where('sku', $image->sku)->first();
             // $params = [
-           //     'website'             => 'Tory',
-           //     'scraped_product_id'  => $image->id,
-           //     'status'              => 1
+            //     'website'             => 'Tory',
+            //     'scraped_product_id'  => $image->id,
+            //     'status'              => 1
             // ];
-           //
+            //
             // ScrapActivity::create($params);
             $old_supplier = $product->supplier;
         } else {

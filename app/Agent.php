@@ -25,11 +25,11 @@ class Agent extends Model
 
     public function purchase()
     {
-        return $this->hasOne('App\Purchase');
+        return $this->hasOne(\App\Purchase::class);
     }
 
     public function supplier()
     {
-        return $this->hasOne('App\Supplier', 'model_id')->where('model_type', 'App\Supplier');
+        return $this->hasOne(\App\Supplier::class, 'model_id')->where('model_type', \App\Supplier::class);
     }
 }

@@ -13,7 +13,7 @@ class NotificationServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        view()->composer('partials.notifications', 'App\Http\Composers\NotificaitonComposer');
+        view()->composer('partials.notifications', \App\Http\Composers\NotificaitonComposer::class);
     }
 
     /**

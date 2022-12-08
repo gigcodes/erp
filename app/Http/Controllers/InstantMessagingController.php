@@ -45,7 +45,7 @@ class InstantMessagingController extends Controller
             // Check credentials
             $whatsappConfig = $clientClass::where('last_name', $numberFrom)->first();
         } else {
-            $clientClass = '\\App\\Account';
+            $clientClass = \App\Account::class;
 
             // Check credentials
             $whatsappConfig = $clientClass::where('last_name', $numberFrom)->first();

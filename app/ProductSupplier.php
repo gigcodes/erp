@@ -15,12 +15,12 @@ class ProductSupplier extends Model
 
     public function supplier()
     {
-        return $this->hasOne("\App\Supplier", 'id', 'supplier_id');
+        return $this->hasOne(\App\Supplier::class, 'id', 'supplier_id');
     }
 
     public function product()
     {
-        return $this->hasOne("\App\Product", 'id', 'product_id');
+        return $this->hasOne(\App\Product::class, 'id', 'product_id');
     }
 
     public static function getSizeSystem($productId, $supplierId)

@@ -41,7 +41,7 @@ class ConvertImageIntoThumbnail extends Command
     {
         Media::where('is_processed', 0)
         ->join('mediables', 'mediables.media_id', 'media.id')
-        ->where('mediable_type', 'App\Product')
+        ->where('mediable_type', \App\Product::class)
         ->where('aggregate_type', 'image')->orderBy('id')->chunk(1000, function ($medias) {
             foreach ($medias as $key => $media) {
                 try {
@@ -78,7 +78,7 @@ class ConvertImageIntoThumbnail extends Command
                         $media->is_processed = 3;
                         $media->save();
                     }
-                } catch(Exception $exception) {
+                } catch (Exception $exception) {
                     $media->is_processed = 3;
                     $media->save();
                 }

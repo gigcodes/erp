@@ -51,7 +51,7 @@ class AddGroupTheme extends Command
             'fields' => ['agent_priorities', 'routing_status'],
         ];
         $postData = json_encode($postData, true);
-        $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
         if ($result['err']) {
             dump(['status' => 'errors', 'errorMsg' => $result['err']], 403);
@@ -72,7 +72,7 @@ class AddGroupTheme extends Command
                         'routing_status' => $g->routing_status,
                     ];
                     $postData = json_encode($postData, true);
-                    $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                    $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
                     if (! isset($response->error)) {
                         $changed_themes[] = 'theme_'.str_replace('theme_', '', $g->name);
                         $existing_themes_ids[$g->name] = $g->id;
@@ -141,9 +141,9 @@ class AddGroupTheme extends Command
 
                 $ref_group_id = $ref_themes[$theme_name];
                 $postURL1 = 'https://api.livechatinc.com/v2/properties/group/'.$ref_group_id;
-                $result1 = app('App\Http\Controllers\LiveChatController')->curlCall($postURL1, [], 'application/json', true, 'GET');
+                $result1 = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL1, [], 'application/json', true, 'GET');
                 $postURL2 = 'https://api.livechatinc.com/v2/properties/group/'.$t;
-                $result2 = app('App\Http\Controllers\LiveChatController')->curlCall($postURL2, $result1['response'], 'application/json', true, 'PUT');
+                $result2 = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL2, $result1['response'], 'application/json', true, 'PUT');
                 WebsiteStoreView::where('store_group_id', $t)->update(['ref_theme_group_id' => $ref_group_id]);
                 dump($key.' '.$t.' '.$theme_name.' is updated '.$ref_group_id);
             }

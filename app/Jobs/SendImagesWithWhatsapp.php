@@ -45,7 +45,7 @@ class SendImagesWithWhatsapp implements ShouldQueue
     public function handle()
     {
         try {
-            app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->phone, $this->whatsapp_number, null, $this->image_url, $this->message_id);
+            app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($this->phone, $this->whatsapp_number, null, $this->image_url, $this->message_id);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }

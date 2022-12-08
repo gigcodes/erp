@@ -213,7 +213,7 @@ class AnalyticsController extends Controller
 
                 $ERPlogArray['request'] = $value;
                 $ERPlogArray['response'] = $resultData;
-            } catch(\Exception  $e) {
+            } catch (\Exception  $e) {
                 $ERPlogArray['type'] = 'error';
                 $ERPlogArray['response'] = $e->getMessage();
             }
@@ -291,7 +291,7 @@ class AnalyticsController extends Controller
                     ];
                     GoogleAnalyticsHistories::insert($history);
                 }
-            } catch(\Exception  $e) {
+            } catch (\Exception  $e) {
                 dump($e->getMessage());
                 $history = [
                     'website' => $value['website'],

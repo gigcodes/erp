@@ -1499,7 +1499,7 @@ class HubstaffActivitiesController extends Controller
                 'date' => $request->date,
             ]);
 
-            return app('App\Http\Controllers\HubstaffActivitiesController')->finalSubmit($myRequest);
+            return app(\App\Http\Controllers\HubstaffActivitiesController::class)->finalSubmit($myRequest);
         }
     }
 
@@ -2019,7 +2019,7 @@ class HubstaffActivitiesController extends Controller
 
                                 DeveloperTaskHistory::create([
                                     'developer_task_id' => '',
-                                    'model' => 'App\Hubstaff\HubstaffActivitySummary',
+                                    'model' => \App\Hubstaff\HubstaffActivitySummary::class,
                                     'attribute' => 'task_status',
                                     'old_value' => '',
                                     'new_value' => '',
@@ -2224,7 +2224,7 @@ class HubstaffActivitiesController extends Controller
 
                 DeveloperTaskHistory::create([
                     'developer_task_id' => '',
-                    'model' => 'App\Hubstaff\HubstaffActivitySummary',
+                    'model' => \App\Hubstaff\HubstaffActivitySummary::class,
                     'attribute' => 'task_status',
                     'old_value' => '',
                     'new_value' => '',
@@ -2240,7 +2240,7 @@ class HubstaffActivitiesController extends Controller
         $min = number_format($min, 2);
         $message = 'Hi, your time for '.$request->date.' has been approved. Total approved time is '.$min.' minutes.';
         $requestData->request->add(['summery_id' => $hubActivitySummery->id, 'message' => $message, 'status' => 1]);
-        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'time_approval');
+        app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'time_approval');
 
         return response()->json([
             'totalApproved' => $approved,

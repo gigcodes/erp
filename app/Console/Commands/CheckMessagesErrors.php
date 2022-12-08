@@ -79,7 +79,7 @@ class CheckMessagesErrors extends Command
 
                         if ($error == 1) {
                             try {
-                                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($chat_message->customer->phone, $chat_message->customer->whatsapp_number, $params['message'], false, $new_message->id);
+                                app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($chat_message->customer->phone, $chat_message->customer->whatsapp_number, $params['message'], false, $new_message->id);
                             } catch (\Exception $e) {
                             }
                         }
@@ -96,7 +96,7 @@ class CheckMessagesErrors extends Command
 
                             if ($error == 1) {
                                 try {
-                                    app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($chat_message->customer->phone, $chat_message->customer->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), false, $new_message->id);
+                                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($chat_message->customer->phone, $chat_message->customer->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), false, $new_message->id);
                                 } catch (\Exception $e) {
                                 }
                             }

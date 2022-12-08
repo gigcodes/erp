@@ -13,9 +13,9 @@ class KeywordAutoGenratedMessageLog extends Model
 
     public function getTypeNameAttribute()
     {
-        if ($this->model == 'App\Customer') {
+        if ($this->model == \App\Customer::class) {
             $typeName = @$this->customer->name;
-        } elseif ($this->model == 'App\Vendor') {
+        } elseif ($this->model == \App\Vendor::class) {
             $typeName = @$this->vendor->name;
         } else {
             $typeName = @$this->supplier->supplier;

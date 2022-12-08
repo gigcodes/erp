@@ -18,7 +18,7 @@ class GithubRepository extends Model
     public function users()
     {
         return $this->belongsToMany(
-            'App\Github\GithubUser',
+            \App\Github\GithubUser::class,
             'github_repository_users',
             'github_repositories_id',
             'github_users_id'
@@ -29,7 +29,7 @@ class GithubRepository extends Model
     public function branches()
     {
         return $this->hasMany(
-            'App\Github\GithubBranchState',
+            \App\Github\GithubBranchState::class,
             'repository_id',
             'id'
         )->orderBy('last_commit_time', 'desc');

@@ -100,7 +100,7 @@ class FetchMagentoCronData extends Command
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        LogRequest::log($startTime, $url, 'POST', [], json_decode($server_output), $httpcode, 'getDataApi', 'App\Console\Commands\FetchMagentoCronData');
+        LogRequest::log($startTime, $url, 'POST', [], json_decode($server_output), $httpcode, 'getDataApi', \App\Console\Commands\FetchMagentoCronData::class);
 
         return  $server_output;
     }

@@ -137,11 +137,11 @@ class NotificationQueueController extends Controller
                         PushNotification::create($item);
                         break;
 
-                    case 'App\Instruction':
+                    case \App\Instruction::class:
                         PushNotification::create($item);
                         break;
 
-                    case 'App\DeveloperTask':
+                    case \App\DeveloperTask::class:
                         PushNotification::create($item);
                         break;
 

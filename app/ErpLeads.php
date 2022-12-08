@@ -52,16 +52,16 @@ class ErpLeads extends Model
 
     public function status_changes()
     {
-        return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\ErpLeads')->latest();
+        return $this->hasMany(\App\StatusChange::class, 'model_id')->where('model_type', \App\ErpLeads::class)->latest();
     }
 
     public function storeWebsite()
     {
-        return $this->hasOne('App\StoreWebsite', 'id', 'store_website_id');
+        return $this->hasOne(\App\StoreWebsite::class, 'id', 'store_website_id');
     }
 
     public function customer()
     {
-        return $this->hasOne('App\Customer', 'id', 'customer_id');
+        return $this->hasOne(\App\Customer::class, 'id', 'customer_id');
     }
 }

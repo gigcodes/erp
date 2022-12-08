@@ -173,7 +173,7 @@ class BuyBackController extends Controller
                             $requestData = new Request();
                             $requestData->setMethod('POST');
                             $requestData->request->add(['customer_id' => $getCustomerOrderData->customer_id, 'message' => $auto_message, 'status' => 1]);
-                            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
                         }
                     } elseif ($request->type == 'return') {
                         $emailClass = (new \App\Mails\Manual\InitializeReturnRequest($success))->build();
@@ -202,7 +202,7 @@ class BuyBackController extends Controller
                             $requestData = new Request();
                             $requestData->setMethod('POST');
                             $requestData->request->add(['customer_id' => $getCustomerOrderData->customer_id, 'message' => $auto_message, 'status' => 1]);
-                            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
                         }
                     } elseif ($request->type == 'exchange') {
                         $emailClass = (new \App\Mails\Manual\InitializeExchangeRequest($success))->build();
@@ -231,7 +231,7 @@ class BuyBackController extends Controller
                             $requestData = new Request();
                             $requestData->setMethod('POST');
                             $requestData->request->add(['customer_id' => $getCustomerOrderData->customer_id, 'message' => $auto_message, 'status' => 1]);
-                            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
                         }
                     } elseif ($request->type == 'cancellation') {
                         $emailClass = (new \App\Mails\Manual\InitializeCancelRequest($success))->build();
@@ -260,7 +260,7 @@ class BuyBackController extends Controller
                             $requestData = new Request();
                             $requestData->setMethod('POST');
                             $requestData->request->add(['customer_id' => $getCustomerOrderData->customer_id, 'message' => $auto_message, 'status' => 1]);
-                            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
                         }
                     }
                 }

@@ -121,7 +121,7 @@ class Order extends Model
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer');
+        return $this->belongsTo(\App\Customer::class);
     }
 
     public function Comment()
@@ -132,99 +132,99 @@ class Order extends Model
 
     public function messages()
     {
-        return $this->hasMany('App\Message', 'moduleid')->where('moduletype', 'order')->latest()->first();
+        return $this->hasMany(\App\Message::class, 'moduleid')->where('moduletype', 'order')->latest()->first();
     }
 
     public function reports()
     {
-        return $this->hasMany('App\OrderReport', 'order_id')->latest()->first();
+        return $this->hasMany(\App\OrderReport::class, 'order_id')->latest()->first();
     }
 
     public function latest_report()
     {
-        return $this->hasOne('App\OrderReport', 'order_id')->latest();
+        return $this->hasOne(\App\OrderReport::class, 'order_id')->latest();
     }
 
     public function status_changes()
     {
-        return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\Order')->latest();
+        return $this->hasMany(\App\StatusChange::class, 'model_id')->where('model_type', \App\Order::class)->latest();
     }
 
     public function many_reports()
     {
-        return $this->hasMany('App\OrderReport', 'order_id')->latest();
+        return $this->hasMany(\App\OrderReport::class, 'order_id')->latest();
     }
 
     public function whatsapps()
     {
-        return $this->hasMany('App\ChatMessage', 'order_id')->latest()->first();
+        return $this->hasMany(\App\ChatMessage::class, 'order_id')->latest()->first();
     }
 
     public function delivery_approval()
     {
-        return $this->hasOne('App\DeliveryApproval');
+        return $this->hasOne(\App\DeliveryApproval::class);
     }
 
     public function waybill()
     {
-        return $this->hasOne('App\Waybill');
+        return $this->hasOne(\App\Waybill::class);
     }
 
     public function waybills()
     {
-        return $this->hasMany('App\Waybill');
+        return $this->hasMany(\App\Waybill::class);
     }
 
     public function invoice()
     {
-        return $this->belongsTo('App\Invoice');
+        return $this->belongsTo(\App\Invoice::class);
     }
 
     public function is_sent_initial_advance()
     {
-        $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Order')->where('type', 'initial-advance')->count();
+        $count = $this->hasMany(\App\CommunicationHistory::class, 'model_id')->where('model_type', \App\Order::class)->where('type', 'initial-advance')->count();
 
         return $count > 0 ? true : false;
     }
 
     public function is_sent_advance_receipt()
     {
-        $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Order')->where('type', 'advance-receipt')->count();
+        $count = $this->hasMany(\App\CommunicationHistory::class, 'model_id')->where('model_type', \App\Order::class)->where('type', 'advance-receipt')->count();
 
         return $count > 0 ? true : false;
     }
 
     public function is_sent_online_confirmation()
     {
-        $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Order')->where('type', 'online-confirmation')->count();
+        $count = $this->hasMany(\App\CommunicationHistory::class, 'model_id')->where('model_type', \App\Order::class)->where('type', 'online-confirmation')->count();
 
         return $count > 0 ? true : false;
     }
 
     public function is_sent_refund_initiated()
     {
-        $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Order')->where('type', 'refund-initiated')->count();
+        $count = $this->hasMany(\App\CommunicationHistory::class, 'model_id')->where('model_type', \App\Order::class)->where('type', 'refund-initiated')->count();
 
         return $count > 0 ? true : false;
     }
 
     public function is_sent_offline_confirmation()
     {
-        $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Order')->where('type', 'offline-confirmation')->count();
+        $count = $this->hasMany(\App\CommunicationHistory::class, 'model_id')->where('model_type', \App\Order::class)->where('type', 'offline-confirmation')->count();
 
         return $count > 0 ? true : false;
     }
 
     public function is_sent_order_delivered()
     {
-        $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Order')->where('type', 'order-delivered')->count();
+        $count = $this->hasMany(\App\CommunicationHistory::class, 'model_id')->where('model_type', \App\Order::class)->where('type', 'order-delivered')->count();
 
         return $count > 0 ? true : false;
     }
 
     public function order_status()
     {
-        return $this->belongsTo('App\OrderStatus');
+        return $this->belongsTo(\App\OrderStatus::class);
     }
     // public function getCommunicationAttribute()
     // {
@@ -268,11 +268,11 @@ class Order extends Model
     public function whatsappAll($needBroadcast = false)
     {
         if ($needBroadcast) {
-            return $this->hasMany('App\ChatMessage', 'order_id')->where(function ($q) {
+            return $this->hasMany(\App\ChatMessage::class, 'order_id')->where(function ($q) {
                 $q->whereIn('status', ['7', '8', '9', '10'])->orWhere('group_id', '>', 0);
             })->latest();
         } else {
-            return $this->hasMany('App\ChatMessage', 'order_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+            return $this->hasMany(\App\ChatMessage::class, 'order_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
         }
     }
 

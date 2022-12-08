@@ -79,7 +79,7 @@ class ErrorAlertMessage extends Command
                                     'subject' => $subject,
                                     'assigned_to' => \App\Setting::get('cron_issue_assinged_to', self::DEFAULT_ASSIGNED_TO),
                                 ]);
-                                app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+                                app(\App\Http\Controllers\DevelopmentController::class)->issueStore($requestData, 'issue');
                             }
                         }
                     }

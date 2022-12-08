@@ -109,7 +109,7 @@ class StockController extends Controller
         // curl_setopt($curl, CURLOPT_HEADER, false);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         // curl_setopt($curl, CURLOPT_HTTPHEADER,
-      //         array("Content-type: application/json"));
+        //         array("Content-type: application/json"));
         // curl_setopt($curl, CURLOPT_POST, true);
         // curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
 
@@ -259,7 +259,7 @@ class StockController extends Controller
 
             $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
-            app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
+            app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
 
             $chat_message->update([
                 'approved' => 1,
@@ -271,7 +271,7 @@ class StockController extends Controller
 
         $whatsapp_number = Auth::user()->whatsapp_number != '' ? Auth::user()->whatsapp_number : null;
 
-        app('App\Http\Controllers\WhatsAppController')->sendWithNewApi('37067501865', $whatsapp_number, $params['message'], null, $chat_message->id);
+        app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi('37067501865', $whatsapp_number, $params['message'], null, $chat_message->id);
 
         $chat_message->update([
             'approved' => 1,
@@ -362,7 +362,7 @@ class StockController extends Controller
             'order_status_id' => \App\Helpers\OrderHelper::$followUpForAdvance,
         ]);
 
-        $order = app('App\Http\Controllers\OrderController')->store($requestData);
+        $order = app(\App\Http\Controllers\OrderController::class)->store($requestData);
 
         $delivery_approval = new DeliveryApproval;
         $delivery_approval->order_id = $order->id;
@@ -401,7 +401,7 @@ class StockController extends Controller
 
         $whatsapp_number = $office_boy->whatsapp_number != '' ? $office_boy->whatsapp_number : null;
 
-        app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($office_boy->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
+        app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($office_boy->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
 
         $chat_message->update([
             'approved' => 1,

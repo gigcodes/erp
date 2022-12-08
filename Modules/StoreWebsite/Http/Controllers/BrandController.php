@@ -100,7 +100,7 @@ class BrandController extends Controller
             $recLog->error_type = $error_type;
             $recLog->error = $error;
             $recLog->save();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -218,7 +218,7 @@ class BrandController extends Controller
             $data = PushBrandsLog::select('push_brands_logs.*', 'sw.website AS websiteName')->leftJoin('store_websites as sw', 'sw.id', 'push_brands_logs.store_website_id')->get();
 
             return response()->json(['code' => 200, 'data' => $data, 'message' => 'Push brand log listed successfully']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -309,7 +309,7 @@ class BrandController extends Controller
                 //     $brandStore->store_website_id = $request->store;
                 //     $brandStore->save();
                 // }
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 StoreWebsiteBrandHistory::create([
                     'brand_id' => $request->brand,
                     'store_website_id' => $request->store,
@@ -430,7 +430,7 @@ class BrandController extends Controller
             $recLog->error_type = $error_type;
             $recLog->error = $error;
             $recLog->save();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -500,7 +500,7 @@ class BrandController extends Controller
                         try {
                             \Log::info('Brand started for delete '.$ndr);
                             $status = MagentoHelper::deleteBrand($ndr, $storeWebsite);
-                        } catch(Exception $e) {
+                        } catch (Exception $e) {
                             $this->reconsileBrandsLog($request, 'Delete brand', $e->getMessage());
                             \Log::info("Brand delete has error with id $ndr =>".$e->getMessage());
                         }
@@ -551,7 +551,7 @@ class BrandController extends Controller
             $this->reconsileBrandsLog($request, 'Reconsile Successfully', 'Reconsile request has been finished successfully');
 
             return response()->json(['code' => 200, 'message' => 'Reconsile request has been finished successfully']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->reconsileBrandsLog($request, 'Catch Error', $e->getMessage());
 
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
@@ -564,7 +564,7 @@ class BrandController extends Controller
             $data = ReconsileBrandsLog::select('reconsile_brands_log.*', 'sw.website AS websiteName')->leftJoin('store_websites as sw', 'sw.id', 'reconsile_brands_log.store_website_id')->get();
 
             return response()->json(['code' => 200, 'data' => $data, 'message' => 'Reconsile log listed successfully']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }

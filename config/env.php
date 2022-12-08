@@ -11,7 +11,7 @@ return [
     // 'CACHE_DRIVER' => env('CACHE_DRIVER'),
     // 'SESSION_DRIVER' => env('SESSION_DRIVER'),
     // 'SESSION_LIFETIME' => env('SESSION_LIFETIME'),
-    // 'QUEUE_DRIVER' => env('QUEUE_DRIVER'),
+    // 'QUEUE_CONNECTION' => env('QUEUE_CONNECTION'),
     // 'REDIS_HOST' => env('REDIS_HOST'),
     // 'REDIS_PASSWORD' => env('REDIS_PASSWORD'),
     // 'REDIS_PORT' => env('REDIS_PORT'),

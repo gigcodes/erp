@@ -77,7 +77,7 @@ class ScrapperNotRun extends Command
 
                 //app('\App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
                 try {
-                    app('\App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
                     ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => "Scraper didn't Run In Last 24 Hr message sent to ".$userName, 'reason' => $reason]);
                 } catch (\Exception $e) {
                     \Log::error($e);

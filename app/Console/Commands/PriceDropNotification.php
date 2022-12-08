@@ -49,7 +49,7 @@ class PriceDropNotification extends Command
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['ticket_id' => $ticket->id, 'message' => $message, 'status' => 1]);
-                    app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'ticket');
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'ticket');
                 } elseif ($ticket->notify_on == 'email' && $ticket->email != null) {
                     Mail::send('emails.pricedropnotif', ['ticket' => $ticket], function ($m) use ($ticket) {
                         $m->from('contact@sololuxury.co.in', 'LuxuryErp');

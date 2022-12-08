@@ -213,7 +213,7 @@ class RepositoryController extends Controller
             $gitDbError = GitMigrationErrorLog::orderBy('id', 'desc')->take(100)->get();
 
             return view('github.deploy_branch_error', compact('gitDbError'));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
         }
     }
@@ -271,7 +271,7 @@ class RepositoryController extends Controller
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
-                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
 
                 MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to, $devTask->team_lead_id, $devTask->tester_id], $message.'. kindly test task in live if possible and put test result as comment in task.');
                 $devTask->update(['is_pr_merged' => 1]);
@@ -352,7 +352,7 @@ class RepositoryController extends Controller
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
-                    app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
                 }
 
                 //Merged to master get migration error
@@ -373,7 +373,7 @@ class RepositoryController extends Controller
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
-                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
             }
 
             return redirect(url('/github/pullRequests'))->with(
@@ -409,7 +409,7 @@ class RepositoryController extends Controller
                     'destination' => $pullRequest->base->ref,
                 ];
             }
-        } catch(Exception $e) {
+        } catch (Exception $e) {
         }
 
         return $pullRequests;

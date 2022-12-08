@@ -61,7 +61,7 @@ class SendPendingTasksReminders extends Command
                     try {
                         dump('Sending message');
 
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $message);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $message);
                     } catch (\Exception $e) {
                         dump($e->getMessage());
                     }

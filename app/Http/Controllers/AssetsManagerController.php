@@ -90,7 +90,7 @@ class AssetsManagerController extends Controller
         $whatsappCon = \DB::table('whatsapp_configs')->get();
 
         //Cash Flows
-        $cashflows = \App\CashFlow::whereIn('cash_flow_able_id', $assetsIds)->where(['cash_flow_able_type' => 'App\AssetsManager'])->get();
+        $cashflows = \App\CashFlow::whereIn('cash_flow_able_id', $assetsIds)->where(['cash_flow_able_type' => \App\AssetsManager::class])->get();
         $users = User::get()->toArray();
         //dd($users);
         return view('assets-manager.index', compact('assets', 'category', 'cashflows', 'users', 'websites', 'plateforms', 'whatsappCon', 'emailAddress'))
@@ -163,7 +163,7 @@ class AssetsManagerController extends Controller
                     'amount' => $request->input('amount'),
                     'type' => 'pending',
                     'currency' => $insertData->currency,
-                    'cash_flow_able_type' => 'App\AssetsManager',
+                    'cash_flow_able_type' => \App\AssetsManager::class,
                     'cash_flow_able_id' => $insertData->id,
 
                 ]
@@ -309,7 +309,7 @@ class AssetsManagerController extends Controller
         $asset_id = $request->input('asset_id');
         $html = '';
         $paymentData = CashFlow::where('cash_flow_able_id', $asset_id)
-            ->where('cash_flow_able_type', 'App\AssetsManager')
+            ->where('cash_flow_able_type', \App\AssetsManager::class)
             ->where('type', 'paid')
             ->orderBy('date', 'DESC')
             ->get();

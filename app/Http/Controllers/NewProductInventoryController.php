@@ -127,17 +127,17 @@ class NewProductInventoryController extends Controller
     }
 
     // public function upteamLogs(Request $request) {
- //        if($request->upteam_log && $request->upteam_log != '') {
- //            $logs = UpteamLog::where('log_description','LIKE','%'.$request->upteam_log.'%');
- //        }
+    //        if($request->upteam_log && $request->upteam_log != '') {
+    //            $logs = UpteamLog::where('log_description','LIKE','%'.$request->upteam_log.'%');
+    //        }
 
- //        if($request->from_date != '' && $request->to_date != '')
- //        {
- //           $logs = UpteamLog::whereBetween('created_at', array($request->from_date, $request->to_date))->orderBy('id', 'desc')->paginate(30);
- //        }else{
- //            $logs = UpteamLog::orderBy('id', 'desc')->paginate(30);
- //        }
- //        return view("product-inventory.upteam_logs", compact('logs'));
+    //        if($request->from_date != '' && $request->to_date != '')
+    //        {
+    //           $logs = UpteamLog::whereBetween('created_at', array($request->from_date, $request->to_date))->orderBy('id', 'desc')->paginate(30);
+    //        }else{
+    //            $logs = UpteamLog::orderBy('id', 'desc')->paginate(30);
+    //        }
+    //        return view("product-inventory.upteam_logs", compact('logs'));
     // }
     public function pushInStore(Request $request)
     {
@@ -186,7 +186,7 @@ class NewProductInventoryController extends Controller
                 'data' => $googleData,
                 'product_id' => $id,
             ]);
-            app('App\Http\Controllers\ScrapController')->downloadImages($requestData);
+            app(\App\Http\Controllers\ScrapController::class)->downloadImages($requestData);
 
             return back()->with('message', 'Images has been saved on lifestyle grid');
         }

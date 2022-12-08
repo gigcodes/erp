@@ -131,7 +131,7 @@ class MessageController extends Controller
                 $type = 'supplier';
             }
 
-            app('App\Http\Controllers\WhatsAppController')->approveMessage($type, $myRequest);
+            app(\App\Http\Controllers\WhatsAppController::class)->approveMessage($type, $myRequest);
         }
 
         return response()->json(['code' => 200, 'message' => 'Messsage Send Successfully']);

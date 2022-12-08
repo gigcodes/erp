@@ -97,7 +97,7 @@ class SendDailyPlannerNotification extends Command
                         // send chat message
                         $chat_message = \App\ChatMessage::create($params);
                         // send
-                        app('App\Http\Controllers\WhatsAppController')
+                        app(\App\Http\Controllers\WhatsAppController::class)
                             ->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
                     }
                 }
@@ -128,7 +128,7 @@ class SendDailyPlannerNotification extends Command
                         // send chat message
                         $chat_message = \App\ChatMessage::create($params);
                         // send
-                        app('App\Http\Controllers\WhatsAppController')
+                        app(\App\Http\Controllers\WhatsAppController::class)
                             ->sendWithThirdApi($vendor->phone, $vendor->whatsapp_number, $params['message'], false, $chat_message->id);
                     }
                 }

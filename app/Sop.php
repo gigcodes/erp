@@ -25,6 +25,6 @@ class Sop extends Model
 
     public function emails()
     {
-        return $this->hasMany('App\Email', 'model_id', 'id');
+        return $this->hasMany(\App\Email::class, 'model_id', 'id');
     }
 }

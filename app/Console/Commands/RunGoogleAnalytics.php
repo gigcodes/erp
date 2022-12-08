@@ -40,7 +40,7 @@ class RunGoogleAnalytics extends Command
                 'start_time' => Carbon::now(),
             ]);
 
-            app('App\Http\Controllers\AnalyticsController')->cronGetUserShowData();
+            app(\App\Http\Controllers\AnalyticsController::class)->cronGetUserShowData();
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {

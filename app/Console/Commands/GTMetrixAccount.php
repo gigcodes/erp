@@ -83,7 +83,7 @@ class GTMetrixAccount extends Command
                         ->update(['status' => 'inactive']
                         );
                     }
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     $value->status = 'error';
                     $value->error = $e->getMessage();
                     $value->save();

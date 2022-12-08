@@ -59,7 +59,7 @@ class AutoMessenger extends Command
                 'status' => 9, // auto message status
             ];
 
-            $communication_histories = CommunicationHistory::where('type', 'refund-initiated')->where('model_type', 'App\Order')->where('method', 'email')->get();
+            $communication_histories = CommunicationHistory::where('type', 'refund-initiated')->where('model_type', \App\Order::class)->where('method', 'email')->get();
             $now = Carbon::now();
 
             foreach ($communication_histories as $history) {
@@ -87,7 +87,7 @@ class AutoMessenger extends Command
             }
 
             // Follow Up Sequence
-            $follow_ups = CommunicationHistory::where('type', 'initiate-followup')->where('model_type', 'App\Customer')->where('method', 'whatsapp')->where('is_stopped', 0)->get();
+            $follow_ups = CommunicationHistory::where('type', 'initiate-followup')->where('model_type', \App\Customer::class)->where('method', 'whatsapp')->where('is_stopped', 0)->get();
             $now = Carbon::now();
 
             foreach ($follow_ups as $follow_up) {

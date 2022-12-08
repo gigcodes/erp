@@ -52,7 +52,7 @@ class CroppedImageReferenceProduct extends Command
                 $media = $image->original_media_id;
 
                 //Searching From Media Table
-                $mediable = \DB::table('mediables')->where('mediable_type', 'App\Product')->where('media_id', $media)->first();
+                $mediable = \DB::table('mediables')->where('mediable_type', \App\Product::class)->where('media_id', $media)->first();
 
                 //Media is not null
                 if ($mediable != null) {

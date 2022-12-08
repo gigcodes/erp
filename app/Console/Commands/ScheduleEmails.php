@@ -320,17 +320,17 @@ class ScheduleEmails extends Command
                 }
 
                 $extraParams = [];
-                if ($modalType == 'App\ErpLeads') {
+                if ($modalType == \App\ErpLeads::class) {
                     $extraParams = ['lead_id' => $lead->id];
-                } elseif ($modalType == 'App\CustomerBasketProduct') {
+                } elseif ($modalType == \App\CustomerBasketProduct::class) {
                     $extraParams = ['customer_id' => $lead->id];
                 } elseif ($modalType == 'App\Orders') {
                     $extraParams = ['order_id' => $lead->id];
-                } elseif ($modalType == 'App\DeveloperTask') {
+                } elseif ($modalType == \App\DeveloperTask::class) {
                     $extraParams = ['developer_task_id' => $lead->id];
-                } elseif ($modalType == 'App\Task') {
+                } elseif ($modalType == \App\Task::class) {
                     $extraParams = ['task_id' => $lead->id];
-                } elseif ($modalType == 'App\Mailinglist') {
+                } elseif ($modalType == \App\Mailinglist::class) {
                     $extraParams = ['email_id' => $lead->id];
                 }
 

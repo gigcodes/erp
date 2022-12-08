@@ -141,7 +141,7 @@ $table .= "</tbody></table>";
             </button>
 
             <?php
-$messages = \App\Email::where('model_type', 'App\Tickets')->where('model_id', $ticket->id)->orderBy('created_at', 'desc')->get();
+$messages = \App\Email::where('model_type', \App\Tickets::class)->where('model_id', $ticket->id)->orderBy('created_at', 'desc')->get();
 $table = " <table class='table table-bordered' ><thead><tr><td>Date</td><td>Original</td><td>Message</td></tr></thead><tbody>";
 $tableemail = " <table style='width:1000px' class='table table-bordered' ><thead><tr><td>Date</td><td>Sender</td><td>Receiver</td><td>Mail <br> Type</td><td>Subject</td><td>Message</td><td>Action</td></tr></thead><tbody>";
 

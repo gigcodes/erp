@@ -12,7 +12,7 @@ class ChatbotMessageLogResponse extends Model
 
     public function chatbotMessageLog()
     {
-        return $this->belongsTo("App\ChatbotMessageLog", 'chatbot_message_log_id', 'id');
+        return $this->belongsTo(\App\ChatbotMessageLog::class, 'chatbot_message_log_id', 'id');
     }
 
     public static function StoreLogResponse($params)
