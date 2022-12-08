@@ -261,15 +261,15 @@ class StoreWebsiteController extends Controller
         $storeWebsite = StoreWebsite::find($storeWebsiteId);
         $serverId = 1;
         $response = $this->updateStoreViewServer($storeWebsiteId, $serverId);
-        if(!$response)
+        if (! $response) {
             return response()->json(['code' => 500, 'error' => 'Something went wrong in update store view server!']);
+        }
 
         if (! $storeWebsite) {
             return response()->json(['code' => 500, 'error' => 'No website found!']);
         }
 
         for ($i = 1; $i <= $numberOfDuplicates; $i++) {
-
             $copyStoreWebsite = $storeWebsite->replicate();
             $title = $copyStoreWebsite->title;
             unset($copyStoreWebsite->id);
@@ -691,9 +691,10 @@ class StoreWebsiteController extends Controller
                 return response()->json(['code' => 500, 'error' => 'Store website users failed!']);
             }
 
-            $response = $this->updateStoreViewServer($copyStoreWebsiteId, $i+1);
-            if(!$response)
+            $response = $this->updateStoreViewServer($copyStoreWebsiteId, $i + 1);
+            if (! $response) {
                 return response()->json(['code' => 500, 'error' => 'Something went wrong in update store view server of '.$copyStoreWebsite->title.'!']);
+            }
 
             if ($i == $numberOfDuplicates) {
                 return response()->json(['code' => 200, 'error' => 'Store website created successfully']);
@@ -703,6 +704,7 @@ class StoreWebsiteController extends Controller
 
     /**
      * Function to update store view server mapping of a store website
+     *
      * @param $storeWebsiteId
      * @param $serverId
      * @return \Illuminate\Http\JsonResponse
@@ -715,9 +717,9 @@ class StoreWebsiteController extends Controller
         $count = 0;
         foreach ($storeViews as $key => $view) {
             $storeView = WebsiteStoreView::find($view->id);
-            if (!$storeView->websiteStore) {
+            if (! $storeView->websiteStore) {
                 \Log::error('Website store not found for '.$view->id.'!');
-            } elseif(!$storeView->websiteStore->website) {
+            } elseif (! $storeView->websiteStore->website) {
                 \Log::error('Website not found for '.$view->id.'!');
             } else {
                 $websiteId = $view->websiteStore->website->id;
@@ -732,9 +734,9 @@ class StoreWebsiteController extends Controller
             return true;
         } else {
             \Log::error('Count is not equal to total store views');
+
             return false;
         }
-
     }
 
     public function saveUserInMagento(Request $request)

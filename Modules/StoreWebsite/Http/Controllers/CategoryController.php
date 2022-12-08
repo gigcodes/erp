@@ -688,7 +688,7 @@ class CategoryController extends Controller
 
                 //end copy
             }
-            $storeWebsites = array();
+            $storeWebsites = [];
             foreach ($websites as $website) {
                 $storeWebsites[] = $website->id;
                 $swc_user_history = new StoreWebsiteCategoryUserHistory();
@@ -720,6 +720,7 @@ class CategoryController extends Controller
                 $swc_user_history->save();
             }
         }
+
         return response()->json(['code' => 200, 'message' => $msg, 'storeWebsites' => $storeWebsites]);
     }
 }
