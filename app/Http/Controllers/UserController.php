@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Arr;
 use App\ApiKey;
 use App\Customer;
 use App\EmailNotificationEmailDetails;
@@ -29,7 +28,8 @@ use Carbon\Carbon;
 use DateTime;
 use DB;
 use Hash;
-use Illuminate\Http\Request; //Purpose : add MOdal - DEVTASK-4359
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr; //Purpose : add MOdal - DEVTASK-4359
 use Log;
 
 class UserController extends Controller

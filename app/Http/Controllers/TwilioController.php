@@ -14,7 +14,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Str;
 use App\AgentCallStatus;
 use App\Brand;
 use App\CallBusyMessage;
@@ -72,6 +71,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Twilio\Jwt\ClientToken;

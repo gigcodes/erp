@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\Str;
 use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class FixTitleCaseIssuesOnComposition extends Command
 {

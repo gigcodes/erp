@@ -2,9 +2,9 @@
 
 namespace Modules\BookStack\Http\Controllers;
 
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 use Modules\BookStack\Auth\Access\SocialAuthService;
 use Modules\BookStack\Auth\Access\UserInviteService;
 use Modules\BookStack\Auth\User;

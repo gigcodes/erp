@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Str;
 use App\Language;
 use App\Models\UicheckHistory;
 use App\SiteDevelopmentCategory;
+use App\SiteDevelopmentStatus;
 /*use Illuminate\Http\Request;
 use App\SiteDevelopment;
 use App\SiteDevelopmentArtowrkHistory;
@@ -14,7 +14,6 @@ use App\SiteDevelopmentMasterCategory;
 use App\StoreWebsite;
 use DB;
 */
-use App\SiteDevelopmentStatus;
 use App\StoreWebsite;
 use App\UiAdminStatusHistoryLog;
 use App\Uicheck;
@@ -38,6 +37,7 @@ use Auth;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Str;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Storage;
 

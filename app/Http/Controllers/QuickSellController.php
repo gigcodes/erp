@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Str;
 use App\ApiKey;
 use App\Brand;
 use App\Category;
@@ -13,6 +12,7 @@ use App\QuickSellGroup;
 use App\Setting;
 use App\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Response;
 

@@ -104,7 +104,6 @@ class Product extends Model
         'is_cron_check',
     ];
 
-
     protected $appends = [];
 
     protected $communication = '';

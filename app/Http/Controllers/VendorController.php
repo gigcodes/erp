@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use App\ChatMessage;
 use App\Customer;
 use App\Email;
@@ -30,7 +28,9 @@ use GuzzleHttp\RequestOptions;
 use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Mail;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Webklex\IMAP\Client;

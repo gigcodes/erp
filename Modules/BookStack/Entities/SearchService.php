@@ -2,12 +2,12 @@
 
 namespace Modules\BookStack\Entities;
 
-use Illuminate\Support\Str;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Modules\BookStack\Auth\Permissions\PermissionService;
 
 class SearchService

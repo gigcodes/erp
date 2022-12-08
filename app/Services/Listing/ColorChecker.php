@@ -2,9 +2,9 @@
 
 namespace App\Services\Listing;
 
-use Illuminate\Support\Str;
 use App\ColorReference;
 use App\Colors;
+use Illuminate\Support\Str;
 
 class ColorChecker implements CheckerInterface
 {

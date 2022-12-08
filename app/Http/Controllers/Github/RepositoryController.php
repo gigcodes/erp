@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Github;
 
-use Illuminate\Support\Str;
 use App\DeveloperTask;
 use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubBranchState;
@@ -19,6 +18,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Str;
 
 class RepositoryController extends Controller
 {

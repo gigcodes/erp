@@ -2,11 +2,11 @@
 
 namespace App\Services\Listing;
 
-use Illuminate\Support\Str;
 use App\AttributeReplacement;
 use App\Brand;
 use App\Colors;
 use App\Services\Grammar\GrammarBot;
+use Illuminate\Support\Str;
 
 class NameChecker implements CheckerInterface
 {

@@ -141,7 +141,6 @@ class Task extends Model
 
     const TASK_STATUS_APPROVED = 20;
 
-
     public static function hasremark($id)
     {
         $task = Task::find($id);

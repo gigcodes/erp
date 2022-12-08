@@ -2,7 +2,6 @@
 
 namespace Modules\UserManagement\Http\Controllers;
 
-use Illuminate\Support\Arr;
 use App\ApiKey;
 use App\AssetsManager;
 use App\ColdLeads;
@@ -37,6 +36,7 @@ use DB;
 use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
 use PragmaRX\Tracker\Vendor\Laravel\Models\Session;
 
 class UserManagementController extends Controller

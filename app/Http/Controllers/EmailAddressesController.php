@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Str;
 use App\EmailAddress;
 use App\EmailRunHistories;
 use App\Exports\EmailFailedReport;
@@ -10,6 +9,7 @@ use App\StoreWebsite;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
 class EmailAddressesController extends Controller

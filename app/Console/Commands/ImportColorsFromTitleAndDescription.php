@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\Str;
 use App\Colors;
 use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class ImportColorsFromTitleAndDescription extends Command
 {

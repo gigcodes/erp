@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Arr;
 use App\DeveloperTask;
 use App\DeveloperTaskHistory;
 use App\Exports\HubstaffActivityReport;

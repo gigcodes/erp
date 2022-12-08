@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands\Manual;
 
-use Illuminate\Support\Str;
 use App\CronJobReport;
 use App\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class PasswordChangeAll extends Command
 {

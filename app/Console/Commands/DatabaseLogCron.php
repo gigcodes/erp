@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\Str;
 use App\DatabaseLog;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class DatabaseLogCron extends Command
 {

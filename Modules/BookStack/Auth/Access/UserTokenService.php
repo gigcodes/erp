@@ -2,9 +2,9 @@
 
 namespace Modules\BookStack\Auth\Access;
 
-use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Database\Connection as Database;
+use Illuminate\Support\Str;
 use Modules\BookStack\Auth\User;
 use Modules\BookStack\Exceptions\UserTokenExpiredException;
 use Modules\BookStack\Exceptions\UserTokenNotFoundException;

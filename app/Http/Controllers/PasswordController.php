@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Str;
 use App\ChatMessage;
 use App\Password;
 use App\PasswordHistory;
@@ -11,6 +10,7 @@ use App\User;
 use Crypt;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class PasswordController extends Controller
 {

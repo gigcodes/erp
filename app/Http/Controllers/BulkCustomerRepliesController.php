@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Str;
 use App\BulkCustomerRepliesKeyword;
 use App\Customer;
 use App\CustomerBulkMessageDND;
 use App\Helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class BulkCustomerRepliesController extends Controller
 {

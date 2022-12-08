@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\Str;
 use Carbon\Carbon;
 use DB;
 use File;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class ScrapLogs extends Command
 {

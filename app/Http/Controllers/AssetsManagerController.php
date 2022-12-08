@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Str;
 use App\AssetMagentoDevScripUpdateLog;
 use App\AssetManamentUpdateLog;
 use App\AssetPlateForm;
@@ -14,6 +13,7 @@ use App\StoreWebsite;
 use App\User;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class AssetsManagerController extends Controller
 {

@@ -91,7 +91,6 @@ class Learning extends Model
         'Developer Issue',
     ];
 
-
     public static function hasremark($id)
     {
         $task = Task::find($id);

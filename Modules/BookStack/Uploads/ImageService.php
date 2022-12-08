@@ -2,11 +2,11 @@
 
 namespace Modules\BookStack\Uploads;
 
-use Illuminate\Support\Str;
 use DB;
 use Exception;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Filesystem\Factory as FileSystem;
+use Illuminate\Support\Str;
 use Intervention\Image\Exception\NotSupportedException;
 use Intervention\Image\ImageManager;
 use Modules\BookStack\Auth\User;

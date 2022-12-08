@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Marketing;
 
-use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use App\MailinglistTemplate;
 use App\MailinglistTemplateCategory;
@@ -11,6 +10,7 @@ use App\MailingTemplateFilesHistory;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Qoraiche\MailEclipse\MailEclipse;
 use View;
 

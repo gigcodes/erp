@@ -2,7 +2,6 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
-use Illuminate\Support\Str;
 use App\AssetsManager;
 use App\BuildProcessHistory;
 use App\ChatMessage;
@@ -48,6 +47,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 

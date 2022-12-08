@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
-use Illuminate\Support\Str;
 use App\Helpers\CompareImagesHelper;
+use Illuminate\Support\Str;
 use Plank\Mediable\Media;
 
 class MediaObserver

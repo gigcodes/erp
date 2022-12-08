@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\Str;
 use App\AttributeReplacement;
 use App\CronJobReport;
 use App\Product;
 use App\ProductStatus;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class ReplaceTextsFromProduct extends Command
 {

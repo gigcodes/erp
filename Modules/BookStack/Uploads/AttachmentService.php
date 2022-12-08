@@ -2,8 +2,8 @@
 
 namespace Modules\BookStack\Uploads;
 
-use Illuminate\Support\Str;
 use Exception;
+use Illuminate\Support\Str;
 use Modules\BookStack\Exceptions\FileUploadException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 

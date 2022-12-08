@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Str;
 use App\LogRequest;
 use App\MagentoSetting;
 use App\MagentoSettingLog;
@@ -14,6 +13,7 @@ use App\WebsiteStore;
 use App\WebsiteStoreView;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class MagentoSettingsController extends Controller
 {

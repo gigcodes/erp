@@ -22,7 +22,6 @@ class Reply extends Model
 
     protected $fillable = ['category_id', 'store_website_id', 'reply', 'model', 'push_to_watson'];
 
-
     public function category()
     {
         return $this->belongsTo(\App\ReplyCategory::class, 'category_id');

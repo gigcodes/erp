@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Str;
 use App\ChatbotReply;
 use App\ChatMessage;
 use App\CreditEmailLog;
@@ -31,6 +30,7 @@ use Carbon\Carbon;
 use DB;
 use Google\Cloud\Translate\TranslateClient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Mail;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;

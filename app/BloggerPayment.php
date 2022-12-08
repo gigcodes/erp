@@ -32,8 +32,6 @@ class BloggerPayment extends Model
      * @var string
      * @SWG\Property(enum={"deleted_at"})
      */
-
-
     public function blogger()
     {
         return $this->belongsTo(Blogger::class);
