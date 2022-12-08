@@ -9,7 +9,6 @@ use GuzzleHttp\Exception\ClientException;
 
 trait GithubTrait
 {
-    
     private function getGithubClient()
     {
         return new Client([

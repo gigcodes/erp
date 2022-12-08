@@ -28,8 +28,8 @@ class TestCaseController extends Controller
             'filterCategories' => $filterCategories,
             'filterWebsites' => $filterWebsites,
             'users' => $users,
-            'testCaseStatuses'=>$testCaseStatuses
-            ]);
+            'testCaseStatuses' => $testCaseStatuses,
+        ]);
     }
 
     public function create()
@@ -39,7 +39,7 @@ class TestCaseController extends Controller
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
         $filterWebsites = StoreWebsite::orderBy('website')->pluck('website')->toArray();
 
-        return view('test-cases.create', compact('testCaseStatuses',  'users', 'filterCategories', 'filterWebsites'));
+        return view('test-cases.create', compact('testCaseStatuses', 'users', 'filterCategories', 'filterWebsites'));
     }
 
     public function status(Request $request)
@@ -110,7 +110,6 @@ class TestCaseController extends Controller
 
     public function records(Request $request)
     {
-
         $records = TestCase::orderBy('id', 'desc');
 
         if ($keyword = request('name')) {
@@ -120,7 +119,7 @@ class TestCaseController extends Controller
         }
         if ($keyword = request('suite')) {
             $records = $records->where(function ($q) use ($keyword) {
-                $q->where('suite',  'LIKE', "%$keyword%");
+                $q->where('suite', 'LIKE', "%$keyword%");
             });
         }
 
@@ -156,7 +155,6 @@ class TestCaseController extends Controller
         }
         $records = $records->get();
         $records = $records->map(function ($testCase) {
-
             $testCase->created_by = User::where('id', $testCase->created_by)->value('name');
             $testCase->created_at_date = \Carbon\Carbon::parse($testCase->created_at)->format('d-m-Y  H:i');
 //            $testCase->test_case__history = TestCaseHistory::where('test_case_id', $testCase->id)->get();
@@ -168,6 +166,7 @@ class TestCaseController extends Controller
 
         return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
     }
+
     public function edit($id)
     {
         $testCase = TestCase::findorFail($id);
@@ -177,12 +176,12 @@ class TestCaseController extends Controller
         $filterWebsites = StoreWebsite::orderBy('website')->pluck('website')->toArray();
         if ($testCase) {
             return response()->json([
-                    'code' => 200,
-                    'data' => $testCase,
-                    'testCaseStatuses' => $testCaseStatuses,
-                    'filterCategories' => $filterCategories,
-                    'users' => $users,
-                    'filterWebsites' => $filterWebsites, ]
+                'code' => 200,
+                'data' => $testCase,
+                'testCaseStatuses' => $testCaseStatuses,
+                'filterCategories' => $filterCategories,
+                'users' => $users,
+                'filterWebsites' => $filterWebsites, ]
             );
         }
 
@@ -191,7 +190,7 @@ class TestCaseController extends Controller
 
     public function update(Request $request)
     {
-        $data = $request->except('_token','id');
+        $data = $request->except('_token', 'id');
         $validator = Validator::make($data, [
             'name' => 'required|string',
             'suite' => 'required|string',
@@ -204,8 +203,8 @@ class TestCaseController extends Controller
 
         ]);
 
-        $data = $request->except('_token','id');
-        $testCase = TestCase::where('id',$request->id)->first();
+        $data = $request->except('_token', 'id');
+        $testCase = TestCase::where('id', $request->id)->first();
 //        dd($testCase,$request->id);
 
         $data['created_by'] = \Auth::user()->id;
@@ -219,11 +218,12 @@ class TestCaseController extends Controller
             'message' => $request->name,
         ]);
         $testCase->update($data);
-        $data['test_case_id']= $request->id;
+        $data['test_case_id'] = $request->id;
         TestCaseHistory::create($data);
 
         return redirect()->route('test-cases.index')->with('success', 'You have successfully updated a Bug Tracker!');
     }
+
     public function testCaseHistory($id)
     {
         $testCaseHistory = TestCaseHistory::where('test_case_id', $id)->get();
@@ -231,6 +231,7 @@ class TestCaseController extends Controller
             $testCase->assign_to = User::where('id', $testCase->assign_to)->value('name');
             $testCase->updated_by = User::where('id', $testCase->updated_by)->value('name');
             $testCase->test_status_id = TestCaseStatus::where('id', $testCase->test_status_id)->value('name');
+
             return $testCase;
         });
 
@@ -252,6 +253,7 @@ class TestCaseController extends Controller
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
+
     public function sendMessage(Request $request)
     {
         $id = $request->id;
@@ -263,13 +265,12 @@ class TestCaseController extends Controller
         $userid = Auth::id();
 
         if ($user) {
-
             $params = ChatMessage::create([
-//                  'id'      => $id,
+                //                  'id'      => $id,
                 'user_id' => $userid,
                 'erp_user' => $userid,
                 'test_case_id' => $test->id,
-                'sent_to_user_id' => ($test->assign_to != $user->id) ? $test->assign_to : $test->created_by ,
+                'sent_to_user_id' => ($test->assign_to != $user->id) ? $test->assign_to : $test->created_by,
                 'approved' => '1',
                 'status' => '2',
                 'message' => $taskdata,
@@ -286,6 +287,7 @@ class TestCaseController extends Controller
             return response()->json(['message' => 'Sorry required fields is missing like id , userid'], 500);
         }
     }
+
     public function assignUser(Request $request)
     {
         $testCase = TestCase::where('id', $request->id)->first();
@@ -332,6 +334,4 @@ class TestCaseController extends Controller
 
         return response()->json(['code' => 200, 'data' => $data]);
     }
-
-
 }
