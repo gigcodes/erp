@@ -1,11 +1,8 @@
 <?php
-
 namespace App;
-
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-
 use App\Hubstaff\HubstaffActivity;
 use App\Hubstaff\HubstaffPaymentAccount;
 use Cache;
@@ -16,7 +13,6 @@ use Laravel\Passport\HasApiTokens;
 use Plank\Mediable\Mediable;
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-
 class User extends Authenticatable implements JWTSubject
 {
     /**
@@ -606,8 +602,7 @@ class User extends Authenticatable implements JWTSubject
      *
      * @return array
      */
-    public function getJWTCustomClaims()
-    {
+    public function getJWTCustomClaims() {
         return [];
     }
 }
