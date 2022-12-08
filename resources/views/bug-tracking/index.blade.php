@@ -12,6 +12,7 @@
             word-break: break-all !important;
         }
     </style>
+	
 
 <style>
 th {border: 1px solid black;}
