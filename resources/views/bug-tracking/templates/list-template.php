@@ -50,26 +50,26 @@
                                 foreach ($users as $user) {
                                     echo "<option {{if prop.assign_to == '".$user->id."'}} selected {{/if}} value='".$user->id."'>".$user->name.'</option>';
                                 }
-                        ?>
+			            ?>
 			            </select>
 			            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>
 			        </td>
 			        <td class='break'>
 			           <select class='form-control bug_severity_id'  data-id="{{>prop.id}}" data-token=<?php echo csrf_token(); ?>>
 			            <?php
-                        foreach ($bugSeveritys as $bugSeverity) {
-                            echo "<option {{if prop.bug_severity_id == '".$bugSeverity->id."'}} selected {{/if}} value='".$bugSeverity->id."'>".$bugSeverity->name.'</option>';
-                        }
-                        ?>
+			            foreach ($bugSeveritys as $bugSeverity) {
+			                echo "<option {{if prop.bug_severity_id == '".$bugSeverity->id."'}} selected {{/if}} value='".$bugSeverity->id."'>".$bugSeverity->name.'</option>';
+			            }
+			            ?>
 			            </select>
 			        </td>
 			        <td class='break'>
 			            <select class='form-control bug_status_id'  data-id="{{>prop.id}}" data-token=<?php echo csrf_token(); ?>>
 			                <?php
-                            foreach ($bugStatuses as $bugStatus) {
-                                echo "<option {{if prop.bug_status_id == '".$bugStatus->id."'}} selected {{/if}} value='".$bugStatus->id."'>".$bugStatus->name.'</option>';
-                            }
-                        ?>
+			                foreach ($bugStatuses as $bugStatus) {
+			                    echo "<option {{if prop.bug_status_id == '".$bugStatus->id."'}} selected {{/if}} value='".$bugStatus->id."'>".$bugStatus->name.'</option>';
+			                }
+			            ?>
 			            </select>
 			            			            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>
 
@@ -89,6 +89,9 @@
 			        <td class='break'>{{:prop.website}}</td>
 			        <td>
 			        <div class="d-flex">
+						 <button  title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="{{>prop.id}}"  data-category_title="{{:prop.module_id}}"  data-module_id="{{:prop.module_id}}" data-website_id="{{:prop.website_id_val}}"  data-website="{{:prop.website}}" data-bug_type_id="{{:prop.bug_type_id_val}}" data-title="{{:prop.website}} - {{:prop.module_id}}"><img style="width:12px !important;" src="/images/add.png" /></button>
+						 
+						 <button style="padding-left: 0;padding-right:0px;" type="button" class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="{{:prop.id}}" data-category="297"><i class="fa fa-info-circle"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;
 			        	<button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template">
 			        		<i class="fa fa-edit" aria-hidden="true"></i>
 			        	</button>
