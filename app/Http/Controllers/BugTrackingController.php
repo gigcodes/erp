@@ -58,32 +58,25 @@ class BugTrackingController extends Controller
             });
         }
         if ($keyword = request('bug_type')) {
-
             $records = $records->orWhereIn('bug_type_id', $keyword);
         }
         if ($keyword = request('bug_enviornment')) {
-
             $records = $records->orWhereIn('bug_environment_id', $keyword);
         }
         if ($keyword = request('bug_severity')) {
-
             $records = $records->orWhereIn('bug_severity_id', $keyword);
         }
         if ($keyword = request('created_by')) {
-
             $records = $records->orWhereIn('created_by', $keyword);
         }
         if ($keyword = request('assign_to_user')) {
-
             $records = $records->orWhereIn('assign_to', $keyword);
         }
         if ($keyword = request('bug_status')) {
-
             $records = $records->orWhereIn('bug_status_id', $keyword);
         }
         if ($keyword = request('module_id')) {
-
-            $records = $records->orWhereIn('module_id','LIKE',"%$keyword%");
+            $records = $records->orWhereIn('module_id', 'LIKE', "%$keyword%");
         }
         if ($keyword = request('step_to_reproduce')) {
             $records = $records->where(function ($q) use ($keyword) {

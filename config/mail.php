@@ -88,7 +88,6 @@ return [
 
     'password' => env('MAIL_PASSWORD', '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'),
 
-
     /*
     |--------------------------------------------------------------------------
     | Sendmail System Path

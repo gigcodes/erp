@@ -50,17 +50,17 @@
                                 foreach ($users as $user) {
                                     echo "<option {{if prop.assign_to == '".$user->id."'}} selected {{/if}} value='".$user->id."'>".$user->name.'</option>';
                                 }
-			            ?>
+                        ?>
 			            </select>
 			        </td>
 			      
 			        <td class='break'>
 			            <select class='form-control bug_status_id'  data-id="{{>prop.id}}" data-token=<?php echo csrf_token(); ?>>
 			                <?php
-			                foreach ($bugStatuses as $bugStatus) {
-			                    echo "<option {{if prop.bug_status_id == '".$bugStatus->id."'}} selected {{/if}} value='".$bugStatus->id."'>".$bugStatus->name.'</option>';
-			                }
-			            ?>
+                            foreach ($bugStatuses as $bugStatus) {
+                                echo "<option {{if prop.bug_status_id == '".$bugStatus->id."'}} selected {{/if}} value='".$bugStatus->id."'>".$bugStatus->name.'</option>';
+                            }
+                        ?>
 			            </select>
 			        </td>
 			        <td class='break'>{{:prop.module_id}}</td>
