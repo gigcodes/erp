@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class StoreViewCodeServerMap extends Model
 {
     protected $table = 'store_view_code_server_map';
+
     protected $fillable = [
         'id',
         'code',
