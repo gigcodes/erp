@@ -84,9 +84,19 @@ class ColorController extends Controller
         ]);
 
         $data = $request->except('_token');
-        StoreWebsiteColor::create($data);
+        $storeWebsiteId = $request->get('store_website_id');
+        $websites = \App\StoreWebsite::where('parent_id', '=', $storeWebsiteId)->orWhere('id', '=', $storeWebsiteId)->get();
+        $dataArray = array();
+        foreach ($websites as $key => $website) {
+            $data['store_website_id'] = $request->get('store_website_id');
+            $data['store_color'] = $request->get('store_color');
+            $data['erp_color'] = $request->get('erp_color');
+            $data['store_website_id'] = $website->id;
+            $dataArray[] = $data;
+        }
+        StoreWebsiteColor::insert($dataArray);
 
-        return redirect()->route('store-website.color.list')->withSuccess('New Color added successfully.');
+        return redirect()->route('store-website.color.list')->withSuccess('New Color(s) added successfully.');
     }
 
     /**

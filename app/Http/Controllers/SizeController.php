@@ -54,9 +54,9 @@ class SizeController extends Controller
     public function store(Request $request)
     {
         $params = $request->all();
-        if (! empty($params['name'])) {
+        if (!empty($params['name'])) {
             $size = \App\Size::find($request->get('id', 0));
-            if (! $size) {
+            if (!$size) {
                 $size = new \App\Size;
             }
 
@@ -65,13 +65,23 @@ class SizeController extends Controller
             if ($size->save()) {
                 \App\StoreWebsiteSize::where('size_id', $size->id)->delete();
                 $websites = array_filter($request->get('store_website'));
-                if (! empty($websites)) {
+                if (!empty($websites)) {
                     foreach ($websites as $k => $p) {
                         $sws = new \App\StoreWebsiteSize;
                         $sws->platform_id = $p;
                         $sws->store_website_id = $k;
                         $sws->size_id = $size->id;
                         $sws->save();
+                        $storeWebsites = \App\StoreWebsite::where('parent_id', '=', $k)->get();
+                        if(count($storeWebsites) > 0) {
+                            foreach ($storeWebsites as $site) {
+                                $sws = new \App\StoreWebsiteSize;
+                                $sws->platform_id = $p;
+                                $sws->store_website_id = $site->id;
+                                $sws->size_id = $size->id;
+                                $sws->save();
+                            }
+                        }
                     }
                 }
             }

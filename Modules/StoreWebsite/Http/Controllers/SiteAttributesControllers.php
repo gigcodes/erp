@@ -101,22 +101,27 @@ class SiteAttributesControllers extends Controller
 
             return response()->json(['code' => 500, 'error' => $outputString]);
         }
+        $storeWebsiteId = $request->get('store_website_id');
+        $websites = \App\StoreWebsite::where('parent_id', '=', $storeWebsiteId)->orWhere('id', '=', $storeWebsiteId)->get();
 
         $id = $request->get('id', 0);
         $records = StoreWebsiteAttributes::find($id);
 
         if (! $records) {
-            $records = new StoreWebsiteAttributes;
-        }
-
-        $records->fill($post);
-        // if records has been save then call a request to push
-        if ($records->save()) {
-            if ($id) {
-                $this->log('#2', $records->id, $request->attribute_key, $request->attribute_val, $request->store_website_id, 'Store Website Attribute has updated.');
-            } else {
-                $this->log('#1', $records->id, $request->attribute_key, $request->attribute_val, $request->store_website_id, 'Store Website Attribute has stored.');
+            $dataArray = array();
+            foreach ($websites as $key => $website) {
+                $data['attribute_key'] = $request->get('attribute_key');
+                $data['attribute_val'] = $request->get('attribute_val');
+                $data['store_website_id'] = $website->id;
+                $dataArray[] = $data;
+                $this->log('#1', $key+1, $request->input('attribute_key'), $request->input('attribute_key'), $website->id, 'Store Website Attribute has stored.');
             }
+            StoreWebsiteAttributes::insert($dataArray);
+        } else {
+            $records->fill($post);
+            $response = $records->save();
+            if($response)
+                $this->log('#2', $records->id, $request->attribute_key, $request->attribute_val, $request->store_website_id, 'Store Website Attribute has updated.');
         }
 
         return response()->json(['code' => 200, 'data' => $records]);
