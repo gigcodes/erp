@@ -78,8 +78,8 @@ jobs:
 
       - name: "autocommit-styling"
         uses: stefanzweifel/git-auto-commit-action@v4
-          with:
-            commit_message: Apply laravel-pint fixes
+        with:
+          commit_message: Apply laravel-pint fixes
 
 ## This is working just commented so auto-commit can be tested.
 #      - name: Create Pull Request
