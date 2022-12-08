@@ -53,7 +53,7 @@ function getReport($analytics, $request)
     if (! empty($request)) {
         $analytics = '';
         if (isset($request['google_service_account_json']) && $request['google_service_account_json'] != '') {
-            $websiteKeyFile = base_path('resources/assets/analytics_files/'.$request['google_service_account_json']);
+            $websiteKeyFile = base_path('resources/analytics_files/'.$request['google_service_account_json']);
         } else {
             $websiteKeyFile = storage_path('app/analytics/sololuxu-7674c35e7be5.json');
         }
