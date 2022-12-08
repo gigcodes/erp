@@ -37,9 +37,9 @@
 		         <select name="bug_environment_id" class="form-control">
 	            	<option value="">-- N/A --</option>
 		            <?php
-		    foreach ($bugEnvironments as  $bugEnvironment) {
-		        echo "<option {{if data.bug_environment_id == '".$bugEnvironment->id."'}} selected {{/if}} value='".$bugEnvironment->id."'>".$bugEnvironment->name.'</option>';
-		    }
+            foreach ($bugEnvironments as  $bugEnvironment) {
+                echo "<option {{if data.bug_environment_id == '".$bugEnvironment->id."'}} selected {{/if}} value='".$bugEnvironment->id."'>".$bugEnvironment->name.'</option>';
+            }
 		?>
 		         </select>
 		      </div>

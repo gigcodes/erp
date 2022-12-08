@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterTestCaseChatMessage extends Migration
 {
@@ -15,7 +15,6 @@ class AlterTestCaseChatMessage extends Migration
     {
         Schema::table('chat_messages', function (Blueprint $table) {
             $table->bigInteger('test_case_id')->nullable()->after('bug_id');
-
         });
     }
 
