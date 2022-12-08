@@ -974,7 +974,7 @@ class Product extends Model
         $productPrice = $default_price != null ? $default_price : $this->price;
         $default_price = $default_price != null ? $default_price : $this->price;
         if (($productPrice || $default_price)) {
-            $this->createProductPriceLog($order_id, $product_id, 'Product price', '', $productPrice, '0', 'productPrice : '.$productPrice.'<br/> default_price : '.$default_price, $default_price, $websiteId->id, $customer_id);
+            $this->createProductPriceLog($order_id, $product_id, 'Product price', '', $productPrice, '0', 'productPrice : '.$productPrice.'<br/> default_price : '.$default_price, $default_price, $website->id, $customer_id);
         } else {
             $this->createProductPriceLog($order_id, $product_id, 'Product price not found', '', '', '', 'Product price not found', $default_price, $websiteId->id, $customer_id);
         }
