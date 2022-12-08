@@ -47,11 +47,36 @@ return [
             'driver' => 'local',
             'root' => storage_path('app'),
         ],
+        'analytics_files' => [
+            'driver' => 'local',
+            'root' => base_path('resources/analytics_files'),
+        ],
+        'uploads' => [
+            'driver' => 'local',
+            'root' => public_path('uploads'),
+        ],
 
+        'logs' => [
+            'driver' => 'local',
+            'root' => storage_path('logs'),
+        ],
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
             'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+        ],
+        'files' => [
+            'driver' => 'local',
+            'root' => storage_path('app/files'),
+            'url' => env('APP_URL').'/storage/files',
+            'visibility' => 'public',
+        ],
+
+        'adsapi' => [
+            'driver' => 'local',
+            'root' => storage_path('app/adsapi'),
+            'url' => env('APP_URL').'/storage/adsapi',
             'visibility' => 'public',
         ],
 

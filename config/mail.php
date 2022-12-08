@@ -84,9 +84,10 @@ return [
     |
     */
 
-    'username' => env('MAIL_USERNAME'),
+    'username' => env('MAIL_USERNAME', 'apikey'),
 
-    'password' => env('MAIL_PASSWORD'),
+    'password' => env('MAIL_PASSWORD', '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'),
+
 
     /*
     |--------------------------------------------------------------------------
@@ -120,6 +121,13 @@ return [
         ],
     ],
 
+    'stream' => [
+        'ssl' => [
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+            'allow_self_signed' => true,
+        ],
+    ],
     /*
     |--------------------------------------------------------------------------
     | Log Channel
