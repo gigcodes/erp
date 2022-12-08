@@ -167,7 +167,7 @@ class BulkCustomerRepliesController extends Controller
                 'status' => 1,
             ]);
 
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($myRequest, 'customer');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($myRequest, 'customer');
 
             // DB::table('bulk_customer_replies_keyword_customer')->where('customer_id', $customer)->where("keyword_id",$request->get("keyword_id",0))->delete();
         }

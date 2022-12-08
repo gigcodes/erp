@@ -26,6 +26,6 @@ class Reply extends Model
 
     public function category()
     {
-        return $this->belongsTo('App\ReplyCategory', 'category_id');
+        return $this->belongsTo(\App\ReplyCategory::class, 'category_id');
     }
 }

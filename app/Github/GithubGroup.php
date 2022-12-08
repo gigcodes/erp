@@ -15,7 +15,7 @@ class GithubGroup extends Model
     public function users()
     {
         return $this->belongsToMany(
-            'App\Github\GithubUser',
+            \App\Github\GithubUser::class,
             'github_group_members',
             'github_groups_id',
             'github_users_id'
@@ -25,7 +25,7 @@ class GithubGroup extends Model
     public function repositories()
     {
         return $this->belongsToMany(
-            'App\Github\GithubRepository',
+            \App\Github\GithubRepository::class,
             'github_repository_groups',
             'github_groups_id',
             'github_repositories_id'

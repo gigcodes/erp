@@ -12,7 +12,7 @@ class ChatbotMessageLog extends Model
 
     public function chatbotMessageLogResponses()
     {
-        return $this->hasMany("App\ChatbotMessageLogResponse", 'chatbot_message_log_id', 'id');
+        return $this->hasMany(\App\ChatbotMessageLogResponse::class, 'chatbot_message_log_id', 'id');
     }
 
     public static function generateLog($params)

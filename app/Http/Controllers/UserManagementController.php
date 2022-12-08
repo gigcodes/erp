@@ -91,7 +91,7 @@ class UserManagementController extends Controller
             UserFeedbackCategory::where('id', $request->cat_id)->update(['sop_id' => $sop->id, 'sop' => $request->sop_text, 'sops_id' => $request->sops_id]);
 
             return response()->json(['code' => '200', 'data' => $sop, 'message' => 'Data saved successfully']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => '500',  'message' => $e->getMessage()]);
         }
     }
@@ -105,7 +105,7 @@ class UserManagementController extends Controller
             $sop = UserFeedbackCategorySopHistory::where('category_id', $request->cat_id)->get();
 
             return response()->json(['code' => '200', 'data' => $sop, 'message' => 'Data listed successfully']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => '500',  'message' => $e->getMessage()]);
         }
     }
@@ -119,7 +119,7 @@ class UserManagementController extends Controller
             $sopComment = UserFeedbackCategorySopHistoryComment::where('sop_history_id', $request->sop_history_id)->get();
 
             return response()->json(['code' => '200', 'data' => $sopComment, 'message' => 'Data listed successfully']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => '500',  'message' => $e->getMessage()]);
         }
     }
@@ -135,7 +135,7 @@ class UserManagementController extends Controller
             $sopComment->save();
 
             return response()->json(['code' => '200', 'data' => $sopComment, 'message' => 'Comment saved successfully']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => '500',  'message' => $e->getMessage()]);
         }
     }

@@ -195,141 +195,141 @@ class SimplyDutyCountryController extends Controller
         return response()->json(['success' => false, 'message' => 'Something went wrong!']);
     }
 
-   public function addsegment(Request $request)
-   {
-       $cid = $request->cid;
-       $sid = $request->sid;
-       $duty = SimplyDutyCountry::where('id', $cid)->first();
-       $data = [
-           'simply_duty_countries_id' => $duty->id,
-           'old_segment' => $duty->segment_id,
-           'new_segment' => $sid,
-           'old_duty' => $duty->default_duty,
-           'new_duty' => $duty->default_duty,
-           'updated_by' => Auth::user()->id,
-       ];
-       $duty->segment_id = $sid;
-       $duty->status = 0;
-       $duty->save();
-       SimplyDutyCountryHistory::insert($data);
+    public function addsegment(Request $request)
+    {
+        $cid = $request->cid;
+        $sid = $request->sid;
+        $duty = SimplyDutyCountry::where('id', $cid)->first();
+        $data = [
+            'simply_duty_countries_id' => $duty->id,
+            'old_segment' => $duty->segment_id,
+            'new_segment' => $sid,
+            'old_duty' => $duty->default_duty,
+            'new_duty' => $duty->default_duty,
+            'updated_by' => Auth::user()->id,
+        ];
+        $duty->segment_id = $sid;
+        $duty->status = 0;
+        $duty->save();
+        SimplyDutyCountryHistory::insert($data);
 
-       if ($duty->save()) {
-           $segementDetail = SimplyDutySegment::where('id', $duty->segment_id)->first();
-           $this->update_store_website_product_segment($duty->country_code, $segementDetail['price']);
+        if ($duty->save()) {
+            $segementDetail = SimplyDutySegment::where('id', $duty->segment_id)->first();
+            $this->update_store_website_product_segment($duty->country_code, $segementDetail['price']);
 
-           return response()->json(['success' => true, 'message' => 'segment update successfully']);
-       }
+            return response()->json(['success' => true, 'message' => 'segment update successfully']);
+        }
 
-       return response()->json(['success' => true, 'message' => 'Segment Updated Successfully']);
-   }
+        return response()->json(['success' => true, 'message' => 'Segment Updated Successfully']);
+    }
 
-   public function assignDefaultValue(Request $request)
-   {
-       $value = $request->value;
-       $segment = $request->segment;
-       if ($value > 0 && $segment > 0) {
-           //SimplyDutyCountry::where('segment_id',  $segment)->update(['default_duty'=>$value,'status'=>0]);
-           $duty = SimplyDutyCountry::where('segment_id', $segment)->get();
-           foreach ($duty as $d) {
-               $data = [
-                   'simply_duty_countries_id' => $d->id,
-                   'old_segment' => $d->segment_id,
-                   'new_segment' => $d->segment_id,
-                   'old_duty' => $d->default_duty,
-                   'new_duty' => $value,
-                   'updated_by' => Auth::user()->id,
+    public function assignDefaultValue(Request $request)
+    {
+        $value = $request->value;
+        $segment = $request->segment;
+        if ($value > 0 && $segment > 0) {
+            //SimplyDutyCountry::where('segment_id',  $segment)->update(['default_duty'=>$value,'status'=>0]);
+            $duty = SimplyDutyCountry::where('segment_id', $segment)->get();
+            foreach ($duty as $d) {
+                $data = [
+                    'simply_duty_countries_id' => $d->id,
+                    'old_segment' => $d->segment_id,
+                    'new_segment' => $d->segment_id,
+                    'old_duty' => $d->default_duty,
+                    'new_duty' => $value,
+                    'updated_by' => Auth::user()->id,
 
-               ];
-               $d->default_duty = $value;
-               $d->status = 0;
-               $d->save();
-               SimplyDutyCountryHistory::insert($data);
-               $this->update_store_website_product_prices($d->country_code, $value);
-           }
+                ];
+                $d->default_duty = $value;
+                $d->status = 0;
+                $d->save();
+                SimplyDutyCountryHistory::insert($data);
+                $this->update_store_website_product_prices($d->country_code, $value);
+            }
 
-           return response()->json(['code' => 200, 'message' => 'Default Duty assigned']);
-       } else {
-           return response()->json(['code' => 100, 'message' => 'somethings wrong']);
-       }
-   }
+            return response()->json(['code' => 200, 'message' => 'Default Duty assigned']);
+        } else {
+            return response()->json(['code' => 100, 'message' => 'somethings wrong']);
+        }
+    }
 
-   public function approve(Request $request)
-   {
-       $ids = $request->ids;
-       $ids = explode(',', $ids);
-       for ($i = 0; $i < count($ids); $i++) {
-           if ($ids[$i] > 0) {
-               \App\StoreWebsiteProductPrice::where('id', $ids[$i])->update(['status' => 1]);
-           }
-       }
+    public function approve(Request $request)
+    {
+        $ids = $request->ids;
+        $ids = explode(',', $ids);
+        for ($i = 0; $i < count($ids); $i++) {
+            if ($ids[$i] > 0) {
+                \App\StoreWebsiteProductPrice::where('id', $ids[$i])->update(['status' => 1]);
+            }
+        }
 
-       return response()->json(['code' => 200, 'message' => 'Approved Successfully']);
-   }
+        return response()->json(['code' => 200, 'message' => 'Approved Successfully']);
+    }
 
-   public function update_store_website_product_prices($code, $amount)
-   {
-       $ps = \App\StoreWebsiteProductPrice::select('store_website_product_prices.id', 'store_website_product_prices.duty_price',
+    public function update_store_website_product_prices($code, $amount)
+    {
+        $ps = \App\StoreWebsiteProductPrice::select('store_website_product_prices.id', 'store_website_product_prices.duty_price',
            'store_website_product_prices.product_id', 'store_website_product_prices.store_website_id', 'websites.code')
        ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
        ->where('websites.code', strtolower($code))
        ->get(); //dd($ps);
-       if ($ps) {
-           foreach ($ps as $p) {
-               \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['duty_price' => $amount, 'status' => 0]);
-               $note = 'Country Duty changed  from '.$p->duty_price.' To '.$amount;
-               $this->pushToMagento($p->product_id, $p->store_website_id);
-               \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id' => $p->id, 'updated_by' => Auth::id(), 'notes' => $note, 'created_at' => date('Y-m-d H:i:s')]);
-           }
-       }
-   }
+        if ($ps) {
+            foreach ($ps as $p) {
+                \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['duty_price' => $amount, 'status' => 0]);
+                $note = 'Country Duty changed  from '.$p->duty_price.' To '.$amount;
+                $this->pushToMagento($p->product_id, $p->store_website_id);
+                \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id' => $p->id, 'updated_by' => Auth::id(), 'notes' => $note, 'created_at' => date('Y-m-d H:i:s')]);
+            }
+        }
+    }
 
-   public function update_store_website_product_segment($code, $segmentDiscount)
-   {
-       $ps = \App\StoreWebsiteProductPrice::select('store_website_product_prices.id', 'store_website_product_prices.duty_price', 'websites.code')
+    public function update_store_website_product_segment($code, $segmentDiscount)
+    {
+        $ps = \App\StoreWebsiteProductPrice::select('store_website_product_prices.id', 'store_website_product_prices.duty_price', 'websites.code')
        ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
        ->where('websites.code', strtolower($code))
        ->get(); //dd($ps);
-       if ($ps) {
-           foreach ($ps as $p) {
-               \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['segment_discount' => $segmentDiscount, 'status' => 0]);
-               $this->pushToMagento($p->product_id, $p->store_website_id);
-               $note = 'Segment discount change  from '.$p->segment_discount.' To '.$segmentDiscount;
-               \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id' => $p->id, 'updated_by' => Auth::id(), 'notes' => $note, 'created_at' => date('Y-m-d H:i:s')]);
-           }
-       }
-   }
+        if ($ps) {
+            foreach ($ps as $p) {
+                \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['segment_discount' => $segmentDiscount, 'status' => 0]);
+                $this->pushToMagento($p->product_id, $p->store_website_id);
+                $note = 'Segment discount change  from '.$p->segment_discount.' To '.$segmentDiscount;
+                \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id' => $p->id, 'updated_by' => Auth::id(), 'notes' => $note, 'created_at' => date('Y-m-d H:i:s')]);
+            }
+        }
+    }
 
-   public function pushToMagento($productId, $websiteId)
-   {
-       $product = \App\Product::find($productId);
+    public function pushToMagento($productId, $websiteId)
+    {
+        $product = \App\Product::find($productId);
 
-       if ($product) {
-           $website = StoreWebsite::where('id', $websiteId)->first();
-           if ($website == null) {
-               \Log::channel('productUpdates')->info('Product started '.$product->id.' No website found');
-               $msg = 'No website found for  Brand: '.$product->brand.' and Category: '.$product->category;
-               //ProductPushErrorLog::log($product->id, $msg, 'error');
-               //LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
-               echo $msg;
-               exit;
-           } else {
-               $i = 1;
+        if ($product) {
+            $website = StoreWebsite::where('id', $websiteId)->first();
+            if ($website == null) {
+                \Log::channel('productUpdates')->info('Product started '.$product->id.' No website found');
+                $msg = 'No website found for  Brand: '.$product->brand.' and Category: '.$product->category;
+                //ProductPushErrorLog::log($product->id, $msg, 'error');
+                //LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
+                echo $msg;
+                exit;
+            } else {
+                $i = 1;
 
-               if ($website) {
-                   // testing
-                   \Log::channel('productUpdates')->info('Product started website found For website'.$website->website);
-                   $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id, 'info', $website->id);
-                   //currently we have 3 queues assigned for this task.
-                   if ($i > 3) {
-                       $i = 1;
-                   }
-                   $log->queue = \App\Helpers::createQueueName($website->title);
-                   $log->save();
-                   PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
-                   //PushToMagento::dispatch($product, $website, $log)->onQueue($queueName[$i]);
-                   $i++;
-               }
-           }
-       }
-   }
+                if ($website) {
+                    // testing
+                    \Log::channel('productUpdates')->info('Product started website found For website'.$website->website);
+                    $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id, 'info', $website->id);
+                    //currently we have 3 queues assigned for this task.
+                    if ($i > 3) {
+                        $i = 1;
+                    }
+                    $log->queue = \App\Helpers::createQueueName($website->title);
+                    $log->save();
+                    PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
+                    //PushToMagento::dispatch($product, $website, $log)->onQueue($queueName[$i]);
+                    $i++;
+                }
+            }
+        }
+    }
 }

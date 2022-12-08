@@ -185,7 +185,7 @@ class ShopifyHelper
                 'date' => date('Y-m-d'),
                 'amount' => $balance_amount,
                 'type' => 'received',
-                'cash_flow_able_type' => 'App\Order',
+                'cash_flow_able_type' => \App\Order::class,
                 'status' => $order_status,
                 'order_status' => $order_status,
                 'expected' => $balance_amount,

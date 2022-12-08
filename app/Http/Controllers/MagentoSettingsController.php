@@ -114,7 +114,7 @@ class MagentoSettingsController extends Controller
                     $response = curl_exec($curl);
 
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    LogRequest::log($startTime, $websiteUrl.'/rest/V1/configvalue/get', 'POST', json_encode($conf), json_decode($response), $httpcode, 'index', 'App\Http\Controllers\MagentoSettingsController');
+                    LogRequest::log($startTime, $websiteUrl.'/rest/V1/configvalue/get', 'POST', json_encode($conf), json_decode($response), $httpcode, 'index', \App\Http\Controllers\MagentoSettingsController::class);
 
                     $response = json_decode($response, true);
 

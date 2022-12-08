@@ -339,7 +339,7 @@ class SocialPostController extends Controller
                         }
                     }
 
-                //    $mediaurl="https://images.unsplash.com/photo-1550330562-b055aa030d73?ixlib=rb-1.2.1";
+                    //    $mediaurl="https://images.unsplash.com/photo-1550330562-b055aa030d73?ixlib=rb-1.2.1";
                 }
             }
         } else {
@@ -429,7 +429,7 @@ class SocialPostController extends Controller
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
-        } catch(\Facebook\Exceptions\FacebookSDKException $e) {
+        } catch (\Facebook\Exceptions\FacebookSDKException $e) {
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
         }
         if ($response != '') {

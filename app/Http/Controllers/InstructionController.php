@@ -55,7 +55,7 @@ class InstructionController extends Controller
                     $verify_instructions = $verify_instructions->where('category_id', $selected_category);
                     $completed_instructions = $completed_instructions->where('category_id', $selected_category);
                 }
-            // $completed_instructions = Instruction::where('verified', 1)->whereIn('assigned_to', $request->user)->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page')->groupBy('category_id');
+                // $completed_instructions = Instruction::where('verified', 1)->whereIn('assigned_to', $request->user)->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page')->groupBy('category_id');
 
             // dd($instructions);
 
@@ -311,8 +311,8 @@ class InstructionController extends Controller
             $myRequest->setMethod('POST');
             $myRequest->request->add(['remark' => 'Auto message was sent.', 'id' => $instruction->id, 'module_type' => 'instruction']);
 
-            app('App\Http\Controllers\TaskModuleController')->addRemark($myRequest);
-            app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number, $instruction->instruction);
+            app(\App\Http\Controllers\TaskModuleController::class)->addRemark($myRequest);
+            app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($user->phone, $user->whatsapp_number, $instruction->instruction);
         }
 
         $a = new UserActions();
@@ -425,8 +425,8 @@ class InstructionController extends Controller
         //
         // app('App\Http\Controllers\MessageController')->store($myRequest);
 
-        NotificationQueue::where('model_type', 'App\Instruction')->where('model_id', $instruction->id)->delete();
-        PushNotification::where('model_type', 'App\Instruction')->where('model_id', $instruction->id)->delete();
+        NotificationQueue::where('model_type', \App\Instruction::class)->where('model_id', $instruction->id)->delete();
+        PushNotification::where('model_type', \App\Instruction::class)->where('model_id', $instruction->id)->delete();
 
         $url = route('customer.show', $instruction->customer->id).'#internal-message-body';
 
@@ -482,7 +482,7 @@ class InstructionController extends Controller
     {
         $instruction = Instruction::find($request->id);
 
-        PushNotification::where('model_type', 'App\Instruction')->where('model_id', $request->id)->delete();
+        PushNotification::where('model_type', \App\Instruction::class)->where('model_id', $request->id)->delete();
 
         // NotificationQueueController::createNewNotification([
         //   'message' => 'Reminder for Instructions',

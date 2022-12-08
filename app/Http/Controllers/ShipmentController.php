@@ -542,7 +542,7 @@ class ShipmentController extends Controller
             }
 
             return response()->json(['code' => 200, 'message' => 'Payment updated successfully.']);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['code' => 500, 'message' => 'Something went wrong, please try after sometimes.']);
         }
     }

@@ -317,7 +317,7 @@ class ChatMessagesController extends Controller
                     } else {
                         // Check for product
                         if (isset($image->id)) {
-                            $product = DB::table('mediables')->where('mediable_type', 'App\Product')->where('media_id', $image->id)->get(['mediable_id'])->first();
+                            $product = DB::table('mediables')->where('mediable_type', \App\Product::class)->where('media_id', $image->id)->get(['mediable_id'])->first();
 
                             if ($product != null) {
                                 $productId = $product->mediable_id;
@@ -408,7 +408,7 @@ class ChatMessagesController extends Controller
                             } else {
                                 // Check for product
                                 if (isset($image->id)) {
-                                    $product = DB::table('mediables')->where('mediable_type', 'App\Product')->where('media_id', $image->id)->get(['mediable_id'])->first();
+                                    $product = DB::table('mediables')->where('mediable_type', \App\Product::class)->where('media_id', $image->id)->get(['mediable_id'])->first();
 
                                     if ($product != null) {
                                         $parentProductId = $product->mediable_id;

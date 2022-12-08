@@ -187,20 +187,20 @@ class BugTrackingController extends Controller
         return response()->json(['code' => 200, 'data' => $records]);
     }
 
-   public function environment(Request $request)
-   {
-       $environment = $request->all();
-       $validator = Validator::make($environment, [
-           'name' => 'required|string',
-       ]);
-       if ($validator->fails()) {
-           return response()->json(['code' => 500, 'error' => 'Name is required']);
-       }
-       $data = $request->except('_token');
-       $records = BugEnvironment::create($data);
+    public function environment(Request $request)
+    {
+        $environment = $request->all();
+        $validator = Validator::make($environment, [
+            'name' => 'required|string',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['code' => 500, 'error' => 'Name is required']);
+        }
+        $data = $request->except('_token');
+        $records = BugEnvironment::create($data);
 
-       return response()->json(['code' => 200, 'data' => $records]);
-   }
+        return response()->json(['code' => 200, 'data' => $records]);
+    }
 
     public function type(Request $request)
     {

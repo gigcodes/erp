@@ -189,7 +189,7 @@ class KeywordassignController extends Controller
             $keywordlogs = $query->paginate(30);
 
             return view('keywordassign.logs', compact('keywordlogs', 'request'));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
         }
     }
     //END - DEVTASK-4233

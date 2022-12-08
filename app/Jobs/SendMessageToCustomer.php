@@ -126,7 +126,7 @@ class SendMessageToCustomer implements ShouldQueue
             ];
 
             $allMediaIds = ($haveMedia) ? $medias->pluck('id')->toArray() : [];
-            $mediable = \DB::table('mediables')->whereIn('media_id', $allMediaIds)->where('mediable_type', 'App\Product')->get();
+            $mediable = \DB::table('mediables')->whereIn('media_id', $allMediaIds)->where('mediable_type', \App\Product::class)->get();
 
             $availableMedia = [];
             $productIds = [];

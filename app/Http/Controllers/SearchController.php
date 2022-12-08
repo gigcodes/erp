@@ -222,7 +222,7 @@ class SearchController extends Controller
         // if source is attach_media for search then check product has image exist or not
         if ($sourceOfSearch == 'attach_media') {
             $products = $products->join('mediables', function ($query) {
-                $query->on('mediables.mediable_id', 'products.id')->where('mediable_type', "App\Product");
+                $query->on('mediables.mediable_id', 'products.id')->where('mediable_type', \App\Product::class);
             })->groupBy('products.id');
         }
 

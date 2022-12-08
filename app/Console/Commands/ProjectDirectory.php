@@ -72,7 +72,7 @@ class ProjectDirectory extends Command
                             $requestData = new Request();
                             $requestData->setMethod('POST');
                             $requestData->request->add(['priority' => 1, 'issue' => "Error With folder size {$directoryStr} which is more then {$projectManager->size} and expected size is {$projectManager->notification_at}", 'status' => 'Planned', 'module' => 'cron', 'subject' => "Error With folder size {$directoryStr}", 'assigned_to' => 6]);
-                            app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+                            app(\App\Http\Controllers\DevelopmentController::class)->issueStore($requestData, 'issue');
                         }
                     } else {
                         $ProjectFileManager = ProjectFileManager::create(['name' => $directoryStr, 'project_name' => 'erp', 'size' => trim($size), 'parent' => $parent]);

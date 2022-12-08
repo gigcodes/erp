@@ -33,7 +33,7 @@ class ModelNameController extends Controller
             $modelName->save();
 
             return response()->json(['code' => 200, 'data' => $modelName, 'message' => 'You have successfully added Model!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -50,7 +50,7 @@ class ModelNameController extends Controller
             $modelName = ModelName::where('id', $request->id)->first();
 
             return response()->json(['code' => 200, 'data' => $modelName, 'message' => 'Listed successfully!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -69,7 +69,7 @@ class ModelNameController extends Controller
             $modelNameData = ModelName::where('id', $request->model_id)->first();
 
             return response()->json(['code' => 200, 'data' => $modelNameData, 'message' => 'Updated successfully!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -87,7 +87,7 @@ class ModelNameController extends Controller
             \DB::table('model_names')->where('id', $request->id)->delete();
 
             return response()->json(['code' => 200, 'data' => $deleted->name, 'message' => 'Deleted successfully!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }

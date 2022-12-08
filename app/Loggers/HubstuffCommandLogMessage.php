@@ -10,6 +10,6 @@ class HubstuffCommandLogMessage extends Model
 
     public function hubstuffCommandLog()
     {
-        return $this->belongsTo('App\Loggers\HubstuffCommandLog');
+        return $this->belongsTo(\App\Loggers\HubstuffCommandLog::class);
     }
 }

@@ -32,6 +32,6 @@ class LearningStatusHistory extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\User', 'update_by', 'id');
+        return $this->belongsTo(\App\User::class, 'update_by', 'id');
     }
 }

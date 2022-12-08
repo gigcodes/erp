@@ -170,7 +170,7 @@ class MagentoCustomerReferenceController extends Controller
                 //get welcome message
                 $welcomeMessage = InstantMessagingHelper::replaceTags($reference, Setting::get('welcome_message'));
                 //sending message
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($reference->phone, '', $welcomeMessage, '', '');
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($reference->phone, '', $welcomeMessage, '', '');
             }
         } else {
             $reference->name = $name;

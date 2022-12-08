@@ -79,7 +79,7 @@ class MediaController extends Controller
                         $user->attachMedia($savedMedia, 'instagram');
                     }
 
-                //$request->user()->attachMedia($request->, config('constants.excelimporter'));
+                    //$request->user()->attachMedia($request->, config('constants.excelimporter'));
                 } else {
                     return response()->json([
                         'success' => false,

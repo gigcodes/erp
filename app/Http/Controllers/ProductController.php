@@ -232,7 +232,7 @@ class ProductController extends Controller
             }
         }
         // Run through query helper
- //      $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts, true);
+        //      $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts, true);
         $term = $request->input('term');
         $brand = '';
         $category = '';
@@ -344,7 +344,7 @@ class ProductController extends Controller
         if ($request->get('user_id') > 0 && $request->get('submit_for_image_approval') == 'on') {
             $newProducts = $newProducts->Join('log_list_magentos as llm', function ($join) {
                 $join->on('llm.product_id', 'products.id');
-       //         ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.product_id = products.id)"));
+                //         ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.product_id = products.id)"));
             });
             $newProducts = $newProducts->where('llm.user_id', $request->get('user_id'));
             $newProducts = $newProducts->addSelect('llm.user_id as last_approve_user');
@@ -3144,11 +3144,11 @@ class ProductController extends Controller
             $product->save();
         }
 
-        $mediables = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', 'App\Product')->where('tag', 'original')->get();
+        $mediables = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', \App\Product::class)->where('tag', 'original')->get();
 
         //deleting old images
 
-        $oldImages = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', 'App\Product')->where('tag', '!=', 'original')->get();
+        $oldImages = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', \App\Product::class)->where('tag', '!=', 'original')->get();
 
         //old scraped products
         if ($oldImages) {
@@ -4172,7 +4172,7 @@ class ProductController extends Controller
                 'log' => $log,
                 'type' => $type,
             ]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $prod = ProductSuggestedLog::create(['parent_id' => $parentId, 'log' => $e->getMessage(), 'type' => 'not catch']);
         }
     }
@@ -4210,7 +4210,7 @@ class ProductController extends Controller
 
                 return redirect()->route('customer.post.show', $prodSugId)->withSuccess('Message Send For Queue');
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $prod = ProductSuggestedLog::create(['parent_id' => $prodSugId, 'log' => $e->getMessage(), 'type' => 'not catch']);
         }
     }
@@ -4239,7 +4239,7 @@ class ProductController extends Controller
                 'status' => $request->status,
                 'type' => $request->type,
             ]);
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
 
             $json = request()->get('json', false);
             if ($json) {
@@ -4252,7 +4252,7 @@ class ProductController extends Controller
             }
 
             return redirect()->route('customer.post.show', $prodSugId)->withSuccess('Message Send Now on whatsapp');
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $prod = ProductSuggestedLog::create(['parent_id' => $prodSugId, 'log' => $e->getMessage(), 'type' => 'not catch']);
         }
     }
@@ -4870,14 +4870,14 @@ class ProductController extends Controller
         //  }
         $user = User::find($assigned_to);
         $params['erp_user'] = $assigned_to;
-        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
 
         $chat_message = ChatMessage::create($params);
 
         $myRequest = new Request();
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);
-        app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+        app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('task', $myRequest);
 
         $username = $user->name;
 
@@ -4943,14 +4943,14 @@ class ProductController extends Controller
         //  }
         $user = User::find($assigned_to);
         $params['erp_user'] = $assigned_to;
-        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
 
         $chat_message = ChatMessage::create($params);
 
         $myRequest = new Request();
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);
-        app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+        app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('task', $myRequest);
 
         $username = $user->name;
 
@@ -5687,7 +5687,7 @@ class ProductController extends Controller
                 $image_key = $imageDetails->getKey();
                 $media = Media::find($image_key);
                 if ($media) {
-                    $mediable = \App\Mediables::where('media_id', $media->id)->where('mediable_type', 'App\Product')->first();
+                    $mediable = \App\Mediables::where('media_id', $media->id)->where('mediable_type', \App\Product::class)->first();
                     if ($mediable) {
                         $exists = \App\SuggestedProductList::where('suggested_products_id', $new_suggestedproductid)->where('customer_id', $customerId)->where('product_id', $mediable->mediable_id)->where('date', date('Y-m-d'))->first();
                         if (! $exists) {
@@ -5958,7 +5958,7 @@ class ProductController extends Controller
         $customer = \App\Customer::find($request->customer_id);
 
         if ($customer && ! empty($request->product_id)) {
-            app('App\Http\Controllers\CustomerController')->dispatchBroadSendPrice($customer, array_unique([$request->product_id]), true);
+            app(\App\Http\Controllers\CustomerController::class)->dispatchBroadSendPrice($customer, array_unique([$request->product_id]), true);
         }
 
         return response()->json(['code' => 200, 'data' => [], 'message' => 'Lead price created']);
@@ -5990,7 +5990,7 @@ class ProductController extends Controller
     public function changeimageorder(Request $request)
     {
         if (! empty($request->mid) && ! empty($request->pid) && ! empty($request->val)) {
-            \App\Mediables::where('mediable_type', 'App\Product')->where('mediable_id', $request->pid)->where('media_id', $request->mid)->update(['order' => $request->val]);
+            \App\Mediables::where('mediable_type', \App\Product::class)->where('mediable_id', $request->pid)->where('media_id', $request->mid)->update(['order' => $request->val]);
 
             return response()->json(['code' => 200, 'data' => [], 'message' => 'order update successfully']);
         } else {

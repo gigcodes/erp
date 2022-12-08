@@ -93,9 +93,9 @@ class SendDeliveryDetails extends Command
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
                     if ($whatsapp_number == '919152731483') {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
                     } else {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($coordinator->phone, $whatsapp_number, $params['message'], false, $chat_message->id);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($coordinator->phone, $whatsapp_number, $params['message'], false, $chat_message->id);
                     }
 
                     $chat_message->update([

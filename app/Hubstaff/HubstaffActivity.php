@@ -54,7 +54,7 @@ class HubstaffActivity extends Model
 
     public function developerTask()
     {
-        return $this->hasMany('App\DeveloperTask', 'hubstaff_task_id', 'task_id');
+        return $this->hasMany(\App\DeveloperTask::class, 'hubstaff_task_id', 'task_id');
     }
 
     public static function getTrackedActivitiesBetween($start, $end, $user_id)

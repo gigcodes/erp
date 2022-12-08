@@ -28,6 +28,6 @@ class StoreWebsiteTwilioNumber extends Model
 
     public function store_website()
     {
-        return $this->hasOne("\App\StoreWebsite", 'id', 'store_website_id');
+        return $this->hasOne(\App\StoreWebsite::class, 'id', 'store_website_id');
     }
 }

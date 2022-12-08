@@ -105,7 +105,7 @@ class ReturnExchangeController extends Controller
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['customer_id' => $returnExchange->customer->id, 'message' => $auto_message, 'status' => 1]);
-                    app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
                 }
             } elseif ($request->type == 'return') {
                 // start a request to send message for return
@@ -116,7 +116,7 @@ class ReturnExchangeController extends Controller
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['customer_id' => $returnExchange->customer->id, 'message' => $auto_message, 'status' => 1]);
-                    app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
                 }
             } elseif ($request->type == 'exchange') {
                 // start a request to send message for exchange
@@ -127,7 +127,7 @@ class ReturnExchangeController extends Controller
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['customer_id' => $returnExchange->customer->id, 'message' => $auto_message, 'status' => 1]);
-                    app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
                 }
             }
 
@@ -310,7 +310,7 @@ class ReturnExchangeController extends Controller
             ]);
 
             return response()->json(['code' => 200, 'data' => $data]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'data' => $e->getMessage()]);
         }
     }
@@ -381,7 +381,7 @@ class ReturnExchangeController extends Controller
             </table>';
 
             return response()->json(['code' => 200, 'data' => compact('data', 'preview', 'template')]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             \Log::channel('returnExchange')->info('Sending mail issue at the returnexchangecontroller  ->'.$e->getMessage());
 
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
@@ -413,7 +413,7 @@ class ReturnExchangeController extends Controller
             ]);
 
             try {
-                $response = app('App\Http\Controllers\CouponController')->addRules($requestData);
+                $response = app(\App\Http\Controllers\CouponController::class)->addRules($requestData);
                 // return $response;
                 $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
                 $email = Email::create([
@@ -540,7 +540,7 @@ class ReturnExchangeController extends Controller
             } else {
                 return response()->json(['code' => 500, 'message' => 'Logs not found']);
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'data' => $e->getMessage()]);
         }
     }
@@ -605,7 +605,7 @@ class ReturnExchangeController extends Controller
                 ]);
 
                 try {
-                    $response = app('App\Http\Controllers\CouponController')->addRules($requestData);
+                    $response = app(\App\Http\Controllers\CouponController::class)->addRules($requestData);
                     // return $response;
                     $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
                     $email = Email::create([
@@ -736,7 +736,7 @@ class ReturnExchangeController extends Controller
         ]);
 
         try {
-            $response = app('App\Http\Controllers\CouponController')->addRules($requestData);
+            $response = app(\App\Http\Controllers\CouponController::class)->addRules($requestData);
 
             return response()->json(['code' => 200, 'data' => [], 'message' => json_decode($response->getContent())->message]);
         } catch (Exception $e) {
@@ -937,7 +937,7 @@ class ReturnExchangeController extends Controller
                 'date' => ('Y-m-d'),
                 'amount' => $request->input('refund_amount'),
                 'type' => 'paid',
-                'cash_flow_able_type' => 'App\ReturnExchange',
+                'cash_flow_able_type' => \App\ReturnExchange::class,
 
             ]
         );
@@ -948,7 +948,7 @@ class ReturnExchangeController extends Controller
             $requestData = new Request();
             $requestData->setMethod('POST');
             $requestData->request->add(['customer_id' => $request->customer_id, 'message' => $auto_reply->reply, 'status' => 1]);
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
         }
 
         return response()->json(['message' => 'You have successfully added refund!'], 200);

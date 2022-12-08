@@ -352,7 +352,7 @@ class WebMessageController extends Controller
             }
 
             // get the product id for the dependent media ids
-            $mediables = \DB::table('mediables')->whereIn('media_id', $allMediaIds)->where('mediable_type', 'App\\Product')->get();
+            $mediables = \DB::table('mediables')->whereIn('media_id', $allMediaIds)->where('mediable_type', \App\Product::class)->get();
             if (! empty($mediables)) {
                 foreach ($mediables as $mdb) {
                     $urls[$mdb->media_id]['product_id'] = $mdb->mediable_id;
@@ -400,7 +400,7 @@ class WebMessageController extends Controller
                 $request->setMethod('POST');
                 $request->request->add($params);
 
-                return app('App\Http\Controllers\WhatsAppController')->sendMessage($request, 'customer', true);
+                return app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($request, 'customer', true);
                 break;
             case 'vendor':
                 $params = [
@@ -412,7 +412,7 @@ class WebMessageController extends Controller
                 $request->setMethod('POST');
                 $request->request->add($params);
 
-                return app('App\Http\Controllers\WhatsAppController')->sendMessage($request, 'vendor', true);
+                return app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($request, 'vendor', true);
                 break;
             case 'supplier':
                 $params = [
@@ -424,7 +424,7 @@ class WebMessageController extends Controller
                 $request->setMethod('POST');
                 $request->request->add($params);
 
-                return app('App\Http\Controllers\WhatsAppController')->sendMessage($request, 'supplier', true);
+                return app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($request, 'supplier', true);
                 break;
             default:
                 // code...
@@ -523,7 +523,7 @@ class WebMessageController extends Controller
             }
 
             // get the product id for the dependent media ids
-            $mediables = \DB::table('mediables')->whereIn('media_id', $allMediaIds)->where('mediable_type', 'App\\Product')->get();
+            $mediables = \DB::table('mediables')->whereIn('media_id', $allMediaIds)->where('mediable_type', \App\Product::class)->get();
             if (! empty($mediables)) {
                 foreach ($mediables as $mdb) {
                     $urls[$mdb->media_id]['product_id'] = $mdb->mediable_id;
@@ -577,7 +577,7 @@ class WebMessageController extends Controller
                         'auto_approve' => true,
                     ]);
 
-                    $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
+                    $res = app(\App\Http\Controllers\LeadsController::class)->sendPrices($requestData, new GuzzleClient);
 
                     return response()->json(['code' => 200, 'data' => [], 'message' => 'Dimension send successfully']);
 
@@ -593,7 +593,7 @@ class WebMessageController extends Controller
                         'auto_approve' => true,
                     ]);
 
-                    $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
+                    $res = app(\App\Http\Controllers\LeadsController::class)->sendPrices($requestData, new GuzzleClient);
 
                     return response()->json(['code' => 200, 'data' => [], 'message' => 'Detail send successfully']);
 

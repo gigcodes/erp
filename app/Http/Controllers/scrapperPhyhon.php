@@ -158,7 +158,7 @@ class scrapperPhyhon extends Controller
         // dd( $websiteList[0]['scrapper_image'] );
 
         //  echo '<pre>';print_r($websites->toArray());die;
-  //      return view('scrapper-phyhon.list', compact('websites','query','allWebsites','request','storewebsite','current_date','startDate','endDate'));
+        //      return view('scrapper-phyhon.list', compact('websites','query','allWebsites','request','storewebsite','current_date','startDate','endDate'));
         return view('scrapper-phyhon.list', compact('images', 'allWebsites', 'request', 'query', 'storewebsite', 'current_date', 'startDate', 'endDate', 'storewebsiteUrls'));
     }
 
@@ -195,9 +195,9 @@ class scrapperPhyhon extends Controller
                     $images = $images->orWhereNull('device')->whereNotIn('device', ['mobile', 'tablet']);
                 }
 
-               //     $images = $images->get()
+                //     $images = $images->get()
                 //   ->toArray();
-         //        dd($images->pluck("id"));
+                //        dd($images->pluck("id"));
                 $images = $images->paginate(Setting::get('pagination'));
                 // $images =  $images->paginate(2);
             }
@@ -416,7 +416,7 @@ class scrapperPhyhon extends Controller
             ]);
             $res = $response->getBody()->getContents();
             $log_data['response'] = json_encode($res);
-        } catch(\GuzzleHttp\Exception\RequestException $e) {
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
             $err = $e->getResponse()->getBody()->getContents();
             $log_data['response'] = json_encode($err);
         }
@@ -504,84 +504,84 @@ class scrapperPhyhon extends Controller
         return ['message' => $html, 'statusCode' => 200];
     }
 
-     public function delete(Request $request)
-     {
-         $images = scraperImags::whereDate('created_at', '=', date($request->delete_date))->get();
+    public function delete(Request $request)
+    {
+        $images = scraperImags::whereDate('created_at', '=', date($request->delete_date))->get();
 
-         foreach ($images as $image) {
-             if (empty($image->img_name)) {
-                 continue;
-             }
+        foreach ($images as $image) {
+            if (empty($image->img_name)) {
+                continue;
+            }
 
-             $imagePath = public_path('scrappersImages/'.$image->img_name);
+            $imagePath = public_path('scrappersImages/'.$image->img_name);
 
-             if (file_exists($imagePath) && ! is_dir($imagePath)) {
-                 unlink($imagePath);
-             }
+            if (file_exists($imagePath) && ! is_dir($imagePath)) {
+                unlink($imagePath);
+            }
 
-             $image->delete();
-         }
+            $image->delete();
+        }
 
-         return ['message' => count($images).' Deleted Successfully.', 'statusCode' => 200];
-     }
+        return ['message' => count($images).' Deleted Successfully.', 'statusCode' => 200];
+    }
 
-     public function imageUrlList(Request $request)
-     {
-         $flagUrl = isset($request->flagUrl) ? $request->flagUrl : '';
-         $storeWebsites = \App\StoreWebsite::get();
-         if (isset($request->id)) {
-             $store_id = $request->id;
+    public function imageUrlList(Request $request)
+    {
+        $flagUrl = isset($request->flagUrl) ? $request->flagUrl : '';
+        $storeWebsites = \App\StoreWebsite::get();
+        if (isset($request->id)) {
+            $store_id = $request->id;
 
-             $urls = [];
+            $urls = [];
 
-             $webStore = \App\WebsiteStore::where('id', $store_id)->first();
-             $list = Website::where('id', $webStore->website_id)->first();
-             if ($webStore) {
-                 $website_store_views = \App\WebsiteStoreView::where('website_store_id', $webStore->id)->first();
+            $webStore = \App\WebsiteStore::where('id', $store_id)->first();
+            $list = Website::where('id', $webStore->website_id)->first();
+            if ($webStore) {
+                $website_store_views = \App\WebsiteStoreView::where('website_store_id', $webStore->id)->first();
 
-                 if ($website_store_views) {
-                     $urls = \App\scraperImags::join('store_websites', 'store_websites.id', '=', 'scraper_imags.store_website')
+                if ($website_store_views) {
+                    $urls = \App\scraperImags::join('store_websites', 'store_websites.id', '=', 'scraper_imags.store_website')
                      ->select('scraper_imags.*', 'store_websites.title as wtitle', 'store_websites.id as swid')
                      ->where('store_website', $list->store_website_id)
                      ->where('website_id', $request->code) // this is language code. dont be confused with column name
                      ->whereRaw('url != "" and url IS  NOT NULL');
-                     if (isset($request->startDate) && isset($request->endDate)) {
-                         $urls = $urls->whereDate('created_at', '>=', date($request->startDate))
+                    if (isset($request->startDate) && isset($request->endDate)) {
+                        $urls = $urls->whereDate('created_at', '>=', date($request->startDate))
                          ->whereDate('created_at', '<=', date($request->endDate));
-                     } else {
-                         //$images = $images->whereDate('created_at',Carbon::now()->format('Y-m-d'));
-                     }
+                    } else {
+                        //$images = $images->whereDate('created_at',Carbon::now()->format('Y-m-d'));
+                    }
 
-                     if ($request->flt_website && $request->flt_website != null) {
-                         $urls = $urls->where('store_website', $request->flt_website);
-                     }
-                     if ($request->scrapper_url && $request->scrapper_url != null) {
-                         $urls->where('url', 'LIKE', '%'.$request->scrapper_url.'%');
-                     }
+                    if ($request->flt_website && $request->flt_website != null) {
+                        $urls = $urls->where('store_website', $request->flt_website);
+                    }
+                    if ($request->scrapper_url && $request->scrapper_url != null) {
+                        $urls->where('url', 'LIKE', '%'.$request->scrapper_url.'%');
+                    }
 
-                     $urls = $urls->paginate(Setting::get('pagination'));
-                     // $images =  $images->paginate(2);
-                 }
-             }
-         } else {
-             $urls = DB::table('scraper_imags')->join('store_websites', 'store_websites.id', '=', 'scraper_imags.store_website')->select('scraper_imags.*', 'store_websites.title as wtitle', 'store_websites.id as swid')->whereRaw('url != "" and url IS  NOT NULL');
-             if (! empty($flagUrl)) {
-                 $urls = $urls->where('scraper_imags.id', $flagUrl);
-                 $flagUrl = '#'.$flagUrl;
-             }
-             if ($request->flt_website && $request->flt_website != null) {
-                 $urls = $urls->where('store_website', $request->flt_website);
-             }
+                    $urls = $urls->paginate(Setting::get('pagination'));
+                    // $images =  $images->paginate(2);
+                }
+            }
+        } else {
+            $urls = DB::table('scraper_imags')->join('store_websites', 'store_websites.id', '=', 'scraper_imags.store_website')->select('scraper_imags.*', 'store_websites.title as wtitle', 'store_websites.id as swid')->whereRaw('url != "" and url IS  NOT NULL');
+            if (! empty($flagUrl)) {
+                $urls = $urls->where('scraper_imags.id', $flagUrl);
+                $flagUrl = '#'.$flagUrl;
+            }
+            if ($request->flt_website && $request->flt_website != null) {
+                $urls = $urls->where('store_website', $request->flt_website);
+            }
 
-             if ($request->scrapper_url && $request->scrapper_url != null) {
-                 $urls->where('url', 'LIKE', '%'.$request->scrapper_url.'%');
-             }
-             $urls = $urls->paginate(Setting::get('pagination'));
-        //        $urls=$urls->get();
-         }
+            if ($request->scrapper_url && $request->scrapper_url != null) {
+                $urls->where('url', 'LIKE', '%'.$request->scrapper_url.'%');
+            }
+            $urls = $urls->paginate(Setting::get('pagination'));
+            //        $urls=$urls->get();
+        }
 
-         return view('scrapper-phyhon.list_urls', compact('urls', 'flagUrl', 'storeWebsites'));
-     }
+        return view('scrapper-phyhon.list_urls', compact('urls', 'flagUrl', 'storeWebsites'));
+    }
 
     public function flagImageUrl($id)
     {

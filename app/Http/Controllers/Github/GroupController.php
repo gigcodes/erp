@@ -104,7 +104,7 @@ class GroupController extends Controller
             $response = $this->client->put($url);
 
             return true;
-        } catch(ClientException $e) {
+        } catch (ClientException $e) {
             //throw $e;
         }
 
@@ -170,7 +170,7 @@ class GroupController extends Controller
             );
 
             return true;
-        } catch(ClientException $e) {
+        } catch (ClientException $e) {
             //throw $e;
         }
 

@@ -71,7 +71,7 @@ class StoreWebsiteAnalyticsController extends Controller
                     $GoogleServiceAccountJsonFile = $request->file('google_service_account_json');
                     $extension = $GoogleServiceAccountJsonFile->getClientOriginalExtension();
                     $filename = $request->view_id.$GoogleServiceAccountJsonFile->getFilename().'.'.$extension;
-                    // file will be uploaded to resources/assets/analytics_files
+                    // file will be uploaded to resources/analytics_files
                     Storage::disk('analytics_files')->put($filename, File::get($GoogleServiceAccountJsonFile));
                 }
 

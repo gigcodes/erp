@@ -17,6 +17,7 @@ return [
     'mailgun' => [
         'domain' => env('MAILGUN_DOMAIN'),
         'secret' => env('MAILGUN_SECRET'),
+        'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
     ],
 
     'ses' => [
@@ -33,6 +34,10 @@ return [
         'model' => App\User::class,
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
+        'webhook' => [
+            'secret' => env('STRIPE_WEBHOOK_SECRET'),
+            'tolerance' => env('STRIPE_WEBHOOK_TOLERANCE', 300),
+        ],
     ],
 
     'twitter' => [
@@ -65,4 +70,5 @@ return [
         'leaveMessage' => 'Sorry, All agents are busy. Please leave a message. We will call you as soon as possible',
         'offlineMessage' => 'Your status has changed to Offline. Reply with "On" to get back Online',
     ],
+
 ];

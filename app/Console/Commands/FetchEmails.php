@@ -84,7 +84,7 @@ class FetchEmails extends Command
                     dump($type['type']);
                     $inbox = $imap->getFolder($type['inbox_name']);
                     $latest_email = Email::where('type', $type['type'])->where('model_id', $supplier->id)->where(function ($query) {
-                        $query->where('model_type', 'App\Supplier')->orWhere('model_type', 'App\Purchase');
+                        $query->where('model_type', \App\Supplier::class)->orWhere('model_type', \App\Purchase::class);
                     })->latest()->first();
 
                     if ($latest_email) {

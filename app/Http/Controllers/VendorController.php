@@ -62,7 +62,7 @@ class VendorController extends Controller
         $vendor->save();
 
         $message = 'Reminder : '.$request->get('message');
-        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($vendor->phone, '', $message);
+        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($vendor->phone, '', $message);
 
         return response()->json([
             'success',
@@ -490,7 +490,7 @@ class VendorController extends Controller
                 $role = Role::where('name', 'Developer')->first();
                 $user->roles()->sync($role->id);
                 $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.theluxuryunlimited.com/ username: '.$email.' password:  '.$password.'';
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($request->phone, $user->whatsapp_number, $message);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($request->phone, $user->whatsapp_number, $message);
             } else {
                 if (! empty($source)) {
                     return redirect()->back()->withErrors('Vendor Created , couldnt create User, Email or Phone Already Exist');
@@ -938,7 +938,7 @@ class VendorController extends Controller
 
         $inbox = $imap->getFolder($inbox_name);
 
-        $latest_email = Email::where('type', $type)->where('model_id', $vendor->id)->where('model_type', 'App\Vendor')->latest()->first();
+        $latest_email = Email::where('type', $type)->where('model_id', $vendor->id)->where('model_type', \App\Vendor::class)->latest()->first();
 
         $latest_email_date = $latest_email
             ? Carbon::parse($latest_email->created_at)
@@ -1123,7 +1123,7 @@ class VendorController extends Controller
             $role = Role::where('name', 'Developer')->first();
             $user->roles()->sync($role->id);
             $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.theluxuryunlimited.com/ username: '.$email.' password:  '.$password.'';
-            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($vendor->phone, '', $message);
+            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($vendor->phone, '', $message);
 
             return response()->json(['code' => 200, 'data' => 'User Created']);
         } else {
@@ -1369,7 +1369,7 @@ class VendorController extends Controller
                 $myRequest = new Request();
                 $myRequest->setMethod('POST');
                 $myRequest->request->add(['messageId' => $chat_message->id]);
-                app('App\Http\Controllers\WhatsAppController')->approveMessage('vendor', $myRequest);
+                app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('vendor', $myRequest);
             }
         }
         // return $params;

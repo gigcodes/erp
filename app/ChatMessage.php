@@ -220,12 +220,12 @@ class ChatMessage extends Model
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer');
+        return $this->belongsTo(\App\Customer::class);
     }
 
     public function lawyer()
     {
-        return $this->belongsTo('App\Lawyer');
+        return $this->belongsTo(\App\Lawyer::class);
     }
 
     /**
@@ -236,7 +236,7 @@ class ChatMessage extends Model
     public function isSentBroadcastPrice()
     {
         // Get count
-        $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\ChatMessage')->where('type', 'broadcast-prices')->count();
+        $count = $this->hasMany(\App\CommunicationHistory::class, 'model_id')->where('model_type', \App\ChatMessage::class)->where('type', 'broadcast-prices')->count();
 
         // Return true or false
         return $count > 0 ? true : false;
@@ -252,18 +252,18 @@ class ChatMessage extends Model
 
     public function taskUser()
     {
-        return $this->hasOne("\App\User", 'id', 'user_id');
+        return $this->hasOne(\App\User::class, 'id', 'user_id');
     }
 
     public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 
     //START - Purpose : Add relationship - DEVTASK-4203
     public function chatmsg()
     {
-        return $this->hasOne("\App\ChatMessage", 'user_id', 'user_id')->latest();
+        return $this->hasOne(\App\ChatMessage::class, 'user_id', 'user_id')->latest();
     }
     //END - DEVTASK-4203
 
@@ -361,7 +361,7 @@ class ChatMessage extends Model
 
     public function suggestion()
     {
-        return $this->hasOne("App\SuggestedProduct", 'chat_message_id', 'id');
+        return $this->hasOne(\App\SuggestedProduct::class, 'chat_message_id', 'id');
     }
 
     public static function getLastImgProductId($customerId)
@@ -445,7 +445,7 @@ class ChatMessage extends Model
 
     public function vendor()
     {
-        return $this->belongsTo('App\Vendor', 'vendor_id');
+        return $this->belongsTo(\App\Vendor::class, 'vendor_id');
     }
 
     /**
@@ -466,7 +466,7 @@ class ChatMessage extends Model
                 $log_comment = $log_comment.' Mediable found for customer with ID : '.$customer->id;
                 \Log::channel('customer')->info('Mediable for customer id : '.$customer->id);
                 try {
-                    app('App\Http\Controllers\CustomerController')->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]));
+                    app(\App\Http\Controllers\CustomerController::class)->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]));
                     $log_comment = $log_comment.' Mediable dispatched with ID : '.$mediable->mediable_id;
                 } catch (\Exception $e) {
                     \Log::channel('customer')->info($e->getMessage());
@@ -495,7 +495,7 @@ class ChatMessage extends Model
             if (! empty($mediable)) {
                 \Log::channel('customer')->info('Mediable for customer id : '.$customer->id);
                 try {
-                    app('App\Http\Controllers\CustomerController')->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]), true);
+                    app(\App\Http\Controllers\CustomerController::class)->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]), true);
                 } catch (\Exception $e) {
                     \Log::channel('customer')->info($e->getMessage());
                 }

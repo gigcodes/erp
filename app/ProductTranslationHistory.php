@@ -13,11 +13,11 @@ class ProductTranslationHistory extends Model
 
     public function product()
     {
-        return $this->belongsTo('App\Product');
+        return $this->belongsTo(\App\Product::class);
     }
 
     public function user()
     {
-        return $this->hasOne('App\User', 'id', 'user_id');
+        return $this->hasOne(\App\User::class, 'id', 'user_id');
     }
 }

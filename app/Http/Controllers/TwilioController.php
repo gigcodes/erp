@@ -268,7 +268,7 @@ class TwilioController extends FindByNumberController
                     ]);
                 }
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             TwilioLog::create(['log' => 'Workflow Log '.$e->getMessage(), 'account_sid' => 0, 'call_sid' => 0, 'phone' => 0]);
         }
     }
@@ -555,9 +555,9 @@ class TwilioController extends FindByNumberController
            $response = $response->reject();
         } else {*/
         // if ($time == $sunday || $time == $saturday) { // If Sunday or Holiday
-            //     $response->play(\Config::get("app.url") . "holiday_ring.mp3");
+        //     $response->play(\Config::get("app.url") . "holiday_ring.mp3");
         // } elseif (!$time->between($morning, $evening, true)) {
-            //     $response->play(\Config::get("app.url") . "end_work_ring.mp3");
+        //     $response->play(\Config::get("app.url") . "end_work_ring.mp3");
         // } else {
 
         if ($call_with_agent == 1 && in_array('call_with_agent', $conditions)) {
@@ -837,12 +837,12 @@ class TwilioController extends FindByNumberController
                 TwilioLog::create(['log' => ' Working hours over ', 'account_sid' => $account_sid, 'call_sid' => $call_sid, 'phone' => $number]);
                 //Log::channel('customerDnd')->info(' End work >> ');
                 // $call_history_params = [
-                    //     'call_sid' => ($request->get("CallSid") ?? 0),
-                    //     'account_sid' => ($request->get("AccountSid") ?? 0),
-                    //     'from' => ($request->get("Caller") ?? 0 ),
-                    //     'to' => ($request->get("Called") ?? 0),
-                    //     'call_data' => 'time_close',
-                    //     'aget_user_id' => ''
+                //     'call_sid' => ($request->get("CallSid") ?? 0),
+                //     'account_sid' => ($request->get("AccountSid") ?? 0),
+                //     'from' => ($request->get("Caller") ?? 0 ),
+                //     'to' => ($request->get("Called") ?? 0),
+                //     'call_data' => 'time_close',
+                //     'aget_user_id' => ''
                 // ];
 
                 // $call_history = TwilioCallData::create($call_history_params);
@@ -866,7 +866,7 @@ class TwilioController extends FindByNumberController
                     $response->play($endworkRing);
                 }
 
-            // $response->play(\Config::get("app.url") . "end_work_ring.mp3");
+                // $response->play(\Config::get("app.url") . "end_work_ring.mp3");
             } else {
                 TwilioLog::create(['log' => 'called in working hours, intro tone is being played', 'account_sid' => $account_sid, 'call_sid' => $call_sid, 'phone' => $number]);
                 //Log::channel('customerDnd')->info(' working Hours >> ');
@@ -957,8 +957,8 @@ class TwilioController extends FindByNumberController
                     );
 
                     // $response->Say(
-                        //     'No recording received. Goodbye',
-                        //     ['voice' => 'alice', 'language' => 'en-GB']
+                    //     'No recording received. Goodbye',
+                    //     ['voice' => 'alice', 'language' => 'en-GB']
                     // );
                     $response->hangup();
 
@@ -1030,12 +1030,12 @@ class TwilioController extends FindByNumberController
 
                             //Call History - START
                             // $call_history_params = [
-                                //     'call_sid' => ($request->get("CallSid") ?? 0),
-                                //     'account_sid' => ($request->get("AccountSid") ?? 0),
-                                //     'from' => ($request->get("Caller") ?? 0 ),
-                                //     'to' => ($request->get("Called") ?? 0),
-                                //     'call_data' => 'client',
-                                //     'aget_user_id' => $client['agent_id']
+                            //     'call_sid' => ($request->get("CallSid") ?? 0),
+                            //     'account_sid' => ($request->get("AccountSid") ?? 0),
+                            //     'from' => ($request->get("Caller") ?? 0 ),
+                            //     'to' => ($request->get("Called") ?? 0),
+                            //     'call_data' => 'client',
+                            //     'aget_user_id' => $client['agent_id']
                             // ];
 
                             // $call_history = TwilioCallData::create($call_history_params);
@@ -1060,12 +1060,12 @@ class TwilioController extends FindByNumberController
                     TwilioLog::create(['log' => ' Agent not available ', 'account_sid' => $account_sid, 'call_sid' => $call_sid, 'phone' => $number]);
                     //Log::channel('customerDnd')->info(' Not Available ---- >> ');
                     // $call_history_params = [
-                        //     'call_sid' => ($request->get("CallSid") ?? 0),
-                        //     'account_sid' => ($request->get("AccountSid") ?? 0),
-                        //     'from' => ($request->get("Caller") ?? 0 ),
-                        //     'to' => ($request->get("Called") ?? 0),
-                        //     'call_data' => 'time_close',
-                        //     'aget_user_id' => ''
+                    //     'call_sid' => ($request->get("CallSid") ?? 0),
+                    //     'account_sid' => ($request->get("AccountSid") ?? 0),
+                    //     'from' => ($request->get("Caller") ?? 0 ),
+                    //     'to' => ($request->get("Called") ?? 0),
+                    //     'call_data' => 'time_close',
+                    //     'aget_user_id' => ''
                     // ];
 
                     // $call_history = TwilioCallData::create($call_history_params);
@@ -1101,10 +1101,10 @@ class TwilioController extends FindByNumberController
                     }
 
                     // $dial = $response->dial('',[
-                        //     'record' => 'true',
-                        //     'recordingStatusCallback' => $url,
-                        //     'action' => $actionurl,
-                        //     'timeout' => '60'
+                    //     'record' => 'true',
+                    //     'recordingStatusCallback' => $url,
+                    //     'action' => $actionurl,
+                    //     'timeout' => '60'
                     // ]);
 
                     // $dial->client($client['agent_name_id']);
@@ -1609,7 +1609,7 @@ class TwilioController extends FindByNumberController
             $inputArray = $workflow;
             $this->createTwilioLog($request, $inputArray, 'Workflow Log ');
             //TwilioLog::create(['log'=> 'Workflow Log '. json_encode($workflow),'account_sid'=> 0,'call_sid'=> 0, 'phone'=> 0 ]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             TwilioLog::create(['log' => 'Workflow Log '.$e->getMessage(), 'account_sid' => 0, 'call_sid' => 0, 'phone' => 0]);
         }
 
@@ -2916,7 +2916,7 @@ class TwilioController extends FindByNumberController
 
                 ChatMessage::create($params);
 
-                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $params['message']);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $params['message']);
             }
 
             if ($request->input('From') != null || $request->input('From') != null || $request->input('From') != '') {
@@ -3129,12 +3129,12 @@ class TwilioController extends FindByNumberController
                                 ->read(['areaCode' => 510], 20);
 
                 // $tollFree = $twilio->availablePhoneNumbers("US")
-                    //                 ->tollFree
-                    //                 ->read([], 20);
+                //                 ->tollFree
+                //                 ->read([], 20);
 
                 // $mobile = $twilio->availablePhoneNumbers("GB")
-                    //                 ->mobile
-                    //                 ->read([], 20);
+                //                 ->mobile
+                //                 ->read([], 20);
 
                 $phone_number = $local[0]->phoneNumber;
 
@@ -3226,7 +3226,7 @@ class TwilioController extends FindByNumberController
             ->get();
 
             return view('twilio.manage-numbers-list', compact('numbers', 'store_websites', 'customer_role_users', 'account_id', 'workspace', 'worker', 'activities', 'workflows', 'taskqueue', 'twilio_user_list'));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return $e->getMessage(); //redirect()->back()->with('error',$e->getMessage());
         }
     }
@@ -3282,7 +3282,7 @@ class TwilioController extends FindByNumberController
             ->get();
 
             return view('twilio.manage-numbers', compact('numbers', 'store_websites', 'customer_role_users', 'account_id', 'workspace', 'worker', 'priority', 'activities', 'workflows', 'taskqueue', 'twilio_user_list'));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
@@ -3348,7 +3348,7 @@ class TwilioController extends FindByNumberController
             } else {
                 return redirect()->route('twilio-manage-accounts')->with('error', 'Please slect from number row. ');
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
@@ -3891,12 +3891,12 @@ class TwilioController extends FindByNumberController
         }
     }
 
-   public function saveTwilioGreetingMessage(Request $request)
-   {
-       StoreWebsite::where('id', $request->get('website_store_id'))->update(['twilio_greeting_message' => $request->get('welcome_message')]);
+    public function saveTwilioGreetingMessage(Request $request)
+    {
+        StoreWebsite::where('id', $request->get('website_store_id'))->update(['twilio_greeting_message' => $request->get('welcome_message')]);
 
-       return new JsonResponse(['status' => 1, 'message' => 'Greeting message Set Successfully']);
-   }
+        return new JsonResponse(['status' => 1, 'message' => 'Greeting message Set Successfully']);
+    }
 
     public function getTwilioKeyData(Request $request)
     {
@@ -4558,7 +4558,7 @@ class TwilioController extends FindByNumberController
             //$twilioCallBlocks = $twilioCallBlocks->get();
             //dd($twilioCallBlocks);
             return view('twilio.twilio-call-block   ', compact('twilioCallBlocks', 'input'));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return redirect()->back()->with('error', 'please try again');
         }
     }
@@ -4615,7 +4615,7 @@ class TwilioController extends FindByNumberController
             //$twilioCallBlocks = $twilioCallBlocks->get();
             //dd($twilioCallBlocks);
             return view('twilio.twilio-call-statistic', compact('twilioCallStatistic', 'input'));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return redirect()->back()->with('error', 'please try again');
         }
     }

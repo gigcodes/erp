@@ -10,6 +10,6 @@ class EmailContentHistory extends Model
 
     public function addedBy()
     {
-        return $this->hasOne('App\User', 'id', 'updated_by');
+        return $this->hasOne(\App\User::class, 'id', 'updated_by');
     }
 }

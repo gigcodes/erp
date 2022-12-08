@@ -81,7 +81,7 @@ class Scrapermissingdata extends Command
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add(['user_id' => $user_id, 'developer_task_id' => $u->id, 'message' => $msg, 'status' => 1]);
-                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'developer_task');
+                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'developer_task');
             }
         }
     }

@@ -8,6 +8,6 @@ class HubstuffCommandLog extends Model
 {
     public function messages()
     {
-        return $this->hasMany('App\Loggers\HubstuffCommandLogMessage');
+        return $this->hasMany(\App\Loggers\HubstuffCommandLogMessage::class);
     }
 }

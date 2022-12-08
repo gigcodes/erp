@@ -118,12 +118,12 @@ class SocialAdCreativeController extends Controller
         $this->user_access_token = $config->token;
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
         $this->ad_acc_id = $this->getAdAccount($config, $this->fb, $post->id);
-  //
+        //
 
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
                 try {
-    //        dd($data);
+                    //        dd($data);
                     $data['access_token'] = $this->user_access_token;
 
                     $url = 'https://graph.facebook.com/v12.0/'.$this->ad_acc_id.'/adcreatives';
@@ -140,11 +140,11 @@ class SocialAdCreativeController extends Controller
 
                     $resp = curl_exec($curl);
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create adcreatives', $resp);
-        //    dd($resp);
+                    //    dd($resp);
                     $resp = json_decode($resp);
                     curl_close($curl);
 
-        //    dd($resp);
+                    //    dd($resp);
                     if (isset($resp->error->message)) {
                         $post->live_status = 'error';
                         //  $post->ref_campaign_id=$resp->id;
@@ -159,7 +159,7 @@ class SocialAdCreativeController extends Controller
                     }
 
                     return redirect()->route('social.adcreative.index');
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e);
                     Session::flash('message', $e);
 
@@ -167,7 +167,7 @@ class SocialAdCreativeController extends Controller
                 }
             } else {
                 try {
-    //        dd($data);
+                    //        dd($data);
                     $data['access_token'] = $this->user_access_token;
 
                     $url = 'https://graph.facebook.com/v12.0/'.$this->ad_acc_id.'/adcreatives';
@@ -184,11 +184,11 @@ class SocialAdCreativeController extends Controller
 
                     $resp = curl_exec($curl);
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create adcreatives', $resp);
-        //    dd($resp);
+                    //    dd($resp);
                     $resp = json_decode($resp);
                     curl_close($curl);
 
-        //    dd($resp);
+                    //    dd($resp);
                     if (isset($resp->error->message)) {
                         $post->live_status = 'error';
                         //  $post->ref_campaign_id=$resp->id;
@@ -203,7 +203,7 @@ class SocialAdCreativeController extends Controller
                     }
 
                     return redirect()->route('social.adcreative.index');
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e);
                     Session::flash('message', $e);
 
@@ -300,7 +300,7 @@ class SocialAdCreativeController extends Controller
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
-        } catch(\Facebook\Exceptions\FacebookSDKException $e) {
+        } catch (\Facebook\Exceptions\FacebookSDKException $e) {
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->'.$e->getMessage());
         }
         if ($response != '') {
@@ -331,7 +331,7 @@ class SocialAdCreativeController extends Controller
         } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
             // When Graph returns an error
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->'.$e->getMessage());
-        } catch(\Facebook\Exceptions\FacebookSDKException $e) {
+        } catch (\Facebook\Exceptions\FacebookSDKException $e) {
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->'.$e->getMessage());
         }
         if ($response != '') {

@@ -244,7 +244,7 @@
                                 <td>
                                     <?php $amount = $module_wise_transactions->where('currency', $currency_index)->sum('amount_eur')?>
                                     @if($type == 'paid' && $amount)
-                                        {{--                                        bracket sign for negative or balance that is being deducted--}}
+                                        {{--                                        bracket sign for negative ?? balance that is being deducted--}}
                                         ({{ $amount }})
                                     @else
                                         {{ $amount?: '' }}
@@ -288,7 +288,7 @@
                                 <td>
                                     <?php $amount = $module_wise_transactions->where('currency', $currency_index)->sum('amount_eur')?>
                                     @if($type == 'paid' && $amount)
-                                        {{--                                        bracket sign for negative or balance that is being deducted--}}
+                                        {{--                                        bracket sign for negative ?? balance that is being deducted--}}
                                         ({{ $amount }})
                                     @else
                                         {{ $amount?: '' }}

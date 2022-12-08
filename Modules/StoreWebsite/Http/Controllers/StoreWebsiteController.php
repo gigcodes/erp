@@ -802,7 +802,7 @@ class StoreWebsiteController extends Controller
             StoreWebsiteUserHistory::create([
                 'store_website_id' => $getUser->store_website_id,
                 'store_website_user_id' => $getUser->id,
-                'model' => 'App\StoreWebsiteUsers',
+                'model' => \App\StoreWebsiteUsers::class,
                 'attribute' => 'username_password',
                 'old_value' => 'updated',
                 'new_value' => 'updated',
@@ -841,7 +841,7 @@ class StoreWebsiteController extends Controller
             StoreWebsiteUserHistory::create([
                 'store_website_id' => $StoreWebsiteUsersid->store_website_id,
                 'store_website_user_id' => $StoreWebsiteUsersid->id,
-                'model' => 'App\StoreWebsiteUsers',
+                'model' => \App\StoreWebsiteUsers::class,
                 'attribute' => 'username_password',
                 'old_value' => 'new_added',
                 'new_value' => 'new_added',
@@ -870,7 +870,7 @@ class StoreWebsiteController extends Controller
         StoreWebsiteUserHistory::create([
             'store_website_id' => $getUser->store_website_id,
             'store_website_user_id' => $getUser->id,
-            'model' => 'App\StoreWebsiteUsers',
+            'model' => \App\StoreWebsiteUsers::class,
             'attribute' => 'username_password',
             'old_value' => 'delete',
             'new_value' => 'delete',
