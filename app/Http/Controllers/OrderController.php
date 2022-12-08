@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Arr;
 use App\AutoReply;
 use App\CallBusyMessage;
 use App\CallBusyMessageStatus;
@@ -611,13 +612,13 @@ class OrderController extends Controller
 
         if ($sortby == 'supplier') {
             if ($orderby == 'asc') {
-                $products = array_values(array_sort($products, function ($value) {
+                $products = array_values(Arr::sort($products, function ($value) {
                     return $value['product']['supplier'];
                 }));
 
                 $products = array_reverse($products);
             } else {
-                $products = array_values(array_sort($products, function ($value) {
+                $products = array_values(Arr::sort($products, function ($value) {
                     return $value['product']['supplier'];
                 }));
             }
@@ -625,7 +626,7 @@ class OrderController extends Controller
 
         if ($sortby == 'client_name') {
             if ($orderby == 'asc') {
-                $products = array_values(array_sort($products, function ($value) {
+                $products = array_values(Arr::sort($products, function ($value) {
                     if ($value['order']) {
                         return $value['order']['client_name'];
                     }
@@ -635,7 +636,7 @@ class OrderController extends Controller
 
                 $products = array_reverse($products);
             } else {
-                $products = array_values(array_sort($products, function ($value) {
+                $products = array_values(Arr::sort($products, function ($value) {
                     if ($value['order']) {
                         return $value['order']['client_name'];
                     }
@@ -647,13 +648,13 @@ class OrderController extends Controller
 
         if ($sortby == 'price') {
             if ($orderby == 'asc') {
-                $products = array_values(array_sort($products, function ($value) {
+                $products = array_values(Arr::sort($products, function ($value) {
                     return $value['product_price'];
                 }));
 
                 $products = array_reverse($products);
             } else {
-                $products = array_values(array_sort($products, function ($value) {
+                $products = array_values(Arr::sort($products, function ($value) {
                     return $value['product_price'];
                 }));
             }
@@ -661,7 +662,7 @@ class OrderController extends Controller
 
         if ($sortby == 'created_at') {
             if ($orderby == 'asc') {
-                $products = array_values(array_sort($products, function ($value) {
+                $products = array_values(Arr::sort($products, function ($value) {
                     if ($value['order']) {
                         return $value['order']['created_at'];
                     }
@@ -671,7 +672,7 @@ class OrderController extends Controller
 
                 $products = array_reverse($products);
             } else {
-                $products = array_values(array_sort($products, function ($value) {
+                $products = array_values(Arr::sort($products, function ($value) {
                     if ($value['order']) {
                         return $value['order']['created_at'];
                     }
@@ -683,7 +684,7 @@ class OrderController extends Controller
 
         if ($sortby == 'date_of_delivery') {
             if ($orderby == 'asc') {
-                $products = array_values(array_sort($products, function ($value) {
+                $products = array_values(Arr::sort($products, function ($value) {
                     if ($value['order']) {
                         return $value['order']['date_of_delivery'];
                     }
@@ -693,7 +694,7 @@ class OrderController extends Controller
 
                 $products = array_reverse($products);
             } else {
-                $products = array_values(array_sort($products, function ($value) {
+                $products = array_values(Arr::sort($products, function ($value) {
                     if ($value['order']) {
                         return $value['order']['date_of_delivery'];
                     }
@@ -705,7 +706,7 @@ class OrderController extends Controller
 
         if ($sortby == 'estimated_delivery_date') {
             if ($orderby == 'asc') {
-                $products = array_values(array_sort($products, function ($value) {
+                $products = array_values(Arr::sort($products, function ($value) {
                     if ($value['order']) {
                         return $value['order']['estimated_delivery_date'];
                     }
@@ -715,7 +716,7 @@ class OrderController extends Controller
 
                 $products = array_reverse($products);
             } else {
-                $products = array_values(array_sort($products, function ($value) {
+                $products = array_values(Arr::sort($products, function ($value) {
                     if ($value['order']) {
                         return $value['order']['estimated_delivery_date'];
                     }
@@ -727,7 +728,7 @@ class OrderController extends Controller
 
         if ($sortby == 'order_status') {
             if ($orderby == 'asc') {
-                $products = array_values(array_sort($products, function ($value) {
+                $products = array_values(Arr::sort($products, function ($value) {
                     if ($value['order']) {
                         return $value['order']['order_status'];
                     }
@@ -737,7 +738,7 @@ class OrderController extends Controller
 
                 $products = array_reverse($products);
             } else {
-                $products = array_values(array_sort($products, function ($value) {
+                $products = array_values(Arr::sort($products, function ($value) {
                     if ($value['order']) {
                         return $value['order']['order_status'];
                     }
@@ -749,13 +750,13 @@ class OrderController extends Controller
 
         if ($sortby == 'communication') {
             if ($orderby == 'asc') {
-                $products = array_values(array_sort($products, function ($value) {
+                $products = array_values(Arr::sort($products, function ($value) {
                     return $value['communication']['created_at'];
                 }));
 
                 $products = array_reverse($products);
             } else {
-                $products = array_values(array_sort($products, function ($value) {
+                $products = array_values(Arr::sort($products, function ($value) {
                     return $value['communication']['created_at'];
                 }));
             }

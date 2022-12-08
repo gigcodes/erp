@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Github;
 
+use Illuminate\Support\Str;
 use App\DeveloperTask;
 use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubBranchState;
@@ -140,7 +141,7 @@ class RepositoryController extends Controller
             $result = exec($cmd, $allOutput);
 
             $migrationError = is_array($result) ? json_encode($result) : $result;
-            if (str_contains($migrationError, 'database/migrations') || str_contains($migrationError, 'migrations') || str_contains($migrationError, 'Database/Migrations') || str_contains($migrationError, 'Migrations')) {
+            if (Str::contains($migrationError, 'database/migrations') || Str::contains($migrationError, 'migrations') || Str::contains($migrationError, 'Database/Migrations') || Str::contains($migrationError, 'Migrations')) {
                 if ($source == 'master') {
                     $this->createGitMigrationErrorLog($repoId, $destination, $migrationError);
                 } elseif ($destination == 'master') {
@@ -161,7 +162,7 @@ class RepositoryController extends Controller
                 $errorArr = $errorArr;
             }
             $migrationError = is_array($result) ? json_encode($errorArr) : $errorArr;
-            if (str_contains($migrationError, 'database/migrations') || str_contains($migrationError, 'migrations') || str_contains($migrationError, 'Database/Migrations') || str_contains($migrationError, 'Migrations')) {
+            if (Str::contains($migrationError, 'database/migrations') || Str::contains($migrationError, 'migrations') || Str::contains($migrationError, 'Database/Migrations') || Str::contains($migrationError, 'Migrations')) {
                 if ($source == 'master') {
                     $this->createGitMigrationErrorLog($repoId, $destination, $migrationError);
                 } elseif ($destination == 'master') {

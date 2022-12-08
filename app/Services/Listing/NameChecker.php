@@ -2,6 +2,7 @@
 
 namespace App\Services\Listing;
 
+use Illuminate\Support\Str;
 use App\AttributeReplacement;
 use App\Brand;
 use App\Colors;
@@ -53,9 +54,9 @@ class NameChecker implements CheckerInterface
 
         $colors = (new Colors)->all();
 
-        $sentence = title_case($sentence);
+        $sentence = Str::title($sentence);
         $sentence = str_replace($colors, '', $sentence);
 
-        return title_case($sentence);
+        return Str::title($sentence);
     }
 }

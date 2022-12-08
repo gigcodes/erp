@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
 use App\BugEnvironment;
 use App\BugSeverity;
 use App\BugStatus;
@@ -108,9 +109,9 @@ class BugTrackingController extends Controller
 //            $bug->bug_status_id = BugStatus::where('id',$bug->bug_status_id)->value('name');
             $bug->bug_history = BugTrackerHistory::where('bug_id', $bug->id)->get();
             $bug->website = StoreWebsite::where('id', $bug->website)->value('title');
-            $bug->summary_short = str_limit($bug->summary, 5, '..');
-            $bug->step_to_reproduce_short = str_limit($bug->step_to_reproduce, 5, '..');
-            $bug->url_short = str_limit($bug->url, 5, '..');
+            $bug->summary_short = Str::limit($bug->summary, 5, '..');
+            $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 5, '..');
+            $bug->url_short = Str::limit($bug->url, 5, '..');
 
             return $bug;
         });

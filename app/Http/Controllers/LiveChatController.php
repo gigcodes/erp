@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
 use App\ChatbotReply;
 use App\ChatMessage;
 use App\CreditEmailLog;
@@ -1569,7 +1570,7 @@ class LiveChatController extends Controller
                     $bits = parse_url($websiteUrl);
                     if (isset($bits['host'])) {
                         $web = $bits['host'];
-                        if (! str_contains($websiteUrl, 'www')) {
+                        if (! Str::contains($websiteUrl, 'www')) {
                             $web = 'www.'.$bits['host'];
                         }
                         $websiteUrl = 'https://'.$web;
@@ -1982,7 +1983,7 @@ class LiveChatController extends Controller
                     $bits = parse_url($websiteUrl);
                     if (isset($bits['host'])) {
                         $web = $bits['host'];
-                        if (! str_contains($websiteUrl, 'www')) {
+                        if (! Str::contains($websiteUrl, 'www')) {
                             $web = 'www.'.$bits['host'];
                         }
                         $websiteUrl = 'https://'.$web;

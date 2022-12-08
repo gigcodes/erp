@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
 use App\LogRequest;
 use App\MagentoSetting;
 use App\MagentoSettingLog;
@@ -86,7 +87,7 @@ class MagentoSettingsController extends Controller
                 $bits = parse_url($websiteUrl);
                 if (isset($bits['host'])) {
                     $web = $bits['host'];
-                    if (! str_contains($websiteUrl, 'www')) {
+                    if (! Str::contains($websiteUrl, 'www')) {
                         $web = 'www.'.$bits['host'];
                     }
                     $websiteUrl = 'https://'.$web;

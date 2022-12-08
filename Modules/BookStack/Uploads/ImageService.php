@@ -2,6 +2,7 @@
 
 namespace Modules\BookStack\Uploads;
 
+use Illuminate\Support\Str;
 use DB;
 use Exception;
 use Illuminate\Contracts\Cache\Repository as Cache;
@@ -156,12 +157,12 @@ class ImageService extends UploadService
         $imagePath = '/uploads/images/'.$type.'/'.date('Y-m').'/';
 
         while ($storage->exists($imagePath.$imageName)) {
-            $imageName = str_random(3).$imageName;
+            $imageName = Str::random(3).$imageName;
         }
 
         $fullPath = $imagePath.$imageName;
         if ($secureUploads) {
-            $fullPath = $imagePath.str_random(16).'-'.$imageName;
+            $fullPath = $imagePath.Str::random(16).'-'.$imageName;
         }
 
         try {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
 use App\ApiKey;
 use App\Brand;
 use App\Category;
@@ -165,7 +166,7 @@ class QuickSellController extends Controller
 
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
-                $filename = str_slug($image->getClientOriginalName());
+                $filename = Str::slug($image->getClientOriginalName());
                 $media = MediaUploader::fromSource($image)->useFilename($filename)
                                   ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
                                   ->upload();
@@ -259,7 +260,7 @@ class QuickSellController extends Controller
 
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
-                $filename = str_slug($image->getClientOriginalName());
+                $filename = Str::slug($image->getClientOriginalName());
                 $media = MediaUploader::fromSource($image)
                                   ->useFilename($filename)
                                   ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))

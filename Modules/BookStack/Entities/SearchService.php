@@ -2,6 +2,7 @@
 
 namespace Modules\BookStack\Entities;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder;
@@ -286,7 +287,7 @@ class SearchService
 
         // Handle filters
         foreach ($terms['filters'] as $filterTerm => $filterValue) {
-            $functionName = camel_case('filter_'.$filterTerm);
+            $functionName = Str::camel('filter_'.$filterTerm);
             if (method_exists($this, $functionName)) {
                 $this->$functionName($entitySelect, $entity, $filterValue);
             }
@@ -595,7 +596,7 @@ class SearchService
 
     protected function filterSortBy(EloquentBuilder $query, Entity $model, $input)
     {
-        $functionName = camel_case('sort_by_'.$input);
+        $functionName = Str::camel('sort_by_'.$input);
         if (method_exists($this, $functionName)) {
             $this->$functionName($query, $model);
         }

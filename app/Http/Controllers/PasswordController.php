@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
 use App\ChatMessage;
 use App\Password;
 use App\PasswordHistory;
@@ -95,7 +96,7 @@ class PasswordController extends Controller
         $data = [];
         foreach ($users as $key) {
             // Generate new password
-            $newPassword = str_random(12);
+            $newPassword = Str::random(12);
 
             $user = Password::findorfail($key);
             $user->password = Crypt::encrypt($newPassword);
@@ -231,7 +232,7 @@ class PasswordController extends Controller
         $data = [];
         foreach ($users as $key) {
             // Generate new password
-            $newPassword = str_random(12);
+            $newPassword = Str::random(12);
 
             // Set hash password
             $hashPassword = Hash::make($newPassword);

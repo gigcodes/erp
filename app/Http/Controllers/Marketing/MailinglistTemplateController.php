@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Marketing;
 
+use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use App\MailinglistTemplate;
 use App\MailinglistTemplateCategory;
@@ -186,7 +187,7 @@ class MailinglistTemplateController extends Controller
         if (! file_exists($path)) {
             mkdir($path, 0777, true);
         }
-        $filename = date('U').str_random(10);
+        $filename = date('U').Str::random(10);
 
         if (! empty($_FILES['image'])) {
             $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
@@ -196,7 +197,7 @@ class MailinglistTemplateController extends Controller
                 $mailing_item->save();
             }
         }
-        $filename = date('U').str_random(10);
+        $filename = date('U').Str::random(10);
         if (! empty($_FILES['logo'])) {
             $ext = pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION);
             $path = $path.'/'.$filename.'.'.$ext;
@@ -250,7 +251,7 @@ class MailinglistTemplateController extends Controller
             mkdir($path, 0777, true);
         }
 
-        $filename = date('U').str_random(10);
+        $filename = date('U').Str::random(10);
         if (! empty($_FILES['image'])) {
             $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
             $path = $path.'/'.$filename.'.'.$ext;

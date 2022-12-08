@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Arr;
 use App\ApiKey;
 use App\Customer;
 use App\EmailNotificationEmailDetails;
@@ -268,7 +269,7 @@ class UserController extends Controller
         if (! empty($input['password'])) {
             $input['password'] = Hash::make($input['password']);
         } else {
-            $input = array_except($input, ['password']);
+            $input = Arr::except($input, ['password']);
         }
 
         //START - Purpose : Set Email notification status - DEVTASK-4359

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Manual;
 
+use Illuminate\Support\Str;
 use App\CronJobReport;
 use App\User;
 use Illuminate\Console\Command;
@@ -69,7 +70,7 @@ class PasswordChangeAll extends Command
             if ($users !== null) {
                 foreach ($users as $user) {
                     // Generate new password
-                    $newPassword = str_random(12);
+                    $newPassword = Str::random(12);
 
                     // Set hash password
                     $hashPassword = Hash::make($newPassword);

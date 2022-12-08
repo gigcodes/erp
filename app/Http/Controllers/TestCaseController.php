@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
 use App\ChatMessage;
 use App\SiteDevelopmentCategory;
 use App\StoreWebsite;
@@ -159,7 +160,7 @@ class TestCaseController extends Controller
             $testCase->created_at_date = \Carbon\Carbon::parse($testCase->created_at)->format('d-m-Y  H:i');
 //            $testCase->test_case__history = TestCaseHistory::where('test_case_id', $testCase->id)->get();
             $testCase->website = StoreWebsite::where('id', $testCase->website)->value('title');
-            $testCase->step_to_reproduce_short = str_limit($testCase->step_to_reproduce, 5, '..');
+            $testCase->step_to_reproduce_short = Str::limit($testCase->step_to_reproduce, 5, '..');
 
             return $testCase;
         });

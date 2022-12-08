@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Illuminate\Support\Str;
 use App\Colors;
 use App\CronJobReport;
 use App\Product;
@@ -60,7 +61,7 @@ class ImportColorsFromTitleAndDescription extends Command
 
                         $color = $property['color'] ?? '';
                         $color = $this->getColorsFromText($color);
-                        $color = title_case($color);
+                        $color = Str::title($color);
 
                         if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false) {
                             dump($color.'--ing...');
@@ -71,7 +72,7 @@ class ImportColorsFromTitleAndDescription extends Command
 
                         $color = $property['colors'] ?? '';
                         $color = $this->getColorsFromText($color);
-                        $color = title_case($color);
+                        $color = Str::title($color);
 
                         if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false) {
                             dump($color.'--ing...');
@@ -83,7 +84,7 @@ class ImportColorsFromTitleAndDescription extends Command
 
                         $color = $this->getColorsFromText($product->title);
                         $color = trim(str_replace(['-', '_'], '', $color));
-                        $color = title_case($color);
+                        $color = Str::title($color);
 
                         if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false) {
                             dump($color.'--ing...');
@@ -94,7 +95,7 @@ class ImportColorsFromTitleAndDescription extends Command
 
                         $color = $this->getColorsFromText($product->short_description);
                         $color = trim(str_replace(['-', '_'], '', $color));
-                        $color = title_case($color);
+                        $color = Str::title($color);
 
                         if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false) {
                             dump($color.'--ing...');

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Illuminate\Support\Str;
 use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
@@ -60,7 +61,7 @@ class GetCompositionFromScrapedProducts extends Command
                         $composition = $properties['material_used'] ?? null;
                         if ($composition !== 'null' && $composition !== null && $composition !== '') {
                             dump($composition);
-                            $product->composition = title_case($composition);
+                            $product->composition = Str::title($composition);
                             $product->save();
 
                             continue;

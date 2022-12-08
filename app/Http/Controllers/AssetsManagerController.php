@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
 use App\AssetMagentoDevScripUpdateLog;
 use App\AssetManamentUpdateLog;
 use App\AssetPlateForm;
@@ -385,15 +386,15 @@ class AssetsManagerController extends Controller
                     $html .= '<tr>';
                     $html .= '<td>'.$res->created_at.'</td>';
                     $html .= '<td class="expand-row-msg" data-name="ip" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-ip-'.$res->id.'">'.str_limit($res->ip, 15, '...').'</span>
+                    <span class="show-short-ip-'.$res->id.'">'.Str::limit($res->ip, 15, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-ip-'.$res->id.' hidden">'.$res->website.'</span>
                     </td>';
                     $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-response-'.$res->id.'">'.str_limit($res->response, 25, '...').'</span>
+                    <span class="show-short-response-'.$res->id.'">'.Str::limit($res->response, 25, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
                     </td>';
                     $html .= '<td class="expand-row-msg" data-name="command" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-command-'.$res->id.'">'.str_limit($res->command_name, 25, '...').'</span>
+                    <span class="show-short-command-'.$res->id.'">'.Str::limit($res->command_name, 25, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-command-'.$res->id.' hidden">'.$res->command_name.'</span>
                     </td>';
 

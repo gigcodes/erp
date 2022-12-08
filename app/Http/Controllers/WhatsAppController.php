@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Arr;
 use App\Account;
 use App\ApiKey;
 use App\AutoCompleteMessage;
@@ -5212,7 +5213,7 @@ class WhatsAppController extends FindByNumberController
             }
         }
         // array_reverse($result);
-        // $result = array_values(array_sort($result, function ($value) {
+        // $result = array_values(Arr::sort($result, function ($value) {
         //              return $value['creation_date'];
         //      }));
         // //

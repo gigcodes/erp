@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Arr;
 use App\Brand;
 use App\BroadcastImage;
 use App\CallBusyMessage;
@@ -140,13 +141,13 @@ class LeadsController extends Controller
         $leads_array = $leads->whereNull('deleted_at')->get()->toArray();
         if ($sortby == 'communication') {
             if ($orderby == 'asc') {
-                $leads_array = array_values(array_sort($leads_array, function ($value) {
+                $leads_array = array_values(Arr::sort($leads_array, function ($value) {
                     return $value['communication']['created_at'];
                 }));
 
                 $leads_array = array_reverse($leads_array);
             } else {
-                $leads_array = array_values(array_sort($leads_array, function ($value) {
+                $leads_array = array_values(Arr::sort($leads_array, function ($value) {
                     return $value['communication']['created_at'];
                 }));
             }

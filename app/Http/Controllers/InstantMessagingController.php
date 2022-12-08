@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
 use App\ChatMessage;
 use App\Customer;
 use App\ImQueue;
@@ -230,7 +231,7 @@ class InstantMessagingController extends Controller
                                 $image = $message->Images;
                                 $image = str_replace('data:image/png;base64,', '', $image);
                                 $image = str_replace(' ', '+', $image);
-                                $imageName = str_random(10).'.'.'png';
+                                $imageName = Str::random(10).'.'.'png';
                                 //Image
                                 $image = base64_decode($image);
 

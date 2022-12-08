@@ -2,6 +2,7 @@
 
 namespace Modules\UserManagement\Http\Controllers;
 
+use Illuminate\Support\Arr;
 use App\ApiKey;
 use App\AssetsManager;
 use App\ColdLeads;
@@ -559,7 +560,7 @@ class UserManagementController extends Controller
         if (! empty($input['password'])) {
             $input['password'] = Hash::make($input['password']);
         } else {
-            $input = array_except($input, ['password']);
+            $input = Arr::except($input, ['password']);
         }
         //return $input;
         $user = User::find($id);

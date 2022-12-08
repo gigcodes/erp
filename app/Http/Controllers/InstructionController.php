@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Arr;
 use App\ChatMessage;
 use App\Customer;
 use App\Helpers;
@@ -106,7 +107,7 @@ class InstructionController extends Controller
         $completed_instructions = $completed_instructions->orderBy('completed_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'completed-page');
 
         // if ($request->sortby != 'created_at') {
-        //   $instructions = array_values(array_sort($instructions, function ($value) {
+        //   $instructions = array_values(Arr::sort($instructions, function ($value) {
         //     if ($value['remarks']) {
         //       return $value['remarks'][0]['created_at'];
         //     }
@@ -222,7 +223,7 @@ class InstructionController extends Controller
         $user = $request->user ? $request->user : [];
 
         // if ($request->sortby != 'created_at') {
-        //   $instructions = array_values(array_sort($instructions, function ($value) {
+        //   $instructions = array_values(Arr::sort($instructions, function ($value) {
         //     if ($value['remarks']) {
         //       return $value['remarks'][0]['created_at'];
         //     }

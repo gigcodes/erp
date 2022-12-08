@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
 use App\DatabaseLog;
 use App\SlowLogsEnableDisable;
 use Carbon\Carbon;
@@ -85,9 +86,9 @@ class ScrapLogsController extends Controller
             $day_of_file = explode('-', $val->getFilename());
             $day_of_file = str_replace('.log', '', $day_of_file);
 
-            // if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  $day_of_file[1] == $date.$month) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
+            // if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  $day_of_file[1] == $date.$month) ) && (Str::contains($val->getFilename(), $searchVal) || empty($searchVal))) {
 
-            if (((end($day_of_file) == $date) || (isset($day_of_file[1]) and strtolower($day_of_file[1]) == strtolower($date.$month))) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
+            if (((end($day_of_file) == $date) || (isset($day_of_file[1]) and strtolower($day_of_file[1]) == strtolower($date.$month))) && (Str::contains($val->getFilename(), $searchVal) || empty($searchVal))) {
                 if (! in_array($val->getRelativepath(), $serverArray)) {
                     continue;
                 }
@@ -179,7 +180,7 @@ class ScrapLogsController extends Controller
 
         foreach ($files as $key => $val) {
             $day_of_file = explode('-', $val->getFilename());
-            if (str_contains(end($day_of_file), sprintf('%02d', $date - 1)) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
+            if (Str::contains(end($day_of_file), sprintf('%02d', $date - 1)) && (Str::contains($val->getFilename(), $searchVal) || empty($searchVal))) {
                 // $file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
                 $file_path_new = config('env.SCRAP_LOGS_FOLDER').'/'.$val->getRelativepath().'/'.$val->getFilename();
 

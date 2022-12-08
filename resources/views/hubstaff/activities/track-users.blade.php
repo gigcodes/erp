@@ -117,7 +117,7 @@
                         <tr>
                             <td>{{ $user['date'] }} </td>
                             <td class="expand-row-msg Website-task" data-name="userName" data-id="{{$index}}">
-                                <span class="show-short-userName-{{$index}}">{{ str_limit($user['userName'], 5, '..')}}</span>
+                                <span class="show-short-userName-{{$index}}">{{ Str::limit($user['userName'], 5, '..')}}</span>
                                 <span style="word-break:break-all;" class="show-full-userName-{{$index}} hidden Website-task">{{$user['userName']}}</span>
                             </td>
                             <td>

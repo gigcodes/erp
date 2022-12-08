@@ -2,6 +2,7 @@
 
 namespace Modules\BookStack\Auth\Access;
 
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Database\Connection as Database;
 use Modules\BookStack\Auth\User;
@@ -81,9 +82,9 @@ class UserTokenService
      */
     protected function generateToken(): string
     {
-        $token = str_random(24);
+        $token = Str::random(24);
         while ($this->tokenExists($token)) {
-            $token = str_random(25);
+            $token = Str::random(25);
         }
 
         return $token;

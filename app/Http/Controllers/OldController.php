@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Arr;
 use App\Email;
 use App\Helpers;
 use App\Mails\Manual\PurchaseEmail;
@@ -654,7 +655,7 @@ class OldController extends Controller
             $emails_array[$count + $key2]['timeCreated'] = $timeCreated;
         }
 
-        $emails_array = array_values(array_sort($emails_array, function ($value) {
+        $emails_array = array_values(Arr::sort($emails_array, function ($value) {
             return $value['date'];
         }));
 

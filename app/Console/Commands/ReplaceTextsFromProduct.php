@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Illuminate\Support\Str;
 use App\AttributeReplacement;
 use App\CronJobReport;
 use App\Product;
@@ -68,19 +69,19 @@ class ReplaceTextsFromProduct extends Command
                     foreach ($replacements as $replacement) {
                         // Name
                         if ($replacement->field_identifier == 'name') {
-                            $product->name = str_replace([$replacement->first_term, title_case($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->name);
+                            $product->name = str_replace([$replacement->first_term, Str::title($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->name);
                             $product->name = htmlspecialchars_decode($product->name);
                         }
 
                         // Composition
                         if ($replacement->field_identifier == 'composition') {
-                            $product->composition = str_replace([$replacement->first_term, title_case($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->composition);
+                            $product->composition = str_replace([$replacement->first_term, Str::title($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->composition);
                             $product->composition = htmlspecialchars_decode($product->composition);
                         }
 
                         // Short description
                         if ($replacement->field_identifier == 'short_description') {
-                            $product->short_description = str_replace([$replacement->first_term, title_case($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->short_description);
+                            $product->short_description = str_replace([$replacement->first_term, Str::title($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->short_description);
                             $product->short_description = htmlspecialchars_decode($product->short_description);
                         }
                     }

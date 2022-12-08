@@ -2,6 +2,7 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
+use Illuminate\Support\Str;
 use App\AssetsManager;
 use App\BuildProcessHistory;
 use App\ChatMessage;
@@ -1410,7 +1411,7 @@ class StoreWebsiteController extends Controller
                     $html .= '<tr>';
                     $html .= '<td>'.$res->created_at.'</td>';
                     $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-response-'.$res->id.'">'.str_limit($res->response, 100, '...').'</span>
+                    <span class="show-short-response-'.$res->id.'">'.Str::limit($res->response, 100, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
                     </td>';
                     $html .= '</tr>';
@@ -1448,15 +1449,15 @@ class StoreWebsiteController extends Controller
                     $html .= '<tr>';
                     $html .= '<td>'.$res->created_at.'</td>';
                     $html .= '<td class="expand-row-msg" data-name="website" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-website-'.$res->id.'">'.str_limit($res->website, 15, '...').'</span>
+                    <span class="show-short-website-'.$res->id.'">'.Str::limit($res->website, 15, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-website-'.$res->id.' hidden">'.$res->website.'</span>
                     </td>';
                     $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-response-'.$res->id.'">'.str_limit($res->response, 25, '...').'</span>
+                    <span class="show-short-response-'.$res->id.'">'.Str::limit($res->response, 25, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
                     </td>';
                     $html .= '<td class="expand-row-msg" data-name="command" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-command-'.$res->id.'">'.str_limit($res->command_name, 25, '...').'</span>
+                    <span class="show-short-command-'.$res->id.'">'.Str::limit($res->command_name, 25, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-command-'.$res->id.' hidden">'.$res->command_name.'</span>
                     </td>';
 

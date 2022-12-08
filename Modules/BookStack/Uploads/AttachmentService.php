@@ -2,6 +2,7 @@
 
 namespace Modules\BookStack\Uploads;
 
+use Illuminate\Support\Str;
 use Exception;
 use Modules\BookStack\Exceptions\FileUploadException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -204,9 +205,9 @@ class AttachmentService extends UploadService
         $storage = $this->getStorage();
         $basePath = 'uploads/files/'.date('Y-m-M').'/';
 
-        $uploadFileName = str_random(16).'.'.$uploadedFile->getClientOriginalExtension();
+        $uploadFileName = Str::random(16).'.'.$uploadedFile->getClientOriginalExtension();
         while ($storage->exists($basePath.$uploadFileName)) {
-            $uploadFileName = str_random(3).$uploadFileName;
+            $uploadFileName = Str::random(3).$uploadFileName;
         }
 
         $attachmentPath = $basePath.$uploadFileName;

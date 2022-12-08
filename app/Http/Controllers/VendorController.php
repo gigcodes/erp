@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use App\ChatMessage;
 use App\Customer;
 use App\Email;
@@ -472,7 +474,7 @@ class VendorController extends Controller
                     // $email = $email[0] . '@solo.com';
                     $email = $request->email;
                 }
-                $password = str_random(10);
+                $password = Str::random(10);
                 $user->email = $email;
                 $user->password = Hash::make($password);
                 $user->phone = $request->phone;
@@ -1000,7 +1002,7 @@ class VendorController extends Controller
             $emails_array[$count + $key2]['timeCreated'] = $timeCreated;
         }
 
-        $emails_array = array_values(array_sort($emails_array, function ($value) {
+        $emails_array = array_values(Arr::sort($emails_array, function ($value) {
             return $value['date'];
         }));
 
@@ -1115,7 +1117,7 @@ class VendorController extends Controller
                 // $email = $email[0] . '@solo.com';
                 $email = $vendor->email;
             }
-            $password = str_random(10);
+            $password = Str::random(10);
             $user->email = $email;
             $user->password = Hash::make($password);
             $user->phone = $vendor->phone;

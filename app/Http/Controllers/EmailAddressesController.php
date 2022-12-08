@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
 use App\EmailAddress;
 use App\EmailRunHistories;
 use App\Exports\EmailFailedReport;
@@ -376,7 +377,7 @@ class EmailAddressesController extends Controller
         $data = [];
         foreach ($users as $key) {
             // Generate new password
-            $newPassword = str_random(12);
+            $newPassword = Str::random(12);
 
             $user = EmailAddress::findorfail($key);
             $user->password = $newPassword;
