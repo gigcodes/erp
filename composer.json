@@ -19,7 +19,6 @@
         "bugsnag/bugsnag-laravel": "^2.0",
         "catzilla/zbar-wrapper": "^0.1.1",
         "chumper/zipper": "^1.0",
-        "darkaonline/l5-swagger": "5.8.*",
         "doctrine/dbal": "^2.9",
         "dompdf/dompdf": "^0.8.3",
         "facebook/graph-sdk": "~5.0",

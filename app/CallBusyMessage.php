@@ -35,7 +35,7 @@ class CallBusyMessage extends Model
      */
     public static function boot()
     {
-        // parent::boot();
+        parent::boot();
 
         static::created(function ($model) {
             if ($model->twilio_call_sid) {
