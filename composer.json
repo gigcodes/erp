@@ -36,15 +36,15 @@
         "jenkins-khan/jenkins-api": "dev-master",
         "kosinix/grafika": "^2.0",
         "ksubileau/color-thief-php": "^1.4",
-        "laravel/framework": "5.7.*",
+        "laravel/framework": "5.8.*",
         "laravel/horizon": "v2.0.0",
         "laravel/passport": "^6.0",
         "laravel/tinker": "^1.0",
-        "laravelcollective/html": "5.7.*",
+        "laravelcollective/html": "5.8.*",
         "lazyjsonmapper/lazyjsonmapper": "^1.6",
         "league/color-extractor": "^0.3.2",
         "league/csv": "^9.2",
-        "maatwebsite/excel": "^3.1",
+        "maatwebsite/excel": "^3.1.8",
         "macsidigital/zoom-laravel": "^1.0",
         "milon/barcode": "^6.0",
         "mtcmedia/dhl-api": "^1.0",
@@ -91,9 +91,9 @@
         "filp/whoops": "^2.0",
         "fzaninotto/faker": "^1.4",
         "mockery/mockery": "^1.0",
-        "nunomaduro/collision": "^2.0",
+        "nunomaduro/collision": "^3.0",
         "beyondcode/laravel-dump-server": "^1.0",
-        "phpunit/phpunit": "^7.0"
+        "phpunit/phpunit": "^7.5"
     },
     "autoload": {
         "classmap": [
