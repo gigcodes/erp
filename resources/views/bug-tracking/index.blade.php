@@ -32,11 +32,11 @@ table{border-collapse: collapse;}
 							<form class="form-inline message-search-handler" method="get">
 								<div class="col">
 
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-3">
+									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-3" style="width: 200px;">
 										<?php
 										$bug_type = request('bugtype');
 										?>
-										<select class="form-control" name="bug_type" id="bug_type">
+										<select class="form-control selectpicker" name="bug_type[]" multiple id="bug_type">
 											<option value="">Select BugType</option>
 											<?php
 											foreach ($bugTypes as $bugtype) { ?>
@@ -45,11 +45,11 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
+									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
 										<?php
 										$bug_environment = request('bug_enviornment');
 										?>
-										<select class="form-control" name="bug_enviornment" id="bug_enviornment">
+										<select class="form-control selectpicker" name="bug_enviornment[]" multiple id="bug_enviornment">
 											<option value="">Select BugEnvironment</option>
 											<?php
 											foreach ($bugEnvironments as $bugenvironment) { ?>
@@ -58,11 +58,11 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
+									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
 										<?php
 										$bug_severity = request('bug_severity');
 										?>
-										<select class="form-control" name="bug_severity" id="bug_severity">
+										<select class="form-control selectpicker" name="bug_severity[]" multiple id="bug_severity">
 											<option value="">Select BugSeverity</option>
 											<?php
 											foreach ($bugSeveritys as $bugseverity) { ?>
@@ -71,11 +71,11 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
+									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
 										<?php
 										$bug_status = request('bugstatus');
 										?>
-										<select class="form-control" name="bug_status" id="bug_status">
+										<select class="form-control selectpicker" name="bug_status[]" multiple id="bug_status">
 											<option value="">Select BugStatus</option>
 											<?php
 											foreach ($bugStatuses as $bugstatus) { ?>
@@ -84,27 +84,27 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-									<div class="form-group  cls_filter_inputbox p-2 mr-2">
+									<div class="form-group  cls_filter_inputbox p-2 mr-3" style="width: 200px;">
 										<?php
 										$module_id = request('module_id');
 										?>
-										<select class="form-control" name="module_id" id="module_id">
+										<select class="form-control selectpicker" name="module_id[]" multiple id="module_id">
 											<option value="">Select Module</option>
 											@foreach($filterCategories as  $filterCategory)
 												<option value="{{$filterCategory}}">{{$filterCategory}} </option>
 											@endforeach
 										</select>
 									</div>
-									<div class="form-group">
+									<div class="form-group" style="width: 200px;">
 										<input name="step_to_reproduce" type="text" class="form-control" placeholder="Search Reproduce" id="bug-search" data-allow-clear="true" />
 									</div>
-									<div class="form-group m-3">
+									<div class="form-group m-3" style="width: 200px;">
 										<input name="summary" type="text" class="form-control" placeholder="Search Summary" id="bug-summary" data-allow-clear="true" />
 									</div>
-									<div class="form-group m-1">
+									<div class="form-group m-1" style="width: 200px;">
 										<input name="url" type="text" class="form-control" placeholder="Search Url" id="bug-url" data-allow-clear="true" />
 									</div>
-									<div class="form-group cls_filter_inputbox p-2 mr-2">
+									<div class="form-group cls_filter_inputbox p-2 mr-2" style="width: 200px;">
 										<?php
 										$website = request('website');
 										?>
@@ -117,7 +117,7 @@ table{border-collapse: collapse;}
 										</select>
 									</div>
 
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
+									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
 										<?php
 										$assign_to_user = request('assign_to_user');
 										?>
@@ -131,11 +131,11 @@ table{border-collapse: collapse;}
 									</div>
 
 
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
+									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
 										<?php
 										$created_by = request('created_by');
 										?>
-										<select class="form-control" name="created_by" id="created_by">
+										<select class="form-control selectpicker" name="created_by[]" multiple id="created_by">
 											<option value="">Select Created by</option>
 											@foreach($users as  $user)
 
@@ -143,10 +143,10 @@ table{border-collapse: collapse;}
 											@endforeach
 										</select>
 									</div>
-									<div class="form-group">
+									<div class="form-group" style="width: 200px;"	>
 										<input name="date" type="date" class="form-control" placeholder="Search Date" id="bug-date" data-allow-clear="true" />
 									</div>
-									<div class="form-group">
+									<div class="form-group" >
 										<label for="button">&nbsp;</label>
 										<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
 											<img src="/images/search.png" style="cursor: default;">
