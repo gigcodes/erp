@@ -32,7 +32,7 @@ class BloggerPayment extends Model
      * @var string
      * @SWG\Property(enum={"deleted_at"})
      */
-    protected $dates = ['deleted_at'];
+
 
     public function blogger()
     {

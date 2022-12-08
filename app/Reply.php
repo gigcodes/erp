@@ -22,7 +22,6 @@ class Reply extends Model
 
     protected $fillable = ['category_id', 'store_website_id', 'reply', 'model', 'push_to_watson'];
 
-    protected $dates = ['deleted_at'];
 
     public function category()
     {

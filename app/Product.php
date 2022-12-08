@@ -104,7 +104,6 @@ class Product extends Model
         'is_cron_check',
     ];
 
-    protected $dates = ['deleted_at'];
 
     protected $appends = [];
 

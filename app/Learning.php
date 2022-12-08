@@ -91,7 +91,6 @@ class Learning extends Model
         'Developer Issue',
     ];
 
-    protected $dates = ['deleted_at'];
 
     public static function hasremark($id)
     {
