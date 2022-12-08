@@ -1044,12 +1044,12 @@ class Product extends Model
         }
         $beforeIVAProductPrice = $productPrice;
         if ($isOvveride) {
-            $this->createProductPriceLog($order_id, $product_id, 'Get Iva Price Before', $operation, $productPrice, $segmentDiscount, 'Product price: '.$productPrice.' - categoryDiscount : '.$catdiscount->amount.'Product price - categoryDiscount', $default_price, $website->id, $customer_id);
+            $this->createProductPriceLog($order_id, $product_id, 'Get Iva Price Before', $operation, $productPrice, $segmentDiscount, 'Product price: '.$productPrice.'Product price ', $default_price, $website->id, $customer_id);
             $oldPrice = $productPrice;
             $productPrice = \App\Product::getIvaPrice($productPrice);
             $IVApercentage = self::IVA_PERCENTAGE;
             $ivaPercentage = ($oldPrice * $percentage) / 100;
-            $this->createProductPriceLog($order_id, $product_id, 'Get Iva Price After', 'Price : '.$oldPrice.' * Percentage : '.$IVApercentage.' / 100', $productPrice, $ivaPercentage, 'Product price: '.$productPrice.' - categoryDiscount : '.$catdiscount->amount.'Product price - categoryDiscount', $default_price, $website->id, $customer_id);
+            $this->createProductPriceLog($order_id, $product_id, 'Get Iva Price After', 'Price : '.$oldPrice.' * Percentage : '.$IVApercentage.' / 100', $productPrice, $ivaPercentage, 'Product price: '.$productPrice.'Product price ', $default_price, $website->id, $customer_id);
         }
 
         // add a product price duty
