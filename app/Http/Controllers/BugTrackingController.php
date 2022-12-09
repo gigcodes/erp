@@ -96,9 +96,8 @@ class BugTrackingController extends Controller
             });
         }
         if ($keyword = request('website')) {
-            $records = $records->where(function ($q) use ($keyword) {
-                $q->where('website', 'LIKE', "%$keyword%");
-            });
+
+            $records = $records->orWhereIn('website', $keyword);
         }
         if ($keyword = request('date')) {
             $records = $records->where(function ($q) use ($keyword) {
