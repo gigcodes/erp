@@ -108,7 +108,7 @@ table{border-collapse: collapse;}
 										<?php
 										$website = request('website');
 										?>
-										<select class="form-control" name="website" id="website">
+										<select class="form-control selectpicker" name="website[]" multiple id="website">
 											<option value="">Select Website</option>
 											@foreach($filterWebsites as  $filterWebsite)
 
