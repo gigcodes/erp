@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\v1;
 use App\Category;
 use App\Http\Controllers\Controller;
 use App\Order;
+use App\OrderProduct;
 use App\Product;
 use App\ProductCancellationPolicie;
 use App\StoreWebsite;
@@ -63,6 +64,7 @@ class ProductController extends Controller
 
     public function checkCancellation(Request $request)
     {
+        $cancellationType = $request->cancellation_type;
         if ($request->website) {
             $storeWebsite = \App\StoreWebsite::where('website', 'like', $request->website)->first();
             // $get
@@ -72,53 +74,54 @@ class ProductController extends Controller
                 if ($getStoreWebsiteOrder) {
                     //check order status
                     $getOrder = Order::with('order_product')->where('id', $getStoreWebsiteOrder->order_id)->first();
-                    $order_product = $getOrder->order_product[0];
-                    // print_r($order_product->toArray());
-                    // $getOrderProduct =
-                    if ($order_product != null) {
-                        //$getCustomerOrderData = $getCustomerOrderData->where("swo.platform_order_id",$request->order_id);
-                        $result_input = $request->input();
-                        $result_input['iscanceled'] = true;
-                        $result_input['isrefund'] = true;
-                        $result_input['isreturn'] = true;
-                        if ($ProductCancellationPolicie) {
-                            $order_product->purchase_status;
-                            //if($order_product->purchase_status == "Cancel"){
-                            $created = new Carbon($order_product->created_at);
-                            $now = Carbon::now();
-                            $difference = ($created->diff($now)->days < 1)
-                            ? 0
-                            : $created->diffInDays($now);
-                            if ($difference >= $ProductCancellationPolicie->days_cancelation) {
+                    if ($cancellationType == 'order') {
+                        $orderProducts[] = $getOrder->order_product[0];
+                    } elseif ($cancellationType == 'products') {
+                        $skus = explode(",", rtrim($request->product_sku, ','));
+                        $orderProducts = OrderProduct::where('order_id', '=', $request->order_id)->whereIn('sku', $skus)->get();
+                    }
+                    if (count($orderProducts) > 0) {
+                        $results = array();
+                        foreach ($orderProducts as $orderProduct) {
+                            $result_input = $request->input();
+                            $result_input['iscanceled'] = true;
+                            $result_input['isrefund'] = true;
+                            $result_input['isreturn'] = true;
+                            $result_input['sku'] = $orderProduct->sku;
+                            if ($ProductCancellationPolicie) {
+                                $created = new Carbon($orderProduct->created_at);
+                                $now = Carbon::now();
+                                $difference = ($created->diff($now)->days < 1)
+                                    ? 0
+                                    : $created->diffInDays($now);
+                                if ($difference >= $ProductCancellationPolicie->days_cancelation) {
+                                    $result_input['iscanceled'] = false;
+                                    $result_input['isreturn'] = false;
+                                }
+
+                                $created = new Carbon($orderProduct->shipment_date);
+                                $now = Carbon::now();
+                                $difference = ($created->diff($now)->days < 1)
+                                    ? 0
+                                    : $created->diffInDays($now);
+                                if ($difference >= $ProductCancellationPolicie->days_refund) {
+                                    $result_input['isrefund'] = false;
+                                    $result_input['isreturn'] = false;
+                                }
+                            }
+                            if ($getOrder->order_status_id == 11) {
                                 $result_input['iscanceled'] = false;
                                 $result_input['isreturn'] = false;
                             }
 
-                            //}else if($order_product->purchase_status == "Refund to be processed"){
-                            $created = new Carbon($order_product->shipment_date);
-                            $now = Carbon::now();
-                            $difference = ($created->diff($now)->days < 1)
-                            ? 0
-                            : $created->diffInDays($now);
-                            if ($difference >= $ProductCancellationPolicie->days_refund) {
-                                $result_input['isrefund'] = false;
-                                $result_input['isreturn'] = false;
+                            if ($getOrder->shipment_date != '' && !is_null($getOrder->shipment_date)) {
+                                $result_input['iscanceled'] = false;
                             }
-                            // }
-                            // if status is cancelled already then return false
+                            $results[] = $result_input;
                         }
-                        if ($getOrder->order_status_id == 11) {
-                            $result_input['iscanceled'] = false;
-                            $result_input['isreturn'] = false;
-                        }
-
-                        if ($getOrder->shipment_date != '' && ! is_null($getOrder->shipment_date)) {
-                            $result_input['iscanceled'] = false;
-                        }
-
                         $message = $this->generate_erp_response('order.cancel.success', 0, $default = 'Success', request('lang_code'));
 
-                        return response()->json(['code' => 200, 'message' => $message, 'data' => $result_input]);
+                        return response()->json(['code' => 200, 'message' => $message, 'data' => $results]);
                     } else {
                         $message = $this->generate_erp_response('order.cancel.failed', 0, $default = 'data not found', request('lang_code'));
 
@@ -213,7 +216,7 @@ class ProductController extends Controller
 
         $customer = \App\Customer::where('email', $request->customer_email)->where('store_website_id', $storeweb->id)->first();
         $basket = \App\CustomerBasket::where('customer_email', $request->customer_email)->first();
-        if (! $basket) {
+        if (!$basket) {
             $basket = new \App\CustomerBasket;
             $basket->customer_name = $request->customer_name;
             $basket->customer_email = $request->customer_email;
@@ -227,7 +230,7 @@ class ProductController extends Controller
         $product = \App\Product::where('sku', $sku[0])->first();
 
         $basketProduct = \App\CustomerBasketProduct::where('customer_basket_id', $basket->id)->where('product_sku', $sku[0])->first();
-        if (! $basketProduct) {
+        if (!$basketProduct) {
             $basketProduct = new \App\CustomerBasketProduct;
             $basketProduct->customer_basket_id = $basket->id;
             $basketProduct->product_id = $product->id;
