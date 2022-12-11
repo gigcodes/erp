@@ -21,7 +21,7 @@
                              
                          }
                     @endphp
-                    <span class="show-short-message-{{$item->id}}">{{ str_limit($message, 6, '...')}}</span>
+                    <span class="show-short-message-{{$item->id}}">{{ Str::limit($message, 6, '...')}}</span>
                     <span style="word-break:break-all;" class="show-full-message-{{$item->id}} hidden">{{$message}}</span>
                   </td>
                   <td> <select name="keyword_or_question" id="" class="form-control view_details_div">

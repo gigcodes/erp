@@ -82,7 +82,7 @@
 						<?php $timeCol = false;
 							$dateResult = '';
 							$dateTime = '';
-							if(str_contains($databaseLog->log_message, '# Time: ') OR str_contains($databaseLog->log_message, 'Time: ')){
+							if(Str::contains($databaseLog->log_message, '# Time: ') OR Str::contains($databaseLog->log_message, 'Time: ')){
 								$timeCol = true;
 								$dateString = $databaseLog->log_message;
 								$prefix = "# Time:";
@@ -90,14 +90,14 @@
 								//$dateResult = date('d M Y H:s:i', "1652880141");
 								$dateTime = $index[3];
 							}
-							if(str_contains($databaseLog->log_message, "SET timestamp=")){
+							if(Str::contains($databaseLog->log_message, "SET timestamp=")){
 								$dateString = $databaseLog->log_message;
 								$prefix = "SET timestamp=";
 								$index = explode("=",$dateString);//strpos($dateString, $prefix) + strlen($prefix);
 								$dateStr = str_replace(';', '', $index[1]);
 								$dateResult = date('d M Y', (int)$dateStr);
 							}
-							if(str_contains($databaseLog->log_message, "exceeded")){
+							if(Str::contains($databaseLog->log_message, "exceeded")){
 								$dateResult = date('d M Y H:s:i', strtotime(substr($databaseLog->log_message,1,19)));
 							}
 							?>
@@ -109,7 +109,7 @@
 						<td>{{$databaseLog->time_taken}}</td>
 						<td>{{$databaseLog->url}}</td>
 						<td>{{$databaseLog->sql_data}}</td>
-						@if(str_contains($databaseLog->log_message, "exceeded"))
+						@if(Str::contains($databaseLog->log_message, "exceeded"))
 							<td>{{substr($databaseLog->log_message,32)}}</td>
 						@else
 							<td>{{$databaseLog->log_message}}</td>

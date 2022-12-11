@@ -16,6 +16,7 @@ use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class InstructionController extends Controller
@@ -106,7 +107,7 @@ class InstructionController extends Controller
         $completed_instructions = $completed_instructions->orderBy('completed_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'completed-page');
 
         // if ($request->sortby != 'created_at') {
-        //   $instructions = array_values(array_sort($instructions, function ($value) {
+        //   $instructions = array_values(Arr::sort($instructions, function ($value) {
         //     if ($value['remarks']) {
         //       return $value['remarks'][0]['created_at'];
         //     }
@@ -222,7 +223,7 @@ class InstructionController extends Controller
         $user = $request->user ? $request->user : [];
 
         // if ($request->sortby != 'created_at') {
-        //   $instructions = array_values(array_sort($instructions, function ($value) {
+        //   $instructions = array_values(Arr::sort($instructions, function ($value) {
         //     if ($value['remarks']) {
         //       return $value['remarks'][0]['created_at'];
         //     }
