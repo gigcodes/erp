@@ -234,11 +234,11 @@ class BrandController extends Controller
                     if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                         $response = null;
                         $brand = \App\Brand::find($request->brand);
-                        $storeWebsites = array();
+                        $storeWebsites = [];
                         foreach ($websites as $key => $website) {
                             $storeWebsites[] = $website->id;
-                            if (!$brandStore) {
-                                $magentoBrandId = MagentoHelper::addBrand($brand, $website);;
+                            if (! $brandStore) {
+                                $magentoBrandId = MagentoHelper::addBrand($brand, $website);
                                 if ($magentoBrandId) {
                                     $brandStore = new StoreWebsiteBrand;
                                     $brandStore->brand_id = $request->brand;
@@ -253,6 +253,7 @@ class BrandController extends Controller
                                 } else {
                                     $message = "{$website->title} assigned to {$brand->name} brand failed.";
                                     $this->createWebsiteBrandHistory($request->brand, $website->id, 'error', $user->id, $message);
+
                                     return response()->json(['code' => 500, 'message' => 'Brand is not pushed to store,please check history log.']);
                                 }
                             } else {
@@ -267,12 +268,13 @@ class BrandController extends Controller
                                     } else {
                                         $message = "{$brand->name} is not removed from {$website->title} store.";
                                         $this->createWebsiteBrandHistory($request->brand, $website->id, 'error', $user->id, $message);
+
                                         return response()->json(['code' => 500, 'message' => 'Brand is not removed from store,please check history log.']);
                                     }
                                 }
                             }
                         }
-                        if($key + 1 == (count($websites))) {
+                        if ($key + 1 == (count($websites))) {
                             return $response;
                         }
                     } else {
@@ -298,7 +300,7 @@ class BrandController extends Controller
             'store_website_id' => $store_website_id,
             'type' => $type,
             'created_by' => $created_by,
-            'message' => $message
+            'message' => $message,
         ]);
     }
 

@@ -86,7 +86,7 @@ class ColorController extends Controller
         $data = $request->except('_token');
         $storeWebsiteId = $request->get('store_website_id');
         $websites = \App\StoreWebsite::where('parent_id', '=', $storeWebsiteId)->orWhere('id', '=', $storeWebsiteId)->get();
-        $dataArray = array();
+        $dataArray = [];
         foreach ($websites as $key => $website) {
             $data['store_website_id'] = $request->get('store_website_id');
             $data['store_color'] = $request->get('store_color');

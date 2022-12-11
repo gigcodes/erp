@@ -108,20 +108,21 @@ class SiteAttributesControllers extends Controller
         $records = StoreWebsiteAttributes::find($id);
 
         if (! $records) {
-            $dataArray = array();
+            $dataArray = [];
             foreach ($websites as $key => $website) {
                 $data['attribute_key'] = $request->get('attribute_key');
                 $data['attribute_val'] = $request->get('attribute_val');
                 $data['store_website_id'] = $website->id;
                 $dataArray[] = $data;
-                $this->log('#1', $key+1, $request->input('attribute_key'), $request->input('attribute_key'), $website->id, 'Store Website Attribute has stored.');
+                $this->log('#1', $key + 1, $request->input('attribute_key'), $request->input('attribute_key'), $website->id, 'Store Website Attribute has stored.');
             }
             StoreWebsiteAttributes::insert($dataArray);
         } else {
             $records->fill($post);
             $response = $records->save();
-            if($response)
+            if ($response) {
                 $this->log('#2', $records->id, $request->attribute_key, $request->attribute_val, $request->store_website_id, 'Store Website Attribute has updated.');
+            }
         }
 
         return response()->json(['code' => 200, 'data' => $records]);
