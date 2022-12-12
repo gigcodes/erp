@@ -30,6 +30,7 @@ use Carbon\Carbon;
 use DB;
 use Google\Cloud\Translate\TranslateClient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Mail;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
@@ -1569,7 +1570,7 @@ class LiveChatController extends Controller
                     $bits = parse_url($websiteUrl);
                     if (isset($bits['host'])) {
                         $web = $bits['host'];
-                        if (! str_contains($websiteUrl, 'www')) {
+                        if (! Str::contains($websiteUrl, 'www')) {
                             $web = 'www.'.$bits['host'];
                         }
                         $websiteUrl = 'https://'.$web;
@@ -1982,7 +1983,7 @@ class LiveChatController extends Controller
                     $bits = parse_url($websiteUrl);
                     if (isset($bits['host'])) {
                         $web = $bits['host'];
-                        if (! str_contains($websiteUrl, 'www')) {
+                        if (! Str::contains($websiteUrl, 'www')) {
                             $web = 'www.'.$bits['host'];
                         }
                         $websiteUrl = 'https://'.$web;

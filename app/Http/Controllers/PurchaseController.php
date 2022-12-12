@@ -43,6 +43,7 @@ use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -147,13 +148,13 @@ class PurchaseController extends Controller
         // dd($purchases_array);
         // if ($sortby == 'communication') {
         // 	if ($orderby == 'asc') {
-        // 		$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+        // 		$purchases_array = array_values(Arr::sort($purchases_array, function ($value) {
         // 				return $value['communication']['created_at'];
         // 		}));
         //
         // 		$purchases_array = array_reverse($purchases_array);
         // 	} else {
-        // 		$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+        // 		$purchases_array = array_values(Arr::sort($purchases_array, function ($value) {
         // 				return $value['communication']['created_at'];
         // 		}));
         // 	}
@@ -737,7 +738,7 @@ class PurchaseController extends Controller
             $count++;
         }
 
-        $new_products = array_values(array_sort($new_products, function ($value) {
+        $new_products = array_values(Arr::sort($new_products, function ($value) {
             return $value['order_date'];
         }));
 
@@ -2143,7 +2144,7 @@ class PurchaseController extends Controller
             $emails_array[$count + $key2]['timeCreated'] = $timeCreated;
         }
 
-        $emails_array = array_values(array_sort($emails_array, function ($value) {
+        $emails_array = array_values(Arr::sort($emails_array, function ($value) {
             return $value['date'];
         }));
 
@@ -2491,7 +2492,7 @@ class PurchaseController extends Controller
         // $emails = collect($emails_array);
         // dd($emails);
 
-      $emails_array = array_values(array_sort($emails_array, function ($value) {
+      $emails_array = array_values(Arr::sort($emails_array, function ($value) {
         return $value['date'];
       }));
 

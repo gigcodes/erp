@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\DatabaseLog;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class DatabaseLogCron extends Command
 {
@@ -43,7 +44,7 @@ class DatabaseLogCron extends Command
             $lines = @file($namefile);
             if ($lines) {
                 for ($i = count($lines) - 1; $i >= 0; $i--) {
-                    if (str_contains($lines[$i], '{"url":')) {
+                    if (Str::contains($lines[$i], '{"url":')) {
                         $data = explode('{', $lines[$i]);
                         if ($data) {
                             $time = substr($data[0], strrpos($data[0], '2000:') + 6);

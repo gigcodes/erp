@@ -104,8 +104,6 @@ class Product extends Model
         'is_cron_check',
     ];
 
-    protected $dates = ['deleted_at'];
-
     protected $appends = [];
 
     protected $communication = '';
@@ -1132,7 +1130,7 @@ class Product extends Model
                         $price = ($productPrice * $priceRecords->value) / 100;
                         $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Price Record Type : PERCENTAGE', '(Product Price : '.$productPrice.' * Price Records: '.$priceRecords->value.') / 100', $productPrice, $price, 'productPrice * priceRecordsvalue / 100', $default_price, $website->id, $customer_id);
 
-                        return ['status' => true, 'original_price' => $default_price, 'promotion_per' => $priceRecords->value, 'promotion' => $price, 'segment_discount' => $segmentDiscount, 'total' => $productPrice + $price, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0 ];
+                        return ['status' => true, 'original_price' => $default_price, 'promotion_per' => $priceRecords->value, 'promotion' => $price, 'segment_discount' => $segmentDiscount, 'total' => $productPrice + $price, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                     } else {
                         $percentage = ($priceRecords->value / $productPrice) * 100;
                         $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Price Record Type : PERCENTAGE', 'product Price: '.$productPrice.' / Price Records: '.$priceRecords->value.' * 100', $productPrice, $percentage, 'productPrice / priceRecordsvalue * 100', $default_price, $website->id, $customer_id);

@@ -6,6 +6,7 @@ use App\AttributeReplacement;
 use App\Brand;
 use App\Colors;
 use App\Services\Grammar\GrammarBot;
+use Illuminate\Support\Str;
 
 class NameChecker implements CheckerInterface
 {
@@ -53,9 +54,9 @@ class NameChecker implements CheckerInterface
 
         $colors = (new Colors)->all();
 
-        $sentence = title_case($sentence);
+        $sentence = Str::title($sentence);
         $sentence = str_replace($colors, '', $sentence);
 
-        return title_case($sentence);
+        return Str::title($sentence);
     }
 }

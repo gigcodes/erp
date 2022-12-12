@@ -105,7 +105,7 @@
 							<?php echo $chatQuestion->id; ?>
 						</td>
 						<td class="expand-row-msg" data-name="value" data-id="{{$chatQuestion->id}}">
-							<span class="show-short-value-{{$chatQuestion->id}}">{{ str_limit($chatQuestion->value, 15, '..')}}</span>
+							<span class="show-short-value-{{$chatQuestion->id}}">{{ Str::limit($chatQuestion->value, 15, '..')}}</span>
 							<span style="word-break:break-all;" class="show-full-value-{{$chatQuestion->id}} hidden">{{$chatQuestion->value	}}</span>
 						</td>
 						<td>
@@ -120,7 +120,7 @@
 							if(count($listOfQuestions) > 0){
 								$listOfQuestion= $listOfQuestions[0];
 								?>
-								<span class="show-short-listOfQuestions-{{$chatQuestion->id}}">{{ str_limit($listOfQuestion, 18, '..')}}</span>
+								<span class="show-short-listOfQuestions-{{$chatQuestion->id}}">{{ Str::limit($listOfQuestion, 18, '..')}}</span>
                   				<span style="word-break:break-all;" class="show-full-listOfQuestions-{{$chatQuestion->id}} hidden">{{$listOfQuestion}}</span>
 								<button type="button" class="btn btn-xs text-secondary" data-toggle="modal" data-target="#listOfQuestion_{{$chatQuestion->id}}"><i class="fa fa-info-circle"></i></button>
 								<div class="modal fade" id="listOfQuestion_{{$chatQuestion->id}}" tabindex="-1" role="dialog" aria-labelledby="listOfQuestion_{{$chatQuestion->id}}" aria-hidden="true">

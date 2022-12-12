@@ -51,6 +51,7 @@ use Dompdf\Dompdf;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Plank\Mediable\Media as PlunkMediable;
@@ -1597,7 +1598,7 @@ class CustomerController extends Controller
         }
         }
 
-        $emails_array = array_values(array_sort($emails_array, function ($value) {
+        $emails_array = array_values(Arr::sort($emails_array, function ($value) {
         return $value[ 'date' ];
         }));*/
 
@@ -1618,7 +1619,7 @@ class CustomerController extends Controller
             $emails_array[$count + $key]['message'] = $email->message;
             $emails_array[$count + $key]['date'] = $email->created_at;
         }
-        $emails_array = array_values(array_sort($emails_array, function ($value) {
+        $emails_array = array_values(Arr::sort($emails_array, function ($value) {
             return $value['date'];
         }));
         $emails_array = array_reverse($emails_array);

@@ -30,7 +30,7 @@
             <tr >
               <td class="expand-row-msg" data-name="dateTime" data-id="{{$k.$rndNum}}">
                 <?php $dateTime = $record->OnDate.' '.$record->onHour.':00:00'; ?>
-                <span class="show-short-dateTime-{{$k.$rndNum}}">{{ str_limit($dateTime, 10, '..')}}</span>
+                <span class="show-short-dateTime-{{$k.$rndNum}}">{{ Str::limit($dateTime, 10, '..')}}</span>
                 <span style="word-break:break-all;" class="show-full-dateTime-{{$k.$rndNum}} hidden">{{ $dateTime }}</span>
               </td>
               <td>{{ number_format($record->total_tracked / 60,2,".",",") }}</td>
@@ -56,7 +56,7 @@
                    	?>
                       @if($li==0)
                       <a style="color:#333333;" class="{{ empty($time_history) ? 'not_approve' : ''  }} {{ ( !auth()->user()->isAdmin()  && number_format($record->total_tracked / 60,2,'.',',') > $estMin  ) ? 'gone_estimated' : '' }} " data-id="{{$id}}"  href="javascript:;">
-                      <span class="show-short-taskSubject-{{$k.$rndNum}}">{{ str_limit($a->taskSubject, 10, '..')}}</span>
+                      <span class="show-short-taskSubject-{{$k.$rndNum}}">{{ Str::limit($a->taskSubject, 10, '..')}}</span>
                       </a>
                       @endif
                       <span style="word-break:break-all;" class="show-full-taskSubject-{{$k.$rndNum}} hidden">
@@ -87,7 +87,7 @@
 						?>
 						
             @if($li==0)
-            <span class="show-short-taskStatus-{{$k.$rndNum}}">{{ str_limit($a->taskStatus, 5, '..')}}</span>
+            <span class="show-short-taskStatus-{{$k.$rndNum}}">{{ Str::limit($a->taskStatus, 5, '..')}}</span>
             @endif
             <span style="word-break:break-all;" class="show-full-taskStatus-{{$k.$rndNum}} hidden">
               {{$a->taskStatus}}</br>

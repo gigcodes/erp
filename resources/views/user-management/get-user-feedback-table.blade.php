@@ -150,7 +150,7 @@
                                 </div>
                                 <div class="sop-text-{{$cat->id}}" style="float: left;">
                                     <div class="expand-row-msg" data-name="name" data-id="{{$cat->id}}"  style="float: left;">
-                                        <span class="show-short-name-{{$cat->id}}">{{ str_limit($cat->sop, 5, '..')}}</span>
+                                        <span class="show-short-name-{{$cat->id}}">{{ Str::limit($cat->sop, 5, '..')}}</span>
                                         <span style="word-break:break-all;" class="show-full-name-{{$cat->id}} hidden">{{$cat->sop}}</span>
                                     </div> 
                                     <div  style="float: left;">&nbsp;
