@@ -10,6 +10,7 @@ use App\User;
 use Crypt;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class PasswordController extends Controller
 {
@@ -95,7 +96,7 @@ class PasswordController extends Controller
         $data = [];
         foreach ($users as $key) {
             // Generate new password
-            $newPassword = str_random(12);
+            $newPassword = Str::random(12);
 
             $user = Password::findorfail($key);
             $user->password = Crypt::encrypt($newPassword);
@@ -231,7 +232,7 @@ class PasswordController extends Controller
         $data = [];
         foreach ($users as $key) {
             // Generate new password
-            $newPassword = str_random(12);
+            $newPassword = Str::random(12);
 
             // Set hash password
             $hashPassword = Hash::make($newPassword);

@@ -39,8 +39,6 @@ class Brand extends Model
      * @var string
      * @SWG\Property(property="deleted_at",type="datetime")
      */
-    protected $dates = ['deleted_at'];
-
     const BRAND_SEGMENT = [
         'A' => 'A',
         'B' => 'B',

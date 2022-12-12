@@ -2129,12 +2129,12 @@ class HubstaffActivitiesController extends Controller
             // if( $request->status = '2' ){
             $approved_ids = json_decode($hubActivitySummery->approved_ids);
             if ($approved_ids && $pendingArr) {
-                $approvedJson = json_encode(array_values($this->array_except($approved_ids, json_decode($pendingJson))));
+                $approvedJson = json_encode(array_values($this->Arr::except($approved_ids, json_decode($pendingJson))));
             }
             // }else{
             $pending_ids = json_decode($hubActivitySummery->pending_ids);
             if ($pending_ids && $approvedArr) {
-                $pendingJson = json_encode(array_values($this->array_except($pending_ids, json_decode($approvedJson))));
+                $pendingJson = json_encode(array_values($this->Arr::except($pending_ids, json_decode($approvedJson))));
             }
             // }
 

@@ -8,6 +8,7 @@ use App\CustomerBulkMessageDND;
 use App\Helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class BulkCustomerRepliesController extends Controller
 {
@@ -147,7 +148,7 @@ class BulkCustomerRepliesController extends Controller
         $keyword->count = 0;
         $keyword->save();
 
-        return redirect()->back()->with('message', title_case($type).' added successfully!');
+        return redirect()->back()->with('message', Str::title($type).' added successfully!');
     }
 
     public function sendMessagesByKeyword(Request $request)

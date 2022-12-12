@@ -141,8 +141,6 @@ class Task extends Model
 
     const TASK_STATUS_APPROVED = 20;
 
-    protected $dates = ['deleted_at'];
-
     public static function hasremark($id)
     {
         $task = Task::find($id);
