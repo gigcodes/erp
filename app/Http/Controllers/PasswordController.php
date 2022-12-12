@@ -182,6 +182,7 @@ class PasswordController extends Controller
             $data = $request->except('_token');
             $data['password'] = Crypt::encrypt($request->password);
             $password->update($data);
+            $successMessage = 'Passwords Manager updated successfully';
         }
         if (isset($request->send_message) && $request->send_message == 1) {
             $user_id = $request->user_id;
