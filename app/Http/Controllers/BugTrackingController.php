@@ -90,7 +90,6 @@ class BugTrackingController extends Controller
             });
         }
         if ($keyword = request('website')) {
-
             $records = $records->orWhereIn('website', $keyword);
         }
         if ($keyword = request('date')) {
