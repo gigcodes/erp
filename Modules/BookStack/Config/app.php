@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Request;
-
 /**
  * Global app configuration options.
  *
