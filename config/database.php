@@ -68,10 +68,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'strict' => false,
-            'engine' => 'InnoDB',
-            'options' => [
-                \PDO::ATTR_PERSISTENT => true,
-            ],
+            'engine' => 'InnoDB'
         ],
         'brands-labels' => [
             'driver' => 'mysql',
