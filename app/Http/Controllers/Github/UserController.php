@@ -10,7 +10,7 @@ use App\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request as Input;
 use Route;
 
 class UserController extends Controller

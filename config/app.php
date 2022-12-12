@@ -253,7 +253,6 @@ return [
         'Nestable' => Nestable\Facades\NestableService::class,
         'Pusher' => Pusher\Laravel\Facades\Pusher::class,
         'Zipper' => Chumper\Zipper\Zipper::class,
-        'Input' => Illuminate\Support\Facades\Input::class,
         'Image' => Intervention\Image\Facades\Image::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'Twitter' => Thujohn\Twitter\Facades\Twitter::class,
