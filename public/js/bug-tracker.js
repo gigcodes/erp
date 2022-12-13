@@ -239,6 +239,7 @@ var page = {
         $('.module_id').val('')
         $('.remark').val('')
         $('.website').val('')
+		$('.parent_id').val('')				 
 
         $('.id').val(response.data.id)
         //$('.summary').val(response.data.summary)
@@ -257,6 +258,7 @@ var page = {
         $('.module_id').val(response.data.module_id)
         $('.remark').val(response.data.remark)
         $('.website').val(response.data.website)
+		$('.parent_id').val(response.data.parent_id)									  
     },
 
     submitFormSite : function(ele) {

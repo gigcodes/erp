@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\AssetsManager;					  
 use App\BugEnvironment;
 use App\BugSeverity;
 use App\BugStatus;
@@ -442,6 +443,11 @@ class BugTrackingController extends Controller
     {
         $bugTracker = BugTracker::where('id', $request->id)->first();
         $bugTracker->bug_severity_id = $request->severity_id;
+		if($request->status_id == 8) {
+            $created_by = $bugTracker->created_by;
+            $bugTracker->assign_to = $created_by;
+        }
+		
         $bugTracker->save();
         $data = [
             'bug_severity_id' => $bugTracker->bug_severity_id,

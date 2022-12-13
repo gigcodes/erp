@@ -628,7 +628,7 @@ table{border-collapse: collapse;}
 			  // or you can do something to the actual checked checkboxes by working directly with  'this'
 			  // something like $(this).hide() (only something useful, probably) :P
 			})				
-			if(values.length ==0) {
+			if(values.length ==0 && $("input[name='chkBugId[]']").length>0) {
 				toastr["error"]("Please select atleast 1 bugs list ");
 				return;
 			}
@@ -670,6 +670,32 @@ table{border-collapse: collapse;}
 			$('.text-task-development').val(values);
 			$('.text-task-bugids').val(values);
 			
+		});
+		//$(document).on('click', '.btn-add-action', function() {	
+		//  var bugid =  $('input[type="checkbox"]:checked').val();
+		//	if(bugid>0) {
+		//		$('#parent_id_bug').val(bugid);  
+		//	}
+		 
+		//});
+
+		//$(document).on('click', 'input[type="checkbox"]', function() {	
+		//   $('input[type="checkbox"]').not(this).prop("checked", false);
+		//});
+		
+		
+		$(document).on('click', '.btn-add-action', function() {	
+		  var bugid =  $('.chkBugNameCls:checkbox:checked').val();		  
+			if(bugid>0) {
+				var user = $('.chkBugNameCls:checkbox:checked').attr("data-user");				
+				$('#parent_id_bug').val(bugid);  
+				$('#assign_to_bug').val(user);  
+			}
+		 
+		});
+		
+		$(document).on('click', '.chkBugNameCls', function() {	
+		   $('.chkBugNameCls').not(this).prop("checked", false);
 		});
 		
 		 $(document).on("click", ".count-dev-customer-tasks", function() {

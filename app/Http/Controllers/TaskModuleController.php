@@ -47,6 +47,7 @@ use Response;
 use App\SiteDevelopment;
 use App\BugTracker;
 use App\SiteDevelopmentCategory;
+use App\RoleUser;				 
 
 class TaskModuleController extends Controller
 {
@@ -3288,15 +3289,35 @@ class TaskModuleController extends Controller
 						if($task->task_bug_ids!='') {
 							$task_details_info = explode(',',$task->task_bug_ids) ;
 							if(count($task_details_info)>0) {
+
+                                $admin_user_id = 0;
+                                $customer_role_users = RoleUser::where(['role_id' => 1])->with('user')->get()->toArray();
+                                if(count($customer_role_users)>0) {
+                                    for($m=0;$m<count($customer_role_users);$m++) {
+                                        if(isset( $customer_role_users[$m]['user']['id']) && $customer_role_users[$m]['user']['id']>0) {
+                                            $admin_user_id = $customer_role_users[$m]['user']['id'];
+                                            $m = count($customer_role_users);
+                                        }
+                                    }
+                                }
+
 								for($k=0;$k<count($task_details_info);$k++) {
 									$bug_tacker_id = $task_details_info[$k];
 									$bug_tracking = BugTracker::find($bug_tacker_id);
-									if($task->status == 3) {
+									if($task->status == 3) { // In progress
 										$bug_tracking->bug_status_id  = 5;
-									} else if($task->status == 1) {
+									} else if($task->status == 1) { // complete
 										$bug_tracking->bug_status_id  = 6;
+                                        if($admin_user_id>0) {
+                                            $bug_tracking->assign_to = $admin_user_id;
+                                        }
+									}  else if($task->status == 2) { // Discussing
+										$bug_tracking->bug_status_id  = 7;
+                                        if($admin_user_id>0) {
+                                            $bug_tracking->assign_to = $admin_user_id;
+                                        }
 									}
-								   
+                                    
 									$bug_tracking->updated_at = date("Y-m-d H:i:s");
 									$bug_tracking->updated_by = Auth::user()->name;                       
 									$bug_tracking->save();
@@ -3309,17 +3330,42 @@ class TaskModuleController extends Controller
             }
 			
 			
-			if ($task->status == 3) {
+			if ($task->status == 3 || $task->status == 1 || $task->status == 2 || $task->status == 6) {
+							
                 if($task->task_bug_ids!='') {
                     $task_details_info = explode(',',$task->task_bug_ids) ;
                     if(count($task_details_info)>0) {
+                        $admin_user_id = 0;
+                        $customer_role_users = RoleUser::where(['role_id' => 1])->with('user')->get()->toArray();
+                        if(count($customer_role_users)>0) {
+                            for($m=0;$m<count($customer_role_users);$m++) {
+                                if(isset( $customer_role_users[$m]['user']['id']) && $customer_role_users[$m]['user']['id']>0) {
+                                    $admin_user_id = $customer_role_users[$m]['user']['id'];
+                                    $m = count($customer_role_users);
+                                }
+                            }
+                        }
+
                         for($k=0;$k<count($task_details_info);$k++) {
                             $bug_tacker_id = $task_details_info[$k];
                             $bug_tracking = BugTracker::find($bug_tacker_id);
-                            if($task->status == 3) {
+                            if($task->status == 3) { // In progress
                                 $bug_tracking->bug_status_id  = 5;
-                            } else if($task->status == 1) {
+                            } else if($task->status == 1) { // complete
                                 $bug_tracking->bug_status_id  = 6;
+                                if($admin_user_id>0) {
+                                    $bug_tracking->assign_to = $admin_user_id;
+                                }
+                            }  else if($task->status == 2) { // Discussing
+                                $bug_tracking->bug_status_id  = 7;
+                                if($admin_user_id>0) {
+                                    $bug_tracking->assign_to = $admin_user_id;
+                                }
+                            }  else if($task->status == 6) { // Discuss with Lead
+                                $bug_tracking->bug_status_id  = 8;
+                                if($admin_user_id>0) {
+                                    $bug_tracking->assign_to = $admin_user_id;
+                                }
                             }
                            
                             $bug_tracking->updated_at = date("Y-m-d H:i:s");

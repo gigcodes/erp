@@ -28,7 +28,7 @@
 			        <td class='break expand-row-msg' data-name="summary" id="copy" data-id="{{:prop.id}}"><span class="show-short-summary-{{:prop.id}}" onclick="copySumText()">{{:prop.summary_short}}</span>
                         <span class="show-full-summary-{{:prop.id}} hidden" >{{:prop.summary}}</span>
                     </td>
-			        <td class='break'>{{:prop.bug_type_id}}</td>
+			        <td class='break'  data-bug_type="{{:prop.bug_type_id_val}}">{{:prop.bug_type_id}}</td>
 			        <td class='break expand-row-msg' data-name="step_to_reproduce" data-id="{{:prop.id}}"><span class="show-short-Steps to reproduce-{{:prop.id}}">{{:prop.step_to_reproduce_short}}</span>
                         <span class="show-full-step_to_reproduce-{{:prop.id}} hidden" >{{:prop.step_to_reproduce}}</span>
                     </td>
@@ -89,6 +89,7 @@
 			        <td class='break'>{{:prop.website}}</td>
 			        <td>
 			        <div class="d-flex">
+						<input type="checkbox" id="chkBug{{>prop.id}}" data-user="{{>prop.assign_to}}" name="chkBugName" class="chkBugNameCls" style="height: 31px;margin-bottom: 9px;"  value="{{>prop.id}}">					 
 						 <button  title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="{{>prop.id}}"  data-category_title="{{:prop.module_id}}"  data-module_id="{{:prop.module_id}}" data-website_id="{{:prop.website_id_val}}"  data-website="{{:prop.website}}" data-bug_type_id="{{:prop.bug_type_id_val}}" data-title="{{:prop.website}} - {{:prop.module_id}}"><img style="width:12px !important;" src="/images/add.png" /></button>
 						 
 						 <button style="padding-left: 0;padding-right:0px;" type="button" class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="{{:prop.id}}" data-category="297"><i class="fa fa-info-circle"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;
