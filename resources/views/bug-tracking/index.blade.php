@@ -36,7 +36,7 @@ table{border-collapse: collapse;}
 										<?php
 										$bug_type = request('bugtype');
 										?>
-										<select class="form-control selectpicker" name="bug_type[]" multiple id="bug_type">
+										<select class="form-control selectpicker" name="bug_type[]" multiple id="bug_type" title="Select BugType">
 											<option value="">Select BugType</option>
 											<?php
 											foreach ($bugTypes as $bugtype) { ?>
@@ -49,7 +49,7 @@ table{border-collapse: collapse;}
 										<?php
 										$bug_environment = request('bug_enviornment');
 										?>
-										<select class="form-control selectpicker" name="bug_enviornment[]" multiple id="bug_enviornment">
+										<select class="form-control selectpicker" name="bug_enviornment[]" multiple id="bug_enviornment" title="Select BugEnvironment">
 											<option value="">Select BugEnvironment</option>
 											<?php
 											foreach ($bugEnvironments as $bugenvironment) { ?>
@@ -62,7 +62,7 @@ table{border-collapse: collapse;}
 										<?php
 										$bug_severity = request('bug_severity');
 										?>
-										<select class="form-control selectpicker" name="bug_severity[]" multiple id="bug_severity">
+										<select class="form-control selectpicker" name="bug_severity[]" multiple id="bug_severity" title="Select BugSeverity">
 											<option value="">Select BugSeverity</option>
 											<?php
 											foreach ($bugSeveritys as $bugseverity) { ?>
@@ -75,7 +75,7 @@ table{border-collapse: collapse;}
 										<?php
 										$bug_status = request('bugstatus');
 										?>
-										<select class="form-control selectpicker" name="bug_status[]" multiple id="bug_status">
+										<select class="form-control selectpicker" name="bug_status[]" multiple id="bug_status" title="Select BugStatus">
 											<option value="">Select BugStatus</option>
 											<?php
 											foreach ($bugStatuses as $bugstatus) { ?>
@@ -88,7 +88,7 @@ table{border-collapse: collapse;}
 										<?php
 										$module_id = request('module_id');
 										?>
-										<select class="form-control selectpicker" name="module_id[]" multiple id="module_id">
+										<select class="form-control selectpicker" name="module_id[]" multiple id="module_id" title="Select Module">
 											<option value="">Select Module</option>
 											@foreach($filterCategories as  $filterCategory)
 												<option value="{{$filterCategory}}">{{$filterCategory}} </option>
@@ -108,7 +108,7 @@ table{border-collapse: collapse;}
 										<?php
 										$website = request('website');
 										?>
-										<select class="form-control selectpicker" name="website[]" multiple id="website">
+										<select class="form-control selectpicker" name="website[]" multiple id="website" title="Select Website">
 											<option value="">Select Website</option>
 											@foreach($filterWebsites as  $filterWebsite)
 
@@ -120,7 +120,7 @@ table{border-collapse: collapse;}
 										<?php
 										$assign_to_user = request('assign_to_user');
 										?>
-										<select class="form-control selectpicker" name="assign_to_user[]" multiple id="assign_to_user">
+										<select class="form-control selectpicker" name="assign_to_user[]" multiple id="assign_to_user" title="Select Assign to">
 											<option value="">Select Assign to</option>
 											@foreach($users as  $user)
 
@@ -134,7 +134,7 @@ table{border-collapse: collapse;}
 										<?php
 										$created_by = request('created_by');
 										?>
-										<select class="form-control selectpicker" name="created_by[]" multiple id="created_by">
+										<select class="form-control selectpicker" name="created_by[]" multiple id="created_by" title="Select Created by">
 											<option value="">Select Created by</option>
 											@foreach($users as  $user)
 
