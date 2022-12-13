@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Helpers\CompareImagesHelper;
+use Illuminate\Support\Str;
 use Plank\Mediable\Media;
 
 class MediaObserver
@@ -11,7 +12,7 @@ class MediaObserver
     {
         $this->updateBits($media);
 
-        if (($media->aggregate_type == 'image') && str_contains($media->directory, 'product')) {
+        if (($media->aggregate_type == 'image') && Str::contains($media->directory, 'product')) {
             $m_url = $media->getAbsolutePath();
             $file = @file_get_contents($m_url);
 

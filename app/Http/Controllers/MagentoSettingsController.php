@@ -13,6 +13,7 @@ use App\WebsiteStore;
 use App\WebsiteStoreView;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class MagentoSettingsController extends Controller
 {
@@ -86,7 +87,7 @@ class MagentoSettingsController extends Controller
                 $bits = parse_url($websiteUrl);
                 if (isset($bits['host'])) {
                     $web = $bits['host'];
-                    if (! str_contains($websiteUrl, 'www')) {
+                    if (! Str::contains($websiteUrl, 'www')) {
                         $web = 'www.'.$bits['host'];
                     }
                     $websiteUrl = 'https://'.$web;

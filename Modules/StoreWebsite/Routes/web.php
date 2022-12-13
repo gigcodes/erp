@@ -14,6 +14,7 @@
 Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::get('/', 'StoreWebsiteController@index')->name('store-website.index');
     Route::post('generate-reindex', 'StoreWebsiteController@generateReIndexfile');
+    Route::post('generate-api-token', 'StoreWebsiteController@generateApiToken');
 
     Route::get('/magento-user-lising', 'StoreWebsiteController@magentoUserList')->name('store-website.user-list');
 

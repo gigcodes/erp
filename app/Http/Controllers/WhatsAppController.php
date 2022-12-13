@@ -60,6 +60,7 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
 use IlluminUserFeedbackStatuspport\Facades\DB;
@@ -5212,7 +5213,7 @@ class WhatsAppController extends FindByNumberController
             }
         }
         // array_reverse($result);
-        // $result = array_values(array_sort($result, function ($value) {
+        // $result = array_values(Arr::sort($result, function ($value) {
         //              return $value['creation_date'];
         //      }));
         // //

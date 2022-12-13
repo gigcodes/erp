@@ -71,6 +71,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Twilio\Jwt\ClientToken;
@@ -148,7 +149,7 @@ class TwilioController extends FindByNumberController
         if (\Auth::check()) {
             $user = \Auth::user();
             $user_id = $user->id;
-            // $agent = str_replace('-', '_', str_slug($user->name));
+            // $agent = str_replace('-', '_', Str::slug($user->name));
             // $agent = 'yogesh';
 
             $check_is_agent = TwilioAgent::where('user_id', $user_id)->where('status', 1)->first();
@@ -2704,7 +2705,7 @@ class TwilioController extends FindByNumberController
                 $clients[$hod->id]['agent_name'] = $hod->name;
                 $clients[$hod->id]['agent_name_id'] = 'customer_call_agent_'.$hod->id;
             } else {
-                $clients[] = str_replace('-', '_', str_slug($hod->name));
+                $clients[] = str_replace('-', '_', Str::slug($hod->name));
             }
         }
 
@@ -2714,7 +2715,7 @@ class TwilioController extends FindByNumberController
                 $clients[$andy->id]['agent_name'] = $andy->name;
                 $clients[$andy->id]['agent_name_id'] = 'customer_call_agent_'.$andy->id;
             } else {
-                $clients[] = str_replace('-', '_', str_slug($andy->name));
+                $clients[] = str_replace('-', '_', Str::slug($andy->name));
             }
         }
 
@@ -2725,7 +2726,7 @@ class TwilioController extends FindByNumberController
                 $clients[$yogesh->id]['agent_name_id'] = 'customer_call_agent_'.$yogesh->id;
             // $clients[$yogesh->id]['agent_name_id'] = 'customer_call_agent_383';
             } else {
-                $clients[] = str_replace('-', '_', str_slug($yogesh->name));
+                $clients[] = str_replace('-', '_', Str::slug($yogesh->name));
             }
         }
 

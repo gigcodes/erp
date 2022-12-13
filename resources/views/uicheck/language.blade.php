@@ -186,15 +186,15 @@
 							{{-- <td>{{$uiLanguage->id}}</td> --}}
 							<td>{{$uiLanguage->uicheck_id}}</td>
 							<td class="expand-row-msg" data-name="title" data-id="{{$uiLanguage->id}}">
-								<span class="show-short-title-{{$uiLanguage->id}}">@if($uiLanguage->title != '') {{ str_limit($uiLanguage->title, 5, '..')}} @else   @endif</span>
+								<span class="show-short-title-{{$uiLanguage->id}}">@if($uiLanguage->title != '') {{ Str::limit($uiLanguage->title, 5, '..')}} @else   @endif</span>
 								<span style="word-break:break-all;" class="show-full-title-{{$uiLanguage->id}} hidden">@if($uiLanguage->title != '') {{$uiLanguage->title}} @else   @endif</span>
 							</td>
 							<td class="expand-row-msg" data-name="username" data-id="{{$uiLanguage->id}}">
-								<span class="show-short-username-{{$uiLanguage->id}}">@if($uiLanguage->username != '') {{ str_limit($uiLanguage->username, 5, '..')}} @else   @endif</span>
+								<span class="show-short-username-{{$uiLanguage->id}}">@if($uiLanguage->username != '') {{ Str::limit($uiLanguage->username, 5, '..')}} @else   @endif</span>
 								<span style="word-break:break-all;" class="show-full-username-{{$uiLanguage->id}} hidden">@if($uiLanguage->username != '') {{$uiLanguage->username}} @else   @endif</span>
 							</td>
 							<td class="expand-row-msg" data-name="website" data-id="{{$uiLanguage->id}}">
-								<span class="show-short-website-{{$uiLanguage->id}}">@if($uiLanguage->website != '') {{ str_limit($uiLanguage->website, 5, '..')}} @else   @endif</span>
+								<span class="show-short-website-{{$uiLanguage->id}}">@if($uiLanguage->website != '') {{ Str::limit($uiLanguage->website, 5, '..')}} @else   @endif</span>
 								<span style="word-break:break-all;" class="show-full-website-{{$uiLanguage->id}} hidden">@if($uiLanguage->website != '') {{$uiLanguage->website}} @else   @endif</span>
 							</td>
 							

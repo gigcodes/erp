@@ -36,6 +36,7 @@ use DB;
 use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
 use PragmaRX\Tracker\Vendor\Laravel\Models\Session;
 
 class UserManagementController extends Controller
@@ -559,7 +560,7 @@ class UserManagementController extends Controller
         if (! empty($input['password'])) {
             $input['password'] = Hash::make($input['password']);
         } else {
-            $input = array_except($input, ['password']);
+            $input = Arr::except($input, ['password']);
         }
         //return $input;
         $user = User::find($id);

@@ -151,7 +151,7 @@ table tr td {
                             <tr class="{{$task->is_active ? '' : 'red' }}">
                                 <td>{{$task->id}}</td>
                                 <td>
-                                        {{str_limit($task->description, 30)}}
+                                        {{Str::limit($task->description, 30)}}
                                 </td>
                                 <td>
                                     {{ number_format(  $task->averageRuntime / 1000 , 2 ) }} seconds

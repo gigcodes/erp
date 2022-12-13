@@ -46,7 +46,7 @@
 					<tr>
 					<th scope="row">{{$incoming->serial_no}}</th>
 					<td><a href="{{route('editOldIncomings', ['serial_no' => $incoming->serial_no])}}">{{$incoming->name}}</a></td>
-                    <td>@php echo htmlspecialchars_decode(stripslashes(str_limit($incoming->description, 50, '<a href="javascript:void(0)">...</a>'))); @endphp
+                    <td>@php echo htmlspecialchars_decode(stripslashes(Str::limit($incoming->description, 50, '<a href="javascript:void(0)">...</a>'))); @endphp
                         @if (strlen(strip_tags($incoming->description)) > 50)
                          <div>
                             <div class="panel-group">
@@ -69,7 +69,7 @@
                         @endif
                     </td>
 					<td>{{$incoming->amount}}</td>
-					<td>@php echo htmlspecialchars_decode(stripslashes(str_limit($incoming->commitment, 50, '<a href="javascript:void(0)">...</a>'))); @endphp
+					<td>@php echo htmlspecialchars_decode(stripslashes(Str::limit($incoming->commitment, 50, '<a href="javascript:void(0)">...</a>'))); @endphp
                         @if (strlen(strip_tags($incoming->commitment)) > 50)
                          <div>
                             <div class="panel-group">
