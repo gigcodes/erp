@@ -2484,3 +2484,13 @@ table {
   background-color: #28a745 !important;
   color: #ffffff !important;
 }
+
+.quick-description {
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 100%;
+  max-width: 140px;
+  height: 1.2em;
+  white-space: nowrap;
+}
