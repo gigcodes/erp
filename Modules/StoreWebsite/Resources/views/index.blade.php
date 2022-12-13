@@ -28,6 +28,9 @@
 					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-generate-pem-file"> Store Generate Reindex</button>
 					&nbsp;
 					<button class="btn btn-secondary magento-setting-update"> Magento Setting Update</button>
+					&nbsp;
+					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-api-token"> Api Token Update</button>
+
 
 				</div>
 			</div>
@@ -218,6 +221,66 @@
 								<div class="col-md-12">
 									<div class="form-group">
 										<button type="submit" class="btn btn-secondary submit-generete-file-btn">Generate</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="store-api-token" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><b>Store Api Token</b></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-lg-12">
+						<form action="/store-website/generate-api-token" method="post">
+							<?php echo csrf_field(); ?>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="table-responsive mt-3">
+										<table class="table table-bordered overlay"  >
+											<thead>
+											<tr>
+												<th>Id</th>
+												<th width="20%">Title</th>
+												<th width="70%">Api Token</th>
+											</tr>
+											</thead>
+											<tbody>
+											@foreach($storeWebsites as $storeWebsite)
+											<tr>
+												<td >
+													{{$storeWebsite->id}}
+												</td>
+												<td width="20%">{{$storeWebsite->title}}</td>
+												<td width="70%">
+													<div style="display: flex">
+													<input type="text" class="form-control" name="api_token[{{$storeWebsite->id}}]" value="{{$storeWebsite->api_token}}">
+													<button type="button" data-id="" class="btn btn-copy-api-token btn-sm" data-value="{{$storeWebsite->api_token}}">
+														<i class="fa fa-clone" aria-hidden="true"></i>
+													</button>
+													</div>
+												</td>
+											</tr>
+												@endforeach
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="submit" class="btn btn-secondary submit float-right float-lg-right">Update Api Token</button>
 									</div>
 								</div>
 							</div>
@@ -421,7 +484,15 @@
 		else
 			$(cls).css('height', '44px');
 	});
-
+	$(document).on("click",".btn-copy-api-token",function() {
+		var apiToken = $(this).data('value');
+		var $temp = $("<input>");
+		$("body").append($temp);
+		$temp.val(apiToken).select();
+		document.execCommand("copy");
+		$temp.remove();
+		alert("Copied!");
+	});
 </script>
 
 @endsection
