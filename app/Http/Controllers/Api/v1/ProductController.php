@@ -75,7 +75,7 @@ class ProductController extends Controller
                     //check order status
                     $getOrder = Order::with('order_product')->where('id', $getStoreWebsiteOrder->order_id)->first();
                     if ($cancellationType == 'order') {
-                        $orderProducts[] = $getOrder->order_product[0];
+                        $orderProducts = $getOrder->order_product;
                     } elseif ($cancellationType == 'products') {
                         $skus = explode(",", rtrim($request->product_sku, ','));
                         $orderProducts = OrderProduct::where('order_id', '=', $request->order_id)->whereIn('sku', $skus)->get();
@@ -91,9 +91,7 @@ class ProductController extends Controller
                             if ($ProductCancellationPolicie) {
                                 $created = new Carbon($orderProduct->created_at);
                                 $now = Carbon::now();
-                                $difference = ($created->diff($now)->days < 1)
-                                    ? 0
-                                    : $created->diffInDays($now);
+                                $difference = ($created->diff($now)->days < 1) ? 0 : $created->diffInDays($now);
                                 if ($difference >= $ProductCancellationPolicie->days_cancelation) {
                                     $result_input['iscanceled'] = false;
                                     $result_input['isreturn'] = false;
@@ -101,9 +99,7 @@ class ProductController extends Controller
 
                                 $created = new Carbon($orderProduct->shipment_date);
                                 $now = Carbon::now();
-                                $difference = ($created->diff($now)->days < 1)
-                                    ? 0
-                                    : $created->diffInDays($now);
+                                $difference = ($created->diff($now)->days < 1) ? 0 : $created->diffInDays($now);
                                 if ($difference >= $ProductCancellationPolicie->days_refund) {
                                     $result_input['isrefund'] = false;
                                     $result_input['isreturn'] = false;
