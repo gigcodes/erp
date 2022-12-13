@@ -1074,6 +1074,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/get/websitelist', 'TaskModuleController@getWebsiteList')->name('get.task.websitelist');
     Route::get('task/user/history', 'TaskModuleController@getUserHistory')->name('task/user/history');
     Route::post('task/recurring-history', 'TaskModuleController@recurringHistory')->name('task.recurringHistory');
+	Route::post('task/create-multiple-task-from-shortcut-bugtrack', 'TaskModuleController@createMultipleTaskFromSortcutBugtrack')->name('task.create.multiple.task.shortcut.bugtrack');
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
