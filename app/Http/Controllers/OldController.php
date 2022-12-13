@@ -16,6 +16,7 @@ use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Mail;
 use Response;
@@ -194,7 +195,7 @@ class OldController extends Controller
      */
     public function create()
     {
-       //
+        //
     }
 
     /**
@@ -384,14 +385,14 @@ class OldController extends Controller
     }
 
     //Get Remark
-     public function getTaskRemark(Request $request)
-     {
-         $id = $request->input('id');
+    public function getTaskRemark(Request $request)
+    {
+        $id = $request->input('id');
 
-         $remark = OldRemark::where('old_id', $id)->get();
+        $remark = OldRemark::where('old_id', $id)->get();
 
-         return response()->json($remark, 200);
-     }
+        return response()->json($remark, 200);
+    }
 
     // Add Remark
     public function addRemark(Request $request)
@@ -592,7 +593,7 @@ class OldController extends Controller
 
         $inbox = $imap->getFolder($inbox_name);
 
-        $latest_email = Email::where('type', $type)->where('model_id', $old->serial_no)->where('model_type', 'App\Old')->latest()->first();
+        $latest_email = Email::where('type', $type)->where('model_id', $old->serial_no)->where('model_type', \App\Old::class)->latest()->first();
 
         $latest_email_date = $latest_email
             ? Carbon::parse($latest_email->created_at)
@@ -654,7 +655,7 @@ class OldController extends Controller
             $emails_array[$count + $key2]['timeCreated'] = $timeCreated;
         }
 
-        $emails_array = array_values(array_sort($emails_array, function ($value) {
+        $emails_array = array_values(Arr::sort($emails_array, function ($value) {
             return $value['date'];
         }));
 
@@ -671,52 +672,52 @@ class OldController extends Controller
     }
 
     //Save Recieved Email
-     private function createEmailsForEmailInbox($old, $type, $latest_email_date, $emails)
-     {
-         foreach ($emails as $email) {
-             $content = $email->hasHTMLBody() ? $email->getHTMLBody() : $email->getTextBody();
+    private function createEmailsForEmailInbox($old, $type, $latest_email_date, $emails)
+    {
+        foreach ($emails as $email) {
+            $content = $email->hasHTMLBody() ? $email->getHTMLBody() : $email->getTextBody();
 
-             if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
-                 $attachments_array = [];
-                 $attachments = $email->getAttachments();
+            if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+                $attachments_array = [];
+                $attachments = $email->getAttachments();
 
-                 $attachments->each(function ($attachment) use (&$attachments_array) {
-                     file_put_contents(storage_path('app/files/email-attachments/'.$attachment->name), $attachment->content);
-                     $path = 'email-attachments/'.$attachment->name;
-                     $attachments_array[] = $path;
-                 });
+                $attachments->each(function ($attachment) use (&$attachments_array) {
+                    file_put_contents(storage_path('app/files/email-attachments/'.$attachment->name), $attachment->content);
+                    $path = 'email-attachments/'.$attachment->name;
+                    $attachments_array[] = $path;
+                });
 
-                 $params = [
-                     'model_id' => $old->serial_no,
-                     'model_type' => Old::class,
-                     'type' => $type,
-                     'seen' => $email->getFlags()['seen'],
-                     'from' => $email->getFrom()[0]->mail,
-                     'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                     'subject' => $email->getSubject(),
-                     'message' => $content,
-                     'template' => 'customer-simple',
-                     'additional_data' => json_encode(['attachment' => $attachments_array]),
-                     'created_at' => $email->getDate(),
-                 ];
+                $params = [
+                    'model_id' => $old->serial_no,
+                    'model_type' => Old::class,
+                    'type' => $type,
+                    'seen' => $email->getFlags()['seen'],
+                    'from' => $email->getFrom()[0]->mail,
+                    'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                    'subject' => $email->getSubject(),
+                    'message' => $content,
+                    'template' => 'customer-simple',
+                    'additional_data' => json_encode(['attachment' => $attachments_array]),
+                    'created_at' => $email->getDate(),
+                ];
 
-                 Email::create($params);
-             }
-         }
-     }
+                Email::create($params);
+            }
+        }
+    }
 
     // Payment Index
-     public function paymentindex($id)
-     {
-         $old = Old::findorfail($id);
-         $payments = $old->payments()->orderBy('payment_date')->paginate(50);
+    public function paymentindex($id)
+    {
+        $old = Old::findorfail($id);
+        $payments = $old->payments()->orderBy('payment_date')->paginate(50);
 
-         return view('old.payments', [
-             'payments' => $payments,
-             'old' => $old,
-             'currencies' => Helpers::currencies(),
-         ]);
-     }
+        return view('old.payments', [
+            'payments' => $payments,
+            'old' => $old,
+            'currencies' => Helpers::currencies(),
+        ]);
+    }
 
     // Payment Store
     public function paymentStore(Old $old, Request $request)

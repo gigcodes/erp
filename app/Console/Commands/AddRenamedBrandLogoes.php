@@ -61,7 +61,7 @@ class AddRenamedBrandLogoes extends Command
                     $log = BrandLogo::create($params);
                 }
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
         }
     }
 }

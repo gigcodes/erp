@@ -29,6 +29,7 @@ use App\User;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
@@ -140,13 +141,13 @@ class LeadsController extends Controller
         $leads_array = $leads->whereNull('deleted_at')->get()->toArray();
         if ($sortby == 'communication') {
             if ($orderby == 'asc') {
-                $leads_array = array_values(array_sort($leads_array, function ($value) {
+                $leads_array = array_values(Arr::sort($leads_array, function ($value) {
                     return $value['communication']['created_at'];
                 }));
 
                 $leads_array = array_reverse($leads_array);
             } else {
-                $leads_array = array_values(array_sort($leads_array, function ($value) {
+                $leads_array = array_values(Arr::sort($leads_array, function ($value) {
                     return $value['communication']['created_at'];
                 }));
             }
@@ -299,7 +300,7 @@ class LeadsController extends Controller
                 }
             }
 
-        //$data[ 'multi_brand' ] = $brand_array ? json_encode($brand_array) : null;
+            //$data[ 'multi_brand' ] = $brand_array ? json_encode($brand_array) : null;
         //$data[ 'multi_category' ] = $category_array ? json_encode($category_array) : null;
         } else {
             $data['client_name'] = $customer->name;

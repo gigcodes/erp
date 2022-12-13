@@ -1195,7 +1195,7 @@ class LogListMagentoController extends Controller
             foreach ($logListMagentos as $log) {
                 //if(isset($response[$log["created_at"]])){
                 $response[$log['dateonly']][$log['store_website_id']] = $log['count'];
-            //    }
+                //    }
             }
         }
 

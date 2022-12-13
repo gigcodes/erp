@@ -41,14 +41,14 @@ class DailyCashFlowController extends Controller
 
         // $sold_price = 0;
         // $actual_price = 0;
-      //
+        //
         // foreach ($purchases as $purchase) {
         //   foreach ($purchase->products as $product) {
-      //     $actual_price += $product->price;
-      //
-      //     foreach ($product->orderproducts as $order_product) {
-      //       $sold_price += $order_product->product_price;
-      //     }
+        //     $actual_price += $product->price;
+        //
+        //     foreach ($product->orderproducts as $order_product) {
+        //       $sold_price += $order_product->product_price;
+        //     }
         //   }
         // }
 

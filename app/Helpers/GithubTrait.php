@@ -7,7 +7,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 
-trait githubTrait
+trait GithubTrait
 {
     private function getGithubClient()
     {

@@ -33,6 +33,6 @@ class SocialPost extends Model
 
     public function account()
     {
-        return $this->belongsTo('App\Social\SocialConfig');
+        return $this->belongsTo(\App\Social\SocialConfig::class);
     }
 }

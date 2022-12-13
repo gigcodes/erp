@@ -317,7 +317,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
 //        $this->updateProductOnServer($image);
 
-        app('App\Services\Products\GnbProductsCreator')->createGnbProducts($image);
+        app(\App\Services\Products\GnbProductsCreator::class)->createGnbProducts($image);
     }
 
     private function getTitle(HtmlPageCrawler $c)

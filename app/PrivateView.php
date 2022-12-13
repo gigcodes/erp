@@ -14,26 +14,26 @@ class PrivateView extends Model
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer');
+        return $this->belongsTo(\App\Customer::class);
     }
 
     public function delivery_approval()
     {
-        return $this->hasOne('App\DeliveryApproval');
+        return $this->hasOne(\App\DeliveryApproval::class);
     }
 
     public function order_product()
     {
-        return $this->belongsTo('App\OrderProduct');
+        return $this->belongsTo(\App\OrderProduct::class);
     }
 
     public function products()
     {
-        return $this->belongsToMany('App\Product', 'private_view_products', 'private_view_id', 'product_id');
+        return $this->belongsToMany(\App\Product::class, 'private_view_products', 'private_view_id', 'product_id');
     }
 
     public function status_changes()
     {
-        return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\PrivateView')->latest();
+        return $this->hasMany(\App\StatusChange::class, 'model_id')->where('model_type', \App\PrivateView::class)->latest();
     }
 }

@@ -53,7 +53,7 @@ class OverDueTasks extends Command
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['user_id' => $user->id, 'message' => $message, 'status' => 1]);
-                    app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'overdue');
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'overdue');
                 }
             }
         }

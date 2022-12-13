@@ -335,7 +335,7 @@ class SiteDevelopmentController extends Controller
             }
 
             if ($params) {
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
 
                 return response()->json([
                     'message' => 'Successfully Send File',

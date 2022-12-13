@@ -12,18 +12,18 @@
     <td>{{ substr($ticket->ticket_id, -5) }}</td>
     <td>
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->source_of_ticket }}">
-            {{ str_limit($ticket->source_of_ticket,4,'..')}}
+            {{ Str::limit($ticket->source_of_ticket,4,'..')}}
         </a>
     </td>
-    <td>{{ str_limit($ticket->name,6,'..')}}</td>
+    <td>{{ Str::limit($ticket->name,6,'..')}}</td>
     <td>
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->email }}">
-            {{ str_limit($ticket->email,6,'..')}}
+            {{ Str::limit($ticket->email,6,'..')}}
         </a>
     </td>
     <td class="pr-1">
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->subject }}">
-            {{ str_limit($ticket->subject,6,'..')}}
+            {{ Str::limit($ticket->subject,6,'..')}}
         </a>
     </td>
     <td class="chat-msg">
@@ -43,12 +43,12 @@
     <td>{{ $ticket->country }}</td>
     <td>
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->order_no}}">
-            {{ str_limit($ticket->order_no,4)}}
+            {{ Str::limit($ticket->order_no,4)}}
         </a>
     </td>
     <td class="pl-2">
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->phone_no }}">
-         {{ str_limit($ticket->phone_no,7,'..')}}
+         {{ Str::limit($ticket->phone_no,7,'..')}}
         </a>
     </td>
 
@@ -96,7 +96,7 @@ $table .= "</tbody></table>";
     </td>
     <td>
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->created_at}}">
-            {{ str_limit(date('d-m-y', strtotime($ticket->created_at)),5,'..')}}
+            {{ Str::limit(date('d-m-y', strtotime($ticket->created_at)),5,'..')}}
 
         </a>
         </td>
@@ -141,7 +141,7 @@ $table .= "</tbody></table>";
             </button>
 
             <?php
-$messages = \App\Email::where('model_type', 'App\Tickets')->where('model_id', $ticket->id)->orderBy('created_at', 'desc')->get();
+$messages = \App\Email::where('model_type', \App\Tickets::class)->where('model_id', $ticket->id)->orderBy('created_at', 'desc')->get();
 $table = " <table class='table table-bordered' ><thead><tr><td>Date</td><td>Original</td><td>Message</td></tr></thead><tbody>";
 $tableemail = " <table style='width:1000px' class='table table-bordered' ><thead><tr><td>Date</td><td>Sender</td><td>Receiver</td><td>Mail <br> Type</td><td>Subject</td><td>Message</td><td>Action</td></tr></thead><tbody>";
 

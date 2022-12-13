@@ -26,26 +26,26 @@ class Instruction extends Model
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer');
+        return $this->belongsTo(\App\Customer::class);
     }
 
     public function category()
     {
-        return $this->belongsTo('App\InstructionCategory');
+        return $this->belongsTo(\App\InstructionCategory::class);
     }
 
     public function remarks()
     {
-        return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'instruction')->latest();
+        return $this->hasMany(\App\Remark::class, 'taskid')->where('module_type', 'instruction')->latest();
     }
 
     public function assingTo()
     {
-        return $this->hasOne("\App\User", 'id', 'assigned_to');
+        return $this->hasOne(\App\User::class, 'id', 'assigned_to');
     }
 
     public function assignFrom()
     {
-        return $this->hasOne("\App\User", 'id', 'assigned_from');
+        return $this->hasOne(\App\User::class, 'id', 'assigned_from');
     }
 }

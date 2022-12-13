@@ -39,14 +39,14 @@ class ToryProductsCreator
 
         // if (array_key_exists('Details', $properties_array)) {
         //   if (strpos($properties_array['Details'], 'Made in') !== false) {
-       //     $product->made_in = str_replace('\n', '', substr($properties_array['Details'], strpos($properties_array['Details'], 'Made in') + 8));
-       //
-       //     $product->composition = str_replace('\n', ' ', substr($properties_array['Details'], 0, strpos($properties_array['Details'], 'Made in')));
+        //     $product->made_in = str_replace('\n', '', substr($properties_array['Details'], strpos($properties_array['Details'], 'Made in') + 8));
+        //
+        //     $product->composition = str_replace('\n', ' ', substr($properties_array['Details'], 0, strpos($properties_array['Details'], 'Made in')));
         //   } else {
-       //     $product->composition = (string) $properties_array['Details'];
+        //     $product->composition = (string) $properties_array['Details'];
         //   }
         // }
-       //
+        //
         // if (array_key_exists('Color Code', $properties_array)) {
         //   $product->color = $properties_array['Color Code'];
         // }

@@ -30,6 +30,6 @@ class Stock extends Model
 
     public function products()
     {
-        return $this->belongsToMany('App\Product', 'stock_products', 'stock_id', 'product_id');
+        return $this->belongsToMany(\App\Product::class, 'stock_products', 'stock_id', 'product_id');
     }
 }

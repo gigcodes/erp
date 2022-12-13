@@ -138,7 +138,7 @@ class ProjectFileManagerController extends Controller
                             $requestData = new Request();
                             $requestData->setMethod('POST');
                             $requestData->request->add(['priority' => 1, 'issue' => "Error With folder size {$fileInfo->getFilename()} which is more then {$sizeInMB} and expected size is {$data->notification_at}", 'status' => 'Planned', 'module' => "{$sizeInMB}", 'subject' => "Error With folder size {$fileInfo->getFilename()}", 'assigned_to' => 6]);
-                            app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+                            app(\App\Http\Controllers\DevelopmentController::class)->issueStore($requestData, 'issue');
                         }
                     }
                     $this->count++;
@@ -216,7 +216,7 @@ class ProjectFileManagerController extends Controller
                 $users = User::get();
                 foreach ($users as $user) {
                     if ($user->isAdmin()) {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number, $message);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($user->phone, $user->whatsapp_number, $message);
                     }
                 }
                 $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['display_dev_master' => 1]);

@@ -48,7 +48,7 @@ class DiscountSalePriceController extends Controller
         $select = "<select class='form-control' name='type_id' required id='type_id'>";
 
         if ($type == 'brand') {
-            $model_type = "\App\Brand";
+            $model_type = \App\Brand::class;
             $rs = $model_type::get();
             $data = '';
             foreach ($rs as $r) {
@@ -56,7 +56,7 @@ class DiscountSalePriceController extends Controller
             }
         }
         if ($type == 'category') {
-            $model_type = "\App\Category";
+            $model_type = \App\Category::class;
             $rs = $model_type::all();
             $data = '';
             foreach ($rs as $r) {
@@ -65,7 +65,7 @@ class DiscountSalePriceController extends Controller
         }
 
         if ($type == 'product') {
-            $model_type = "\App\Product";
+            $model_type = \App\Product::class;
             $rs = $model_type::get();
             $data = '';
             foreach ($rs as $r) {
@@ -74,7 +74,7 @@ class DiscountSalePriceController extends Controller
         }
 
         if ($type == 'store_website') {
-            $model_type = "\App\StoreWebsite";
+            $model_type = \App\StoreWebsite::class;
             $rs = $model_type::get();
             $data = '';
             foreach ($rs as $r) {

@@ -506,8 +506,20 @@
    
     $(document).on("click",".btn-copy-password",function() {
              
-             var password = $(".user-password").text();
+             var password = $(this).data('value');
              
+              var $temp = $("<input>");
+              $("body").append($temp);
+              $temp.val(password).select();
+              document.execCommand("copy");
+              $temp.remove();
+
+              alert("Copied!");
+        });
+    $(document).on("click",".btn-copy-username",function() {
+
+             var password = $(this).data('value');
+
               var $temp = $("<input>");
               $("body").append($temp);
               $temp.val(password).select();

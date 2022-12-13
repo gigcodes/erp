@@ -51,6 +51,7 @@ use Dompdf\Dompdf;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Plank\Mediable\Media as PlunkMediable;
@@ -1597,7 +1598,7 @@ class CustomerController extends Controller
         }
         }
 
-        $emails_array = array_values(array_sort($emails_array, function ($value) {
+        $emails_array = array_values(Arr::sort($emails_array, function ($value) {
         return $value[ 'date' ];
         }));*/
 
@@ -1618,7 +1619,7 @@ class CustomerController extends Controller
             $emails_array[$count + $key]['message'] = $email->message;
             $emails_array[$count + $key]['date'] = $email->created_at;
         }
-        $emails_array = array_values(array_sort($emails_array, function ($value) {
+        $emails_array = array_values(Arr::sort($emails_array, function ($value) {
             return $value['date'];
         }));
         $emails_array = array_reverse($emails_array);
@@ -1914,7 +1915,7 @@ class CustomerController extends Controller
         $requestData->setMethod('POST');
         $requestData->request->add(['customer_id' => $customer->id, 'message' => $message]);
 
-        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+        app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
 
         CommunicationHistory::create([
             'model_id' => $customer->id,
@@ -1982,7 +1983,7 @@ class CustomerController extends Controller
                 $products = $products->join('product_suppliers as ps', 'ps.sku', 'products.sku');
                 $products = $products->whereIn('ps.supplier_id', $request->supplier);
                 $products = $products->groupBy('products.id');
-                /*$products = $products->whereHas('suppliers', function ($query) use ($request) {
+            /*$products = $products->whereHas('suppliers', function ($query) use ($request) {
             return $query->where(function ($q) use ($request) {
             foreach ($request->supplier as $supplier) {
             $q->orWhere('suppliers.id', $supplier);
@@ -2482,7 +2483,7 @@ class CustomerController extends Controller
                     $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $product_ids]);
                 }
 
-                $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
+                $res = app(\App\Http\Controllers\LeadsController::class)->sendPrices($requestData, new GuzzleClient);
 
                 //$message->sent = 1;
                 //$message->save();
@@ -2539,7 +2540,7 @@ class CustomerController extends Controller
                         // update into whatsapp history table
                         $wHistory = new \App\HistoryWhatsappNumber;
                         $wHistory->date_time = date('Y-m-d H:i:s');
-                        $wHistory->object = "App\Customer";
+                        $wHistory->object = \App\Customer::class;
                         $wHistory->object_id = $customerId;
                         $wHistory->old_number = $oldNumber;
                         $wHistory->new_number = $whatsappNo;
@@ -2580,7 +2581,7 @@ class CustomerController extends Controller
             $params['message'] = $messageData;
             $params['status'] = 2;
 
-            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $messageData);
+            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $messageData);
 
             $chat_message = \App\ChatMessage::create($params);
         }

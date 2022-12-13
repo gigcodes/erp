@@ -66,7 +66,7 @@ class ProductHelper extends Model
     public static function getSkuWithoutColor($sku)
     {
         // Replace all colors from SKU
-        if (class_exists('\App\Colors')) {
+        if (class_exists(\App\Colors::class)) {
             // Get all colors
             $colors = new \App\Colors;
             $colors = $colors->all();

@@ -27,6 +27,6 @@ class DigitalMarketingSolution extends Model
 
     public function attributes()
     {
-        return $this->hasMany("App\DigitalMarketingSolutionAttribute", 'digital_marketing_solution_id', 'id');
+        return $this->hasMany(\App\DigitalMarketingSolutionAttribute::class, 'digital_marketing_solution_id', 'id');
     }
 }

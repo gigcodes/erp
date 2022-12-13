@@ -434,7 +434,7 @@ class PurchaseProductController extends Controller
 
             $number = ($supplier->phone ? $supplier->phone : '971569119192');
 
-            $send_whatsapp = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($number, $supplier->whatsapp_number, $message);
+            $send_whatsapp = app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($number, $supplier->whatsapp_number, $message);
 
             //START - purpose : Add in ChatMessage -DEVTASK-4236
             $message_chat = ' Inquiry WhatsApp Message : '.$message;
@@ -514,7 +514,7 @@ class PurchaseProductController extends Controller
 
             $number = ($supplier->phone ? $supplier->phone : '971569119192');
 
-            $send_whatsapp = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($number, $supplier->whatsapp_number, $message);
+            $send_whatsapp = app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($number, $supplier->whatsapp_number, $message);
 
             //START - purpose : Add in ChatMessage -DEVTASK-4236
             $message_chat = ' Order WhatsApp Message : '.$message;
@@ -739,7 +739,7 @@ class PurchaseProductController extends Controller
                 $input['amount_eur'] = \App\Currency::convert($payment_amount, 'EUR', 'INR');
                 $input['type'] = 'pending';
                 $input['cash_flow_able_id'] = $purchase_pro_id;
-                $input['cash_flow_able_type'] = 'App\PurchaseProductOrder';
+                $input['cash_flow_able_type'] = \App\PurchaseProductOrder::class;
                 $input['order_status'] = 'pending';
                 $input['currency'] = $payment_currency;
 
@@ -1181,7 +1181,7 @@ class PurchaseProductController extends Controller
 
                 $number = ($supplier->phone ? $supplier->phone : '971569119192');
 
-                $send_whatsapp = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($number, $supplier->whatsapp_number, $message);
+                $send_whatsapp = app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($number, $supplier->whatsapp_number, $message);
             }
 
             $message_chat = ' Order WhatsApp Message : '.$message_chat_data;

@@ -117,103 +117,103 @@ class MessageController extends Controller
         }
 
         // if( $data['status'] == '1' ) {
-            //
+        //
         //   NotificationQueueController::createNewNotification( [
-                //     'message'    => 'New : ' . $data['body'],
-                //     'timestamps' => [ '+0 minutes'],
-                //     'model_type' => $data['moduletype'],
-                //     'model_id'   => $data['moduleid'],
-            //     'message_id' => $message->id,
-                //     'user_id'    => \Auth::id(),
-                //     'sent_to'    => '',
-                //     'role'       => 'Admin',
+        //     'message'    => 'New : ' . $data['body'],
+        //     'timestamps' => [ '+0 minutes'],
+        //     'model_type' => $data['moduletype'],
+        //     'model_id'   => $data['moduleid'],
+        //     'message_id' => $message->id,
+        //     'user_id'    => \Auth::id(),
+        //     'sent_to'    => '',
+        //     'role'       => 'Admin',
         //   ] );
-            //
+        //
         //   NotificationQueueController::createNewNotification( [
-                //     'message'    => 'Reminder : ' . $data['body'],
-            //     // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-                //     'timestamps' => [ '+0 minutes'],
-            //     // 'reminder'   => 1,
-            //     'message_id' => $message->id,
-                //     'model_type' => $data['moduletype'],
-                //     'model_id'   => $data['moduleid'],
-                //     'user_id'    => \Auth::id(),
-                //     'sent_to'    => '',
-                //     'role'       => 'Admin',
+        //     'message'    => 'Reminder : ' . $data['body'],
+        //     // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+        //     'timestamps' => [ '+0 minutes'],
+        //     // 'reminder'   => 1,
+        //     'message_id' => $message->id,
+        //     'model_type' => $data['moduletype'],
+        //     'model_id'   => $data['moduleid'],
+        //     'user_id'    => \Auth::id(),
+        //     'sent_to'    => '',
+        //     'role'       => 'Admin',
         //   ] );
-            //
+        //
         // }
         // else if($data['status'] == '0'){
-            //
+        //
         //   NotificationQueueController::createNewNotification( [
-                //     'message'    => "Reply : " . $data['body'],
-                //     'timestamps' => [ '+0 minutes' ],
-                //     'model_type' => $data['moduletype'],
-            //     'message_id' => $message->id,
-                //     'model_id'   => $data['moduleid'],
-                //     'user_id'    => \Auth::id(),
-                //     'sent_to'    => $data['assigned_user'],
-            //     'role'       => ''
+        //     'message'    => "Reply : " . $data['body'],
+        //     'timestamps' => [ '+0 minutes' ],
+        //     'model_type' => $data['moduletype'],
+        //     'message_id' => $message->id,
+        //     'model_id'   => $data['moduleid'],
+        //     'user_id'    => \Auth::id(),
+        //     'sent_to'    => $data['assigned_user'],
+        //     'role'       => ''
         //   ] );
-            //
+        //
         //   NotificationQueueController::createNewNotification( [
-                //     'message'    => "Reply : " . $data['body'],
-                //     'timestamps' => [ '+0 minutes' ],
-                //     'model_type' => $data['moduletype'],
-                //     'model_id'   => $data['moduleid'],
-            //     'message_id' => $message->id,
-                //     'user_id'    => \Auth::id(),
-                //     'sent_to'    => '',
-                //     'role'       => 'Admin',
+        //     'message'    => "Reply : " . $data['body'],
+        //     'timestamps' => [ '+0 minutes' ],
+        //     'model_type' => $data['moduletype'],
+        //     'model_id'   => $data['moduleid'],
+        //     'message_id' => $message->id,
+        //     'user_id'    => \Auth::id(),
+        //     'sent_to'    => '',
+        //     'role'       => 'Admin',
         //   ] );
-            //
+        //
         //   NotificationQueueController::createNewNotification( [
-                //     'message'    => 'Reminder to Reply : ' . $data['body'],
-            //     // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-            //     'timestamps' => [ '+0 minutes'],
-            //     // 'reminder'   => 1,
-            //     'message_id' => $message->id,
-                //     'model_type' => $data['moduletype'],
-                //     'model_id'   => $data['moduleid'],
-                //     'user_id'    => \Auth::id(),
-                //     'sent_to'    => $data['assigned_user'],
-            //     'role'       => ''
+        //     'message'    => 'Reminder to Reply : ' . $data['body'],
+        //     // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+        //     'timestamps' => [ '+0 minutes'],
+        //     // 'reminder'   => 1,
+        //     'message_id' => $message->id,
+        //     'model_type' => $data['moduletype'],
+        //     'model_id'   => $data['moduleid'],
+        //     'user_id'    => \Auth::id(),
+        //     'sent_to'    => $data['assigned_user'],
+        //     'role'       => ''
         //   ] );
-            //
+        //
         //   NotificationQueueController::createNewNotification( [
-                //     'message'    => 'Reminder to Reply : ' . $data['body'],
-            //     // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
-            //     'timestamps' => [ '+0 minutes'],
-            //     // 'reminder'   => 1,
-            //     'message_id' => $message->id,
-                //     'model_type' => $data['moduletype'],
-                //     'model_id'   => $data['moduleid'],
-                //     'user_id'    => \Auth::id(),
-                //     'sent_to'    => '',
-                //     'role'       => 'Admin',
+        //     'message'    => 'Reminder to Reply : ' . $data['body'],
+        //     // 'timestamps' => [ '+5 minutes',  '+10 minutes',  '+15 minutes',  '+20 minutes',  '+25 minutes',  '+30 minutes',  '+35 minutes',  '+40 minutes',  '+45 minutes',  '+50 minutes',  '+55 minutes',  '+60 minutes',  '+65 minutes',  '+70 minutes',  '+75 minutes',  '+80 minutes',  '+85 minutes',  '+90 minutes',  '+95 minutes',  '+100 minutes'],
+        //     'timestamps' => [ '+0 minutes'],
+        //     // 'reminder'   => 1,
+        //     'message_id' => $message->id,
+        //     'model_type' => $data['moduletype'],
+        //     'model_id'   => $data['moduleid'],
+        //     'user_id'    => \Auth::id(),
+        //     'sent_to'    => '',
+        //     'role'       => 'Admin',
         //   ] );
         // } else if($data['status'] == '4'){
-            //
+        //
         //   NotificationQueueController::createNewNotification( [
-                //     'message'    => 'New Instructions : ' . $data['body'],
-                //     'timestamps' => [ '+0 minutes' ],
-                //     'model_type' => $data['moduletype'],
-                //     'model_id'   => $data['moduleid'],
-            //     'message_id' => $message->id,
-                //     'user_id'    => \Auth::id(),
-                //     'sent_to'    => $data['assigned_user'],
-            //     'role'       => ''
+        //     'message'    => 'New Instructions : ' . $data['body'],
+        //     'timestamps' => [ '+0 minutes' ],
+        //     'model_type' => $data['moduletype'],
+        //     'model_id'   => $data['moduleid'],
+        //     'message_id' => $message->id,
+        //     'user_id'    => \Auth::id(),
+        //     'sent_to'    => $data['assigned_user'],
+        //     'role'       => ''
         //   ] );
-            //
+        //
         //   NotificationQueueController::createNewNotification( [
-                //     'message'    => 'New Instructions : ' . $data['body'],
-                //     'timestamps' => [ '+0 minutes' ],
-                //     'model_type' => $data['moduletype'],
-                //     'model_id'   => $data['moduleid'],
-            //     'message_id' => $message->id,
-                //     'user_id'    => \Auth::id(),
-                //     'sent_to'    => '',
-            //     'role'       => 'Admin'
+        //     'message'    => 'New Instructions : ' . $data['body'],
+        //     'timestamps' => [ '+0 minutes' ],
+        //     'model_type' => $data['moduletype'],
+        //     'model_id'   => $data['moduleid'],
+        //     'message_id' => $message->id,
+        //     'user_id'    => \Auth::id(),
+        //     'sent_to'    => '',
+        //     'role'       => 'Admin'
         //   ] );
         // }
 

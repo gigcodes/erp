@@ -24,16 +24,16 @@ class StoreWebsiteUserHistory extends Model
 
     public function storewebsite()
     {
-        return $this->belongsTo('App\StoreWebsite', 'store_website_id', 'id');
+        return $this->belongsTo(\App\StoreWebsite::class, 'store_website_id', 'id');
     }
 
     public function websiteuser()
     {
-        return $this->belongsTo('App\StoreWebsiteUsers', 'store_website_user_id', 'id');
+        return $this->belongsTo(\App\StoreWebsiteUsers::class, 'store_website_user_id', 'id');
     }
 
     public function user()
     {
-        return $this->belongsTo('App\User', 'user_id', 'id');
+        return $this->belongsTo(\App\User::class, 'user_id', 'id');
     }
 }

@@ -313,7 +313,7 @@ class CashFlowController extends Controller
     {
         $model_type = $request->model_type;
         if ($model_type == 'order') {
-            $model_type = "\App\Customer";
+            $model_type = \App\Customer::class;
             $rs = $model_type::get();
             $data = '';
             foreach ($rs as $r) {
@@ -325,7 +325,7 @@ class CashFlowController extends Controller
             return response()->json($data);
         }
         if ($model_type == 'assent_manager') {
-            $model_type = "\App\AssetsManager";
+            $model_type = \App\AssetsManager::class;
             $rs = $model_type::get();
             $data = '';
             foreach ($rs as $r) {
@@ -338,7 +338,7 @@ class CashFlowController extends Controller
         }
 
         if ($model_type == 'payment_receipt') {
-            $model_type = "\App\PaymentReceipt";
+            $model_type = \App\PaymentReceipt::class;
             $rs = $model_type::get();
             $data = '';
             foreach ($rs as $r) {

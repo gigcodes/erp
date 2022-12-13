@@ -1,6 +1,7 @@
 <?php
 
 use Monolog\Handler\StreamHandler;
+use Monolog\Handler\SyslogUdpHandler;
 
 return [
 
@@ -13,7 +14,7 @@ return [
     | messages to the logs. The name specified in this option should match
     | one of the channels defined in the "channels" configuration array.
     |
-     */
+    */
 
     'default' => env('LOG_CHANNEL', 'stack'),
 
@@ -30,12 +31,13 @@ return [
     |                    "errorlog", "monolog",
     |                    "custom", "stack"
     |
-     */
+    */
 
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['daily', 'slack'],
+            'channels' => ['daily'],
+            'ignore_exceptions' => false,
         ],
 
         'single' => [
@@ -44,15 +46,11 @@ return [
             'level' => 'debug',
         ],
 
-        'bugsnag' => [
-            'driver' => 'bugsnag',
-        ],
-
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
             'level' => 'debug',
-            'days' => 7,
+            'days' => 14,
         ],
 
         'slack' => [
@@ -62,25 +60,6 @@ return [
             'emoji' => ':boom:',
             'level' => 'critical',
         ],
-
-        'stderr' => [
-            'driver' => 'monolog',
-            'handler' => StreamHandler::class,
-            'with' => [
-                'stream' => 'php://stderr',
-            ],
-        ],
-
-        'syslog' => [
-            'driver' => 'syslog',
-            'level' => 'debug',
-        ],
-
-        'errorlog' => [
-            'driver' => 'errorlog',
-            'level' => 'debug',
-        ],
-
         /* Custom log files */
 
         'listMagento' => [
@@ -170,6 +149,38 @@ return [
             'driver' => 'daily',
             'path' => storage_path('logs/social_webhook/social_webhook.log'),
             'days' => 7,
+        ],
+        'bugsnag' => [
+            'driver' => 'bugsnag',
+        ],
+
+        'papertrail' => [
+            'driver' => 'monolog',
+            'level' => 'debug',
+            'handler' => SyslogUdpHandler::class,
+            'handler_with' => [
+                'host' => env('PAPERTRAIL_URL'),
+                'port' => env('PAPERTRAIL_PORT'),
+            ],
+        ],
+
+        'stderr' => [
+            'driver' => 'monolog',
+            'handler' => StreamHandler::class,
+            'formatter' => env('LOG_STDERR_FORMATTER'),
+            'with' => [
+                'stream' => 'php://stderr',
+            ],
+        ],
+
+        'syslog' => [
+            'driver' => 'syslog',
+            'level' => 'debug',
+        ],
+
+        'errorlog' => [
+            'driver' => 'errorlog',
+            'level' => 'debug',
         ],
     ],
 

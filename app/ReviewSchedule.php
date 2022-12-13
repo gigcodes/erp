@@ -26,16 +26,16 @@ class ReviewSchedule extends Model
 
     public function reviews()
     {
-        return $this->hasMany('App\Review', 'review_schedule_id');
+        return $this->hasMany(\App\Review::class, 'review_schedule_id');
     }
 
     public function account()
     {
-        return $this->belongsTo('App\Account');
+        return $this->belongsTo(\App\Account::class);
     }
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer');
+        return $this->belongsTo(\App\Customer::class);
     }
 }

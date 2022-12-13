@@ -49,7 +49,7 @@ class AssetsManagerDueDatePayment extends Command
         $success = false;
         foreach ($results as $result) {
             // check already entry in cash flows
-            $cashflow = CashFlow::where('date', date('Y-m-d'))->where('cash_flow_able_id', $result->id)->where('cash_flow_able_type', 'App\AssetsManager')->where('type', 'pending')->first();
+            $cashflow = CashFlow::where('date', date('Y-m-d'))->where('cash_flow_able_id', $result->id)->where('cash_flow_able_type', \App\AssetsManager::class)->where('type', 'pending')->first();
             if (! cashflow) {
                 //create entry in table cash_flows
                 CashFlow::create(
@@ -63,7 +63,7 @@ class AssetsManagerDueDatePayment extends Command
                         'type' => 'pending',
                         'cash_flow_able_id' => $result->id,
                         'cash_flow_category_id' => $result->category_id,
-                        'cash_flow_able_type' => 'App\AssetsManager',
+                        'cash_flow_able_type' => \App\AssetsManager::class,
                     ]
                 );
                 $i++;

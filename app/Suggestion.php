@@ -24,22 +24,22 @@ class Suggestion extends Model
 
     public function products()
     {
-        return $this->hasMany('App\Product', 'suggestion_products', 'suggestion_id', 'product_id');
+        return $this->hasMany(\App\Product::class, 'suggestion_products', 'suggestion_id', 'product_id');
     }
 
     public function suggestionProducts()
     {
-        return $this->hasMany('App\SuggestionProduct', 'suggestion_id', 'id');
+        return $this->hasMany(\App\SuggestionProduct::class, 'suggestion_id', 'id');
     }
 
     public function customer()
     {
-        return $this->hasOne('App\Customer', 'id', 'customer_id');
+        return $this->hasOne(\App\Customer::class, 'id', 'customer_id');
     }
 
     public function chatMessage()
     {
-        return $this->hasOne('App\ChatMessage', 'id', 'chat_message_id');
+        return $this->hasOne(\App\ChatMessage::class, 'id', 'chat_message_id');
     }
 
     public static function attachMoreProducts($suggestion)

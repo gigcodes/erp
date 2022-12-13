@@ -502,7 +502,7 @@ class CouponController extends Controller
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         // ($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'addRules', 'App\Http\Controllers\CouponController');
-        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'App\Http\Controllers\CouponController', 'CouponRulesAdd');
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\CouponController::class, 'CouponRulesAdd');
 
         \Log::channel('listMagento')->info(print_r([$url, $store_website->api_token, json_encode($parameters), $response], true));
         if ($result != false) {
@@ -604,7 +604,7 @@ class CouponController extends Controller
         $result = json_decode($response);
         curl_close($ch); // Close the connection
         // ($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'geteratePrimaryCouponCode', 'App\Http\Controllers\CouponController');
-        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'App\Http\Controllers\CouponController', 'CouponRulesGeteratePrimaryCouponCode');
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\CouponController::class, 'CouponRulesGeteratePrimaryCouponCode');
 
         \Log::channel('listMagento')->info(print_r([$url, $store_website_id->api_token, json_encode($parameters)], true));
 
@@ -654,7 +654,7 @@ class CouponController extends Controller
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $result = json_decode($response);
         // ($startTime, $url, 'DELETE', [], json_decode($response), $httpcode, 'deleteCouponCodeRuleByWebsiteId', 'App\Http\Controllers\CouponController');
-        LogRequest::log($startTime, $url, 'DELETE', [], json_decode($response), $httpcode, 'App\Http\Controllers\CouponController', 'CouponRulesDeleteCouponCodeRuleByWebsiteId');
+        LogRequest::log($startTime, $url, 'DELETE', [], json_decode($response), $httpcode, \App\Http\Controllers\CouponController::class, 'CouponRulesDeleteCouponCodeRuleByWebsiteId');
 
         return true;
     }
@@ -676,7 +676,7 @@ class CouponController extends Controller
         $result = json_decode($response);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         // ($startTime, $url, 'DELETE', [], json_decode($response), $httpcode, 'deleteCouponCodeRuleById', 'App\Http\Controllers\CouponController');
-        LogRequest::log($startTime, $url, 'DELETE', [], json_decode($response), $httpcode, 'App\Http\Controllers\CouponController', 'CouponRulesDeleteCouponCodeRuleById');
+        LogRequest::log($startTime, $url, 'DELETE', [], json_decode($response), $httpcode, \App\Http\Controllers\CouponController::class, 'CouponRulesDeleteCouponCodeRuleById');
 
         $coupon = Coupon::where('rule_id', $rule_lists->magento_rule_id)->delete();
         $rule_lists = CouponCodeRules::where('id', $id)->delete();
@@ -730,7 +730,7 @@ class CouponController extends Controller
         $result = json_decode($response);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         // ($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'generateCouponCode', 'App\Http\Controllers\CouponController');
-        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'App\Http\Controllers\CouponController', 'CouponRulesGenerateCouponCode');
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\CouponController::class, 'CouponRulesGenerateCouponCode');
 
         curl_close($ch); // Close the connection
         if (isset($result->message)) {
@@ -839,7 +839,7 @@ class CouponController extends Controller
         $result = json_decode($response);
 
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'App\Http\Controllers\CouponController', 'CouponRulesUpdate');
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\CouponController::class, 'CouponRulesUpdate');
 
         \Log::channel('listMagento')->info(print_r([$url, $store_website->api_token, json_decode($response)], true));
 
@@ -933,7 +933,7 @@ class CouponController extends Controller
         $result = json_decode($response);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         // ($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'deleteCouponByCode', 'App\Http\Controllers\CouponController');
-        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'App\Http\Controllers\CouponController', 'CouponRulesDeleteCouponByCode');
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\CouponController::class, 'CouponRulesDeleteCouponByCode');
 
         $coupon = Coupon::where('id', $request->id)->delete();
         curl_close($ch); // Close the connection
@@ -1065,7 +1065,7 @@ class CouponController extends Controller
         $result = json_decode($response);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         // ($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'shortCutFroCreateCoupn', 'App\Http\Controllers\CouponController');
-        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, 'App\Http\Controllers\CouponController', 'CouponRulesShortCutFroCreateCoupn');
+        LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\CouponController::class, 'CouponRulesShortCutFroCreateCoupn');
 
         curl_close($ch); // Close the connection
         if (isset($result->code)) {

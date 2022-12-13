@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands\Bots;
+namespace App\Services\Bots;
 
 use Closure;
 use Facebook\WebDriver\Chrome\ChromeOptions;

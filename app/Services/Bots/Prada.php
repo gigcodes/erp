@@ -2,7 +2,6 @@
 
 namespace App\Services\Bots;
 
-use App\Console\Commands\Bots\Chrome;
 use App\Services\Scrap\Scraper;
 use GuzzleHttp\Client;
 use NunoMaduro\LaravelConsoleDusk\Manager;

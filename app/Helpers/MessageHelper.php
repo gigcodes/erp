@@ -207,7 +207,7 @@ class MessageHelper
                 $task_users_array = [
                     'task_id' => $taskid,
                     'user_id' => $keywordassign[0]->assign_to,
-                    'type' => "App\User",
+                    'type' => \App\User::class,
                 ];
                 DB::table('task_users')->insert($task_users_array);
 
@@ -246,7 +246,7 @@ class MessageHelper
                             $requestData->setMethod('POST');
                             $requestData->request->add(['customer_id' => $customer->id, 'dimension' => true, 'selected_product' => $products[0]->selected_product]);
 
-                            app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
+                            app(\App\Http\Controllers\LeadsController::class)->sendPrices($requestData, new GuzzleClient);
                         }
                     } else {
                         $log_comment = $log_comment.' Auto Dimension Send parent message with lead price has not been found for customer with ID : '.$customer->id.' >> '; //Purpose : Log Comment - DEVTASK-4233
@@ -285,7 +285,7 @@ class MessageHelper
                         ];
 
                         if ($sendMsg === true) {
-                            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($users_info[0]->phone, $users_info[0]->whatsapp_number, $task_info[0]->task_details);
+                            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($users_info[0]->phone, $users_info[0]->whatsapp_number, $task_info[0]->task_details);
                         }
 
                         $chat_message = \App\ChatMessage::create($params_task);
@@ -307,13 +307,13 @@ class MessageHelper
                         $temp_log_params['message_sent_id'] = $chat_message->id;
 
                         if ($sendMsg === true) {
-                            app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+                            app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('task', $myRequest);
                         }
                     }
                 } else {
                     $log_comment = $log_comment.' User not found ';
                 }
-            //END CODE Task message to send message in whatsapp
+                //END CODE Task message to send message in whatsapp
             } else {
                 $log_comment = $log_comment.' Keyword not found ';
             }
@@ -521,7 +521,7 @@ class MessageHelper
                         $requestData->setMethod('POST');
                         $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
 
-                        $response = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
+                        $response = app(\App\Http\Controllers\LeadsController::class)->sendPrices($requestData, new GuzzleClient);
 
                         if (isset($params['chat_message_log_id'])) {
                             $data = [
@@ -655,7 +655,7 @@ class MessageHelper
                             // Send message if all required data is set
                             if ($temp_params['message'] || $temp_params['media_url']) {
                                 if ($status == 2) {
-                                    $sendResult = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone, isset($instanceNumber) ? $instanceNumber : null, $temp_params['message'], $temp_params['media_url']);
+                                    $sendResult = app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($customer->phone, isset($instanceNumber) ? $instanceNumber : null, $temp_params['message'], $temp_params['media_url']);
 
                                     WatsonChatJourney::updateOrCreate(['chat_message_id' => $messageModel->id], ['response_sent_to_cusomer' => 1]);
 

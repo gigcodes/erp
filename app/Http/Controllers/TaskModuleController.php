@@ -854,7 +854,7 @@ class TaskModuleController extends Controller
                 $params['message'] = $string;
                 $params['status'] = 2;
                 $requestData->request->add($params);
-                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'priority');
             }
         }
 
@@ -944,7 +944,7 @@ class TaskModuleController extends Controller
                     if ($key == 0) {
                         $params['erp_user'] = $user->id;
                     } else {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
                     }
                 }
             } else {
@@ -953,7 +953,7 @@ class TaskModuleController extends Controller
                         $params['erp_user'] = $task->assign_from;
                     } else {
                         if ($user->id != Auth::id()) {
-                            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
                         }
                     }
                 }
@@ -965,7 +965,7 @@ class TaskModuleController extends Controller
                 if ($key == 0) {
                     $params['contact_id'] = $task->assign_to;
                 } else {
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($contact->phone, null, $params['message']);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($contact->phone, null, $params['message']);
                 }
             }
         }
@@ -984,7 +984,7 @@ class TaskModuleController extends Controller
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);
 
-        app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+        app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('task', $myRequest);
 
         //   $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
         $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
@@ -1843,7 +1843,7 @@ class TaskModuleController extends Controller
         if ($group == null) {
             //First Create Group Using Admin id
             $phone = $admin_number->phone;
-            $result = app('App\Http\Controllers\WhatsAppController')->createGroup($task_id, '', $phone, '', $whatsapp_number);
+            $result = app(\App\Http\Controllers\WhatsAppController::class)->createGroup($task_id, '', $phone, '', $whatsapp_number);
             if (isset($result['chatId']) && $result['chatId'] != null) {
                 $task_id = $task_id;
                 $chatId = $result['chatId'];
@@ -1907,7 +1907,7 @@ class TaskModuleController extends Controller
                 $user = User::findorfail($value);
                 $group = WhatsAppGroup::where('task_id', $request->task_id)->first();
                 $phone = $user->phone;
-                $result = app('App\Http\Controllers\WhatsAppController')->createGroup('', $group->group_id, $phone, '', $whatsapp_number);
+                $result = app(\App\Http\Controllers\WhatsAppController::class)->createGroup('', $group->group_id, $phone, '', $whatsapp_number);
                 if (isset($result['add']) && $result['add'] != null) {
                     $task_id = $request->task_id;
 
@@ -2071,7 +2071,7 @@ class TaskModuleController extends Controller
             }
 
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Your quick task has been created!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -2298,7 +2298,7 @@ class TaskModuleController extends Controller
                     if ($key == 0) {
                         $params['erp_user'] = $user->id;
                     } else {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
                     }
                 }
             } else {
@@ -2307,7 +2307,7 @@ class TaskModuleController extends Controller
                         $params['erp_user'] = $task->assign_from;
                     } else {
                         if ($user->id != Auth::id()) {
-                            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
                         }
                     }
                 }
@@ -2319,7 +2319,7 @@ class TaskModuleController extends Controller
                 if ($key == 0) {
                     $params['contact_id'] = $task->assign_to;
                 } else {
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($contact->phone, null, $params['message']);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($contact->phone, null, $params['message']);
                 }
             }
         }
@@ -2338,7 +2338,7 @@ class TaskModuleController extends Controller
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);
 
-        app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+        app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('task', $myRequest);
 
         return $task;
     }
@@ -2401,7 +2401,7 @@ class TaskModuleController extends Controller
                     'developer_task_id' => $request->id,
                 ]);
 
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
 
                 MessageHelper::sendEmailOrWebhookNotification([$task->user_id], $msg);
             }
@@ -2428,7 +2428,7 @@ class TaskModuleController extends Controller
                     'status' => 0,
                     'developer_task_id' => $request->id,
                 ]);
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
 
                 MessageHelper::sendEmailOrWebhookNotification([$task->assigned_to], $msg);
             }
@@ -2529,7 +2529,7 @@ class TaskModuleController extends Controller
             $task->save();
         }
         $taskUser = new TaskUserHistory;
-        $taskUser->model = 'App\Task';
+        $taskUser->model = \App\Task::class;
         $taskUser->model_id = $issue->id;
         $taskUser->old_id = ($old_id == '') ? 0 : $old_id;
         $taskUser->new_id = $masterUserId;
@@ -2718,7 +2718,7 @@ class TaskModuleController extends Controller
             }
 
             if ($params) {
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
 
                 return response()->json([
                     'message' => 'Successfully Send File',
@@ -2756,7 +2756,7 @@ class TaskModuleController extends Controller
                 ]);
 
                 if ($params) {
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
 
                     return response()->json([
                         'message' => 'Successfully Send Document',
@@ -2800,7 +2800,7 @@ class TaskModuleController extends Controller
                     'message' => 'Select one time first',
                 ], 500);
             }
-            DeveloperTaskHistory::where('developer_task_id', $request->developer_task_id)->where('attribute', 'estimation_minute')->where('model', 'App\Task')->update(['is_approved' => 0]);
+            DeveloperTaskHistory::where('developer_task_id', $request->developer_task_id)->where('attribute', 'estimation_minute')->where('model', \App\Task::class)->update(['is_approved' => 0]);
             $history = DeveloperTaskHistory::find($request->approve_time);
             $history->is_approved = 1;
             $history->save();
@@ -2847,13 +2847,13 @@ class TaskModuleController extends Controller
                 }
                 if (isset($chat)) {
                     if ($admin->phone) {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($admin->phone, $admin->whatsapp_number, $msg, false, $chat->id);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($admin->phone, $admin->whatsapp_number, $msg, false, $chat->id);
                     }
                     if ($user->phone) {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg, false, $chat->id);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg, false, $chat->id);
                     }
                     if ($master_user && $master_user->phone) {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($master_user->phone, $master_user->whatsapp_number, $msg, false, $chat->id);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($master_user->phone, $master_user->whatsapp_number, $msg, false, $chat->id);
                     }
                 }
             }
@@ -3018,7 +3018,7 @@ class TaskModuleController extends Controller
         $id = $request->id;
         $task_module = DeveloperTaskHistory::join('users', 'users.id', 'developer_tasks_history.user_id')
             ->where('developer_task_id', $id)
-            ->where('model', 'App\Task')
+            ->where('model', \App\Task::class)
             ->where('attribute', 'estimation_minute')
             ->select('developer_tasks_history.*', 'users.name')
             ->orderBy('developer_tasks_history.id', 'DESC')
@@ -3053,7 +3053,7 @@ class TaskModuleController extends Controller
             $task->save();
             DeveloperTaskHistory::create([
                 'developer_task_id' => $request->task_id,
-                'model' => 'App\Task',
+                'model' => \App\Task::class,
                 'attribute' => 'task_status',
                 'old_value' => $old_status,
                 'new_value' => $task->status,
@@ -3153,7 +3153,7 @@ class TaskModuleController extends Controller
             $requestData = new Request();
             $requestData->setMethod('POST');
             $requestData->request->add(['task_id' => $task->id, 'message' => $message, 'status' => 1]);
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'task');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'task');
             //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($task->assignedTo->phone, '', $message);
         }
 
@@ -3172,7 +3172,7 @@ class TaskModuleController extends Controller
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add(['task_id' => $tid, 'message' => $request->message, 'status' => 1]);
-                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'task');
+                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'task');
             }
 
             return response()->json(['code' => 200, 'message' => 'Message has been sent to all selected task']);
@@ -3285,7 +3285,7 @@ class TaskModuleController extends Controller
         }
 
         $taskUser = new TaskUserHistory;
-        $taskUser->model = 'App\Task';
+        $taskUser->model = \App\Task::class;
         $taskUser->model_id = $task->id;
         $taskUser->old_id = $old_id;
         $taskUser->new_id = $request->get('user_id');
@@ -3293,7 +3293,7 @@ class TaskModuleController extends Controller
         $taskUser->updated_by = Auth::user()->name;
         $taskUser->save();
 
-        $values = ['task_id' => $request->get('issue_id'), 'user_id' => $request->get('user_id'), 'type' => 'App\User'];
+        $values = ['task_id' => $request->get('issue_id'), 'user_id' => $request->get('user_id'), 'type' => \App\User::class];
         DB::table('task_users')->insert($values);
 
         return response()->json(['status' => 'success']);
@@ -3345,12 +3345,12 @@ class TaskModuleController extends Controller
     {
         if (isset($request->type)) {
             if ($request->type == 'developer') {
-                $users = TaskUserHistory::where('model', 'App\DeveloperTask')->where('model_id', $request->id)->get();
+                $users = TaskUserHistory::where('model', \App\DeveloperTask::class)->where('model_id', $request->id)->get();
             } else {
-                $users = TaskUserHistory::where('model', 'App\Task')->where('model_id', $request->id)->get();
+                $users = TaskUserHistory::where('model', \App\Task::class)->where('model_id', $request->id)->get();
             }
         } else {
-            $users = TaskUserHistory::where('model', 'App\Task')->where('model_id', $request->id)->get();
+            $users = TaskUserHistory::where('model', \App\Task::class)->where('model_id', $request->id)->get();
         }
 
         foreach ($users as $u) {
@@ -3452,7 +3452,7 @@ class TaskModuleController extends Controller
                 }
 
                 $taskUser = new TaskUserHistory;
-                $taskUser->model = 'App\Task';
+                $taskUser->model = \App\Task::class;
                 $taskUser->model_id = $task->id;
                 $taskUser->old_id = $old_id;
                 $taskUser->new_id = $request->get('user_assigned_to');
@@ -3460,7 +3460,7 @@ class TaskModuleController extends Controller
                 $taskUser->updated_by = Auth::user()->name;
                 $taskUser->save();
 
-                $values = ['task_id' => $task->id, 'user_id' => $request->get('user_assigned_to'), 'type' => 'App\User'];
+                $values = ['task_id' => $task->id, 'user_id' => $request->get('user_assigned_to'), 'type' => \App\User::class];
                 DB::table('task_users')->insert($values);
             }
         }
@@ -3667,7 +3667,7 @@ class TaskModuleController extends Controller
 
             DeveloperTaskHistory::create([
                 'developer_task_id' => $task->id,
-                'model' => 'App\Task',
+                'model' => \App\Task::class,
                 'attribute' => 'estimation_minute',
                 'old_value' => $task->approximate,
                 'remark' => $remark ?: null,
@@ -3698,7 +3698,7 @@ class TaskModuleController extends Controller
                         'status' => 0,
                         'developer_task_id' => $task_id,
                     ]);
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
                 }
             }
 

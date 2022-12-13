@@ -45,15 +45,15 @@ class TinEye
         }
 
 //        For testing
-         /*$results = LogTineye::find(26);
-         $results = json_decode($results->response);*/
+        /*$results = LogTineye::find(26);
+        $results = json_decode($results->response);*/
 
-         // TODO: Check for result count
-         if (! $returnAsGoogle) {
-             return $results;
-         } else {
-             return $this->_convertResultToMatchGoogleVision($url, json_decode(json_encode($results)));
-         }
+        // TODO: Check for result count
+        if (! $returnAsGoogle) {
+            return $results;
+        } else {
+            return $this->_convertResultToMatchGoogleVision($url, json_decode(json_encode($results)));
+        }
     }
 
     private function _convertResultToMatchGoogleVision($url = '', $results = false)

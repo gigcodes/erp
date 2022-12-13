@@ -20,11 +20,11 @@ class SupplierBrandDiscount extends Model
 
     public function supplier()
     {
-        return $this->hasOne('App\Supplier', 'id', 'supplier_id');
+        return $this->hasOne(\App\Supplier::class, 'id', 'supplier_id');
     }
 
     public function brand()
     {
-        return $this->hasOne('App\Brand', 'id', 'brand_id');
+        return $this->hasOne(\App\Brand::class, 'id', 'brand_id');
     }
 }

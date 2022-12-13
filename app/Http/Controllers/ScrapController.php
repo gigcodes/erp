@@ -317,7 +317,7 @@ class ScrapController extends Controller
                 $scPrice = substr($scPrice, 0, 4);
                 $scPrice = $scPrice.'.00';
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             \Log::info('Having problem with this price'.$scPrice.' and get message is '.$e->getMessage());
         }
 
@@ -2129,7 +2129,7 @@ class ScrapController extends Controller
             'subject' => $request->subject, // enter issue name
             'assigned_to' => 6,
         ]);
-        app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+        app(\App\Http\Controllers\DevelopmentController::class)->issueStore($requestData, 'issue');
 
         return redirect()->back();
     }

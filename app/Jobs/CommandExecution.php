@@ -61,7 +61,7 @@ class CommandExecution implements ShouldQueue
 
             if ($user->phone != '' && $user->whatsapp_number != '') {
                 $message = 'Command '.$this->command_name.' Execution Complete.';
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $message);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $message);
             }
             dump($this->command_name.' : job has been completed...');
 
@@ -86,7 +86,7 @@ class CommandExecution implements ShouldQueue
 
         if ($user->phone != '' && $user->whatsapp_number != '') {
             $message = 'Command '.$this->command_name.' Execution Failed.';
-            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $message);
+            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $message);
         }
         dump($this->command_name.' : job has been failed...');
 

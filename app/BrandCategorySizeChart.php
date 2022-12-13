@@ -47,6 +47,6 @@ class BrandCategorySizeChart extends Model
 
     public function brands()
     {
-        return $this->hasOne('App\Brand', 'id', 'brand_id');
+        return $this->hasOne(\App\Brand::class, 'id', 'brand_id');
     }
 }

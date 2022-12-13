@@ -47,6 +47,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 
@@ -62,8 +63,9 @@ class StoreWebsiteController extends Controller
         $title = 'List | Store Website';
         $services = Service::get();
         $assetManager = AssetsManager::whereNotNull('ip');
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->get();
 
-        return view('storewebsite::index', compact('title', 'services', 'assetManager'));
+        return view('storewebsite::index', compact('title', 'services', 'assetManager','storeWebsites'));
     }
 
     public function logWebsiteUsers($id)
@@ -261,15 +263,15 @@ class StoreWebsiteController extends Controller
         $storeWebsite = StoreWebsite::find($storeWebsiteId);
         $serverId = 1;
         $response = $this->updateStoreViewServer($storeWebsiteId, $serverId);
-        if(!$response)
+        if (! $response) {
             return response()->json(['code' => 500, 'error' => 'Something went wrong in update store view server!']);
+        }
 
         if (! $storeWebsite) {
             return response()->json(['code' => 500, 'error' => 'No website found!']);
         }
 
         for ($i = 1; $i <= $numberOfDuplicates; $i++) {
-
             $copyStoreWebsite = $storeWebsite->replicate();
             $title = $copyStoreWebsite->title;
             unset($copyStoreWebsite->id);
@@ -690,9 +692,10 @@ class StoreWebsiteController extends Controller
                 return response()->json(['code' => 500, 'error' => 'Store website users failed!']);
             }
 
-            $response = $this->updateStoreViewServer($copyStoreWebsiteId, $i+1);
-            if(!$response)
+            $response = $this->updateStoreViewServer($copyStoreWebsiteId, $i + 1);
+            if (! $response) {
                 return response()->json(['code' => 500, 'error' => 'Something went wrong in update store view server of '.$copyStoreWebsite->title.'!']);
+            }
 
             if ($i == $numberOfDuplicates) {
                 return response()->json(['code' => 200, 'error' => 'Store website created successfully']);
@@ -702,6 +705,7 @@ class StoreWebsiteController extends Controller
 
     /**
      * Function to update store view server mapping of a store website
+     *
      * @param $storeWebsiteId
      * @param $serverId
      * @return \Illuminate\Http\JsonResponse
@@ -714,9 +718,9 @@ class StoreWebsiteController extends Controller
         $count = 0;
         foreach ($storeViews as $key => $view) {
             $storeView = WebsiteStoreView::find($view->id);
-            if (!$storeView->websiteStore) {
+            if (! $storeView->websiteStore) {
                 \Log::error('Website store not found for '.$view->id.'!');
-            } elseif(!$storeView->websiteStore->website) {
+            } elseif (! $storeView->websiteStore->website) {
                 \Log::error('Website not found for '.$view->id.'!');
             } else {
                 $websiteId = $view->websiteStore->website->id;
@@ -731,9 +735,9 @@ class StoreWebsiteController extends Controller
             return true;
         } else {
             \Log::error('Count is not equal to total store views');
+
             return false;
         }
-
     }
 
     public function saveUserInMagento(Request $request)
@@ -800,7 +804,7 @@ class StoreWebsiteController extends Controller
             StoreWebsiteUserHistory::create([
                 'store_website_id' => $getUser->store_website_id,
                 'store_website_user_id' => $getUser->id,
-                'model' => 'App\StoreWebsiteUsers',
+                'model' => \App\StoreWebsiteUsers::class,
                 'attribute' => 'username_password',
                 'old_value' => 'updated',
                 'new_value' => 'updated',
@@ -839,7 +843,7 @@ class StoreWebsiteController extends Controller
             StoreWebsiteUserHistory::create([
                 'store_website_id' => $StoreWebsiteUsersid->store_website_id,
                 'store_website_user_id' => $StoreWebsiteUsersid->id,
-                'model' => 'App\StoreWebsiteUsers',
+                'model' => \App\StoreWebsiteUsers::class,
                 'attribute' => 'username_password',
                 'old_value' => 'new_added',
                 'new_value' => 'new_added',
@@ -868,7 +872,7 @@ class StoreWebsiteController extends Controller
         StoreWebsiteUserHistory::create([
             'store_website_id' => $getUser->store_website_id,
             'store_website_user_id' => $getUser->id,
-            'model' => 'App\StoreWebsiteUsers',
+            'model' => \App\StoreWebsiteUsers::class,
             'attribute' => 'username_password',
             'old_value' => 'delete',
             'new_value' => 'delete',
@@ -1408,7 +1412,7 @@ class StoreWebsiteController extends Controller
                     $html .= '<tr>';
                     $html .= '<td>'.$res->created_at.'</td>';
                     $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-response-'.$res->id.'">'.str_limit($res->response, 100, '...').'</span>
+                    <span class="show-short-response-'.$res->id.'">'.Str::limit($res->response, 100, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
                     </td>';
                     $html .= '</tr>';
@@ -1446,15 +1450,15 @@ class StoreWebsiteController extends Controller
                     $html .= '<tr>';
                     $html .= '<td>'.$res->created_at.'</td>';
                     $html .= '<td class="expand-row-msg" data-name="website" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-website-'.$res->id.'">'.str_limit($res->website, 15, '...').'</span>
+                    <span class="show-short-website-'.$res->id.'">'.Str::limit($res->website, 15, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-website-'.$res->id.' hidden">'.$res->website.'</span>
                     </td>';
                     $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-response-'.$res->id.'">'.str_limit($res->response, 25, '...').'</span>
+                    <span class="show-short-response-'.$res->id.'">'.Str::limit($res->response, 25, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
                     </td>';
                     $html .= '<td class="expand-row-msg" data-name="command" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-command-'.$res->id.'">'.str_limit($res->command_name, 25, '...').'</span>
+                    <span class="show-short-command-'.$res->id.'">'.Str::limit($res->command_name, 25, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-command-'.$res->id.' hidden">'.$res->command_name.'</span>
                     </td>';
 
@@ -1556,6 +1560,22 @@ class StoreWebsiteController extends Controller
             return response()->json(['code' => 200, 'message' => 'Token is valid']);
         } else {
             return response()->json(['code' => 500, 'message' => 'Token is invalid']);
+        }
+    }
+
+    public function generateApiToken(Request $request){
+        $apiTokens = $request->api_token;
+
+        if ($request->api_token) {
+            foreach ($apiTokens as $key => $apiToken){
+                StoreWebsite::where('id',$key)->update(['api_token'=>$apiToken]);
+            }
+            session()->flash('msg', 'Api Token Updated Successfully.');
+            return redirect()->back();
+        } else {
+            session()->flash('msg', 'Api Token is invalid.');
+            return redirect()->back();
+
         }
     }
 }

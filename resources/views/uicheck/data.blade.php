@@ -25,7 +25,7 @@
             </td>
             <td class="expand-row-msg" data-name="title" data-id="{{$category->id}}">
                 
-                    <span class="show-short-title-{{$category->id}}">{{ str_limit($category->title, 15, '..')}}</span>
+                    <span class="show-short-title-{{$category->id}}">{{ Str::limit($category->title, 15, '..')}}</span>
                     <span style="word-break:break-all;" class="show-full-title-{{$category->id}} hidden">{{$category->title}}</span>
             </td>
             <td>

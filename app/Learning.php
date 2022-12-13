@@ -91,8 +91,6 @@ class Learning extends Model
         'Developer Issue',
     ];
 
-    protected $dates = ['deleted_at'];
-
     public static function hasremark($id)
     {
         $task = Task::find($id);
@@ -123,27 +121,27 @@ class Learning extends Model
 
     public function remarks()
     {
-        return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task')->latest();
+        return $this->hasMany(\App\Remark::class, 'taskid')->where('module_type', 'task')->latest();
     }
 
     public function notes()
     {
-        return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-note')->latest();
+        return $this->hasMany(\App\Remark::class, 'taskid')->where('module_type', 'task-note')->latest();
     }
 
     public function users()
     {
-        return $this->belongsToMany('App\User', 'task_users', 'task_id', 'user_id')->where('type', 'App\User');
+        return $this->belongsToMany(\App\User::class, 'task_users', 'task_id', 'user_id')->where('type', \App\User::class);
     }
 
     public function assignedTo()
     {
-        return $this->belongsTo('App\User', 'assign_to', 'id');
+        return $this->belongsTo(\App\User::class, 'assign_to', 'id');
     }
 
     public function contacts()
     {
-        return $this->belongsToMany('App\Contact', 'task_users', 'task_id', 'user_id')->where('type', 'App\Contact');
+        return $this->belongsToMany(\App\Contact::class, 'task_users', 'task_id', 'user_id')->where('type', \App\Contact::class);
     }
 
     public function whatsappgroup()
@@ -154,10 +152,10 @@ class Learning extends Model
     public function whatsappAll($needBroadCast = false)
     {
         if ($needBroadCast) {
-            return $this->hasMany('App\ChatMessage', 'learning_id')->whereIn('status', ['7', '8', '9', '10'])->latest(); //Purpose - Replace from task_id to learning_id - DEVTASK-4020
+            return $this->hasMany(\App\ChatMessage::class, 'learning_id')->whereIn('status', ['7', '8', '9', '10'])->latest(); //Purpose - Replace from task_id to learning_id - DEVTASK-4020
         }
 
-        return $this->hasMany('App\ChatMessage', 'learning_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest(); //Purpose - Replace from task_id to learning_id - DEVTASK-4020
+        return $this->hasMany(\App\ChatMessage::class, 'learning_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest(); //Purpose - Replace from task_id to learning_id - DEVTASK-4020
     }
 
     public function allMessages()
@@ -167,13 +165,13 @@ class Learning extends Model
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer', 'customer_id', 'id');
+        return $this->belongsTo(\App\Customer::class, 'customer_id', 'id');
     }
 
     public function timeSpent()
     {
         return $this->hasOne(
-            'App\Hubstaff\HubstaffActivity',
+            \App\Hubstaff\HubstaffActivity::class,
             'task_id',
             'hubstaff_task_id'
         )

@@ -17,6 +17,6 @@ class InstructionCategory extends Model
 
     public function instructions()
     {
-        return $this->hasMany('App\Instruction', 'category_id');
+        return $this->hasMany(\App\Instruction::class, 'category_id');
     }
 }

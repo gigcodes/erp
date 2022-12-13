@@ -87,7 +87,7 @@ class RunErpEvents extends Command
                                     $requestData->setMethod('POST');
                                     $requestData->request->add(['customer_id' => $lead->customer_id, 'lead_id' => $lead->id, 'selected_product' => $allProduts]);
 
-                                    $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
+                                    $res = app(\App\Http\Controllers\LeadsController::class)->sendPrices($requestData, new GuzzleClient);
                                 }
                             }
                         }

@@ -96,7 +96,7 @@ class HubstuffActivityCommand extends Command
             $req->request->add(['task_id' => null]);
             $req->request->add(['task_status' => null]);
 //            $req->request->add(["start_date" => $to]);
-  //          $req->request->add(["end_date" => $from]);
+            //          $req->request->add(["end_date" => $from]);
             $req->request->add(['status' => null]);
             $req->request->add(['submit' => 'report_download']);
             $req->request->add(['response_type' => 'with_payment_receipt']);
@@ -124,7 +124,7 @@ class HubstuffActivityCommand extends Command
                     $HubstuffCommandLogMessage->message = $HubstuffCommandLogMessage->message.'-->go to monday condition';
                     $get_activity = true;
 
-                //    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
+                    //    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                 }
             }
 
@@ -243,14 +243,14 @@ class HubstuffActivityCommand extends Command
                 $cashflow->type = 'pending';
                 $cashflow->status = 1;
                 $cashflow->amount = $paymentData->total_balance;
-            //    $cashflow->currency=  ;
+                //    $cashflow->currency=  ;
                 $cashflow->save();
 
                 //Query
-          //      $cashflow->type= 'pending';
-          //      $cashflow->currency=  $receipt->currency;
-          //      $cashflow->status=  1;
-          //      $cashflow->amount=  $receipt->created_at;
+                //      $cashflow->type= 'pending';
+                //      $cashflow->currency=  $receipt->currency;
+                //      $cashflow->status=  1;
+                //      $cashflow->amount=  $receipt->created_at;
 
                 // dd("555555");
 

@@ -925,11 +925,11 @@ class ProductCropperController extends Controller
         $medias = $request->get('images');
         foreach ($medias as $mediaId => $order) {
             if ($order !== null) {
-                DB::table('mediables')->where('media_id', $mediaId)->where('mediable_type', 'App\Product')->update([
+                DB::table('mediables')->where('media_id', $mediaId)->where('mediable_type', \App\Product::class)->update([
                     'order' => $order,
                 ]);
             } else {
-                DB::table('mediables')->where('media_id', $mediaId)->where('mediable_type', 'App\Product')->delete();
+                DB::table('mediables')->where('media_id', $mediaId)->where('mediable_type', \App\Product::class)->delete();
                 DB::table('media')->where('id', $mediaId)->delete();
             }
         }

@@ -22,11 +22,11 @@ class UserPemfileHistory extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\User', 'user_id', 'id');
+        return $this->belongsTo(\App\User::class, 'user_id', 'id');
     }
 
     public function createby()
     {
-        return $this->belongsTo('App\User', 'created_by', 'id');
+        return $this->belongsTo(\App\User::class, 'created_by', 'id');
     }
 }

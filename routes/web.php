@@ -2370,7 +2370,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('bug-tracking/communicationData/{id}', 'BugTrackingController@communicationData')->name('bug-tracking.communicationData');
     Route::get('bug-tracking/{id}/delete', 'BugTrackingController@destroy');
 
-
     Route::get('test-cases', 'TestCaseController@index')->name('test-cases.index');
     Route::get('test-cases/create', 'TestCaseController@create')->name('test-cases.create');
     Route::post('test-cases/store', 'TestCaseController@store')->name('test-cases.store');
@@ -2384,10 +2383,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('test-cases/status_user', 'TestCaseController@statusUser')->name('test-cases.status_user');
     Route::post('test-cases/sendmessage', 'TestCaseController@sendMessage')->name('test-cases.sendmessage');
 
-	
-	
-	Route::get('test-suites', 'TestSuitesController@index')->name('test-suites.index');
-    Route::get('test-suites/records', 'TestSuitesController@records')->name("test-suites.records");
+    Route::get('test-suites', 'TestSuitesController@index')->name('test-suites.index');
+    Route::get('test-suites/records', 'TestSuitesController@records')->name('test-suites.records');
     Route::get('test-suites/create', 'TestSuitesController@create')->name('test-suites.create');
     Route::post('test-suites/store', 'TestSuitesController@store')->name('test-suites.store');
     Route::get('test-suites/edit/{id}', 'TestSuitesController@edit')->name('test-suites.edit');
@@ -2395,7 +2392,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('test-suites/assign_user', 'TestSuitesController@assignUser')->name('test-suites.assign_user');
     Route::post('test-suites/severity_user', 'TestSuitesController@severityUser')->name('test-suites.severity_user');
     Route::post('test-suites/status_user', 'TestSuitesController@statusUser')->name('test-suites.status_user');
-	Route::post('test-suites/sendmessage', 'TestSuitesController@sendMessage')->name('test-suites.sendmessage');
+    Route::post('test-suites/sendmessage', 'TestSuitesController@sendMessage')->name('test-suites.sendmessage');
 
     Route::post('test-suites/status', 'TestSuitesController@status')->name('test-suites.status');
     Route::post('test-suites/environment', 'TestSuitesController@environment')->name('test-suites.environment');
@@ -2406,7 +2403,6 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('test-suiteshistory', 'TestSuitesController@getTrackedHistory')->name('test-suites.history');
     Route::post('test-suites/hubstaff_task', 'TestSuitesController@createHubstaffManualTask')->name('test-suites.hubstaff_task');
-
 });
 /*
  * @date 1/13/2019
@@ -2584,7 +2580,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
 
 // logScraperVsAiController
 Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
-    Route::match(['get', 'post'], '/{id}', 'logScraperVsAiController@index');
+    Route::match(['get', 'post'], '/{id}', 'LogScraperVsAiController@index');
 });
 
 Route::prefix('social-media')->middleware('auth')->group(function () {
@@ -2848,14 +2844,6 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('monetary-account/{id}/history', 'MonetaryAccountController@history')->name('monetary-account.history');
     Route::resource('monetary-account', 'MonetaryAccountController');
-});
-
-// Mailchimp Module
-Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function () {
-    Route::get('manageMailChimp', 'MailchimpController@manageMailChimp')->name('manage.mailchimp');
-    Route::post('subscribe', ['as' => 'subscribe', 'uses' => 'MailchimpController@subscribe']);
-    Route::post('sendCompaign', ['as' => 'sendCompaign', 'uses' => 'MailchimpController@sendCompaign']);
-    Route::get('make-active-subscribers', 'MailchimpController@makeActiveSubscriber')->name('make.active.subscriber');
 });
 
 Route::group(['middleware' => 'auth', 'namespace' => 'marketing'], function () {

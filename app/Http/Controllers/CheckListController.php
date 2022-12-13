@@ -292,7 +292,7 @@ class CheckListController extends Controller
             ->get();
             //dd($remark);
             return response()->json(['code' => 200, 'message' => 'Remark listed successfully.', 'data' => $remark]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage(), 'data' => []]);
         }
     }
@@ -310,7 +310,7 @@ class CheckListController extends Controller
             $remark->save();
 
             return response()->json(['code' => 200, 'message' => 'Remark listed successfully.', 'data' => $remark]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage(), 'data' => []]);
         }
     }

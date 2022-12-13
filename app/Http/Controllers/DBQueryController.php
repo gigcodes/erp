@@ -72,7 +72,7 @@ class DBQueryController extends Controller
             CommandExecution::dispatch($command_name, $manual_command_name, $store_user_id, $store_id)->onQueue('command_execution');
 
             return response()->json(['code' => 200, 'data' => $match]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
         }
     }
 
@@ -85,7 +85,7 @@ class DBQueryController extends Controller
             ->paginate(Setting::get('pagination'));
 
             return view('admin-menu.database-menu.db-query.command_history', compact('command_history', 'request'));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
         }
     }
 
@@ -171,7 +171,7 @@ class DBQueryController extends Controller
     {
         try {
             $sql = DB::select($request->sql);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $error = $e;
         }
 
@@ -185,7 +185,7 @@ class DBQueryController extends Controller
     {
         try {
             $sql = DB::select($request->sql);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $error = $e;
         }
 

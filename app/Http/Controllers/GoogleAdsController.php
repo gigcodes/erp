@@ -269,7 +269,7 @@ class GoogleAdsController extends Controller
             \App\GoogleAd::create($adsArray);
 
             return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ads')->with('actSuccess', 'Ads created successfully');
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ads/create')->with('actError', $this->exceptionError);
         }
     }
@@ -323,7 +323,7 @@ class GoogleAdsController extends Controller
             \App\GoogleAd::where('adgroup_google_campaign_id', $campaignId)->where('google_adgroup_id', $adGroupId)->where('google_ad_id', $adId)->delete();
 
             return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ads')->with('actSuccess', 'Ads deleted successfully');
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return redirect('google-campaigns/'.$campaignId.'/adgroups/'.$adGroupId.'/ads')->with('actError', $this->exceptionError);
         }
     }

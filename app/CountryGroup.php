@@ -23,7 +23,7 @@ class CountryGroup extends Model
 
     public function groupItems()
     {
-        return $this->hasMany("\App\CountryGroupItem", 'country_group_id', 'id');
+        return $this->hasMany(\App\CountryGroupItem::class, 'country_group_id', 'id');
     }
 
     public static function list()

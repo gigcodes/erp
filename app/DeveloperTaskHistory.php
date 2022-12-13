@@ -28,14 +28,14 @@ class DeveloperTaskHistory extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 
     public static function historySave($taskId, $type, $old, $new, $approved)
     {
         $single = self::create([
             'developer_task_id' => $taskId,
-            'model' => 'App\DeveloperTask',
+            'model' => \App\DeveloperTask::class,
             'attribute' => $type,
             'old_value' => $old,
             'new_value' => $new,
@@ -53,7 +53,7 @@ class DeveloperTaskHistory extends Model
     public static function approved($id, $type)
     {
         $single = self::find($id);
-        self::where('model', 'App\DeveloperTask')->where('attribute', $type)->where('developer_task_id', $single->developer_task_id)->update(['is_approved' => 0]);
+        self::where('model', \App\DeveloperTask::class)->where('attribute', $type)->where('developer_task_id', $single->developer_task_id)->update(['is_approved' => 0]);
         self::where('id', $single->id)->update(['is_approved' => 1]);
 
         DeveloperTask::where('id', $single->developer_task_id)->update([$type => $single->new_value]);

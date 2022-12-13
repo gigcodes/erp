@@ -100,7 +100,7 @@
 								<?php 
 								//dd(request('folder_name'));
 								if(request('assign_to')){   $assign_toArr = request('assign_to'); }
-								else{ $assign_toArr = array(); }
+								else{ $assign_toArr = []; }
 							  ?>
 								<select name="assign_to[]" id="assign_to" multiple class="form-control select2">
 									<option value="" @if(count($assign_toArr)==0) selected @endif>-- Select Assign to --</option>
@@ -117,7 +117,7 @@
 							<div class="form-group">
 								<?php 
 									if(request('store_webs')){   $store_websArr = request('store_webs'); }
-									else{ $store_websArr = array(); }
+									else{ $store_websArr = []; }
 							  	?>
 								<select name="store_webs[]" id="store_webiste" multiple class="form-control select2">
 									<option value=""  @if(count($store_websArr)==0) selected @endif>-- Select a website --</option>
@@ -134,7 +134,7 @@
 							<div class="form-group">
 								<?php 
 									if(request('store_webs')){   $categoriesArr = request('store_webs'); }
-									else{ $categoriesArr = array(); }
+									else{ $categoriesArr = []; }
 							  	?>
 								<select name="categories[]" id="store-categories" multiple class="form-control select2">
 									<option value="" @if(count($categoriesArr)==0) selected @endif>-- Select a categories --</option>
@@ -149,7 +149,7 @@
 							<div class="form-group">
 								<?php 
 									if(request('store_webs')){   $dev_statusArr = request('store_webs'); }
-									else{ $dev_statusArr = array(); }
+									else{ $dev_statusArr = []; }
 							  	?>
 								<select name="dev_status[]" id="dev_status" multiple class="form-control select2">
 									<option value="" @if(count($dev_statusArr)==0) selected @endif>-- Developer Status --</option>
@@ -164,7 +164,7 @@
 							<div class="form-group">
 								<?php 
 									if(request('admin_status')){   $admin_statusArr = request('store_webs'); }
-									else{ $admin_statusArr = array(); }
+									else{ $admin_statusArr = []; }
 							  	?>
 								<select name="admin_status[]" id="admin_status" multiple class="form-control select2">
 									<option value="" @if(count($admin_statusArr)==0) selected @endif>-- Admin Status --</option>
