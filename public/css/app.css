@@ -2222,7 +2222,7 @@ pre code {
 }
 
 .table-responsive > .table-bordered {
-    border: 1px solid #ddd;
+    border: 0;
 }
 
 .form-control {

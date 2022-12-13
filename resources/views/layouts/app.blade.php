@@ -470,12 +470,6 @@ if (!empty($notifications)) {
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
-                                            <a class="dropdown-item" href="{{ route('products.magentoConditionsCheck') }}">Mangento condition check</a>
-                                        </li>
-                                        <li class="nav-item dropdown dropdown-submenu">
-                                            <a class="dropdown-item" href="{{ route('products.magentoPushStatus') }}">Magento push status</a>
-                                        </li>
-                                        <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Supervisor<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productsupervisor.index') }}">Supervisor Grid</a>

@@ -104,8 +104,6 @@ class StatusHelper extends Model
 
     public static $sizeVerifyCron = 48;
 
-    public static $productConditionsChecked = 153;
-
     public static function getStatus()
     {
         return [
@@ -157,7 +155,6 @@ class StatusHelper extends Model
             46 => 'Send to External Scraper',
             47 => 'External Scraper Finished',
             48 => 'Size Verify Cron',
-            153 => 'Product conditions checked',
         ];
     }
 

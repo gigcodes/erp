@@ -21,9 +21,10 @@ class PushToMagento implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $_product;
+
     protected $_website;
+
     protected $log;
-    protected $mode;
 
     /**
      * Create a new job instance.
@@ -31,15 +32,13 @@ class PushToMagento implements ShouldQueue
      * @param  Product  $product
      * @param  StoreWebsite  $website
      * @param  null  $log
-     * @param  null  $mode
      */
-    public function __construct(Product $product, StoreWebsite $website, $log = null, $mode=null)
+    public function __construct(Product $product, StoreWebsite $website, $log = null)
     {
         // Set product and website
         $this->_product = $product;
         $this->_website = $website;
         $this->log = $log;
-        $this->mode = $mode;
     }
 
     /**
@@ -172,7 +171,7 @@ class PushToMagento implements ShouldQueue
                         ProductPushErrorLog::log('', $product->id, 'Image(s) is needed for push product', 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_images_exists']);
                     }
 
-                    MagentoServiceJob::dispatch($product, $website, $this->log, $this->mode)->onQueue($this->log->queue);
+                    MagentoServiceJob::dispatch($product, $website, $this->log)->onQueue($this->log->queue);
 
                     if ($this->log) {
                         $this->log->job_end_time = date('Y-m-d H:i:s');

@@ -16,9 +16,10 @@ class MagentoServiceJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $_product;
+
     protected $_website;
+
     protected $log;
-    protected $mode;
 
     /**
      * Create a new job instance.
@@ -26,15 +27,13 @@ class MagentoServiceJob implements ShouldQueue
      * @param  Product  $product
      * @param  StoreWebsite  $website
      * @param  null  $log
-     * @param  null  $mode
      */
-    public function __construct(Product $product, StoreWebsite $website, $log = null, $mode=null)
+    public function __construct(Product $product, StoreWebsite $website, $log = null)
     {
         // Set product and website
         $this->_product = $product;
         $this->_website = $website;
         $this->log = $log;
-        $this->mode = $mode;
     }
 
     /**
@@ -46,7 +45,7 @@ class MagentoServiceJob implements ShouldQueue
     {
         // Set time limit
         set_time_limit(0);
-        $magentoService = new MagentoService($this->_product, $this->_website, $this->log, $this->mode);
-        $magentoService->assignProductOperation();
+        $magentoService = new MagentoService($this->_product, $this->_website, $this->log);
+        $magentoService->pushProduct();
     }
 }
