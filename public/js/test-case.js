@@ -34,6 +34,12 @@ var page = {
             page.createStatus();
         });
 
+        page.config.bodyView.on("click",".btn-add-test-case-modal",function(e) {
+            e.preventDefault();
+            page.createTestCase();
+        });
+
+
         page.config.bodyView.on("click",".btn-push",function(e) {
             page.push($(this));
         });
@@ -57,6 +63,9 @@ var page = {
 
         $(".common-modal").on("click",".submit-status",function() {
             page.submitStatus($(this));
+        });
+        $(".common-modal").on("click",".submit-test-cases",function() {
+            page.submitTestCases($(this));
         });
 
         page.config.bodyView.on("click", ".btn-update", function (e) {
@@ -177,6 +186,14 @@ var page = {
     },
     createStatus : function(response) {
         var createWebTemplate = $.templates("#template-test-status");
+        var tplHtml = createWebTemplate.render({data:{}});
+
+        var common =  $(".common-modal");
+        common.find(".modal-dialog").html(tplHtml);
+        common.modal("show");
+    },
+    createTestCase : function(response) {
+        var createWebTemplate = $.templates("#template-test-cases");
         var tplHtml = createWebTemplate.render({data:{}});
 
         var common =  $(".common-modal");
@@ -341,6 +358,17 @@ var page = {
         }
         this.sendAjax(_z, "saveStatus");
     },
+    submitTestCases : function(ele) {
+        var _z = {
+            url:  this.config.baseUrl + "/add-test-cases",
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveBugTestCases");
+    },
 
     assignSelect2 : function () {
         var selectList = $("select.select-searchable");
@@ -413,6 +441,19 @@ var page = {
 
         } else {
             // $("#loading-image").hide();
+            toastr["error"](response.error, "");
+        }
+    },
+    saveBugTestCases: function (response) {
+        if (response.code == 200) {
+            $("#loading-image").hide();
+
+            // location.reload()
+            $(".common-modal").modal("hide");
+            toastr["success"](response.message, "Test Cases Added Successfully");
+
+        } else {
+            $("#loading-image").hide();
             toastr["error"](response.error, "");
         }
     },
