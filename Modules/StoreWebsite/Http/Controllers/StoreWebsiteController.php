@@ -1568,7 +1568,7 @@ class StoreWebsiteController extends Controller
 
         if ($request->api_token) {
             foreach ($apiTokens as $key => $apiToken){
-                StoreWebsite::where('id',$key)->update(['api_token'=>$apiToken]);
+                StoreWebsite::where('id',$key)->update(['api_token'=>$apiToken,'server_ip' => $request->server_ip[$key]]);
             }
             session()->flash('msg', 'Api Token Updated Successfully.');
             return redirect()->back();
@@ -1577,5 +1577,17 @@ class StoreWebsiteController extends Controller
             return redirect()->back();
 
         }
+    }
+    public function getApiToken(Request $request){
+        $search = $request->search;
+        $storeWebsites = StoreWebsite::whereNull('deleted_at');
+        if($search != Null){
+            $storeWebsites = $storeWebsites->where('title','Like','%'.$search.'%');
+        }
+        $storeWebsites = $storeWebsites->get();
+        return response()->json([
+            'tbody' => view('storewebsite::api-token', compact('storeWebsites'))->render(),
+
+        ], 200);
     }
 }
