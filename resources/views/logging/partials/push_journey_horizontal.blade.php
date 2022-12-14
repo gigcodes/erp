@@ -15,7 +15,9 @@
         {{-- <td>@if(in_array($condition, $pushJourney)) YES @else NO @endif</td> --}}
         {{-- <td>{{$condition->$useStatus}}</td> --}}
         <td>
-            @if($condition->$useStatus == '1')
+            @if($condition->status == 0)
+                <i class="fa fa-ban text-danger fa-lg" aria-hidden="true"></i>
+            @elseif(in_array($condition->condition, $pushJourney))
                 <i class="fa fa-check-circle-o text-success fa-lg" aria-hidden="true"></i>
             @else
                 <i class="fa fa-times-circle text-danger fa-lg" aria-hidden="true"></i>
