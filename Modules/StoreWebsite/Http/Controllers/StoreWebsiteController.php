@@ -47,6 +47,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 
@@ -62,8 +63,9 @@ class StoreWebsiteController extends Controller
         $title = 'List | Store Website';
         $services = Service::get();
         $assetManager = AssetsManager::whereNotNull('ip');
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->get();
 
-        return view('storewebsite::index', compact('title', 'services', 'assetManager'));
+        return view('storewebsite::index', compact('title', 'services', 'assetManager','storeWebsites'));
     }
 
     public function logWebsiteUsers($id)
@@ -1410,7 +1412,7 @@ class StoreWebsiteController extends Controller
                     $html .= '<tr>';
                     $html .= '<td>'.$res->created_at.'</td>';
                     $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-response-'.$res->id.'">'.str_limit($res->response, 100, '...').'</span>
+                    <span class="show-short-response-'.$res->id.'">'.Str::limit($res->response, 100, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
                     </td>';
                     $html .= '</tr>';
@@ -1448,15 +1450,15 @@ class StoreWebsiteController extends Controller
                     $html .= '<tr>';
                     $html .= '<td>'.$res->created_at.'</td>';
                     $html .= '<td class="expand-row-msg" data-name="website" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-website-'.$res->id.'">'.str_limit($res->website, 15, '...').'</span>
+                    <span class="show-short-website-'.$res->id.'">'.Str::limit($res->website, 15, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-website-'.$res->id.' hidden">'.$res->website.'</span>
                     </td>';
                     $html .= '<td class="expand-row-msg" data-name="response" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-response-'.$res->id.'">'.str_limit($res->response, 25, '...').'</span>
+                    <span class="show-short-response-'.$res->id.'">'.Str::limit($res->response, 25, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-response-'.$res->id.' hidden">'.$res->response.'</span>
                     </td>';
                     $html .= '<td class="expand-row-msg" data-name="command" data-id="'.$res->id.'" style="cursor: grabbing;">
-                    <span class="show-short-command-'.$res->id.'">'.str_limit($res->command_name, 25, '...').'</span>
+                    <span class="show-short-command-'.$res->id.'">'.Str::limit($res->command_name, 25, '...').'</span>
                     <span style="word-break:break-all;" class="show-full-command-'.$res->id.' hidden">'.$res->command_name.'</span>
                     </td>';
 
@@ -1559,5 +1561,33 @@ class StoreWebsiteController extends Controller
         } else {
             return response()->json(['code' => 500, 'message' => 'Token is invalid']);
         }
+    }
+
+    public function generateApiToken(Request $request){
+        $apiTokens = $request->api_token;
+
+        if ($request->api_token) {
+            foreach ($apiTokens as $key => $apiToken){
+                StoreWebsite::where('id',$key)->update(['api_token'=>$apiToken,'server_ip' => $request->server_ip[$key]]);
+            }
+            session()->flash('msg', 'Api Token Updated Successfully.');
+            return redirect()->back();
+        } else {
+            session()->flash('msg', 'Api Token is invalid.');
+            return redirect()->back();
+
+        }
+    }
+    public function getApiToken(Request $request){
+        $search = $request->search;
+        $storeWebsites = StoreWebsite::whereNull('deleted_at');
+        if($search != Null){
+            $storeWebsites = $storeWebsites->where('title','Like','%'.$search.'%');
+        }
+        $storeWebsites = $storeWebsites->get();
+        return response()->json([
+            'tbody' => view('storewebsite::api-token', compact('storeWebsites'))->render(),
+
+        ], 200);
     }
 }

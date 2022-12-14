@@ -4,6 +4,7 @@ namespace Modules\BookStack\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 use Modules\BookStack\Auth\Access\SocialAuthService;
 use Modules\BookStack\Auth\Access\UserInviteService;
 use Modules\BookStack\Auth\User;
@@ -103,7 +104,7 @@ class UserController extends Controller
         $user = $this->user->fill($request->all());
 
         if ($authMethod === 'standard') {
-            $user->password = bcrypt($request->get('password', str_random(32)));
+            $user->password = bcrypt($request->get('password', Str::random(32)));
         } elseif ($authMethod === 'ldap') {
             $user->external_auth_id = $request->get('external_auth_id');
         }

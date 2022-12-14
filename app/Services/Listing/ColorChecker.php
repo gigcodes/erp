@@ -4,6 +4,7 @@ namespace App\Services\Listing;
 
 use App\ColorReference;
 use App\Colors;
+use Illuminate\Support\Str;
 
 class ColorChecker implements CheckerInterface
 {
@@ -21,7 +22,7 @@ class ColorChecker implements CheckerInterface
 
     public function check($product): bool
     {
-        $color = title_case($product->color);
+        $color = Str::title($product->color);
         dump('COL...'.$color);
         if (in_array($color, $this->availableColors, false)) {
             $product->color = $color;
@@ -34,7 +35,7 @@ class ColorChecker implements CheckerInterface
         dump('sec_'.$color);
 
         if (in_array($color, $this->availableColors, false)) {
-            $product->color = title_case($color);
+            $product->color = Str::title($color);
             $product->save();
 
             return true;
@@ -44,7 +45,7 @@ class ColorChecker implements CheckerInterface
         dump('third_'.$color);
 
         if (in_array($color, $this->availableColors, false)) {
-            $product->color = title_case($color);
+            $product->color = Str::title($color);
             $product->save();
 
             return true;

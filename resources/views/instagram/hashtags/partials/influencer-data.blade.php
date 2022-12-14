@@ -13,18 +13,18 @@
         </td>
 	      
         <td style="white-space: nowrap;">
-          {{ str_limit(date('d-m-y', strtotime($influencer->created_at)), 5, '..')}}
+          {{ Str::limit(date('d-m-y', strtotime($influencer->created_at)), 5, '..')}}
         </td>
 
         <td>
             <a href="{{ $influencer->profile_url }}" target="_blank" class="text-dark">
-              {{ str_limit($influencer->name, 7, '..')}}
+              {{ Str::limit($influencer->name, 7, '..')}}
             </a>
         </td>
 
         <td class="expand-row-msg" data-name="email" data-id="{{$influencer->id}}">
 	            	<span onclick="showModal('{{$influencer->email}}','Email')" class="show-short-email-{{$influencer->id}}">
-                  {{ str_limit($influencer->email, 7, '..')}}
+                  {{ Str::limit($influencer->email, 7, '..')}}
                 </span>
 	            	<span style="word-break:break-all;" class="show-full-email-{{$influencer->id}} hidden">
                   {{$influencer->email}}
@@ -33,7 +33,7 @@
 
         <td class="expand-row-msg" data-name="keyword" data-id="{{$influencer->id}}">
 	      	<span onclick="showModal('{{$influencer->keyword}}','Influencer Name')" class="show-short-keyword-{{$influencer->id}}">
-            {{ str_limit($influencer->keyword, 7, '..')}}
+            {{ Str::limit($influencer->keyword, 7, '..')}}
           </span>
 		      <span style="word-break:break-all;" class="show-full-keyword-{{$influencer->id}} hidden">
             {{$influencer->keyword}}
@@ -57,14 +57,14 @@
                   class="show-short-country-{{$influencer->id}}"
                   style="cursor:pointer"
                   >
-                  {{ str_limit($influencer->country, 5, '..')}}
+                  {{ Str::limit($influencer->country, 5, '..')}}
             </span>
         <span style="word-break:break-all;" class="show-full-country-{{$influencer->id}} hidden">{{$influencer->country}}</span>
         </td>
 
         <td class="expand-row-msg" data-name="description" data-id="{{$influencer->id}}">
 
-        <span onclick="showModal( '{{$influencer->description}}' , 'Description' )" class="show-short-description-{{$influencer->id}}">{{ str_limit($influencer->description, 6, '..')}}</span>
+        <span onclick="showModal( '{{$influencer->description}}' , 'Description' )" class="show-short-description-{{$influencer->id}}">{{ Str::limit($influencer->description, 6, '..')}}</span>
         <span style="word-break:break-all;" class="show-full-description-{{$influencer->id}} hidden">{{$influencer->description}}</span>
         </td>  
         
@@ -93,7 +93,7 @@
                        @if($thread->lastMessage->sent == 1) style="color: green;" 
                        @else style="color: red;" 
                        @endif>
-                        {{ str_limit($thread->lastMessage->message, 20, '..')}}
+                        {{ Str::limit($thread->lastMessage->message, 20, '..')}}
                     </div>
                 @endif
               @endif

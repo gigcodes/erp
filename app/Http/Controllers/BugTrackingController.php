@@ -17,6 +17,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class BugTrackingController extends Controller
 {
@@ -58,32 +59,25 @@ class BugTrackingController extends Controller
             });
         }
         if ($keyword = request('bug_type')) {
-
             $records = $records->orWhereIn('bug_type_id', $keyword);
         }
         if ($keyword = request('bug_enviornment')) {
-
             $records = $records->orWhereIn('bug_environment_id', $keyword);
         }
         if ($keyword = request('bug_severity')) {
-
             $records = $records->orWhereIn('bug_severity_id', $keyword);
         }
         if ($keyword = request('created_by')) {
-
             $records = $records->orWhereIn('created_by', $keyword);
         }
         if ($keyword = request('assign_to_user')) {
-
             $records = $records->orWhereIn('assign_to', $keyword);
         }
         if ($keyword = request('bug_status')) {
-
             $records = $records->orWhereIn('bug_status_id', $keyword);
         }
         if ($keyword = request('module_id')) {
-
-            $records = $records->orWhereIn('module_id','LIKE',"%$keyword%");
+            $records = $records->orWhereIn('module_id', 'LIKE', "%$keyword%");
         }
         if ($keyword = request('step_to_reproduce')) {
             $records = $records->where(function ($q) use ($keyword) {
@@ -114,9 +108,9 @@ class BugTrackingController extends Controller
 //            $bug->bug_status_id = BugStatus::where('id',$bug->bug_status_id)->value('name');
             $bug->bug_history = BugTrackerHistory::where('bug_id', $bug->id)->get();
             $bug->website = StoreWebsite::where('id', $bug->website)->value('title');
-            $bug->summary_short = str_limit($bug->summary, 5, '..');
-            $bug->step_to_reproduce_short = str_limit($bug->step_to_reproduce, 5, '..');
-            $bug->url_short = str_limit($bug->url, 5, '..');
+            $bug->summary_short = Str::limit($bug->summary, 5, '..');
+            $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 5, '..');
+            $bug->url_short = Str::limit($bug->url, 5, '..');
 
             return $bug;
         });

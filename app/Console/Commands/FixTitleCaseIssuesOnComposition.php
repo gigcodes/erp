@@ -6,6 +6,7 @@ use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class FixTitleCaseIssuesOnComposition extends Command
 {
@@ -49,7 +50,7 @@ class FixTitleCaseIssuesOnComposition extends Command
             Product::chunk(1000, function ($products) {
                 foreach ($products as $product) {
                     dump($product->id);
-                    $product->composition = title_case($product->composition);
+                    $product->composition = Str::title($product->composition);
                     $product->save();
                 }
             });

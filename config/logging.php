@@ -36,7 +36,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['daily', 'slack'],
+            'channels' => ['daily'],
             'ignore_exceptions' => false,
         ],
 
@@ -45,14 +45,12 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => 'debug',
         ],
-        'bugsnag' => [
-            'driver' => 'bugsnag',
-        ],
+
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
             'level' => 'debug',
-            'days' => 7,
+            'days' => 14,
         ],
 
         'slack' => [
@@ -61,35 +59,6 @@ return [
             'username' => 'Laravel Log',
             'emoji' => ':boom:',
             'level' => 'critical',
-        ],
-
-        'papertrail' => [
-            'driver' => 'monolog',
-            'level' => 'debug',
-            'handler' => SyslogUdpHandler::class,
-            'handler_with' => [
-                'host' => env('PAPERTRAIL_URL'),
-                'port' => env('PAPERTRAIL_PORT'),
-            ],
-        ],
-
-        'stderr' => [
-            'driver' => 'monolog',
-            'handler' => StreamHandler::class,
-            'formatter' => env('LOG_STDERR_FORMATTER'),
-            'with' => [
-                'stream' => 'php://stderr',
-            ],
-        ],
-
-        'syslog' => [
-            'driver' => 'syslog',
-            'level' => 'debug',
-        ],
-
-        'errorlog' => [
-            'driver' => 'errorlog',
-            'level' => 'debug',
         ],
         /* Custom log files */
 
@@ -180,6 +149,38 @@ return [
             'driver' => 'daily',
             'path' => storage_path('logs/social_webhook/social_webhook.log'),
             'days' => 7,
+        ],
+        'bugsnag' => [
+            'driver' => 'bugsnag',
+        ],
+
+        'papertrail' => [
+            'driver' => 'monolog',
+            'level' => 'debug',
+            'handler' => SyslogUdpHandler::class,
+            'handler_with' => [
+                'host' => env('PAPERTRAIL_URL'),
+                'port' => env('PAPERTRAIL_PORT'),
+            ],
+        ],
+
+        'stderr' => [
+            'driver' => 'monolog',
+            'handler' => StreamHandler::class,
+            'formatter' => env('LOG_STDERR_FORMATTER'),
+            'with' => [
+                'stream' => 'php://stderr',
+            ],
+        ],
+
+        'syslog' => [
+            'driver' => 'syslog',
+            'level' => 'debug',
+        ],
+
+        'errorlog' => [
+            'driver' => 'errorlog',
+            'level' => 'debug',
         ],
     ],
 

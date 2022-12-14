@@ -36,19 +36,19 @@
                             <td>{{$key+1}}</td>
                             <td>{{ $account->storeWebsite->title }}</td>
                             <td class="expand-row-msg" data-name="api_key" data-id="{{$account->id}}">
-                            <span class="show-short-api_key-{{$account->id}}">{{ str_limit($account->api_key, 30, '...')}}</span>
+                            <span class="show-short-api_key-{{$account->id}}">{{ Str::limit($account->api_key, 30, '...')}}</span>
                             <span style="word-break:break-all;" class="show-full-api_key-{{$account->id}} hidden">{{ $account->api_key }}</span>
                             </td>
                             <td class="expand-row-msg" data-name="url" data-id="{{$account->id}}">
-                            <span class="show-short-url-{{$account->id}}">{{ str_limit($account->url, 30, '...')}}</span>
+                            <span class="show-short-url-{{$account->id}}">{{ Str::limit($account->url, 30, '...')}}</span>
                             <span style="word-break:break-all;" class="show-full-url-{{$account->id}} hidden">{{ $account->url }}</span>
                             </td>
                             <td class="expand-row-msg" data-name="work_space_id" data-id="{{$account->id}}">
-                            <span class="show-short-work_space_id-{{$account->id}}">{{ str_limit($account->work_space_id, 30, '...')}}</span>
+                            <span class="show-short-work_space_id-{{$account->id}}">{{ Str::limit($account->work_space_id, 30, '...')}}</span>
                             <span style="word-break:break-all;" class="show-full-work_space_id-{{$account->id}} hidden">{{ $account->work_space_id }}</span>
                             </td>
                             <td class="expand-row-msg" data-name="assistant_id" data-id="{{$account->id}}">
-                            <span class="show-short-assistant_id-{{$account->id}}">{{ str_limit($account->assistant_id, 30, '...')}}</span>
+                            <span class="show-short-assistant_id-{{$account->id}}">{{ Str::limit($account->assistant_id, 30, '...')}}</span>
                             <span style="word-break:break-all;" class="show-full-assistant_id-{{$account->id}} hidden">{{ $account->assistant_id }}</span>
                             </td>
                             <td>{{ $account->is_active ? 'Yes' : 'No' }}</td>

@@ -71,20 +71,20 @@
               <tr>
                 <td>{{ $asset->id }}</td>
                 <td class="expand-row-msg" data-name="name" data-id="{{$asset->id}}">
-                  <span class="show-short-name-{{$asset->id}}">{{ str_limit($asset->name, 8, '..')}}</span>
+                  <span class="show-short-name-{{$asset->id}}">{{ Str::limit($asset->name, 8, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-name-{{$asset->id}} hidden">{{$asset->name}}</span>
                 </td>
                 <td class="expand-row-msg" data-name="capacity" data-id="{{$asset->id}}">
-                  <span class="show-short-capacity-{{$asset->id}}">{{ str_limit($asset->capacity, 10, '..')}}</span>
+                  <span class="show-short-capacity-{{$asset->id}}">{{ Str::limit($asset->capacity, 10, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-capacity-{{$asset->id}} hidden">{{$asset->capacity}}</span>
                 </td>
                 <td class="expand-row-msg" data-name="user_name" data-id="{{$asset->id}}">
-                  <span class="show-short-user_name-{{$asset->id}}">{{ str_limit($asset->user_name, 10, '..')}}</span>
+                  <span class="show-short-user_name-{{$asset->id}}">{{ Str::limit($asset->user_name, 10, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-user_name-{{$asset->id}} hidden">{{$asset->user_name}}</span>
                 </td>
                 
                 <td class="expand-row-msg" data-name="password" data-id="{{$asset->id}}">
-                  <span class="show-short-password-{{$asset->id}}">{{ str_limit($asset->password, 3, '..')}}</span>
+                  <span class="show-short-password-{{$asset->id}}">{{ Str::limit($asset->password, 3, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-password-{{$asset->id}} hidden">{{$asset->password}}</span>
                 </td>
                 <td>{{ $asset->asset_type }}</td>
@@ -98,7 +98,7 @@
                 <td>{{ $asset->currency }}</td>
                 <td>{{ $asset->location }}</td>
                 <td class="expand-row-msg" data-name="usage" data-id="{{$asset->id}}">
-                  <span class="show-short-usage-{{$asset->id}}">{{ str_limit($asset->usage, 9, '..')}}</span>
+                  <span class="show-short-usage-{{$asset->id}}">{{ Str::limit($asset->usage, 9, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-usage-{{$asset->id}} hidden">{{$asset->usage}}</span>
                 </td>
                 <td>
