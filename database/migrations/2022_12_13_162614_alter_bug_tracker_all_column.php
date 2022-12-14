@@ -13,7 +13,7 @@ class AlterBugTrackerAllColumn extends Migration
      */
     public function up()
     {
-        Schema::create('bug_trackers', function (Blueprint $table) {
+        Schema::table('bug_trackers', function (Blueprint $table) {
             $table->integer('bug_type_id')->nullable()->change();
             $table->text('summary')->nullable()->change();
             $table->integer('bug_environment_id')->nullable()->change();
