@@ -110,11 +110,11 @@
                             <button class="btn btn-secondary btn-xs btn-add-status" style="color:white;"
                                     data-toggle="modal" data-target="#newStatus"> Status
                             </button>&nbsp;&nbsp;
-{{--                            @if(Auth::user()->hasRole('Admin'))--}}
+                            @if(Auth::user()->hasRole('Admin'))
                             <button class="btn btn-secondary btn-xs btn-add-test-case-modal" style="color:white;"
                                     data-toggle="modal" data-target="#newTestCaseModal"> Add Test Cases
                             </button>&nbsp;&nbsp;
-{{--                            @endif--}}
+                            @endif
                         </div>&nbsp;&nbsp;
                     </div>
                 </div>
