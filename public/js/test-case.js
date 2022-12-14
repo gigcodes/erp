@@ -36,6 +36,7 @@ var page = {
 
         page.config.bodyView.on("click",".btn-add-test-case-modal",function(e) {
             e.preventDefault();
+            console.log('click on button')
             page.createTestCase();
         });
 
@@ -193,12 +194,16 @@ var page = {
         common.modal("show");
     },
     createTestCase : function(response) {
+        console.log('after click on button')
+
         var createWebTemplate = $.templates("#template-test-cases");
         var tplHtml = createWebTemplate.render({data:{}});
 
         var common =  $(".common-modal");
         common.find(".modal-dialog").html(tplHtml);
         common.modal("show");
+        console.log('modal on button')
+
     },
 
     editRecord : function(ele) {
