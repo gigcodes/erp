@@ -169,7 +169,7 @@ return [
         Nestable\NestableServiceProvider::class,
         Pusher\Laravel\PusherServiceProvider::class,
         //Chumper\Zipper\ZipperServiceProvider::class,
-         Madnest\Madzipper\MadzipperServiceProvider::class,
+        Madnest\Madzipper\MadzipperServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Thujohn\Twitter\TwitterServiceProvider::class,
