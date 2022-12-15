@@ -588,7 +588,7 @@
                 beforeSend : function() {
                     $("#loading-image-preview").show();
                 },
-                url: "{{ url('products/listing/final/pushproduct') }}",
+                url: "{{ route('products.processProductsConditionsCheck') }}",
                 data : form.serialize(),
                 success: function (html) {
                     $("#loading-image-preview").hide();

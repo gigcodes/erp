@@ -7,7 +7,6 @@
         <th style="width:7%">Brand</th>
         <th style="width:15%">Category</th>
         <th style="width:8%">Title</th>
-        <th style="width:9%"> Description</th>
         <th style="width:8%">Composition</th>
         <th style="width:8%">Color</th>
         <th style="width:8%">Dimension</th>
@@ -230,27 +229,6 @@
                 @else
                     <span>{{ $product->name }}</span>
                 @endif
-            </td>
-            <td class="table-hover-cell">
-                <div class="quick-edit-description quick-edit-description-{{ $product->id }}" data-id="{{ $product->id }}">
-                    @if (!$imageCropperRole)
-                        <span class="quick-description">{{ $product->short_description}}</span>
-                        <textarea name="description" id="textarea_description_{{ $product->id }}"
-                                  class="form-control quick-edit-description-textarea hidden" rows="8"
-                                  cols="80">{{ $product->short_description }}</textarea>
-                    @else
-
-                        <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
-                        <span class="long-description-container hidden">
-                            <span class="description-container">{{ $product->short_description }}</span>
-                        </span>
-
-                    @endif
-                </div>
-                <div>
-                    <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-description" title="Edit description for specific Website" data-id="{{ $product->id }}" data-target="#description_modal_view_{{ $product->id }}"
-                            data-toggle="modal"><i class="fa fa-info-circle"></i></button>
-                </div>
             </td>
             <td class="table-hover-cell" data-id="{{ $product->id }}">
                 @if (!$imageCropperRole)

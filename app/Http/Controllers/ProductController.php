@@ -4797,11 +4797,6 @@ class ProductController extends Controller
             ->get();
         foreach ($products as $key => $product) {
             // Setting is_conditions_checked flag as 1
-            if($mode == 'conditions-check') {
-                $productRow = Product::find($product->id);
-                $productRow->is_conditions_checked = 1;
-                $productRow->save();
-            }
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
 
             if (! empty($websiteArrays)) {
@@ -4809,13 +4804,10 @@ class ProductController extends Controller
                 foreach ($websiteArrays as $websiteArray) {
                     $website = StoreWebsite::find($websiteArray);
                     if ($website) {
-                        \Log::info('Product started website found For website'.$website->website);
+                        \Log::info('Product started website found For website ' . $website->website);
                         $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
                         //currently we have 3 queues assigned for this task.
-                        if($mode == 'conditions-check')
-                            $log->queue = \App\Helpers::createQueueName('magento-conditions-check-queue');
-                        else
-                            $log->queue = \App\Helpers::createQueueName($website->title);
+                        $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
 
@@ -4823,6 +4815,60 @@ class ProductController extends Controller
                         $i++;
                     } else {
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', $website->id, null, null, null, null);
+                    }
+                }
+            } else {
+                ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
+            }
+        }
+
+        if($mode == 'conditions-check') {
+            return response()->json(['code' => 200, 'message' => 'Conditions checked completed successfully!']);
+        }
+        elseif($mode == 'product-push')
+            return response()->json(['code' => 200, 'message' => 'Push product successfully!']);
+
+    }
+
+
+    public function processProductsConditionsCheck(Request $request)
+    {
+        $limit = $request->get('no_of_product', 100);
+        // Mode($mode) defines the whether it's a condition check or product push.
+        $mode = $request->get('mode', 'product-push');
+
+        // Gets all products with final approval status
+        $products = Product::select('*')
+            ->where('short_description', '!=', '')->where('name', '!=', '')
+            ->where('status_id', StatusHelper::$finalApproval)
+            ->groupBy('brand', 'category')
+            ->limit($limit)
+            ->get();
+
+        foreach ($products as $key => $product) {
+            // Setting is_conditions_checked flag as 1
+            $productRow = Product::find($product->id);
+            $productRow->is_conditions_checked = 1;
+            $productRow->save();
+            \Log::info('Product conditions check started and is_conditions_checked set as 1!');
+
+            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+            \Log::info('Gets all websites to process the condition check of a product!');
+            if (! empty($websiteArrays)) {
+                $i = 1;
+                foreach ($websiteArrays as $websiteArray) {
+                    $website = StoreWebsite::find($websiteArray);
+                    if ($website) {
+                        \Log::info('Product conditions check started website found For website '.$website->website);
+                        $log = LogListMagento::log($product->id, 'Product conditions check started for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
+                        //currently we have 3 queues assigned for this task.
+                        $log->queue = \App\Helpers::createQueueName('magentoConditionsCheckQueue');
+                        $log->save();
+                        ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name, 'success', $website->id, null, null, $log->id, null);
+                        PushToMagento::dispatch($product, $website, $log, $mode)->onQueue($log->queue);
+                        $i++;
+                    } else {
+                        ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name.' website for product not found', 'error', $website->id, null, null, null, null);
                     }
                 }
             } else {
