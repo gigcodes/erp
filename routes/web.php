@@ -3801,6 +3801,7 @@ Route::prefix('system')->middleware('auth')->group(function () {
     Route::get('/size/manageredit', 'SystemSizeController@manageredit')->name('system.size.manageredit');
     Route::post('/size/managerupdate', 'SystemSizeController@managerupdate')->name('system.size.managerupdate');
     Route::get('/size/managerdelete', 'SystemSizeController@managerdelete')->name('system.size.managerdelete');
+    Route::get('/size/exports', 'SystemSizeController@exports')->name('system.size.exports');
 
     Route::prefix('auto-refresh')->group(static function () {
         Route::get('/', 'AutoRefreshController@index')->name('auto.refresh.index');
