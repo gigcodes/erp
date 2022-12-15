@@ -31,7 +31,7 @@ class SystemSizeController extends Controller
             'categories.parent_id as category_parent_id',
             'system_size_managers.erp_size',
             'system_size_managers.created_at',
-            'system_size_managers.updated_at',
+            'system_size_managers.updated_at'
         )
                                                     ->leftjoin('categories', 'categories.id', 'system_size_managers.category_id')
                                                     ->where('system_size_managers.status', 1)
