@@ -69,6 +69,9 @@ class BuyBackController extends Controller
         //if order type is not cancellation the add validation for product sku
         if ($request->type != 'cancellation') {
             $validationsarr['product_sku'] = 'required|exists:order_products,sku';
+        }
+
+        if ($request->type == 'cancellation') {
             $validationsarr['cancellation_type'] = 'required';
         }
 
