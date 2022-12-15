@@ -644,6 +644,11 @@ class Product extends Model
         return $this->hasOne(\App\Category::class, 'id', 'category');
     }
 
+    public function magentoLog()
+    {
+        return $this->hasOne(\App\Loggers\LogListMagento::class, 'id')->orderBy('id', 'desc');
+    }
+
     public function references()
     {
         return $this->hasMany(\App\ProductReference::class);

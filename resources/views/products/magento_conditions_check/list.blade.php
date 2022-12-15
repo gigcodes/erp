@@ -15,6 +15,7 @@
         <th style="width:5%">Price</th>
 {{--        <th style="width:8%">Action</th>--}}
         <th style="width:5%">Status</th>
+        <th style="width:5%">Log message</th>
         <th style="width:5%">User</th>
     </tr>
     </thead>
@@ -26,7 +27,7 @@
     @endif
     @foreach ($products as $key => $product)
         <tr style="display: none" id="product{{ $product->id }}">
-            <td colspan="15">
+            <td colspan="14">
                 <div class="row">
                     <div class="col-md-3">
                         <p class="same-color">{{ strtoupper($product->name) }}</p>
@@ -312,6 +313,13 @@
 {{--            </td>--}}
             <td>
                 {{ $product->product_status }}
+            </td>
+            <td>
+                @if($product->magentoLog)
+                    {{ $product->magentoLog->message }}
+                @else
+                    Product not entered to the queue for conditions check
+                @endif
             </td>
             <td>
                 <select class="form-control select-multiple approved_by" name="approved_by"

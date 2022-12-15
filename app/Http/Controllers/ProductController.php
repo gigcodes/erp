@@ -4812,7 +4812,10 @@ class ProductController extends Controller
                         \Log::info('Product started website found For website'.$website->website);
                         $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
                         //currently we have 3 queues assigned for this task.
-                        $log->queue = \App\Helpers::createQueueName($website->title);
+                        if($mode == 'conditions-check')
+                            $log->queue = \App\Helpers::createQueueName('magento-conditions-check-queue');
+                        else
+                            $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
 
@@ -4866,7 +4869,7 @@ class ProductController extends Controller
                     if ($website) {
                         \Log::info('Product started website found For website'.$website->website);
                         $log = LogListMagento::log($product->id, 'Push to magento of conditions checked product with id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
-                        $log->queue = \App\Helpers::createQueueName('Push-to-magento-'.$product->sku);
+                        $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
 
