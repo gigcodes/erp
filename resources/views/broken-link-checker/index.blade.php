@@ -51,7 +51,7 @@
             @foreach ($details as $key => $detail)
                 <tr>
                     <td data-id="{{ $detail->id }}>
-                      <span class="quick-domain"><a data-toggle="collapse" href="#collapse_domain-{{$key}}" class="collapsed" aria-expanded="false">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->domains, 10, '...'))); @endphp</a></span>
+                      <span class="quick-domain"><a data-toggle="collapse" href="#collapse_domain-{{$key}}" class="collapsed" aria-expanded="false">@php echo htmlspecialchars_decode(stripslashes(Str::limit($detail->domains, 10, '...'))); @endphp</a></span>
                       <input name="domain_name" type="text" class="form-control quick-edit-domain-input hidden" placeholder="Domain Name" value="{{ $detail->domains }}"/>
                       <button type="button" class="btn-link quick-edit-domain" data-id="{{ $detail->id }}">Edit</button>
                       @if (strlen(strip_tags($detail->domains)) > 10)
@@ -68,16 +68,16 @@
                           </div>
                       @endif
                     </td>
-                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->id, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
-                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->link, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
-                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->link_type, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
-                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->num_reviews, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
-                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->rank, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
-                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->rating, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
-                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->serp_id, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
-                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->snippet, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
+                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(Str::limit($detail->id, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
+                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(Str::limit($detail->link, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
+                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(Str::limit($detail->link_type, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
+                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(Str::limit($detail->num_reviews, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
+                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(Str::limit($detail->rank, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
+                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(Str::limit($detail->rating, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
+                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(Str::limit($detail->serp_id, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
+                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(Str::limit($detail->snippet, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
                     <td data-id="{{ $detail->id }}>
-                    <span class="quick-title"><a data-toggle="collapse" href="#collapse_title-{{$key}}" class="collapsed" aria-expanded="false">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->title, 50, '...'))); @endphp</a></span>
+                    <span class="quick-title"><a data-toggle="collapse" href="#collapse_title-{{$key}}" class="collapsed" aria-expanded="false">@php echo htmlspecialchars_decode(stripslashes(Str::limit($detail->title, 50, '...'))); @endphp</a></span>
                     <textarea name="title" class="form-control quick-edit-title-input hidden" placeholder="TItle" rows="8" cols="80">{{ $detail->title }}</textarea>
                     {{-- <input name="title" type="text" class="form-control quick-edit-title-input hidden" placeholder="TItle" value="{{ $detail->title }}"/> --}}
                     <button type="button" class="btn-link quick-edit-title" data-id="{{ $detail->id }}">Edit</button>
@@ -95,7 +95,7 @@
                           </div>
                         @endif
                     </td>
-                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(str_limit($detail->visible_link, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
+                    <td class="readmore">@php echo htmlspecialchars_decode(stripslashes(Str::limit($detail->visible_link, 10, '<a href="javascript:void(0)">...</a>'))); @endphp</td>
                 </tr>    
             @endforeach
         </tbody>

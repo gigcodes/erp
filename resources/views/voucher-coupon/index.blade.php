@@ -123,7 +123,7 @@
                 @if(isset($vou->user)) {{  $task->user->name }} @endif
               </td> --}}
               <td>{{ $vou->plateform_name}}</td>
-              <td class="Website-task">{{ str_limit($vou->from_address, 20, $end = '...') }}</td>
+              <td class="Website-task">{{ Str::limit($vou->from_address, 20, $end = '...') }}</td>
               <td>{{ $vou->number }} </td>
               <td>{{ $vou->remark }} </td>
               <td>

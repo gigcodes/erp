@@ -40,7 +40,7 @@
             foreach ($bugEnvironments as  $bugEnvironment) {
                 echo "<option {{if data.bug_environment_id == '".$bugEnvironment->id."'}} selected {{/if}} value='".$bugEnvironment->id."'>".$bugEnvironment->name.'</option>';
             }
-		?>
+        ?>
 		         </select>
 		      </div>
 		       <div class="form-group col-md-6">

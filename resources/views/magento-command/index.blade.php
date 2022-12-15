@@ -127,7 +127,7 @@
                   $userName = \App\User::where('id', $magentoCom->user_id)->first();
                 ?>
                 <td class="expand-row-msg" data-name="userName" data-id="{{$magentoCom->id}}">
-                  <span class="show-short-userName-{{$magentoCom->id}}">{{ str_limit($userName->name, 5, '..')}}</span>
+                  <span class="show-short-userName-{{$magentoCom->id}}">{{ Str::limit($userName->name, 5, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-userName-{{$magentoCom->id}} hidden">{{$userName->name}}</span>
                 </td>
                 <?php 
@@ -138,11 +138,11 @@
                   }
                 ?>
                 <td class="expand-row-msg" data-name="websites" data-id="{{$magentoCom->id}}">
-                  <span class="show-short-websites-{{$magentoCom->id}}">{{ str_limit($websiteName, 20, '..')}}</span>
+                  <span class="show-short-websites-{{$magentoCom->id}}">{{ Str::limit($websiteName, 20, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-websites-{{$magentoCom->id}} hidden">{{$websiteName}}</span>
                 </td>
                 <td class="expand-row-msg" data-name="command_name" data-id="{{$magentoCom->id}}">
-                  <span class="show-short-command_name-{{$magentoCom->id}}">{{ str_limit($magentoCom->command_name, 20, '..')}}</span>
+                  <span class="show-short-command_name-{{$magentoCom->id}}">{{ Str::limit($magentoCom->command_name, 20, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-command_name-{{$magentoCom->id}} hidden">{{$magentoCom->command_name}}</span>
                 </td>
                 <td>

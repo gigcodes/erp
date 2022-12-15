@@ -94,7 +94,7 @@
                                             <span title="{{ $site->lastRemark->remarks }}"
                                                 class="td-full-container-{{ $site->lastRemark ? $site->lastRemark->id : 0 }}">
                                                 @if ($site->lastRemark)
-                                                    {{ str_limit($site->lastRemark->remarks, 15, '...') }}
+                                                    {{ Str::limit($site->lastRemark->remarks, 15, '...') }}
                                                 @endif
                                             </span>
                                         </div>
