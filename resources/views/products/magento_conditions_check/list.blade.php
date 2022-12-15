@@ -294,7 +294,7 @@
             </td>
             <td>
                 @if($product->magentoLog)
-                    {{ $product->magentoLog->message }}
+                    {{ $product->magentoLog->message.'-'.$product->magentoLog->id }}
                 @else
                     Product not entered to the queue for conditions check
                 @endif

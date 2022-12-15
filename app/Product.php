@@ -644,7 +644,7 @@ class Product extends Model
 
     public function magentoLog()
     {
-        return $this->hasOne(\App\Loggers\LogListMagento::class)->orderBy('id', 'desc');
+        return $this->hasOne(\App\Loggers\LogListMagento::class)->orderBy('log_list_magentos.id', 'desc');
     }
 
     public function references()
