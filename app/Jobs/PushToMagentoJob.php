@@ -6,35 +6,34 @@ use App\Library\Magento\MagentoService;
 use App\Product;
 use App\StoreWebsite;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
-class MagentoServiceJob implements ShouldQueue
+class PushToMagentoJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $_product;
     protected $_website;
     protected $log;
-    protected $mode;
+    protected $category;
 
     /**
      * Create a new job instance.
      *
      * @param  Product  $product
      * @param  StoreWebsite  $website
+     * @param  null $category
      * @param  null  $log
-     * @param  null  $mode
      */
-    public function __construct(Product $product, StoreWebsite $website, $log = null, $mode=null)
+    public function __construct(Product $product, StoreWebsite $website, $log = null, $category = null)
     {
-        // Set product and website
         $this->_product = $product;
         $this->_website = $website;
         $this->log = $log;
-        $this->mode = $mode;
+        $this->category = $category;
     }
 
     /**
@@ -44,9 +43,8 @@ class MagentoServiceJob implements ShouldQueue
      */
     public function handle()
     {
-        // Set time limit
         set_time_limit(0);
-        $magentoService = new MagentoService($this->_product, $this->_website, $this->log, $this->mode);
-        $magentoService->assignProductOperation();
+        $magentoService = new MagentoService($this->_product, $this->_website, $this->log, $this->category);
+        $magentoService->pushProduct();
     }
 }
