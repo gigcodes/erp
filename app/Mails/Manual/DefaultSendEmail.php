@@ -25,7 +25,7 @@ class DefaultSendEmail extends Mailable
      *
      * @return void
      */
-    public function __construct($email, $attchments, $template = null, $dataArr = [], $rxProducts = null , $fromMailer = null)
+    public function __construct( $email, $attchments, $template = null, $dataArr = [], $rxProducts = null , $fromMailer = null)
     {
         $this->email = $email;
         $this->attchments = $attchments;
