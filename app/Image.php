@@ -7,15 +7,15 @@ namespace App;
  */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Storage;
 
 class Image extends Model
 {
     public static function generateImageName($key)
     {
-        $name = Input::file($key)->getClientOriginalName();
-        $extension = Input::file($key)->getClientOriginalExtension();
+        $name = Request::file($key)->getClientOriginalName();
+        $extension = Request::file($key)->getClientOriginalExtension();
         $timestamp = date('Y-m-d-His', time());
 
         return $name.'-'.$timestamp.'.'.$extension;
@@ -24,7 +24,7 @@ class Image extends Model
     public static function newImage($key = 'image')
     {
         $image_name = self::generateImageName($key);
-        Input::file($key)->move('uploads', $image_name);
+        Request::file($key)->move('uploads', $image_name);
 
         return $image_name;
     }

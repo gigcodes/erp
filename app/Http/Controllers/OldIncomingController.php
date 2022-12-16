@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Issue;
 use App\OldIncoming;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request as Input;
 use Session;
 
 class OldIncomingController extends Controller
