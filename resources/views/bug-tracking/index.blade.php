@@ -283,6 +283,7 @@ table{border-collapse: collapse;}
 
 						<th>Type of Bug</th>
 						<th>Summary</th>
+						<th>Expected Result</th>
 						<th>Environment</th>
 						<th>Status</th>
 						<th>Severity</th>

@@ -3,21 +3,22 @@
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th>ID</th>
-                <th>Date</th>
-                <th>Summary</th>
-                <th>Type</th>
-                <th>Steps to reproduce</th>
-                <th>Environment</th>
-                <th class='break'>Screenshot/Video url</th>
-                <th>Created By</th>
-                <th width="200px">Assign to</th>
-                <th width="200px">Severity</th>
-                <th width="200px">Status</th>
-                <th>Module</th>
-                <th width="300px">Communicaton</th>
-                <th>Website</th>
-                <th>Action</th>
+		      	<th width="4%">ID</th>
+                <th width="6%">Date</th>
+                <th width="3%">Summary</th>
+                <th width="5%">Type</th>
+                <th width="6%">Steps to reproduce</th>
+                <th width="4%">Environment</th>
+                <th width="4%">Expected Result</th>
+                <th class='break' width="7%">Screenshot/Video url</th>
+                <th width="5%">Created By</th>
+                <th width="8%">Assign to</th>
+                <th width="8%">Severity</th>
+                <th width="8%">Status</th>
+                <th width="5%">Module</th>
+                <th width="15%">Communicaton</th>
+                <th width="5%">Website</th>
+                <th width="7%">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody class="pending-row-render-view infinite-scroll-pending-inner">
@@ -33,13 +34,15 @@
                         <span class="show-full-step_to_reproduce-{{:prop.id}} hidden" >{{:prop.step_to_reproduce}}</span>
                     </td>
 			        <td class='break'>{{:prop.bug_environment_id}} {{:prop.bug_environment_ver}}</td>
+			        <td class='break'>{{:prop.expected_result}}</td>
+
 			        <td class='break expand-row-msg' data-name="url" data-id="{{:prop.id}}">
 			            <a href="{{:prop.url}}" target="_blank">
 			                <span href="" class="show-short-url-{{:prop.id}}">{{:prop.url_short}}</span>
                             <span href="" class="show-full-url-{{:prop.id}} hidden" >{{:prop.url}}</span>
                         </a>
 
-                        <button type="button"  class="btn btn-copy-url btn-sm" data-id="{{:prop.url}}" style="border:1px solid">
+                        <button type="button"  class="btn btn-copy-url btn-sm" data-id="{{:prop.url}}" >
                             <i class="fa fa-clone" aria-hidden="true"></i></button>
                      </td>
                      <td class='break'>{{:prop.created_by}}</td>

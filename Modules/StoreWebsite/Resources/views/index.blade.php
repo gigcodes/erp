@@ -233,7 +233,7 @@
 </div>
 
 <div class="modal fade" id="store-api-token" role="dialog">
-	<div class="modal-dialog modal-lg">
+	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title"><b>Store Api Token</b></h5>
@@ -244,36 +244,39 @@
 			<div class="modal-body">
 				<div class="row">
 					<div class="col-lg-12">
+						<div style="display:flex !important; float:right !important;"><input type="text" class="form-control api-token-search" name="search"
+																	 placeholder="Search">
+							&nbsp;
+							<button style="display: inline-block;width: 10%"
+									class="btn btn-sm btn-image btn-secondary btn-search-api-token">
+								<img src="/images/search.png" style="cursor: default;">
+							</button>
+							&nbsp;
+							<button style="display: inline-block;width: 10%"
+									class="btn btn-sm btn-image btn-secondary btn-refresh-api-token">
+								<img src="/images/resend2.png" style="cursor: default;">
+							</button>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-lg-12">
 						<form action="/store-website/generate-api-token" method="post">
 							<?php echo csrf_field(); ?>
 							<div class="row">
 								<div class="col-md-12">
 									<div class="table-responsive mt-3">
-										<table class="table table-bordered overlay"  >
+										<table class="table table-bordered overlay api-token-table"  >
 											<thead>
 											<tr>
 												<th>Id</th>
-												<th width="20%">Title</th>
-												<th width="70%">Api Token</th>
+												<th width="15%">Title</th>
+												<th width="45%">Api Token</th>
+												<th width="30%">Server Ip</th>
 											</tr>
 											</thead>
 											<tbody>
-											@foreach($storeWebsites as $storeWebsite)
-											<tr>
-												<td >
-													{{$storeWebsite->id}}
-												</td>
-												<td width="20%">{{$storeWebsite->title}}</td>
-												<td width="70%">
-													<div style="display: flex">
-													<input type="text" class="form-control" name="api_token[{{$storeWebsite->id}}]" value="{{$storeWebsite->api_token}}">
-													<button type="button" data-id="" class="btn btn-copy-api-token btn-sm" data-value="{{$storeWebsite->api_token}}">
-														<i class="fa fa-clone" aria-hidden="true"></i>
-													</button>
-													</div>
-												</td>
-											</tr>
-												@endforeach
+												@include('storewebsite::api-token')
 											</tbody>
 										</table>
 									</div>
@@ -493,6 +496,67 @@
 		$temp.remove();
 		alert("Copied!");
 	});
+	$(document).on("click",".btn-copy-server-ip",function() {
+		var serverip = $(this).data('value');
+		var $temp = $("<input>");
+		$("body").append($temp);
+		$temp.val(serverip).select();
+		document.execCommand("copy");
+		$temp.remove();
+		alert("Copied!");
+	});
+
+		$(document).on('click','.btn-search-api-token',function(){
+		src = 'store-website/get-api-token'
+		search = $('.api-token-search').val()
+		$.ajax({
+			url: src,
+			dataType: "json",
+			type: "GET",
+			data: {
+				search : search,
+			},
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
+
+		}).done(function (data) {
+			$("#loading-image").hide();
+			$(".api-token-table tbody").empty().html(data.tbody);
+
+
+
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			alert('No response from server');
+		});
+
+	})
+
+	$(document).on('click','.btn-refresh-api-token',function(){
+		src = 'store-website/get-api-token'
+		$.ajax({
+			url: src,
+			dataType: "json",
+			type: "GET",
+			data: {
+
+			},
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
+
+		}).done(function (data) {
+			$("#loading-image").hide();
+			$(".api-token-search").val("");
+			$(".api-token-table tbody").empty().html(data.tbody);
+
+
+
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			alert('No response from server');
+		});
+
+	})
 </script>
 
 @endsection

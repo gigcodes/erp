@@ -372,12 +372,16 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('product/listing/users', 'ProductController@showListigByUsers');
     Route::get('products/listing', 'ProductController@listing')->name('products.listing');
     Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
+    Route::get('products/listing/conditions-check', 'ProductController@magentoConditionsCheck')->name('products.magentoConditionsCheck');
     Route::get('products/push/magento/conditions', 'ProductController@pushToMagentoConditions')->name('products.push.conditions');
     Route::get('products/conditions/status/update', 'ProductController@updateConditionStatus')->name('products.push.condition.update');
     Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
     Route::get('products/conditions/upteamstatus/update', 'ProductController@updateConditionUpteamStatus')->name('products.push.condition.update');
 
     Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
+    Route::post('products/listing/final/process-conditions-check', 'ProductController@processProductsConditionsCheck')->name('products.processProductsConditionsCheck');
+    Route::post('products/listing/push-to-magento', 'ProductController@pushProductsToMagento')->name('products.pushToMagento');
+    Route::get('products/listing/magento-push-status', 'ProductController@magentoPushStatus')->name('products.magentoPushStatus');
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
     Route::post('product/image/order/change', 'ProductController@changeimageorder');
 
@@ -2390,6 +2394,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('test-cases/assign_user', 'TestCaseController@assignUser')->name('test-cases.assign_user');
     Route::post('test-cases/status_user', 'TestCaseController@statusUser')->name('test-cases.status_user');
     Route::post('test-cases/sendmessage', 'TestCaseController@sendMessage')->name('test-cases.sendmessage');
+    Route::post('test-cases/add-test-cases', 'TestCaseController@sendTestCases')->name('test-cases.sendtestcases');
 
 	
     Route::get('test-suites', 'TestSuitesController@index')->name('test-suites.index');
@@ -3817,6 +3822,7 @@ Route::prefix('system')->middleware('auth')->group(function () {
     Route::get('/size/manageredit', 'SystemSizeController@manageredit')->name('system.size.manageredit');
     Route::post('/size/managerupdate', 'SystemSizeController@managerupdate')->name('system.size.managerupdate');
     Route::get('/size/managerdelete', 'SystemSizeController@managerdelete')->name('system.size.managerdelete');
+    Route::get('/size/exports', 'SystemSizeController@exports')->name('system.size.exports');
 
     Route::prefix('auto-refresh')->group(static function () {
         Route::get('/', 'AutoRefreshController@index')->name('auto.refresh.index');

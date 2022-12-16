@@ -71,6 +71,10 @@ class BuyBackController extends Controller
             $validationsarr['product_sku'] = 'required|exists:order_products,sku';
         }
 
+        if ($request->type == 'cancellation') {
+            $validationsarr['cancellation_type'] = 'required';
+        }
+
         $validator = Validator::make($request->all(), $validationsarr);
 
         if ($validator->fails()) {
@@ -82,7 +86,7 @@ class BuyBackController extends Controller
         $storeWebsite = \App\StoreWebsite::where('website', 'like', $request->website)->first();
         $skus = [];
         if ($storeWebsite) {
-            if ($request->type == 'cancellation') {
+            if ($request->type == 'cancellation' && $request->cancellation_type == 'order') {
                 $storewebisteOrder = StoreWebsiteOrder::where('platform_order_id', $request->order_id)->where('website_id', $storeWebsite->id)->first();
                 if ($storewebisteOrder) {
                     $skus = \App\OrderProduct::where('order_id', $storewebisteOrder->order_id)->get()->pluck('sku')->toArray();
@@ -95,6 +99,8 @@ class BuyBackController extends Controller
                         $storewebisteOrder->save();
                     }
                 }
+            } elseif($request->type == 'cancellation' && $request->cancellation_type == 'products') {
+                $skus = explode(",",rtrim($request->product_sku, ','));
             } else {
                 $skus[] = $request->product_sku;
             }
