@@ -631,7 +631,7 @@ table{border-collapse: collapse;}
 			if(values.length ==0 && $("input[name='chkBugId[]']").length>0) {
 				toastr["error"]("Please select atleast 1 bugs list ");
 				return;
-			}
+			} 
 			
 			
 			$.ajax({

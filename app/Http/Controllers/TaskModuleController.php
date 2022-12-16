@@ -2005,7 +2005,8 @@ class TaskModuleController extends Controller
 
             $bug_list_ids = explode(',',$request->task_bug_ids);
             $model_bug_tracker = BugTracker::whereIn('id', $bug_list_ids)->get()->toArray();
-            $bug_tracker_array = array();           
+            $bug_tracker_array = array();
+            $model_name = 0;           
             for($p=0;$p<count($model_bug_tracker);$p++) {
                 $bug_primary_id = $model_bug_tracker[$p]['id'];
                 $bug_tracker_array[$bug_primary_id] = $model_bug_tracker[$p];
@@ -2094,7 +2095,7 @@ class TaskModuleController extends Controller
                                     for($k=0;$k<count($bug_list_ids);$k++) {
                                         $bug_tacker_id = $bug_list_ids[$k];                                       
                                         $bug_tracking = BugTracker::find($bug_tacker_id);
-                                        $bug_tracking->bug_status_id  = 5;
+                                        $bug_tracking->bug_status_id  = 6;
                                         $bug_tracking->assign_to  = $task_asssigned_user_to;
                                         $bug_tracking->updated_at = date("Y-m-d H:i:s");
                                         $bug_tracking->updated_by = Auth::user()->name;                       
@@ -2131,7 +2132,7 @@ class TaskModuleController extends Controller
                                     for($k=0;$k<count($bug_list_ids);$k++) {
                                         $bug_tacker_id = $bug_list_ids[$k];                                       
                                         $bug_tracking = BugTracker::find($bug_tacker_id);
-                                        $bug_tracking->bug_status_id  = 5;
+                                        $bug_tracking->bug_status_id  = 6;
                                         $bug_tracking->assign_to  = $task_asssigned_user_to;
                                         $bug_tracking->updated_at = date("Y-m-d H:i:s");
                                         $bug_tracking->updated_by = Auth::user()->name;                       
@@ -3350,19 +3351,19 @@ class TaskModuleController extends Controller
                             $bug_tacker_id = $task_details_info[$k];
                             $bug_tracking = BugTracker::find($bug_tacker_id);
                             if($task->status == 3) { // In progress
-                                $bug_tracking->bug_status_id  = 5;
-                            } else if($task->status == 1) { // complete
                                 $bug_tracking->bug_status_id  = 6;
-                                if($admin_user_id>0) {
-                                    $bug_tracking->assign_to = $admin_user_id;
-                                }
-                            }  else if($task->status == 2) { // Discussing
+                            } else if($task->status == 1) { // complete
                                 $bug_tracking->bug_status_id  = 7;
                                 if($admin_user_id>0) {
                                     $bug_tracking->assign_to = $admin_user_id;
                                 }
-                            }  else if($task->status == 6) { // Discuss with Lead
+                            }  else if($task->status == 2) { // Discussing
                                 $bug_tracking->bug_status_id  = 8;
+                                if($admin_user_id>0) {
+                                    $bug_tracking->assign_to = $admin_user_id;
+                                }
+                            }  else if($task->status == 6) { // Discuss with Lead
+                                $bug_tracking->bug_status_id  = 10;
                                 if($admin_user_id>0) {
                                     $bug_tracking->assign_to = $admin_user_id;
                                 }

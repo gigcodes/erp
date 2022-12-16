@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use App\BugStatusHistory;
 
 class BugTrackingController extends Controller
 {
@@ -468,6 +469,11 @@ class BugTrackingController extends Controller
             'bug_id' => $bugTracker->id,
             'updated_by' => \Auth::user()->id,
         ];
+        if($request->status_id == 7) {
+            $prev_created_by = $bugTracker->created_by;
+            $bugTracker->assign_to = $prev_created_by;
+        }
+
         $bugTracker->bug_status_id = $request->status_id;
         $bugTracker->save();
 
