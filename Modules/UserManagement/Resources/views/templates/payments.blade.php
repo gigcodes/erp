@@ -1,5 +1,3 @@
-
-use Illuminate\Support\Facades\Request;
 @extends('layouts.app')
 
 <!-- Stylesheets -->
@@ -166,7 +164,7 @@ use Illuminate\Support\Facades\Request;
         <!-- Modal content-->
         <div class="modal-content">
             {{Form::open(array('url' => '/hubstaff/makePayment', 'method' => 'POST'))}}
-            {{ Form::hidden('user_id', Request::old('user_id')) }}
+            {{ Form::hidden('user_id', Input::old('user_id')) }}
             <div class="modal-body">
                 <div class="form-group">
                     {{ Form::label('amount', 'Amount') }}
