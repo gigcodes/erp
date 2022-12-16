@@ -251,7 +251,7 @@ return [
         'MediaUploader' => Plank\Mediable\MediaUploaderFacade::class,
         'Nestable' => Nestable\Facades\NestableService::class,
         'Pusher' => Pusher\Laravel\Facades\Pusher::class,
-        'Zipper' => Chumper\Zipper\Zipper::class,
+        'Zipper' => Madnest\Madzipper\Madzipper::class,
         'Input' => Illuminate\Support\Facades\Input::class,
         'Image' => Intervention\Image\Facades\Image::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
