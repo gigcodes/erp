@@ -3,20 +3,20 @@
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th>ID</th>
-                <th>Date</th>
-                <th>Name</th>
-                <th>Suite</th>
-                <th>Created By</th>
-                <th>Module</th>
-                <th>Precondition</th>
-                <th width="200px">Assign to</th>
-                <th width="200px">Step To Reproduce</th>
-                <th>Expected Result</th>
-                <th width="200px">Status</th>
-                <th width="300px">Communication</th>
-                <th>Website</th>
-                <th>Action</th>
+		      	<th width="4%">ID</th>
+                <th width="6%">Date</th>
+                <th width="7%">Name</th>
+                <th width="6%">Suite</th>
+                <th width="7%">Created By</th>
+                <th width="6%">Module</th>
+                <th width="7%">Precondition</th>
+                <th width="8%">Assign to</th>
+                <th width="5%">Step To Reproduce</th>
+                <th width="7%">Expected Result</th>
+                <th width="8%">Status</th>
+                <th width="15%">Communication</th>
+                <th width="7%">Website</th>
+                <th width="7%">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody class="pending-row-render-view infinite-scroll-pending-inner">
