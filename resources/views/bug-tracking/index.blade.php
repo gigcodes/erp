@@ -229,6 +229,7 @@ table{border-collapse: collapse;}
 						<th>Date</th>
 						<th>Type of Bug</th>
 						<th>Summary</th>
+						<th>Expected Result</th>
 						<th>Environment</th>
 						<th>Assign to</th>
 						<th>Status</th>
