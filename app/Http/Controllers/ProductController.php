@@ -4715,6 +4715,7 @@ class ProductController extends Controller
             ->groupBy('brand', 'category')
             ->limit($limit)
             ->get();
+        \Log::info('Product push star time: '.date('Y-m-d H:i:s'));
         foreach ($products as $key => $product) {
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
 
@@ -4748,6 +4749,7 @@ class ProductController extends Controller
                 ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
             }
         }
+        \Log::info('Product push end time: '.date('Y-m-d H:i:s'));
 
         return response()->json(['code' => 200, 'message' => 'Push product successfully']);
     }
