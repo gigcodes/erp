@@ -7,7 +7,8 @@
     ],
     "license": "MIT",
     "type": "project",
-    "require": {
+    "require": { 
+        
         "php": "^7.2|^8.0",
         "ext-json": "*",
         "atayahmet/laravel-nestable": "^0.8.7",
