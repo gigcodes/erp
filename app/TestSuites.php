@@ -13,7 +13,8 @@ class TestSuites extends Model
         $this->belongsTo(SiteDevelopmentCategory::class, 'module_id', 'id');
     }
 
-    public function whatsappAll($needBroadcast = false)
+
+	public function whatsappAll($needBroadcast = false)
     {
         if ($needBroadcast) {
             return $this->hasMany(\App\ChatMessage::class, 'test_suites_id')->where(function ($q) {
