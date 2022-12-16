@@ -8,14 +8,27 @@ use App\SystemSize;
 use App\SystemSizeManager;
 use App\SystemSizeRelation;
 use Illuminate\Http\Request;
+use App\Exports\SystemSizeExport;
+use Excel;
 
 class SystemSizeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $systemSizesManagers = SystemSizeManager::select(
+
+        $systemSizesManagers = SystemSizeManager::orderBy('id','asc');
+
+        if($request->main_category_id){
+            $systemSizesManagers = $systemSizesManagers->whereIn('category_id',$request->main_category_id);
+        }
+        if($request->size){
+            $systemSizesManagers = $systemSizesManagers->where('erp_size','Like','%'.$request->size.'%');
+        }
+
+        $systemSizesManagers  = $systemSizesManagers->select(
             'system_size_managers.id',
             'categories.title as category',
+            'categories.parent_id as category_parent_id',
             'system_size_managers.erp_size',
             'system_size_managers.created_at',
             'system_size_managers.updated_at'
@@ -241,4 +254,10 @@ class SystemSizeController extends Controller
 
         return response()->json(['success' => true, 'message' => 'successful!', 'data' => $html]);
     }
+
+    public function exports()
+   {
+
+       return Excel::download(new SystemSizeExport, 'systemsize.xlsx');
+   }
 }

@@ -13,6 +13,8 @@ use App\BugUserHistory;
 use App\ChatMessage;
 use App\SiteDevelopmentCategory;
 use App\StoreWebsite;
+use App\TestCase;
+use App\TestCaseHistory;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -341,6 +343,29 @@ class BugTrackingController extends Controller
         ]);
         $data['summary'] = str_replace("\n", '<br/>', $request->summary);
         $data['step_to_reproduce'] = str_replace("\n", '<br/>', $request->step_to_reproduce);
+
+        if ($bug->test_case_id) {
+            $testCase = new TestCase;
+            $testCase->module_id = $request->module_id;
+            $testCase->step_to_reproduce = $data['step_to_reproduce'];
+            $testCase->expected_result = $request->expected_result;
+            $testCase->website = $request->website;
+            $testCase->assign_to = $request->assign_to;
+            $testCase->created_by = $data['created_by'];
+            $testCase->bug_id = $request->id;
+            $testCase->save();
+
+            $testCaseHistory = new TestCaseHistory();
+            $testCaseHistory->module_id = $request->module_id;
+            $testCaseHistory->step_to_reproduce = $data['step_to_reproduce'];
+            $testCaseHistory->expected_result = $request->expected_result;
+            $testCaseHistory->website = $request->website;
+            $testCaseHistory->assign_to = $request->assign_to;
+            $testCaseHistory->created_by = $data['created_by'];
+            $testCaseHistory->bug_id = $request->id;
+            $testCaseHistory->save();
+        }
+
         $bug->update($data);
         $data['bug_id'] = $request->id;
         BugTrackerHistory::create($data);
