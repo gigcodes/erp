@@ -1,6 +1,5 @@
 <?php
 
-use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
 
@@ -61,6 +60,7 @@ return [
             'emoji' => ':boom:',
             'level' => 'critical',
         ],
+        /* Custom log files */
 
         'listMagento' => [
             'driver' => 'daily',
@@ -99,43 +99,36 @@ return [
             'path' => storage_path('logs/whatsapp/whatsapp.log'),
             'days' => 7,
         ],
-
         'scraper' => [
             'driver' => 'daily',
             'path' => storage_path('logs/scraper/scraper.log'),
             'days' => 7,
         ],
-
         'update_category_job' => [
             'driver' => 'daily',
             'path' => storage_path('logs/category_job/category_job.log'),
             'days' => 7,
         ],
-
         'update_color_job' => [
             'driver' => 'daily',
             'path' => storage_path('logs/color_job/color_job.log'),
             'days' => 7,
         ],
-
         'broadcast_log' => [
             'driver' => 'daily',
             'path' => storage_path('logs/general/broadcast.log'),
             'days' => 1,
         ],
-
         'hubstaff_activity_command' => [
             'driver' => 'daily',
             'path' => storage_path('logs/hubstaff-activity-command/hubstaff-activity-command.log'),
             'days' => 7,
         ],
-
         'insta_message_queue_by_rate_limit' => [
             'driver' => 'daily',
             'path' => storage_path('logs/insta-message-queue-by-rate-limit/insta-message-queue-by-rate-limit.log'),
             'days' => 7,
         ],
-
         'product_push_information_csv' => [
             'driver' => 'daily',
             'path' => storage_path('logs/product-push-information-csv/product-push-information-csv.log'),
@@ -147,19 +140,16 @@ return [
             'path' => storage_path('logs/product-thumbnail/product-thumbnail-command.log'),
             'days' => 7,
         ],
-
         'scrapper_images' => [
             'driver' => 'daily',
             'path' => storage_path('logs/scrapper_images/scrapper_images.log'),
             'days' => 7,
         ],
-
         'social_webhook' => [
             'driver' => 'daily',
             'path' => storage_path('logs/social_webhook/social_webhook.log'),
             'days' => 7,
         ],
-
         'bugsnag' => [
             'driver' => 'bugsnag',
         ],
@@ -191,15 +181,6 @@ return [
         'errorlog' => [
             'driver' => 'errorlog',
             'level' => 'debug',
-        ],
-
-        'null' => [
-            'driver' => 'monolog',
-            'handler' => NullHandler::class,
-        ],
-
-        'emergency' => [
-            'path' => storage_path('logs/laravel.log'),
         ],
     ],
 

@@ -153,8 +153,8 @@
             <strong>Asset Type:</strong>
             <select class="form-control" name="asset_type" id="asset_type">
                 <option value="">Select</option>
-                <option value="Hard" {{ Request::old('asset_type') == 'Hard'? 'selected' : '' }}>Hard</option>
-                <option value="Soft" {{ Request::old('asset_type') == 'Soft'? 'selected' : '' }}>Soft</option>
+                <option value="Hard" {{ Input::old('asset_type') == 'Hard'? 'selected' : '' }}>Hard</option>
+                <option value="Soft" {{ Input::old('asset_type') == 'Soft'? 'selected' : '' }}>Soft</option>
             </select>
             @if ($errors->has('asset_type'))
               <div class="alert alert-danger">{{$errors->first('asset_type')}}</div>
@@ -530,8 +530,8 @@
             <strong>Asset Type:</strong>
             <select class="form-control" name="asset_type" id="asset_asset_type">
                 <option value="">Select</option>
-                <option value="Hard" {{ Request::old('asset_type') == 'Hard'? 'selected' : '' }}>Hard</option>
-                <option value="Soft" {{ Request::old('asset_type') == 'Soft'? 'selected' : '' }}>Soft</option>
+                <option value="Hard" {{ Input::old('asset_type') == 'Hard'? 'selected' : '' }}>Hard</option>
+                <option value="Soft" {{ Input::old('asset_type') == 'Soft'? 'selected' : '' }}>Soft</option>
             </select>
             @if ($errors->has('asset_type'))
               <div class="alert alert-danger">{{$errors->first('asset_type')}}</div>

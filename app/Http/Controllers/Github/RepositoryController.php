@@ -17,7 +17,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Request as Input;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Str;
 
 class RepositoryController extends Controller

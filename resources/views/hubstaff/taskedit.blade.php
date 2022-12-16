@@ -9,11 +9,11 @@
         ? Form::open(array('url' => '/hubstaff/tasks/addData'))
         : Form::model($task, array('url' => '/hubstaff/tasks/editData', 'method' => 'PUT'))
     }}
-    {{ Form::hidden('id', Request::old('id')) }}
-    {{ Form::hidden('lock_version', Request::old('lock_version')) }}
+    {{ Form::hidden('id', Input::old('id')) }}
+    {{ Form::hidden('lock_version', Input::old('lock_version')) }}
     <div class="form-group">
         {{ Form::label('summary', 'Summary') }}
-        {{ Form::text('summary', Request::old('summary'), array('class' => 'form-control')) }}
+        {{ Form::text('summary', Input::old('summary'), array('class' => 'form-control')) }}
     </div>
     <div class="form-group">
         {{ Form::label('project_id', 'Project') }}

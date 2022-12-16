@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\ReviewBrandList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Request as Input;
+use Illuminate\Support\Facades\Input;
 
 class BrandReviewController extends Controller
 {
