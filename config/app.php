@@ -168,7 +168,7 @@ return [
         Plank\Mediable\MediableServiceProvider::class,
         Nestable\NestableServiceProvider::class,
         Pusher\Laravel\PusherServiceProvider::class,
-        Chumper\Zipper\ZipperServiceProvider::class,
+        //Chumper\Zipper\ZipperServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Thujohn\Twitter\TwitterServiceProvider::class,
