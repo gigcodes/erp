@@ -11,7 +11,6 @@
 
         "php": "^7.2|^8.0",
         "ext-json": "*",
-        "atayahmet/laravel-nestable": "^0.8.7",
         "barryvdh/laravel-ide-helper": "^2.4",
         "barryvdh/laravel-snappy": "*",
         "becker/laravel-zabbix-api": "^0.3.0",
