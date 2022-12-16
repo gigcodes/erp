@@ -351,6 +351,8 @@ class TestCaseController extends Controller
                     $bugTracking = new BugTracker();
                     $bugTracking->module_id = $testCase->module_id;
                     $bugTracking->step_to_reproduce = $testCase->step_to_reproduce;
+                    $bugTracking->expected_result = $testCase->expected_result;
+                    $bugTracking->test_case_id = $testCase->id;
                     $bugTracking->website = $request->bug_website;
                     $bugTracking->created_by = Auth::user()->id;
                     $bugTracking->assign_to =  $request->assign_to_test_case;
@@ -367,6 +369,8 @@ class TestCaseController extends Controller
                     $bugTrackingHistory = new BugTrackerHistory();
                     $bugTrackingHistory->bug_id = $bugTracking->id;
                     $bugTrackingHistory->module_id = $testCase->module_id;
+                    $bugTrackingHistory->expected_result = $testCase->expected_result;
+                    $bugTrackingHistory->test_case_id = $testCase->id;
                     $bugTrackingHistory->step_to_reproduce = $testCase->step_to_reproduce;
                     $bugTrackingHistory->website = $request->bug_website;
                     $bugTrackingHistory->assign_to =  $request->assign_to_test_case;
