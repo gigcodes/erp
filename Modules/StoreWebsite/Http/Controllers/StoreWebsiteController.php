@@ -756,101 +756,102 @@ class StoreWebsiteController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : ".$er.'<br>';
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
-
             return response()->json(['code' => 500, 'error' => $outputString]);
         }
 
-        $this->savelogwebsiteuser('#2', $post['store_id'], $post['username'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['websitemode'], 'For this Website '.$post['store_id'].' ,A user has been updated.');
+        $storeWebsites = StoreWebsite::where('id', '=', $post['store_id'])->orWhere('parent_id', '=', $post['store_id'])->get();
+        $count = 0;
+        foreach ($storeWebsites as $key => $storeWebsite) {
+            $this->savelogwebsiteuser('#2', $storeWebsite->id, $post['username'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['websitemode'], 'For this Website ' . $storeWebsite->id . ' ,A user has been updated.');
 
-        $checkUserNameExist = '';
-        if (! empty($post['store_website_userid'])) {
-            $checkUserExist = StoreWebsiteUsers::where('store_website_id', $post['store_id'])->where('is_deleted', 0)->where('email', $post['userEmail'])->where('id', '<>', $post['store_website_userid'])->first();
-            if (empty($checkUserExist)) {
-                $checkUserNameExist = StoreWebsiteUsers::where('store_website_id', $post['store_id'])->where('is_deleted', 0)->where('username', $post['username'])->where('id', '<>', $post['store_website_userid'])->first();
-            }
-        } else {
-            $checkUserExist = StoreWebsiteUsers::where('store_website_id', $post['store_id'])->where('is_deleted', 0)->where('email', $post['userEmail'])->first();
-            if (empty($checkUserExist)) {
-                $checkUserNameExist = StoreWebsiteUsers::where('store_website_id', $post['store_id'])->where('is_deleted', 0)->where('username', $post['username'])->first();
-            }
-        }
-
-        if (! empty($checkUserExist)) {
-            return response()->json(['code' => 500, 'error' => 'User Email already exist!']);
-        }
-        if (! empty($checkUserNameExist)) {
-            return response()->json(['code' => 500, 'error' => 'Username already exist!']);
-        }
-
-        $uppercase = preg_match('/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9_@.\/#&+-]+)$/', $post['password']);
-        if (! $uppercase || strlen($post['password']) < 7) {
-            return response()->json(['code' => 500, 'error' => 'Your password must be at least 7 characters.Your password must include both numeric and alphabetic characters.']);
-        }
-
-        $storeWebsite = StoreWebsite::find($post['store_id']);
-        if (! empty($post['store_website_userid'])) {
-            $getUser = StoreWebsiteUsers::where('id', $post['store_website_userid'])->first();
-            $getUser->first_name = $post['firstName'];
-            $getUser->last_name = $post['lastName'];
-            $getUser->email = $post['userEmail'];
-            $getUser->password = $post['password'];
-            $getUser->website_mode = $post['websitemode'];
-            $getUser->save();
-
-            StoreWebsiteUserHistory::create([
-                'store_website_id' => $getUser->store_website_id,
-                'store_website_user_id' => $getUser->id,
-                'model' => \App\StoreWebsiteUsers::class,
-                'attribute' => 'username_password',
-                'old_value' => 'updated',
-                'new_value' => 'updated',
-                'user_id' => Auth::id(),
-            ]);
-
-            if ($getUser->is_deleted == 0) {
-                $magentoHelper = new MagentoHelperv2();
-                $result = $magentoHelper->updateMagentouser($storeWebsite, $post);
-
-                return response()->json(['code' => 200, 'messages' => 'User details updated Sucessfully']);
+            $checkUserNameExist = '';
+            if (!empty($post['store_website_userid'])) {
+                $checkUserExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('email', $post['userEmail'])->where('id', '<>', $post['store_website_userid'])->first();
+                if (empty($checkUserExist)) {
+                    $checkUserNameExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('username', $post['username'])->where('id', '<>', $post['store_website_userid'])->first();
+                }
             } else {
-                return response()->json(['code' => 200, 'messages' => 'User details updated Sucessfully']);
-            }
-        } else {
-            $params['username'] = $post['username'];
-            $params['first_name'] = $post['firstName'];
-            $params['last_name'] = $post['lastName'];
-            $params['email'] = $post['userEmail'];
-            $params['password'] = $post['password'];
-            $params['store_website_id'] = $post['store_id'];
-            $params['website_mode'] = $post['websitemode'];
-
-            $StoreWebsiteUsersid = StoreWebsiteUsers::create($params);
-
-            if ($post['userEmail'] && $post['password']) {
-                $message = 'Email: '.$post['userEmail'].', Password is: '.$post['password'];
-                $params['user_id'] = Auth::id();
-                $params['message'] = $message;
-                $chat_message = ChatMessage::create($params);
+                $checkUserExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('email', $post['userEmail'])->first();
+                if (empty($checkUserExist)) {
+                    $checkUserNameExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('username', $post['username'])->first();
+                }
             }
 
-            $magentoHelper = new MagentoHelperv2();
-            $result = $magentoHelper->addMagentouser($storeWebsite, $post);
+            if (!empty($checkUserExist)) {
+                return response()->json(['code' => 500, 'error' => 'User Email already exist!']);
+            }
+            if (!empty($checkUserNameExist)) {
+                return response()->json(['code' => 500, 'error' => 'Username already exist!']);
+            }
 
-            StoreWebsiteUserHistory::create([
-                'store_website_id' => $StoreWebsiteUsersid->store_website_id,
-                'store_website_user_id' => $StoreWebsiteUsersid->id,
-                'model' => \App\StoreWebsiteUsers::class,
-                'attribute' => 'username_password',
-                'old_value' => 'new_added',
-                'new_value' => 'new_added',
-                'user_id' => Auth::id(),
-            ]);
+            $uppercase = preg_match('/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9_@.\/#&+-]+)$/', $post['password']);
+            if (!$uppercase || strlen($post['password']) < 7) {
+                return response()->json(['code' => 500, 'error' => 'Your password must be at least 7 characters.Your password must include both numeric and alphabetic characters.']);
+            }
 
-            return response()->json(['code' => 200, 'messages' => 'User details saved Sucessfully']);
+            if (!empty($post['store_website_userid'])) {
+                $getUser = StoreWebsiteUsers::where('id', $post['store_website_userid'])->first();
+                $getUser->first_name = $post['firstName'];
+                $getUser->last_name = $post['lastName'];
+                $getUser->email = $post['userEmail'];
+                $getUser->password = $post['password'];
+                $getUser->website_mode = $post['websitemode'];
+                $getUser->save();
+
+                StoreWebsiteUserHistory::create([
+                    'store_website_id' => $getUser->store_website_id,
+                    'store_website_user_id' => $getUser->id,
+                    'model' => \App\StoreWebsiteUsers::class,
+                    'attribute' => 'username_password',
+                    'old_value' => 'updated',
+                    'new_value' => 'updated',
+                    'user_id' => Auth::id(),
+                ]);
+
+                if ($getUser->is_deleted == 0) {
+                    $magentoHelper = new MagentoHelperv2();
+                    $magentoHelper->updateMagentouser($storeWebsite, $post);
+                }
+            } else {
+                $params['username'] = $post['username'];
+                $params['first_name'] = $post['firstName'];
+                $params['last_name'] = $post['lastName'];
+                $params['email'] = $post['userEmail'];
+                $params['password'] = $post['password'];
+                $params['store_website_id'] = $storeWebsite->id;
+                $params['website_mode'] = $post['websitemode'];
+
+                $StoreWebsiteUsersid = StoreWebsiteUsers::create($params);
+
+                if ($post['userEmail'] && $post['password']) {
+                    $message = 'Email: ' . $post['userEmail'] . ', Password is: ' . $post['password'];
+                    $params['user_id'] = Auth::id();
+                    $params['message'] = $message;
+                    ChatMessage::create($params);
+                }
+
+                $magentoHelper = new MagentoHelperv2();
+                $magentoHelper->addMagentouser($storeWebsite, $post);
+
+                StoreWebsiteUserHistory::create([
+                    'store_website_id' => $StoreWebsiteUsersid->store_website_id,
+                    'store_website_user_id' => $StoreWebsiteUsersid->id,
+                    'model' => \App\StoreWebsiteUsers::class,
+                    'attribute' => 'username_password',
+                    'old_value' => 'new_added',
+                    'new_value' => 'new_added',
+                    'user_id' => Auth::id(),
+                ]);
+            }
+            $count++;
         }
+        if($count == $key + 1)
+            return response()->json(['code' => 200, 'messages' => 'User details saved Successfully']);
+        else
+            return response()->json(['code' => 500, 'messages' => 'Something went wrong']);
     }
 
     public function deleteUserInMagento(Request $request)
