@@ -7,8 +7,7 @@
     ],
     "license": "MIT",
     "type": "project",
-    "require": { 
-
+    "require": {
         "php": "^7.2|^8.0",
         "ext-json": "*",
         "barryvdh/laravel-ide-helper": "^2.4",
@@ -85,7 +84,8 @@
         "willdurand/email-reply-parser": "^2.9",
         "webreinvent/laravel-nestable": "^0.0.3",
         "yajra/laravel-datatables-oracle": "~9.6",
-        "zircote/swagger-php": "2.*"
+        "zircote/swagger-php": "2.*",
+        "laravel/ui": "^2.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.2",
