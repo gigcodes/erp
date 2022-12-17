@@ -96,11 +96,11 @@ class RepositoryController extends Controller
         //print_r($repository);
     }
 
-    public function deployBranch($repoId)
+    public function deployBranch($repoId,Request $request)
     {
         //dd($repoId);
         $source = 'master';
-        $destination = Input::get('branch');
+        $destination = $request->branch;
         $pullOnly = request('pull_only', 0);
 
         $url = 'https://api.github.com/repositories/'.$repoId.'/merges';
@@ -129,7 +129,7 @@ class RepositoryController extends Controller
             // Deploy branch
             $repository = GithubRepository::find($repoId);
 
-            $branch = Input::get('branch');
+            $branch =  $request->branch;
             $composerupdate = request('composer', false);
             //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
