@@ -68,7 +68,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'strict' => false,
-            'engine' => 'InnoDB'
+            'engine' => 'InnoDB',
         ],
         'brands-labels' => [
             'driver' => 'mysql',
@@ -102,7 +102,7 @@ return [
             'password' => env('MAGENTO_DB_PASSWORD', ''),
             'strict' => false,
         ],
-        
+
         'suvandnet' => [
             'driver' => 'mysql',
             'host' => env('SUVANDNAT_HOST', 'erp'),

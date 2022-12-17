@@ -21,8 +21,11 @@ class PushToMagento implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $_product;
+
     protected $_website;
+
     protected $log;
+
     protected $mode;
 
     /**
@@ -33,7 +36,7 @@ class PushToMagento implements ShouldQueue
      * @param  null  $log
      * @param  null  $mode
      */
-    public function __construct(Product $product, StoreWebsite $website, $log = null, $mode=null)
+    public function __construct(Product $product, StoreWebsite $website, $log = null, $mode = null)
     {
         // Set product and website
         $this->_product = $product;

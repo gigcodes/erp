@@ -65,7 +65,7 @@ class StoreWebsiteController extends Controller
         $assetManager = AssetsManager::whereNotNull('ip');
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->get();
 
-        return view('storewebsite::index', compact('title', 'services', 'assetManager','storeWebsites'));
+        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites'));
     }
 
     public function logWebsiteUsers($id)
@@ -1563,28 +1563,33 @@ class StoreWebsiteController extends Controller
         }
     }
 
-    public function generateApiToken(Request $request){
+    public function generateApiToken(Request $request)
+    {
         $apiTokens = $request->api_token;
 
         if ($request->api_token) {
-            foreach ($apiTokens as $key => $apiToken){
-                StoreWebsite::where('id',$key)->update(['api_token'=>$apiToken,'server_ip' => $request->server_ip[$key]]);
+            foreach ($apiTokens as $key => $apiToken) {
+                StoreWebsite::where('id', $key)->update(['api_token' => $apiToken, 'server_ip' => $request->server_ip[$key]]);
             }
             session()->flash('msg', 'Api Token Updated Successfully.');
+
             return redirect()->back();
         } else {
             session()->flash('msg', 'Api Token is invalid.');
-            return redirect()->back();
 
+            return redirect()->back();
         }
     }
-    public function getApiToken(Request $request){
+
+    public function getApiToken(Request $request)
+    {
         $search = $request->search;
         $storeWebsites = StoreWebsite::whereNull('deleted_at');
-        if($search != Null){
-            $storeWebsites = $storeWebsites->where('title','Like','%'.$search.'%');
+        if ($search != null) {
+            $storeWebsites = $storeWebsites->where('title', 'Like', '%'.$search.'%');
         }
         $storeWebsites = $storeWebsites->get();
+
         return response()->json([
             'tbody' => view('storewebsite::api-token', compact('storeWebsites'))->render(),
 
