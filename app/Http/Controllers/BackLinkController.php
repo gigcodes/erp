@@ -18,14 +18,14 @@ class BackLinkController extends Controller
      *
      * @return json response
      */
-    public function displayBackLinkDetails()
+    public function displayBackLinkDetails(Request $request)
     {
         if (! empty($_GET['title'])) {
             $title = $_GET['title'];
             $details = BackLinking::where('title', $title)->paginate(50)->setPath('');
             $pagination = $details->appends(
                 [
-                    'title' => Input::get('title'),
+                    'title' => $request->title,
                 ]
             );
         } else {

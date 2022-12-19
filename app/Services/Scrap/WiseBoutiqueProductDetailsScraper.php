@@ -8,7 +8,7 @@ use App\Product;
 use App\ScrapedProducts;
 use App\ScrapEntries;
 use App\Setting;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Storage;
 use Validator;
 use Wa72\HtmlPageDom\HtmlPageCrawler;

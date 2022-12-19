@@ -184,12 +184,12 @@ class HubstaffController extends Controller
         return false;
     }
 
-    public function editProjectData()
+    public function editProjectData(Request $request)
     {
-        $projectName = Input::get('name');
-        $projectDescription = Input::get('description');
-        $projectId = Input::get('id');
-        $hubstaffProjectId = Input::get('hubstaff_project_id');
+        $projectName = $request->name;
+        $projectDescription = $request->description;
+        $projectId = $request->id;
+        $hubstaffProjectId = $request->hubstaff_project_id;
 
         if ($this->updateProjectOnHubstaff(
             $hubstaffProjectId,
@@ -354,11 +354,11 @@ class HubstaffController extends Controller
         return false;
     }
 
-    public function addTask()
+    public function addTask(Request $request)
     {
-        $taskSummary = Input::get('summary');
-        $projectId = Input::get('project_id');
-        $assigneeId = Input::get('assignee_id');
+        $taskSummary = $request->summary;
+        $projectId = $request->project_id;
+        $assigneeId = $request->assignee_id;
 
         $taskId = $this->addTaskToHubstaff($taskSummary, $projectId, $assigneeId);
 
@@ -517,12 +517,12 @@ class HubstaffController extends Controller
         return false;
     }
 
-    public function editTask()
+    public function editTask(Request $request)
     {
-        $taskId = Input::get('id');
-        $taskSummary = Input::get('summary');
-        $hubstaffProjectId = Input::get('project_id');
-        $lockVersion = Input::get('lock_version');
+        $taskId = $request->id;
+        $taskSummary = $request->summary;
+        $hubstaffProjectId = $request->project_id;
+        $lockVersion = $request->lock_version;
 
         $dbTask = HubstaffTask::find($taskId);
         $dbProject = HubstaffProject::where('hubstaff_project_id', $hubstaffProjectId)->first();

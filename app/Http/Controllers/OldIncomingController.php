@@ -35,7 +35,7 @@ class OldIncomingController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $issues = new Issue;
         if (! empty($_GET['sr_no'])) {
@@ -43,7 +43,7 @@ class OldIncomingController extends Controller
             $old_incomings = $this->oldincoming::where('serial_no', $sr_no)->paginate(10)->setPath('');
             $pagination = $old_incomings->appends(
                 [
-                    'sr_no' => Input::get('sr_no'),
+                    'sr_no' => $request->sr_no,
                 ]
             );
         } elseif (! empty($_GET['status'])) {
@@ -51,7 +51,7 @@ class OldIncomingController extends Controller
             $old_incomings = $this->oldincoming::where('status', $status)->paginate(5)->setPath('');
             $pagination = $old_incomings->appends(
                 [
-                    'status' => Input::get('status'),
+                    'status' => $request->status,
                 ]
             );
         } else {

@@ -19,7 +19,7 @@ use Illuminate\Http\Request;
 //use App\InstagramUsersList;
 //use App\Library\Instagram\PublishPost;
 use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 //use App\InstagramPostLog;
 //use App\InstagramLog;
 //use App\InstagramUserLog;

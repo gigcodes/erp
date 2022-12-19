@@ -52,14 +52,14 @@ class BrokenLinkCheckerController extends Controller
      *
      * @return json response
      */
-    public function displayBrokenLinkDetails()
+    public function displayBrokenLinkDetails(Request $request)
     {
         if (! empty($_GET['domain'])) {
             $domain = $_GET['domain'];
             $details = BackLinkChecker::where('domains', $domain)->paginate(100)->setPath('');
             $pagination = $details->appends(
                 [
-                    'domain' => Input::get('domain'),
+                    'domain' => $request->domain,
                 ]
             );
         } elseif (! empty($_GET['ranking'])) {
@@ -67,7 +67,7 @@ class BrokenLinkCheckerController extends Controller
             $details = BackLinkChecker::where('rank', $ranking)->paginate(100)->setPath('');
             $pagination = $details->appends(
                 [
-                    'ranking' => Input::get('ranking'),
+                    'ranking' => $request->ranking,
                 ]
             );
         } else {

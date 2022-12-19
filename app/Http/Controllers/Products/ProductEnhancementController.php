@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Product;
 use File;
 use Illuminate\Http\Request;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ProductEnhancementController extends Controller
 {

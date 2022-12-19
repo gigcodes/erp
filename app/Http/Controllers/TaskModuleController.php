@@ -42,7 +42,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Response;
 use App\SiteDevelopment;
 use App\BugTracker;
@@ -2752,10 +2752,11 @@ class TaskModuleController extends Controller
             $message = '['.$loggedUser->name.'] - #ISSUE-'.$task->id.' - '.$task->task_subject."\n\n ".$count.' new attchment'.($count > 1 ? 's' : '');
 
             foreach ($documents as $file) {
-                $path = storage_path('tmp/uploads/'.$file);
+                $path = storage_path('tmp/uploads/'.$file);              
                 $media = MediaUploader::fromSource($path)
                     ->toDirectory('task-files/'.floor($task->id / config('constants.image_per_folder')))
-                    ->upload();
+                    ->upload();                              
+               
                 $task->attachMedia($media, config('constants.media_tags'));
 
                 if (! empty($media->filename)) {
