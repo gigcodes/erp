@@ -398,7 +398,7 @@ class Helpers
             'luxuryunlimited',
             'italybrandoutlets',
             'demostore',
-            'magentoconditionscheckqueue'
+            'magentoconditionscheckqueue',
         ];
 
         $mainQueue = [
@@ -417,7 +417,7 @@ class Helpers
             'command_execution',
             'failed_magento_job',
             'send_email',
-            'magentoconditionscheckqueue'
+            'magentoconditionscheckqueue',
         ];
 
         $queue = array_merge($webpushQueue, $mainQueue);

@@ -23,7 +23,7 @@
                         foreach ($languages as $k => $l) {
                             echo "<option {{if data.name == '".strtolower($k)."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
                         }
-        ?>
+		?>
 		         </select>
 	         </div>
 		      <div class="form-group col-md-6">
@@ -35,11 +35,11 @@
 		         <select name="status" class="form-control">
 	            	<option value="">-- N/A --</option>
 		            <?php
-            $statuses = ['In active', 'Active'];
-        foreach ($statuses as $k => $l) {
-            echo "<option {{if data.status == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
-        }
-        ?>
+		    $statuses = ['In active', 'Active'];
+		foreach ($statuses as $k => $l) {
+		    echo "<option {{if data.status == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
+		}
+		?>
 		         </select>
 		      </div>
 		      <div class="form-group col-md-6">
@@ -51,10 +51,10 @@
 		         <select name="website_store_id" class="form-control">
 	            	<option value="">-- N/A --</option>
 		            <?php
-            foreach ($websiteStores as $k => $l) {
-                echo "<option {{if data.website_store_id == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
-            }
-        ?>
+		    foreach ($websiteStores as $k => $l) {
+		        echo "<option {{if data.website_store_id == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
+		    }
+		?>
 		         </select>
 		      </div>
 		   </div>

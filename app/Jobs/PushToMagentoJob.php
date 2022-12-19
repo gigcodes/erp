@@ -6,18 +6,21 @@ use App\Library\Magento\MagentoService;
 use App\Product;
 use App\StoreWebsite;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class PushToMagentoJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $_product;
+
     protected $_website;
+
     protected $log;
+
     protected $category;
 
     /**
@@ -25,7 +28,7 @@ class PushToMagentoJob implements ShouldQueue
      *
      * @param  Product  $product
      * @param  StoreWebsite  $website
-     * @param  null $category
+     * @param  null  $category
      * @param  null  $log
      */
     public function __construct(Product $product, StoreWebsite $website, $log = null, $category = null)

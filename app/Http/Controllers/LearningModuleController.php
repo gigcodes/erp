@@ -2169,11 +2169,11 @@ class LearningModuleController extends Controller
             if ($user) {
                 if ($media) {
                     \App\ChatMessage::sendWithChatApi(
-                            $user->phone,
-                            null,
-                            'Please find attached file',
-                            $media->getUrl()
-                        );
+                        $user->phone,
+                        null,
+                        'Please find attached file',
+                        $media->getUrl()
+                    );
 
                     return response()->json(['message' => 'Document send succesfully'], 200);
                 }

@@ -4734,13 +4734,13 @@ Partitions: <input type="number" name="partitions" class="size',($Ee || ! $L['pa
 </thead>
 <?php
 if ($Te) {
-        echo'<tr><td>PRIMARY<td>';
-        foreach ($Te['columns']as$z => $c) {
-            echo
+    echo'<tr><td>PRIMARY<td>';
+    foreach ($Te['columns']as$z => $c) {
+        echo
         select_input(' disabled', $m, $c),"<label><input disabled type='checkbox'>".'descending'.'</label> ';
-        }
-        echo"<td><td>\n";
     }
+    echo"<td><td>\n";
+}
     $x = 1;
     foreach ($L['indexes']as$v) {
         if (! $_POST['drop_col'] || $x != key($_POST['drop_col'])) {

@@ -35,7 +35,7 @@
                                 foreach ($users as $user) {
                                     echo "<option {{if prop.assign_to == '".$user->id."'}} selected {{/if}} value='".$user->id."'>".$user->name.'</option>';
                                 }
-                        ?>
+			            ?>
 			            </select>
 			        </td>
 			        <td class='break expand-row-msg' data-name="step_to_reproduce" data-id="{{:prop.id}}"><span class="show-short-Steps to reproduce-{{:prop.id}}">{{:prop.step_to_reproduce_short}}</span>
@@ -45,10 +45,10 @@
 			        <td class='break'>
 			            <select class='form-control test_case_status_id'  data-id="{{>prop.id}}" data-token=<?php echo csrf_token(); ?>>
 			                <?php
-                            foreach ($testCaseStatuses as $testCaseStatus) {
-                                echo "<option {{if prop.test_status_id == '".$testCaseStatus->id."'}} selected {{/if}} value='".$testCaseStatus->id."'>".$testCaseStatus->name.'</option>';
-                            }
-                        ?>
+			                foreach ($testCaseStatuses as $testCaseStatus) {
+			                    echo "<option {{if prop.test_status_id == '".$testCaseStatus->id."'}} selected {{/if}} value='".$testCaseStatus->id."'>".$testCaseStatus->name.'</option>';
+			                }
+			            ?>
 			            </select>
 			        </td>
 
