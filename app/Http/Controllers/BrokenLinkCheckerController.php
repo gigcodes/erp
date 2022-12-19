@@ -6,7 +6,6 @@ use App\BackLinkChecker;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Input;
 use Response;
 use Storage;
 

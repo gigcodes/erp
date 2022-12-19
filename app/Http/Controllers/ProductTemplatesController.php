@@ -11,8 +11,8 @@ use App\Setting;
 use App\StoreWebsite;
 use App\Template;
 use Illuminate\Http\Request;
-use Plank\Mediable\Media;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use Plank\Mediable\Media;
 
 class ProductTemplatesController extends Controller
 {

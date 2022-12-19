@@ -66,8 +66,8 @@ use Illuminate\Support\Facades\URL;
 use IlluminUserFeedbackStatuspport\Facades\DB;
 use Image; //Purpose : Add Modal - DEVTASK-4359
 use Maatwebsite\Excel\Facades\Excel; //Purpose : Add Modal - DEVTASK-4236
-use Plank\Mediable\Media;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use Plank\Mediable\Media;
 use Response;
 use Validator;
 

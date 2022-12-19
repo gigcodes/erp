@@ -208,13 +208,14 @@ class CommonController extends Controller
             ]);
 
             \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
-             if (isset($request->from) && $request->from == 'sop') {
+            if (isset($request->from) && $request->from == 'sop') {
                 return response()->json(['success' => 'You have send email successfully !']);
             } else {
                 return redirect()->back()->withSuccess('You have successfully sent email!');
             }
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }

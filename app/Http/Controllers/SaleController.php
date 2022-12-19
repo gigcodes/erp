@@ -10,8 +10,8 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Plank\Mediable\Media;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use Plank\Mediable\Media;
 use Spatie\Permission\Models\Role;
 
 class SaleController extends Controller

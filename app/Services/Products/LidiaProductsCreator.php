@@ -7,8 +7,8 @@ use App\Category;
 use App\Product;
 use App\Setting;
 use App\Supplier;
-use Plank\Mediable\Media;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use Plank\Mediable\Media;
 use Storage;
 use Validator;
 

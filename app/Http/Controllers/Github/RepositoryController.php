@@ -18,7 +18,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Input;
 
 class RepositoryController extends Controller
 {
@@ -294,7 +293,7 @@ class RepositoryController extends Controller
         }
     }
 
-    public function mergeBranch($id,Request $request)
+    public function mergeBranch($id, Request $request)
     {
         $source = $request->source;
         $destination = $request->destination;
