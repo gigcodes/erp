@@ -63,8 +63,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redirect;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Qoraiche\MailEclipse\MailEclipse;
 use seo2websites\MagentoHelper\MagentoHelper;
 

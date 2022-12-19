@@ -12,7 +12,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
 use Route;
 
 class GroupController extends Controller
@@ -85,9 +84,9 @@ class GroupController extends Controller
             'permission' => 'required',
         ]);
 
-        $groupId = Input::get('group_id');
-        $repoName = Input::get('repository_name');
-        $permission = Input::get('permission');
+        $groupId = $request->group_id;
+        $repoName = $request->repository_name;
+        $permission = $request->permission;
 
         $this->callApiToAddRepository($groupId, $repoName, $permission);
 
@@ -144,9 +143,9 @@ class GroupController extends Controller
             'username' => 'required',
         ]);
 
-        $groupId = Input::get('group_id');
-        $role = Input::get('role');
-        $username = Input::get('username');
+        $groupId = $request->group_id;
+        $role = $request->role;
+        $username = $request->username;
 
         $this->addUserToGroup($groupId, $username, $role);
 

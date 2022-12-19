@@ -21,7 +21,6 @@ use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
 
 class CouponController extends Controller
 {
@@ -374,10 +373,10 @@ class CouponController extends Controller
         }
     }
 
-    public function showReport($couponId = null)
+    public function showReport($couponId, Request $request)
     {
-        $start = Input::get('start');
-        $end = Input::get('end');
+        $start = $request->start;
+        $end = $request->end;
 
         if (isset($couponId)) {
             $orders = Order::where('coupon_id', $couponId)

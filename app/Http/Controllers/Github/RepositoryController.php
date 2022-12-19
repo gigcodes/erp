@@ -18,7 +18,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Input;
 
 class RepositoryController extends Controller
 {
@@ -294,11 +293,11 @@ class RepositoryController extends Controller
         }
     }
 
-    public function mergeBranch($id)
+    public function mergeBranch($id, Request $request)
     {
-        $source = Input::get('source');
-        $destination = Input::get('destination');
-        $pull_request_id = Input::get('task_id');
+        $source = $request->source;
+        $destination = $request->destination;
+        $pull_request_id = $request->task_id;
 
         $url = 'https://api.github.com/repositories/'.$id.'/merges';
 
