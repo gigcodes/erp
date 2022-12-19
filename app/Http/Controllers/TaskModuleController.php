@@ -2755,8 +2755,7 @@ class TaskModuleController extends Controller
                 $path = storage_path('tmp/uploads/'.$file);              
                 $media = MediaUploader::fromSource($path)
                     ->toDirectory('task-files/'.floor($task->id / config('constants.image_per_folder')))
-                    ->upload();                              
-               
+                    ->upload();   
                 $task->attachMedia($media, config('constants.media_tags'));
 
                 if (! empty($media->filename)) {
