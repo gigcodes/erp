@@ -99,8 +99,8 @@ class BuyBackController extends Controller
                         $storewebisteOrder->save();
                     }
                 }
-            } elseif($request->type == 'cancellation' && $request->cancellation_type == 'products') {
-                $skus = explode(",",rtrim($request->product_sku, ','));
+            } elseif ($request->type == 'cancellation' && $request->cancellation_type == 'products') {
+                $skus = explode(',', rtrim($request->product_sku, ','));
             } else {
                 $skus[] = $request->product_sku;
             }

@@ -644,7 +644,7 @@ class Product extends Model
 
     public function magentoLog()
     {
-        return $this->hasOne(\App\Loggers\LogListMagento::class)->latest();;
+        return $this->hasOne(\App\Loggers\LogListMagento::class)->latest();
     }
 
     public function references()

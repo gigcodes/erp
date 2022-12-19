@@ -3,29 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Category;
+use App\Exports\SystemSizeExport;
 use App\Setting;
 use App\SystemSize;
 use App\SystemSizeManager;
 use App\SystemSizeRelation;
-use Illuminate\Http\Request;
-use App\Exports\SystemSizeExport;
 use Excel;
+use Illuminate\Http\Request;
 
 class SystemSizeController extends Controller
 {
     public function index(Request $request)
     {
+        $systemSizesManagers = SystemSizeManager::orderBy('id', 'asc');
 
-        $systemSizesManagers = SystemSizeManager::orderBy('id','asc');
-
-        if($request->main_category_id){
-            $systemSizesManagers = $systemSizesManagers->whereIn('category_id',$request->main_category_id);
+        if ($request->main_category_id) {
+            $systemSizesManagers = $systemSizesManagers->whereIn('category_id', $request->main_category_id);
         }
-        if($request->size){
-            $systemSizesManagers = $systemSizesManagers->where('erp_size','Like','%'.$request->size.'%');
+        if ($request->size) {
+            $systemSizesManagers = $systemSizesManagers->where('erp_size', 'Like', '%'.$request->size.'%');
         }
 
-        $systemSizesManagers  = $systemSizesManagers->select(
+        $systemSizesManagers = $systemSizesManagers->select(
             'system_size_managers.id',
             'categories.title as category',
             'categories.parent_id as category_parent_id',
@@ -256,8 +255,7 @@ class SystemSizeController extends Controller
     }
 
     public function exports()
-   {
-
-       return Excel::download(new SystemSizeExport, 'systemsize.xlsx');
-   }
+    {
+        return Excel::download(new SystemSizeExport, 'systemsize.xlsx');
+    }
 }

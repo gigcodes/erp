@@ -300,13 +300,15 @@ class MagentoService
 
         \Log::info($this->product->id.' #19 => '.date('Y-m-d H:i:s'));
 
-        if($this->mode == 'conditions-check') {
+        if ($this->mode == 'conditions-check') {
             $productRow = Product::find($this->product->id);
             $productRow->status_id = StatusHelper::$productConditionsChecked;
             $productRow->save();
+
             return true;
-        } elseif($this->mode == 'product-push')
+        } elseif ($this->mode == 'product-push') {
             return $this->assignProductOperation();
+        }
     }
 
     private function getActiveLanguages()

@@ -13,8 +13,7 @@ class TestSuites extends Model
         $this->belongsTo(SiteDevelopmentCategory::class, 'module_id', 'id');
     }
 
-
-	public function whatsappAll($needBroadcast = false)
+    public function whatsappAll($needBroadcast = false)
     {
         if ($needBroadcast) {
             return $this->hasMany(\App\ChatMessage::class, 'test_suites_id')->where(function ($q) {
@@ -24,5 +23,4 @@ class TestSuites extends Model
             return $this->hasMany(\App\ChatMessage::class, 'test_suites_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
         }
     }
-
 }
