@@ -44,6 +44,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Response;
+use App\SiteDevelopment;
+use App\BugTracker;
+use App\SiteDevelopmentCategory;
+use App\RoleUser;				 
 
 class TaskModuleController extends Controller
 {
@@ -63,6 +67,7 @@ class TaskModuleController extends Controller
 
     public function index(Request $request)
     {
+        
         if ($request->input('selected_user') == '') {
             $userid = Auth::id();
 
@@ -854,7 +859,7 @@ class TaskModuleController extends Controller
                 $params['message'] = $string;
                 $params['status'] = 2;
                 $requestData->request->add($params);
-                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'priority');
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
             }
         }
 
@@ -944,7 +949,7 @@ class TaskModuleController extends Controller
                     if ($key == 0) {
                         $params['erp_user'] = $user->id;
                     } else {
-                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
                     }
                 }
             } else {
@@ -953,7 +958,7 @@ class TaskModuleController extends Controller
                         $params['erp_user'] = $task->assign_from;
                     } else {
                         if ($user->id != Auth::id()) {
-                            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
                         }
                     }
                 }
@@ -965,7 +970,7 @@ class TaskModuleController extends Controller
                 if ($key == 0) {
                     $params['contact_id'] = $task->assign_to;
                 } else {
-                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($contact->phone, null, $params['message']);
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($contact->phone, null, $params['message']);
                 }
             }
         }
@@ -984,7 +989,7 @@ class TaskModuleController extends Controller
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);
 
-        app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('task', $myRequest);
+        app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
 
         //   $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
         $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
@@ -1843,7 +1848,7 @@ class TaskModuleController extends Controller
         if ($group == null) {
             //First Create Group Using Admin id
             $phone = $admin_number->phone;
-            $result = app(\App\Http\Controllers\WhatsAppController::class)->createGroup($task_id, '', $phone, '', $whatsapp_number);
+            $result = app('App\Http\Controllers\WhatsAppController')->createGroup($task_id, '', $phone, '', $whatsapp_number);
             if (isset($result['chatId']) && $result['chatId'] != null) {
                 $task_id = $task_id;
                 $chatId = $result['chatId'];
@@ -1907,7 +1912,7 @@ class TaskModuleController extends Controller
                 $user = User::findorfail($value);
                 $group = WhatsAppGroup::where('task_id', $request->task_id)->first();
                 $phone = $user->phone;
-                $result = app(\App\Http\Controllers\WhatsAppController::class)->createGroup('', $group->group_id, $phone, '', $whatsapp_number);
+                $result = app('App\Http\Controllers\WhatsAppController')->createGroup('', $group->group_id, $phone, '', $whatsapp_number);
                 if (isset($result['add']) && $result['add'] != null) {
                     $task_id = $request->task_id;
 
@@ -1985,6 +1990,175 @@ class TaskModuleController extends Controller
         }
 
         return response()->json(['code' => 200, 'data' => $websiteCheckbox, 'message' => 'List of website!']);
+    }
+	
+	
+	public function createMultipleTaskFromSortcutBugtrack(Request $request){
+
+        try{
+            $this->validate($request, [
+                'task_subject' => 'required',
+                'task_detail' => 'required',
+                'task_asssigned_to' => 'required_without:assign_to_contacts',
+                //'cost'=>'sometimes|integer'
+            ]);
+
+            $bug_list_ids = explode(',',$request->task_bug_ids);
+            $model_bug_tracker = BugTracker::whereIn('id', $bug_list_ids)->get()->toArray();
+            $bug_tracker_array = array();
+            $model_name = 0;           
+            for($p=0;$p<count($model_bug_tracker);$p++) {
+                $bug_primary_id = $model_bug_tracker[$p]['id'];
+                $bug_tracker_array[$bug_primary_id] = $model_bug_tracker[$p];
+                $model_name = $model_bug_tracker[0]['module_id'];
+            }
+
+            $model_site_dev_category = SiteDevelopmentCategory::where('title',$model_name)->get()->toArray();
+            $site_development_module_id = 0;
+            if(count($model_site_dev_category)>0 && $model_site_dev_category[0]['id']>0) {
+                $site_development_module_id = $model_site_dev_category[0]['id'];
+            }
+
+            $data_site['site_development_category_id'] = $site_development_module_id;
+            $data_site['bug_id'] = $request->site_id;
+            $data_site['website_id'] = $request->website_id;
+            $data_site['created_at'] = date('Y-m-d H:i:s');
+            $data_site['site_development_master_category_id'] = 4;
+            
+            $site_devlopment_exist = SiteDevelopment::where('bug_id', $request->site_id)->get()->toArray();
+            $site_developement_primary_id = 0;
+            if(count($site_devlopment_exist) == 0) {
+                $res_site_dev = SiteDevelopment::create($data_site);
+                $site_developement_primary_id = $res_site_dev->id;
+            } else {
+                if(isset($site_devlopment_exist[0]['id']) && $site_devlopment_exist[0]['id']>0) {
+                    $site_developement_primary_id = $site_devlopment_exist[0]['id'];
+                }                   
+            }
+
+            
+           
+            $site_dev_category_id = \App\SiteDevelopment::where("id", $site_developement_primary_id)->select("site_development_category_id")->first();
+            $cat_id = $site_dev_category_id->id;
+            if(is_array($request->website_name)) { 
+
+                foreach($request->website_name AS $key => $website) {  
+                                  
+                    $site_developement_id = \App\SiteDevelopment::select("id")->where(["site_development_category_id" => $site_dev_category_id->site_development_category_id, 'website_id' => $key])->first();
+                    if(isset($site_developement_id->id)){  
+                        $request->task_subject = $website;                      
+                        $message = '';
+                        $assignedUserId = 0;
+                        $taskType = $request->task_type;                       
+                        $data = $request->except('_token');
+                       // $data['site_id'] = $request->site_id;
+                        $data['site_id'] = $site_developement_primary_id;
+                        $data['bug_id'] = $request->site_id;
+                        $data['task_subject'] = $website;
+                        $data['task_bug_ids'] = $request->task_bug_ids;
+                        if ($taskType == "4" || $taskType == "5" || $taskType == "6") {
+                           
+                            $data = [];
+                            if (is_array($request->task_asssigned_to)) {
+                                $data['assigned_to'] = $request->task_asssigned_to[0];
+                            } else {
+                                $data['assigned_to'] = $request->task_asssigned_to;
+                            }
+                            $data['user_id'] = loginId();
+                            $data['subject'] = $website;
+                            $data['task'] = $request->get("task_detail");
+                            $data['task_type_id'] = 1;                            
+                            $data['cost'] = $request->get("cost", 0);
+                            $data['status'] = DeveloperTask::DEV_TASK_STATUS_PLANNED;
+                            $data['created_by'] = loginId();
+                            if ($taskType == 5 || $taskType == 6) {
+                                $data['task_type_id'] = 3;
+                            }
+                          
+
+                            $data["subject"]         = $website;
+                            $data['task_type'] = $taskType;
+                            $data["task"]             = $request->get("task_detail");
+                            $data["task_type_id"]    = 1;
+                            $data["user_feedback_cat_id"]    = $request->get("user_feedback_cat_id");
+                            $data["site_developement_id"]    = $site_developement_primary_id;                            
+                            $data["cost"]    = $request->get("cost", 0);
+                            $data["status"]    = 'In Progress';
+                            $data["created_by"]    = Auth::id();
+
+                            $task = $this->taskCreateMaster($data);
+
+                           
+                            if($task) {
+                                if(count($bug_list_ids)>0) { 
+                                    $task_asssigned_user_to =  $data['assigned_to'];
+                                    for($k=0;$k<count($bug_list_ids);$k++) {
+                                        $bug_tacker_id = $bug_list_ids[$k];                                       
+                                        $bug_tracking = BugTracker::find($bug_tacker_id);
+                                        $bug_tracking->bug_status_id  = 6;
+                                        $bug_tracking->assign_to  = $task_asssigned_user_to;
+                                        $bug_tracking->updated_at = date("Y-m-d H:i:s");
+                                        $bug_tracking->updated_by = Auth::user()->name;                       
+                                        $bug_tracking->save();
+                                    }
+                                }  
+
+                            }
+                            
+                            if (request('need_review_task')) { 
+                                $data['parent_review_task_id'] = $task->id;
+                                $reviewTask = $cntrl->developerTaskCreate($data);
+                            }
+                        } else {
+                           
+                            $data["site_developement_id"]    = $site_developement_primary_id;                             
+                            $data['task_subject'] = $website;
+                            $data['task_type'] = $taskType;
+                            $data['assign_from'] = loginId();
+                            $data['status'] = 5; 
+                            $data['customer_id'] = $data['customer_id'] ?? NULL;
+                            $data['cost'] = $data['cost'] ?? NULL;
+                            
+                            $task = $this->taskCreateMaster($data);
+                          
+                            if($task) {
+                                if(count($bug_list_ids)>0) {
+                                    if (is_array($request->task_asssigned_to)) {
+                                        $data['assigned_to'] = $request->task_asssigned_to[0];
+                                    } else {
+                                        $data['assigned_to'] = $request->task_asssigned_to;
+                                    }
+                                    $task_asssigned_user_to =  $data['assigned_to'];
+                                    for($k=0;$k<count($bug_list_ids);$k++) {
+                                        $bug_tacker_id = $bug_list_ids[$k];                                       
+                                        $bug_tracking = BugTracker::find($bug_tacker_id);
+                                        $bug_tracking->bug_status_id  = 6;
+                                        $bug_tracking->assign_to  = $task_asssigned_user_to;
+                                        $bug_tracking->updated_at = date("Y-m-d H:i:s");
+                                        $bug_tracking->updated_by = Auth::user()->name;                       
+                                        $bug_tracking->save();
+                                    }
+                                }  
+                            }
+                            
+
+                            if (request('need_review_task')) {
+                                $data['parent_review_task_id'] = $task->id;
+                                $reviewTask = $this->taskCreateMaster($data);
+                            }
+                        }
+                        
+                    }
+                }
+             
+            } else {
+                $this->createTaskFromSortcut($request);
+            }
+            return response()->json(["code" => 200, "data" => [], "message" => "Your quick task has been created!"]);
+        }catch(\Exception $e){
+            return response()->json(["code" => 500, "message" => $e->getMessage()]);
+        }
+        
     }
 
     public function createMultipleTaskFromSortcut(Request $request)
@@ -2071,7 +2245,7 @@ class TaskModuleController extends Controller
             }
 
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Your quick task has been created!']);
-        } catch (\Exception $e) {
+        } catch(\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -2298,7 +2472,7 @@ class TaskModuleController extends Controller
                     if ($key == 0) {
                         $params['erp_user'] = $user->id;
                     } else {
-                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
                     }
                 }
             } else {
@@ -2307,7 +2481,7 @@ class TaskModuleController extends Controller
                         $params['erp_user'] = $task->assign_from;
                     } else {
                         if ($user->id != Auth::id()) {
-                            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
                         }
                     }
                 }
@@ -2319,7 +2493,7 @@ class TaskModuleController extends Controller
                 if ($key == 0) {
                     $params['contact_id'] = $task->assign_to;
                 } else {
-                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($contact->phone, null, $params['message']);
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($contact->phone, null, $params['message']);
                 }
             }
         }
@@ -2338,7 +2512,7 @@ class TaskModuleController extends Controller
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);
 
-        app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('task', $myRequest);
+        app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
 
         return $task;
     }
@@ -2401,7 +2575,7 @@ class TaskModuleController extends Controller
                     'developer_task_id' => $request->id,
                 ]);
 
-                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
 
                 MessageHelper::sendEmailOrWebhookNotification([$task->user_id], $msg);
             }
@@ -2428,7 +2602,7 @@ class TaskModuleController extends Controller
                     'status' => 0,
                     'developer_task_id' => $request->id,
                 ]);
-                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
 
                 MessageHelper::sendEmailOrWebhookNotification([$task->assigned_to], $msg);
             }
@@ -2529,7 +2703,7 @@ class TaskModuleController extends Controller
             $task->save();
         }
         $taskUser = new TaskUserHistory;
-        $taskUser->model = \App\Task::class;
+        $taskUser->model = 'App\Task';
         $taskUser->model_id = $issue->id;
         $taskUser->old_id = ($old_id == '') ? 0 : $old_id;
         $taskUser->new_id = $masterUserId;
@@ -2718,7 +2892,7 @@ class TaskModuleController extends Controller
             }
 
             if ($params) {
-                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
 
                 return response()->json([
                     'message' => 'Successfully Send File',
@@ -2756,7 +2930,7 @@ class TaskModuleController extends Controller
                 ]);
 
                 if ($params) {
-                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
 
                     return response()->json([
                         'message' => 'Successfully Send Document',
@@ -2800,7 +2974,7 @@ class TaskModuleController extends Controller
                     'message' => 'Select one time first',
                 ], 500);
             }
-            DeveloperTaskHistory::where('developer_task_id', $request->developer_task_id)->where('attribute', 'estimation_minute')->where('model', \App\Task::class)->update(['is_approved' => 0]);
+            DeveloperTaskHistory::where('developer_task_id', $request->developer_task_id)->where('attribute', 'estimation_minute')->where('model', 'App\Task')->update(['is_approved' => 0]);
             $history = DeveloperTaskHistory::find($request->approve_time);
             $history->is_approved = 1;
             $history->save();
@@ -2847,13 +3021,13 @@ class TaskModuleController extends Controller
                 }
                 if (isset($chat)) {
                     if ($admin->phone) {
-                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($admin->phone, $admin->whatsapp_number, $msg, false, $chat->id);
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($admin->phone, $admin->whatsapp_number, $msg, false, $chat->id);
                     }
                     if ($user->phone) {
-                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg, false, $chat->id);
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg, false, $chat->id);
                     }
                     if ($master_user && $master_user->phone) {
-                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($master_user->phone, $master_user->whatsapp_number, $msg, false, $chat->id);
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($master_user->phone, $master_user->whatsapp_number, $msg, false, $chat->id);
                     }
                 }
             }
@@ -3018,7 +3192,7 @@ class TaskModuleController extends Controller
         $id = $request->id;
         $task_module = DeveloperTaskHistory::join('users', 'users.id', 'developer_tasks_history.user_id')
             ->where('developer_task_id', $id)
-            ->where('model', \App\Task::class)
+            ->where('model', 'App\Task')
             ->where('attribute', 'estimation_minute')
             ->select('developer_tasks_history.*', 'users.name')
             ->orderBy('developer_tasks_history.id', 'DESC')
@@ -3053,13 +3227,14 @@ class TaskModuleController extends Controller
             $task->save();
             DeveloperTaskHistory::create([
                 'developer_task_id' => $request->task_id,
-                'model' => \App\Task::class,
+                'model' => 'App\Task',
                 'attribute' => 'task_status',
                 'old_value' => $old_status,
                 'new_value' => $task->status,
                 'user_id' => Auth::id(),
             ]);
 
+		
             if ($task->status == 1) {
                 $task_user = User::find($task->assign_to);
                 if (! $task_user) {
@@ -3110,7 +3285,96 @@ class TaskModuleController extends Controller
                         'by_command' => 4,
                         'task_id' => $task->id,
                     ]);
-                }
+					
+					if ($task->status == 1) {
+						if($task->task_bug_ids!='') {
+							$task_details_info = explode(',',$task->task_bug_ids) ;
+							if(count($task_details_info)>0) {
+
+                                $admin_user_id = 0;
+                                $customer_role_users = RoleUser::where(['role_id' => 1])->with('user')->get()->toArray();
+                                if(count($customer_role_users)>0) {
+                                    for($m=0;$m<count($customer_role_users);$m++) {
+                                        if(isset( $customer_role_users[$m]['user']['id']) && $customer_role_users[$m]['user']['id']>0) {
+                                            $admin_user_id = $customer_role_users[$m]['user']['id'];
+                                            $m = count($customer_role_users);
+                                        }
+                                    }
+                                }
+
+								for($k=0;$k<count($task_details_info);$k++) {
+									$bug_tacker_id = $task_details_info[$k];
+									$bug_tracking = BugTracker::find($bug_tacker_id);
+									if($task->status == 3) { // In progress
+										$bug_tracking->bug_status_id  = 5;
+									} else if($task->status == 1) { // complete
+										$bug_tracking->bug_status_id  = 6;
+                                        if($admin_user_id>0) {
+                                            $bug_tracking->assign_to = $admin_user_id;
+                                        }
+									}  else if($task->status == 2) { // Discussing
+										$bug_tracking->bug_status_id  = 7;
+                                        if($admin_user_id>0) {
+                                            $bug_tracking->assign_to = $admin_user_id;
+                                        }
+									}
+                                    
+									$bug_tracking->updated_at = date("Y-m-d H:i:s");
+									$bug_tracking->updated_by = Auth::user()->name;                       
+									$bug_tracking->save();
+								}
+							}                    
+						}   
+					}
+                }				
+			
+            }
+			
+			
+			if ($task->status == 3 || $task->status == 1 || $task->status == 2 || $task->status == 6) {
+							
+                if($task->task_bug_ids!='') {
+                    $task_details_info = explode(',',$task->task_bug_ids) ;
+                    if(count($task_details_info)>0) {
+                        $admin_user_id = 0;
+                        $customer_role_users = RoleUser::where(['role_id' => 1])->with('user')->get()->toArray();
+                        if(count($customer_role_users)>0) {
+                            for($m=0;$m<count($customer_role_users);$m++) {
+                                if(isset( $customer_role_users[$m]['user']['id']) && $customer_role_users[$m]['user']['id']>0) {
+                                    $admin_user_id = $customer_role_users[$m]['user']['id'];
+                                    $m = count($customer_role_users);
+                                }
+                            }
+                        }
+
+                        for($k=0;$k<count($task_details_info);$k++) {
+                            $bug_tacker_id = $task_details_info[$k];
+                            $bug_tracking = BugTracker::find($bug_tacker_id);
+                            if($task->status == 3) { // In progress
+                                $bug_tracking->bug_status_id  = 6;
+                            } else if($task->status == 1) { // complete
+                                $bug_tracking->bug_status_id  = 7;
+                                if($admin_user_id>0) {
+                                    $bug_tracking->assign_to = $admin_user_id;
+                                }
+                            }  else if($task->status == 2) { // Discussing
+                                $bug_tracking->bug_status_id  = 8;
+                                if($admin_user_id>0) {
+                                    $bug_tracking->assign_to = $admin_user_id;
+                                }
+                            }  else if($task->status == 6) { // Discuss with Lead
+                                $bug_tracking->bug_status_id  = 10;
+                                if($admin_user_id>0) {
+                                    $bug_tracking->assign_to = $admin_user_id;
+                                }
+                            }
+                           
+                            $bug_tracking->updated_at = date("Y-m-d H:i:s");
+                            $bug_tracking->updated_by = Auth::user()->name;                       
+                            $bug_tracking->save();
+                        }
+                    }                    
+                }   
             }
 
             return response()->json([
@@ -3153,7 +3417,7 @@ class TaskModuleController extends Controller
             $requestData = new Request();
             $requestData->setMethod('POST');
             $requestData->request->add(['task_id' => $task->id, 'message' => $message, 'status' => 1]);
-            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'task');
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'task');
             //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($task->assignedTo->phone, '', $message);
         }
 
@@ -3172,7 +3436,7 @@ class TaskModuleController extends Controller
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add(['task_id' => $tid, 'message' => $request->message, 'status' => 1]);
-                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'task');
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'task');
             }
 
             return response()->json(['code' => 200, 'message' => 'Message has been sent to all selected task']);
@@ -3285,7 +3549,7 @@ class TaskModuleController extends Controller
         }
 
         $taskUser = new TaskUserHistory;
-        $taskUser->model = \App\Task::class;
+        $taskUser->model = 'App\Task';
         $taskUser->model_id = $task->id;
         $taskUser->old_id = $old_id;
         $taskUser->new_id = $request->get('user_id');
@@ -3293,7 +3557,7 @@ class TaskModuleController extends Controller
         $taskUser->updated_by = Auth::user()->name;
         $taskUser->save();
 
-        $values = ['task_id' => $request->get('issue_id'), 'user_id' => $request->get('user_id'), 'type' => \App\User::class];
+        $values = ['task_id' => $request->get('issue_id'), 'user_id' => $request->get('user_id'), 'type' => 'App\User'];
         DB::table('task_users')->insert($values);
 
         return response()->json(['status' => 'success']);
@@ -3345,12 +3609,12 @@ class TaskModuleController extends Controller
     {
         if (isset($request->type)) {
             if ($request->type == 'developer') {
-                $users = TaskUserHistory::where('model', \App\DeveloperTask::class)->where('model_id', $request->id)->get();
+                $users = TaskUserHistory::where('model', 'App\DeveloperTask')->where('model_id', $request->id)->get();
             } else {
-                $users = TaskUserHistory::where('model', \App\Task::class)->where('model_id', $request->id)->get();
+                $users = TaskUserHistory::where('model', 'App\Task')->where('model_id', $request->id)->get();
             }
         } else {
-            $users = TaskUserHistory::where('model', \App\Task::class)->where('model_id', $request->id)->get();
+            $users = TaskUserHistory::where('model', 'App\Task')->where('model_id', $request->id)->get();
         }
 
         foreach ($users as $u) {
@@ -3452,7 +3716,7 @@ class TaskModuleController extends Controller
                 }
 
                 $taskUser = new TaskUserHistory;
-                $taskUser->model = \App\Task::class;
+                $taskUser->model = 'App\Task';
                 $taskUser->model_id = $task->id;
                 $taskUser->old_id = $old_id;
                 $taskUser->new_id = $request->get('user_assigned_to');
@@ -3460,7 +3724,7 @@ class TaskModuleController extends Controller
                 $taskUser->updated_by = Auth::user()->name;
                 $taskUser->save();
 
-                $values = ['task_id' => $task->id, 'user_id' => $request->get('user_assigned_to'), 'type' => \App\User::class];
+                $values = ['task_id' => $task->id, 'user_id' => $request->get('user_assigned_to'), 'type' => 'App\User'];
                 DB::table('task_users')->insert($values);
             }
         }
@@ -3667,7 +3931,7 @@ class TaskModuleController extends Controller
 
             DeveloperTaskHistory::create([
                 'developer_task_id' => $task->id,
-                'model' => \App\Task::class,
+                'model' => 'App\Task',
                 'attribute' => 'estimation_minute',
                 'old_value' => $task->approximate,
                 'remark' => $remark ?: null,
@@ -3698,7 +3962,7 @@ class TaskModuleController extends Controller
                         'status' => 0,
                         'developer_task_id' => $task_id,
                     ]);
-                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
                 }
             }
 
