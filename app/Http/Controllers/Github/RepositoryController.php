@@ -17,8 +17,8 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
-use Input;
 use Illuminate\Support\Str;
+use Input;
 
 class RepositoryController extends Controller
 {
@@ -96,7 +96,7 @@ class RepositoryController extends Controller
         //print_r($repository);
     }
 
-    public function deployBranch($repoId,Request $request)
+    public function deployBranch($repoId, Request $request)
     {
         //dd($repoId);
         $source = 'master';
@@ -129,7 +129,7 @@ class RepositoryController extends Controller
             // Deploy branch
             $repository = GithubRepository::find($repoId);
 
-            $branch =  $request->branch;
+            $branch = $request->branch;
             $composerupdate = request('composer', false);
             //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 

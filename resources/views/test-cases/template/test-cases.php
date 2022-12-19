@@ -13,7 +13,7 @@
                         <label for="name">Test Case Website</label>
                         <select class="form-control" name="website" id="website">
                             <option value="">Select Test Case Website</option>
-                            <?php foreach($filterWebsites as  $filterWebsite){ ?>
+                            <?php foreach ($filterWebsites as  $filterWebsite) { ?>
                             <option value="<?php echo $filterWebsite->id ?>"><?php echo $filterWebsite->title ?> </option>
                             <?php } ?>
                         </select>
@@ -22,7 +22,7 @@
                         <label for="name">Assign to</label>
                         <select class="form-control" name="assign_to_test_case" id="assign_to_test_case" required>
                             <option value="">Select Assign to</option>
-                            <?php foreach($users as  $user){ ?>
+                            <?php foreach ($users as  $user) { ?>
                             <option value="<?php echo $user->id ?>"><?php echo $user->name ?> </option>
                             <?php } ?>
                         </select>
@@ -31,7 +31,7 @@
                         <label for="name">Bug Tracker Website</label>
                         <select class="form-control" name="bug_website" id="bug_website" required>
                             <option value=""> Select Bug Tracker Website</option>
-                            <?php foreach($filterWebsites as  $filterWebsite){ ?>
+                            <?php foreach ($filterWebsites as  $filterWebsite) { ?>
                             <option value="<?php echo $filterWebsite->id ?>"><?php echo $filterWebsite->title ?> </option>
                             <?php } ?>
                         </select>
