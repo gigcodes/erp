@@ -3,17 +3,13 @@
 namespace App\Exports;
 
 use App\Category;
+use App\SystemSizeManager;
 use App\SystemSizeRelation;
-use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use App\SystemSizeManager;
-
 
 class SystemSizeExport implements FromCollection, WithHeadings
 {
-
     public function headings(): array
     {
         return [
@@ -42,19 +38,20 @@ class SystemSizeExport implements FromCollection, WithHeadings
             $sizes = '';
 
             foreach ($related as $v) {
-                $string = $v->name . ' => ' . $v->size;
-                $sizes .= $sizes == '' ? $string : ', ' . $string;
+                $string = $v->name.' => '.$v->size;
+                $sizes .= $sizes == '' ? $string : ', '.$string;
             }
             $manager->category_parent_id = Category::where('id', $manager->category_parent_id)->value('title');
             $manager->sizes = $sizes;
             unset($manager->id);
+
             return $manager;
         });
+
         return $systemSizesManagers;
     }
 
     /**
      * @return \Illuminate\Support\Collection
      */
-
 }

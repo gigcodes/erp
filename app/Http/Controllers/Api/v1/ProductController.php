@@ -77,11 +77,11 @@ class ProductController extends Controller
                     if ($cancellationType == 'order') {
                         $orderProducts = $getOrder->order_product;
                     } elseif ($cancellationType == 'products') {
-                        $skus = explode(",", rtrim($request->product_sku, ','));
+                        $skus = explode(',', rtrim($request->product_sku, ','));
                         $orderProducts = OrderProduct::where('order_id', '=', $request->order_id)->whereIn('sku', $skus)->get();
                     }
                     if (count($orderProducts) > 0) {
-                        $results = array();
+                        $results = [];
                         foreach ($orderProducts as $orderProduct) {
                             $result_input = $request->input();
                             $result_input['iscanceled'] = true;
@@ -110,7 +110,7 @@ class ProductController extends Controller
                                 $result_input['isreturn'] = false;
                             }
 
-                            if ($getOrder->shipment_date != '' && !is_null($getOrder->shipment_date)) {
+                            if ($getOrder->shipment_date != '' && ! is_null($getOrder->shipment_date)) {
                                 $result_input['iscanceled'] = false;
                             }
                             $results[] = $result_input;
@@ -212,7 +212,7 @@ class ProductController extends Controller
 
         $customer = \App\Customer::where('email', $request->customer_email)->where('store_website_id', $storeweb->id)->first();
         $basket = \App\CustomerBasket::where('customer_email', $request->customer_email)->first();
-        if (!$basket) {
+        if (! $basket) {
             $basket = new \App\CustomerBasket;
             $basket->customer_name = $request->customer_name;
             $basket->customer_email = $request->customer_email;
@@ -226,7 +226,7 @@ class ProductController extends Controller
         $product = \App\Product::where('sku', $sku[0])->first();
 
         $basketProduct = \App\CustomerBasketProduct::where('customer_basket_id', $basket->id)->where('product_sku', $sku[0])->first();
-        if (!$basketProduct) {
+        if (! $basketProduct) {
             $basketProduct = new \App\CustomerBasketProduct;
             $basketProduct->customer_basket_id = $basket->id;
             $basketProduct->product_id = $product->id;

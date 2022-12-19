@@ -872,7 +872,7 @@ class Category extends Model
                         if ($leveltwo->id == $mainCategory || $leveltwo->parent_id == $mainCategory) {
                             return $match;
                         }
-                        // now as this is matched we can send this category to that it is matched
+                    // now as this is matched we can send this category to that it is matched
                     } else {
                         if ($levelone->id == $mainCategory || $levelone->parent_id == $mainCategory) {
                             return $match;
@@ -960,7 +960,7 @@ class Category extends Model
                             if ($leveltwo->id == $mainCategory || $leveltwo->parent_id == $mainCategory) {
                                 return $category;
                             }
-                            // now as this is matched we can send this category to that it is matched
+                        // now as this is matched we can send this category to that it is matched
                         } else {
                             if ($levelone->id == $mainCategory || $levelone->parent_id == $mainCategory) {
                                 return $category;

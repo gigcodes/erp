@@ -1442,7 +1442,7 @@ class ProductController extends Controller
         } else {
             $products = Product::query()->where('assigned_to', auth()->user()->id);
         }
-        $products = $products->where(function($query) {
+        $products = $products->where(function ($query) {
             $query->where('status_id', StatusHelper::$finalApproval);
             $query->orWhere('status_id', StatusHelper::$productConditionsChecked);
         });
@@ -1480,7 +1480,7 @@ class ProductController extends Controller
         } else {
             $products = Product::query()->where('assigned_to', auth()->user()->id);
         }
-        $products = $products->where(function($query) {
+        $products = $products->where(function ($query) {
             $query->where('status_id', StatusHelper::$pushToMagento);
             $query->orWhere('status_id', StatusHelper::$inMagento);
         });
@@ -4804,7 +4804,7 @@ class ProductController extends Controller
                 foreach ($websiteArrays as $websiteArray) {
                     $website = StoreWebsite::find($websiteArray);
                     if ($website) {
-                        \Log::info('Product started website found For website ' . $website->website);
+                        \Log::info('Product started website found For website '.$website->website);
                         $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
                         //currently we have 3 queues assigned for this task.
                         $log->queue = \App\Helpers::createQueueName($website->title);
@@ -4822,14 +4822,12 @@ class ProductController extends Controller
             }
         }
 
-        if($mode == 'conditions-check') {
+        if ($mode == 'conditions-check') {
             return response()->json(['code' => 200, 'message' => 'Conditions checked completed successfully!']);
-        }
-        elseif($mode == 'product-push')
+        } elseif ($mode == 'product-push') {
             return response()->json(['code' => 200, 'message' => 'Push product successfully!']);
-
+        }
     }
-
 
     public function processProductsConditionsCheck(Request $request)
     {
@@ -4876,16 +4874,15 @@ class ProductController extends Controller
             }
         }
 
-        if($mode == 'conditions-check') {
+        if ($mode == 'conditions-check') {
             return response()->json(['code' => 200, 'message' => 'Conditions checked completed successfully!']);
-        }
-        elseif($mode == 'product-push')
+        } elseif ($mode == 'product-push') {
             return response()->json(['code' => 200, 'message' => 'Push product successfully!']);
-
+        }
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function pushProductsToMagento(Request $request)
@@ -4897,7 +4894,7 @@ class ProductController extends Controller
             ->groupBy('brand', 'category')
             ->limit($limit)
             ->get();
-        if($products->count() == 0) {
+        if ($products->count() == 0) {
             return response()->json(['code' => 500, 'message' => 'No products found!']);
         }
 

@@ -85,7 +85,7 @@ class Task extends Model
         'last_send_reminder',
 
         'parent_task_id',
-		'task_bug_ids',
+        'task_bug_ids',
         'last_date_time_reminder',
         'is_flow_task',
         'user_feedback_cat_id',
