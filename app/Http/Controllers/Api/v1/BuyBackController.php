@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\v1;
 use App\AutoReply;
 use App\Customer;
 use App\Email;
-use App\Helpers\OrderHelper;
 use App\Http\Controllers\Controller;
 use App\Order;
 use App\ReturnExchange;
@@ -65,12 +64,11 @@ class BuyBackController extends Controller
             'order_id' => 'required',
             'website' => 'required',
             'type' => 'required|in:refund,exchange,buyback,return,cancellation',
-            'product_sku' => 'required|exists:order_products,sku',
         ];
 
         //if order type is not cancellation the add validation for product sku
-        if ($request->type == 'cancellation' || ($request->type == 'return' && $request->cancellation_type == 'order')) {
-            unset($validationsarr['product_sku']);
+        if ($request->type != 'cancellation') {
+            $validationsarr['product_sku'] = 'required|exists:order_products,sku';
         }
 
         if ($request->type == 'cancellation') {
@@ -101,22 +99,8 @@ class BuyBackController extends Controller
                         $storewebisteOrder->save();
                     }
                 }
-            } elseif ($request->type == 'return' && $request->cancellation_type == 'order') {
-                $storewebisteOrder = StoreWebsiteOrder::where('platform_order_id', $request->order_id)->where('website_id', $storeWebsite->id)->first();
-
-                if ($storewebisteOrder) {
-                    $skus = \App\OrderProduct::where('order_id', $storewebisteOrder->order_id)->get()->pluck('sku')->toArray();
-                    $order = \App\Order::find($storewebisteOrder->order_id);
-                    if ($order) {
-                        $order->order_status = OrderHelper::getStatus()[OrderHelper::$refundToBeProcessed];
-                        $order->order_status_id = OrderHelper::$refundToBeProcessed;
-                        $order->save();
-                        $storewebisteOrder->status_id = OrderHelper::$refundToBeProcessed;
-                        $storewebisteOrder->save();
-                    }
-                }
-            } elseif($request->type == 'cancellation' && $request->cancellation_type == 'products') {
-                $skus = explode(",",rtrim($request->product_sku, ','));
+            } elseif ($request->type == 'cancellation' && $request->cancellation_type == 'products') {
+                $skus = explode(',', rtrim($request->product_sku, ','));
             } else {
                 $skus[] = $request->product_sku;
             }

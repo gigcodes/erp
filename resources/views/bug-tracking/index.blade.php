@@ -12,7 +12,7 @@
             word-break: break-all !important;
         }
     </style>
-
+	
 
 <style>
 th {border: 1px solid black;}
@@ -84,7 +84,7 @@ table{border-collapse: collapse;}
 											?>
 										</select>
 									</div>
-									<div class="form-group  cls_filter_inputbox p-2 mr-3" style="width: 200px;">
+                <div class="form-group  cls_filter_inputbox p-2 mr-3" style="width: 200px;">
 										<?php
 										$module_id = request('module_id');
 										?>
@@ -104,7 +104,7 @@ table{border-collapse: collapse;}
 									<div class="form-group m-1" style="width: 200px;">
 										<input name="url" type="text" class="form-control" placeholder="Search Url" id="bug-url" data-allow-clear="true" />
 									</div>
-									<div class="form-group cls_filter_inputbox p-2 mr-2" style="width: 200px;">
+                <div class="form-group cls_filter_inputbox p-2 mr-2" style="width: 200px;">
 										<?php
 										$website = request('website');
 										?>
@@ -116,8 +116,7 @@ table{border-collapse: collapse;}
 											@endforeach
 										</select>
 									</div>
-
-									<div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
+                <div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2" style="width: 200px;">
 										<?php
 										$assign_to_user = request('assign_to_user');
 										?>
@@ -214,6 +213,62 @@ table{border-collapse: collapse;}
 	@include("bug-tracking.templates.bug-severity")
 	@include("bug-tracking.templates.bug-status")
 	@include("bug-tracking.templates.bug-type")
+	
+	
+	<div id="dev_task_statistics" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h2>Dev Task statistics</h2>
+					<button type="button" class="close" data-dismiss="modal">×</button>
+				</div>
+				<div class="modal-body" id="dev_task_statistics_content">
+					<div class="table-responsive">
+						<table class="table table-bordered table-striped">
+							<tbody>
+								<tr>
+									<th>Task type</th>
+									<th>Task Id</th>
+									<th>Assigned to</th>
+									<th>Description</th>
+									<th>Status</th>
+									<th>Action</th>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="preview-task-image" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-body">
+					<div class="col-md-12">
+						<table class="table table-bordered" style="table-layout: fixed">
+							<thead>
+								<tr>
+									<th style="width: 5%;">Sl no</th>
+									<th style=" width: 30%">Files</th>
+									<th style="word-break: break-all; width: 40%">Send to</th>
+									<th style="width: 10%">User</th>
+									<th style="width: 10%">Created at</th>
+									<th style="width: 15%">Action</th>
+								</tr>
+							</thead>
+							<tbody class="task-image-list-view">
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<div id="newHistoryModal" class="modal fade" role="dialog">
 		<div class="modal-dialog modal-lg">
@@ -226,11 +281,10 @@ table{border-collapse: collapse;}
 				<table class="table">
 					<tr>
 
-						<th>Date</th>
 						<th>Type of Bug</th>
 						<th>Summary</th>
+						<th>Expected Result</th>
 						<th>Environment</th>
-						<th>Assign to</th>
 						<th>Status</th>
 						<th>Severity</th>
 						<th>Module/Feature</th>
@@ -243,6 +297,7 @@ table{border-collapse: collapse;}
 			</div>
 		</div>
 	</div>
+	
 	<div id="newuserHistoryModal" class="modal fade" role="dialog">
 		<div class="modal-dialog modal-lg">
 			<!-- Modal content-->
@@ -250,6 +305,7 @@ table{border-collapse: collapse;}
 				<div class="modal-header">
 					<h3>User History</h3>
 					<button type="button" class="close" data-dismiss="modal">&times;</button>
+			     
 				</div>
 				<table class="table">
 					<tr>
@@ -266,7 +322,10 @@ table{border-collapse: collapse;}
 			</div>
 		</div>
 	</div>
-<div id="newstatusHistoryModal" class="modal fade" role="dialog">
+	
+	
+	<div id="newstatusHistoryModal" class="modal fade" role="dialog">
+															
 		<div class="modal-dialog modal-lg">
 			<!-- Modal content-->
 			<div class="modal-content">
@@ -279,7 +338,7 @@ table{border-collapse: collapse;}
 
 						<th>Date</th>
 						<th>New Status</th>
-						<th>Old Status</th>
+						<th>Old Status</th>							 
 						<th>Updated By </th>
 					</tr>
 					<tbody class="tbhstatus">
@@ -312,6 +371,93 @@ table{border-collapse: collapse;}
 			</div>
 		</div>
 	</div>
+	<div id="create-quick-task" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<form action="<?php echo route('task.create.multiple.task.shortcut.bugtrack'); ?>" method="post">
+					<?php echo csrf_field(); ?>
+					<div class="modal-header">
+						<h4 class="modal-title">Create Task</h4>
+					</div>
+					<div class="modal-body">
+						<input class="form-control" value="52" type="hidden" name="category_id" />
+						<input class="form-control" value="" type="hidden" name="category_title" id="category_title" />
+						<input class="form-control" type="hidden" name="site_id" id="site_id" />
+						<input class="form-control" type="hidden" name="website_id" id="website_id" />
+						<div class="form-group">
+							<label for="">Subject</label>
+							<input class="form-control" type="text" id="hidden-task-subject" name="task_subject" />
+						</div>
+						<div class="form-group">
+							<select class="form-control" style="width:100%;" name="task_type" tabindex="-1" aria-hidden="true">
+								<option value="0">Other Task</option>
+								<option value="4">Developer Task</option>
+							</select>
+						</div>
+
+						<div class="form-group">
+							<label for="repository_id">Repository:</label>
+							<br>
+							<select style="width:100%" class="form-control 	" id="repository_id" name="repository_id">
+								<option value="">-- select repository --</option>
+								@foreach (\App\Github\GithubRepository::all() as $repository)
+								<option value="{{ $repository->id }}">{{ $repository->name }}</option>
+								@endforeach
+							</select>
+						</div>
+
+						<div class="form-group">
+							<label for="">Details</label>
+							<input class="form-control text-task-development" type="text" name="task_detail" />
+						</div>
+
+						<div class="form-group">
+							<label for="">Cost</label>
+							<input class="form-control" type="text" name="cost" />
+						</div>
+
+						<div class="form-group">
+							<label for="">Assign to</label>
+							<select name="task_asssigned_to" class="form-control assign-to select2">
+								@foreach ($allUsers as $user)
+								<option value="{{ $user->id }}">{{ $user->name }}</option>
+								@endforeach
+							</select>
+						</div>
+
+						<div class="form-group">
+							<label for="">Create Review Task?</label>
+							<div class="form-group">
+								<input type="checkbox" name="need_review_task" value="1" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="">Websites</label>
+							<div class="form-group website-list row">
+							   
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="">Bug Ids</label>
+							<input class="form-control text-task-bugids" type="text" name="task_bug_ids" readonly="true" />
+						</div>
+						<div class="form-group">
+							<label for="">Bug List</label>
+							<div class="form-group" id="bugs_list_html">
+							   
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="submit" class="btn btn-default create-task">Submit</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+
 	<div id="bugtrackingShowFullTextModel" class="modal fade" role="dialog">
 		<div class="modal-dialog modal-lg">
 			<!-- Modal content-->
@@ -331,7 +477,8 @@ table{border-collapse: collapse;}
 				</div>
 			</div>
 		</div>
-
+		
+		
 
 	<script type="text/javascript" src="{{ asset('/js/jsrender.min.js')}}"></script>
 	<script type="text/javascript" src="{{ asset('/js/jquery.validate.min.js')}}"></script>
@@ -384,6 +531,361 @@ table{border-collapse: collapse;}
 			$temp.remove();
 			alert("Copied!");
 		});
+		
+		$(document).on('click', '.create-quick-task', function() {
+			
+			var $this = $(this);
+			site = $(this).data("id");
+			title = $(this).data("title");
+			cat_title = $(this).data("category_title");
+			development = $(this).data("development");
+			bug_type_id = $(this).data("bug_type_id");
+			module_id = $(this).data("module_id");
+			website_id = $(this).data("website_id");
+			$('.website-list').html('');
+			$('#bugs_list_html').html('');
+			$("#hidden-task-subject").val('');
+			$(".text-task-development").val('');
+			$('#site_id').val('');	
+			$('#website_id').val('');
+			
+						
+			if (!title || title == '') {
+				toastr["error"]("Please add title first");
+				return;
+			}
+			
+			//debugger;
+			let val = $("#change_website1").select2("val");
+			$.ajax({
+				url: '/bug-tracking/websitelist',
+				type: 'POST',
+				headers: {
+					'X-CSRF-TOKEN': "{{ csrf_token() }}"
+				},
+				data: {
+					id: val,
+					cat_title:cat_title,
+					bug_type_id:bug_type_id,
+					module_id:module_id,
+					website_id:website_id
+				},
+				beforeSend: function() {
+					$("#loading-image").show();
+				}
+			}).done(function(response) {
+				$("#loading-image").hide();
+				//$this.siblings('input').val("");				
+				$('.website-list').html(response.data.websiteCheckbox);	
+				//$('.text-task-development').val(response.data.bug_ids);		
+				$('#bugs_list_html').html(response.data.bug_html);					
+				//toastr["success"]("Remarks fetched successfully");
+			}).fail(function(jqXHR, ajaxOptions, thrownError) {
+				toastr["error"]("Oops,something went wrong");
+				$("#loading-image").hide();
+			});
+			
+			
+			 $("#create-quick-task").modal("show");
+			
+
+			var selValue = $(".save-item-select").val();
+			if (selValue != "") {
+				$("#create-quick-task").find(".assign-to option[value=" + selValue + "]").attr('selected',
+					'selected')
+				$('.assign-to.select2').select2({
+					width: "100%"
+				});
+			}
+
+			$("#hidden-task-subject").val(title);
+			$(".text-task-development").val(development);
+			$('#site_id').val(site);	
+			$('#website_id').val(website_id);	
+			
+
+			// $.ajax({
+			// 		url: '/site-development/get-user-involved/'+site,
+			// 		dataType: "json",
+			// 		type: 'GET',
+			// 	}).done(function (response) {
+			// 		var option = '<option value="" > Select user </option>';
+			// 		$.each(response.data,function(k,v){
+			// 			option = option + '<option value="'+v.id+'" > '+v.name+' </option>';
+			// 		});
+
+			// 	}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			// 	    toastr["error"](jqXHR.responseJSON.message);
+			// });
+		});
+		
+		$(document).on("click", ".create-task", function(e) {
+			e.preventDefault();
+			var form = $(this).closest("form");
+			
+			var values = new Array();
+			$.each($("input[name='chkBugId[]']:checked"), function() {
+			  values.push($(this).val());
+			  // or you can do something to the actual checked checkboxes by working directly with  'this'
+			  // something like $(this).hide() (only something useful, probably) :P
+			})				
+			if(values.length ==0 && $("input[name='chkBugId[]']").length>0) {
+				toastr["error"]("Please select atleast 1 bugs list ");
+				return;
+			} 
+			
+			
+			$.ajax({
+				url: form.attr("action"),
+				type: 'POST',
+				data: form.serialize(),
+				beforeSend: function() {
+					$(this).text('Loading...');
+				},
+				success: function(response) {
+					if (response.code == 200) {
+						form[0].reset();
+						toastr['success'](response.message);
+						$("#create-quick-task").modal("hide");
+					} else {
+						toastr['error'](response.message);
+					}
+				}
+			}).fail(function(response) {
+				toastr['error'](response.responseJSON.message);
+			});
+		});
+		
+		$(document).on("click", ".cls-checkbox-bugsids", function(e) {
+			
+			var values = new Array();
+			$.each($("input[name='chkBugId[]']:checked"), function() {
+			  values.push($(this).val());
+			  // or you can do something to the actual checked checkboxes by working directly with  'this'
+			  // something like $(this).hide() (only something useful, probably) :P
+			})			
+			var bugid = $(this).val();			
+			var prevlist = $('.text-task-development').val();
+			
+			
+			$('.text-task-development').val(values);
+			$('.text-task-bugids').val(values);
+			
+		});
+		//$(document).on('click', '.btn-add-action', function() {	
+		//  var bugid =  $('input[type="checkbox"]:checked').val();
+		//	if(bugid>0) {
+		//		$('#parent_id_bug').val(bugid);  
+		//	}
+		 
+		//});
+
+		//$(document).on('click', 'input[type="checkbox"]', function() {	
+		//   $('input[type="checkbox"]').not(this).prop("checked", false);
+		//});
+		
+		
+		$(document).on('click', '.btn-add-action', function() {	
+		  var bugid =  $('.chkBugNameCls:checkbox:checked').val();		  
+			if(bugid>0) {
+				var user = $('.chkBugNameCls:checkbox:checked').attr("data-user");				
+				$('#parent_id_bug').val(bugid);  
+				$('#assign_to_bug').val(user);  
+			}
+		 
+		});
+		
+		$(document).on('click', '.chkBugNameCls', function() {	
+		   $('.chkBugNameCls').not(this).prop("checked", false);
+		});
+		
+		 $(document).on("click", ".count-dev-customer-tasks", function() {
+
+			var $this = $(this);
+			// var user_id = $(this).closest("tr").find(".ucfuid").val();
+			var site_id = $(this).data("id");
+			var category_id = $(this).data("category");
+			$("#site-development-category-id").val(category_id);
+			$.ajax({
+				type: 'get',
+				url: '/bug-tracking/countdevtask/' + site_id,
+				dataType: "json",
+				beforeSend: function() {
+					$("#loading-image").show();
+				},
+				success: function(data) {
+					$("#dev_task_statistics").modal("show");
+					var table = `<div class="table-responsive">
+						<table class="table table-bordered table-striped">
+							<tr>
+								<th width="4%">Tsk Typ</th>
+								<th width="4%">Tsk Id</th>
+								<th width="7%">Asg to</th>
+								<th width="12%">Desc</th>
+								<th width="12%">Sts</th>
+								<th width="33%">Communicate</th>
+								<th width="10%">Action</th>
+							</tr>`;
+					for (var i = 0; i < data.taskStatistics.length; i++) {
+						var str = data.taskStatistics[i].subject;
+						var res = str.substr(0, 100);
+						var status = data.taskStatistics[i].status;
+						if (typeof status == 'undefined' || typeof status == '' || typeof status ==
+							'0') {
+							status = 'In progress'
+						};
+						table = table + '<tr><td>' + data.taskStatistics[i].task_type + '</td><td>#' +
+							data.taskStatistics[i].id +
+							'</td><td class="expand-row-msg" data-name="asgTo" data-id="' + data
+							.taskStatistics[i].id + '"><span class="show-short-asgTo-' + data
+							.taskStatistics[i].id + '">' + data.taskStatistics[i].assigned_to_name
+							.replace(/(.{6})..+/, "$1..") +
+							'</span><span style="word-break:break-all;" class="show-full-asgTo-' + data
+							.taskStatistics[i].id + ' hidden">' + data.taskStatistics[i]
+							.assigned_to_name +
+							'</span></td><td class="expand-row-msg" data-name="res" data-id="' + data
+							.taskStatistics[i].id + '"><span class="show-short-res-' + data
+							.taskStatistics[i].id + '">' + res.replace(/(.{7})..+/, "$1..") +
+							'</span><span style="word-break:break-all;" class="show-full-res-' + data
+							.taskStatistics[i].id + ' hidden">' + res + '</span></td><td>' + status +
+							'</td><td><div class="col-md-10 pl-0 pr-1"><textarea rows="1" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message"></textarea></div><div class="p-0"><button class="btn btn-sm btn-xs send-message" title="Send message" data-taskid="' +
+							data.taskStatistics[i].id +
+							'"><i class="fa fa-paper-plane"></i></button></div></td><td><button type="button" class="btn btn-xs load-communication-modal load-body-class" data-object="' +
+							data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i]
+							.id +
+							'" title="Load messages" data-dismiss="modal"><i class="fa fa-comments"></i></button>';
+						table = table + '<a href="javascript:void(0);" data-task-type="' + data
+							.taskStatistics[i].task_type + '" data-id="' + data.taskStatistics[i].id +
+							'" class="delete-dev-task-btn btn btn-xs"><i class="fa fa-trash"></i></a>';
+						table = table +
+							'<button type="button" class="btn btn-xs  preview-img pd-5" data-object="' +
+							data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i]
+							.id + '" data-dismiss="modal"><i class="fa fa-list"></i></button></td>';
+						table = table + '</tr>';
+					}
+					table = table + '</table></div>';
+					$("#loading-image").hide();
+					$(".modal").css("overflow-x", "hidden");
+					$(".modal").css("overflow-y", "auto");
+					$("#dev_task_statistics_content").html(table);
+				},
+				error: function(error) {
+					console.log(error);
+					$("#loading-image").hide();
+				}
+			});
+
+
+		});
+		
+		$(document).on("click", ".delete-dev-task-btn", function() {
+			var x = window.confirm("Are you sure you want to delete this ?");
+			if (!x) {
+				return;
+			}
+			var $this = $(this);
+			var taskId = $this.data("id");
+			var tasktype = $this.data("task-type");
+			if (taskId > 0) {
+				$.ajax({
+					beforeSend: function() {
+						$("#loading-image").show();
+					},
+					type: 'get',
+					url: "/site-development/deletedevtask",
+					headers: {
+						'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+					},
+					data: {
+						id: taskId,
+						tasktype: tasktype
+					},
+					dataType: "json"
+				}).done(function(response) {
+					$("#loading-image").hide();
+					if (response.code == 200) {
+						$this.closest("tr").remove();
+					}
+				}).fail(function(response) {
+					$("#loading-image").hide();
+					alert('Could not update!!');
+				});
+			}
+
+		});
+		
+		$(document).on('click', '.send-message', function() {
+			var thiss = $(this);
+			var data = new FormData();
+			var task_id = $(this).data('taskid');
+			var message = $(this).closest('tr').find('.quick-message-field').val();
+			var mesArr = $(this).closest('tr').find('.quick-message-field');
+			$.each(mesArr, function(index, value) {
+				if ($(value).val()) {
+					message = $(value).val();
+				}
+			});
+
+			data.append("task_id", task_id);
+			data.append("message", message);
+			data.append("status", 1);
+
+			if (message.length > 0) {
+				if (!$(thiss).is(':disabled')) {
+					$.ajax({
+						url: '/whatsapp/sendMessage/task',
+						type: 'POST',
+						"dataType": 'json', // what to expect back from the PHP script, if anything
+						"cache": false,
+						"contentType": false,
+						"processData": false,
+						"data": data,
+						beforeSend: function() {
+							$(thiss).attr('disabled', true);
+						}
+					}).done(function(response) {
+						thiss.closest('tr').find('.quick-message-field').val('');
+
+						toastr["success"]("Message successfully send!", "Message")
+						// $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+						//   .done(function( data ) {
+						//
+						//   }).fail(function(response) {
+						//     console.log(response);
+						//     alert(response.responseJSON.message);
+						//   });
+
+						$(thiss).attr('disabled', false);
+					}).fail(function(errObj) {
+						$(thiss).attr('disabled', false);
+
+						alert("Could not send message");
+						console.log(errObj);
+					});
+				}
+			} else {
+				alert('Please enter a message first');
+			}
+		});
+		
+		  $(document).on('click', '.preview-img', function(e) {
+        e.preventDefault();
+        id = $(this).data('id');
+        if (!id) {
+            alert("No data found");
+            return;
+        }
+        $.ajax({
+            url: "/site-development/preview-img-task/" + id,
+            type: 'GET',
+            success: function(response) {
+                $("#preview-task-image").modal("show");
+                $(".task-image-list-view").html(response);
+                initialize_select2()
+            },
+            error: function() {}
+        });
+    });
 
 
 		$(window).on('load', function() {

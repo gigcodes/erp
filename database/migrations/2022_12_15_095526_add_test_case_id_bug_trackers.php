@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AlterBugTrackerAllColumn extends Migration
+class AddTestCaseIdBugTrackers extends Migration
 {
     /**
      * Run the migrations.
@@ -14,10 +14,8 @@ class AlterBugTrackerAllColumn extends Migration
     public function up()
     {
         Schema::table('bug_trackers', function (Blueprint $table) {
-            $table->integer('bug_type_id')->nullable()->change();
-            $table->text('summary')->nullable()->change();
-            $table->integer('bug_environment_id')->nullable()->change();
-            $table->integer('bug_severity_id')->nullable()->change();
+            $table->integer('test_case_id')->nullable();
+            $table->text('expected_result')->nullable();
         });
     }
 
@@ -28,6 +26,9 @@ class AlterBugTrackerAllColumn extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('bug_trackers', function (Blueprint $table) {
+            $table->dropColumn('test_case_id');
+            $table->dropColumn('expected_result');
+        });
     }
 }

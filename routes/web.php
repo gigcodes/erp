@@ -1078,6 +1078,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/get/websitelist', 'TaskModuleController@getWebsiteList')->name('get.task.websitelist');
     Route::get('task/user/history', 'TaskModuleController@getUserHistory')->name('task/user/history');
     Route::post('task/recurring-history', 'TaskModuleController@recurringHistory')->name('task.recurringHistory');
+    Route::post('task/create-multiple-task-from-shortcut-bugtrack', 'TaskModuleController@createMultipleTaskFromSortcutBugtrack')->name('task.create.multiple.task.shortcut.bugtrack');
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
@@ -2373,6 +2374,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('bug-tracking/status-history/{id}', 'BugTrackingController@statusHistory')->name('bug-tracking.status-history');
     Route::get('bug-tracking/communicationData/{id}', 'BugTrackingController@communicationData')->name('bug-tracking.communicationData');
     Route::get('bug-tracking/{id}/delete', 'BugTrackingController@destroy');
+    Route::post('bug-tracking/websitelist', 'BugTrackingController@getWebsiteList')->name('bug-tracking.websitelist');
+    Route::get('bug-tracking/countdevtask/{id}', 'BugTrackingController@taskCount');
+
+    Route::get('bug-trackinghistory', 'BugTrackingController@getTrackedHistory')->name('bug-tracking.history');
+    Route::post('bug-tracking/hubstaff_task', 'BugTrackingController@createHubstaffManualTask')->name('bug-tracking.hubstaff_task');
 
     Route::get('test-cases', 'TestCaseController@index')->name('test-cases.index');
     Route::get('test-cases/create', 'TestCaseController@create')->name('test-cases.create');
@@ -2851,6 +2857,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('monetary-account', 'MonetaryAccountController');
 });
 
+// Mailchimp Module
+Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function () {
+    Route::get('manageMailChimp', 'MailchimpController@manageMailChimp')->name('manage.mailchimp');
+    Route::post('subscribe', ['as' => 'subscribe', 'uses' => 'MailchimpController@subscribe']);
+    Route::post('sendCompaign', ['as' => 'sendCompaign', 'uses' => 'MailchimpController@sendCompaign']);
+    Route::get('make-active-subscribers', 'MailchimpController@makeActiveSubscriber')->name('make.active.subscriber');
+});
 Route::group(['middleware' => 'auth', 'namespace' => 'marketing'], function () {
     Route::get('test', function () {
         return 'hello';
@@ -3806,6 +3819,7 @@ Route::prefix('system')->middleware('auth')->group(function () {
     Route::get('/size/manageredit', 'SystemSizeController@manageredit')->name('system.size.manageredit');
     Route::post('/size/managerupdate', 'SystemSizeController@managerupdate')->name('system.size.managerupdate');
     Route::get('/size/managerdelete', 'SystemSizeController@managerdelete')->name('system.size.managerdelete');
+    Route::get('/size/exports', 'SystemSizeController@exports')->name('system.size.exports');
 
     Route::prefix('auto-refresh')->group(static function () {
         Route::get('/', 'AutoRefreshController@index')->name('auto.refresh.index');
