@@ -51,12 +51,27 @@
                 $('#product' + id).hide();
                 //alert('Could not update product on magento');
             }));
-
-            // }
             $.when.apply($, ajaxes)
                 .done(function () {
                     //location.reload();
                 });
         });
+
+        function getConditionCheckLog(llmId) {
+            $.ajax({
+                url: "{{ url('products/listing/conditions-check-logs/') }}" + "/" + llmId,
+                type: "get"
+            }).done(function(response) {
+                if (response.code = '200') {
+                    console.log(response.data);
+                } else {
+                    toastr['error'](response.message, 'error');
+                }
+            }).fail(function(errObj) {
+                $('#loading-image').hide();
+                $("#todolistUpdateModal").hide();
+                toastr['error'](errObj.message, 'error');
+            });
+        }
     </script>
 @endsection
