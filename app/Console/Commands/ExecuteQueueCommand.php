@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\RedisQueue;
 use App\RedisQueueCommandExecutionLog;
 use Illuminate\Console\Command;
-use App\RedisQueue;
 
 class ExecuteQueueCommand extends Command
 {
@@ -41,9 +41,9 @@ class ExecuteQueueCommand extends Command
     {
         try {
             $queue = RedisQueue::find($this->argument('id'));
-            $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'horizon.sh '. $this->argument('command_tail');
+            $cmd = 'bash '.getenv('DEPLOYMENT_SCRIPTS_PATH').'horizon.sh '.$this->argument('command_tail');
 
-            $allOutput = array();
+            $allOutput = [];
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput);
             if ($result == '') {
