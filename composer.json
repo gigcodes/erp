@@ -35,6 +35,7 @@
         "kosinix/grafika": "^2.0",
         "ksubileau/color-thief-php": "^1.4",
         "laravel/framework": "^6.20",
+        "laravel/helpers": "^1.5",
         "laravel/horizon": "*",
         "laravel/passport": "^7.3",
         "laravel/tinker": "^2.5",
