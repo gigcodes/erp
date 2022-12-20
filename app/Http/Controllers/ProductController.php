@@ -1452,13 +1452,16 @@ class ProductController extends Controller
             $join->where('pvu.user_id', '!=', auth()->user()->id);
         });
 
+        $products = $products->join('log_list_magentos as LLM', 'products.id', '=', 'LLM.product_id');
+        $products = $products->leftJoin('store_websites as SW', 'LLM.store_website_id', '=', 'SW.id');
+
         $products = $products->leftJoin('status as s', function ($join) {
             $join->on('products.status_id', 's.id');
         });
 
         $products = $products->where('isUploaded', 0);
-        $products = $products->select(['products.*', 's.name as product_status'])->paginate(10);
-
+        $products = $products->orderBy('llm_id', 'desc');
+        $products = $products->select(['products.*', 's.name as product_status', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.title as sw_title'])->paginate(20);
         $productsCount = $products->total();
         $imageCropperRole = auth()->user()->hasRole('ImageCropers');
         $categoryArray = Category::renderAsArray();
@@ -1509,6 +1512,13 @@ class ProductController extends Controller
         $users = User::all();
 
         return view('products.magento_push_status.index', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
+    }
+
+    public function magentoConditionsCheckLogs($id)
+    {
+        $logs = ProductPushErrorLog::where('log_list_magento_id', '=', $id)->get();
+
+        return response()->json(['code' => 200, 'data' => $logs]);
     }
 
     /**
