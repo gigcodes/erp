@@ -56,23 +56,12 @@ class BugTrackingController extends Controller
     {
 
         
-        if(isset($request->step_to_reproduce) && isset($request->summary) ) {
-
-            if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
-                $records = BugTracker::orderBy('id', 'desc');
-            } else {
-                $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc');
-            }
-
+        if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
+            $records = BugTracker::orderBy('id', 'desc')->take(10);
         } else {
-
-            if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
-                $records = BugTracker::orderBy('id', 'desc')->take(10);
-            } else {
-                $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc')->take(10);
-            }
-
+            $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc')->take(10);
         }
+
        
 
         if ($keyword = request('summary')) {
