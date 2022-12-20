@@ -11,6 +11,7 @@ class PageNotes extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="url",type="strng")
      * @SWG\Property(property="note",type="string")
      * @SWG\Property(property="category_id",type="integer")

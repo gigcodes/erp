@@ -12,6 +12,7 @@ class WhatsAppGroupNumber extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="user_number",type="string")
      * @SWG\Property(property="group_id",type="integer")
      * @SWG\Property(property="user_id",type="integer")

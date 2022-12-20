@@ -12,6 +12,7 @@ class CharityOrderHistory extends Model
     //
     /**
      * @var string
+     *
      * @SWG\Property(property="charity_order_history",type="string")
      */
     protected $table = 'charity_order_history';

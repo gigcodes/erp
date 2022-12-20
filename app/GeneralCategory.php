@@ -12,6 +12,7 @@ class GeneralCategory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      */
     public $timestamps = false;

@@ -12,6 +12,7 @@ class StoreWebsiteGoalRemark extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="store_website_id",type="integer")
      * @SWG\Property(property="remark",type="string")
      * @SWG\Property(property="created_at",type="datetime")

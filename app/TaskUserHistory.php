@@ -11,6 +11,7 @@ class TaskUserHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="model",type="string")
      * @SWG\Property(property="model_id",type="integer")
      * @SWG\Property(property="old_id",type="integer")

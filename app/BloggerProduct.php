@@ -14,6 +14,7 @@ class BloggerProduct extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="blogger_id",type="integer")
      * @SWG\Property(property="brand_id",type="integer")
      * @SWG\Property(property="shoot_date",type="datetime")
@@ -39,6 +40,7 @@ class BloggerProduct extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(enum={"images"})
      */
     protected $casts = [

@@ -12,6 +12,7 @@ class DeveloperTaskDocument extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="subject",type="string")
      * @SWG\Property(property="description",type="string")
      * @SWG\Property(property="created_by",type="integer")

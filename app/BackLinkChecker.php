@@ -17,6 +17,7 @@ class BackLinkChecker extends Model
      */
     /**
      * @var string
+     *
      * @SWG\Property(property="domains",type="string")
      * @SWG\Property(property="links",type="string")
      * @SWG\Property(property="link_type",type="string")

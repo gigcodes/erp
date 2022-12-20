@@ -11,6 +11,7 @@ class SkuColorReferences extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="brand_id",type="integer")
      * @SWG\Property(property="color_name",type="string")
      * @SWG\Property(property="color_code",type="string")

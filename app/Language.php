@@ -11,6 +11,7 @@ class Language extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="locale",type="string")
      * @SWG\Property(property="code",type="string")
      * @SWG\Property(property="store_view",type="string")

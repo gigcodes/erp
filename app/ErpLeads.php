@@ -14,6 +14,7 @@ class ErpLeads extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="lead_status_id",type="integer")
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="product_id",type="integer")

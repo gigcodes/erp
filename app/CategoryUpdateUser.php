@@ -11,6 +11,7 @@ class CategoryUpdateUser extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="supplier_id",type="integer")
      * @SWG\Property(property="user_id",type="integer")
      */

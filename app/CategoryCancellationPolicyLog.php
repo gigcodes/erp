@@ -11,6 +11,7 @@ class CategoryCancellationPolicyLog extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="id",type="integer")
      * @SWG\Property(property="category_id",type="string")
      * @SWG\Property(property="change_parent_id",type="integer")

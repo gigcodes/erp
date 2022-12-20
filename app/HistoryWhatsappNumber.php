@@ -12,6 +12,7 @@ class HistoryWhatsappNumber extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="history_whatsapp_number",type="string")
      * @SWG\Property(property="date_time",type="datetime")
      * @SWG\Property(property="object_id",type="integer")

@@ -11,6 +11,7 @@ class ReturnExchangeHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="return_exchange_id",type="integer")
      * @SWG\Property(property="status_id",type="integer")
      * @SWG\Property(property="user_id",type="integer")

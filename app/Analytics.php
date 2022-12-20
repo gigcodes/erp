@@ -17,6 +17,7 @@ class Analytics extends Model
      */
     /**
      * @var string
+     *
      * @SWG\Property(property="operatingSystem",type="string")
      * @SWG\Property(property="user_type",type="string")
      * @SWG\Property(property="time",type="string")
