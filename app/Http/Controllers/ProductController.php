@@ -1517,7 +1517,8 @@ class ProductController extends Controller
     public function magentoConditionsCheckLogs($id)
     {
         $logs = ProductPushErrorLog::where('log_list_magento_id', '=', $id)->get();
-        return response()->json(array('code' => 200, 'data' => $logs));
+
+        return response()->json(['code' => 200, 'data' => $logs]);
     }
 
     /**
