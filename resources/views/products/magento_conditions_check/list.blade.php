@@ -3,13 +3,13 @@
     <tr>
         <th style="width:2%"><input type="checkbox" id="main_checkbox" name="choose_all"></th>
         <th style="width:8%">Product ID</th>
+        <th style="width:4%">Store Website</th>
         <th style="width:4%">Image</th>
         <th style="width:7%">Brand</th>
         <th style="width:15%">Category</th>
         <th style="width:8%">Title</th>
         <th style="width:8%">Composition</th>
         <th style="width:8%">Color</th>
-        <th style="width:8%">Dimension</th>
         <th style="width:5%">Price</th>
         <th style="width:5%">Status</th>
         <th style="width:5%">Log</th>
@@ -172,6 +172,7 @@
                     @endif
                 </div>
             </td>
+            <td>{{ $product->sw_title }}</td>
             <td style="word-break: break-all; word-wrap: break-word">
                 <button type="button" class="btn-link quick-view_image__"
                         data-id="{{ $product->id }}" data-target="#product_image_{{ $product->id }}"
@@ -240,12 +241,6 @@
                     {{ $product->color }}
             </td>
 
-
-            <td class="table-hover-cell">
-                @if (!$imageCropperRole)
-                    {{ !empty($product->lmeasurement) ? $product->lmeasurement : '' }}x{{ !empty($product->hmeasurement) ? $product->hmeasurement : ' ' }}x{{ !empty($product->dmeasurement) ? $product->dmeasurement : '' }}
-                @endif
-            </td>
             <td class="table-hover-cell quick-edit-price" data-id="{{ $product->id }}">
                 @if (!$imageCropperRole)
                     <span class="quick-price">{{ $product->price }}</span>
