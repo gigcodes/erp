@@ -56,8 +56,10 @@ class BugTrackingController extends Controller
     {
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
             $records = BugTracker::orderBy('id', 'desc')->take(10);
+            $records_cnt = BugTracker::orderBy('id', 'desc');
         } else {
             $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc')->take(10);
+            $records_cnt = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc');
         }
 
         if ($keyword = request('summary')) {
@@ -106,6 +108,8 @@ class BugTrackingController extends Controller
         }
         $records = $records->get();
 
+        $records_cnt = $records_cnt->get();
+
         $records = $records->map(function ($bug) {
             $bug->bug_type_id_val = $bug->bug_type_id;
             $bug->website_id_val = $bug->website;
@@ -124,7 +128,7 @@ class BugTrackingController extends Controller
             return $bug;
         });
 
-        return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
+        return response()->json(['code' => 200, 'data' => $records, 'total' => count($records_cnt)]);
     }
 
     public function recordTrackingAjax(Request $request)
