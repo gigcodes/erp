@@ -11,6 +11,7 @@ class TwilioCallForwarding extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="twilio_call_forwarding",type="string")
      * @SWG\Property(property="twilio_number_sid",type="integer")
      * @SWG\Property(property="twilio_number",type="string")

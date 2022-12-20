@@ -12,6 +12,7 @@ class Size extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="magento_id",type="integer")
      */

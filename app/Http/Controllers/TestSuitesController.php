@@ -113,7 +113,6 @@ class TestSuitesController extends Controller
             $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 5, '..');
             $bug->url_short = Str::limit($bug->url, 5, '..');
 
-
             return $bug;
         });
 

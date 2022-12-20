@@ -11,6 +11,7 @@ class LeadList extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="erp_lead_id",type="integer")
      * @SWG\Property(property="list_id",type="integer")
      * @SWG\Property(property="created_at",type="datetime")

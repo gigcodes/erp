@@ -11,6 +11,7 @@ class AdCampaign extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="goal",type="string")
      * @SWG\Property(property="type",type="text")
      * @SWG\Property(property="campaign_name",type="string")

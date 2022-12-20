@@ -12,6 +12,7 @@ class Stock extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="courier",type="string")
      * @SWG\Property(property="package_from",type="string")
      * @SWG\Property(property="date",type="datetime")

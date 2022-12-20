@@ -11,6 +11,7 @@ class LivechatincSetting extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="username",type="string")
      * @SWG\Property(property="key",type="string")
      */

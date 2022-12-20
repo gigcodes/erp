@@ -11,6 +11,7 @@ class ProductStatus extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="product_id",type="integer")
      * @SWG\Property(property="product_status",type="string")
      * @SWG\Property(property="name",type="string")

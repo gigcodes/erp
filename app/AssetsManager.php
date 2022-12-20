@@ -18,6 +18,7 @@ class AssetsManager extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="capacity",type="string")
      * @SWG\Property(property="asset_type",type="string")

@@ -12,6 +12,7 @@ class ProductTemplate extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="template_no",type="string")
      * @SWG\Property(property="product_title",type="string")
      * @SWG\Property(property="text",type="string")

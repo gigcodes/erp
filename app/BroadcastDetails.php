@@ -11,6 +11,7 @@ class BroadcastDetails extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="description",type="string")
      * @SWG\Property(property="date",type="datetime")
      * @SWG\Property(property="amount",type="integer")

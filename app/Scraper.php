@@ -11,6 +11,7 @@ class Scraper extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="supplier_id",type="integer")
      * @SWG\Property(property="parent_supplier_id",type="integer")
      * @SWG\Property(property="scraper_name",type="string")

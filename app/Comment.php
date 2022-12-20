@@ -11,6 +11,7 @@ class Comment extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="content",type="string")
      * @SWG\Property(property="subject_type",type="string")
      * @SWG\Property(property="subject_id",type="integer")

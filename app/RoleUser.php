@@ -11,6 +11,7 @@ class RoleUser extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="role_id",type="integer")
      * @SWG\Property(property="role_user",type="string")

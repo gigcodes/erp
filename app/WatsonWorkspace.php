@@ -11,6 +11,7 @@ class WatsonWorkspace extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="id",type="integer")
      * @SWG\Property(property="element_id",type="integer")
      * @SWG\Property(property="type",type="string")

@@ -11,6 +11,7 @@ class ProductLocationHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="product_location_history",type="string")
      * @SWG\Property(property="location_name",type="string")
      * @SWG\Property(property="courier_name",type="string")

@@ -13,6 +13,7 @@ class ChatMessagesQuickData extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="chat_messages_quick_datas",type="string")
      * @SWG\Property(property="model",type="string")
      * @SWG\Property(property="model_id",type="integer")

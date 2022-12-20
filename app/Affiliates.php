@@ -11,6 +11,7 @@ class Affiliates extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="location",type="string")
      * @SWG\Property(property="hashtag_id",type="integer")
      * @SWG\Property(property="caption",type="string")
