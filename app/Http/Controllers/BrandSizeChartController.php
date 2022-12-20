@@ -7,7 +7,7 @@ use App\BrandCategorySizeChart;
 use App\Category;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class BrandSizeChartController extends Controller
 {

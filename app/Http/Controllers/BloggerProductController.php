@@ -10,7 +10,7 @@ use App\Http\Requests\CreateBloggerProductRequest;
 use App\ReplyCategory;
 use App\User;
 use Illuminate\Http\Request;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class BloggerProductController extends Controller
 {

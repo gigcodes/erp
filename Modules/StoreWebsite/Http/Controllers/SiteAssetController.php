@@ -11,7 +11,7 @@ use DB;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use PDF;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Storage;
 
 class SiteAssetController extends Controller
