@@ -2364,6 +2364,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('bug-tracking/severity_user', 'BugTrackingController@severityUser')->name('bug-tracking.severity_user');
     Route::post('bug-tracking/status_user', 'BugTrackingController@statusUser')->name('bug-tracking.status_user');
     Route::post('bug-tracking/sendmessage', 'BugTrackingController@sendMessage')->name('bug-tracking.sendmessage');
+    Route::get('bug-tracking/record-tracking-ajax', 'BugTrackingController@recordTrackingAjax')->name('bug-tracking.index_ajax');
 
     Route::post('bug-tracking/status', 'BugTrackingController@status')->name('bug-tracking.status');
     Route::post('bug-tracking/environment', 'BugTrackingController@environment')->name('bug-tracking.environment');

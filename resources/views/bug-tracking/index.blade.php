@@ -512,6 +512,82 @@ table{border-collapse: collapse;}
       })
 	</script>
 	<script type="text/javascript">
+	
+		// Bug tracking ajax starts
+		function GetParameterValues(param) {  
+			var url = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');  
+			for (var i = 0; i < url.length; i++) {  
+				var urlparam = url[i].split('=');  
+				if (urlparam[0] == param) {  
+					return urlparam[1];  
+				}  
+			}  
+		}
+		
+		var page_bug = 0; 
+		var total_limit_bug = 19;
+		var action_bug = 'inactive';
+		$(window).scroll(function(){
+			let urlString_bug = window.location.href;
+			let paramString_bug = urlString_bug.split('?')[1];
+			let queryString_bug = new URLSearchParams(paramString_bug);
+			var arr = 0;
+			for(let pair of queryString_bug.entries()) {
+				console.log("Key is:" + pair[0]);
+				console.log("Value is:" + pair[1]);
+				arr = 1;
+			}
+			if(arr==0) {
+				if($(window).scrollTop() + $(window).height() > $("#bug_tracking_maintable").height() && action_bug == 'inactive')
+				{
+					action_bug = 'active';
+					page_bug++;				   
+					setTimeout(function(){
+						load_more(page_bug);
+					}, 1000);
+				}
+			}
+			  
+		});
+		
+		function load_more(page_bug){
+						
+			$.ajax({
+			   url: "/bug-tracking/record-tracking-ajax?page="+page_bug,
+			   type: "get",
+			   datatype: "html",
+			   beforeSend: function()
+			   {
+				  $('#loading-image-preview').css("display","block");
+			   }
+			})
+			.done(function(data)
+			{
+				$('#loading-image-preview').css("display","none");
+				
+				
+				if(data.length == 0){
+					console.log(data.length);
+					//notify user if nothing to load
+					//$('.ajax-loading').html("No more records!");
+					return;
+				}
+				 $('.loading-image-preview').hide(); //hide loading animation once data is received
+				 $('#loading-image-preview').css("display","none");			  
+				$('#bug_tracking_maintable > tbody:last').append(data); 
+				 action_bug = "inactive";
+				
+			   
+		   })
+		   .fail(function(jqXHR, ajaxOptions, thrownError)
+		   {
+			  alert('No response from server');
+		   });
+		}
+		
+		// Bug tracking ajax ends
+	
+	
 		$(document).on('click', '.expand-row-msg', function() {
 			$('#bugtrackingShowFullTextModel').modal('toggle');
 			$(".bugtrackingmanShowFullTextBody").html("");

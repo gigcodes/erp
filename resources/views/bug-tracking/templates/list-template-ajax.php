@@ -1,27 +1,5 @@
 <script type="text/x-jsrender" id="template-result-block">
-	<div class="mt-3">
-		<table class="table table-bordered" id="bug_tracking_maintable">
-		    <thead>
-		      <tr>
-		      	<th width="4%">ID</th>
-                <th width="6%">Date</th>
-                <th width="3%">Summary</th>
-                <th width="5%">Type</th>
-                <th width="6%">Steps to reproduce</th>
-                <th width="4%">Environment</th>
-                <th width="4%">Expected Result</th>
-                <th class='break' width="7%">Screenshot/Video url</th>
-                <th width="5%">Created By</th>
-                <th width="8%">Assign to</th>
-                <th width="8%">Severity</th>
-                <th width="8%">Status</th>
-                <th width="5%">Module</th>
-                <th width="15%">Communicaton</th>
-                <th width="5%">Website</th>
-                <th width="7%">Action</th>
-		      </tr>
-		    </thead>
-		    <tbody class="pending-row-render-view infinite-scroll-pending-inner">
+
 		    	{{props data}}
 			      <tr>
 			      	<td class='break'>{{:prop.id}}</td>
@@ -110,8 +88,4 @@
 			        </td>
 			      </tr>
 			    {{/props}}  
-		    </tbody>
-		</table>
-		{{:pagination}}
-	</div>
-</script>
+		    
