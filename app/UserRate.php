@@ -12,6 +12,7 @@ class UserRate extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="user_id",type="integer")
 
      * @SWG\Property(property="start_date",type="datetime")

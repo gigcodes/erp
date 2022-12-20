@@ -14,6 +14,7 @@ class SiteDevelopmentDocument extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="site_development_id",type="integer")
      * @SWG\Property(property="site_development_category_id",type="integer")
      * @SWG\Property(property="store_website_id",type="integer")

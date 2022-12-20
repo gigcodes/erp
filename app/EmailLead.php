@@ -12,6 +12,7 @@ class EmailLead extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="email",type="string")
      * @SWG\Property(property="source",type="string")
      * @SWG\Property(property="created_at",type="datetime")

@@ -11,6 +11,7 @@ class TargetLocation extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="region_data",type="string")
      */
     protected $casts = [

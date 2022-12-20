@@ -13,6 +13,7 @@ class Issue extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="issue",type="string")
      * @SWG\Property(property="priority",type="string")

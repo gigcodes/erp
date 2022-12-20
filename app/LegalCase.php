@@ -12,6 +12,7 @@ class LegalCase extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="cases",type="string")
      * @SWG\Property(property="lawyer_id",type="integer")
      * @SWG\Property(property="case_number",type="string")

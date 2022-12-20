@@ -12,6 +12,7 @@ class ReturnExchangeStatus extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="status_name",type="string")
      * @SWG\Property(property="message",type="string")
      */

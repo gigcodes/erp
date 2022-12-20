@@ -12,6 +12,7 @@ class ErpEvents extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="event_name",type="string")
      * @SWG\Property(property="event_description",type="integer")
      * @SWG\Property(property="start_date",type="datetime")

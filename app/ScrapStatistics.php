@@ -11,6 +11,7 @@ class ScrapStatistics extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="id",type="integer")
      * @SWG\Property(property="supplier",type="string")
      * @SWG\Property(property="type",type="string")

@@ -11,6 +11,7 @@ class CreditHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="model_id",type="integer")
      * @SWG\Property(property="credit_history",type="string")

@@ -11,6 +11,7 @@ class ScrapRequestHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="scrap_request_histories",type="string")
      * @SWG\Property(property="scraper_id",type="integer")
      * @SWG\Property(property="date",type="datetime")

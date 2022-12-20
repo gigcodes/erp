@@ -12,6 +12,7 @@ class GoogleWebMasters extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="sites",type="string")
      * @SWG\Property(property="crawls",type="string")
      */

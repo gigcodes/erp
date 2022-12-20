@@ -12,6 +12,7 @@ class Waybillinvoice extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="waybill_invoices",type="string")
      * @SWG\Property(property="line_type",type="string")
      * @SWG\Property(property="billing_source",type="string")

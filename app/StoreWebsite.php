@@ -14,6 +14,7 @@ class StoreWebsite extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="title",type="string")
      * @SWG\Property(property="remote_software",type="string")
      * @SWG\Property(property="website",type="string")

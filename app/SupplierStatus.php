@@ -12,6 +12,7 @@ class SupplierStatus extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="supplier_status",type="string")
      * @SWG\Property(property="timestamps",type="datetime")
      * @SWG\Property(property="name",type="string")

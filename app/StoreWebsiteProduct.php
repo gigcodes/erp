@@ -12,6 +12,7 @@ class StoreWebsiteProduct extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="store_website_id",type="integer")
      * @SWG\Property(property="product_id",type="integer")
      * @SWG\Property(property="platform_id",type="integer")

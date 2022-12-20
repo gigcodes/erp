@@ -14,6 +14,7 @@ class StoreWebsiteProductPriceHistory extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="name",type="string")
      */
 }

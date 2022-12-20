@@ -285,6 +285,7 @@ class BrandController extends Controller
                 }
             } catch(\Exception $e) {
                 $this->createWebsiteBrandHistory($request->brand, $request->store, 'error', $user->id, $e->getMessage());
+
                 return response()->json(['code' => 500, 'message' => $e->getMessage()]);
             }
         }

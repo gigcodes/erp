@@ -11,6 +11,7 @@ class SiteCroppedImages extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="website_id",type="insteger")
      * @SWG\Property(property="product_id",type="insteger")
      */

@@ -11,6 +11,7 @@ class LaravelGithubLog extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="log_time",type="string")
      * @SWG\Property(property="log_file_name",type="string")
      * @SWG\Property(property="file",type="string")
