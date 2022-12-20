@@ -4,11 +4,11 @@
                <td>
 				<input type="checkbox" class="checkbox_ch" id="u{{ $server->id }}" name="userIds[]" value="{{ $server->id }}"></td>
               <td class="expand-row-msg" data-name="username" data-id="{{$server->id}}">
-                  <span class="show-short-username-{{$server->id}}">{{ str_limit($server->username, 12, '..')}}</span>
+                  <span class="show-short-username-{{$server->id}}">{{ Str::limit($server->username, 12, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-username-{{$server->id}} hidden">{{$server->username}}</span>
               </td>
               <td  class="expand-row-msg" data-name="password" data-id="{{$server->id}}">
-                    <span class="show-short-password-{{$server->id}}">{{ str_limit($server->password, 10, '..')}}</span>
+                    <span class="show-short-password-{{$server->id}}">{{ Str::limit($server->password, 10, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-password-{{$server->id}} hidden">{{$server->password}}</span>
               </td>
               <td>
@@ -21,7 +21,7 @@
                   {{ $server->driver }}
               </td>
               <td class="expand-row-msg" data-name="host" data-id="{{$server->id}}">
-              <span class="show-short-host-{{$server->id}}">{{ str_limit($server->host, 10, '..')}}</span>
+              <span class="show-short-host-{{$server->id}}">{{ Str::limit($server->host, 10, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-host-{{$server->id}} hidden">{{$server->host}}</span>
               </td>
               <td>

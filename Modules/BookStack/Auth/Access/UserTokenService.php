@@ -4,6 +4,7 @@ namespace Modules\BookStack\Auth\Access;
 
 use Carbon\Carbon;
 use Illuminate\Database\Connection as Database;
+use Illuminate\Support\Str;
 use Modules\BookStack\Auth\User;
 use Modules\BookStack\Exceptions\UserTokenExpiredException;
 use Modules\BookStack\Exceptions\UserTokenNotFoundException;
@@ -81,9 +82,9 @@ class UserTokenService
      */
     protected function generateToken(): string
     {
-        $token = str_random(24);
+        $token = Str::random(24);
         while ($this->tokenExists($token)) {
-            $token = str_random(25);
+            $token = Str::random(25);
         }
 
         return $token;

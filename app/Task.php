@@ -85,7 +85,7 @@ class Task extends Model
         'last_send_reminder',
 
         'parent_task_id',
-
+        'task_bug_ids',
         'last_date_time_reminder',
         'is_flow_task',
         'user_feedback_cat_id',
@@ -140,8 +140,6 @@ class Task extends Model
     const TASK_STATUS_REOPEN = 19;
 
     const TASK_STATUS_APPROVED = 20;
-
-    protected $dates = ['deleted_at'];
 
     public static function hasremark($id)
     {

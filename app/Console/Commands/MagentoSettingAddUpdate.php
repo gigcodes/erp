@@ -123,7 +123,7 @@ class MagentoSettingAddUpdate extends Command
                         );
                     }
 
-                    // \Log::info('Magento log created : '.$website);
+                // \Log::info('Magento log created : '.$website);
                 } else {
                     $token = empty($website->api_token) ? 'Please Check API TOKEN' : '';
                     $server_ip = empty($website->server_ip) ? ' Please Check Server Ip' : '';

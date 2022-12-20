@@ -212,7 +212,7 @@
               <td class="tblcell expand-row-msg" data-name="date" data-id="{{$source['id']}}">
                 <div class="checkbox">
                   <label class="checkbox-inline">
-                    <span class="show-short-date-{{$source['id']}}">{{ str_limit(\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $source['created_at'])->format('d-m-y'), 5, '.')}}</span>
+                    <span class="show-short-date-{{$source['id']}}">{{ Str::limit(\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $source['created_at'])->format('d-m-y'), 5, '.')}}</span>
                     <span style="word-break:break-all;" class="show-full-date-{{$source['id']}} hidden">{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $source['created_at'])->format('d-m-y')}}</span>
                   </label>
                 </div>
@@ -232,7 +232,7 @@
                   <label class="checkbox-inline ew">
                     <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
                     <a href="/customer/' + data.customer_id + '" target="_blank">
-                      <span class="show-short-customer_name-{{$source['id']}}">{{ str_limit($source['customer_name'], 5, '..')}}</span>
+                      <span class="show-short-customer_name-{{$source['id']}}">{{ Str::limit($source['customer_name'], 5, '..')}}</span>
                       <span style="word-break:break-all;" class="show-full-customer_name-{{$source['id']}} hidden">{{$source['customer_name']}}</span>
                     </a>
                   </label>
@@ -244,7 +244,7 @@
                 <div class="checkbox">
                   <label class="checkbox-inline ew">
                     <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                    <span class="show-short-customer_email-{{$source['id']}}">{{ str_limit($source['customer_email'], 7, '..')}}</span>
+                    <span class="show-short-customer_email-{{$source['id']}}">{{ Str::limit($source['customer_email'], 7, '..')}}</span>
                     <span style="word-break:break-all;" class="show-full-customer_email-{{$source['id']}} hidden">{{$source['customer_email']}}</span>
                   </label>
                 </div>
@@ -253,7 +253,7 @@
                 <div class="checkbox">
                   <label class="checkbox-inline ew">
                     <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                    <span class="show-short-customer_whatsapp_number-{{$source['id']}}">{{ str_limit($source['customer_whatsapp_number'], 5, '..')}}</span>
+                    <span class="show-short-customer_whatsapp_number-{{$source['id']}}">{{ Str::limit($source['customer_whatsapp_number'], 5, '..')}}</span>
                     <span style="word-break:break-all;" class="show-full-customer_whatsapp_number-{{$source['id']}} hidden">{{$source['customer_whatsapp_number']}}</span>
                   </label>
                 </div>
@@ -263,7 +263,7 @@
               <td class="tblcell expand-row-msg" data-name="website" data-id="{{$source['id']}}">
                 <div class="checkbox">
                   <label class="checkbox-inline">
-                    <span class="show-short-website-{{$source['id']}}">{{ str_limit($source['website'], 7, '..')}}</span>
+                    <span class="show-short-website-{{$source['id']}}">{{ Str::limit($source['website'], 7, '..')}}</span>
                     <span style="word-break:break-all;" class="show-full-website-{{$source['id']}} hidden">{{$source['website']}}</span>
                   </label>
                 </div>
@@ -319,7 +319,7 @@
                   <label class="checkbox-inline ew">
                     <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
                     <?php if ($source['cat_title'] != null) { ?>
-                      <span class="show-short-cat_title-{{$source['id']}}">{{ str_limit($source['cat_title'], 5, '..')}}</span>
+                      <span class="show-short-cat_title-{{$source['id']}}">{{ Str::limit($source['cat_title'], 5, '..')}}</span>
                       <span style="word-break:break-all;" class="show-full-cat_title-{{$source['id']}} hidden">{{$source['cat_title']}}</span>
                     <?php } ?>
                   </label>
@@ -341,7 +341,7 @@
                   <label class="checkbox-inline ew">
                     <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
                     <?php $type = ucwords(str_replace('-', ' ', $source['type'])); ?>
-                    <span class="show-short-type-{{$source['id']}}">{{ str_limit($type, 5, '..')}}</span>
+                    <span class="show-short-type-{{$source['id']}}">{{ Str::limit($type, 5, '..')}}</span>
                     <span style="word-break:break-all;" class="show-full-type-{{$source['id']}} hidden">{{$type}}</span>
                   </label>
                 </div>

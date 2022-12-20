@@ -145,7 +145,7 @@ if [ "$host" = "localhost" ] || [ "$host" = "0.0.0.0" ]
 then
 	remotehost=localhost
 else
-	remotehost=65.21.186.44
+	remotehost=81.0.247.216
 fi
 
 if [ "$function" = "create" ]

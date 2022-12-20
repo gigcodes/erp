@@ -35,8 +35,6 @@ class LegalCase extends Model
 
     protected $fillable = ['lawyer_id', 'case_number', 'for_against', 'court_detail', 'phone', 'default_phone', 'whatsapp_number', 'status', 'resource', 'last_date', 'next_date', 'cost_per_hearing', 'remarks', 'other'];
 
-    protected $dates = ['deleted_at'];
-
     public function lawyer()
     {
         return $this->belongsTo(Lawyer::class, 'lawyer_id');

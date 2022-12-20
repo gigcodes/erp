@@ -43,11 +43,12 @@ use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Storage;
 use Webklex\IMAP\Client;
 
@@ -147,13 +148,13 @@ class PurchaseController extends Controller
         // dd($purchases_array);
         // if ($sortby == 'communication') {
         // 	if ($orderby == 'asc') {
-        // 		$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+        // 		$purchases_array = array_values(Arr::sort($purchases_array, function ($value) {
         // 				return $value['communication']['created_at'];
         // 		}));
         //
         // 		$purchases_array = array_reverse($purchases_array);
         // 	} else {
-        // 		$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+        // 		$purchases_array = array_values(Arr::sort($purchases_array, function ($value) {
         // 				return $value['communication']['created_at'];
         // 		}));
         // 	}
@@ -275,26 +276,26 @@ class PurchaseController extends Controller
 
                 $orders = $orders->get();
 
-            /*$orders = OrderProduct::select(['sku', 'order_id'])->with(['Order', 'Product'])
-            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
-            // ->whereRaw("order_products.sku IN (SELECT products.sku FROM (SELECT products.id FROM products WHERE IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))) WHERE products.sku = order_products.sku)")
-            ->whereHas('Product', function ($qs) use ($supplier_list) {
-              $qs->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))");
-            })->where('qty', '>=', 1)->get();*/
+                /*$orders = OrderProduct::select(['sku', 'order_id'])->with(['Order', 'Product'])
+                ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
+                // ->whereRaw("order_products.sku IN (SELECT products.sku FROM (SELECT products.id FROM products WHERE IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))) WHERE products.sku = order_products.sku)")
+                ->whereHas('Product', function ($qs) use ($supplier_list) {
+                  $qs->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))");
+                })->where('qty', '>=', 1)->get();*/
             } else {
                 $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])->join('orders as o', 'o.id', 'order_products.order_id');
                 if ($page == 'canceled-refunded') {
                     $orders = $orders->whereIn('o.order_status_id', [\App\Helpers\OrderHelper::$cancel, \App\Helpers\OrderHelper::$refundToBeProcessed]);
-                /*$orders = $orders
-                ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Cancel', 'Refund to be processed'))");*/
+                    /*$orders = $orders
+                    ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Cancel', 'Refund to be processed'))");*/
                 // ->whereHas('Order', function($q) {
                 //   $q->whereIn('order_status', ['Cancel', 'Refund to be processed']);
                 // });
                 } elseif ($page == 'ordered') {
                 } elseif ($page == 'delivered') {
                     $orders = $orders->whereIn('o.order_status_id', [\App\Helpers\OrderHelper::$delivered]);
-                /*$orders = $orders
-                ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Delivered'))");*/
+                    /*$orders = $orders
+                    ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Delivered'))");*/
                 // ->whereHas('Order', function($q) {
                 //   $q->whereIn('order_status', ['Delivered']);
                 // });
@@ -352,14 +353,14 @@ class PurchaseController extends Controller
 
                 $orders = $orders->get();
 
-            /*$orders = OrderProduct::select('sku')->with(['Order', 'Product'])
-            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
-            // ->whereHas('Order', function($q) use ($status) {
-            //   $q->whereIn('order_status', $status);
-            // })
-            ->whereHas('Product', function($q) use ($brand) {
-              $q->where('brand', $brand);
-            })->where('qty', '>=', 1)->get();*/
+                /*$orders = OrderProduct::select('sku')->with(['Order', 'Product'])
+                ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
+                // ->whereHas('Order', function($q) use ($status) {
+                //   $q->whereIn('order_status', $status);
+                // })
+                ->whereHas('Product', function($q) use ($brand) {
+                  $q->where('brand', $brand);
+                })->where('qty', '>=', 1)->get();*/
             } else {
                 /*$orders = OrderProduct::select('sku')->with(['Order', 'Product']);
 
@@ -737,7 +738,7 @@ class PurchaseController extends Controller
             $count++;
         }
 
-        $new_products = array_values(array_sort($new_products, function ($value) {
+        $new_products = array_values(Arr::sort($new_products, function ($value) {
             return $value['order_date'];
         }));
 
@@ -2143,7 +2144,7 @@ class PurchaseController extends Controller
             $emails_array[$count + $key2]['timeCreated'] = $timeCreated;
         }
 
-        $emails_array = array_values(array_sort($emails_array, function ($value) {
+        $emails_array = array_values(Arr::sort($emails_array, function ($value) {
             return $value['date'];
         }));
 
@@ -2491,7 +2492,7 @@ class PurchaseController extends Controller
         // $emails = collect($emails_array);
         // dd($emails);
 
-      $emails_array = array_values(array_sort($emails_array, function ($value) {
+      $emails_array = array_values(Arr::sort($emails_array, function ($value) {
         return $value['date'];
       }));
 
