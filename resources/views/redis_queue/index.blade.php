@@ -84,7 +84,8 @@
                 <th width="5%">#</th>
                 <th>Name</th>
                 <th>Type</th>
-                <th width="10%">Actions</th>
+                <th width="12%" class="text-center">Execution</th>
+                <th width="7%" class="text-center">Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -122,8 +123,11 @@
                         <div class="form-group">
                             <strong>Type:</strong>
                             <select class="form-control" id="queueType" name="type">
-                                <option value="WEBPUSHQUEUE" @if(old('type') == "WEBPUSHQUEUE") selected @endif>Web Push Queue</option>
-                                <option value="MAINQUEUE" @if(old('type') == "MAINQUEUE") selected @endif>Main Queue</option>
+                                <option value="WEBPUSHQUEUE" @if(old('type') == "WEBPUSHQUEUE") selected @endif>Web Push
+                                    Queue
+                                </option>
+                                <option value="MAINQUEUE" @if(old('type') == "MAINQUEUE") selected @endif>Main Queue
+                                </option>
                             </select>
                             @if ($errors->has('type'))
                                 <div class="alert alert-danger">{{ $errors->first('type') }}</div>
@@ -183,6 +187,40 @@
         </div>
     </div>
 
+    <div id="commandLogsModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h3 class="modal-title">Queue command execution logs</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Queue</th>
+                            <th scope="col">Executed By</th>
+                            <th scope="col">Command</th>
+                            <th scope="col">Server IP</th>
+                            <th scope="col">Response</th>
+                            <th scope="col">Date</th>
+                        </tr>
+                        </thead>
+                        <tbody id="logData">
+
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 
@@ -236,8 +274,8 @@
                 data: {
                     id: id
                 }
-            }).done(function(response) {
-                if (response.code = '200') {
+            }).done(function (response) {
+                if (response.code == '200') {
                     form = $('#editQueue');
                     $('.edit-name').val(response.data.name);
                     $('.edit-type').val(response.data.type);
@@ -245,7 +283,7 @@
                 } else {
                     toastr['error'](response.message, 'error');
                 }
-            }).fail(function(errObj) {
+            }).fail(function (errObj) {
                 $('#loading-image').hide();
                 $("#queueUpdateModal").hide();
                 toastr['error'](errObj.message, 'error');
@@ -256,7 +294,7 @@
         function deleteQueue(id) {
             let $this = $(this);
             var id = id;
-            if(confirm("Are you sure you want to delete this?")){
+            if (confirm("Are you sure you want to delete this?")) {
                 $.ajax({
                     url: "{{ route('redisQueue.delete') }}",
                     type: "post",
@@ -266,22 +304,74 @@
                     data: {
                         id: id
                     }
-                }).done(function(response) {
-                    if (response.code = '200') {
+                }).done(function (response) {
+                    if (response.code == '200') {
                         $('#trId-' + id).remove();
                         toastr['success'](response.message, 'success');
                     } else {
                         toastr['error'](response.message, 'error');
                     }
-                }).fail(function(errObj) {
+                }).fail(function (errObj) {
                     toastr['error'](errObj.message, 'error');
                 });
-            } else{
+            } else {
                 return false;
             }
+        }
 
+        function queueRun(id, command) {
+            if (confirm("Are you sure you want to run this command?")) {
+                $.ajax({
+                    url: "{{ route('redisQueue.execute') }}",
+                    type: "post",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        id: id,
+                        command_tail: command
+                    }
+                }).done(function (response) {
+                    if (response.code == '200') {
+                        toastr['success'](response.message, 'success');
+                    } else {
+                        toastr['error'](response.message, 'error');
+                    }
+                }).fail(function (errObj) {
+                    toastr['error'](errObj.message, 'error');
+                });
+            } else {
+                return false;
+            }
+        }
 
-
+        function queueCommandLogs(id) {
+            $.ajax({
+                url: "{{ url('queue/command-logs') }}" + "/" + id,
+                type: "get",
+            }).done(function (response) {
+                if (response.code == '200') {
+                    let html = '';
+                    $.each(response.data, function (key, val) {
+                        console.log(val);
+                        html += '<tr><td>' + val.id + '</td>' +
+                            '<td>' + val.queue.name + '</td>' +
+                            '<td>' + val.user.name + '</td>' +
+                            '<td>' + val.command + '</td>' +
+                            '<td>' + val.server_ip + '</td>' +
+                            '<td>' + val.response + '</td>' +
+                            '<td>' + val.created_at + '</td>' +
+                            '</tr>';
+                    });
+                    console.log(html);
+                    $('#logData').html(html);
+                    $('#commandLogsModal').modal('show');
+                } else {
+                    toastr['error']('Something went wrong!', 'error');
+                }
+            }).fail(function (errObj) {
+                toastr['error'](errObj.message, 'error');
+            });
         }
 
     </script>
