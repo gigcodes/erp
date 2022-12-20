@@ -54,11 +54,26 @@ class BugTrackingController extends Controller
 
     public function records(Request $request)
     {
-        if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
-            $records = BugTracker::orderBy('id', 'desc')->take(10);
+
+        
+        if(isset($request->step_to_reproduce) && isset($request->summary) ) {
+
+            if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
+                $records = BugTracker::orderBy('id', 'desc');
+            } else {
+                $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc');
+            }
+
         } else {
-            $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc')->take(10);
+
+            if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
+                $records = BugTracker::orderBy('id', 'desc')->take(10);
+            } else {
+                $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc')->take(10);
+            }
+
         }
+       
 
         if ($keyword = request('summary')) {
             $records = $records->where(function ($q) use ($keyword) {
@@ -129,6 +144,8 @@ class BugTrackingController extends Controller
 
     public function recordTrackingAjax(Request $request)
     {
+
+       
         $title = 'Bug Tracking';
 
         $page = $_REQUEST['page'];
@@ -147,6 +164,52 @@ class BugTrackingController extends Controller
             $records = BugTracker::orderBy('id', 'desc')->offset($page)->limit(10);
         } else {
             $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc')->offset($page)->limit(10);
+        }
+
+        
+        if ($keyword = request('summary')) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where('summary', 'LIKE', "%$keyword%");
+            });
+        }
+        if ($keyword = request('bug_type')) {
+            $records = $records->orWhereIn('bug_type_id', $keyword);
+        }
+        if ($keyword = request('bug_enviornment')) {
+            $records = $records->orWhereIn('bug_environment_id', $keyword);
+        }
+        if ($keyword = request('bug_severity')) {
+            $records = $records->orWhereIn('bug_severity_id', $keyword);
+        }
+        if ($keyword = request('created_by')) {
+            $records = $records->orWhereIn('created_by', $keyword);
+        }
+        if ($keyword = request('assign_to_user')) {
+            $records = $records->orWhereIn('assign_to', $keyword);
+        }
+        if ($keyword = request('bug_status')) {
+            $records = $records->orWhereIn('bug_status_id', $keyword);
+        }
+        if ($keyword = request('module_id')) {
+            $records = $records->orWhereIn('module_id', 'LIKE', "%$keyword%");
+        }
+        if ($keyword = request('step_to_reproduce')) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where('step_to_reproduce', 'LIKE', "%$keyword%");
+            });
+        }
+        if ($keyword = request('url')) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where('url', 'LIKE', "%$keyword%");
+            });
+        }
+        if ($keyword = request('website')) {
+            $records = $records->orWhereIn('website', $keyword);
+        }
+        if ($keyword = request('date')) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->whereDate('created_at', $keyword);
+            });
         }
 
         $records = $records->get();
