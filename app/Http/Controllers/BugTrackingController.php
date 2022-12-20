@@ -38,7 +38,6 @@ class BugTrackingController extends Controller
         $users = User::get();
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
         $filterWebsites = StoreWebsite::orderBy('website')->get();
-        
 
         return view('bug-tracking.index', [
             'title' => $title,
@@ -55,7 +54,6 @@ class BugTrackingController extends Controller
 
     public function records(Request $request)
     {
-
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
             $records = BugTracker::orderBy('id', 'desc')->take(10);
         } else {
@@ -131,12 +129,11 @@ class BugTrackingController extends Controller
 
     public function recordTrackingAjax(Request $request)
     {
-
         $title = 'Bug Tracking';
 
         $page = $_REQUEST['page'];
-        
-        $page = $page *10;
+
+        $page = $page * 10;
 
         $bugStatuses = BugStatus::get();
         $bugEnvironments = BugEnvironment::get();
@@ -172,19 +169,19 @@ class BugTrackingController extends Controller
             return $bug;
         });
 
-       // return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
+        // return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
 
-       return view('bug-tracking.index-ajax', ['title' => $title,
-       'bugTypes' => $bugTypes,
-       'bugEnvironments' => $bugEnvironments,
-       'bugSeveritys' => $bugSeveritys,
-       'bugStatuses' => $bugStatuses,
-       'filterCategories' => $filterCategories,
-       'users' => $users,
-       'allUsers' => $users,
-       'filterWebsites' => $filterWebsites,
-        'data' => $records, 'total' => count($records)
-    ]);
+        return view('bug-tracking.index-ajax', ['title' => $title,
+            'bugTypes' => $bugTypes,
+            'bugEnvironments' => $bugEnvironments,
+            'bugSeveritys' => $bugSeveritys,
+            'bugStatuses' => $bugStatuses,
+            'filterCategories' => $filterCategories,
+            'users' => $users,
+            'allUsers' => $users,
+            'filterWebsites' => $filterWebsites,
+            'data' => $records, 'total' => count($records),
+        ]);
     }
 
     public function create()
