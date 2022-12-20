@@ -2378,7 +2378,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('bug-tracking/{id}/delete', 'BugTrackingController@destroy');
     Route::post('bug-tracking/websitelist', 'BugTrackingController@getWebsiteList')->name('bug-tracking.websitelist');
     Route::get('bug-tracking/countdevtask/{id}', 'BugTrackingController@taskCount');
-
     Route::get('bug-trackinghistory', 'BugTrackingController@getTrackedHistory')->name('bug-tracking.history');
     Route::post('bug-tracking/hubstaff_task', 'BugTrackingController@createHubstaffManualTask')->name('bug-tracking.hubstaff_task');
 

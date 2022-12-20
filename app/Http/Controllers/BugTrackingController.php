@@ -546,6 +546,28 @@ class BugTrackingController extends Controller
         return response()->json(['code' => 200, 'data' => $bugStatuses]);
     }
 
+    public function assignUser(Request $request)
+    {
+        $bugTracker = BugTracker::where('id', $request->id)->first();
+        $record = [
+            'old_user' => $bugTracker->assign_to,
+            'new_user' => $request->user_id,
+            'bug_id' => $bugTracker->id,
+            'updated_by' => \Auth::user()->id,
+        ];
+        $bugTracker->assign_to = $request->user_id;
+        $bugTracker->save();
+        $data = [
+            'assign_to' => $bugTracker->assign_to,
+            'bug_id' => $bugTracker->id,
+            'updated_by' => \Auth::user()->id,
+        ];
+        BugTrackerHistory::create($data);
+        BugUserHistory::create($record);
+
+        return response()->json(['code' => 200, 'data' => $data]);
+    }
+
      public function assignUser(Request $request)
      {
          $bugTracker = BugTracker::where('id', $request->id)->first();
