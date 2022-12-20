@@ -255,7 +255,7 @@
                 @endif
             </td>
             <td>
-                {{ $product->product_status }}
+                {{ $product->llm_message }}
             </td>
             <td>
 {{--                @if($product->magentoLog)--}}

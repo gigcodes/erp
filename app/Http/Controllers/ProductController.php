@@ -1460,7 +1460,7 @@ class ProductController extends Controller
 
         $products = $products->where('isUploaded', 0);
         $products = $products->orderBy('llm_id', 'desc');
-        $products = $products->select(['products.*', 's.name as product_status', 'LLM.id as llm_id'])->paginate(20);
+        $products = $products->select(['products.*', 's.name as product_status', 'LLM.id as llm_id', 'LLM.message as llm_message'])->paginate(20);
         $productsCount = $products->total();
         $imageCropperRole = auth()->user()->hasRole('ImageCropers');
         $categoryArray = Category::renderAsArray();
