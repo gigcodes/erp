@@ -43,6 +43,28 @@
                     </div>
                   </div>
                 </div>
+                  <div class="col">
+                      <div class="form-group">
+                          <div class='input-group'>
+
+
+                              <input type='date' placeholder="Start Date" class="form-control" name="from_date"  value="{{ isset($_GET['from_date'])?$_GET['from_date']:''}}"  />
+
+
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col">
+                      <div class="form-group">
+                          <div class='input-group'>
+
+
+                              <input type='date' placeholder="End Date" class="form-control" name="to_date"  value="{{ isset($_GET['to_date'])?$_GET['to_date']:''}}"  />
+
+
+                          </div>
+                      </div>
+                  </div>
 
                 <div class="col">
                   <div class="form-group">
