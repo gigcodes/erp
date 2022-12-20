@@ -17,8 +17,8 @@ use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use seo2websites\GoogleVision\GoogleVisionHelper;
 
 class GoogleSearchImageController extends Controller
@@ -155,7 +155,7 @@ class GoogleSearchImageController extends Controller
         $countSystem = $productQuery->count();
 
         $data['products'] = $productQuery->join('mediables', function ($query) {
-            $query->on('mediables.mediable_id', 'products.id')->where('mediable_type', "App\Product");
+            $query->on('mediables.mediable_id', 'products.id')->where('mediable_type', \App\Product::class);
         })
             ->groupBy('products.id')
             ->paginate(Setting::get('pagination'));
@@ -768,7 +768,7 @@ class GoogleSearchImageController extends Controller
                 ->paginate(Setting::get('pagination'));
         } else {
             $data['products'] = $productQuery->join('mediables', function ($query) {
-                $query->on('mediables.mediable_id', 'products.id')->where('mediable_type', "App\Product");
+                $query->on('mediables.mediable_id', 'products.id')->where('mediable_type', \App\Product::class);
             })
                 ->groupBy('products.id')
                 ->paginate(Setting::get('pagination'));
@@ -1052,7 +1052,7 @@ class GoogleSearchImageController extends Controller
                 ->paginate(Setting::get('pagination'));
         } else {
             $data['products'] = $productQuery->join('mediables', function ($query) {
-                $query->on('mediables.mediable_id', 'products.id')->where('mediable_type', "App\Product");
+                $query->on('mediables.mediable_id', 'products.id')->where('mediable_type', \App\Product::class);
             })
                 ->groupBy('products.id')
                 ->paginate(Setting::get('pagination'));
@@ -1073,7 +1073,7 @@ class GoogleSearchImageController extends Controller
 
         //Changed Selected Images For Product
         foreach ($images as $image) {
-            $media = DB::table('mediables')->where('tag', config('constants.google_text_search'))->where('mediable_type', 'App\Product')->where('media_id', $image)
+            $media = DB::table('mediables')->where('tag', config('constants.google_text_search'))->where('mediable_type', \App\Product::class)->where('media_id', $image)
                 ->limit(1)
                 ->update(['tag' => config('constants.media_tags')[0]]);
         }

@@ -17,7 +17,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Zend\Diactoros\Response\JsonResponse;
 
 class ScrapStatisticsController extends Controller
@@ -540,7 +540,7 @@ class ScrapStatisticsController extends Controller
 
                 //START - Purpose : Send message Posted by user - DEVTASK-4219
                 if (Auth::user()->phone != '' && Auth::user()->whatsapp_number != '') {
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi(Auth::user()->phone, Auth::user()->whatsapp_number, 'SCRAPER-REMARK#'.$name."\n".$remark);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi(Auth::user()->phone, Auth::user()->whatsapp_number, 'SCRAPER-REMARK#'.$name."\n".$remark);
                 }
                 //END - DEVTASK-4219
 
@@ -549,7 +549,7 @@ class ScrapStatisticsController extends Controller
                     if ($scraper) {
                         $sendPer = $scraper->scraperMadeBy;
                         if ($sendPer) {
-                            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($sendPer->phone, $sendPer->whatsapp_number, 'SCRAPER-REMARK#'.$name."\n".$remark);
+                            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($sendPer->phone, $sendPer->whatsapp_number, 'SCRAPER-REMARK#'.$name."\n".$remark);
                         }
                     }
                 }
@@ -1023,7 +1023,7 @@ class ScrapStatisticsController extends Controller
                     ]);
                 }
 
-                app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+                app(\App\Http\Controllers\DevelopmentController::class)->issueStore($requestData, 'issue');
             }
         }
 
@@ -1062,7 +1062,7 @@ class ScrapStatisticsController extends Controller
                 ]);
             }
 
-            app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+            app(\App\Http\Controllers\DevelopmentController::class)->issueStore($requestData, 'issue');
         }
 
         if (isset($request->type) && $request->type == 'brand') {
@@ -1268,7 +1268,7 @@ class ScrapStatisticsController extends Controller
                     'subject' => $scrapperDetails->scraper_name,
                     'assigned_to' => $assigendTo,
                 ]);
-                app('\App\Http\Controllers\DevelopmentController')->issueStore($requestData, $assigendTo);
+                app(\App\Http\Controllers\DevelopmentController::class)->issueStore($requestData, $assigendTo);
             }
             Scraper::where('id', $request->scrapper_id)->update(['assigned_to' => $assigendTo]);
         }

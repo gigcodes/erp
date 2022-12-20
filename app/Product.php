@@ -10,8 +10,8 @@ use App\Helpers\StatusHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Mediable;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Validator;
 
 class Product extends Model
@@ -103,8 +103,6 @@ class Product extends Model
         'price_usd_special',
         'is_cron_check',
     ];
-
-    protected $dates = ['deleted_at'];
 
     protected $appends = [];
 
@@ -581,17 +579,17 @@ class Product extends Model
 
     public function messages()
     {
-        return $this->hasMany('App\Message', 'moduleid')->where('moduletype', 'product')->latest()->first();
+        return $this->hasMany(\App\Message::class, 'moduleid')->where('moduletype', 'product')->latest()->first();
     }
 
     public function product_category()
     {
-        return $this->belongsTo('App\Category', 'category');
+        return $this->belongsTo(\App\Category::class, 'category');
     }
 
     public function log_scraper_vs_ai()
     {
-        return $this->hasMany('App\LogScraperVsAi');
+        return $this->hasMany(\App\LogScraperVsAi::class);
     }
 
     public function getCommunicationAttribute()
@@ -606,27 +604,27 @@ class Product extends Model
 
     public function notifications()
     {
-        return $this->hasMany('App\Notification');
+        return $this->hasMany(\App\Notification::class);
     }
 
     public function suppliers()
     {
-        return $this->belongsToMany('App\Supplier', 'product_suppliers', 'product_id', 'supplier_id');
+        return $this->belongsToMany(\App\Supplier::class, 'product_suppliers', 'product_id', 'supplier_id');
     }
 
     public function suppliers_info()
     {
-        return $this->hasMany('App\ProductSupplier');
+        return $this->hasMany(\App\ProductSupplier::class);
     }
 
     public function private_views()
     {
-        return $this->belongsToMany('App\PrivateView', 'private_view_products', 'product_id', 'private_view_id');
+        return $this->belongsToMany(\App\PrivateView::class, 'private_view_products', 'product_id', 'private_view_id');
     }
 
     public function suggestions()
     {
-        return $this->belongsToMany('App\SuggestedProduct', 'suggested_product_lists', 'product_id', 'suggested_products_id');
+        return $this->belongsToMany(\App\SuggestedProduct::class, 'suggested_product_lists', 'product_id', 'suggested_products_id');
     }
 
     public function amends()
@@ -636,17 +634,22 @@ class Product extends Model
 
     public function brands()
     {
-        return $this->hasOne('App\Brand', 'id', 'brand');
+        return $this->hasOne(\App\Brand::class, 'id', 'brand');
     }
 
     public function categories()
     {
-        return $this->hasOne('App\Category', 'id', 'category');
+        return $this->hasOne(\App\Category::class, 'id', 'category');
+    }
+
+    public function magentoLog()
+    {
+        return $this->hasOne(\App\Loggers\LogListMagento::class)->latest();
     }
 
     public function references()
     {
-        return $this->hasMany('App\ProductReference');
+        return $this->hasMany(\App\ProductReference::class);
     }
 
     public static function getPendingProductsCount($roleType)
@@ -664,7 +667,7 @@ class Product extends Model
 
     public function purchases()
     {
-        return $this->belongsToMany('App\Purchase', 'purchase_products', 'product_id', 'purchase_id');
+        return $this->belongsToMany(\App\Purchase::class, 'purchase_products', 'product_id', 'purchase_id');
     }
 
     public function sizes()
@@ -674,22 +677,22 @@ class Product extends Model
 
     public function orderproducts()
     {
-        return $this->hasMany('App\OrderProduct', 'product_id', 'id');
+        return $this->hasMany(\App\OrderProduct::class, 'product_id', 'id');
     }
 
     public function scraped_products()
     {
-        return $this->hasOne('App\ScrapedProducts', 'product_id', 'id');
+        return $this->hasOne(\App\ScrapedProducts::class, 'product_id', 'id');
     }
 
     public function many_scraped_products()
     {
-        return $this->hasMany('App\ScrapedProducts', 'sku', 'sku');
+        return $this->hasMany(\App\ScrapedProducts::class, 'sku', 'sku');
     }
 
     public function user()
     {
-        return $this->belongsToMany('App\User', 'user_products', 'product_id', 'user_id');
+        return $this->belongsToMany(\App\User::class, 'user_products', 'product_id', 'user_id');
     }
 
     public function cropApprover()
@@ -915,7 +918,7 @@ class Product extends Model
 
     public function websiteProducts()
     {
-        return $this->hasMany("App\WebsiteProduct", 'product_id', 'id');
+        return $this->hasMany(\App\WebsiteProduct::class, 'product_id', 'id');
     }
 
     public function publishedOn()
@@ -974,7 +977,7 @@ class Product extends Model
         $productPrice = $default_price != null ? $default_price : $this->price;
         $default_price = $default_price != null ? $default_price : $this->price;
         if (($productPrice || $default_price)) {
-            $this->createProductPriceLog($order_id, $product_id, 'Product price', '', $productPrice, '0', 'productPrice : '.$productPrice.'<br/> default_price : '.$default_price, $default_price, $websiteId->id, $customer_id);
+            $this->createProductPriceLog($order_id, $product_id, 'Product price', '', $productPrice, '0', 'productPrice : '.$productPrice.'<br/> default_price : '.$default_price, $default_price, $website->id, $customer_id);
         } else {
             $this->createProductPriceLog($order_id, $product_id, 'Product price not found', '', '', '', 'Product price not found', $default_price, $websiteId->id, $customer_id);
         }
@@ -985,7 +988,7 @@ class Product extends Model
         }
         $brandID = empty($brandID) ? $this->brand_id : $brandID;
         if (($brandID)) {
-            $this->createProductPriceLog($order_id, $product_id, 'BrandID', '', $productPrice, '0', 'brandID : '.$brandID.'<br/> Default Price : '.$default_price, $default_price, $websiteId->id, $customer_id);
+            $this->createProductPriceLog($order_id, $product_id, 'BrandID', '', $productPrice, '0', 'brandID : '.$brandID.'<br/> Default Price : '.$default_price, $default_price, $website->id, $customer_id);
         } else {
             $this->createProductPriceLog($order_id, $product_id, 'BrandID not found', '', '', '', 'BrandID not found', $default_price, $websiteId->id, $customer_id);
         }
@@ -1003,14 +1006,14 @@ class Product extends Model
             if ($catdiscount) {
                 if ($updated_seg_discount) {
                     if (($updated_seg_discount)) {
-                        $this->createProductPriceLog($order_id, $product_id, 'category discount: updated_seg_discount', '', $productPrice, $updated_seg_discount, 'updated_seg_discount : '.$updated_seg_discount.'<br> ==>'.json_encode($catdiscount), $default_price, $websiteId->id, $customer_id);
+                        $this->createProductPriceLog($order_id, $product_id, 'category discount: updated_seg_discount', '', $productPrice, $updated_seg_discount, 'updated_seg_discount : '.$updated_seg_discount.'<br> ==>'.json_encode($catdiscount), $default_price, $website->id, $customer_id);
                     }
 
                     $category_segment_discounts_row = \DB::table('category_segment_discounts')->where('id', $catdiscount->id)->update(['amount' => $updated_seg_discount]);
                     if ($category_segment_discounts_row) {
                         $catdiscount->amount = $updated_seg_discount;
                         if (($category_segment_discounts_row)) {
-                            $this->createProductPriceLog($order_id, $product_id, 'category discount id : '.$catdiscount->id.'category_segment_discounts_row', '', $productPrice, $updated_seg_discount, json_encode($category_segment_discounts_row), $default_price, $websiteId->id, $customer_id);
+                            $this->createProductPriceLog($order_id, $product_id, 'category discount id : '.$catdiscount->id.'category_segment_discounts_row', '', $productPrice, $updated_seg_discount, json_encode($category_segment_discounts_row), $default_price, $website->id, $customer_id);
                         }
                     }
                 }
@@ -1020,43 +1023,43 @@ class Product extends Model
                     $segmentDiscount = $percentageA;
                     $productPrice = $productPrice - $percentageA;
                     if (($catdiscount->amount_type)) {
-                        $this->createProductPriceLog($order_id, $product_id, 'category discount: amount_type is percentage', 'Product price: '.$productPrice.' * percentage : '.$percentage.' /100 ', $productPrice, $segmentDiscount, 'Product price Discount', $default_price, $websiteId->id, $customer_id);
+                        $this->createProductPriceLog($order_id, $product_id, 'category discount: amount_type is percentage', 'Product price: '.$productPrice.' * percentage : '.$percentage.' /100 ', $productPrice, $segmentDiscount, 'Product price Discount', $default_price, $website->id, $customer_id);
                     }
                 } else {
                     $segmentDiscount = $catdiscount->amount;
                     $productPrice = $productPrice - $catdiscount->amount;
                     if (($catdiscount->amount_type)) {
-                        $this->createProductPriceLog($order_id, $product_id, 'category discount: amount_type not percentage', 'Product price: '.$productPrice.' - categoryDiscount : '.$catdiscount->amount, $productPrice, $segmentDiscount, 'Product price - categoryDiscount', $default_price, $websiteId->id, $customer_id);
+                        $this->createProductPriceLog($order_id, $product_id, 'category discount: amount_type not percentage', 'Product price: '.$productPrice.' - categoryDiscount : '.$catdiscount->amount, $productPrice, $segmentDiscount, 'Product price - categoryDiscount', $default_price, $website->id, $customer_id);
                     }
                 }
             }
         }
         $operation = '';
         $logDetails = '';
-        if ($segmentDiscount != '0') {
-            if ($segmentDiscount != '0' && $catdiscount->amount_type == 'percentage') {
-                $operation = 'Product price: '.$productPrice.' * percentage : '.$percentage.' /100 ';
-                $logDetails = 'Product price: '.$productPrice.' * percentage : '.$percentage.' /100  <br>'.'Product price: '.$productPrice.' - Discount: '.$segmentDiscount;
-            } else {
-                $operation = 'Product price: '.$productPrice.' - Category Discount : '.$catdiscount->amount;
-                $logDetails = 'Product price: '.$productPrice.' - Category Discount : '.$catdiscount->amount;
-            }
-        }
-        $beforeIVAProductPrice = $productPrice;
-        if ($isOvveride) {
-            $this->createProductPriceLog($order_id, $product_id, 'Get Iva Price Before', $operation, $productPrice, $segmentDiscount, 'Product price: '.$productPrice.' - categoryDiscount : '.$catdiscount->amount.'Product price - categoryDiscount', $default_price, $websiteId->id, $customer_id);
-            $oldPrice = $productPrice;
-            $productPrice = \App\Product::getIvaPrice($productPrice);
-            $IVApercentage = self::IVA_PERCENTAGE;
-            $ivaPercentage = ($oldPrice * $percentage) / 100;
-            $this->createProductPriceLog($order_id, $product_id, 'Get Iva Price After', 'Price : '.$oldPrice.' * Percentage : '.$IVApercentage.' / 100', $productPrice, $ivaPercentage, 'Product price: '.$productPrice.' - categoryDiscount : '.$catdiscount->amount.'Product price - categoryDiscount', $default_price, $websiteId->id, $customer_id);
-        }
+//        if ($segmentDiscount != '0') {
+//            if ($segmentDiscount != '0' && $catdiscount->amount_type == 'percentage') {
+//                $operation = 'Product price: '.$productPrice.' * percentage : '.$percentage.' /100 ';
+//                $logDetails = 'Product price: '.$productPrice.' * percentage : '.$percentage.' /100  <br>'.'Product price: '.$productPrice.' - Discount: '.$segmentDiscount;
+//            } else {
+//                $operation = 'Product price: '.$productPrice.' - Category Discount : '.$catdiscount->amount;
+//                $logDetails = 'Product price: '.$productPrice.' - Category Discount : '.$catdiscount->amount;
+//            }
+//        }
+//        $beforeIVAProductPrice = $productPrice;
+//        if ($isOvveride) {
+//            $this->createProductPriceLog($order_id, $product_id, 'Get Iva Price Before', $operation, $productPrice, $segmentDiscount, 'Product price: '.$productPrice.'Product price ', $default_price, $website->id, $customer_id);
+//            $oldPrice = $productPrice;
+//            $productPrice = \App\Product::getIvaPrice($productPrice);
+//            $IVApercentage = self::IVA_PERCENTAGE;
+//            $ivaPercentage = ($oldPrice * $percentage) / 100;
+//            $this->createProductPriceLog($order_id, $product_id, 'Get Iva Price After', 'Price : '.$oldPrice.' * Percentage : '.$IVApercentage.' / 100', $productPrice, $ivaPercentage, 'Product price: '.$productPrice.'Product price ', $default_price, $website->id, $customer_id);
+//        }
 
         // add a product price duty
         if ($dutyPrice > 0) {
             $totalAmount = $productPrice * $dutyPrice / 100;
             $productPrice = $productPrice + $totalAmount;
-            $this->createProductPriceLog($order_id, $product_id, 'Add a product price duty', '(Product price: '.$productPrice.' * dutyPrice: '.$dutyPrice.' / 100) + Priduct total Amount : '.$totalAmount, $productPrice, $totalAmount, 'Product price + product price duty', $default_price, $websiteId->id, $customer_id);
+            $this->createProductPriceLog($order_id, $product_id, 'Add a product price duty', '(Product price: '.$productPrice.' * dutyPrice: '.$dutyPrice.' / 100) + Priduct total Amount : '.$totalAmount, $productPrice, $totalAmount, 'Product price + product price duty', $default_price, $website->id, $customer_id);
         }
 
         if ($website) {
@@ -1066,18 +1069,18 @@ class Product extends Model
             $category = $this->category;
             $country = $countryId;
 
-            $this->createProductPriceLog($order_id, $product_id, 'Price Override before', $operation, $productPrice, $segmentDiscount, 'Website data is available Price Override before', $default_price, $websiteId->id, $customer_id);
+            $this->createProductPriceLog($order_id, $product_id, 'Price Override before', $operation, $productPrice, $segmentDiscount, 'Website data is available Price Override before', $default_price, $website->id, $customer_id);
             $priceModal = \App\PriceOverride::where('store_website_id', $website->id);
-            $this->createProductPriceLog($order_id, $product_id, 'Price Override after', $operation, $productPrice, $segmentDiscount, 'Website data is available Price Override before', $default_price, $websiteId->id, $customer_id);
+            $this->createProductPriceLog($order_id, $product_id, 'Price Override after', $operation, $productPrice, $segmentDiscount, 'Website data is available Price Override before', $default_price, $website->id, $customer_id);
             $priceCModal = clone $priceModal;
 
             if (! empty($brand) && ! empty($category) && ! empty($country)) {
                 $priceRecords = $priceModal->where('country_code', $country)->where('brand_segment', $brand)->where('category_id', $category)->first();
-                $this->createProductPriceLog($order_id, $product_id, 'Price Record', $operation, $productPrice, $segmentDiscount, json_encode($priceRecords), $default_price, $websiteId->id, $customer_id);
+                $this->createProductPriceLog($order_id, $product_id, 'Price Record', $operation, $productPrice, $segmentDiscount, json_encode($priceRecords), $default_price, $website->id, $customer_id);
             }
 
             if (! $priceRecords) {
-                $this->createProductPriceLog($order_id, $product_id, 'Price Override before', $operation, $productPrice, $segmentDiscount, 'Price Override before', $default_price, $websiteId->id, $customer_id);
+                $this->createProductPriceLog($order_id, $product_id, 'Price Override before', $operation, $productPrice, $segmentDiscount, 'Price Override before', $default_price, $website->id, $customer_id);
                 $priceModal = \App\PriceOverride::where('store_website_id', $website->id);
                 $priceRecords = $priceModal->where(function ($q) use ($brand, $category, $country) {
                     $q->orWhere(function ($q) use ($brand, $category) {
@@ -1088,28 +1091,28 @@ class Product extends Model
                         $q->where('country_code', $country)->where('category_id', $category);
                     });
                 })->first();
-                $this->createProductPriceLog($order_id, $product_id, 'Price Record by brand_segment or country_code', $operation, $productPrice, $segmentDiscount, json_encode($priceRecords), $default_price, $websiteId->id, $customer_id);
+                $this->createProductPriceLog($order_id, $product_id, 'Price Record by brand_segment or country_code', $operation, $productPrice, $segmentDiscount, json_encode($priceRecords), $default_price, $website->id, $customer_id);
             }
 
             if (! $priceRecords) {
-                $this->createProductPriceLog($order_id, $product_id, 'Price Override before', $operation, $productPrice, $segmentDiscount, 'Price Override before', $default_price, $websiteId->id, $customer_id);
+                $this->createProductPriceLog($order_id, $product_id, 'Price Override before', $operation, $productPrice, $segmentDiscount, 'Price Override before', $default_price, $website->id, $customer_id);
                 $priceModal = \App\PriceOverride::where('store_website_id', $website->id);
                 $priceRecords = $priceModal->where('brand_segment', $brand)->first();
-                $this->createProductPriceLog($order_id, $product_id, 'Price Override after', $operation, $productPrice, $segmentDiscount, json_encode($priceRecords), $default_price, $websiteId->id, $customer_id);
+                $this->createProductPriceLog($order_id, $product_id, 'Price Override after', $operation, $productPrice, $segmentDiscount, json_encode($priceRecords), $default_price, $website->id, $customer_id);
             }
 
             if (! $priceRecords) {
-                $this->createProductPriceLog($order_id, $product_id, 'Price Override before', $operation, $productPrice, $segmentDiscount, 'Price Override before', $default_price, $websiteId->id, $customer_id);
+                $this->createProductPriceLog($order_id, $product_id, 'Price Override before', $operation, $productPrice, $segmentDiscount, 'Price Override before', $default_price, $website->id, $customer_id);
                 $priceModal = \App\PriceOverride::where('store_website_id', $website->id);
                 $priceRecords = $priceModal->where('category_id', $category)->first();
-                $this->createProductPriceLog($order_id, $product_id, 'Price Record by category_id', $operation, $productPrice, $segmentDiscount, json_encode($priceRecords), $default_price, $websiteId->id, $customer_id);
+                $this->createProductPriceLog($order_id, $product_id, 'Price Record by category_id', $operation, $productPrice, $segmentDiscount, json_encode($priceRecords), $default_price, $website->id, $customer_id);
             }
 
             if (! $priceRecords) {
-                $this->createProductPriceLog($order_id, $product_id, 'Price Override before', $operation, $productPrice, $segmentDiscount, 'Price Override before', $default_price, $websiteId->id, $customer_id);
+                $this->createProductPriceLog($order_id, $product_id, 'Price Override before', $operation, $productPrice, $segmentDiscount, 'Price Override before', $default_price, $website->id, $customer_id);
                 $priceModal = \App\PriceOverride::where('store_website_id', $website->id);
                 $priceRecords = $priceModal->where('country_code', $country)->first();
-                $this->createProductPriceLog($order_id, $product_id, 'Price Record by country_code', $operation, $productPrice, $segmentDiscount, $logDetails, $default_price, $websiteId->id, $customer_id);
+                $this->createProductPriceLog($order_id, $product_id, 'Price Record by country_code', $operation, $productPrice, $segmentDiscount, $logDetails, $default_price, $website->id, $customer_id);
             }
 
             if ($priceRecords) {
@@ -1125,49 +1128,49 @@ class Product extends Model
                     if ($updated_add_profit_row) {
                         $priceRecords->value = $updated_add_profit;
                     }
-                    $this->createProductPriceLog($order_id, $product_id, 'Price Record by country_code', $operation, $productPrice, $segmentDiscount, json_encode($priceRecords), $default_price, $websiteId->id, $customer_id);
+                    $this->createProductPriceLog($order_id, $product_id, 'Price Record by country_code', $operation, $productPrice, $segmentDiscount, json_encode($priceRecords), $default_price, $website->id, $customer_id);
                 }
                 if ($priceRecords->calculated == '+') {
                     if ($priceRecords->type == 'PERCENTAGE') {
                         $price = ($productPrice * $priceRecords->value) / 100;
-                        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Price Record Type : PERCENTAGE', '(Product Price : '.$productPrice.' * Price Records: '.$priceRecords->value.') / 100', $productPrice, $price, 'productPrice * priceRecordsvalue / 100', $default_price, $websiteId->id, $customer_id);
+                        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Price Record Type : PERCENTAGE', '(Product Price : '.$productPrice.' * Price Records: '.$priceRecords->value.') / 100', $productPrice, $price, 'productPrice * priceRecordsvalue / 100', $default_price, $website->id, $customer_id);
 
-                        return ['status' => true, 'original_price' => $default_price, 'promotion_per' => $priceRecords->value, 'promotion' => $price, 'segment_discount' => $segmentDiscount, 'total' => $productPrice + $price, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => $beforeIVAProductPrice];
+                        return ['status' => true, 'original_price' => $default_price, 'promotion_per' => $priceRecords->value, 'promotion' => $price, 'segment_discount' => $segmentDiscount, 'total' => $productPrice + $price, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                     } else {
                         $percentage = ($priceRecords->value / $productPrice) * 100;
-                        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Price Record Type : PERCENTAGE', 'product Price: '.$productPrice.' / Price Records: '.$priceRecords->value.' * 100', $productPrice, $percentage, 'productPrice / priceRecordsvalue * 100', $default_price, $websiteId->id, $customer_id);
+                        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Price Record Type : PERCENTAGE', 'product Price: '.$productPrice.' / Price Records: '.$priceRecords->value.' * 100', $productPrice, $percentage, 'productPrice / priceRecordsvalue * 100', $default_price, $website->id, $customer_id);
 
-                        return ['status' => true, 'original_price' => $default_price, 'promotion_per' => $percentage, 'promotion' => $priceRecords->value, 'segment_discount' => $segmentDiscount, 'total' => $productPrice + $priceRecords->value, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => $beforeIVAProductPrice];
+                        return ['status' => true, 'original_price' => $default_price, 'promotion_per' => $percentage, 'promotion' => $priceRecords->value, 'segment_discount' => $segmentDiscount, 'total' => $productPrice + $priceRecords->value, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                     }
                 }
                 if ($priceRecords->calculated == '-') {
                     if ($priceRecords->type == 'PERCENTAGE') {
                         $price = ($productPrice * $priceRecords->value) / 100;
-                        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Produc Price Records calculated - is PERCENTAGE', 'Product Price: '.$productPrice.' * Price Records: '.$priceRecords->value.' / 100', $productPrice, $price, 'productPrice * priceRecordsvalue / 100', $default_price, $websiteId->id, $customer_id);
+                        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Produc Price Records calculated - is PERCENTAGE', 'Product Price: '.$productPrice.' * Price Records: '.$priceRecords->value.' / 100', $productPrice, $price, 'productPrice * priceRecordsvalue / 100', $default_price, $website->id, $customer_id);
 
-                        return ['status' => true, 'original_price' => $default_price, 'promotion_per' => -$priceRecords->value, 'promotion' => -$price, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - $price, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => $beforeIVAProductPrice];
+                        return ['status' => true, 'original_price' => $default_price, 'promotion_per' => -$priceRecords->value, 'promotion' => -$price, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - $price, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                     } else {
                         $percentage = ($priceRecords->value / $productPrice) * 100;
-                        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Produc Price Records calculated - not in PERCENTAGE ', 'Product Price: '.$productPrice.' / Price Records: '.$priceRecords->value.'* 100', $productPrice, $percentage, 'productPrice / priceRecordsvalue * 100', $default_price, $websiteId->id, $customer_id);
+                        $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Produc Price Records calculated - not in PERCENTAGE ', 'Product Price: '.$productPrice.' / Price Records: '.$priceRecords->value.'* 100', $productPrice, $percentage, 'productPrice / priceRecordsvalue * 100', $default_price, $website->id, $customer_id);
 
-                        return ['status' => true, 'original_price' => $default_price, 'promotion_per' => -$percentage, 'promotion' => -$priceRecords->value, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - $priceRecords->value, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => $beforeIVAProductPrice];
+                        return ['status' => true, 'original_price' => $default_price, 'promotion_per' => -$percentage, 'promotion' => -$priceRecords->value, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - $priceRecords->value, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                     }
                 }
             } elseif ($updated_add_profit || ! empty($checked_add_profit)) {
                 if (empty($brand)) {
-                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Brand is empty', $operation, $productPrice, $segmentDiscount, 'segmentDiscount : '.$segmentDiscount, $default_price, $websiteId->id, $customer_id);
+                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Brand is empty', $operation, $productPrice, $segmentDiscount, 'segmentDiscount : '.$segmentDiscount, $default_price, $website->id, $customer_id);
 
-                    return ['status' => false, 'field' => 'brand', 'original_price' => $default_price, 'promotion_per' => 0, 'promotion' => 0, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - 0, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => $beforeIVAProductPrice];
+                    return ['status' => false, 'field' => 'brand', 'original_price' => $default_price, 'promotion_per' => 0, 'promotion' => 0, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - 0, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                 }
                 if (empty($category)) {
-                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Category is empty', $operation, $productPrice, $segmentDiscount, 'segmentDiscount : '.$segmentDiscount, $default_price, $websiteId->id, $customer_id);
+                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Category is empty', $operation, $productPrice, $segmentDiscount, 'segmentDiscount : '.$segmentDiscount, $default_price, $website->id, $customer_id);
 
-                    return ['status' => false, 'field' => 'category', 'original_price' => $default_price, 'promotion_per' => 0, 'promotion' => 0, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - 0, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => $beforeIVAProductPrice];
+                    return ['status' => false, 'field' => 'category', 'original_price' => $default_price, 'promotion_per' => 0, 'promotion' => 0, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - 0, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                 }
                 if (empty($country)) {
-                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'country is empty', $operation, $productPrice, $segmentDiscount, 'segmentDiscount : '.$segmentDiscount, $default_price, $websiteId->id, $customer_id);
+                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'country is empty', $operation, $productPrice, $segmentDiscount, 'segmentDiscount : '.$segmentDiscount, $default_price, $website->id, $customer_id);
 
-                    return ['status' => false, 'field' => 'country', 'original_price' => $default_price, 'promotion_per' => 0, 'promotion' => 0, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - 0, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => $beforeIVAProductPrice];
+                    return ['status' => false, 'field' => 'country', 'original_price' => $default_price, 'promotion_per' => 0, 'promotion' => 0, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - 0, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                 }
                 if (! empty($brand) && ! empty($category) && ! empty($country) && empty($checked_add_profit)) {
                     $newPriceRecords = PriceOverride::create([
@@ -1180,15 +1183,17 @@ class Product extends Model
                         'country_code' => $country,
                     ]);
                     $catDis = isset($catdiscount) ? $catdiscount->amount : 0;
-                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Brand,Category,Country, checked_add_profit is Not empty', $updated_add_profit, $productPrice, $newPriceRecords->value, 'promotion_per : '.$newPriceRecords->value.' <br/> total = '.$productPrice - $newPriceRecords->value.'<br/> Category Discount'.$catDis, $default_price, $websiteId->id, $customer_id);
+                    $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'Brand,Category,Country, checked_add_profit is Not empty', $updated_add_profit, $productPrice, $newPriceRecords->value, 'promotion_per : '.$newPriceRecords->value.(' <br/> total = '.($productPrice - $newPriceRecords->value)).'<br/> Category Discount'.$catDis, $default_price, $website->id, $customer_id);
 
-                    return ['status' => true, 'original_price' => $default_price, 'promotion_per' => $newPriceRecords->value, 'promotion' => $newPriceRecords->value, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - $newPriceRecords->value, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => $beforeIVAProductPrice];
+                    return ['status' => true, 'original_price' => $default_price, 'promotion_per' => $newPriceRecords->value, 'promotion' => $newPriceRecords->value, 'segment_discount' => $segmentDiscount, 'total' => $productPrice - $newPriceRecords->value, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => 0];
                 }
             }
         }
         $last_product_total = $this->createProductPriceLog($order_id, $product_id, 'original_price', '', $productPrice, $segmentDiscount, ' product original price '.$default_price);
 
-        return ['status' => true, 'original_price' => $default_price, 'promotion_per' => '0.00', 'promotion' => '0.00', 'segment_discount' => $segmentDiscount, 'total' => $productPrice, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total, 'before_iva_product_price' => $beforeIVAProductPrice];
+        return ['status' => true, 'original_price' => $default_price, 'promotion_per' => '0.00', 'promotion' => '0.00', 'segment_discount' => $segmentDiscount, 'total' => $productPrice, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0, 'last_log' => $last_product_total,
+            'before_iva_product_price' => 0, //  $beforeIVAProductPrice
+        ];
     }
 
     public function getDuty($countryCode, $withtype = false)
@@ -1304,7 +1309,7 @@ class Product extends Model
 
     public function landingPageProduct()
     {
-        return $this->hasOne('App\LandingPageProduct', 'product_id', 'id');
+        return $this->hasOne(\App\LandingPageProduct::class, 'product_id', 'id');
     }
 
     /**
@@ -1621,7 +1626,7 @@ class Product extends Model
 
     public function productstatushistory()
     {
-        return $this->hasMany('App\ProductStatusHistory', 'product_id');
+        return $this->hasMany(\App\ProductStatusHistory::class, 'product_id');
     }
 
     public function checkPriceRange()

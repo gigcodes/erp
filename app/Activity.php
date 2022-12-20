@@ -20,6 +20,6 @@ class Activity extends Model
 
     public function causer()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 }

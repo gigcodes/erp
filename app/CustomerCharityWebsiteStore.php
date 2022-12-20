@@ -23,11 +23,11 @@ class CustomerCharityWebsiteStore extends Model
 
     public function customerCharity()
     {
-        return $this->hasOne('App\CustomerCharity', 'id', 'customer_charity_id');
+        return $this->hasOne(\App\CustomerCharity::class, 'id', 'customer_charity_id');
     }
 
     public function websiteStore()
     {
-        return $this->hasOne('App\WebsiteStore', 'id', 'website_store_id');
+        return $this->hasOne(\App\WebsiteStore::class, 'id', 'website_store_id');
     }
 }

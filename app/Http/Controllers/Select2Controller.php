@@ -273,7 +273,7 @@ class Select2Controller extends Controller
         foreach ($tasks as $task) {
             $result['items'][] = [
                 'id' => $task->id,
-                'text' => get_class($task) == 'App\DeveloperTask' ? '#DEVTASK-'.$task->id.'-'.$task->subject : '#TASK-'.$task->id.'-'.$task->task_subject,
+                'text' => get_class($task) == \App\DeveloperTask::class ? '#DEVTASK-'.$task->id.'-'.$task->subject : '#TASK-'.$task->id.'-'.$task->task_subject,
             ];
         }
 

@@ -11,12 +11,19 @@ use App\BugTrackerHistory;
 use App\BugType;
 use App\BugUserHistory;
 use App\ChatMessage;
+use App\DeveloperTask;
+use App\SiteDevelopment;
 use App\SiteDevelopmentCategory;
 use App\StoreWebsite;
+use App\Task;
+use App\TestCase;
+use App\TestCaseHistory;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class BugTrackingController extends Controller
 {
@@ -40,6 +47,7 @@ class BugTrackingController extends Controller
             'bugStatuses' => $bugStatuses,
             'filterCategories' => $filterCategories,
             'users' => $users,
+            'allUsers' => $users,
             'filterWebsites' => $filterWebsites,
         ]);
     }
@@ -47,9 +55,11 @@ class BugTrackingController extends Controller
     public function records(Request $request)
     {
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
-            $records = BugTracker::orderBy('id', 'desc');
+            $records = BugTracker::orderBy('id', 'desc')->take(10);
+            $records_cnt = BugTracker::orderBy('id', 'desc');
         } else {
-            $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc');
+            $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc')->take(10);
+            $records_cnt = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc');
         }
 
         if ($keyword = request('summary')) {
@@ -58,39 +68,25 @@ class BugTrackingController extends Controller
             });
         }
         if ($keyword = request('bug_type')) {
-            $records = $records->where(function ($q) use ($keyword) {
-                $q->where('bug_type_id', $keyword);
-            });
+            $records = $records->orWhereIn('bug_type_id', $keyword);
         }
         if ($keyword = request('bug_enviornment')) {
-            $records = $records->where(function ($q) use ($keyword) {
-                $q->where('bug_environment_id', $keyword);
-            });
+            $records = $records->orWhereIn('bug_environment_id', $keyword);
         }
         if ($keyword = request('bug_severity')) {
-            $records = $records->where(function ($q) use ($keyword) {
-                $q->where('bug_severity_id', $keyword);
-            });
+            $records = $records->orWhereIn('bug_severity_id', $keyword);
         }
         if ($keyword = request('created_by')) {
-            $records = $records->where(function ($q) use ($keyword) {
-                $q->where('created_by', $keyword);
-            });
+            $records = $records->orWhereIn('created_by', $keyword);
         }
         if ($keyword = request('assign_to_user')) {
-            $records = $records->where(function ($q) use ($keyword) {
-                $q->orWhereIn('assign_to', $keyword);
-            });
+            $records = $records->orWhereIn('assign_to', $keyword);
         }
         if ($keyword = request('bug_status')) {
-            $records = $records->where(function ($q) use ($keyword) {
-                $q->where('bug_status_id', $keyword);
-            });
+            $records = $records->orWhereIn('bug_status_id', $keyword);
         }
         if ($keyword = request('module_id')) {
-            $records = $records->where(function ($q) use ($keyword) {
-                $q->where('module_id', 'LIKE', "%$keyword%");
-            });
+            $records = $records->orWhereIn('module_id', 'LIKE', "%$keyword%");
         }
         if ($keyword = request('step_to_reproduce')) {
             $records = $records->where(function ($q) use ($keyword) {
@@ -103,9 +99,7 @@ class BugTrackingController extends Controller
             });
         }
         if ($keyword = request('website')) {
-            $records = $records->where(function ($q) use ($keyword) {
-                $q->where('website', 'LIKE', "%$keyword%");
-            });
+            $records = $records->orWhereIn('website', $keyword);
         }
         if ($keyword = request('date')) {
             $records = $records->where(function ($q) use ($keyword) {
@@ -113,7 +107,12 @@ class BugTrackingController extends Controller
             });
         }
         $records = $records->get();
+
+        $records_cnt = $records_cnt->get();
+
         $records = $records->map(function ($bug) {
+            $bug->bug_type_id_val = $bug->bug_type_id;
+            $bug->website_id_val = $bug->website;
             $bug->bug_type_id = BugType::where('id', $bug->bug_type_id)->value('name');
             $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name');
             $bug->created_by = User::where('id', $bug->created_by)->value('name');
@@ -122,14 +121,116 @@ class BugTrackingController extends Controller
 //            $bug->bug_status_id = BugStatus::where('id',$bug->bug_status_id)->value('name');
             $bug->bug_history = BugTrackerHistory::where('bug_id', $bug->id)->get();
             $bug->website = StoreWebsite::where('id', $bug->website)->value('title');
-            $bug->summary_short = str_limit($bug->summary, 5, '..');
-            $bug->step_to_reproduce_short = str_limit($bug->step_to_reproduce, 5, '..');
-            $bug->url_short = str_limit($bug->url, 5, '..');
+            $bug->summary_short = Str::limit($bug->summary, 5, '..');
+            $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 5, '..');
+            $bug->url_short = Str::limit($bug->url, 5, '..');
 
             return $bug;
         });
 
-        return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
+        return response()->json(['code' => 200, 'data' => $records, 'total' => count($records_cnt)]);
+    }
+
+    public function recordTrackingAjax(Request $request)
+    {
+        $title = 'Bug Tracking';
+
+        $page = $_REQUEST['page'];
+
+        $page = $page * 10;
+
+        $bugStatuses = BugStatus::get();
+        $bugEnvironments = BugEnvironment::get();
+        $bugSeveritys = BugSeverity::get();
+        $bugTypes = BugType::get();
+        $users = User::get();
+        $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
+        $filterWebsites = StoreWebsite::orderBy('website')->get();
+
+        if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
+            $records = BugTracker::orderBy('id', 'desc')->offset($page)->limit(10);
+        } else {
+            $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc')->offset($page)->limit(10);
+        }
+
+        if ($keyword = request('summary')) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where('summary', 'LIKE', "%$keyword%");
+            });
+        }
+        if ($keyword = request('bug_type')) {
+            $records = $records->orWhereIn('bug_type_id', $keyword);
+        }
+        if ($keyword = request('bug_enviornment')) {
+            $records = $records->orWhereIn('bug_environment_id', $keyword);
+        }
+        if ($keyword = request('bug_severity')) {
+            $records = $records->orWhereIn('bug_severity_id', $keyword);
+        }
+        if ($keyword = request('created_by')) {
+            $records = $records->orWhereIn('created_by', $keyword);
+        }
+        if ($keyword = request('assign_to_user')) {
+            $records = $records->orWhereIn('assign_to', $keyword);
+        }
+        if ($keyword = request('bug_status')) {
+            $records = $records->orWhereIn('bug_status_id', $keyword);
+        }
+        if ($keyword = request('module_id')) {
+            $records = $records->orWhereIn('module_id', 'LIKE', "%$keyword%");
+        }
+        if ($keyword = request('step_to_reproduce')) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where('step_to_reproduce', 'LIKE', "%$keyword%");
+            });
+        }
+        if ($keyword = request('url')) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where('url', 'LIKE', "%$keyword%");
+            });
+        }
+        if ($keyword = request('website')) {
+            $records = $records->orWhereIn('website', $keyword);
+        }
+        if ($keyword = request('date')) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->whereDate('created_at', $keyword);
+            });
+        }
+
+        $records = $records->get();
+
+        $records = $records->map(function ($bug) {
+            $bug->bug_type_id_val = $bug->bug_type_id;
+            $bug->website_id_val = $bug->website;
+            $bug->bug_type_id = BugType::where('id', $bug->bug_type_id)->value('name');
+            $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name');
+            $bug->created_by = User::where('id', $bug->created_by)->value('name');
+            $bug->created_at_date = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y  H:i');
+//            $bug->bug_severity_id = BugSeverity::where('id',$bug->bug_severity_id)->value('name');
+//            $bug->bug_status_id = BugStatus::where('id',$bug->bug_status_id)->value('name');
+            $bug->bug_history = BugTrackerHistory::where('bug_id', $bug->id)->get();
+            $bug->website = StoreWebsite::where('id', $bug->website)->value('title');
+            $bug->summary_short = Str::limit($bug->summary, 5, '..');
+            $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 5, '..');
+            $bug->url_short = Str::limit($bug->url, 5, '..');
+
+            return $bug;
+        });
+
+        // return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
+
+        return view('bug-tracking.index-ajax', ['title' => $title,
+            'bugTypes' => $bugTypes,
+            'bugEnvironments' => $bugEnvironments,
+            'bugSeveritys' => $bugSeveritys,
+            'bugStatuses' => $bugStatuses,
+            'filterCategories' => $filterCategories,
+            'users' => $users,
+            'allUsers' => $users,
+            'filterWebsites' => $filterWebsites,
+            'data' => $records, 'total' => count($records),
+        ]);
     }
 
     public function create()
@@ -340,7 +441,6 @@ class BugTrackingController extends Controller
         $bug = BugTracker::where('id', $request->id)->first();
 
         $data['created_by'] = \Auth::user()->id;
-
         $bug['updated_by'] = \Auth::user()->id;
         $userHistory['old_user'] = $bug->assign_to;
         $statusHistory['old_status'] = $bug->bug_status_id;
@@ -355,6 +455,29 @@ class BugTrackingController extends Controller
         ]);
         $data['summary'] = str_replace("\n", '<br/>', $request->summary);
         $data['step_to_reproduce'] = str_replace("\n", '<br/>', $request->step_to_reproduce);
+
+        if ($bug->test_case_id) {
+            $testCase = new TestCase;
+            $testCase->module_id = $request->module_id;
+            $testCase->step_to_reproduce = $data['step_to_reproduce'];
+            $testCase->expected_result = $request->expected_result;
+            $testCase->website = $request->website;
+            $testCase->assign_to = $request->assign_to;
+            $testCase->created_by = $data['created_by'];
+            $testCase->bug_id = $request->id;
+            $testCase->save();
+
+            $testCaseHistory = new TestCaseHistory();
+            $testCaseHistory->module_id = $request->module_id;
+            $testCaseHistory->step_to_reproduce = $data['step_to_reproduce'];
+            $testCaseHistory->expected_result = $request->expected_result;
+            $testCaseHistory->website = $request->website;
+            $testCaseHistory->assign_to = $request->assign_to;
+            $testCaseHistory->created_by = $data['created_by'];
+            $testCaseHistory->bug_id = $request->id;
+            $testCaseHistory->save();
+        }
+
         $bug->update($data);
         $data['bug_id'] = $request->id;
         BugTrackerHistory::create($data);
@@ -445,10 +568,37 @@ class BugTrackingController extends Controller
         return response()->json(['code' => 200, 'data' => $data]);
     }
 
+     public function assignUser(Request $request)
+     {
+         $bugTracker = BugTracker::where('id', $request->id)->first();
+         $record = [
+             'old_user' => $bugTracker->assign_to,
+             'new_user' => $request->user_id,
+             'bug_id' => $bugTracker->id,
+             'updated_by' => \Auth::user()->id,
+         ];
+         $bugTracker->assign_to = $request->user_id;
+         $bugTracker->save();
+         $data = [
+             'assign_to' => $bugTracker->assign_to,
+             'bug_id' => $bugTracker->id,
+             'updated_by' => \Auth::user()->id,
+         ];
+         BugTrackerHistory::create($data);
+         BugUserHistory::create($record);
+
+         return response()->json(['code' => 200, 'data' => $data]);
+     }
+
     public function severityUser(Request $request)
     {
         $bugTracker = BugTracker::where('id', $request->id)->first();
         $bugTracker->bug_severity_id = $request->severity_id;
+        if ($request->status_id == 8) {
+            $created_by = $bugTracker->created_by;
+            $bugTracker->assign_to = $created_by;
+        }
+
         $bugTracker->save();
         $data = [
             'bug_severity_id' => $bugTracker->bug_severity_id,
@@ -469,6 +619,11 @@ class BugTrackingController extends Controller
             'bug_id' => $bugTracker->id,
             'updated_by' => \Auth::user()->id,
         ];
+        if ($request->status_id == 7) {
+            $prev_created_by = $bugTracker->created_by;
+            $bugTracker->assign_to = $prev_created_by;
+        }
+
         $bugTracker->bug_status_id = $request->status_id;
         $bugTracker->save();
 
@@ -528,5 +683,114 @@ class BugTrackingController extends Controller
         });
 
         return response()->json(['code' => 200, 'data' => $messages]);
+    }
+
+    public function getWebsiteList(Request $request)
+    {
+        $bug_type_id = $request->bug_type_id;
+        $module_id = $request->module_id;
+        $website_id = $request->website_id;
+        $bug_tracker = BugTracker::where('bug_type_id', $bug_type_id)->where('module_id', $module_id)->where('website', $website_id)->whereIn('bug_status_id', ['1', '2'])->get();
+        $bug_list = $bug_tracker->toArray();
+        $bug_ids = [];
+        $website_ids = [];
+        $bugs_html = '<table cellpadding="2" cellspacing="2" border="1" style="width:100%"><tr><td style="text-align:center"><b>Action</b></td><td  style="text-align:center"><b>Bug Id</b></td  style="text-align:center"><td  style="text-align:center;"><b>Summary</b></td><td  style="text-align:center;"><b>Assign To</b></td></tr>';
+        if (count($bug_list) > 0) {
+            for ($i = 0; $i < count($bug_list); $i++) {
+                $bug_ids[] = $bug_list[$i]['id'];
+                $website_ids[] = $bug_list[$i]['website'];
+                $bug_id = $bug_list[$i]['id'];
+                $assign_to = $bug_list[$i]['assign_to'];
+                $userData = User::where('id', $assign_to)->get()->toArray();
+                $name = '-';
+                if (count($userData) > 0 && isset($userData[0]['name'])) {
+                    $name = $userData[0]['name'];
+                }
+                $bugs_html .= '<tr><td  style="text-align:center"><input style="height:13px;" type="checkbox" class="cls-checkbox-bugsids" name="chkBugId[]" value="'.$bug_id.'" id="name="chkBugId'.$bug_id.'"  /></td><td  style="text-align:center">'.$bug_id.'</td><td>&nbsp;&nbsp;&nbsp;'.$bug_list[$i]['summary'].'</td><td>&nbsp;&nbsp;&nbsp;'.$name.'</td></tr>';
+            }
+        }
+
+        $bugs_html .= '</table>';
+
+        $website_ids_val = implode(',', $website_ids);
+
+        $websiteData = StoreWebsite::whereIn('id', $website_ids)->get();
+
+        $websiteCheckbox = '';
+        foreach ($websiteData as $website) {
+            $websiteCheckbox .= '<div class="col-4 py-1"><div style="float: left;height: auto;margin-right: 6px;"><input style="height:13px;" type="checkbox" name="website_name['.$website->id.']" value="'.$website->title.' - '.$request->cat_title.'"/></div> <div class=""  style="float: left;height: auto;margin-right: 6px;overflow-wrap: anywhere;width: 80%;">'.$website->website.'</div></div>';
+        }
+
+        $data['websiteCheckbox'] = $websiteCheckbox;
+        $data['bug_ids'] = implode(',', $bug_ids);
+        $data['bug_html'] = $bugs_html;
+
+        return response()->json(['code' => 200, 'data' => $data, 'message' => 'List of website!']);
+    }
+
+    public function taskCount($bug_id)
+    {
+        $model_site_development = SiteDevelopment::where('bug_id', $bug_id)->get()->toArray();
+
+        $site_developement_id = 0;
+        if (count($model_site_development) > 0) {
+            $site_developement_id = $model_site_development[0]['id'];
+        }
+
+        $taskStatistics['Devtask'] = DeveloperTask::where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select();
+
+        $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+        $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+        $taskStatistics = $query->get();
+        //print_r($taskStatistics);
+        $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
+        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+        $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+        $othertaskStatistics = $query1->get();
+        $merged = $othertaskStatistics->merge($taskStatistics);
+
+        return response()->json(['code' => 200, 'taskStatistics' => $merged]);
+    }
+
+    public function taskCount123($bug_id)
+    {
+        $users_info = \DB::select('SELECT * from users');
+        $users_info = json_decode(json_encode($users_info), true);
+        if (count($users_info) > 0) {
+            for ($i = 0; $i < count($users_info); $i++) {
+                $user_id = $users_info[$i]['id'];
+                $users[$user_id] = $users_info[$i];
+            }
+        }
+        $str = '<table class="table table-bordered table-striped"><tr><td><b>Sl. No.</b></td> <td><b>Date Time</b></td> <td><b>Old Assignee</b></td> <td><b>New Assignee</b></td></tr>';
+        $task_info = \DB::select("SELECT * from tasks where FIND_IN_SET($bug_id, task_bug_ids) limit 1 ");
+        $task_info = json_decode(json_encode($task_info), true);
+        if (count($task_info) > 0) {
+            $task_id = $task_info[0]['id'];
+            //$task_id = 15485;
+            $task_history_info = \DB::select("SELECT * from tasks_history  where task_id = '$task_id' ");
+            $task_history_info = json_decode(json_encode($task_history_info), true);
+            if (count($task_history_info) > 0) {
+                for ($j = 0; $j < count($task_history_info); $j++) {
+                    $m = $j + 1;
+                    $datetime = date('d-m-Y  H:i:s', strtotime($task_history_info[$j]['date_time']));
+                    $old_assignee = $task_history_info[$j]['old_assignee'];
+                    $old_assignee = $users[$old_assignee]['name'];
+
+                    $new_assignee = $task_history_info[$j]['new_assignee'];
+                    $new_assignee = $users[$new_assignee]['name'];
+                    $str .= '<tr><td>'.$m.'.</td><td>'.$datetime.'</td><td>'.$old_assignee.'</td><td>'.$new_assignee.'</td></tr> ';
+                }
+            } else {
+                $datetime = date('d-m-Y H:i:s', strtotime($task_info[0]['created_at']));
+                $new_assignee = $task_info[0]['assign_to'];
+                $new_assignee = $users[$new_assignee]['name'];
+                $str .= '<tr><td>1.</td><td>'.$datetime.'</td><td> - </td><td>'.$new_assignee.'</td></tr> ';
+            }
+        }
+
+        $str .= '</table>';
+
+        return response()->json(['code' => 200, 'taskStatistics' => $str]);
     }
 }

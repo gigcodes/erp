@@ -43,7 +43,7 @@ class UpdateLanguageToGroup extends Command
             'fields' => ['agent_priorities', 'routing_status'],
         ];
         $postData = json_encode($postData, true);
-        $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
         if ($result['err']) {
             dump(['status' => 'errors', 'errorMsg' => $result['err']], 403);
@@ -74,7 +74,7 @@ class UpdateLanguageToGroup extends Command
                         'language' => $lang_code,
                     ];
                     $postData = json_encode($postData, true);
-                    $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'PUT');
+                    $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'PUT');
                     $response = json_decode($result['response']);
                     if (! isset($response->error)) {
                         dump($g->id.' '.$g->name.' == '.$lang_code.' lang updated. ', $response);

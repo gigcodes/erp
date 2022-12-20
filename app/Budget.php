@@ -24,11 +24,11 @@ class Budget extends Model
 
     public function category()
     {
-        return $this->belongsTo('App\BudgetCategory', 'budget_category_id');
+        return $this->belongsTo(\App\BudgetCategory::class, 'budget_category_id');
     }
 
     public function subcategory()
     {
-        return $this->belongsTo('App\BudgetCategory', 'budget_subcategory_id');
+        return $this->belongsTo(\App\BudgetCategory::class, 'budget_subcategory_id');
     }
 }

@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\GoogleAddWord;
 
+use App\Http\Controllers\Controller;
 use Google\AdsApi\AdWords\AdWordsServices;
 use Google\AdsApi\AdWords\AdWordsSessionBuilder;
 use Google\AdsApi\AdWords\Query\v201809\ReportQueryBuilder;

@@ -28,7 +28,8 @@ use Carbon\Carbon;
 use DateTime;
 use DB;
 use Hash;
-use Illuminate\Http\Request; //Purpose : add MOdal - DEVTASK-4359
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr; //Purpose : add MOdal - DEVTASK-4359
 use Log;
 
 class UserController extends Controller
@@ -268,7 +269,7 @@ class UserController extends Controller
         if (! empty($input['password'])) {
             $input['password'] = Hash::make($input['password']);
         } else {
-            $input = array_except($input, ['password']);
+            $input = Arr::except($input, ['password']);
         }
 
         //START - Purpose : Set Email notification status - DEVTASK-4359
@@ -704,7 +705,7 @@ class UserController extends Controller
                     // send chat message
                     $chat_message = \App\ChatMessage::create($params);
                     // send
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
                 }
             }
 
@@ -775,7 +776,7 @@ class UserController extends Controller
                                     // send chat message
                                     $chat_message = \App\ChatMessage::create($params);
                                     // send
-                                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+                                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
                                 }
                             }
                         }

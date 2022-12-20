@@ -133,7 +133,7 @@ class RejectDuplicateImages extends Command
                     }
                 }
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             //\Log::info("Fix issue on Rejecte duplicate images => ".$e->getMessage());
         }
 

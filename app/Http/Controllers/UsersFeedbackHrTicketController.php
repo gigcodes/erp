@@ -54,7 +54,7 @@ class UsersFeedbackHrTicketController extends Controller
             $task->save();
 
             return response()->json(['code' => '200', 'data' => $task, 'message' => 'Data saved successfully']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => '500',  'message' => $e->getMessage()]);
         }
     }
@@ -73,7 +73,7 @@ class UsersFeedbackHrTicketController extends Controller
             ->where('feedback_cat_id', $request->id)->get();
 
             return response()->json(['code' => '200', 'data' => $task, 'message' => 'Ticket Details listed successfully']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => '500',  'message' => $e->getMessage()]);
         }
     }

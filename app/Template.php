@@ -30,6 +30,6 @@ class Template extends Model
 
     public function modifications()
     {
-        return $this->hasMany('App\TemplateModification', 'template_id', 'id');
+        return $this->hasMany(\App\TemplateModification::class, 'template_id', 'id');
     }
 }

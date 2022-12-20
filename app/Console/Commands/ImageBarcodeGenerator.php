@@ -6,7 +6,7 @@ use App\BarcodeMedia;
 use Carbon\Carbon;
 use File;
 use Illuminate\Console\Command;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ImageBarcodeGenerator extends Command
 {

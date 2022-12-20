@@ -1033,20 +1033,20 @@ class ProductPriceController extends Controller
         }
     }
 
-   public function update_store_website_product_segment($code, $segmentDiscount)
-   {
-       $ps = \App\StoreWebsiteProductPrice::select('store_website_product_prices.id', 'store_website_product_prices.duty_price', 'websites.code')
+    public function update_store_website_product_segment($code, $segmentDiscount)
+    {
+        $ps = \App\StoreWebsiteProductPrice::select('store_website_product_prices.id', 'store_website_product_prices.duty_price', 'websites.code')
        ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
        ->where('websites.code', strtolower($code))
        ->get(); //dd($ps);
-       if ($ps) {
-           foreach ($ps as $p) {
-               \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['segment_discount' => $segmentDiscount, 'status' => 0, 'created_at' => date('Y-m-d H:i:s')]);
-               //$note="Country Duty change  from ".$p->duty_price." To ".$amount;
-               //\App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
-           }
-       }
-   }
+        if ($ps) {
+            foreach ($ps as $p) {
+                \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['segment_discount' => $segmentDiscount, 'status' => 0, 'created_at' => date('Y-m-d H:i:s')]);
+                //$note="Country Duty change  from ".$p->duty_price." To ".$amount;
+                //\App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
+            }
+        }
+    }
 
     public function pushToMagento($productId, $websiteId)
     {
@@ -1082,15 +1082,15 @@ class ProductPriceController extends Controller
         }
     }
 
-   public function productUpdateLogs(Request $request)
-   {
-       $productLogs = ProductUpdateLog::leftJoin('users', 'users.id', '=', 'product_update_logs.created_by')
+    public function productUpdateLogs(Request $request)
+    {
+        $productLogs = ProductUpdateLog::leftJoin('users', 'users.id', '=', 'product_update_logs.created_by')
         ->select('product_update_logs.*', 'users.name as product_updated_by')->orderBy('product_update_logs.id', 'desc')->paginate(20);
 
-       if ($request->ajax()) {
-           return view('logging.partials.product_update_logs', compact('productLogs'));
-       }
+        if ($request->ajax()) {
+            return view('logging.partials.product_update_logs', compact('productLogs'));
+        }
 
-       return view('logging.product_update_logs', compact('productLogs'));
-   }
+        return view('logging.product_update_logs', compact('productLogs'));
+    }
 }

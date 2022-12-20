@@ -15,7 +15,7 @@ class PermissionCheckServiceProvider extends ServiceProvider
      */
     public function boot(ViewFactory $view)
     {
-        $view->composer('*', 'App\Http\Composers\GlobalComposer');
+        $view->composer('*', \App\Http\Composers\GlobalComposer::class);
     }
 
     /**

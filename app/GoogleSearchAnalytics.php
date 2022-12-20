@@ -10,6 +10,6 @@ class GoogleSearchAnalytics extends Model
 
     public function site()
     {
-        return $this->belongsTo('App\Site', 'site_id', 'id');
+        return $this->belongsTo(\App\Site::class, 'site_id', 'id');
     }
 }

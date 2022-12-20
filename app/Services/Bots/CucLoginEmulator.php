@@ -3,7 +3,6 @@
 namespace App\Services\Bots;
 
 use App\Brand;
-use App\Console\Commands\Bots\Chrome;
 use App\ScrapEntries;
 use NunoMaduro\LaravelConsoleDusk\Manager;
 use Wa72\HtmlPageDom\HtmlPageCrawler;

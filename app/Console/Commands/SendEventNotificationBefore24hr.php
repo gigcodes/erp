@@ -84,7 +84,7 @@ class SendEventNotificationBefore24hr extends Command
                         // send chat message
                         $chat_message = \App\ChatMessage::create($params);
                         // send
-                        app('App\Http\Controllers\WhatsAppController')
+                        app(\App\Http\Controllers\WhatsAppController::class)
                             ->sendWithWhatsApp($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
                     }
                 }
@@ -107,7 +107,7 @@ class SendEventNotificationBefore24hr extends Command
                         // send chat message
                         $chat_message = \App\ChatMessage::create($params);
                         // send
-                        app('App\Http\Controllers\WhatsAppController')
+                        app(\App\Http\Controllers\WhatsAppController::class)
                             ->sendWithWhatsApp($vendor->phone, $vendor->whatsapp_number, $params['message'], false, $chat_message->id);
                     }
                 }

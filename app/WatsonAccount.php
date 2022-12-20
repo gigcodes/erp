@@ -35,7 +35,7 @@ class WatsonAccount extends Model
 
     public function storeWebsite()
     {
-        return $this->belongsTo('App\StoreWebsite', 'store_website_id');
+        return $this->belongsTo(\App\StoreWebsite::class, 'store_website_id');
     }
 
     public static function getReply($message, $store_website_id = null)

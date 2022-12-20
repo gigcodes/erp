@@ -144,7 +144,7 @@ class DeliveryApprovalController extends Controller
 
                 $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
-                app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
 
                 $chat_message->update([
                     'approved' => 1,
@@ -161,7 +161,7 @@ class DeliveryApprovalController extends Controller
 
                 $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
-                app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
 
                 $chat_message->update([
                     'approved' => 1,

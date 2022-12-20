@@ -15,6 +15,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class TestSuitesController extends Controller
 {
@@ -107,10 +108,11 @@ class TestSuitesController extends Controller
 //            $bug->bug_status_id = BugStatus::where('id',$bug->bug_status_id)->value('name');
             $bug->bug_history = TestSuitesHistory::where('test_suites_id', $bug->id)->get();
             $bug->website = StoreWebsite::where('id', $bug->website)->value('title');
-            $bug->name_short = str_limit($bug->name, 5, '..');
-            $bug->test_cases_short = str_limit($bug->test_cases, 5, '..');
-            $bug->step_to_reproduce_short = str_limit($bug->step_to_reproduce, 5, '..');
-            $bug->url_short = str_limit($bug->url, 5, '..');
+            $bug->name_short = Str::limit($bug->name, 5, '..');
+            $bug->test_cases_short = Str::limit($bug->test_cases, 5, '..');
+            $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 5, '..');
+            $bug->url_short = Str::limit($bug->url, 5, '..');
+
 
             return $bug;
         });
@@ -173,20 +175,20 @@ class TestSuitesController extends Controller
         return response()->json(['code' => 200, 'data' => $records]);
     }
 
-   public function environment(Request $request)
-   {
-       $environment = $request->all();
-       $validator = Validator::make($environment, [
-           'name' => 'required|string',
-       ]);
-       if ($validator->fails()) {
-           return response()->json(['code' => 500, 'error' => 'Name is required']);
-       }
-       $data = $request->except('_token');
-       $records = BugEnvironment::create($data);
+    public function environment(Request $request)
+    {
+        $environment = $request->all();
+        $validator = Validator::make($environment, [
+            'name' => 'required|string',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['code' => 500, 'error' => 'Name is required']);
+        }
+        $data = $request->except('_token');
+        $records = BugEnvironment::create($data);
 
-       return response()->json(['code' => 200, 'data' => $records]);
-   }
+        return response()->json(['code' => 200, 'data' => $records]);
+    }
 
     public function type(Request $request)
     {

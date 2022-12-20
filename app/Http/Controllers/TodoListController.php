@@ -48,7 +48,7 @@ class TodoListController extends Controller
             }
 
             return view('todolist.index', compact('todolists', 'search_title', 'search_status', 'search_date', 'statuses'));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -83,7 +83,7 @@ class TodoListController extends Controller
             $this->createTodolistRemarkHistory($request, $todolists->id);
             //return response()->json(["code" => 200, "data" => $todolists, "message" => "Your Todo List has been created!"]);
             return redirect()->back()->with('success', 'Your Todo List has been created!');
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             //return response()->json(["code" => 500, "message" => $e->getMessage()]);
             return redirect()->back()->withErrors($e->getMessage());
         }
@@ -117,7 +117,7 @@ class TodoListController extends Controller
             $todolists = $todolists->orderBy('todo_lists.id', 'desc')->first();
 
             return response()->json(['code' => 200, 'data' => $todolists, 'message' => 'Your Todo List has been listed!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
@@ -145,7 +145,7 @@ class TodoListController extends Controller
             }
             //return response()->json(["code" => 200, "data" => $todolists, "message" => "Your Todo List has been created!"]);
             return redirect()->back()->with('success', 'Your Todo List has been Updated!');
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             //return response()->json(["code" => 500, "message" => $e->getMessage()]);
             return redirect()->back()->withErrors($e->getMessage());
         }
@@ -171,7 +171,7 @@ class TodoListController extends Controller
             $todoRemark->remark = $request->remark;
             $todoRemark->old_remark = $request->old_remark ?? '';
             $todoRemark->save();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
         }
     }
@@ -182,7 +182,7 @@ class TodoListController extends Controller
             $todoRemark = ToDoListRemarkHistoryLog::with('username')->where('todo_list_id', $request->id)->get()->toArray();
 
             return response()->json(['code' => 200, 'data' => $todoRemark, 'message' => 'Your Todo remark history has been list!']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
         }
     }
@@ -195,7 +195,7 @@ class TodoListController extends Controller
             $todoStatus->save();
 
             return redirect()->back()->with('success', 'Your Todo status has been Added!');
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
         }
     }

@@ -20,6 +20,7 @@ use App\HsCodeGroupsCategoriesComposition;
 use App\HsCodeSetting;
 use App\Http\Requests\Products\ProductTranslationRequest;
 use App\Jobs\PushToMagento;
+use App\Jobs\PushToMagentoJob;
 use App\Language;
 use App\ListingHistory;
 use App\Loggers\LogListMagento;
@@ -62,8 +63,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redirect;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Qoraiche\MailEclipse\MailEclipse;
 use seo2websites\MagentoHelper\MagentoHelper;
 
@@ -232,7 +233,7 @@ class ProductController extends Controller
             }
         }
         // Run through query helper
- //      $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts, true);
+        //      $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts, true);
         $term = $request->input('term');
         $brand = '';
         $category = '';
@@ -344,7 +345,7 @@ class ProductController extends Controller
         if ($request->get('user_id') > 0 && $request->get('submit_for_image_approval') == 'on') {
             $newProducts = $newProducts->Join('log_list_magentos as llm', function ($join) {
                 $join->on('llm.product_id', 'products.id');
-       //         ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.product_id = products.id)"));
+                //         ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.product_id = products.id)"));
             });
             $newProducts = $newProducts->where('llm.user_id', $request->get('user_id'));
             $newProducts = $newProducts->addSelect('llm.user_id as last_approve_user');
@@ -1434,6 +1435,92 @@ class ProductController extends Controller
         ]);
     }
 
+    public function magentoConditionsCheck(Request $request)
+    {
+        if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+            $products = Product::query();
+        } else {
+            $products = Product::query()->where('assigned_to', auth()->user()->id);
+        }
+        $products = $products->where(function ($query) {
+            $query->where('status_id', StatusHelper::$finalApproval);
+            $query->orWhere('status_id', StatusHelper::$productConditionsChecked);
+        });
+        $products = $products->where('is_conditions_checked', 1);
+        $products = $products->leftJoin('product_verifying_users as pvu', function ($join) {
+            $join->on('pvu.product_id', 'products.id');
+            $join->where('pvu.user_id', '!=', auth()->user()->id);
+        });
+
+        $products = $products->join('log_list_magentos as LLM', 'products.id', '=', 'LLM.product_id');
+        $products = $products->leftJoin('store_websites as SW', 'LLM.store_website_id', '=', 'SW.id');
+
+        $products = $products->leftJoin('status as s', function ($join) {
+            $join->on('products.status_id', 's.id');
+        });
+
+        $products = $products->where('isUploaded', 0);
+        $products = $products->orderBy('llm_id', 'desc');
+        $products = $products->select(['products.*', 's.name as product_status', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.title as sw_title'])->paginate(20);
+        $productsCount = $products->total();
+        $imageCropperRole = auth()->user()->hasRole('ImageCropers');
+        $categoryArray = Category::renderAsArray();
+        $colors = (new Colors)->all();
+        if (! Setting::has('auto_push_product')) {
+            $auto_push_product = Setting::add('auto_push_product', 0, 'int');
+        } else {
+            $auto_push_product = Setting::get('auto_push_product');
+        }
+        $users = User::all();
+
+        return view('products.magento_conditions_check.index', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
+    }
+
+    public function magentoPushStatus(Request $request)
+    {
+        if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+            $products = Product::query();
+        } else {
+            $products = Product::query()->where('assigned_to', auth()->user()->id);
+        }
+        $products = $products->where(function ($query) {
+            $query->where('status_id', StatusHelper::$pushToMagento);
+            $query->orWhere('status_id', StatusHelper::$inMagento);
+        });
+        $products = $products->where('is_push_attempted', 1);
+        $products = $products->leftJoin('product_verifying_users as pvu', function ($join) {
+            $join->on('pvu.product_id', 'products.id');
+            $join->where('pvu.user_id', '!=', auth()->user()->id);
+        });
+
+        $products = $products->leftJoin('status as s', function ($join) {
+            $join->on('products.status_id', 's.id');
+        });
+
+        $products = $products->where('isUploaded', 0);
+        $products = $products->select(['products.*', 's.name as product_status'])->paginate(10);
+
+        $productsCount = $products->total();
+        $imageCropperRole = auth()->user()->hasRole('ImageCropers');
+        $categoryArray = Category::renderAsArray();
+        $colors = (new Colors)->all();
+        if (! Setting::has('auto_push_product')) {
+            $auto_push_product = Setting::add('auto_push_product', 0, 'int');
+        } else {
+            $auto_push_product = Setting::get('auto_push_product');
+        }
+        $users = User::all();
+
+        return view('products.magento_push_status.index', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
+    }
+
+    public function magentoConditionsCheckLogs($id)
+    {
+        $logs = ProductPushErrorLog::where('log_list_magento_id', '=', $id)->get();
+
+        return response()->json(['code' => 200, 'data' => $logs]);
+    }
+
     /**
      * Display the specified resource.
      *
@@ -1776,8 +1863,9 @@ class ProductController extends Controller
     public function listMagento(Request $request, $id)
     {
         try {
-            //code...
+            // code...
             // Get product by ID
+            $mode = $request->get('mode', 'product-push');
             $product = Product::find($id);
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
             if (! empty($websiteArrays)) {
@@ -1790,7 +1878,7 @@ class ProductController extends Controller
                         $log->sync_status = 'waiting';
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
-                        PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
+                        PushToMagento::dispatch($product, $website, $log, $mode)->onQueue($log->queue);
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
                     } else {
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'success', $website->id, null, null, null, null);
@@ -1906,6 +1994,7 @@ class ProductController extends Controller
             try {
                 //code...
                 // Get product by ID
+                $mode = $request->get('mode', 'product-push');
                 $product = Product::find($id);
                 //check for hscode
                 $hsCode = $product->hsCode($product->category, $product->composition);
@@ -1935,7 +2024,7 @@ class ProductController extends Controller
                                 $log->sync_status = 'waiting';
                                 $log->queue = \App\Helpers::createQueueName($website->title);
                                 $log->save();
-                                PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
+                                PushToMagento::dispatch($product, $website, $log, $mode)->onQueue($log->queue);
                                 $i++;
                             }
                         }
@@ -3144,11 +3233,11 @@ class ProductController extends Controller
             $product->save();
         }
 
-        $mediables = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', 'App\Product')->where('tag', 'original')->get();
+        $mediables = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', \App\Product::class)->where('tag', 'original')->get();
 
         //deleting old images
 
-        $oldImages = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', 'App\Product')->where('tag', '!=', 'original')->get();
+        $oldImages = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', \App\Product::class)->where('tag', '!=', 'original')->get();
 
         //old scraped products
         if ($oldImages) {
@@ -4172,7 +4261,7 @@ class ProductController extends Controller
                 'log' => $log,
                 'type' => $type,
             ]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $prod = ProductSuggestedLog::create(['parent_id' => $parentId, 'log' => $e->getMessage(), 'type' => 'not catch']);
         }
     }
@@ -4210,7 +4299,7 @@ class ProductController extends Controller
 
                 return redirect()->route('customer.post.show', $prodSugId)->withSuccess('Message Send For Queue');
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $prod = ProductSuggestedLog::create(['parent_id' => $prodSugId, 'log' => $e->getMessage(), 'type' => 'not catch']);
         }
     }
@@ -4239,7 +4328,7 @@ class ProductController extends Controller
                 'status' => $request->status,
                 'type' => $request->type,
             ]);
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
 
             $json = request()->get('json', false);
             if ($json) {
@@ -4252,7 +4341,7 @@ class ProductController extends Controller
             }
 
             return redirect()->route('customer.post.show', $prodSugId)->withSuccess('Message Send Now on whatsapp');
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $prod = ProductSuggestedLog::create(['parent_id' => $prodSugId, 'log' => $e->getMessage(), 'type' => 'not catch']);
         }
     }
@@ -4708,7 +4797,8 @@ class ProductController extends Controller
         $brandIds = array_unique($webData->pluck('brandId')->toArray());
         $categoryIds = array_unique($webData->pluck('category_id')->toArray());*/
         $limit = $request->get('no_of_product', 100);
-
+        // Mode($mode) defines the whether it's a condition check or product push.
+        $mode = $request->get('mode', 'product-push');
         $products = Product::select('*')
             ->where('short_description', '!=', '')->where('name', '!=', '')
             ->where('status_id', StatusHelper::$finalApproval)
@@ -4716,6 +4806,7 @@ class ProductController extends Controller
             ->limit($limit)
             ->get();
         foreach ($products as $key => $product) {
+            // Setting is_conditions_checked flag as 1
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
 
             if (! empty($websiteArrays)) {
@@ -4723,14 +4814,14 @@ class ProductController extends Controller
                 foreach ($websiteArrays as $websiteArray) {
                     $website = StoreWebsite::find($websiteArray);
                     if ($website) {
-                        \Log::info('Product started website found For website'.$website->website);
+                        \Log::info('Product started website found For website '.$website->website);
                         $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
                         //currently we have 3 queues assigned for this task.
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
 
-                        PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
+                        PushToMagento::dispatch($product, $website, $log, $mode)->onQueue($log->queue);
                         $i++;
                     } else {
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', $website->id, null, null, null, null);
@@ -4741,7 +4832,112 @@ class ProductController extends Controller
             }
         }
 
-        return response()->json(['code' => 200, 'message' => 'Push product successfully']);
+        if ($mode == 'conditions-check') {
+            return response()->json(['code' => 200, 'message' => 'Conditions checked completed successfully!']);
+        } elseif ($mode == 'product-push') {
+            return response()->json(['code' => 200, 'message' => 'Push product successfully!']);
+        }
+    }
+
+    public function processProductsConditionsCheck(Request $request)
+    {
+        $limit = $request->get('no_of_product', 100);
+        // Mode($mode) defines the whether it's a condition check or product push.
+        $mode = $request->get('mode', 'product-push');
+
+        // Gets all products with final approval status
+        $products = Product::select('*')
+            ->where('short_description', '!=', '')->where('name', '!=', '')
+            ->where('status_id', StatusHelper::$finalApproval)
+            ->groupBy('brand', 'category')
+            ->limit($limit)
+            ->get();
+
+        foreach ($products as $key => $product) {
+            // Setting is_conditions_checked flag as 1
+            $productRow = Product::find($product->id);
+            $productRow->is_conditions_checked = 1;
+            $productRow->save();
+            \Log::info('Product conditions check started and is_conditions_checked set as 1!');
+
+            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+            \Log::info('Gets all websites to process the condition check of a product!');
+            if (! empty($websiteArrays)) {
+                $i = 1;
+                foreach ($websiteArrays as $websiteArray) {
+                    $website = StoreWebsite::find($websiteArray);
+                    if ($website) {
+                        \Log::info('Product conditions check started website found For website '.$website->website);
+                        $log = LogListMagento::log($product->id, 'Product conditions check started for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
+                        //currently we have 3 queues assigned for this task.
+                        $log->queue = \App\Helpers::createQueueName('magentoconditionscheckqueue');
+                        $log->save();
+                        ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name, 'success', $website->id, null, null, $log->id, null);
+                        PushToMagento::dispatch($product, $website, $log, $mode);
+                        $i++;
+                    } else {
+                        ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name.' website for product not found', 'error', $website->id, null, null, null, null);
+                    }
+                }
+            } else {
+                ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
+            }
+        }
+
+        if ($mode == 'conditions-check') {
+            return response()->json(['code' => 200, 'message' => 'Conditions checked completed successfully!']);
+        } elseif ($mode == 'product-push') {
+            return response()->json(['code' => 200, 'message' => 'Push product successfully!']);
+        }
+    }
+
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function pushProductsToMagento(Request $request)
+    {
+        $limit = $request->get('no_of_product', 100);
+        $products = Product::select('*')
+            ->where('short_description', '!=', '')->where('name', '!=', '')
+            ->where('status_id', StatusHelper::$productConditionsChecked)
+            ->groupBy('brand', 'category')
+            ->limit($limit)
+            ->get();
+        if ($products->count() == 0) {
+            return response()->json(['code' => 500, 'message' => 'No products found!']);
+        }
+
+        foreach ($products as $product) {
+            $productRow = Product::find($product->id);
+            $productRow->is_push_attempted = 1;
+            $productRow->save();
+
+            $category = $product->categories;
+            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+            if (! empty($websiteArrays)) {
+                $i = 1;
+                foreach ($websiteArrays as $websiteArray) {
+                    $website = StoreWebsite::find($websiteArray);
+                    if ($website) {
+                        \Log::info('Product started website found For website'.$website->website);
+                        $log = LogListMagento::log($product->id, 'Push to magento of conditions checked product with id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
+                        $log->queue = \App\Helpers::createQueueName($website->title);
+                        $log->save();
+                        ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
+
+                        PushToMagentoJob::dispatch($product, $website, $log, $category)->onQueue($log->queue);
+                        $i++;
+                    } else {
+                        ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', $website->id, null, null, null, null);
+                    }
+                }
+            } else {
+                ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
+            }
+        }
+
+        return response()->json(['code' => 200, 'message' => 'Product pushed to magento successfully!']);
     }
 
     public function pushToMagentoConditions(Request $request)
@@ -4870,14 +5066,14 @@ class ProductController extends Controller
         //  }
         $user = User::find($assigned_to);
         $params['erp_user'] = $assigned_to;
-        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
 
         $chat_message = ChatMessage::create($params);
 
         $myRequest = new Request();
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);
-        app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+        app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('task', $myRequest);
 
         $username = $user->name;
 
@@ -4943,14 +5139,14 @@ class ProductController extends Controller
         //  }
         $user = User::find($assigned_to);
         $params['erp_user'] = $assigned_to;
-        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
 
         $chat_message = ChatMessage::create($params);
 
         $myRequest = new Request();
         $myRequest->setMethod('POST');
         $myRequest->request->add(['messageId' => $chat_message->id]);
-        app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+        app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('task', $myRequest);
 
         $username = $user->name;
 
@@ -5687,7 +5883,7 @@ class ProductController extends Controller
                 $image_key = $imageDetails->getKey();
                 $media = Media::find($image_key);
                 if ($media) {
-                    $mediable = \App\Mediables::where('media_id', $media->id)->where('mediable_type', 'App\Product')->first();
+                    $mediable = \App\Mediables::where('media_id', $media->id)->where('mediable_type', \App\Product::class)->first();
                     if ($mediable) {
                         $exists = \App\SuggestedProductList::where('suggested_products_id', $new_suggestedproductid)->where('customer_id', $customerId)->where('product_id', $mediable->mediable_id)->where('date', date('Y-m-d'))->first();
                         if (! $exists) {
@@ -5958,7 +6154,7 @@ class ProductController extends Controller
         $customer = \App\Customer::find($request->customer_id);
 
         if ($customer && ! empty($request->product_id)) {
-            app('App\Http\Controllers\CustomerController')->dispatchBroadSendPrice($customer, array_unique([$request->product_id]), true);
+            app(\App\Http\Controllers\CustomerController::class)->dispatchBroadSendPrice($customer, array_unique([$request->product_id]), true);
         }
 
         return response()->json(['code' => 200, 'data' => [], 'message' => 'Lead price created']);
@@ -5990,7 +6186,7 @@ class ProductController extends Controller
     public function changeimageorder(Request $request)
     {
         if (! empty($request->mid) && ! empty($request->pid) && ! empty($request->val)) {
-            \App\Mediables::where('mediable_type', 'App\Product')->where('mediable_id', $request->pid)->where('media_id', $request->mid)->update(['order' => $request->val]);
+            \App\Mediables::where('mediable_type', \App\Product::class)->where('mediable_id', $request->pid)->where('media_id', $request->mid)->update(['order' => $request->val]);
 
             return response()->json(['code' => 200, 'data' => [], 'message' => 'order update successfully']);
         } else {

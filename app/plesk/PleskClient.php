@@ -20,7 +20,7 @@ class PleskClient extends \PleskX\Api\Client
     {
         $name = 'Server';
         if (! isset($this->_operatorsCache[$name])) {
-            $className = '\\App\\plesk\\PleskServer';
+            $className = \App\plesk\PleskServer::class;
             $this->_operatorsCache[$name] = new $className($this);
         }
 
@@ -31,7 +31,7 @@ class PleskClient extends \PleskX\Api\Client
     {
         $name = 'Mail';
         if (! isset($this->_operatorsCache[$name])) {
-            $className = '\\App\\plesk\\PleskMail';
+            $className = \App\plesk\PleskMail::class;
             $this->_operatorsCache[$name] = new $className($this);
         }
 

@@ -82,7 +82,7 @@ class AttachImagesSend implements ShouldQueue
                 'status' => $this->status,
                 'type' => $this->type,
             ]);
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
         } catch (\Exception $e) {
             \Log::info('Issue fom customer_message '.$e->getMessage());
             throw new \Exception($e->getMessage());

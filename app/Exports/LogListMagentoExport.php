@@ -14,8 +14,8 @@ class LogListMagentoExport implements FromArray, ShouldAutoSize
         $this->data = $data;
     }
 
-   public function array(): array
-   {
-       return  $this->data;
-   }
+    public function array(): array
+    {
+        return  $this->data;
+    }
 }

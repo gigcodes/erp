@@ -111,7 +111,7 @@ class SearchAttachedImagesNew implements ShouldQueue
                                 $this->first_time = false;
                                 $log_comment = $log_comment.'Suggested product created with customer_id : '.$chat_message ? $chat_message->customer_id : $customer_id.' and chat_message_id : '.$chat_message ? $chat_message->id : 0 .', ';
                             }
-                            $mediable = DB::table('mediables')->where('media_id', $m->id)->where('mediable_type', 'App\Product')->first();
+                            $mediable = DB::table('mediables')->where('media_id', $m->id)->where('mediable_type', \App\Product::class)->first();
                             if ($mediable) {
                                 $log_comment = $log_comment.'Mediables found for media_id : '.$m->id.', ';
                                 $log_params['customer_id'] = $chat_message ? $chat_message->customer_id : $customer_id;
@@ -139,7 +139,7 @@ class SearchAttachedImagesNew implements ShouldQueue
             }
 
             $log_comment = $log_comment.'Send with third party API initiated for number : '.$user->phone.', whatsapp number : '.$user->whatsapp_number.' and message : '.$msg.', ';
-            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
+            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
             $log_comment = $log_comment.'Send with third party API completed, ';
 
             $log_comment = $log_comment.' . ';

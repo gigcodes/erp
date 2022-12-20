@@ -45,8 +45,8 @@ use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Response;
 use Storage;
 
@@ -223,7 +223,7 @@ class DevelopmentController extends Controller
                 $params['message'] = $string;
                 $params['status'] = 2;
                 $requestData->request->add($params);
-                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'priority');
             }
         }
 
@@ -1514,7 +1514,7 @@ class DevelopmentController extends Controller
                 $params['message'] = $string;
                 $params['status'] = 2;
                 $requestData->request->add($params);
-                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'priority');
             }
         }
 
@@ -1899,7 +1899,7 @@ class DevelopmentController extends Controller
         $requestData = new Request();
         $requestData->setMethod('POST');
         $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
-        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+        app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
 
         MessageHelper::sendEmailOrWebhookNotification([
             $task->user_id,
@@ -2029,7 +2029,7 @@ class DevelopmentController extends Controller
         $requestData = new Request();
         $requestData->setMethod('POST');
         $requestData->request->add(['issue_id' => $task->id, 'message' => $request->input('issue'), 'status' => 1]);
-        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+        app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
 
         return redirect()->back()->with('success', 'You have successfully submitted an issue!');
     }
@@ -2250,7 +2250,7 @@ class DevelopmentController extends Controller
         $task = DeveloperTask::find($id);
         $task->completed = 1;
         $task->save();
-        $notifications = PushNotification::where('model_type', 'App\DeveloperTask')->where('model_id', $task->id)->where('isread', 0)->get();
+        $notifications = PushNotification::where('model_type', \App\DeveloperTask::class)->where('model_id', $task->id)->where('isread', 0)->get();
         foreach ($notifications as $notification) {
             $notification->isread = 1;
             $notification->save();
@@ -2265,7 +2265,7 @@ class DevelopmentController extends Controller
     public function verifyView(Request $request)
     {
         $task = DeveloperTask::find($request->id);
-        PushNotification::where('model_type', 'App\DeveloperTask')->where('model_id', $request->id)->delete();
+        PushNotification::where('model_type', \App\DeveloperTask::class)->where('model_id', $request->id)->delete();
         if ($request->tab) {
             $message = 'New Task to Verify';
             // NotificationQueueController::createNewNotification([
@@ -2517,7 +2517,7 @@ class DevelopmentController extends Controller
         $issue->save();
 
         $taskUser = new TaskUserHistory;
-        $taskUser->model = 'App\DeveloperTask';
+        $taskUser->model = \App\DeveloperTask::class;
         $taskUser->model_id = $issue->id;
         $taskUser->old_id = $old_id;
         $taskUser->new_id = $request->get('assigned_to');
@@ -2589,7 +2589,7 @@ class DevelopmentController extends Controller
         }
 
         $taskUser = new TaskUserHistory;
-        $taskUser->model = 'App\DeveloperTask';
+        $taskUser->model = \App\DeveloperTask::class;
         $taskUser->model_id = $issue->id;
         $taskUser->old_id = $old_id;
         $taskUser->new_id = $masterUserId;
@@ -2693,7 +2693,7 @@ class DevelopmentController extends Controller
         }
 
         $taskUser = new TaskUserHistory;
-        $taskUser->model = 'App\DeveloperTask';
+        $taskUser->model = \App\DeveloperTask::class;
         $taskUser->model_id = $issue->id;
         $taskUser->old_id = $old_id;
         $taskUser->new_id = $tester_id;
@@ -2864,7 +2864,7 @@ class DevelopmentController extends Controller
 
                 DeveloperTaskHistory::create([
                     'developer_task_id' => $issue->id,
-                    'model' => 'App\DeveloperTask',
+                    'model' => \App\DeveloperTask::class,
                     'attribute' => 'task_status',
                     'old_value' => $old_status,
                     'new_value' => $request->is_resolved,
@@ -2880,7 +2880,7 @@ class DevelopmentController extends Controller
 
             DeveloperTaskHistory::create([
                 'developer_task_id' => $issue->id,
-                'model' => 'App\DeveloperTask',
+                'model' => \App\DeveloperTask::class,
                 'attribute' => 'task_status',
                 'old_value' => $old_status,
                 'new_value' => $request->is_resolved,
@@ -2921,7 +2921,7 @@ class DevelopmentController extends Controller
             $task_history->new_value = $request->get('estimate_time');
             $task_history->user_id = Auth::user()->id();
             $task_history->developer_task_id = $request->name;
-            $task_history->model = 'App\DeveloperTask';
+            $task_history->model = \App\DeveloperTask::class;
             $result = $task_history->save();
         } else {
             $task_history = new DeveloperTaskHistory;
@@ -2931,7 +2931,7 @@ class DevelopmentController extends Controller
             $task_history->new_value = $request->get('estimate_time');
             $task_history->user_id = Auth::user()->id();
             $task_history->developer_task_id = $request->name;
-            $task_history->model = 'App\DeveloperTask';
+            $task_history->model = \App\DeveloperTask::class;
             $result = $task_history->save();
         }
 
@@ -2948,7 +2948,7 @@ class DevelopmentController extends Controller
                     'message' => 'Select one time first',
                 ], 500);
             }
-            DeveloperTaskHistory::where('developer_task_id', $request->developer_task_id)->where('attribute', 'estimation_minute')->where('model', 'App\DeveloperTask')->update(['is_approved' => 0]);
+            DeveloperTaskHistory::where('developer_task_id', $request->developer_task_id)->where('attribute', 'estimation_minute')->where('model', \App\DeveloperTask::class)->update(['is_approved' => 0]);
             $history = DeveloperTaskHistory::find($request->approve_time);
             $history->is_approved = 1;
             $history->save();
@@ -3031,19 +3031,19 @@ class DevelopmentController extends Controller
                 }
                 if (isset($chat)) {
                     if ($admin->phone) {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($admin->phone, $admin->whatsapp_number, $msg, false, $chat->id);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($admin->phone, $admin->whatsapp_number, $msg, false, $chat->id);
                     }
                     if ($user->phone) {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg, false, $chat->id);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg, false, $chat->id);
                     }
                     if ($master_user && $master_user->phone) {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($master_user->phone, $master_user->whatsapp_number, $msg, false, $chat->id);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($master_user->phone, $master_user->whatsapp_number, $msg, false, $chat->id);
                     }
                     if ($team_lead && $team_lead->phone) {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($team_lead->phone, $team_lead->whatsapp_number, $msg, false, $chat->id);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($team_lead->phone, $team_lead->whatsapp_number, $msg, false, $chat->id);
                     }
                     if ($tester && $tester->phone) {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($tester->phone, $tester->whatsapp_number, $msg, false, $chat->id);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($tester->phone, $tester->whatsapp_number, $msg, false, $chat->id);
                     }
                 }
             }
@@ -3071,7 +3071,7 @@ class DevelopmentController extends Controller
                     'developer_task_id' => $request->id,
                 ]);
 
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
 
                 MessageHelper::sendEmailOrWebhookNotification([$task->assigned_to, $task->team_lead_id, $task->tester_id], $msg);
             }
@@ -3098,7 +3098,7 @@ class DevelopmentController extends Controller
                     'status' => 0,
                     'developer_task_id' => $request->id,
                 ]);
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
 
                 MessageHelper::sendEmailOrWebhookNotification([$task->assigned_to, $task->team_lead_id, $task->tester_id], $msg);
             }
@@ -3488,7 +3488,7 @@ class DevelopmentController extends Controller
         $id = $request->id;
         $task_module = DeveloperTaskHistory::join('users', 'users.id', 'developer_tasks_history.user_id')
             ->where('developer_task_id', $id)
-            ->where('model', 'App\DeveloperTask')
+            ->where('model', \App\DeveloperTask::class)
             ->where('attribute', 'estimation_minute')
             ->select('developer_tasks_history.*', 'users.name')
             ->orderBy('id', 'DESC')
@@ -3519,9 +3519,9 @@ class DevelopmentController extends Controller
     public function getStatusHistory(Request $request)
     {
         $id = $request->id;
-        $type = "App\DeveloperTask";
+        $type = \App\DeveloperTask::class;
         if (isset($request->type) && $request->type == 'task') {
-            $type = "App\Task";
+            $type = \App\Task::class;
         }
         $task_module = DeveloperTaskHistory::join('users', 'users.id', 'developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model', $type)->where('attribute', 'task_status')->select('developer_tasks_history.*', 'users.name')->get();
         if ($task_module) {
@@ -3628,7 +3628,7 @@ class DevelopmentController extends Controller
         $developerTime = 0;
         $master_devTime = 0;
         $testerTime = 0;
-        $query = MeetingAndOtherTime::join('users', 'users.id', 'meeting_and_other_times.user_id')->where('model', 'App\DeveloperTask')->where('model_id', $request->issue_id);
+        $query = MeetingAndOtherTime::join('users', 'users.id', 'meeting_and_other_times.user_id')->where('model', \App\DeveloperTask::class)->where('model_id', $request->issue_id);
         $issue = DeveloperTask::find($request->issue_id);
         if ($request->type == 'admin') {
             $query = $query;
@@ -3647,11 +3647,11 @@ class DevelopmentController extends Controller
 
         $timings = $query->select('meeting_and_other_times.*', 'users.name')->get();
 
-        $developerTime = MeetingAndOtherTime::where('model', 'App\DeveloperTask')->where('model_id', $request->issue_id)->where('user_id', $issue->assigned_to)->where('approve', 1)->sum('time');
+        $developerTime = MeetingAndOtherTime::where('model', \App\DeveloperTask::class)->where('model_id', $request->issue_id)->where('user_id', $issue->assigned_to)->where('approve', 1)->sum('time');
 
-        $master_devTime = MeetingAndOtherTime::where('model', 'App\DeveloperTask')->where('model_id', $request->issue_id)->where('user_id', $issue->master_user_id)->where('approve', 1)->sum('time');
+        $master_devTime = MeetingAndOtherTime::where('model', \App\DeveloperTask::class)->where('model_id', $request->issue_id)->where('user_id', $issue->master_user_id)->where('approve', 1)->sum('time');
 
-        $testerTime = MeetingAndOtherTime::where('model', 'App\DeveloperTask')->where('model_id', $request->issue_id)->where('user_id', $issue->tester_id)->where('approve', 1)->sum('time');
+        $testerTime = MeetingAndOtherTime::where('model', \App\DeveloperTask::class)->where('model_id', $request->issue_id)->where('user_id', $issue->tester_id)->where('approve', 1)->sum('time');
 
         return response()->json(['timings' => $timings, 'issue_id' => $request->issue_id, 'developerTime' => $developerTime, 'master_devTime' => $master_devTime, 'testerTime' => $testerTime], 200);
     }
@@ -3661,7 +3661,7 @@ class DevelopmentController extends Controller
         if (! $request->task_id || $request->task_id == '' || ! $request->time || $request->time == '' || ! $request->user_type || $request->user_type == '' || ! $request->timing_type || $request->timing_type == '') {
             return response()->json(['message' => 'Incomplete data'], 500);
         }
-        $query = MeetingAndOtherTime::where('model', 'App\DeveloperTask')->where('model_id', $request->task_id)->where('type', $request->timing_type);
+        $query = MeetingAndOtherTime::where('model', \App\DeveloperTask::class)->where('model_id', $request->task_id)->where('type', $request->timing_type);
         $user_id = Auth::user()->id;
         $issue = DeveloperTask::find($request->task_id);
         if ($request->user_type == 'developer') {
@@ -3682,7 +3682,7 @@ class DevelopmentController extends Controller
             $oldValue = $time->time;
         }
         $time = new MeetingAndOtherTime;
-        $time->model = 'App\DeveloperTask';
+        $time->model = \App\DeveloperTask::class;
         $time->model_id = $request->task_id;
         $time->user_id = $user_id;
         $time->time = $request->time;
@@ -3705,7 +3705,7 @@ class DevelopmentController extends Controller
             }
             $time = MeetingAndOtherTime::find($request->approve_time);
 
-            MeetingAndOtherTime::where('model', 'App\DeveloperTask')->where('model_id', $time->model_id)->where('type', $time->type)->where('user_id', $time->user_id)->update(['approve' => 0]);
+            MeetingAndOtherTime::where('model', \App\DeveloperTask::class)->where('model_id', $time->model_id)->where('type', $time->type)->where('user_id', $time->user_id)->update(['approve' => 0]);
             $time->approve = 1;
             $time->save();
 
@@ -3717,7 +3717,7 @@ class DevelopmentController extends Controller
 
     public function getUserHistory(Request $request)
     {
-        $users = TaskUserHistory::where('model', 'App\DeveloperTask')->where('model_id', $request->id)->get();
+        $users = TaskUserHistory::where('model', \App\DeveloperTask::class)->where('model_id', $request->id)->get();
         foreach ($users as $u) {
             $old_name = null;
             $new_name = null;
@@ -3775,7 +3775,7 @@ class DevelopmentController extends Controller
             $requestData = new Request();
             $requestData->setMethod('POST');
             $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
 
             //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($task->assignedUser->phone, $task->assignedUser->whatsapp_number, $message);
         }
@@ -3852,9 +3852,9 @@ class DevelopmentController extends Controller
     public function getDateHistory(Request $request)
     {
         $id = $request->id;
-        $type = "App\DeveloperTask";
+        $type = \App\DeveloperTask::class;
         if (isset($request->type) && $request->type == 'task') {
-            $type = "App\Task";
+            $type = \App\Task::class;
         }
         $task_module = DeveloperTaskHistory::query()
             ->join('users', 'users.id', 'developer_tasks_history.user_id')
@@ -3955,7 +3955,7 @@ class DevelopmentController extends Controller
                 ChatMessage::create($params);
                 DeveloperTaskHistory::create([
                     'developer_task_id' => $single->id,
-                    'model' => 'App\DeveloperTask',
+                    'model' => \App\DeveloperTask::class,
                     'attribute' => 'cost',
                     'old_value' => $old,
                     'new_value' => $new,
@@ -3991,7 +3991,7 @@ class DevelopmentController extends Controller
 
             DeveloperTaskHistory::create([
                 'developer_task_id' => $issue->id,
-                'model' => 'App\DeveloperTask',
+                'model' => \App\DeveloperTask::class,
                 'attribute' => 'estimation_minute',
                 'old_value' => $issue->estimate_minutes,
                 'new_value' => $new,
@@ -4018,7 +4018,7 @@ class DevelopmentController extends Controller
                         'status' => 0,
                         'developer_task_id' => $issue->id,
                     ]);
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
                     MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to, $issue->team_lead_id, $issue->tester_id], $msg);
                 }
             }
@@ -4035,7 +4035,7 @@ class DevelopmentController extends Controller
 
         DeveloperTaskHistory::create([
             'developer_task_id' => $issue->id,
-            'model' => 'App\DeveloperTask',
+            'model' => \App\DeveloperTask::class,
             'attribute' => 'lead_estimation_minute',
             'old_value' => $issue->lead_estimate_time,
             'new_value' => request('lead_estimate_time'),
@@ -4080,7 +4080,7 @@ class DevelopmentController extends Controller
     public function historySimpleData($key, $id)
     {
         $list = DeveloperTaskHistory::with('user')
-            ->where('model', 'App\DeveloperTask')
+            ->where('model', \App\DeveloperTask::class)
             ->where('attribute', $key)
             ->where('developer_task_id', $id)->orderBy('id', 'DESC')->get();
 
@@ -4185,7 +4185,7 @@ class DevelopmentController extends Controller
             $q->leftJoin('developer_tasks_history as t2', function ($join) {
                 $join->on('t1.parent_id', '=', 't2.id');
             });
-            $q->where('t2.model', 'App\DeveloperTask');
+            $q->where('t2.model', \App\DeveloperTask::class);
             $q->where('t2.attribute', $type);
             $q->where('t2.developer_task_id', $taskId);
             $q->select([

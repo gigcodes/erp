@@ -22,7 +22,7 @@ use Crypt;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ContentManagementController extends Controller
 {
@@ -275,82 +275,82 @@ class ContentManagementController extends Controller
         return response()->json(['code' => 200, 'messages' => 'Category Edited Sucessfully']);
     }
 
-        public function showHistory(Request $request)
-        {
-            $social_content = StoreSocialContent::where('store_social_content_category_id', $request->category)->where('store_website_id', $request->websiteId)->first();
-            if ($social_content) {
-                $h = StoreSocialContentHistory::where('store_social_content_id', $social_content->id)->where('type', $request->type)->get();
+    public function showHistory(Request $request)
+    {
+        $social_content = StoreSocialContent::where('store_social_content_category_id', $request->category)->where('store_website_id', $request->websiteId)->first();
+        if ($social_content) {
+            $h = StoreSocialContentHistory::where('store_social_content_id', $social_content->id)->where('type', $request->type)->get();
 
-                return response()->json(['history' => $h], 200);
-            }
-
-            return response()->json(['message' => ''], 500);
+            return response()->json(['history' => $h], 200);
         }
 
-        public function uploadDocuments(Request $request)
-        {
-            $path = storage_path('tmp/uploads');
+        return response()->json(['message' => ''], 500);
+    }
 
-            if (! file_exists($path)) {
-                mkdir($path, 0777, true);
-            }
+    public function uploadDocuments(Request $request)
+    {
+        $path = storage_path('tmp/uploads');
 
-            $file = $request->file('file');
-
-            $name = uniqid().'_'.trim($file->getClientOriginalName());
-
-            $file->move($path, $name);
-
-            return response()->json([
-                'name' => $name,
-                'original_name' => $file->getClientOriginalName(),
-            ]);
+        if (! file_exists($path)) {
+            mkdir($path, 0777, true);
         }
 
-        public function saveDocuments(Request $request)
-        {
-            $site = null;
+        $file = $request->file('file');
 
-            if (! $request->task_id || $request->task_id == '') {
-                return response()->json(['code' => 500, 'data' => [], 'message' => 'Select one task']);
+        $name = uniqid().'_'.trim($file->getClientOriginalName());
+
+        $file->move($path, $name);
+
+        return response()->json([
+            'name' => $name,
+            'original_name' => $file->getClientOriginalName(),
+        ]);
+    }
+
+    public function saveDocuments(Request $request)
+    {
+        $site = null;
+
+        if (! $request->task_id || $request->task_id == '') {
+            return response()->json(['code' => 500, 'data' => [], 'message' => 'Select one task']);
+        }
+        $documents = $request->input('document', []);
+        if (! empty($documents)) {
+            if ($request->id) {
+                $site = StoreSocialContent::find($request->id);
             }
-            $documents = $request->input('document', []);
-            if (! empty($documents)) {
-                if ($request->id) {
-                    $site = StoreSocialContent::find($request->id);
-                }
 
-                if (! $site || $request->id == null) {
-                    $site = new StoreSocialContent;
-                    $site->store_social_content_status_id = 0;
-                    $site->store_website_id = $request->store_website_id;
-                    $site->store_social_content_category_id = $request->store_social_content_category_id;
-                    $site->save();
-                }
-                $count = 0;
-                foreach ($request->input('document', []) as $file) {
-                    $path = storage_path('tmp/uploads/'.$file);
-                    $media = MediaUploader::fromSource($path)
+            if (! $site || $request->id == null) {
+                $site = new StoreSocialContent;
+                $site->store_social_content_status_id = 0;
+                $site->store_website_id = $request->store_website_id;
+                $site->store_social_content_category_id = $request->store_social_content_category_id;
+                $site->save();
+            }
+            $count = 0;
+            foreach ($request->input('document', []) as $file) {
+                $path = storage_path('tmp/uploads/'.$file);
+                $media = MediaUploader::fromSource($path)
                         ->toDirectory('site-development/'.floor($site->id / config('constants.image_per_folder')))
                         ->upload();
-                    $site->attachMedia($media, config('constants.media_tags'));
-                    $count++;
-                }
-                $task = Task::find($request->task_id);
-                if ($task && $task->is_milestone) {
-                    $content_milestone = new StoreSocialContentMilestone;
-                    $content_milestone->task_id = $request->task_id;
-                    $content_milestone->ono_of_content = $count;
-                    $content_milestone->store_social_content_id = $site->id;
-                    $content_milestone->status = 0;
-                    $content_milestone->save();
-                }
-
-                return response()->json(['code' => 200, 'data' => [], 'message' => 'Done!']);
-            } else {
-                return response()->json(['code' => 500, 'data' => [], 'message' => 'No documents for upload']);
+                $site->attachMedia($media, config('constants.media_tags'));
+                $count++;
             }
+            $task = Task::find($request->task_id);
+            if ($task && $task->is_milestone) {
+                $content_milestone = new StoreSocialContentMilestone;
+                $content_milestone->task_id = $request->task_id;
+                $content_milestone->ono_of_content = $count;
+                $content_milestone->store_social_content_id = $site->id;
+                $content_milestone->status = 0;
+                $content_milestone->save();
+            }
+
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'Done!']);
+        } else {
+            return response()->json(['code' => 500, 'data' => [], 'message' => 'No documents for upload']);
         }
+    }
 
     public function listDocuments(Request $request, $id)
     {

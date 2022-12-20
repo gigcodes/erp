@@ -91,19 +91,19 @@ class FcmNotificationController extends Controller
         //
     }
 
-     /**
-      * Show the form for editing the specified resource.
-      *
-      * @param  int  $id
-      * @return \Illuminate\Http\Response
-      */
-     public function edit($id)
-     {
-         $StoreWebsite = StoreWebsite::select('id', 'website')->groupBy('website')->get();
-         $Notification = PushFcmNotification::where('id', $id)->first();
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $StoreWebsite = StoreWebsite::select('id', 'website')->groupBy('website')->get();
+        $Notification = PushFcmNotification::where('id', $id)->first();
 
-         return view('pushfcmnotification.edit', compact('StoreWebsite', 'Notification'));
-     }
+        return view('pushfcmnotification.edit', compact('StoreWebsite', 'Notification'));
+    }
 
     /**
      * Update the specified resource in storage.

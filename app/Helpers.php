@@ -396,11 +396,28 @@ class Helpers
             'thefitedit',
             'perfumeedit',
             'luxuryunlimited',
-            'italybrandoutlets', 'demostore',
+            'italybrandoutlets',
+            'demostore',
+            'magentoconditionscheckqueue',
         ];
 
         $mainQueue = [
-            'fetch_email', 'product', 'magento', 'mageone', 'magetwo', 'magethree', 'supplier_products', 'customer_message', 'watson_push', 'email', 'high', 'image_search', 'command_execution', 'failed_magento_job', 'send_email',
+            'fetch_email',
+            'product',
+            'magento',
+            'mageone',
+            'magetwo',
+            'magethree',
+            'supplier_products',
+            'customer_message',
+            'watson_push',
+            'email',
+            'high',
+            'image_search',
+            'command_execution',
+            'failed_magento_job',
+            'send_email',
+            'magentoconditionscheckqueue',
         ];
 
         $queue = array_merge($webpushQueue, $mainQueue);

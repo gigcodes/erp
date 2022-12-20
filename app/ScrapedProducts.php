@@ -199,7 +199,7 @@ class ScrapedProducts extends Model
 
     public function product()
     {
-        return $this->hasOne('App\Product', 'id', 'product_id');
+        return $this->hasOne(\App\Product::class, 'id', 'product_id');
     }
 
     public static function matchedColors($name)

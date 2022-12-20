@@ -32,6 +32,8 @@ class MagentoService
 
     public $log;
 
+    public $mode;
+
     public $categories;
 
     public $brand;
@@ -100,11 +102,12 @@ class MagentoService
 
     const SKU_SEPERATOR = '-';
 
-    public function __construct(Product $product, StoreWebsite $storeWebsite, $log = null)
+    public function __construct(Product $product, StoreWebsite $storeWebsite, $log = null, $mode = null)
     {
         $this->product = $product;
         $this->storeWebsite = $storeWebsite;
         $this->log = $log;
+        $this->mode = $mode;
         $this->charity = 0;
         $p = \App\CustomerCharity::where('product_id', $this->product->id)->first();
         if ($p) {
@@ -297,7 +300,15 @@ class MagentoService
 
         \Log::info($this->product->id.' #19 => '.date('Y-m-d H:i:s'));
 
-        return $this->assignProductOperation();
+        if ($this->mode == 'conditions-check') {
+            $productRow = Product::find($this->product->id);
+            $productRow->status_id = StatusHelper::$productConditionsChecked;
+            $productRow->save();
+
+            return true;
+        } elseif ($this->mode == 'product-push') {
+            return $this->assignProductOperation();
+        }
     }
 
     private function getActiveLanguages()
@@ -452,7 +463,7 @@ class MagentoService
         return $sku;
     }
 
-    private function assignProductOperation()
+    public function assignProductOperation()
     {
         $product = $this->product;
         $brand = $this->brand;
@@ -813,7 +824,7 @@ class MagentoService
         \Log::channel('listMagento')->info(json_encode([$url, $token, $data, $result, 'setSimpleProductToConfig']));
         $response = json_decode($result);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'POST', $data, json_decode($result), $httpcode, 'setSimpleSingleProductToConfig', 'App\Library\Magento\MagentoService');
+        LogRequest::log($startTime, $url, 'POST', $data, json_decode($result), $httpcode, 'setSimpleSingleProductToConfig', \App\Library\Magento\MagentoService::class);
 
         \Log::info(print_r([$url, $token, $data, $result], true));
     }
@@ -860,7 +871,7 @@ class MagentoService
             $result = curl_exec($ch);
 
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'POST', $data, json_decode($result), $httpcode, 'sendConfigurableOptions', 'App\Library\Magento\MagentoService');
+            LogRequest::log($startTime, $url, 'POST', $data, json_decode($result), $httpcode, 'sendConfigurableOptions', \App\Library\Magento\MagentoService::class);
             $err = curl_error($ch);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             \Log::info(print_r([$url, $token, $data, $result], true));
@@ -897,7 +908,7 @@ class MagentoService
         $res = curl_exec($ch);
 
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, $type, json_encode($productData), json_decode($res), $httpcode, 'sendRequest', 'App\Library\Magento\MagentoService');
+        LogRequest::log($startTime, $url, $type, json_encode($productData), json_decode($res), $httpcode, 'sendRequest', \App\Library\Magento\MagentoService::class);
         if ($httpcode != 200) {
             if ($this->log) {
                 $this->log->message = $res;

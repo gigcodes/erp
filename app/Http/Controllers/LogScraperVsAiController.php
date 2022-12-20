@@ -6,7 +6,7 @@ use App\LogScraperVsAi;
 use App\Product;
 use Illuminate\Http\Request;
 
-class logScraperVsAiController extends Controller
+class LogScraperVsAiController extends Controller
 {
     public function index(Request $request)
     {

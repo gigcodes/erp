@@ -45,7 +45,7 @@ class ReviewController extends Controller
         $users_array = Helpers::getUserArray(User::all());
 
         // $revs = Review::all();
-      //
+        //
         // foreach ($revs as $rev) {
         //   // $rev->is_approved = $rev->status;
         //   // $rev->account_id = $rev->account_id;
@@ -89,7 +89,7 @@ class ReviewController extends Controller
 
         // $review_schedules = $review_schedules->orWhere(function ($query) {
         //   return $query->where('status', 'posted')->whereHas('Reviews', function ($q) {
-      //     return $q->where('is_approved', 0)->orWhere('is_approved', 2);
+        //     return $q->where('is_approved', 0)->orWhere('is_approved', 2);
         //   });
         // })
         $review_schedules = DB::table('brand_reviews')->orderBy('created_at', 'ASC');
@@ -204,7 +204,7 @@ class ReviewController extends Controller
         // dd($request->review[0]);
 
         // preg_match_all('/(#\w*)/', $request->review[0], $match);
-      //
+        //
         // dd($match);
 
         $review_schedule = ReviewSchedule::create($data);
@@ -397,11 +397,11 @@ class ReviewController extends Controller
         // $review_schedule = ReviewSchedule::find($id);
         // $review_schedule->status = $request->status;
         // $review_schedule->save();
-      //
+        //
         // foreach ($review_schedule->reviews as $review) {
         //   if ($review_schedule->status == 'posted' && $review->is_approved == 1) {
-      //     $review->status = 'posted';
-      //     $review->save();
+        //     $review->status = 'posted';
+        //     $review->save();
         //   }
         // }
 
@@ -420,8 +420,8 @@ class ReviewController extends Controller
 
         // foreach ($review_schedule->reviews as $review) {
         //   if ($review_schedule->status == 'posted' && $review->is_approved == 1) {
-      //     $review->status = 'posted';
-      //     $review->save();
+        //     $review->status = 'posted';
+        //     $review->save();
         //   }
         // }
 
@@ -455,13 +455,13 @@ class ReviewController extends Controller
     public function scheduleDestroy($id)
     {
         // $schedule = ReviewSchedule::find($id);
-      //
+        //
         // foreach ($schedule->reviews as $review) {
         //   $review->delete();
         // }
-      //
+        //
         // $schedule->delete();
-      //
+        //
         // return redirect()->route('review.index')->withSuccess('You have successfully deleted scheduled review!');
 
         $review = Review::find($id);

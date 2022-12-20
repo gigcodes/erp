@@ -383,7 +383,7 @@ class LaravelLogController extends Controller
                 'assigned_to' => $request->get('assign_to'),
             ]);
 
-            app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+            app(\App\Http\Controllers\DevelopmentController::class)->issueStore($requestData, 'issue');
 
             return redirect()->route('logging.live.logs');
         }

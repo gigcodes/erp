@@ -32,12 +32,12 @@ class Refund extends Model
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer');
+        return $this->belongsTo(\App\Customer::class);
     }
 
     public function order()
     {
-        return $this->belongsTo('App\Order');
+        return $this->belongsTo(\App\Order::class);
     }
 
     protected $dispatchesEvents = [

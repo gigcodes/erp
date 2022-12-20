@@ -22,14 +22,14 @@ class CustomerCharity extends Model
     public function whatsappAll($needBroadCast = false)
     {
         if ($needBroadCast) {
-            return $this->hasMany('App\ChatMessage', 'charity_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
+            return $this->hasMany(\App\ChatMessage::class, 'charity_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
         }
 
-        return $this->hasMany('App\ChatMessage', 'charity_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+        return $this->hasMany(\App\ChatMessage::class, 'charity_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
     public function storeWebsites()
     {
-        return $this->hasMany('App\CustomerCharityWebsiteStore', 'customer_charity_id', 'id');
+        return $this->hasMany(\App\CustomerCharityWebsiteStore::class, 'customer_charity_id', 'id');
     }
 }

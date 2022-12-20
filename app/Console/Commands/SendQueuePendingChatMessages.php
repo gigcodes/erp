@@ -159,7 +159,7 @@ class SendQueuePendingChatMessages extends Command
                                     $myRequest = new Request();
                                     $myRequest->setMethod('POST');
                                     $myRequest->request->add(['messageId' => $value->id]);
-                                    app('App\Http\Controllers\WhatsAppController')->approveMessage('customer', $myRequest);
+                                    app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('customer', $myRequest);
 
                                     $dataInsert = [
                                         'counter' => $sendLimit,
@@ -240,7 +240,7 @@ class SendQueuePendingChatMessages extends Command
                                 $myRequest = new Request();
                                 $myRequest->setMethod('POST');
                                 $myRequest->request->add(['messageId' => $value->id]);
-                                app('App\Http\Controllers\WhatsAppController')->approveMessage('vendor', $myRequest);
+                                app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('vendor', $myRequest);
                             }
                         }
                     }

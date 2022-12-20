@@ -138,17 +138,17 @@ class DeveloperTask extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 
     public function development_details()
     {
-        return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-detail')->latest();
+        return $this->hasMany(\App\Remark::class, 'taskid')->where('module_type', 'task-detail')->latest();
     }
 
     public function development_discussion()
     {
-        return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-discussion')->latest();
+        return $this->hasMany(\App\Remark::class, 'taskid')->where('module_type', 'task-discussion')->latest();
     }
 
     public function messages()
@@ -184,10 +184,10 @@ class DeveloperTask extends Model
     public function whatsappAll($needBroadCast = false)
     {
         if ($needBroadCast) {
-            return $this->hasMany('App\ChatMessage', 'developer_task_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
+            return $this->hasMany(\App\ChatMessage::class, 'developer_task_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
         }
 
-        return $this->hasMany('App\ChatMessage', 'developer_task_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+        return $this->hasMany(\App\ChatMessage::class, 'developer_task_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
     public function countUserTaskFromReference($id)
@@ -213,7 +213,7 @@ class DeveloperTask extends Model
     public function timeSpent()
     {
         return $this->hasOne(
-            'App\Hubstaff\HubstaffActivity',
+            \App\Hubstaff\HubstaffActivity::class,
             'task_id',
             'hubstaff_task_id'
         )
@@ -224,7 +224,7 @@ class DeveloperTask extends Model
     public function leadtimeSpent()
     {
         return $this->hasOne(
-            'App\Hubstaff\HubstaffActivity',
+            \App\Hubstaff\HubstaffActivity::class,
             'task_id',
             'lead_hubstaff_task_id'
         )
@@ -235,7 +235,7 @@ class DeveloperTask extends Model
     public function testertimeSpent()
     {
         return $this->hasOne(
-            'App\Hubstaff\HubstaffActivity',
+            \App\Hubstaff\HubstaffActivity::class,
             'task_id',
             'tester_hubstaff_task_id'
         )
@@ -288,7 +288,7 @@ class DeveloperTask extends Model
         if ($oldValue != $newValue) {
             DeveloperTaskHistory::create([
                 'developer_task_id' => $this->id,
-                'model' => 'App\DeveloperTask',
+                'model' => \App\DeveloperTask::class,
                 'attribute' => $type,
                 'old_value' => $oldValue,
                 'new_value' => $newValue,
@@ -303,7 +303,7 @@ class DeveloperTask extends Model
         $old = $this->start_date;
 
         $count = DeveloperTaskHistory::query()
-            ->where('model', 'App\DeveloperTask')
+            ->where('model', \App\DeveloperTask::class)
             ->where('attribute', $type)
             ->where('developer_task_id', $this->id)
             ->count();
@@ -322,7 +322,7 @@ class DeveloperTask extends Model
         $old = $this->estimate_date;
 
         $count = DeveloperTaskHistory::query()
-            ->where('model', 'App\DeveloperTask')
+            ->where('model', \App\DeveloperTask::class)
             ->where('attribute', $type)
             ->where('developer_task_id', $this->id)
             ->count();

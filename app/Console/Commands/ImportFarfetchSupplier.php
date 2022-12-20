@@ -104,7 +104,7 @@ class ImportFarfetchSupplier extends Command
                     if (! $agentPhone) {
                         $agent = new Agent();
                         $agent->model_id = $existingSupplier->id;
-                        $agent->model_type = 'App\Supplier';
+                        $agent->model_type = \App\Supplier::class;
                         $agent->name = 'N/A';
                         $agent->phone = trim($supplier->phone);
                         $agent->email = trim($supplier->email);
@@ -117,7 +117,7 @@ class ImportFarfetchSupplier extends Command
                     if (! $email) {
                         $agent = new Agent();
                         $agent->model_id = $existingSupplier->id;
-                        $agent->model_type = 'App\Supplier';
+                        $agent->model_type = \App\Supplier::class;
                         $agent->name = 'N/A';
                         $agent->phone = trim($supplier->phone);
                         $agent->email = trim($supplier->email);

@@ -14,8 +14,8 @@ use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManagerStatic as Image;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class TemplatesController extends Controller
 {
@@ -60,25 +60,25 @@ class TemplatesController extends Controller
 
         // foreach ($request->modifications_array as $key => $row) {
 
-         //    foreach ($row as $tag => $value) {
+        //    foreach ($row as $tag => $value) {
 
-         //       if($tag !=='image_url')
-         //       {
-         //          $new_row[$tag]=$value;
-         //       }
-         //       else
-         //       {
+        //       if($tag !=='image_url')
+        //       {
+        //          $new_row[$tag]=$value;
+        //       }
+        //       else
+        //       {
 
-         //             $image=$request->file('files')[$key]['image_url'];
+        //             $image=$request->file('files')[$key]['image_url'];
 
-         //             $media = MediaUploader::fromSource($image)->toDirectory('template-images')->upload();
+        //             $media = MediaUploader::fromSource($image)->toDirectory('template-images')->upload();
 
-         //             $new_row[$tag]=($media) ? $media->getUrl() : "";
+        //             $new_row[$tag]=($media) ? $media->getUrl() : "";
 
-         //       }
-         //    }
+        //       }
+        //    }
 
-         //    $new_modification_array[]=$new_row;
+        //    $new_modification_array[]=$new_row;
 
         // }
 
@@ -274,7 +274,7 @@ class TemplatesController extends Controller
                         if ($product->getMedia(config('constants.media_tags'))->count() != 0) {
                             $oldTemplate = ProductTemplate::where('template_no', $template->id)->where('type', 1)->orderBy('id', 'desc')->first();
                             if ($oldTemplate != null) {
-                                $mediable = DB::table('mediables')->where('mediable_type', 'App\ProductTemplate')->where('mediable_id', $oldTemplate->id)->count();
+                                $mediable = DB::table('mediables')->where('mediable_type', \App\ProductTemplate::class)->where('mediable_id', $oldTemplate->id)->count();
                                 if ($template->no_of_images == $mediable) {
                                     //check if Product Template Already Exist
                                     $temp = ProductTemplate::where('template_no', $template->id)->where('brand_id', $product->brand)->where('category_id', $product->category)->where('is_processed', 0)->where('type', 1)->count();

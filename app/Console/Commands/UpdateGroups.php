@@ -70,7 +70,7 @@ class UpdateGroups extends Command
             'fields' => ['agent_priorities', 'routing_status'],
         ];
         $postData = json_encode($postData, true);
-        $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
         if ($result['err']) {
             dump(['status' => 'errors', 'errorMsg' => $result['err']], 403);
         } else {
@@ -86,7 +86,7 @@ class UpdateGroups extends Command
                         'id' => $g->id,
                     ];
                     $postData = json_encode($postData, true);
-                    $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                    $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
                     if ($result['err']) {
                         return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
@@ -144,7 +144,7 @@ class UpdateGroups extends Command
             ];
 
             $postData = json_encode($postData, true);
-            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+            $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
             if ($result['err']) {
                 dump(['name' => $web_name, 'status' => 'errors', 'errorMsg' => $result['err']], 403);
             } else {
@@ -218,7 +218,7 @@ class UpdateGroups extends Command
                     'fields' => ['agent_priorities', 'routing_status'],
                 ];
                 $postData = json_encode($postData, true);
-                $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
                 if ($result['err']) {
                     dump(['status' => 'errors', 'errorMsg' => $result['err']], 403);

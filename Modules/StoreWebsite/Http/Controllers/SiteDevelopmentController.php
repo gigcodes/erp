@@ -20,7 +20,7 @@ use Auth;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class SiteDevelopmentController extends Controller
 {
@@ -335,7 +335,7 @@ class SiteDevelopmentController extends Controller
             }
 
             if ($params) {
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
 
                 return response()->json([
                     'message' => 'Successfully Send File',

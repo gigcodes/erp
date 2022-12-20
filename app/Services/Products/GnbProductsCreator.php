@@ -7,8 +7,8 @@ use App\Product;
 use App\ScrapActivity;
 use App\Setting;
 use App\Supplier;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Storage;
 use Validator;
 
@@ -25,11 +25,11 @@ class GnbProductsCreator
         if ($validator->fails()) {
             $product = Product::where('sku', $image->sku)->first();
             // $params = [
-           //     'website'             => 'Tory',
-           //     'scraped_product_id'  => $image->id,
-           //     'status'              => 1
+            //     'website'             => 'Tory',
+            //     'scraped_product_id'  => $image->id,
+            //     'status'              => 1
             // ];
-           //
+            //
             // ScrapActivity::create($params);
             $old_supplier = $product->supplier;
         } else {

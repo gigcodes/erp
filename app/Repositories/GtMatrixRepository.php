@@ -189,7 +189,7 @@ class GtMatrixRepository
             $GTError->error_title = $error_title;
             $GTError->error = $error;
             $GTError->save();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $GTError = new GTMatrixErrorLog();
             $GTError->store_viewGTM_id = $store_viewGTM_id;
             $GTError->error_type = $erro_type;

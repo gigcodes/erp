@@ -50,17 +50,17 @@ class ProductTemplate extends Model
 
     public function brand()
     {
-        return $this->hasOne("\App\Brand", 'id', 'brand_id');
+        return $this->hasOne(\App\Brand::class, 'id', 'brand_id');
     }
 
     public function category()
     {
-        return $this->hasOne("\App\Category", 'id', 'category_id');
+        return $this->hasOne(\App\Category::class, 'id', 'category_id');
     }
 
     public function template()
     {
-        return $this->hasOne("\App\Template", 'id', 'template_no');
+        return $this->hasOne(\App\Template::class, 'id', 'template_no');
     }
 
     public function storeWebsite()

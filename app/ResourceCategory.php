@@ -30,7 +30,7 @@ class ResourceCategory extends Model
 
     public function parent()
     {
-        return $this->hasOne('App\ResourceCategory', 'id', 'parent_id');
+        return $this->hasOne(\App\ResourceCategory::class, 'id', 'parent_id');
     }
 
     public static function isParent($id)
