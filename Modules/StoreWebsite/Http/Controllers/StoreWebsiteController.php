@@ -757,19 +757,20 @@ class StoreWebsiteController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : " . $er . '<br>';
+                    $outputString .= "$k : ".$er.'<br>';
                 }
             }
+
             return response()->json(['code' => 500, 'error' => $outputString]);
         }
 
         $storeWebsites = StoreWebsite::where('id', '=', $post['store_id'])->orWhere('parent_id', '=', $post['store_id'])->get();
         $count = 0;
         foreach ($storeWebsites as $key => $storeWebsite) {
-            $this->savelogwebsiteuser('#2', $storeWebsite->id, $post['username'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['websitemode'], 'For this Website ' . $storeWebsite->id . ' ,A user has been updated.');
+            $this->savelogwebsiteuser('#2', $storeWebsite->id, $post['username'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['websitemode'], 'For this Website '.$storeWebsite->id.' ,A user has been updated.');
 
             $checkUserNameExist = '';
-            if (!empty($post['store_website_userid'])) {
+            if (! empty($post['store_website_userid'])) {
                 $checkUserExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('email', $post['userEmail'])->where('id', '<>', $post['store_website_userid'])->first();
                 if (empty($checkUserExist)) {
                     $checkUserNameExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('username', $post['username'])->where('id', '<>', $post['store_website_userid'])->first();
@@ -781,19 +782,19 @@ class StoreWebsiteController extends Controller
                 }
             }
 
-            if (!empty($checkUserExist)) {
+            if (! empty($checkUserExist)) {
                 return response()->json(['code' => 500, 'error' => 'User Email already exist!']);
             }
-            if (!empty($checkUserNameExist)) {
+            if (! empty($checkUserNameExist)) {
                 return response()->json(['code' => 500, 'error' => 'Username already exist!']);
             }
 
             $uppercase = preg_match('/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9_@.\/#&+-]+)$/', $post['password']);
-            if (!$uppercase || strlen($post['password']) < 7) {
+            if (! $uppercase || strlen($post['password']) < 7) {
                 return response()->json(['code' => 500, 'error' => 'Your password must be at least 7 characters.Your password must include both numeric and alphabetic characters.']);
             }
 
-            if (!empty($post['store_website_userid'])) {
+            if (! empty($post['store_website_userid'])) {
                 $getUser = StoreWebsiteUsers::where('id', $post['store_website_userid'])->first();
                 $getUser->first_name = $post['firstName'];
                 $getUser->last_name = $post['lastName'];
@@ -828,7 +829,7 @@ class StoreWebsiteController extends Controller
                 $StoreWebsiteUsersid = StoreWebsiteUsers::create($params);
 
                 if ($post['userEmail'] && $post['password']) {
-                    $message = 'Email: ' . $post['userEmail'] . ', Password is: ' . $post['password'];
+                    $message = 'Email: '.$post['userEmail'].', Password is: '.$post['password'];
                     $params['user_id'] = Auth::id();
                     $params['message'] = $message;
                     ChatMessage::create($params);
@@ -849,10 +850,11 @@ class StoreWebsiteController extends Controller
             }
             $count++;
         }
-        if($count == $key + 1)
+        if ($count == $key + 1) {
             return response()->json(['code' => 200, 'messages' => 'User details saved Successfully']);
-        else
+        } else {
             return response()->json(['code' => 500, 'messages' => 'Something went wrong']);
+        }
     }
 
     public function deleteUserInMagento(Request $request)
