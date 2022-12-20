@@ -18,7 +18,14 @@
 th {border: 1px solid black;}
 table{border-collapse: collapse;}
 .ui-icon, .ui-widget-content .ui-icon {background-image: none;}
-</style>	
+
+#bug_tracking_maintable {
+	font-size:13px;
+}
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+	padding:5px;
+}
+</style>
 	<div class="row" id="common-page-layout">
 		<div class="col-lg-12 margin-tb">
 			<h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
@@ -624,6 +631,9 @@ table{border-collapse: collapse;}
 			$(".text-task-development").val('');
 			$('#site_id').val('');	
 			$('#website_id').val('');
+			$('.text-task-bugids').val('');
+			$('.text-task-bugids').val('');
+			$('.text-task-development').val('');
 			
 						
 			if (!title || title == '') {
