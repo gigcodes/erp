@@ -631,6 +631,9 @@ table{border-collapse: collapse;}
 			$(".text-task-development").val('');
 			$('#site_id').val('');	
 			$('#website_id').val('');
+			$('.text-task-bugids').val('');
+			$('.text-task-bugids').val('');
+			$('.text-task-development').val('');
 			
 						
 			if (!title || title == '') {
