@@ -48,7 +48,7 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 
 class StoreWebsiteController extends Controller
@@ -277,6 +277,7 @@ class StoreWebsiteController extends Controller
             unset($copyStoreWebsite->id);
             unset($copyStoreWebsite->title);
             $copyStoreWebsite->title = $title.' '.$i;
+            $copyStoreWebsite->parent_id = $storeWebsiteId;
             $copyStoreWebsite->save();
 
             $copyStoreWebsiteId = $copyStoreWebsite->id;

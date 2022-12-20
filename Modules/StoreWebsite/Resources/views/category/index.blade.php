@@ -188,6 +188,14 @@ function ajaxCall(catId, swId, check, catName) {
 			$("#loading-image").show();
 		},
 		success: function(data) {
+			$.each(data.storeWebsites, function (index, item) {
+				let ele = $('.push-category[data-category="' + catId + '"][data-sw="'+item+'"]');
+				if(check && swId !== item) {
+					ele.prop('checked', true);
+				} else if(!check && swId !== item) {
+					ele.prop('checked', false);
+				}
+			});
 			$("#loading-image").hide();
 			if(data.message) {
 				$('#alert-msg p').text(data.message);

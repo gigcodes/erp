@@ -10,7 +10,7 @@ use App\ProductSupplier;
 use App\UpteamLog;
 use Illuminate\Console\Command;
 use Image;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class SyncUpteamProducts extends Command
 {

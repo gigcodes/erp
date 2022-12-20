@@ -6,7 +6,7 @@ use App\Account;
 use App\FacebookPost;
 use Auth;
 use Illuminate\Http\Request;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class FacebookPostController extends Controller
 {

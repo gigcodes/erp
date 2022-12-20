@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class MediaController extends Controller
 {
@@ -79,7 +79,7 @@ class MediaController extends Controller
                         $user->attachMedia($savedMedia, 'instagram');
                     }
 
-                    //$request->user()->attachMedia($request->, config('constants.excelimporter'));
+                //$request->user()->attachMedia($request->, config('constants.excelimporter'));
                 } else {
                     return response()->json([
                         'success' => false,

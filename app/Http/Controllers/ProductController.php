@@ -63,8 +63,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redirect;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Qoraiche\MailEclipse\MailEclipse;
 use seo2websites\MagentoHelper\MagentoHelper;
 
@@ -1452,13 +1452,16 @@ class ProductController extends Controller
             $join->where('pvu.user_id', '!=', auth()->user()->id);
         });
 
+        $products = $products->join('log_list_magentos as LLM', 'products.id', '=', 'LLM.product_id');
+        $products = $products->leftJoin('store_websites as SW', 'LLM.store_website_id', '=', 'SW.id');
+
         $products = $products->leftJoin('status as s', function ($join) {
             $join->on('products.status_id', 's.id');
         });
 
         $products = $products->where('isUploaded', 0);
-        $products = $products->select(['products.*', 's.name as product_status'])->paginate(10);
-
+        $products = $products->orderBy('llm_id', 'desc');
+        $products = $products->select(['products.*', 's.name as product_status', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.title as sw_title'])->paginate(20);
         $productsCount = $products->total();
         $imageCropperRole = auth()->user()->hasRole('ImageCropers');
         $categoryArray = Category::renderAsArray();
@@ -1509,6 +1512,13 @@ class ProductController extends Controller
         $users = User::all();
 
         return view('products.magento_push_status.index', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
+    }
+
+    public function magentoConditionsCheckLogs($id)
+    {
+        $logs = ProductPushErrorLog::where('log_list_magento_id', '=', $id)->get();
+
+        return response()->json(['code' => 200, 'data' => $logs]);
     }
 
     /**
@@ -4863,7 +4873,7 @@ class ProductController extends Controller
                         $log->queue = \App\Helpers::createQueueName('magentoconditionscheckqueue');
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name, 'success', $website->id, null, null, $log->id, null);
-                        PushToMagento::dispatch($product, $website, $log, $mode)->onQueue($log->queue);
+                        PushToMagento::dispatch($product, $website, $log, $mode);
                         $i++;
                     } else {
                         ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name.' website for product not found', 'error', $website->id, null, null, null, null);

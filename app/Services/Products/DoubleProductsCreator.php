@@ -7,7 +7,7 @@ use App\Category;
 use App\Product;
 use App\Setting;
 use App\Supplier;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Validator;
 
 class DoubleProductsCreator

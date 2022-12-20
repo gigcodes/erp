@@ -46,7 +46,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Response;
 
 class TaskModuleController extends Controller
@@ -2142,7 +2142,7 @@ class TaskModuleController extends Controller
             }
 
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Your quick task has been created!']);
-        } catch (\Exception $e) {
+        } catch(\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }

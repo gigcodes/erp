@@ -72,6 +72,16 @@ class SizeController extends Controller
                         $sws->store_website_id = $k;
                         $sws->size_id = $size->id;
                         $sws->save();
+                        $storeWebsites = \App\StoreWebsite::where('parent_id', '=', $k)->get();
+                        if (count($storeWebsites) > 0) {
+                            foreach ($storeWebsites as $site) {
+                                $sws = new \App\StoreWebsiteSize;
+                                $sws->platform_id = $p;
+                                $sws->store_website_id = $site->id;
+                                $sws->size_id = $size->id;
+                                $sws->save();
+                            }
+                        }
                     }
                 }
             }
