@@ -17,7 +17,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Str;
 
 class RepositoryController extends Controller
 {
@@ -95,11 +95,11 @@ class RepositoryController extends Controller
         //print_r($repository);
     }
 
-    public function deployBranch($repoId)
+    public function deployBranch($repoId, Request $request)
     {
         //dd($repoId);
         $source = 'master';
-        $destination = Input::get('branch');
+        $destination = $request->branch;
         $pullOnly = request('pull_only', 0);
 
         $url = 'https://api.github.com/repositories/'.$repoId.'/merges';
@@ -128,7 +128,7 @@ class RepositoryController extends Controller
             // Deploy branch
             $repository = GithubRepository::find($repoId);
 
-            $branch = Input::get('branch');
+            $branch = $request->branch;
             $composerupdate = request('composer', false);
             //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
@@ -140,7 +140,7 @@ class RepositoryController extends Controller
             $result = exec($cmd, $allOutput);
 
             $migrationError = is_array($result) ? json_encode($result) : $result;
-            if (str_contains($migrationError, 'database/migrations') || str_contains($migrationError, 'migrations') || str_contains($migrationError, 'Database/Migrations') || str_contains($migrationError, 'Migrations')) {
+            if (Str::contains($migrationError, 'database/migrations') || Str::contains($migrationError, 'migrations') || Str::contains($migrationError, 'Database/Migrations') || Str::contains($migrationError, 'Migrations')) {
                 if ($source == 'master') {
                     $this->createGitMigrationErrorLog($repoId, $destination, $migrationError);
                 } elseif ($destination == 'master') {
@@ -161,7 +161,7 @@ class RepositoryController extends Controller
                 $errorArr = $errorArr;
             }
             $migrationError = is_array($result) ? json_encode($errorArr) : $errorArr;
-            if (str_contains($migrationError, 'database/migrations') || str_contains($migrationError, 'migrations') || str_contains($migrationError, 'Database/Migrations') || str_contains($migrationError, 'Migrations')) {
+            if (Str::contains($migrationError, 'database/migrations') || Str::contains($migrationError, 'migrations') || Str::contains($migrationError, 'Database/Migrations') || Str::contains($migrationError, 'Migrations')) {
                 if ($source == 'master') {
                     $this->createGitMigrationErrorLog($repoId, $destination, $migrationError);
                 } elseif ($destination == 'master') {
@@ -293,11 +293,11 @@ class RepositoryController extends Controller
         }
     }
 
-    public function mergeBranch($id)
+    public function mergeBranch($id, Request $request)
     {
-        $source = Input::get('source');
-        $destination = Input::get('destination');
-        $pull_request_id = Input::get('task_id');
+        $source = $request->source;
+        $destination = $request->destination;
+        $pull_request_id = $request->task_id;
 
         $url = 'https://api.github.com/repositories/'.$id.'/merges';
 

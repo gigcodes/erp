@@ -26,7 +26,7 @@ use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
 use Log;
 use Maatwebsite\Excel\Facades\Excel;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 
 class LogListMagentoController extends Controller

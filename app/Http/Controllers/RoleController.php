@@ -26,8 +26,8 @@ class RoleController extends Controller
     {
         $query = Role::query();
 
-        if ($request->term) {
-            $query = $query->where('name', 'LIKE', '%'.$request->term.'%');
+        if ($request->term != null) {
+            $query = $query->whereIn('id', $request->term);
         }
 
         $roles = $query->orderBy('id', 'DESC')->paginate(25)->appends(request()->except(['page']));

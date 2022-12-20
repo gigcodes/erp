@@ -168,7 +168,6 @@ return [
         Plank\Mediable\MediableServiceProvider::class,
         Nestable\NestableServiceProvider::class,
         Pusher\Laravel\PusherServiceProvider::class,
-        Chumper\Zipper\ZipperServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Thujohn\Twitter\TwitterServiceProvider::class,
@@ -193,6 +192,7 @@ return [
         App\Providers\WhatsappConfigProvider::class,
         Webklex\IMAP\Providers\LaravelServiceProvider::class,
         Brotzka\DotenvEditor\DotenvEditorServiceProvider::class,
+        Madnest\Madzipper\MadzipperServiceProvider::class,
         // seo2websites\ErpCustomer\ErpCustomerServiceProvider::class,
         //LaravelFCM\FCMServiceProvider::class,
 
@@ -213,6 +213,7 @@ return [
     'aliases' => [
 
         'App' => Illuminate\Support\Facades\App::class,
+        'Arr' => Illuminate\Support\Arr::class,
         'Artisan' => Illuminate\Support\Facades\Artisan::class,
         'Auth' => Illuminate\Support\Facades\Auth::class,
         'Blade' => Illuminate\Support\Facades\Blade::class,
@@ -242,6 +243,7 @@ return [
         'Schema' => Illuminate\Support\Facades\Schema::class,
         'Session' => Illuminate\Support\Facades\Session::class,
         'Storage' => Illuminate\Support\Facades\Storage::class,
+        'Str' => Illuminate\Support\Str::class,
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
@@ -250,8 +252,8 @@ return [
         'MediaUploader' => Plank\Mediable\MediaUploaderFacade::class,
         'Nestable' => Nestable\Facades\NestableService::class,
         'Pusher' => Pusher\Laravel\Facades\Pusher::class,
-        'Zipper' => Chumper\Zipper\Zipper::class,
-        'Input' => Illuminate\Support\Facades\Input::class,
+        'Zipper' => Madnest\Madzipper\Madzipper::class,
+        'Input' => Illuminate\Support\Facades\Request::class,
         'Image' => Intervention\Image\Facades\Image::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'Twitter' => Thujohn\Twitter\Facades\Twitter::class,

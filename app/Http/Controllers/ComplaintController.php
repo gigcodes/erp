@@ -12,7 +12,7 @@ use App\StatusChange;
 use App\User;
 use Auth;
 use Illuminate\Http\Request;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Storage;
 
 class ComplaintController extends Controller

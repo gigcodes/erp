@@ -30,9 +30,10 @@ use Carbon\Carbon;
 use DB;
 use Google\Cloud\Translate\TranslateClient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Mail;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class LiveChatController extends Controller
 {
@@ -1008,7 +1009,7 @@ class LiveChatController extends Controller
                         } else {
                             $message[] = '<div data-chat-id="'.$chat->id.'" class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">'.$agentInital.'</div><div class="msg_cotainer">'.$chat->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans().'</span></div></div>';
                         }
-                        //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                    //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
                     } else {
                         $message[] = '<div data-chat-id="'.$chat->id.'" class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">'.$customerInital.'</div><div class="msg_cotainer">'.$chat->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans().'</span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
                     }
@@ -1569,7 +1570,7 @@ class LiveChatController extends Controller
                     $bits = parse_url($websiteUrl);
                     if (isset($bits['host'])) {
                         $web = $bits['host'];
-                        if (! str_contains($websiteUrl, 'www')) {
+                        if (! Str::contains($websiteUrl, 'www')) {
                             $web = 'www.'.$bits['host'];
                         }
                         $websiteUrl = 'https://'.$web;
@@ -1982,7 +1983,7 @@ class LiveChatController extends Controller
                     $bits = parse_url($websiteUrl);
                     if (isset($bits['host'])) {
                         $web = $bits['host'];
-                        if (! str_contains($websiteUrl, 'www')) {
+                        if (! Str::contains($websiteUrl, 'www')) {
                             $web = 'www.'.$bits['host'];
                         }
                         $websiteUrl = 'https://'.$web;

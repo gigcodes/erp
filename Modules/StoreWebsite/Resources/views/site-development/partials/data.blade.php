@@ -35,7 +35,7 @@
                 @include('storewebsite::site-development.partials.site-check-modal')
                 @include('storewebsite::site-development.partials.ui-check-modal')
 
-                <span class="show-short-cat_title-{{$pagrank}}">{{ str_limit($category->title, 25, '..')}}</span>
+                <span class="show-short-cat_title-{{$pagrank}}">{{ Str::limit($category->title, 25, '..')}}</span>
                 <span style="word-break:break-all;" class="show-full-cat_title-{{$pagrank}} hidden">{{$category->title}}</span>
                 <br>
                 <div style="display: flex; float: right"> <button onclick="checkUi({{ $category->id }}, {{ $category->site_development_id }})" style="background-color: transparent;border: 0; margin-top:0px;" class="" title="Set this category in Ui for this website"><i class="fa fa-info-circle"></i></button></div>
@@ -74,7 +74,7 @@
                 <div class="d-flex">
                     <div class="justify-content-between expand-row-msg" data-id="{{ $pagrank }}" data-name="website">
                         <span class="show-short-website-{{ $pagrank }} pl-1">
-                            {{ str_limit($category->website, 15, '...') }} </span>
+                            {{ Str::limit($category->website, 15, '...') }} </span>
                     </div>
                 </div>
                 <div class="expand-row-msg" data-id="{{ $pagrank }}" data-name="website">
@@ -99,7 +99,7 @@
                         <div class="justify-content-between expand-row-msg" data-id="@if ($site->lastRemark) {{ $site->lastRemark->id }} @endif">
                             <span class="td-full-container-@if ($site->lastRemark) {{ $site->lastRemark->id }} @endif">
                                 @if ($site->lastRemark)
-                                {{ str_limit($site->lastRemark->remarks, 10, '...') }}
+                                {{ Str::limit($site->lastRemark->remarks, 10, '...') }}
                                 @endif
                             </span>
                         </div>
@@ -163,7 +163,7 @@
                             <div class="d-flex">
                                 <div class="justify-content-between expand-row-msg-chat" data-id="{{ $assignedTo['id'] }}">
                                     <span class="td-full-chat-container-{{ $assignedTo['id'] }} pl-1">
-                                        {{ str_limit($assignedTo['message'], 30, '...') }} </span>
+                                        {{ Str::limit($assignedTo['message'], 30, '...') }} </span>
                                 </div>
                             </div>
                             <div class="expand-row-msg-chat" data-id="{{ $assignedTo['id'] }}" style="white-space: normal;">
@@ -220,7 +220,7 @@
                                     <div class="d-flex">
                                         <div class="justify-content-between expand-row-msg-chat" data-id="{{ $assignedTo['id'] }}">
                                             <span class="td-full-chat-container-{{ $assignedTo['id'] }} pl-1">
-                                                {{ str_limit($assignedTo['message'], 20, '...') }} </span>
+                                                {{ Str::limit($assignedTo['message'], 20, '...') }} </span>
                                         </div>
                                     </div>
                                     <div class="expand-row-msg-chat" data-id="{{ $assignedTo['id'] }}">

@@ -8,7 +8,7 @@ use App\InfluencersDM;
 use App\InfluencersHistory;
 use DB;
 use Illuminate\Http\Request;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class InfluencersController extends Controller
 {

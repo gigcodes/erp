@@ -7,6 +7,7 @@ use App\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class PasswordChangeAll extends Command
 {
@@ -69,7 +70,7 @@ class PasswordChangeAll extends Command
             if ($users !== null) {
                 foreach ($users as $user) {
                     // Generate new password
-                    $newPassword = str_random(12);
+                    $newPassword = Str::random(12);
 
                     // Set hash password
                     $hashPassword = Hash::make($newPassword);

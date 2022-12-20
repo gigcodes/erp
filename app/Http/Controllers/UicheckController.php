@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Language;
 use App\Models\UicheckHistory;
 use App\SiteDevelopmentCategory;
+use App\SiteDevelopmentStatus;
 /*use Illuminate\Http\Request;
 use App\SiteDevelopment;
 use App\SiteDevelopmentArtowrkHistory;
@@ -13,7 +14,6 @@ use App\SiteDevelopmentMasterCategory;
 use App\StoreWebsite;
 use DB;
 */
-use App\SiteDevelopmentStatus;
 use App\StoreWebsite;
 use App\UiAdminStatusHistoryLog;
 use App\Uicheck;
@@ -37,7 +37,8 @@ use Auth;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Illuminate\Support\Str;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Storage;
 
 class UicheckController extends Controller
@@ -928,7 +929,7 @@ class UicheckController extends Controller
                         '<td>'.($value->userName ?: '-').'</td>',
                         '<td>
                             <div style="width: 86%;float: left;" class="expand-row-msg" data-name="lan_message" data-id="'.$value->id.'">
-                                <span class="show-short-lan_message-'.$value->id.'">'.str_limit($value->message, 30, '...').' </span>
+                                <span class="show-short-lan_message-'.$value->id.'">'.Str::limit($value->message, 30, '...').' </span>
                                 <span style="word-break:break-all;" id="show-full-lan_message-'.$value->id.'" class="show-full-lan_message-'.$value->id.' hidden">'.$value->message.' </span>
                             </div>
                             <i class="fa fa-copy" data-text="'.$value->message.'"></i>
@@ -1390,7 +1391,7 @@ class UicheckController extends Controller
                         '<td>'.($value->userName ?: '-').'</td>',
                         '<td >
                             <div style="width: 86%;float: left;" class="expand-row-msg" data-name="dev_message" data-id="'.$value->id.'" >
-                                <span class="show-short-dev_message-'.$value->id.'">'.str_limit($value->message, 30, '...').'<i class="fa-solid fa-copy"></i></span>
+                                <span class="show-short-dev_message-'.$value->id.'">'.Str::limit($value->message, 30, '...').'<i class="fa-solid fa-copy"></i></span>
                                 <span style="word-break:break-all;" class="show-full-dev_message-'.$value->id.' hidden">'.$value->message.'<i class="fa-solid fa-copy "></i></span>
                             </div>
                             <i class="fa fa-copy" data-text="'.$value->message.'"></i>

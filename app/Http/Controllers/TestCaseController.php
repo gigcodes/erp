@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\BugStatus;
+use App\BugStatusHistory;
+use App\BugTracker;
+use App\BugTrackerHistory;
+use App\BugUserHistory;
 use App\ChatMessage;
 use App\SiteDevelopmentCategory;
 use App\StoreWebsite;
@@ -12,6 +17,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class TestCaseController extends Controller
 {
@@ -159,7 +165,7 @@ class TestCaseController extends Controller
             $testCase->created_at_date = \Carbon\Carbon::parse($testCase->created_at)->format('d-m-Y  H:i');
 //            $testCase->test_case__history = TestCaseHistory::where('test_case_id', $testCase->id)->get();
             $testCase->website = StoreWebsite::where('id', $testCase->website)->value('title');
-            $testCase->step_to_reproduce_short = str_limit($testCase->step_to_reproduce, 5, '..');
+            $testCase->step_to_reproduce_short = Str::limit($testCase->step_to_reproduce, 5, '..');
 
             return $testCase;
         });
@@ -333,5 +339,64 @@ class TestCaseController extends Controller
         TestCaseHistory::create($data);
 
         return response()->json(['code' => 200, 'data' => $data]);
+    }
+
+    public function sendTestCases(Request $request)
+    {
+        if ($request->website) {
+            $testCases = TestCase::where('website', $request->website)->get();
+            $bugStatus = BugStatus::where('name', 'In Test')->first();
+            if (count($testCases) > 0) {
+                foreach ($testCases as $testCase) {
+                    $bugTracking = new BugTracker();
+                    $bugTracking->module_id = $testCase->module_id;
+                    $bugTracking->step_to_reproduce = $testCase->step_to_reproduce;
+                    $bugTracking->expected_result = $testCase->expected_result;
+                    $bugTracking->test_case_id = $testCase->id;
+                    $bugTracking->website = $request->bug_website;
+                    $bugTracking->created_by = Auth::user()->id;
+                    $bugTracking->assign_to = $request->assign_to_test_case;
+                    $bugTracking->bug_status_id = $bugStatus->id;
+                    $bugTracking->save();
+                    $params = ChatMessage::create([
+                        'user_id' => \Auth::user()->id,
+                        'bug_id' => $bugTracking->id,
+                        'sent_to_user_id' => $request->assign_to_test_case,
+                        'approved' => '1',
+                        'status' => '2',
+                        'message' => $testCase->name,
+                    ]);
+                    $bugTrackingHistory = new BugTrackerHistory();
+                    $bugTrackingHistory->bug_id = $bugTracking->id;
+                    $bugTrackingHistory->module_id = $testCase->module_id;
+                    $bugTrackingHistory->expected_result = $testCase->expected_result;
+                    $bugTrackingHistory->test_case_id = $testCase->id;
+                    $bugTrackingHistory->step_to_reproduce = $testCase->step_to_reproduce;
+                    $bugTrackingHistory->website = $request->bug_website;
+                    $bugTrackingHistory->assign_to = $request->assign_to_test_case;
+                    $bugTrackingHistory->created_by = Auth::user()->id;
+                    $bugTrackingHistory->bug_status_id = $bugStatus->id;
+                    $bugTrackingHistory->save();
+                    $statusHistory = [
+                        'bug_id' => $bugTracking->id,
+                        'new_status' => $bugStatus->id,
+                        'updated_by' => \Auth::user()->id,
+                    ];
+                    BugStatusHistory::create($statusHistory);
+                    $record = [
+                        'new_user' => $request->assign_to_test_case,
+                        'bug_id' => $bugTracking->id,
+                        'updated_by' => \Auth::user()->id,
+                    ];
+                    BugUserHistory::create($record);
+                }
+
+                return response()->json(['code' => 200, 'message' => 'Test Cases Added Successfully']);
+            } else {
+                return response()->json(['code' => 500, 'error' => 'No Record Found']);
+            }
+        } else {
+            return response()->json(['code' => 500, 'error' => 'website is required']);
+        }
     }
 }

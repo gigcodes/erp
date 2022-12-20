@@ -22,20 +22,24 @@
             <h2 class="page-heading">Role Management (<span id="roles_count">{{ $roles->total() }}</span>)</h2>
             <div class="pull-left">
                 <div class="form-group">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <input name="term" type="text" class="form-control"
-                                       value="{{ isset($term) ? $term : '' }}"
-                                       placeholder="Search Roles" id="term">
-                            </div>
-                            <div class="col-md-2">
-                               <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="/images/filter.png"/></button>
-                            </div>
-                            <div class="col-md-2">
-                                <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png"/></button>    
+                    <div class="row">
+                        <div class="col-md-7">
+                            <div class="form-group cls_filter_inputbox" style="width: 200px;">
+                                <select name="term[]" class="form-control selectpicker" title="select roles" multiple id="term">
+                                    @foreach($roles as $role)
+                                        <option value="{{$role->id}}">{{$role->name}}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="/images/filter.png"/></button>
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png"/></button>
+                        </div>
                     </div>
+                </div>
             </div>
             <div class="pull-right">
                 @if(auth()->user()->checkPermission('roles-create'))
