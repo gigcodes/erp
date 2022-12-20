@@ -48,7 +48,7 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 
 class StoreWebsiteController extends Controller
@@ -63,8 +63,9 @@ class StoreWebsiteController extends Controller
         $title = 'List | Store Website';
         $services = Service::get();
         $assetManager = AssetsManager::whereNotNull('ip');
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->get();
 
-        return view('storewebsite::index', compact('title', 'services', 'assetManager'));
+        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites'));
     }
 
     public function logWebsiteUsers($id)
@@ -756,19 +757,20 @@ class StoreWebsiteController extends Controller
             $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : " . $er . '<br>';
+                    $outputString .= "$k : ".$er.'<br>';
                 }
             }
+
             return response()->json(['code' => 500, 'error' => $outputString]);
         }
 
         $storeWebsites = StoreWebsite::where('id', '=', $post['store_id'])->orWhere('parent_id', '=', $post['store_id'])->get();
         $count = 0;
         foreach ($storeWebsites as $key => $storeWebsite) {
-            $this->savelogwebsiteuser('#2', $storeWebsite->id, $post['username'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['websitemode'], 'For this Website ' . $storeWebsite->id . ' ,A user has been updated.');
+            $this->savelogwebsiteuser('#2', $storeWebsite->id, $post['username'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['websitemode'], 'For this Website '.$storeWebsite->id.' ,A user has been updated.');
 
             $checkUserNameExist = '';
-            if (!empty($post['store_website_userid'])) {
+            if (! empty($post['store_website_userid'])) {
                 $checkUserExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('email', $post['userEmail'])->where('id', '<>', $post['store_website_userid'])->first();
                 if (empty($checkUserExist)) {
                     $checkUserNameExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('username', $post['username'])->where('id', '<>', $post['store_website_userid'])->first();
@@ -780,19 +782,19 @@ class StoreWebsiteController extends Controller
                 }
             }
 
-            if (!empty($checkUserExist)) {
+            if (! empty($checkUserExist)) {
                 return response()->json(['code' => 500, 'error' => 'User Email already exist!']);
             }
-            if (!empty($checkUserNameExist)) {
+            if (! empty($checkUserNameExist)) {
                 return response()->json(['code' => 500, 'error' => 'Username already exist!']);
             }
 
             $uppercase = preg_match('/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9_@.\/#&+-]+)$/', $post['password']);
-            if (!$uppercase || strlen($post['password']) < 7) {
+            if (! $uppercase || strlen($post['password']) < 7) {
                 return response()->json(['code' => 500, 'error' => 'Your password must be at least 7 characters.Your password must include both numeric and alphabetic characters.']);
             }
 
-            if (!empty($post['store_website_userid'])) {
+            if (! empty($post['store_website_userid'])) {
                 $getUser = StoreWebsiteUsers::where('id', $post['store_website_userid'])->first();
                 $getUser->first_name = $post['firstName'];
                 $getUser->last_name = $post['lastName'];
@@ -827,7 +829,7 @@ class StoreWebsiteController extends Controller
                 $StoreWebsiteUsersid = StoreWebsiteUsers::create($params);
 
                 if ($post['userEmail'] && $post['password']) {
-                    $message = 'Email: ' . $post['userEmail'] . ', Password is: ' . $post['password'];
+                    $message = 'Email: '.$post['userEmail'].', Password is: '.$post['password'];
                     $params['user_id'] = Auth::id();
                     $params['message'] = $message;
                     ChatMessage::create($params);
@@ -848,10 +850,11 @@ class StoreWebsiteController extends Controller
             }
             $count++;
         }
-        if($count == $key + 1)
+        if ($count == $key + 1) {
             return response()->json(['code' => 200, 'messages' => 'User details saved Successfully']);
-        else
+        } else {
             return response()->json(['code' => 500, 'messages' => 'Something went wrong']);
+        }
     }
 
     public function deleteUserInMagento(Request $request)
@@ -1561,5 +1564,38 @@ class StoreWebsiteController extends Controller
         } else {
             return response()->json(['code' => 500, 'message' => 'Token is invalid']);
         }
+    }
+
+    public function generateApiToken(Request $request)
+    {
+        $apiTokens = $request->api_token;
+
+        if ($request->api_token) {
+            foreach ($apiTokens as $key => $apiToken) {
+                StoreWebsite::where('id', $key)->update(['api_token' => $apiToken, 'server_ip' => $request->server_ip[$key]]);
+            }
+            session()->flash('msg', 'Api Token Updated Successfully.');
+
+            return redirect()->back();
+        } else {
+            session()->flash('msg', 'Api Token is invalid.');
+
+            return redirect()->back();
+        }
+    }
+
+    public function getApiToken(Request $request)
+    {
+        $search = $request->search;
+        $storeWebsites = StoreWebsite::whereNull('deleted_at');
+        if ($search != null) {
+            $storeWebsites = $storeWebsites->where('title', 'Like', '%'.$search.'%');
+        }
+        $storeWebsites = $storeWebsites->get();
+
+        return response()->json([
+            'tbody' => view('storewebsite::api-token', compact('storeWebsites'))->render(),
+
+        ], 200);
     }
 }

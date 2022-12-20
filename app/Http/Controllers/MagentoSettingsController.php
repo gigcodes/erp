@@ -754,6 +754,7 @@ class MagentoSettingsController extends Controller
     public function getAllStoreWebsites($id)
     {
         $storeWebsites = StoreWebsite::where('parent_id', '=', $id)->get();
+
         return response()->json($storeWebsites);
     }
 }

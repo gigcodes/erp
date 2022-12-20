@@ -41,7 +41,7 @@ use Google\AdsApi\AdWords\v201809\cm\TargetSpendBiddingScheme;
 use Google\AdsApi\AdWords\v201809\cm\TimeUnit;
 use Google\AdsApi\Common\OAuth2TokenBuilder;
 use Illuminate\Http\Request;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class AdsController extends Controller
 {
