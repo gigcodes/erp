@@ -54,15 +54,11 @@ class BugTrackingController extends Controller
 
     public function records(Request $request)
     {
-
-        
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) {
             $records = BugTracker::orderBy('id', 'desc')->take(10);
         } else {
             $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc')->take(10);
         }
-
-       
 
         if ($keyword = request('summary')) {
             $records = $records->where(function ($q) use ($keyword) {
@@ -133,8 +129,6 @@ class BugTrackingController extends Controller
 
     public function recordTrackingAjax(Request $request)
     {
-
-       
         $title = 'Bug Tracking';
 
         $page = $_REQUEST['page'];
@@ -155,7 +149,6 @@ class BugTrackingController extends Controller
             $records = BugTracker::where('assign_to', Auth::user()->id)->orderBy('id', 'desc')->offset($page)->limit(10);
         }
 
-        
         if ($keyword = request('summary')) {
             $records = $records->where(function ($q) use ($keyword) {
                 $q->where('summary', 'LIKE', "%$keyword%");
