@@ -553,9 +553,9 @@ table{border-collapse: collapse;}
 		function load_more(page_bug){
 						
 			$.ajax({
-			   url: "/bug-tracking/record-tracking-ajax?page="+page_bug,
+			   url: "/bug-tracking/record-tracking-ajax?page="+page_bug+"&"+$(".message-search-handler").serialize(),
 			   type: "get",
-			   datatype: "html",
+			   datatype: "html",			  
 			   beforeSend: function()
 			   {
 				  $('#loading-image-preview').css("display","block");
