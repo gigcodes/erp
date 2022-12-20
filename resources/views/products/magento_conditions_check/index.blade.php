@@ -103,7 +103,6 @@
                             '<td>' + val.created_at + '</td>' +
                             '</tr>';
                     });
-                    console.log(html);
                     $('#logData').html(html);
                     $('#conditionCheckLogModal').modal('show');
                 } else {
