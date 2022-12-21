@@ -207,7 +207,7 @@ class PushToMagento implements ShouldQueue
                     }
                 }
             } else {
-                $errorMessage = "Either one of the following condition failed: Top parent is NEW and status_condition exists in ". json_encode($conditions). " || Top parent is PREOWNED and status_condition exists in upteamconditions";
+                $errorMessage = 'Either one of the following condition failed: Top parent is NEW and status_condition exists in '.json_encode($conditions).' || Top parent is PREOWNED and status_condition exists in upteamconditions';
                 ProductPushErrorLog::log('', $product->id, $errorMessage, 'error', $website->id, null, null, $this->log->id, null);
             }
         } catch (\Exception $e) {
