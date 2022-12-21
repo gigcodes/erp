@@ -12,7 +12,7 @@
         @endif
     </div>
     <div class= "col-md-12">
-        <form action="{{ action('CustomerCategoryController@store') }}" method="post">
+        <form action="{{ action([\App\Http\Controllers\CustomerCategoryController::class, 'store']) }}" method="post">
             @csrf
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -56,10 +56,10 @@
                         <td>{{ $category->name }}</td>
                         <td>{!! str_replace("\n", '<br>', $category->message ?? 'Not Set') !!}</td>
                         <td>
-                            <form method="post" action="{{ action('CustomerCategoryController@destroy', $category->id) }}">
+                            <form method="post" action="{{ action([\App\Http\Controllers\CustomerCategoryController::class, 'destroy'], $category->id) }}">
                                 @csrf
                                 @method('DELETE')
-                                <a href="{{ action('CustomerCategoryController@edit', $category->id) }}" class="btn btn-image">
+                                <a href="{{ action([\App\Http\Controllers\CustomerCategoryController::class, 'edit'], $category->id) }}" class="btn btn-image">
                                     <img src="{{ asset('images/edit.png') }}" alt="Edit Category">
                                 </a>
                                 <button class="btn btn-image">

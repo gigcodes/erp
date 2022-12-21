@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Github;
 
+use Illuminate\Support\Facades\Route;
 use App\Github\GithubGroup;
 use App\Github\GithubGroupMember;
 use App\Github\GithubRepository;

@@ -790,7 +790,7 @@
         let reminder_last_reply = (reminderModal.find('#reminder_last_reply').is(":checked")) ? 1 : 0;
 
         $.ajax({
-            url: "{{action('VendorController@updateReminder')}}",
+            url: "{{action([\App\Http\Controllers\VendorController::class, 'updateReminder'])}}",
             type: 'POST',
             success: function() {
                 toastr['success']('Reminder updated successfully!');
@@ -1087,7 +1087,7 @@
         let userId = $(this).val();
 
         $.ajax({
-            url: "{{ action('VendorController@assignUserToCategory') }}",
+            url: "{{ action([\App\Http\Controllers\VendorController::class, 'assignUserToCategory']) }}",
             data: {
                 user_id: userId,
                 category_id: catId

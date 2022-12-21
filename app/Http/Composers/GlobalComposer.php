@@ -2,6 +2,7 @@
 
 namespace App\Http\Composers;
 
+use Illuminate\Support\Facades\Route;
 use App\Helpers\PermissionCheck;
 use App\Permission;
 use App\PermissionRequest;

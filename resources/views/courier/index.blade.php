@@ -17,7 +17,7 @@
                 <strong>Courier</strong>
             </div>
             <div class="panel-body">
-                <form action="{{ action('CourierController@store') }}" method="post">
+                <form action="{{ action([\App\Http\Controllers\CourierController::class, 'store']) }}" method="post">
                     @csrf
                     <div class="row">
                         <div class="col-md-6">
@@ -49,7 +49,7 @@
                         <td>{{ $key+1 }}</td>
                         <td>{{ $courierRaw->name }}</td>
                         <td>
-                            <form method="post" action="{{ action('CourierController@destroy', $courierRaw->id) }}">
+                            <form method="post" action="{{ action([\App\Http\Controllers\CourierController::class, 'destroy'], $courierRaw->id) }}">
                                 <button class="btn btn-image btn-xs">
                                     @csrf
                                     @method('DELETE')

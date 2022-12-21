@@ -2,6 +2,7 @@
 
 namespace Modules\BookStack\Exceptions;
 
+use Illuminate\Support\Facades\Route;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;

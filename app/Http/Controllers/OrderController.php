@@ -3547,7 +3547,7 @@ class OrderController extends Controller
             }
         }
 
-        return redirect()->action('OrderController@viewAllInvoices');
+        return redirect()->action([\App\Http\Controllers\OrderController::class, 'viewAllInvoices']);
     }
 
     //TODO::Update Invoice Address
@@ -3598,8 +3598,7 @@ class OrderController extends Controller
             }
         }
 
-        return redirect()->action(
-            'OrderController@viewAllInvoices');
+        return redirect()->action([\App\Http\Controllers\OrderController::class, 'viewAllInvoices']);
     }
 
     /**

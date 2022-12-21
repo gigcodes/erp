@@ -64,7 +64,7 @@
         senders.forEach(function(id) {
           count.forEach(function (username) {
             setTimeout($.ajax({
-              url: '{{action('AccountController@sendMessage', '')}}/' + id,
+              url: '{{action([\App\Http\Controllers\AccountController::class, 'sendMessage'], '')}}/' + id,
               type: 'POST',
               data: {
                 '_token': '{{ @csrf_token() }}',

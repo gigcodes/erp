@@ -10,7 +10,7 @@
 <div class="row">
   <div class="col-lg-12 margin-tb">
     <div class="pull-left">
-      <h3><a href="{{ action('DubbizleController@index') }}">Go BACK</a> | Dubbizle Edit Page </h3>
+      <h3><a href="{{ action([\App\Http\Controllers\DubbizleController::class, 'index']) }}">Go BACK</a> | Dubbizle Edit Page </h3>
     </div>
   </div>
 </div>
@@ -18,7 +18,7 @@
 @include('partials.flash_messages')
 
 
-<form method="post" action="{{ action('DubbizleController@update', $d->id) }}">
+<form method="post" action="{{ action([\App\Http\Controllers\DubbizleController::class, 'update'], $d->id) }}">
     <div class="row">
         <div class="col-md-6">
             <div class="form-group">

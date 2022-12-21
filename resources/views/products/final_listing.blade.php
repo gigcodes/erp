@@ -184,7 +184,7 @@
             <h2 class="page-heading">Approved Product Listing ({{ $products_count }}) 
                 <a href="{{ route('sop.index') }}?type=ListingApproved" class="pull-right">SOP</a>
             </h2>
-            <form class="product_filter" action="{{ action('ProductController@approvedListing') }}/{{ $pageType }}" method="GET">
+            <form class="product_filter" action="{{ action([\App\Http\Controllers\ProductController::class, 'approvedListing']) }}/{{ $pageType }}" method="GET">
                 <div class="row">
                     <div class="col-md-12" style="display:flex;justify-content: space-between;">
                         <div class="col-sm-1 p-0">
@@ -673,7 +673,7 @@
                 return;
             }
             $.ajax({
-                url: '{{ action('WhatsAppController@sendMessage', 'vendor') }}',
+                url: '{{ action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'vendor') }}',
                 type: 'POST',
                 data: {
                     vendor_id: userId,
@@ -789,7 +789,7 @@
         {{--    }--}}
         {{--    let self = this;--}}
         {{--    $.ajax({--}}
-        {{--        url: '{{action('ProductController@addListingRemarkToProduct')}}',--}}
+        {{--        url: '{{action([\App\Http\Controllers\ProductController::class, 'addListingRemarkToProduct'])}}',--}}
         {{--        data: {--}}
         {{--            product_id: pid,--}}
         {{--            remark: remark,--}}

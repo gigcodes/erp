@@ -212,7 +212,7 @@
             var postData = $(this).serialize();
             $.ajax({
                 method: "post",
-                url: "{{action('WatsonController@store')}}",
+                url: "{{action([\App\Http\Controllers\WatsonController::class, 'store'])}}",
                 data: postData,
                 dataType: "json",
                 success: function (response) {

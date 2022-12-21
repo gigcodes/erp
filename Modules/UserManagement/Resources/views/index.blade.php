@@ -1142,7 +1142,7 @@
         event.preventDefault();
         $.ajax({
             type: "post",
-            url: "{{ action('UserController@statusChange') }}",
+            url: "{{ action([\App\Http\Controllers\UserController::class, 'statusChange']) }}",
             data: {
                 _token: "{{ csrf_token() }}",
                 status: $(this).attr('data-status'),
@@ -1368,7 +1368,7 @@
         event.preventDefault();
         $.ajax({
             type: "post",
-            url: "{{ action('UserController@statusChange') }}",
+            url: "{{ action([\App\Http\Controllers\UserController::class, 'statusChange']) }}",
             data: {
                 _token: "{{ csrf_token() }}",
                 status: $(this).attr('data-status'),
@@ -1542,7 +1542,7 @@
         let self = textBox;
 
         $.ajax({
-            url: "{{action('WhatsAppController@sendMessage', 'user-feedback')}}",
+            url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'user-feedback')}}",
             type: 'POST',
             data: {
                 "feedback_status_id": feedback_status_id,

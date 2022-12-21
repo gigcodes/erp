@@ -97,7 +97,7 @@ $priorities = [
         @include("development.partials.task-issue-search")
         <div class="pull-right mt-4">
 
-            <a class="btn btn-secondary" href="{{ action('DevelopmentController@exportTask',request()->all()) }}" role="link"> Download Tasks </a>
+            <a class="btn btn-secondary" href="{{ action([\App\Http\Controllers\DevelopmentController::class, 'exportTask'],request()->all()) }}" role="link"> Download Tasks </a>
 
             <a class="btn btn-secondary" data-toggle="collapse" href="#plannedFilterCount" role="button" aria-expanded="false" aria-controls="plannedFilterCount">
                 Show Planned count
@@ -311,7 +311,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             let reminder_last_reply = (developmentReminderModal.find('#reminder_last_reply').is(":checked")) ? 1 : 0;
 
             $.ajax({
-                url: "{{action('DevelopmentController@updateDevelopmentReminder')}}",
+                url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'updateDevelopmentReminder'])}}",
                 type: 'POST',
                 success: function() {
                     toastr['success']('Reminder updated successfully!');
@@ -553,7 +553,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         let self = textBox;
 
         $.ajax({
-            url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
+            url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'issue')}}",
             type: 'POST',
             data: {
                 "issue_id": issueId,
@@ -594,7 +594,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         let self = textBox;
 
         $.ajax({
-            url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
+            url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'issue')}}",
             type: 'POST',
             data: {
                 "issue_id": issueId,
@@ -640,7 +640,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         }
 
         $.ajax({
-            url: "{{action('DevelopmentController@assignResponsibleUser')}}",
+            url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'assignResponsibleUser'])}}",
             data: {
                 responsible_user_id: userId,
                 issue_id: id
@@ -659,7 +659,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         }
 
         $.ajax({
-            url: "{{action('DevelopmentController@assignUser')}}",
+            url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'assignUser'])}}",
             data: {
                 assigned_to: userId,
                 issue_id: id
@@ -684,7 +684,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         }
 
         $.ajax({
-            url: "{{action('DevelopmentController@changeModule')}}",
+            url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'changeModule'])}}",
             data: {
                 module_id: moduleID,
                 issue_id: id
@@ -705,7 +705,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         }
 
         $.ajax({
-            url: "{{action('DevelopmentController@assignMasterUser')}}",
+            url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'assignMasterUser'])}}",
             data: {
                 master_user_id: userId,
                 issue_id: id
@@ -730,7 +730,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         let total = $(this).val();
 
         $.ajax({
-            url: "{{action('DevelopmentController@saveMilestone')}}",
+            url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'saveMilestone'])}}",
             data: {
                 total: total,
                 issue_id: id
@@ -752,7 +752,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         let language = $(this).val();
 
         $.ajax({
-            url: "{{action('DevelopmentController@saveLanguage')}}",
+            url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'saveLanguage'])}}",
             data: {
                 language: language,
                 issue_id: id
@@ -780,7 +780,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         let estimate_minutes = $("#estimate_minutes_" + issueId).val();
         if ((est_time_remark !== '') && (estimate_minutes !== '')) {
             $.ajax({
-                url: "{{action('DevelopmentController@saveEstimateMinutes')}}",
+                url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'saveEstimateMinutes'])}}",
                 data: {
                     estimate_minutes: estimate_minutes,
                     remark: est_time_remark,
@@ -940,7 +940,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         var taskId = $(this).data("id");
         var status = $(this).val();
         $.ajax({
-            url: "{{ action('DevelopmentController@changeTaskStatus') }}",
+            url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'changeTaskStatus']) }}",
             type: 'POST',
             data: {
                 task_id: taskId,
@@ -956,7 +956,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
     function sendImage(id) {
 
         $.ajax({
-            url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
+            url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'issue')}}",
             type: 'POST',
             data: {
                 issue_id: id,
@@ -1001,7 +1001,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 
                 $.ajax({
                     method: 'POST',
-                    url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
+                    url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'issue')}}",
                     data: image_upload,
                     async: true,
                     contentType: false,
@@ -1028,7 +1028,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         }
 
         $.ajax({
-            url: "{{ action('DevelopmentController@openNewTaskPopup') }}",
+            url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'openNewTaskPopup']) }}",
             type: 'GET',
             dataType: "JSON",
             success: function(resp) {
@@ -1050,7 +1050,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         let self = this;
 
         $.ajax({
-            url: "{{action('DevelopmentController@resolveIssue')}}",
+            url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'resolveIssue'])}}",
             data: {
                 issue_id: id,
                 is_resolved: status,
@@ -1084,7 +1084,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         var postData = new FormData(form[0]);
         $.ajax({
             method: "post",
-            url: "{{action('DevelopmentController@uploadDocument')}}",
+            url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'uploadDocument'])}}",
             data: postData,
             processData: false,
             contentType: false,
@@ -1104,7 +1104,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         var id = $(this).data("id");
         $.ajax({
             method: "GET",
-            url: "{{action('DevelopmentController@getDocument')}}",
+            url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'getDocument'])}}",
             data: {
                 id: id
             },
@@ -1161,7 +1161,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             }
             $.ajax({
                 type: "POST",
-                url: "{{action('DevelopmentController@deleteBulkTasks')}}",
+                url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'deleteBulkTasks'])}}",
                 data: {
                     _token: "{{ csrf_token() }}",
                     selected_tasks: selected_tasks
@@ -1189,7 +1189,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         }
 
         $.ajax({
-            url: "{{action('DevelopmentController@assignTeamlead')}}",
+            url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'assignTeamlead'])}}",
             data: {
                 team_lead_id: userId,
                 issue_id: id
@@ -1215,7 +1215,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         }
 
         $.ajax({
-            url: "{{action('DevelopmentController@assignTester')}}",
+            url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'assignTester'])}}",
             data: {
                 tester_id: userId,
                 issue_id: id
@@ -1235,7 +1235,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         let type = $(this).attr('data-type');
         $('#meeting_time_div table tbody').html('');
         $.ajax({
-            url: "{{action('DevelopmentController@getMeetingTimings')}}",
+            url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'getMeetingTimings'])}}",
             data: {
                 type: type,
                 issue_id: id
@@ -1287,7 +1287,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         $('#meeting_time_div table tbody').html('');
         console.log(task_id);
         $.ajax({
-            url: "{{action('DevelopmentController@getMeetingTimings')}}",
+            url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'getMeetingTimings'])}}",
             data: {
                 type: type,
                 issue_id: task_id,

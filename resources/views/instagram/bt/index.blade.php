@@ -8,7 +8,7 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <form enctype="multipart/form-data" action="{{ action('BrandTaggedPostsController@store') }}" method="post">
+            <form enctype="multipart/form-data" action="{{ action([\App\Http\Controllers\BrandTaggedPostsController::class, 'store']) }}" method="post">
                 @csrf
                 <div class="form-group">
                     <label for="account_id">Account</label>

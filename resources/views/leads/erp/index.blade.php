@@ -1107,7 +1107,7 @@
     let self = textBox;
 
     $.ajax({
-      url: "{{action('WhatsAppController@sendMessage', 'customer')}}",
+      url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'customer')}}",
       type: 'POST',
       data: {
         "customer_id": customerId,
@@ -1164,7 +1164,7 @@
       headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
       },
-      url: "{{action('PurchaseProductController@saveDiscount')}}",
+      url: "{{action([\App\Http\Controllers\PurchaseProductController::class, 'saveDiscount'])}}",
       type: 'POST',
       data: {
         discount: discount,
@@ -1193,7 +1193,7 @@
       headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
       },
-      url: "{{action('PurchaseProductController@saveFixedPrice')}}",
+      url: "{{action([\App\Http\Controllers\PurchaseProductController::class, 'saveFixedPrice'])}}",
       type: 'POST',
       data: {
         fixed_price: fixed_price,

@@ -671,7 +671,7 @@ $(document).on('click', '.send-message-open', function (event) {
             //  let self = textBox;
 
             $.ajax({
-                url: "{{action('WhatsAppController@sendMessage', 'SOP-Data')}}",
+                url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'SOP-Data')}}",
                 type: 'POST',
                 data: {
                     "sop_user_id": sop_user_id,
