@@ -11,6 +11,7 @@ class OrderErrorLog extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="id",type="integer")
      * @SWG\Property(property="order_id",type="string")
      * @SWG\Property(property="event_type",type="integer")

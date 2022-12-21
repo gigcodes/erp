@@ -13,6 +13,7 @@ class OldStatus extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="category",type="string")
      */
     protected $fillable = ['status'];

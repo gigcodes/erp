@@ -11,6 +11,7 @@ class HubstaffTaskEfficiency extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="hubstaff_task_efficiency",type="string")
      * @SWG\Property(property="admin_input",type="string")
      * @SWG\Property(property="user_input",type="string")

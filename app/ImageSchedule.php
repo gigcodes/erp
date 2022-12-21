@@ -11,6 +11,7 @@ class ImageSchedule extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="scheduled_for",type="string")
      * @SWG\Property(property="created_at",type="datetime")
      * @SWG\Property(property="updated_at",type="datetime")

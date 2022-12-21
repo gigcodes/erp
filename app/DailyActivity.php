@@ -12,6 +12,7 @@ class DailyActivity extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="time_slot",type="datetime")
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="is_admin",type="boolean")

@@ -12,6 +12,7 @@ class Message extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="body",type="string")
      * @SWG\Property(property="subject",type="string")
      * @SWG\Property(property="moduletype",type="string")

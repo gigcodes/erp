@@ -11,6 +11,7 @@ class StoreSocialContentCategory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="title",type="integer")
      */
     protected $fillable = ['title'];

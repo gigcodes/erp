@@ -92,7 +92,7 @@
          @endphp
          @if($chatMessage)
          {{ substr($chatMessage->message,0,40) }}... 
-         @if($chatMessage->is_reviewed == 0)
+         @if(isset($chatMessage->is_reviewed) && $chatMessage->is_reviewed == 0)
          <button type="button" title="Please review this" class="btn btn-xs btn-secondary approve-messages review-btn" data-id="{{ $chatMessage->id }}"><i class="fa fa-check" aria-hidden="true"></i></button>
          @endif
          @endif

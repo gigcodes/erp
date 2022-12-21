@@ -28,6 +28,7 @@ class Category extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="id",type="integer")
      * @SWG\Property(property="title",type="string")
      * @SWG\Property(property="parent_id",type="integer")
@@ -872,7 +873,7 @@ class Category extends Model
                         if ($leveltwo->id == $mainCategory || $leveltwo->parent_id == $mainCategory) {
                             return $match;
                         }
-                        // now as this is matched we can send this category to that it is matched
+                    // now as this is matched we can send this category to that it is matched
                     } else {
                         if ($levelone->id == $mainCategory || $levelone->parent_id == $mainCategory) {
                             return $match;
@@ -960,7 +961,7 @@ class Category extends Model
                             if ($leveltwo->id == $mainCategory || $leveltwo->parent_id == $mainCategory) {
                                 return $category;
                             }
-                            // now as this is matched we can send this category to that it is matched
+                        // now as this is matched we can send this category to that it is matched
                         } else {
                             if ($levelone->id == $mainCategory || $levelone->parent_id == $mainCategory) {
                                 return $category;

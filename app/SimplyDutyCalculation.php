@@ -11,6 +11,7 @@ class SimplyDutyCalculation extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="hscode",type="string")
      * @SWG\Property(property="value",type="string")
      * @SWG\Property(property="duty",type="string")

@@ -12,6 +12,7 @@ class FcmToken extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="token",type="string")
      * @SWG\Property(property="store_website_id",type="integer")
      */

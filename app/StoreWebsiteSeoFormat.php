@@ -14,6 +14,7 @@ class StoreWebsiteSeoFormat extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="meta_title",type="string")
      * @SWG\Property(property="meta_keyword",type="string")
      * @SWG\Property(property="meta_description",type="string")

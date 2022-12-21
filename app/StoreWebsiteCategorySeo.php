@@ -11,6 +11,7 @@ class StoreWebsiteCategorySeo extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="category_id",type="integer")
      * @SWG\Property(property="language_id",type="integer")
      * @SWG\Property(property="meta_title",type="string")

@@ -233,12 +233,13 @@ var page = {
         $('.url').val('')
         $('.bug_type_id').val('')
         $('.bug_environment_id').val('')
-        $('.assign_to_update').val('')
-        $('.bug_severity_id_update').val('')
-        $('.bug_status_id_update').val('')
+        $('#assign_to_update').val('')
+        $('#bug_severity_id_update').val('')
+        $('#bug_status_id_update').val('')
         $('.module_id').val('')
         $('.remark').val('')
         $('.website').val('')
+		$('.parent_id').val('')				 
 
         $('.id').val(response.data.id)
         //$('.summary').val(response.data.summary)
@@ -251,12 +252,13 @@ var page = {
         $('.bug_type_id').val(response.data.bug_type_id)
         $('.bug_environment_id').val(response.data.bug_environment_id)
 		$('.bug_environment_ver').val(response.data.bug_environment_ver)
-        $('.assign_to_update').val(response.data.assign_to)
-        $('.bug_severity_id_update').val(response.data.bug_severity_id)
-        $('.bug_status_id_update').val(response.data.bug_status_id)
+        $('#assign_to_update').val(response.data.assign_to)
+        $('#bug_severity_id_update').val(response.data.bug_severity_id)
+        $('#bug_status_id_update').val(response.data.bug_status_id)
         $('.module_id').val(response.data.module_id)
         $('.remark').val(response.data.remark)
         $('.website').val(response.data.website)
+		$('.parent_id').val(response.data.parent_id)									  
     },
 
     submitFormSite : function(ele) {
@@ -548,6 +550,7 @@ var page = {
                     html+=" <th>"+ item.created_at +"</th>"
                     html+=" <th>"+ item.bug_type_id +"</th>"
                     html+=" <th>"+ item.summary +"</th>"
+                    html+=" <th>"+ item.expected_result +"</th>"
                     html+=" <th>"+ item.bug_environment_id +"</th>"
                     html+=" <th>"+ item.assign_to +"</th>"
                     html+=" <th>"+ item.bug_status_id +"</th>"

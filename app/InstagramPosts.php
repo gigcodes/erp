@@ -12,6 +12,7 @@ class InstagramPosts extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="location",type="string")
      */
     use Mediable;

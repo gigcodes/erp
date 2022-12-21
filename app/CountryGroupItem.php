@@ -11,6 +11,7 @@ class CountryGroupItem extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="country_code",type="string")
      * @SWG\Property(property="country_group_id",type="integer")
      * @SWG\Property(property="created_at",type="datetime")

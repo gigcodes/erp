@@ -11,6 +11,7 @@ class FlowCondition extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="flow_id",type="integer")
      * @SWG\Property(property="condition_name",type="string")
      * @SWG\Property(property="message",type="string")

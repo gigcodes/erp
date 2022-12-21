@@ -31,8 +31,8 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class LeadsController extends Controller
 {
@@ -300,7 +300,7 @@ class LeadsController extends Controller
                 }
             }
 
-            //$data[ 'multi_brand' ] = $brand_array ? json_encode($brand_array) : null;
+        //$data[ 'multi_brand' ] = $brand_array ? json_encode($brand_array) : null;
         //$data[ 'multi_category' ] = $category_array ? json_encode($category_array) : null;
         } else {
             $data['client_name'] = $customer->name;

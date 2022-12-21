@@ -12,6 +12,7 @@ class SocialStrategy extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="description",type="string")
      * @SWG\Property(property="social_strategy_subject_id",type="integer")
      * @SWG\Property(property="execution_id",type="integer")

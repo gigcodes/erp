@@ -13,6 +13,7 @@ class CustomerReview extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="email",type="string")
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="store_website_id",type="integer")

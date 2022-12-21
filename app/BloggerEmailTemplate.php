@@ -11,6 +11,7 @@ class BloggerEmailTemplate extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="from",type="string")
      * @SWG\Property(property="subject",type="string")
      * @SWG\Property(property="message",type="string")

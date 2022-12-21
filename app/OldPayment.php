@@ -11,6 +11,7 @@ class OldPayment extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="old_id",type="integer")
      * @SWG\Property(property="currency",type="string")
      * @SWG\Property(property="payment_date",type="datetime")

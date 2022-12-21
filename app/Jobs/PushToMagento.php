@@ -26,19 +26,23 @@ class PushToMagento implements ShouldQueue
 
     protected $log;
 
+    protected $mode;
+
     /**
      * Create a new job instance.
      *
      * @param  Product  $product
      * @param  StoreWebsite  $website
      * @param  null  $log
+     * @param  null  $mode
      */
-    public function __construct(Product $product, StoreWebsite $website, $log = null)
+    public function __construct(Product $product, StoreWebsite $website, $log = null, $mode = null)
     {
         // Set product and website
         $this->_product = $product;
         $this->_website = $website;
         $this->log = $log;
+        $this->mode = $mode;
     }
 
     /**

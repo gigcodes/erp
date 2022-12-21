@@ -32,6 +32,8 @@ class MagentoService
 
     public $log;
 
+    public $mode;
+
     public $categories;
 
     public $brand;
@@ -100,11 +102,12 @@ class MagentoService
 
     const SKU_SEPERATOR = '-';
 
-    public function __construct(Product $product, StoreWebsite $storeWebsite, $log = null)
+    public function __construct(Product $product, StoreWebsite $storeWebsite, $log = null, $mode = null)
     {
         $this->product = $product;
         $this->storeWebsite = $storeWebsite;
         $this->log = $log;
+        $this->mode = $mode;
         $this->charity = 0;
         $p = \App\CustomerCharity::where('product_id', $this->product->id)->first();
         if ($p) {
@@ -302,7 +305,15 @@ class MagentoService
 
         \Log::info($this->product->id.' #19 => '.date('Y-m-d H:i:s'));
 
-        return $this->assignProductOperation();
+        if ($this->mode == 'conditions-check') {
+            $productRow = Product::find($this->product->id);
+            $productRow->status_id = StatusHelper::$productConditionsChecked;
+            $productRow->save();
+
+            return true;
+        } elseif ($this->mode == 'product-push') {
+            return $this->assignProductOperation();
+        }
     }
 
     private function getActiveLanguages()
@@ -457,7 +468,7 @@ class MagentoService
         return $sku;
     }
 
-    private function assignProductOperation()
+    public function assignProductOperation()
     {
         $product = $this->product;
         $brand = $this->brand;

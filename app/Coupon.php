@@ -12,6 +12,7 @@ class Coupon extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="magento_id",type="integer")
      * @SWG\Property(property="code",type="string")
      * @SWG\Property(property="description",type="string")

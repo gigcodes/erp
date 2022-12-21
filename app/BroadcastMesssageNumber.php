@@ -12,6 +12,7 @@ class BroadcastMesssageNumber extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="broadcast_message_id",type="integer")
      * @SWG\Property(property="type_id",type="integer")
      * @SWG\Property(property="type",type="string")
