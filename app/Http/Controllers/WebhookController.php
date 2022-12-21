@@ -102,16 +102,16 @@ class WebhookController extends Controller
     private function processEvent(array $event): void
     {
         Log::info('Process event start');
-        if(isset($event['email_id'])){
+        if (isset($event['email_id'])) {
             if ($event['email_id']) {
                 $emailId = $event['email_id'];
             } else {
                 $emailId = null;
             }
-        }else{
+        } else {
             $emailId = null;
         }
-        
+
         if ($this->sendgridEventRepository->exists($event['sg_event_id'], $emailId, $event['sg_event_id'])) {
             Log::info('log duplicate start');
             $this->logDuplicateEvent($event);
