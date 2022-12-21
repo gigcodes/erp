@@ -84,10 +84,12 @@ class PushToMagento implements ShouldQueue
         }
         \Log::info('entered to job!');
         try {
-            dd('entered to condition check');
+            \Log::info('entered to try catch!');
             //$jobId = app(JobRepository::class)->id;
             if ((in_array('status_condition', $conditions) && $topParent == 'NEW') || ($topParent == 'PREOWNED' && in_array('status_condition', $upteamconditions))) {
+                \Log::info('passes first condition NEW/PREOWNED!');
                 if ($product->status_id == StatusHelper::$finalApproval) {
+                    \Log::info('Status id is final approval(9)');
                     if ($this->log) {
                         $this->log->sync_status = 'condition_checking';
                         $this->log->message = 'Product has been started to check conditions.';
@@ -209,6 +211,8 @@ class PushToMagento implements ShouldQueue
                         \Log::error($errorMessage);
                     }
                 }
+            } else {
+                \Log::info("Failed condition: (in_array('status_condition') && == 'NEW') ||  == 'PREOWNED' && in_array('status_condition',))");
             }
         } catch (\Exception $e) {
             if ($this->log) {
