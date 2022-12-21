@@ -84,7 +84,7 @@ class PushToMagento implements ShouldQueue
         }
         \Log::info('entered to job!');
         try {
-            dd("entered to condition check") ;
+            dd('entered to condition check');
             //$jobId = app(JobRepository::class)->id;
             if ((in_array('status_condition', $conditions) && $topParent == 'NEW') || ($topParent == 'PREOWNED' && in_array('status_condition', $upteamconditions))) {
                 if ($product->status_id == StatusHelper::$finalApproval) {
