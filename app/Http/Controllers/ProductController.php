@@ -4825,12 +4825,27 @@ class ProductController extends Controller
                         try {
                             PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
                         } catch (\Exception $e) {
+                            $error_msg = "First Job failed: ".$e->getMessage();
+                            $log->sync_status = 'error';
+                            $log->message = $error_msg;
                             $log->save();
                             ProductPushErrorLog::log('', $product->id, $error_msg, 'error', $website->id, null, null, $log->id, null);
                         }
                         $i++;
+                    } else {
+                        ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', $website->id, null, null, null, null);
+                    }
+                }
             } else {
+                ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
+            }
+        }
+        \Log::info('Product push end time: '.date('Y-m-d H:i:s'));
 
+        if ($mode == 'conditions-check') {
+            return response()->json(['code' => 200, 'message' => 'Conditions checked completed successfully!']);
+        } elseif ($mode == 'product-push') {
+            return response()->json(['code' => 200, 'message' => 'Push product successfully!']);
         }
     }
 
