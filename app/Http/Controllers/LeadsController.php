@@ -300,7 +300,7 @@ class LeadsController extends Controller
                 }
             }
 
-        //$data[ 'multi_brand' ] = $brand_array ? json_encode($brand_array) : null;
+            //$data[ 'multi_brand' ] = $brand_array ? json_encode($brand_array) : null;
         //$data[ 'multi_category' ] = $category_array ? json_encode($category_array) : null;
         } else {
             $data['client_name'] = $customer->name;

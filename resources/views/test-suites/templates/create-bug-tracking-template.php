@@ -40,7 +40,7 @@
             foreach ($bugEnvironments as  $bugEnvironment) {
                 echo "<option {{if data.bug_environment_id == '".$bugEnvironment->id."'}} selected {{/if}} value='".$bugEnvironment->id."'>".$bugEnvironment->name.'</option>';
             }
-		?>
+        ?>
 		         </select>
 		      </div>
 		       <div class="form-group col-md-6">
@@ -48,10 +48,10 @@
 		         <select name="assign_to" class="form-control">
 	            	<option value="">-- N/A --</option>
 		            <?php
-		    foreach ($users as  $user) {
-		        echo "<option {{if data.assign_to == '".$user->id."'}} selected {{/if}} value='".$user->id."'>".$user->name.'</option>';
-		    }
-		?>
+            foreach ($users as  $user) {
+                echo "<option {{if data.assign_to == '".$user->id."'}} selected {{/if}} value='".$user->id."'>".$user->name.'</option>';
+            }
+        ?>
 		         </select>
 		      </div>
 		       
@@ -60,10 +60,10 @@
 		         <select name="bug_status_id" class="form-control">
 	            	<option value="">-- N/A --</option>
 		            <?php
-		foreach ($bugStatuses as  $bugStatus) {
-		    echo "<option {{if data.bug_status_id == '".$bugStatus->id."'}} selected {{/if}} value='".$bugStatus->id."'>".$bugStatus->name.'</option>';
-		}
-		?>
+        foreach ($bugStatuses as  $bugStatus) {
+            echo "<option {{if data.bug_status_id == '".$bugStatus->id."'}} selected {{/if}} value='".$bugStatus->id."'>".$bugStatus->name.'</option>';
+        }
+        ?>
 		         </select>
 		      </div>
 		      <div class="form-group col-md-6">
@@ -71,10 +71,10 @@
 		         <select name="module_id" class="form-control">
 	            	<option value="">-- N/A --</option>
 		            <?php
-		    foreach ($filterCategories as  $filterCategory) {
-		        echo "<option {{if data.module_id == '".$filterCategory."'}} selected {{/if}} value='".$filterCategory."'>".$filterCategory.'</option>';
-		    }
-		?>
+            foreach ($filterCategories as  $filterCategory) {
+                echo "<option {{if data.module_id == '".$filterCategory."'}} selected {{/if}} value='".$filterCategory."'>".$filterCategory.'</option>';
+            }
+        ?>
 		         </select>
 		      </div>
                <div class="form-group col-md-6">
@@ -82,10 +82,10 @@
 		         <select name="website" class="form-control">
 	            	<option value="">-- N/A --</option>
 		            <?php
-		    foreach ($filterWebsites as  $filterWebsite) {
-		        echo "<option {{if data.website == '".$filterWebsite."'}} selected {{/if}} value='".$filterWebsite."'>".$filterWebsite.'</option>';
-		    }
-		?>
+            foreach ($filterWebsites as  $filterWebsite) {
+                echo "<option {{if data.website == '".$filterWebsite."'}} selected {{/if}} value='".$filterWebsite."'>".$filterWebsite.'</option>';
+            }
+        ?>
 		         </select>
 		      </div>
               <div class="form-group col-md-6">

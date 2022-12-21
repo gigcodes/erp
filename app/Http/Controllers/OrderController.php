@@ -4825,7 +4825,7 @@ class OrderController extends Controller
 
                 return response()->json(['message' => $result, 'success' => true], 200);
             }
-        //$storeWebsiteOrder->update(['order_id', $status]);
+            //$storeWebsiteOrder->update(['order_id', $status]);
         } else {
             $this->createOrderLog($request, 'Cancel Transaction', 'Store Website Orders not found');
 

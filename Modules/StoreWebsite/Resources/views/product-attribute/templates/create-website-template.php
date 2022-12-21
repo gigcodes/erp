@@ -52,7 +52,7 @@
                             foreach ($storeWebsites as $k => $l) {
                                 echo "<option {{if data.store_website_id == '".$k."'}} selected {{/if}} value='".$k."'>".$l.'</option>';
                             }
-		?>
+        ?>
 			         </select>
 			      </div>
 		      </div>

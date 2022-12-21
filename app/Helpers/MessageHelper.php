@@ -313,7 +313,7 @@ class MessageHelper
                 } else {
                     $log_comment = $log_comment.' User not found ';
                 }
-            //END CODE Task message to send message in whatsapp
+                //END CODE Task message to send message in whatsapp
             } else {
                 $log_comment = $log_comment.' Keyword not found ';
             }

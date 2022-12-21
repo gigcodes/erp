@@ -180,11 +180,11 @@ class PushToMagento implements ShouldQueue
                         }
                         ProductPushErrorLog::log('', $product->id, 'Image(s) is needed for push product', 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_images_exists']);
                     }
-                    
+
                     try {
                         MagentoServiceJob::dispatch($product, $website, $this->log)->onQueue($this->log->queue);
                     } catch (\Exception $e) {
-                        $error_msg = "Second Job failed: ".$e->getMessage();
+                        $error_msg = 'Second Job failed: '.$e->getMessage();
                         $this->log->sync_status = 'error';
                         $this->log->message = $error_msg;
                         $this->log->save();
@@ -279,21 +279,21 @@ class PushToMagento implements ShouldQueue
         //     Log::channel('listMagento')->info( "[Queued job result] Successfully pushed product with ID " . $product->id . " to Magento" );
         // }
     }
-    
+
     public function failed(\Throwable $exception = null)
     {
         $product = $this->_product;
         $website = $this->_website;
-        
+
         $error_msg = 'First Job failed for '.$product->name;
         if ($this->log) {
             $this->log->sync_status = 'error';
             $this->log->message = $error_msg;
             $this->log->save();
         }
-        ProductPushErrorLog::log('', $product->id,$error_msg, 'error', $website->id, null, null, $this->log->id);
+        ProductPushErrorLog::log('', $product->id, $error_msg, 'error', $website->id, null, null, $this->log->id);
     }
-    
+
     public function tags()
     {
         return ['magento', $this->_product->id];

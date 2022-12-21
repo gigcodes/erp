@@ -1983,13 +1983,13 @@ class CustomerController extends Controller
                 $products = $products->join('product_suppliers as ps', 'ps.sku', 'products.sku');
                 $products = $products->whereIn('ps.supplier_id', $request->supplier);
                 $products = $products->groupBy('products.id');
-                /*$products = $products->whereHas('suppliers', function ($query) use ($request) {
-                return $query->where(function ($q) use ($request) {
-                foreach ($request->supplier as $supplier) {
-                $q->orWhere('suppliers.id', $supplier);
-                }
-                });
-                });*/
+            /*$products = $products->whereHas('suppliers', function ($query) use ($request) {
+            return $query->where(function ($q) use ($request) {
+            foreach ($request->supplier as $supplier) {
+            $q->orWhere('suppliers.id', $supplier);
+            }
+            });
+            });*/
             } else {
                 $products = $products->join('product_suppliers as ps', 'ps.sku', 'products.sku');
                 $products = $products->whereIn('ps.supplier_id', $request->supplier);
