@@ -546,7 +546,6 @@ class BugTrackingController extends Controller
         return response()->json(['code' => 200, 'data' => $bugStatuses]);
     }
 
-    
      public function assignUser(Request $request)
      {
          $bugTracker = BugTracker::where('id', $request->id)->first();
