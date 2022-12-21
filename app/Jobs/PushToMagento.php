@@ -85,6 +85,9 @@ class PushToMagento implements ShouldQueue
         \Log::info('entered to job!');
         try {
             \Log::info('entered to try catch!');
+            \Log::info('TopParent:' . $topParent);
+            \Log::info('conditions:'. json_encode($conditions));
+            \Log::info('upteamconditions:'. json_encode($upteamconditions));
             //$jobId = app(JobRepository::class)->id;
             if ((in_array('status_condition', $conditions) && $topParent == 'NEW') || ($topParent == 'PREOWNED' && in_array('status_condition', $upteamconditions))) {
                 \Log::info('passes first condition NEW/PREOWNED!');
