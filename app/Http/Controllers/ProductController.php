@@ -4886,7 +4886,7 @@ class ProductController extends Controller
                         \Log::info('Product conditions check started website found For website '.$website->website);
                         $log = LogListMagento::log($product->id, 'Product conditions check started for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
                         //currently we have 3 queues assigned for this task.
-                        $log->queue = \App\Helpers::createQueueName('magentoconditionscheckqueue');
+                        $log->queue = \App\Helpers::createQueueName('default');
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started conditions check of '.$product->name, 'success', $website->id, null, null, $log->id, null);
                         PushToMagento::dispatch($product, $website, $log, $mode);
