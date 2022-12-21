@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Github;
 
-use Illuminate\Support\Facades\Route;
 use App\Github\GithubRepository;
 use App\Github\GithubRepositoryUser;
 use App\Github\GithubUser;
@@ -11,6 +10,7 @@ use App\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Route;
 
 class UserController extends Controller

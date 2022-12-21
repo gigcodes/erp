@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ScrapStatisticsController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Api;
 use App\Http\Controllers\BrandController;
@@ -24,11 +23,13 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PriceComparisionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductCropperController;
-use App\Http\Controllers\ProductTemplatesController;
 use App\Http\Controllers\Products;
+use App\Http\Controllers\ProductTemplatesController;
 use App\Http\Controllers\QuickSellController;
 use App\Http\Controllers\ResourceImgController;
 use App\Http\Controllers\ScrapController;
+use App\Http\Controllers\scrapperPhyhon;
+use App\Http\Controllers\ScrapStatisticsController;
 use App\Http\Controllers\SearchQueueController;
 use App\Http\Controllers\SimplyDutyCalculationController;
 use App\Http\Controllers\SimplyDutyCountryController;
@@ -40,7 +41,6 @@ use App\Http\Controllers\TwilioController;
 use App\Http\Controllers\UpdateLogController;
 use App\Http\Controllers\UserLogController;
 use App\Http\Controllers\WeTransferController;
-use App\Http\Controllers\scrapperPhyhon;
 use Illuminate\Support\Facades\Route;
 
 /*

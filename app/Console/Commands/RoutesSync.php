@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\Facades\Route;
 use App\Routes;
 use Illuminate\Console\Command;
 

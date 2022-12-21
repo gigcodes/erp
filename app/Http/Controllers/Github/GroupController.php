@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Github;
 
-use Illuminate\Support\Facades\Route;
 use App\Github\GithubGroup;
 use App\Github\GithubGroupMember;
 use App\Github\GithubRepository;
@@ -13,6 +12,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Route;
 
 class GroupController extends Controller

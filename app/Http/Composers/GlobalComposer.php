@@ -2,12 +2,12 @@
 
 namespace App\Http\Composers;
 
-use Illuminate\Support\Facades\Route;
 use App\Helpers\PermissionCheck;
 use App\Permission;
 use App\PermissionRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Route;
 
 class GlobalComposer

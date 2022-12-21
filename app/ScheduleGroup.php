@@ -19,6 +19,7 @@ class ScheduleGroup extends Model
     protected $casts = [
         'scheduled_for' => 'datetime',
         'images' => 'array',    ];
+
     public $timestamps = false;
 
     public function getImagesAttribute($value)

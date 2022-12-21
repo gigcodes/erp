@@ -25,6 +25,7 @@ class CallBusyMessage extends Model
     protected $fillable = ['lead_id', 'twilio_call_sid', 'caller_sid', 'message', 'recording_url', 'status', 'call_busy_message_statuses_id', 'audio_text'];
 
     protected $table = 'call_busy_messages';
+
     protected $casts = [
         'created_atcreated_at' => 'datetime',
     ];
