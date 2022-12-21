@@ -20,10 +20,14 @@ table{border-collapse: collapse;}
 .ui-icon, .ui-widget-content .ui-icon {background-image: none;}
 
 #bug_tracking_maintable {
-	font-size:13px;
+	font-size:12.5px;
 }
 .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
 	padding:5px;
+}
+#bug_tracking_maintable .btn {
+	padding: 1px 3px 0px 4px !important;
+	margin-top:0px !important;
 }
 </style>
 	<div class="row" id="common-page-layout">
@@ -103,8 +107,12 @@ table{border-collapse: collapse;}
 										</select>
 									</div>
 									<div class="form-group" style="width: 200px;">
+										<input name="bug_id" type="text" class="form-control" placeholder="Bug ID" id="bug-id-search" data-allow-clear="true" />
+									</div>
+									<div class="form-group" style="width: 200px;">
 										<input name="step_to_reproduce" type="text" class="form-control" placeholder="Search Reproduce" id="bug-search" data-allow-clear="true" />
 									</div>
+									
 									<div class="form-group m-3" style="width: 200px;">
 										<input name="summary" type="text" class="form-control" placeholder="Search Summary" id="bug-summary" data-allow-clear="true" />
 									</div>
@@ -904,6 +912,8 @@ table{border-collapse: collapse;}
 			var thiss = $(this);
 			var data = new FormData();
 			var task_id = $(this).data('taskid');
+			var bid = $(this).data('id');
+			
 			var message = $(this).closest('tr').find('.quick-message-field').val();
 			var mesArr = $(this).closest('tr').find('.quick-message-field');
 			$.each(mesArr, function(index, value) {
@@ -939,14 +949,16 @@ table{border-collapse: collapse;}
 						//   }).fail(function(response) {
 						//     console.log(response);
 						//     alert(response.responseJSON.message);
-						//   });
+						//   });						
+						$('#getMsg'+bid).val('')
 
 						$(thiss).attr('disabled', false);
 					}).fail(function(errObj) {
-						$(thiss).attr('disabled', false);
-
-						alert("Could not send message");
+						$(thiss).attr('disabled', false);						
+						$('#getMsg'+bid).val('')
+						//alert("Could not send message");
 						console.log(errObj);
+						
 					});
 				}
 			} else {
