@@ -136,7 +136,6 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        parent::boot();
 
         Brand::observe(BrandObserver::class);
         Email::observe(EmailObserver::class);
