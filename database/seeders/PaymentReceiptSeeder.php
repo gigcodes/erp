@@ -1,8 +1,11 @@
 <?php
 
+namespace Database\Seeders;
+
+use App\PaymentReceipt;
 use Illuminate\Database\Seeder;
 
-class TeamSeeder extends Seeder
+class PaymentReceiptSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -11,6 +14,6 @@ class TeamSeeder extends Seeder
      */
     public function run()
     {
-        \App\Team::factory()->count(100)->create();
+        PaymentReceipt::factory()->count(10000)->create();
     }
 }

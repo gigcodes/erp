@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\ReferralProgram;
 use Illuminate\Database\Seeder;
 

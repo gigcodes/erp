@@ -1,15 +1,19 @@
 <?php
 
-use App\User;
+namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
-class UserTableSeeder extends Seeder
+class PermissionTableSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
     public function run()
     {
-        $input_roles = $this->command->ask('Enter roles in comma separate format.', 'Admin,Selectors,Searchers,ImageCropers,Supervisors,Listers,Approvers,Inventory,Attribute,Sales,crm,message,Activity,user,Social Creator,Social Manager,HOD of CRM,Developer,Office Boy,Review,Delivery Coordinator,Products Lister,social-facebook-test,Vendor,Customer Care');
         $permissions = [
             'role-list',
             'role-create',
@@ -93,50 +97,66 @@ class UserTableSeeder extends Seeder
             'old-incoming',
             'blogger-all',
             'hubstaff',
+            'attachment-create-all',
+            'attachment-create-own',
+            'attachment-delete-all',
+            'attachment-delete-own',
+            'attachment-update-all',
+            'attachment-update-own',
+            'book-create-all',
+            'book-create-own',
+            'book-delete-all',
+            'book-delete-own',
+            'book-update-all',
+            'book-update-own',
+            'book-view-all',
+            'book-view-own',
+            'bookshelf-create-all',
+            'bookshelf-create-own',
+            'bookshelf-delete-all',
+            'bookshelf-delete-own',
+            'bookshelf-update-all',
+            'bookshelf-update-own',
+            'bookshelf-view-all',
+            'bookshelf-view-own',
+            'chapter-create-all',
+            'chapter-create-own',
+            'chapter-delete-all',
+            'chapter-delete-own',
+            'chapter-update-all',
+            'chapter-update-own',
+            'chapter-view-all',
+            'chapter-view-own',
+            'comment-create-all',
+            'comment-create-own',
+            'comment-delete-all',
+            'comment-delete-own',
+            'comment-update-all',
+            'comment-update-own',
+            'image-create-all',
+            'image-create-own',
+            'image-delete-all',
+            'image-delete-own',
+            'image-update-all',
+            'image-update-own',
+            'page-create-all',
+            'page-create-own',
+            'page-delete-all',
+            'page-delete-own',
+            'page-update-all',
+            'page-update-own',
+            'page-view-all',
+            'page-view-own',
+            'restrictions-manage-all',
+            'restrictions-manage-own',
+            'settings-manage',
+            'templates-manage',
+            'user-roles-manage',
+            'users-manage',
         ];
 
-        foreach ($permissions as $perms) {
-            Permission::firstOrCreate(['name' => $perms]);
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
         }
-        // Explode roles
-        $roles_array = explode(',', $input_roles);
-
-        // add roles
-        foreach ($roles_array as $role) {
-            $role = Role::firstOrCreate(['name' => trim($role)]);
-
-            if ($role->name == 'Admin') {
-                // assign all permissions
-                //$role->syncPermissions(Permission::all());
-                $role->syncPermissions(Permission::where('guard_name', '!=', '')->get());
-                $this->command->info('Admin granted all the permissions');
-            } else {
-                // for others by default only read access
-                $role->syncPermissions(Permission::where('name', 'LIKE', 'view_%')->get());
-            }
-
-            // create one user for each role
-            $this->createUser($role);
-        }
-
-        $this->command->info('Roles '.$input_roles.' added successfully');
-        $this->createUser('Admin');
-    }
-
-    /**
-     * Create a user with given role
-     *
-     * @param $role
-     */
-    private function createUser($role)
-    {
-        $user = User::factory()->create();
-        $user->assignRole('Admin');
-
-        // if( $role->name == 'Admin' ) {
-        $this->command->info('Here is your admin details to login:');
-        $this->command->warn($user->email);
-        $this->command->warn('Password is "secret"');
-        // }
     }
 }
