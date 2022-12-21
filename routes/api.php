@@ -19,7 +19,7 @@
  *Routes added by Hitesh Start
  **/
 
-Route::get('crop/new-url', 'ProductController@giveImage');
+Route::get('crop', 'ProductController@giveImage');
 
 Route::post('mailinglist/add', 'Api\v1\MailinglistController@add');
 /**
