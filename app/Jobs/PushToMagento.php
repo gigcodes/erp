@@ -52,6 +52,7 @@ class PushToMagento implements ShouldQueue
      */
     public function handle()
     {
+        echo "entered to job";
         // Set time limit
         set_time_limit(0);
 
@@ -84,6 +85,7 @@ class PushToMagento implements ShouldQueue
         }
 
         try {
+            echo "entered to condition check";
             //$jobId = app(JobRepository::class)->id;
             if ((in_array('status_condition', $conditions) && $topParent == 'NEW') || ($topParent == 'PREOWNED' && in_array('status_condition', $upteamconditions))) {
                 if ($product->status_id == StatusHelper::$finalApproval) {
