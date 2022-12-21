@@ -14,15 +14,15 @@
 //Route::get('/', 'BookStackController@index');
 
 // Authenticated routes...
-Route::group(['middleware' => 'auth'], function () {
+Route::middleware('auth')->group(function () {
     // Secure images routing
     Route::get('/uploads/images/{path}', 'Images\ImageController@showImage')->where('path', '.*$');
 
-    Route::group(['prefix' => 'kb'], function () {
+    Route::prefix('kb')->group(function () {
         // Shelves
         Route::get('/create-shelf', 'BookshelfController@create');
         Route::get('/', 'BookshelfController@index');
-        Route::group(['prefix' => 'shelves'], function () {
+        Route::prefix('shelves')->group(function () {
             Route::get('/', 'BookshelfController@index');
             Route::post('/{slug}/add', 'BookshelfController@store');
             Route::get('/{slug}/edit', 'BookshelfController@edit');
@@ -41,7 +41,7 @@ Route::group(['middleware' => 'auth'], function () {
         });
 
         Route::get('/create-book', 'BookController@create');
-        Route::group(['prefix' => 'books'], function () {
+        Route::prefix('books')->group(function () {
             // Books
             Route::get('/', 'BookController@index');
             Route::post('/', 'BookController@store');
@@ -110,7 +110,7 @@ Route::group(['middleware' => 'auth'], function () {
         });
 
         // Settings
-        Route::group(['prefix' => 'settings'], function () {
+        Route::prefix('settings')->group(function () {
             Route::get('/', 'SettingController@index')->name('settings');
             Route::post('/', 'SettingController@update');
 
@@ -148,7 +148,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::delete('/ajax/page/{id}', 'PageController@ajaxDestroy');
 
     // Tag routes (AJAX)
-    Route::group(['prefix' => 'ajax/tags'], function () {
+    Route::prefix('ajax/tags')->group(function () {
         Route::get('/get/{entityType}/{entityId}', 'TagController@getForEntity');
         Route::get('/suggest/names', 'TagController@getNameSuggestions');
         Route::get('/suggest/values', 'TagController@getValueSuggestions');

@@ -261,7 +261,7 @@ Route::prefix('seo')->middleware('auth')->group(function () {
     Route::post('save-keyword', 'SeoToolController@saveKeyword');
 });
 
-Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
+Route::middleware('auth', 'optimizeImages')->group(function () {
     //Crop Reference
     Route::get('crop-references', 'CroppedImageReferenceController@index');
     Route::get('crop-references-grid', 'CroppedImageReferenceController@grid');
@@ -2196,12 +2196,7 @@ Route::post('twilio/store-cancel-task-record', 'TwilioController@storeCanceldTas
 Route::post('twilio/store-complete-task-record', 'TwilioController@storeCompleteTaskRecord')->name('twilio.store_complete_task_record');
 
 Route::get(
-    '/twilio/hangup',
-    [
-        'as' => 'hangup',
-        'uses' => 'TwilioController@showHangup',
-    ]
-);
+    '/twilio/hangup', 'TwilioController@showHangup')->name('hangup');
 
 Route::get('exotel/outgoing', 'ExotelController@call')->name('exotel.call');
 Route::get('exotel/checkNumber', 'ExotelController@checkNumber');
@@ -2295,7 +2290,7 @@ Route::get('google/bigData/search', 'GoogleBigQueryDataController@search')->name
 Route::delete('google/bigData/delete', 'GoogleBigQueryDataController@destroy')->name('google.bigdata.delete');
 //});
 
-Route::group(['middleware' => ['auth']], function () {
+Route::middleware('auth')->group(function () {
     Route::get('hubstaff/members', 'HubstaffController@index');
     Route::post('hubstaff/members/{id}/save-field', 'HubstaffController@saveMemberField');
     Route::post('hubstaff/refresh_users', 'HubstaffController@refreshUsers');
@@ -2722,16 +2717,16 @@ Route::middleware('auth')->group(function () {
 
 //Legal Module
 Route::middleware('auth')->group(function () {
-    Route::post('lawyer-speciality', ['uses' => 'LawyerController@storeSpeciality', 'as' => 'lawyer.speciality.store']);
+    Route::post('lawyer-speciality', 'LawyerController@storeSpeciality')->name('lawyer.speciality.store');
     Route::resource('lawyer', 'LawyerController');
     Route::get('case/{case}/receivable', 'CaseReceivableController@index')->name('case.receivable');
     Route::post('case/{case}/receivable', 'CaseReceivableController@store')->name('case.receivable.store');
     Route::put('case/{case}/receivable/{case_receivable}', 'CaseReceivableController@update')->name('case.receivable.update');
     Route::delete('case/{case}/receivable/{case_receivable}', 'CaseReceivableController@destroy')->name('case.receivable.destroy');
     Route::resource('case', 'CaseController');
-    Route::get('case-costs/{case}', ['uses' => 'CaseController@getCosts', 'as' => 'case.cost']);
-    Route::post('case-costs', ['uses' => 'CaseController@costStore', 'as' => 'case.cost.post']);
-    Route::put('case-costs/update/{case_cost}', ['uses' => 'CaseController@costUpdate', 'as' => 'case.cost.update']);
+    Route::get('case-costs/{case}', 'CaseController@getCosts')->name('case.cost');
+    Route::post('case-costs', 'CaseController@costStore')->name('case.cost.post');
+    Route::put('case-costs/update/{case_cost}', 'CaseController@costUpdate')->name('case.cost.update');
 });
 
 Route::middleware('auth')->resource('keyword-instruction', 'KeywordInstructionController')->except(['create']);
@@ -2831,8 +2826,8 @@ Route::middleware('auth')->group(function () {
 
 //Blogger Module
 Route::middleware('auth')->group(function () {
-    Route::get('blogger-email', ['uses' => 'BloggerEmailTemplateController@index', 'as' => 'blogger.email.template']);
-    Route::put('blogger-email/{bloggerEmailTemplate}', ['uses' => 'BloggerEmailTemplateController@update', 'as' => 'blogger.email.template.update']);
+    Route::get('blogger-email', 'BloggerEmailTemplateController@index')->name('blogger.email.template');
+    Route::put('blogger-email/{bloggerEmailTemplate}', 'BloggerEmailTemplateController@update')->name('blogger.email.template.update');
 
     Route::get('blogger/{blogger}/payments', 'BloggerPaymentController@index')->name('blogger.payments');
     Route::post('blogger/{blogger}/payments', 'BloggerPaymentController@store')->name('blogger.payments.store');
@@ -2841,14 +2836,14 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('blogger', 'BloggerController');
 
-    Route::post('blogger-contact', ['uses' => 'ContactBloggerController@store', 'as' => 'blogger.contact.store']);
-    Route::put('blogger-contact/{contact_blogger}', ['uses' => 'ContactBloggerController@update', 'as' => 'blogger.contact.update']);
-    Route::delete('blogger-contact/{contact_blogger}', ['uses' => 'ContactBloggerController@destroy', 'as' => 'contact.blogger.destroy']);
+    Route::post('blogger-contact', 'ContactBloggerController@store')->name('blogger.contact.store');
+    Route::put('blogger-contact/{contact_blogger}', 'ContactBloggerController@update')->name('blogger.contact.update');
+    Route::delete('blogger-contact/{contact_blogger}', 'ContactBloggerController@destroy')->name('contact.blogger.destroy');
 
     Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinks');
     Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
-    Route::post('blogger-product-image/{blogger_product}', ['uses' => 'BloggerProductController@uploadImages', 'as' => 'blogger.image.upload']);
-    Route::get('blogger-product-get-image/{blogger_product}', ['uses' => 'BloggerProductController@getImages', 'as' => 'blogger.image']);
+    Route::post('blogger-product-image/{blogger_product}', 'BloggerProductController@uploadImages')->name('blogger.image.upload');
+    Route::get('blogger-product-get-image/{blogger_product}', 'BloggerProductController@getImages')->name('blogger.image');
     Route::resource('blogger-product', 'BloggerProductController');
 });
 
@@ -2859,20 +2854,20 @@ Route::middleware('auth')->group(function () {
 });
 
 // Mailchimp Module
-Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function () {
+Route::middleware('auth')->namespace('Mail')->group(function () {
     Route::get('manageMailChimp', 'MailchimpController@manageMailChimp')->name('manage.mailchimp');
-    Route::post('subscribe', ['as' => 'subscribe', 'uses' => 'MailchimpController@subscribe']);
-    Route::post('sendCompaign', ['as' => 'sendCompaign', 'uses' => 'MailchimpController@sendCompaign']);
+    Route::post('subscribe', 'MailchimpController@subscribe')->name('subscribe');
+    Route::post('sendCompaign', 'MailchimpController@sendCompaign')->name('sendCompaign');
     Route::get('make-active-subscribers', 'MailchimpController@makeActiveSubscriber')->name('make.active.subscriber');
 });
-Route::group(['middleware' => 'auth', 'namespace' => 'marketing'], function () {
+Route::middleware('auth')->namespace('marketing')->group(function () {
     Route::get('test', function () {
         return 'hello';
     });
 });
 
 //Hubstaff Module
-Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function () {
+Route::middleware('auth')->namespace('Hubstaff')->group(function () {
     Route::get('v1/auth', 'HubstaffController@authenticationPage')->name('get.token');
 
     Route::post('user-details-token', 'HubstaffController@getToken')->name('user.token');
@@ -2973,7 +2968,7 @@ Route::middleware('auth')->group(function () {
     Route::get('supplier-scrapping-info', 'ProductController@getSupplierScrappingInfo')->name('getSupplierScrappingInfo');
 });
 //Routes for flows
-Route::group(['middleware' => 'auth', 'prefix' => 'flow'], function () {
+Route::middleware('auth')->prefix('flow')->group(function () {
     Route::get('/list', 'FlowController@index')->name('flow.index');
     Route::get('/conditionlist', 'FlowController@conditionlist')->name('flow.conditionlist');
     Route::get('/conditionliststatus', 'FlowController@conditionListStatus')->name('flow.conditionliststatus');
@@ -2996,7 +2991,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'flow'], function () {
     Route::post('/create/type', 'FlowController@createType')->name('flow-type-create');
 });
 
-Route::group(['middleware' => 'auth', 'admin'], function () {
+Route::middleware('auth')->group([ 'admin'], function () {
     Route::get('category/brand/min-max-pricing', 'CategoryController@brandMinMaxPricing');
     Route::get('category/brand/min-max-pricing-update-default', 'CategoryController@updateMinMaxPriceDefault');
     Route::post('category/brand/update-min-max-pricing', 'CategoryController@updateBrandMinMaxPricing');
@@ -3006,7 +3001,7 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
 });
 
 // pages notes started from here
-Route::group(['middleware' => 'auth'], function () {
+Route::middleware('auth')->group(function () {
     Route::prefix('page-notes')->group(function () {
         Route::post('create', 'PageNotesController@create')->name('createPageNote');
         Route::get('list', 'PageNotesController@list')->name('listPageNote');
@@ -3023,7 +3018,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('notesCreate', 'PageNotesController@notesCreate')->name('notesCreate'); //Purpose : Create Route for Insert Note - DEVTASK-4289
 });
 
-Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'marketing'], function () {
+Route::middleware('auth')->namespace('Marketing')->prefix('marketing')->group(function () {
     // Whats App Config
     Route::get('whatsapp-config', 'WhatsappConfigController@index')->name('whatsapp.config.index');
     Route::get('whatsapp-history/{id}', 'WhatsappConfigController@history')->name('whatsapp.config.history');
@@ -3143,7 +3138,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
 
     Route::post('mailinglist-templates/images_file', 'MailinglistTemplateController@images_file');
 
-    Route::group(['prefix' => 'mailinglist-templates/{id}'], function () {
+    Route::prefix('mailinglist-templates/{id}')->group(function () {
         Route::get('delete', 'MailinglistTemplateController@delete')->name('mailingList-template.delete');
     });
 
@@ -3155,7 +3150,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::post('mailinglist-stats', 'MailinglistEmailController@getStats');
 });
 
-Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function () {
+Route::middleware('auth')->prefix('checkout')->group(function () {
     Route::post('coupons/store', 'CouponController@store')->name('coupons.store');
     Route::post('coupons/{id}', 'CouponController@update');
     Route::get('coupons', 'CouponController@index')->name('coupons.index');
@@ -3198,7 +3193,7 @@ Route::middleware('auth')->group(function () {
     Route::post('attachImages/whatsapp', 'ProductController@sendNowCustomerAttachImages')->name('attachImages.whatsapp');
 });
 
-Route::group(['middleware' => 'auth'], function () {
+Route::middleware('auth')->group(function () {
     Route::prefix('tmp-task')->group(function () {
         Route::get('import-leads', 'TmpTaskController@importLeads')->name('importLeads');
     });
@@ -3332,7 +3327,7 @@ Route::delete('/model/name/delete', 'ModelNameController@destroy')->middleware('
 Route::post('/model/name/edit', 'ModelNameController@edit')->middleware('auth')->name('model.name.edit');
 Route::post('/model/name/update', 'ModelNameController@update')->middleware('auth')->name('model.name.update');
 
-Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], function () {
+Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function () {
     Route::prefix('github')->group(function () {
         Route::get('/repos', 'Github\RepositoryController@listRepositories');
         Route::get('/repos/{name}/users', 'Github\UserController@listUsersOfRepository');
@@ -3362,7 +3357,7 @@ Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], fu
     });
 });
 
-Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], function () {
+Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function () {
     Route::get('/deploy-node', 'Github\RepositoryController@deployNodeScrapers');
 });
 
@@ -3371,7 +3366,7 @@ Route::middleware('auth')->group(function () {
     Route::get('get-language', 'CustomerController@getLanguage')->name('livechat.customer.language');
 });
 
-Route::group(['middleware' => 'auth'], function () {
+Route::middleware('auth')->group(function () {
     Route::get('/calendar', 'UserEventController@index');
     Route::get('/calendar/events', 'UserEventController@list');
     Route::post('/calendar/events', 'UserEventController@createEvent')->name('calendar.event.create');
@@ -3501,7 +3496,7 @@ Route::prefix('digital-marketing')->middleware('auth')->group(function () {
     });
 });
 
-Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function () {
+Route::middleware('auth')->prefix('return-exchange')->group(function () {
     Route::get('/', 'ReturnExchangeController@index')->name('return-exchange.list');
     Route::get('/records', 'ReturnExchangeController@records')->name('return-exchange.records');
     Route::get('/model/{id}', 'ReturnExchangeController@getOrders');
@@ -3539,7 +3534,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function (
 /**
  * Shipment module
  */
-Route::group(['middleware' => 'auth'], function () {
+Route::middleware('auth')->group(function () {
     Route::post('shipment/send/email', 'ShipmentController@sendEmail')->name('shipment/send/email');
     Route::get('shipment/view/sent/email', 'ShipmentController@viewSentEmail')->name('shipment/view/sent/email');
     Route::get('shipment/waybill-track-histories', 'ShipmentController@viewWaybillTrackHistory')->name('shipment/waybill-track-histories');
@@ -3861,11 +3856,11 @@ Route::post('add_content', 'EmailContentHistoryController@store')->name('add_con
 
 // DEV MANISH
 //System size
-Route::group(['middleware' => 'auth', 'admin'], function () {
+Route::middleware('auth')->group([ 'admin'], function () {
     Route::any('/erp-log', 'ErpLogController@index')->name('erp-log');
 });
 
-Route::group(['middleware' => 'auth', 'admin'], function () {
+Route::middleware('auth')->group([ 'admin'], function () {
     Route::any('/database-log', 'ScrapLogsController@databaseLog');
     Route::get('/database-log/enable', 'ScrapLogsController@enableMysqlAccess');
     Route::get('/database-log/disable', 'ScrapLogsController@disableMysqlAccess');
@@ -3924,7 +3919,7 @@ Route::post('product-update', 'product_price\ProductPriceController@updateProduc
 
 // Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 
-Route::group(['middleware' => 'auth', 'admin'], function () {
+Route::middleware('auth')->group([ 'admin'], function () {
     Route::prefix('plan')->group(static function () {
         Route::get('/', 'PlanController@index')->name('plan.index');
         Route::post('/create', 'PlanController@store')->name('plan.store');
@@ -3942,7 +3937,7 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
         Route::post('plan/category/create', 'PlanController@newCategory')->name('plan.create.category');
     });
 });
-Route::group(['middleware' => 'auth'], function () {
+Route::middleware('auth')->group(function () {
     Route::get('/admin-menu/db-query', 'DBQueryController@index')->name('admin.databse.menu.direct.dbquery');
     Route::post('/admin-menu/db-query/get-columns', 'DBQueryController@columns')->name('admin.databse.menu.direct.dbquery.columns');
     Route::post('/admin-menu/db-query/confirm', 'DBQueryController@confirm')->name('admin.databse.menu.direct.dbquery.confirm');
@@ -3957,7 +3952,7 @@ Route::group(['middleware' => 'auth'], function () {
 Route::middleware('auth')->prefix('totem')->group(function () {
     Route::get('/', 'TasksController@dashboard')->name('totem.dashboard');
 
-    Route::group(['prefix' => 'tasks'], function () {
+    Route::prefix('tasks')->group(function () {
         Route::get('/', 'TasksController@index')->name('totem.tasks.all');
         Route::get('{task}', 'TasksController@view')->name('totem.task.view');
         Route::post('{task}/delete', 'TasksController@destroy')->name('totem.task.delete');
@@ -4035,7 +4030,7 @@ Route::get('/hubstuff_activity_command', function () {
     \Artisan::call('HubstuffActivity:Command');
 });
 
-Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'social'], function () {
+Route::middleware('auth')->namespace('Social')->prefix('social')->group(function () {
     Route::get('config', 'SocialConfigController@index')->name('social.config.index');
     Route::post('config/store', 'SocialConfigController@store')->name('social.config.store');
     Route::post('config/edit', 'SocialConfigController@edit')->name('social.config.edit');
