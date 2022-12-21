@@ -18,6 +18,7 @@ use App\SocialStrategy;
 use App\StoreSocialContent;
 use App\Supplier;
 use App\Task;
+use App\TestCase;
 use App\TestSuites;
 use App\Tickets;
 use App\Uicheck;
@@ -115,6 +116,10 @@ class ChatMessagesController extends Controller
                 break;
             case 'bug' :
                 $object = BugTracker::find($request->object_id);
+                //dd($object);
+                break;
+			case 'testcase' :
+                $object = TestCase::find($request->object_id);
                 //dd($object);
                 break;
             case 'testsuites' :
@@ -312,7 +317,7 @@ class ChatMessagesController extends Controller
                     } else {
                         // Check for product
                         if (isset($image->id)) {
-                            $product = DB::table('mediables')->where('mediable_type', 'App\Product')->where('media_id', $image->id)->get(['mediable_id'])->first();
+                            $product = DB::table('mediables')->where('mediable_type', \App\Product::class)->where('media_id', $image->id)->get(['mediable_id'])->first();
 
                             if ($product != null) {
                                 $productId = $product->mediable_id;
@@ -403,7 +408,7 @@ class ChatMessagesController extends Controller
                             } else {
                                 // Check for product
                                 if (isset($image->id)) {
-                                    $product = DB::table('mediables')->where('mediable_type', 'App\Product')->where('media_id', $image->id)->get(['mediable_id'])->first();
+                                    $product = DB::table('mediables')->where('mediable_type', \App\Product::class)->where('media_id', $image->id)->get(['mediable_id'])->first();
 
                                     if ($product != null) {
                                         $parentProductId = $product->mediable_id;
@@ -454,8 +459,8 @@ class ChatMessagesController extends Controller
                     'sop_category' => @$sopdata->category,
                     'sop_content' => @$sopdata->content,
                     'inout' => ($isOut) ? 'out' : 'in',
-                    'sendBy' => ($request->object == 'bug' || $request->object == 'testsuites') ? User::where('id', $chatMessage->sent_to_user_id)->value('name') : (($isOut) ? 'ERP' : $objectname),
-                    'sendTo' => ($request->object == 'bug' || $request->object == 'testsuites') ? User::where('id', $chatMessage->user_id)->value('name') : (($isOut) ? $object->name : 'ERP'),
+                    'sendBy' => ($request->object == 'bug' || $request->object == 'testcase' || $request->object == 'testsuites') ? User::where('id', $chatMessage->sent_to_user_id)->value('name') : (($isOut) ? 'ERP' : $objectname),
+                    'sendTo' => ($request->object == 'bug' || $request->object == 'testcase' || $request->object == 'testsuites') ? User::where('id', $chatMessage->user_id)->value('name') : (($isOut) ? $object->name : 'ERP'),
                     'message' => $textMessage,
                     'parentMessage' => $textParent,
                     'media_url' => $chatMessage->media_url,
