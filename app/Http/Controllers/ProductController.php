@@ -3184,6 +3184,7 @@ class ProductController extends Controller
      */
     public function giveImage(Request $request)
     {
+
         $productId = request('product_id', null);
         $supplierId = request('supplier_id', null);
         if ($productId != null) {
@@ -3204,14 +3205,21 @@ class ProductController extends Controller
             // Add order
             $product = QueryHelper::approvedListingOrder($product);
             //get priority
-            $product = $product->with('suppliers_info.supplier')->whereHas('suppliers_info.supplier', function ($query) {
-                // $query->where('priority','!=',null);
-            })->whereHasMedia('original')->get()->transform(function ($productData) {
-                $productData->priority = isset($productData->suppliers_info->first()->supplier->priority) ? $productData->suppliers_info->first()->supplier->priority : 5;
 
-                return $productData;
-            });
-            $product = $product->sortBy('priority')->first();
+            ///Commented due to query taking long time
+            // $product = $product->with('suppliers_info.supplier')->whereHas('suppliers_info.supplier', function ($query) {
+            //     // $query->where('priority','!=',null);
+            // })->whereHasMedia('original')->get()->transform(function ($productData) {
+            //     $productData->priority = isset($productData->suppliers_info->first()->supplier->priority) ? $productData->suppliers_info->first()->supplier->priority : 5;
+
+            //     return $productData;
+            // });
+            //$product = $product->sortBy('priority')->first();
+            // Comment End  
+
+            $product = $product->first();
+
+
             unset($product->priority);
             // return response()->json([
             //     'status' => $product
