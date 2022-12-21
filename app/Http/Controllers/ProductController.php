@@ -4805,6 +4805,7 @@ class ProductController extends Controller
             ->groupBy('brand', 'category')
             ->limit($limit)
             ->get();
+        \Log::info('Product push star time: '.date('Y-m-d H:i:s'));
         foreach ($products as $key => $product) {
             // Setting is_conditions_checked flag as 1
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
@@ -4814,14 +4815,32 @@ class ProductController extends Controller
                 foreach ($websiteArrays as $websiteArray) {
                     $website = StoreWebsite::find($websiteArray);
                     if ($website) {
+<<<<<<< HEAD
+                        \Log::info('Product started website found For website'.$website->website);
+                        $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'initialization');
+=======
                         \Log::info('Product started website found For website '.$website->website);
                         $log = LogListMagento::log($product->id, 'Start push to magento for product id '.$product->id.' status id '.$product->status_id, 'info', $website->id, 'waiting');
+>>>>>>> master
                         //currently we have 3 queues assigned for this task.
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name, 'success', $website->id, null, null, $log->id, null);
+<<<<<<< HEAD
+                        
+                        try {
+                            PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
+                        } catch (\Exception $e) {
+                            $error_msg = "First Job failed: ".$e->getMessage();
+                            $log->sync_status = 'error';
+                            $log->message = $error_msg;
+                            $log->save();
+                            ProductPushErrorLog::log('', $product->id, $error_msg, 'error', $website->id, null, null, $log->id, null);
+                        }
+=======
 
                         PushToMagento::dispatch($product, $website, $log, $mode)->onQueue($log->queue);
+>>>>>>> master
                         $i++;
                     } else {
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '.$product->name.' website for product not found', 'error', $website->id, null, null, null, null);
@@ -4831,6 +4850,7 @@ class ProductController extends Controller
                 ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
             }
         }
+        \Log::info('Product push end time: '.date('Y-m-d H:i:s'));
 
         if ($mode == 'conditions-check') {
             return response()->json(['code' => 200, 'message' => 'Conditions checked completed successfully!']);
