@@ -100,14 +100,12 @@
         "facade/ignition": "^2.0"
     },
     "autoload": {
-        "classmap": [
-            "database/seeds",
-            "database/factories"
-        ],
         "psr-4": {
             "App\\": "app/",
             "Modules\\": "Modules/",
-            "InstagramAPI\\": "app/Library/mgp25/instagram-php/src"
+            "InstagramAPI\\": "app/Library/mgp25/instagram-php/src",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
             "Modules/BookStack/helpers.php",
