@@ -14,6 +14,7 @@ class CaseReceivable extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="case_id",type="integer")
      * @SWG\Property(property="currency",type="string")
      * @SWG\Property(property="receivable_date",type="datetime")
@@ -31,6 +32,7 @@ class CaseReceivable extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(enum={"model_id", "model_type", "name", "phone", "whatsapp_number", "address", "email"})
      */
     protected $dates = ['deleted_at'];

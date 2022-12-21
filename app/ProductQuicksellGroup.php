@@ -11,6 +11,7 @@ class ProductQuicksellGroup extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="quicksell_group_id",type="integer")
      * @SWG\Property(property="product_id",type="integer")
      * @SWG\Property(property="product_quicksell_groups",type="string")

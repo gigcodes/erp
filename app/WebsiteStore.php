@@ -11,6 +11,7 @@ class WebsiteStore extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="code",type="string")
      * @SWG\Property(property="root_category",type="string")

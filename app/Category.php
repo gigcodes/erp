@@ -28,6 +28,7 @@ class Category extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="id",type="integer")
      * @SWG\Property(property="title",type="string")
      * @SWG\Property(property="parent_id",type="integer")

@@ -13,6 +13,7 @@ class CashFlow extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="cash_flow_category_id",type="integer")
      * @SWG\Property(property="description",type="string")

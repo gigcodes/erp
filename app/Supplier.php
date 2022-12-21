@@ -12,6 +12,7 @@ class Supplier extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="is_updated",type="boolean")
      * @SWG\Property(property="supplier",type="string")
      * @SWG\Property(property="size_system_id",type="integer")

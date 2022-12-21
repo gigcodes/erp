@@ -14,6 +14,7 @@ class PaymentReceipt extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="date",type="datetime")
      * @SWG\Property(property="payment_method_id",type="integer")
      * @SWG\Property(property="worked_minutes",type="integer")

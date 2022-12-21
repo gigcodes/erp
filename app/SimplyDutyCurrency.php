@@ -11,6 +11,7 @@ class SimplyDutyCurrency extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="currency",type="string")
      */
     protected $fillable = ['currency'];

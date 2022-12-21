@@ -13,6 +13,7 @@ class Vendor extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="category_id",type="integer")
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="address",type="string")

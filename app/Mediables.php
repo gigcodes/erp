@@ -11,6 +11,7 @@ class Mediables extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="mediables",type="string")
      */
     public $table = 'mediables';

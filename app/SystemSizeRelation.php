@@ -11,6 +11,7 @@ class SystemSizeRelation extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="system_size",type="string")
      * @SWG\Property(property="system_size_manager_id",type="integer")
      * @SWG\Property(property="size",type="string")

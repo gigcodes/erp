@@ -11,6 +11,7 @@ class MagentoModuleRemark extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="magento_module_id",type="integer")
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="send_to",type="string")

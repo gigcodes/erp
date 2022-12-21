@@ -11,6 +11,7 @@ class SkuFormat extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="brand_id",type="integer")
      * @SWG\Property(property="category_id",type="integer")
      * @SWG\Property(property="sku_format",type="string")

@@ -11,6 +11,7 @@ class ReferFriend extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="referrer_first_name",type="string")
      * @SWG\Property(property="referrer_last_name",type="string")
      * @SWG\Property(property="referrer_email",type="string")

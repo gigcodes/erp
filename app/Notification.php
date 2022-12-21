@@ -13,6 +13,7 @@ class Notification extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="message",type="string")
      * @SWG\Property(property="role",type="string")
 

@@ -11,6 +11,7 @@ class SkuFormatHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="sku_format_id",type="integer")
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="old_sku_format",type="string")

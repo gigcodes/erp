@@ -11,6 +11,7 @@ class Old extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="old",type="string")
      * @SWG\Property(property="serial_no",type="integer")
      * @SWG\Property(property="name",type="string")

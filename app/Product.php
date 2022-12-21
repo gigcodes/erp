@@ -33,6 +33,7 @@ class Product extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="brand",type="string")
      * @SWG\Property(property="category",type="string")

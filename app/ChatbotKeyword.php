@@ -11,6 +11,7 @@ class ChatbotKeyword extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="keyword",type="string")
      * @SWG\Property(property="workspace_id",type="integer")
      */

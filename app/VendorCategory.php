@@ -11,6 +11,7 @@ class VendorCategory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="title",type="string")
      */
     protected $fillable = [

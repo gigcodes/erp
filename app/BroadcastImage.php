@@ -12,6 +12,7 @@ class BroadcastImage extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="sending_time",type="datetime")
      */
     use Mediable;

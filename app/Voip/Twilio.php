@@ -23,6 +23,7 @@ class Twilio extends Model
      * Getting call records
      *
      * @return void
+     *
      * @Rest\Post("twilio/missedCallStatus")
      *
      * @uses Config

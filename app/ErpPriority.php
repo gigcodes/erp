@@ -11,6 +11,7 @@ class ErpPriority extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="model_id",type="string")
      * @SWG\Property(property="user_id",type="string")
      * @SWG\Property(property="model_type",type="string")

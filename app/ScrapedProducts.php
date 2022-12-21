@@ -13,6 +13,7 @@ class ScrapedProducts extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="images",type="string")
      * @SWG\Property(property="properties",type="string")
      * @SWG\Property(property="sku",type="string")

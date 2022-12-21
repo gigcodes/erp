@@ -114,6 +114,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\JsonResponse
+     *
      * @Rest\Post("twilio/token")
      *
      * @uses Auth
@@ -311,6 +312,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio/incoming")
      *
      * @uses Log
@@ -363,6 +365,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio/ivr")
      *
      * @uses Log
@@ -2120,6 +2123,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio/gatherAction")
      *
      * @uses Log
@@ -2175,6 +2179,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio/outgoing")
      *
      * @uses Log
@@ -2405,6 +2410,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio-conference")
      *
      * @uses Log
@@ -2454,6 +2460,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio-conference-mute")
      *
      * @uses Log
@@ -2491,6 +2498,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio-conference-hold")
      *
      * @uses Log
@@ -2528,6 +2536,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio-conference-remove")
      *
      * @uses Log
@@ -2548,6 +2557,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return string
+     *
      * @Rest\Post("twilio/storetranscript")
      *
      * @uses Log
@@ -2574,6 +2584,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Get("twilio/getLeadByNumber")
      *
      * @uses Customer
@@ -2634,6 +2645,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio/recordingStatusCallback")
      *
      * @return void
@@ -2802,6 +2814,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio/handleDialCallStatus")
      *
      * @uses CallHistory
@@ -2886,6 +2899,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio/handleOutgoingDialCallStatus")
      *
      * @uses CallHistory
@@ -2964,6 +2978,7 @@ class TwilioController extends FindByNumberController
      *
      * @param  Request  $request Request
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("twilio/storerecording")
      *
      * @uses CallBusyMessage
@@ -3038,6 +3053,7 @@ class TwilioController extends FindByNumberController
      * Replies with a hangup
      *
      * @return \Illuminate\Http\Response
+     *
      * @Rest\Post("/twilio/hangup")
      */
     public function showHangup(Request $request)

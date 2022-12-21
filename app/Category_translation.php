@@ -11,6 +11,7 @@ class Category_translation extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="category_id",type="integer")
      * @SWG\Property(property="locale",type="string")
      * @SWG\Property(property="title",type="string")

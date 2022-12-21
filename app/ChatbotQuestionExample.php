@@ -13,6 +13,7 @@ class ChatbotQuestionExample extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="question",type="string")
      * @SWG\Property(property="chatbot_question_id",type="integer")
      * @SWG\Property(property="types",type="string")

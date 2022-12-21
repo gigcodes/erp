@@ -22,6 +22,7 @@ class Brand extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="euro_to_inr",type="string")
      * @SWG\Property(property="deduction_percentage",type="integer")
@@ -37,6 +38,7 @@ class Brand extends Model
 
     /**
      * @var string
+     *
      * @SWG\Property(property="deleted_at",type="datetime")
      */
     protected $dates = ['deleted_at'];

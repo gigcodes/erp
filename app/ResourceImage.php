@@ -12,6 +12,7 @@ class ResourceImage extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="cat_id",type="integer")
      * @SWG\Property(property="image1",type="string")
      * @SWG\Property(property="image",type="string")

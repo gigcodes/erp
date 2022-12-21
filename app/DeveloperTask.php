@@ -14,6 +14,7 @@ class DeveloperTask extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="module_id",type="integer")
 

@@ -13,6 +13,7 @@ class ScrapRemark extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="user_name",type="string")
      * @SWG\Property(property="scraper_name",type="string")
      * @SWG\Property(property="remark",type="string")

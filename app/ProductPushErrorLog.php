@@ -11,6 +11,7 @@ class ProductPushErrorLog extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="product_id",type="integer")
      * @SWG\Property(property="url",type="string")
      * @SWG\Property(property="message",type="string")

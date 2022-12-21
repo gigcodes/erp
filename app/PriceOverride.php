@@ -12,6 +12,7 @@ class PriceOverride extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="store_website_id",type="integer")
      * @SWG\Property(property="brand_id",type="integer")
      * @SWG\Property(property="brand_segment",type="string")

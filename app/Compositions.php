@@ -12,6 +12,7 @@ class Compositions extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="replace_with",type="string")
      */
