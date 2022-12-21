@@ -12,6 +12,6 @@ class PaymentReceiptSeeder extends Seeder
      */
     public function run()
     {
-        factory(PaymentReceipt::class, 10000)->create();
+        PaymentReceipt::factory()->count(10000)->create();
     }
 }

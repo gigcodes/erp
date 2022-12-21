@@ -130,7 +130,7 @@ class UserTableSeeder extends Seeder
      */
     private function createUser($role)
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         $user->assignRole('Admin');
 
         // if( $role->name == 'Admin' ) {

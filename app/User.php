@@ -5,6 +5,7 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Hubstaff\HubstaffActivity;
 use App\Hubstaff\HubstaffPaymentAccount;
 use Cache;
@@ -18,6 +19,8 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
+    use HasFactory;
+
     /**
      * @var string
      *
