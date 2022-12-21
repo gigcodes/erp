@@ -82,17 +82,9 @@ class PushToMagento implements ShouldQueue
                 $charity = 1;
             }
         }
-        \Log::info('entered to job!');
         try {
-            \Log::info('entered to try catch!');
-            \Log::info('TopParent:' . $topParent);
-            \Log::info('conditions:'. json_encode($conditions));
-            \Log::info('upteamconditions:'. json_encode($upteamconditions));
-            //$jobId = app(JobRepository::class)->id;
             if ((in_array('status_condition', $conditions) && $topParent == 'NEW') || ($topParent == 'PREOWNED' && in_array('status_condition', $upteamconditions))) {
-                \Log::info('passes first condition NEW/PREOWNED!');
                 if ($product->status_id == StatusHelper::$finalApproval) {
-                    \Log::info('Status id is final approval(9)');
                     if ($this->log) {
                         $this->log->sync_status = 'condition_checking';
                         $this->log->message = 'Product has been started to check conditions.';
@@ -215,7 +207,8 @@ class PushToMagento implements ShouldQueue
                     }
                 }
             } else {
-                \Log::info("Failed condition: (in_array('status_condition') && == 'NEW') ||  == 'PREOWNED' && in_array('status_condition',))");
+                $errorMessage = "Either one of the following condition failed: Top parent is NEW and status_condition exists in ". json_encode($conditions). " || Top parent is PREOWNED and status_condition exists in upteamconditions";
+                ProductPushErrorLog::log('', $product->id, $errorMessage, 'error', $website->id, null, null, $this->log->id, null);
             }
         } catch (\Exception $e) {
             if ($this->log) {
