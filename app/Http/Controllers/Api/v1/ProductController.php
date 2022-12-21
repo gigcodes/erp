@@ -79,6 +79,8 @@ class ProductController extends Controller
                     } elseif ($cancellationType == 'products') {
                         $skus = explode(',', rtrim($request->product_sku, ','));
                         $orderProducts = OrderProduct::where('order_id', '=', $request->order_id)->whereIn('sku', $skus)->get();
+                    }else{
+                        $orderProducts = [];
                     }
                     if (count($orderProducts) > 0) {
                         $results = [];
